@@ -44,11 +44,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged GREEN, with the RED proven for THIS assertion set (answers F-001). GREEN: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exits 0 with all five ok lines. RED: surgically revert ONLY the digest basis hunk in convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, re-run -- build emits no errors, the smoke exits 1 emitting ZERO 'ok CHK' lines and fails at the first assertion 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Restore, rebuild, re-run: exit 0. After restore 'git diff packages/main/src/core/convergence-breaker.ts' is EMPTY, so the RED tree differed from the committed GREEN tree only by that hunk. Behavioural failure, not a missing-symbol compile error: the smoke imports only pre-existing exports.",
-          "headHash": "7722491e5f7717c26be37b552880f80a81c28caa",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:29:00.398Z"
+          "note": "Re-captured at the final code state (F-006). GREEN: the smoke exits 0 with all five ok lines. RED proven for this assertion set by reverting only the digest basis hunk (exit 1, zero ok lines, AssertionError CHK-001:happy:0 distinct blockers must not share a key); independently reproduced by lattice-review-test-coverage in RR-004 and RR-006.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.825Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -57,11 +57,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged GREEN, with the RED proven for THIS assertion set (answers F-001). GREEN: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exits 0 with all five ok lines. RED: surgically revert ONLY the digest basis hunk in convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, re-run -- build emits no errors, the smoke exits 1 emitting ZERO 'ok CHK' lines and fails at the first assertion 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Restore, rebuild, re-run: exit 0. After restore 'git diff packages/main/src/core/convergence-breaker.ts' is EMPTY, so the RED tree differed from the committed GREEN tree only by that hunk. Behavioural failure, not a missing-symbol compile error: the smoke imports only pre-existing exports.",
-          "headHash": "c8caad82cf85ffa1acc1a77fd4a087229ac4c532",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:29:01.333Z"
+          "note": "Re-captured at the final code state (F-006). GREEN: the smoke exits 0 with all five ok lines. RED proven for this assertion set by reverting only the digest basis hunk (exit 1, zero ok lines, AssertionError CHK-001:happy:0 distinct blockers must not share a key); independently reproduced by lattice-review-test-coverage in RR-004 and RR-006.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -70,11 +70,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged GREEN, with the RED proven for THIS assertion set (answers F-001). GREEN: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exits 0 with all five ok lines. RED: surgically revert ONLY the digest basis hunk in convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, re-run -- build emits no errors, the smoke exits 1 emitting ZERO 'ok CHK' lines and fails at the first assertion 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Restore, rebuild, re-run: exit 0. After restore 'git diff packages/main/src/core/convergence-breaker.ts' is EMPTY, so the RED tree differed from the committed GREEN tree only by that hunk. Behavioural failure, not a missing-symbol compile error: the smoke imports only pre-existing exports.",
-          "headHash": "d0d6a7b888b6acb5b1bcb05e2b78a4fc9a17a49f",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:29:02.188Z"
+          "note": "Re-captured at the final code state (F-006). GREEN: the smoke exits 0 with all five ok lines. RED proven for this assertion set by reverting only the digest basis hunk (exit 1, zero ok lines, AssertionError CHK-001:happy:0 distinct blockers must not share a key); independently reproduced by lattice-review-test-coverage in RR-004 and RR-006.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -83,11 +83,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged GREEN, with the RED proven for THIS assertion set (answers F-001). GREEN: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exits 0 with all five ok lines. RED: surgically revert ONLY the digest basis hunk in convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, re-run -- build emits no errors, the smoke exits 1 emitting ZERO 'ok CHK' lines and fails at the first assertion 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Restore, rebuild, re-run: exit 0. After restore 'git diff packages/main/src/core/convergence-breaker.ts' is EMPTY, so the RED tree differed from the committed GREEN tree only by that hunk. Behavioural failure, not a missing-symbol compile error: the smoke imports only pre-existing exports.",
-          "headHash": "e3054ac755b0ea08773219689b8ed58717bd3b52",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:29:03.038Z"
+          "note": "Re-captured at the final code state (F-006). GREEN: the smoke exits 0 with all five ok lines. RED proven for this assertion set by reverting only the digest basis hunk (exit 1, zero ok lines, AssertionError CHK-001:happy:0 distinct blockers must not share a key); independently reproduced by lattice-review-test-coverage in RR-004 and RR-006.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -96,11 +96,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged GREEN, with the RED proven for THIS assertion set (answers F-001). GREEN: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exits 0 with all five ok lines. RED: surgically revert ONLY the digest basis hunk in convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, re-run -- build emits no errors, the smoke exits 1 emitting ZERO 'ok CHK' lines and fails at the first assertion 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Restore, rebuild, re-run: exit 0. After restore 'git diff packages/main/src/core/convergence-breaker.ts' is EMPTY, so the RED tree differed from the committed GREEN tree only by that hunk. Behavioural failure, not a missing-symbol compile error: the smoke imports only pre-existing exports.",
-          "headHash": "beb6766a88d58eec1577e133399e580ec3fa8ff4",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:29:03.875Z"
+          "note": "Re-captured at the final code state (F-006). GREEN: the smoke exits 0 with all five ok lines. RED proven for this assertion set by reverting only the digest basis hunk (exit 1, zero ok lines, AssertionError CHK-001:happy:0 distinct blockers must not share a key); independently reproduced by lattice-review-test-coverage in RR-004 and RR-006.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         }
       ],
       "files": {
@@ -174,11 +174,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:47.882Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -187,11 +187,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:48.146Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -200,11 +200,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:48.351Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -213,11 +213,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:48.551Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -226,11 +226,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:48.744Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -239,11 +239,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:48.942Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -252,11 +252,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:49.146Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -265,11 +265,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:49.349Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -278,11 +278,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
-          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:49.551Z"
+          "note": "Re-captured at the final code state (F-006). Distinct gap sets key differently while volatile-token, whitespace, digit-only and ordinary-bracketed-word deltas still collapse; the F-002 regression assertion is labelled CHK-002:adversarial:2 and the key-separation one CHK-002:happy:0.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         }
       ],
       "files": {
@@ -352,11 +352,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:50.766Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -365,11 +365,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:51.145Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -378,11 +378,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:51.423Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -391,11 +391,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:51.748Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -404,11 +404,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:52.068Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -417,11 +417,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:52.310Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -430,11 +430,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:52.580Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -443,11 +443,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk003() group: >= threshold is inclusive, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
-          "headHash": "9294b7729f597565371399aef08535e008769a29",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:52.791Z"
+          "note": "Re-captured at the final code state (F-006). Inclusive >= threshold, env 0 rejected and ceiling accepted, malformed prior state never yields proceed, freeze text names the counter and the recovery command.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         }
       ],
       "files": {
@@ -513,11 +513,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
-          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:54.119Z"
+          "note": "Re-captured at the final code state (F-006). A tripped breaker never returns proceed; a tampered counter or cleared state cannot suppress a fresh trip; finding.ts stays protected and untouched; a loop carrying varying ordinary bracketed words still reaches the threshold (F-002 regression, labelled CHK-004:happy:0).",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -526,11 +526,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
-          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:54.347Z"
+          "note": "Re-captured at the final code state (F-006). A tripped breaker never returns proceed; a tampered counter or cleared state cannot suppress a fresh trip; finding.ts stays protected and untouched; a loop carrying varying ordinary bracketed words still reaches the threshold (F-002 regression, labelled CHK-004:happy:0).",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -539,11 +539,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
-          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:54.572Z"
+          "note": "Re-captured at the final code state (F-006). A tripped breaker never returns proceed; a tampered counter or cleared state cannot suppress a fresh trip; finding.ts stays protected and untouched; a loop carrying varying ordinary bracketed words still reaches the threshold (F-002 regression, labelled CHK-004:happy:0).",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -552,11 +552,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
-          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:55.014Z"
+          "note": "Re-captured at the final code state (F-006). A tripped breaker never returns proceed; a tampered counter or cleared state cannot suppress a fresh trip; finding.ts stays protected and untouched; a loop carrying varying ordinary bracketed words still reaches the threshold (F-002 regression, labelled CHK-004:happy:0).",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -565,11 +565,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
-          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:55.376Z"
+          "note": "Re-captured at the final code state (F-006). A tripped breaker never returns proceed; a tampered counter or cleared state cannot suppress a fresh trip; finding.ts stays protected and untouched; a loop carrying varying ordinary bracketed words still reaches the threshold (F-002 regression, labelled CHK-004:happy:0).",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -578,11 +578,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
-          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:55.755Z"
+          "note": "Re-captured at the final code state (F-006). A tripped breaker never returns proceed; a tampered counter or cleared state cannot suppress a fresh trip; finding.ts stays protected and untouched; a loop carrying varying ordinary bracketed words still reaches the threshold (F-002 regression, labelled CHK-004:happy:0).",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -591,11 +591,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
-          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:56.096Z"
+          "note": "Re-captured at the final code state (F-006). A tripped breaker never returns proceed; a tampered counter or cleared state cannot suppress a fresh trip; finding.ts stays protected and untouched; a loop carrying varying ordinary bracketed words still reaches the threshold (F-002 regression, labelled CHK-004:happy:0).",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         }
       ],
       "files": {
@@ -665,11 +665,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:57.495Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -678,11 +678,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:57.707Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -691,11 +691,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:57.940Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -704,11 +704,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:58.160Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -717,11 +717,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:58.372Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -730,11 +730,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:58.598Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -743,11 +743,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:58.809Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         },
         {
           "intentRef": "CHK-005:adversarial:2",
@@ -756,11 +756,11 @@
           "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
-          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
-          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
-          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:18:59.016Z"
+          "note": "Re-captured at the final code state (F-006). Fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "e271faea172e098d1dc4ef52a2d5c4cd8fb29f1c",
+          "materialHash": "4764111cd29c2cc0804ef38d5fe7390b78ad73799aec7e6817a1036ccbcb751a",
+          "storyFilesHash": "466b472d3ff2b0a0ce6a4e9dfbcd81702a05496f609f11cc612a41233049e91f",
+          "timestamp": "2026-07-24T01:16:20.826Z"
         }
       ],
       "files": {
