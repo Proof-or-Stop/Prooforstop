@@ -79,6 +79,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/validate.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ]
       }
     }
   ]
