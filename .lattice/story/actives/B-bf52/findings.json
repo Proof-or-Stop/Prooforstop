@@ -295,7 +295,7 @@
       "desc": "CHK-004:edge:0 and CHK-004:adversarial:0 verificationEvidence (checklist.json) claim the 24-case matrix and its nine revert-proofs comprehensively guard the must-still-collapse direction ('proving the breaker keeps catching a genuine repeat'; 'each leaving all other cases passing'), but this is not true against the exact code at the current HEAD: B-bf52:F-016 (open, unresolved, filed by lattice-review-quality at RR-014 against the same head 68f2fabbe9/material 141ee128..., code unchanged since) shows the hex rule (convergence-breaker.ts:556) lacks the (?<!\\d\\.)/(?!\\.\\d) dot-adjacency lookarounds that the duration rule (:588) and number rule (:612) both carry, so a free-standing decimal or duration whose integer part is >=7 digits gets split across the hex and duration/number rules and fails to collapse. Independently reproduced against packages/main/dist/core/convergence-breaker.js: gateFailureDigest(\"story_advance\",\"heartbeat 123456.5ms ago\") !== gateFailureDigest(\"story_advance\",\"heartbeat 1234567.5ms ago\") (both pure wall-clock noise, must collapse per the duration rule's own stated purpose, but do not), and gateFailureDigest(\"story_advance\",\"attempt 41.5 failed\") !== gateFailureDigest(\"story_advance\",\"attempt 1234567.5 failed\") (same asymmetry on the plain number rule). None of the 24 matrix cases in convergence-breaker-smoke.ts exercise a free-standing decimal/duration with a >=7-digit integer part (the only hex-adjacent must-differ case, identifier-attached-long-decimal, is hyphen-attached, not free-standing), so the gap is real and untested. This is the same under-collapse failure class (a genuine retry mints a fresh key and gate-repeat never reaches 2, so assessBreaker never trips) that F-007/F-015 were filed to fix, now open a third time under F-016 for the newly-introduced hex/duration-number lookaround asymmetry. Until F-016 is fixed AND a matrix case is added to guard it, CHK-004's completeness claim in its own verificationEvidence is overstated, and the round-3 re-recording (all 19 entries otherwise verified accurate and reproducible against the current code) is not yet safe to pass on the coverage dimension.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T02:01:17.358Z",
@@ -303,7 +303,11 @@
       "reviewRunId": "B-bf52:RR-011",
       "_hash": "40c3a62d32fc5e321941e12b5c9a6a736df83bff7d68e9ad535feca423e71f47",
       "signatureTag": "missing|unknown|edge-adversarial-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The underlying gap F-017 depends on (F-016) is fixed and is now exercised: must-still-collapse case decimal-duration-straddling-hash-threshold covers a free-standing decimal whose integer part crosses the 7-character threshold, which no case previously did. The matrix is no longer the 24 cases and 9 revert-proofs this finding assessed: it is 15 must-differ plus 15 must-still-collapse, and 14 surgical reverts were executed against the built smoke, each failing exactly its tagged subset. CHK-004 verificationEvidence must be re-recorded to those numbers before this resolution is complete; that is a main-agent write and is deliberately not performed from the implementer lane.",
+      "resolvedAt": "2026-07-24T02:32:23.613Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-018",
