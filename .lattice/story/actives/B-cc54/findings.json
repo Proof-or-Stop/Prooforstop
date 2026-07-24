@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:497 extractGateBlockSignals bracket regex /\\[([a-z][a-z0-9_]{3,})\\]/g is NOT a bounded reason-code vocabulary despite the doc comment at :488-492 claiming it is — it matches ANY bracketed lowercase word of 4+ letters (e.g. [note], [info], [todo], [warn]), not just structured identifiers like [missing_scope_boundary]. This REGRESSES the fail-closed property the story exists to protect: for a >200-char reason where a genuinely-identical repeated blocker differs only in an incidental bracketed annotation word beyond char 200 (plausible real text, e.g. log-style tags), the OLD code correctly collapsed all three into one key (it discarded everything past char 200), but the NEW code splits them into three distinct keys because each incidental word becomes a \"signal\". Verified empirically: gateFailureDigate(story_advance, banner+\"see [note] for context.\") vs banner+\"see [info] for context.\" vs banner+\"see [todo] for context.\" (banner=252 chars of realistic ProofStory-style text) produced THREE different digests, whereas the pre-fix normalization+truncation produced the SAME prefix for all three. A genuinely stuck loop whose reason text happens to include any varying bracketed common word would now silently escape the breaker (never accumulate to threshold), reintroducing exactly the invisible-unbounded-loop failure this story is meant to close. None of the CHK-001..CHK-005 smoke fixtures exercise plain-English bracketed words (they only use realistic missing_/invalid_-style identifiers or crafted zzz_ tokens), so this overmatch is untested. Severity high because it can silently defeat the anti-loop breaker for realistic reason text.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T00:29:18.229Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-cc54:RR-002",
       "_hash": "fab1d2fb1b388afb9be02d52f94c13feaed3391cd62a3ad4f15754c0ed5acb1f",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed real and fixed. The bracket pattern now requires at least one underscore, excluding note/info/todo/warn style annotations while keeping every real multi-word reason code. The smoke adds the reviewer's exact scenario: four reasons differing only by a varying plain bracketed word must share ONE key and must still reach the trip threshold, while missing_scope_boundary vs missing_execution_boundary stay distinguishable. RED proven with the current assertions: reverting only the pattern fails that assertion at exit 1 on a clean build; restoring returns exit 0. convergence-breaker-smoke still passes.",
+      "resolvedAt": "2026-07-24T00:46:42.698Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cc54:F-003",
