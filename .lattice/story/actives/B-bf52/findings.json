@@ -104,6 +104,21 @@
       "_hash": "2e6dbcdafe7f416e9d64d0a576c2df1c7cf3f0fef266445c7531c1b13118df8e",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-008",
+      "desc": "packages/main/src/tasks/convergence-breaker-smoke.ts userSees text for CHK-002 and CHK-003 (and to a lesser extent CHK-001) describes prose that a human reading the console output would supposedly see (e.g. CHK-002 userSees: the smoke prints passing checks stating that DEV/REVIEW and DEV/TEST digest differently...and that the same lock path under /Users and under /private/var still digests identically; CHK-003 userSees: a passing check stating that a rejection naming CHK-001 and one naming CHK-002 digest differently). I ran node packages/main/dist/tasks/convergence-breaker-smoke.js and the actual printed lines for these cases are terse machine-readable tags with no literal mention of the compared values, e.g. `  must-differ         phase-pair [guard: path-rule] keys=2 counter=1 breaker=proceed` and `  must-differ         checklist-ordinal [guard: digit-rule] keys=2 counter=1 breaker=proceed` and `  must-still-collapse machine-absolute-path [guard: collapse-lane] keys=1 counter=2 breaker=trips`. The literal strings DEV/REVIEW, DEV/TEST, /Users, /private/var, CHK-001, CHK-002 never appear anywhere in the printed output -- only abstract case-name tags (phase-pair, machine-absolute-path, checklist-ordinal) do, and a reader would have to open the source file to learn which literal values each tag represents. The functional claim (keys differ / collapse, counter value) IS correctly proven, but the userSees text overstates what the printed output literally states, describing prose sentences that do not appear on screen. CHK-004s userSees (\"lists the must-differ and must-still-collapse digest cases by name, each reporting the resulting gate-failure counter value\") is accurate and matches the real output. Suggest tightening CHK-001/002/003 userSees to describe the actual tag+keys/counter/breaker format rather than implying literal value names are printed.",
+      "severity": "medium",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-24T00:04:37.145Z",
+      "reviewRound": "2026-07-23T23:22:59.637Z",
+      "reviewRunId": "B-bf52:RR-003",
+      "_hash": "a0d80a2aad70547ce20b605bf8d3831448eaa5d1ceecd2870e3b6fa8cb480936",
+      "signatureTag": "happy|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
