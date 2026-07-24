@@ -686,6 +686,27 @@
         "scanEscalationReason": null
       },
       "_hash": "37a8cb0af28c686975237dfb552204a9e033e39f75209665d1996445c7ceca3f"
+    },
+    {
+      "id": "B-f824:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 re-verification of F-002/F-003 fix (commit 592304c309): both new AST checks confirmed sound against fresh defeat constructions, isolated and end-to-end; npm run test:process-fact-contract green on real code.",
+      "createdAt": "2026-07-24T04:08:35.199Z",
+      "reviewRound": "2026-07-24T04:05:51.059Z",
+      "reviewRunId": "B-f824:RR-025",
+      "envelopeId": "bdb606b6b6aa8a3eb9c3e11ba63e13192c4ca14da3e26f3e48f2734997ea0e2d",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f276f2c00667281f6e0b60caf8ece7a79888a72fd5c2bc8fbd612a819b18304e"
     }
   ]
 }
