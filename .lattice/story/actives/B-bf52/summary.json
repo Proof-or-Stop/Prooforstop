@@ -4,8 +4,8 @@
   "usage": "No user-facing command. The convergence breaker is internal: gateFailureDigest(command, reason) keys the per-story gate-failure counter. Run node packages/main/dist/tasks/convergence-breaker-smoke.js for the case matrix, and node packages/main/tests/red/red-s3-differential-probe.mjs <fresh-main-dist> to compare this build against main.",
   "expectedOutcome": "Two false-freeze classes that main mints one key for stop being conflated: a story whose gate rejection names DEV/REVIEW then DEV/TEST, or src/core/alpha.ts then src/core/beta.ts, now gets distinct keys and is not frozen as a repeat. A genuine repeat of the same failure, and every ambiguous bare identifier, still collapses so the brake still trips.",
   "actualTranscript": "convergence-breaker-smoke.js prints its must-differ cases at keys=2 counter=1 breaker=proceed and its must-still-collapse cases at keys=1 counter=2 breaker=trips, exit 0. The RED harness passes on this branch and fails against a freshly built main on exactly the delivered classes. The differential probe reports zero pairs where this build collapses what main distinguishes.",
-  "outcomeDiff": "Delivered less than the original checklist asked. CHK-002 and CHK-004 landed in full. CHK-001 landed in the bounded form only: the primary C1 fix was delivered on main by sibling story B-cc54, which this branch adopts unchanged, and this story contributes the signals-conditional prefix. CHK-003 did not land and was proven undeliverable from message text alone, with an operator-confirmed scope shrinkage recorded; see limitations.",
-  "acceptanceVerdict": "partial",
+  "outcomeDiff": "After the operator-confirmed scope shrinkage that removes CHK-003 from the acceptance basis, no delivery gap is left: every remaining milestone is met. CHK-002 and CHK-004 landed in full. CHK-001 user-visible outcome, the C1 false-freeze class no longer minting one key per story, is true on the shipped tree; its primary fix was delivered on main by sibling story B-cc54 which this branch adopts unchanged, and this story adds the signals-conditional prefix. CHK-003 is the removed milestone, withdrawn because it was proven undeliverable from message text alone. Verdict is accepted for the reduced scope, the reduction fully accounted for by the confirmed shrinkage.",
+  "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 142477
+      "durationMs": 215441
     }
   },
-  "totalDurationMs": 77388454,
+  "totalDurationMs": 77461418,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-24T20:01:20.256Z",
-  "updatedAt": "2026-07-24T20:01:20.256Z"
+  "updatedAt": "2026-07-24T20:02:33.221Z"
 }
