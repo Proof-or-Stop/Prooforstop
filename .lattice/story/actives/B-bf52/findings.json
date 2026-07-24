@@ -477,7 +477,7 @@
       "desc": "Round-4's central premise (\"(attempt N) has NO producer anywhere in this repo... exists only as the smoke's own invented fixture\", convergence-breaker.ts:530-536,661-662 and plan.md sec 2.2) was validated only against this branch's own stale merge-base, not against current main. This worktree branched 98 commits before B-cc54 (commits d07885e8c8..7db9b3bd1d, merged bdca6ae59c) landed on main, which ALREADY fixed the identical C1 defect class (200-char truncation collapsing different ProofStory DEV-gate rejections) via a different mechanism: extractGateBlockSignals (main repo convergence-breaker.ts:504-541) folds structurally-extracted bracketed/snake_case gap-id signals into the hash basis alongside the still-truncated 200-char prefix. B-cc54's OWN dedicated regression suite, packages/main/src/tasks/gate-repeat-block-smoke.ts (main repo, NOT present in this branch, wired as a doneRequiredCommand at lattice.config.json:95 validate.commands), asserts at CHK-001:adversarial:0 (lines 151-155) that GATE-blocked-at-path-ISO-id-hex-attempt-7 and the same string with attempt-91 MUST digest identically (comment: volatile-token noise must still collapse) -- i.e. main's already-DONE, already-shipped behavior treats a bare attempt-counter as noise that collapses, directly contradicting round-4's premise that this shape has no real stakeholder. VERIFIED by direct reproduction: copied gate-repeat-block-smoke.ts into this worktree, built cleanly (no compile errors -- extractGateBlockSignals is not imported elsewhere), and ran it against this story's round-4 gateFailureDigest -- it CRASHES with an uncaught AssertionError at CHK-001:adversarial:0 (actual story_advance/3e5b2a23a3d9 vs expected story_advance/51cd2e515802), reproduced twice under verified clean-tree conditions. Separately, running tmp/s3-red/red-s3-digest-collapse.mjs against the CURRENT main repo dist (proofbound/packages/main/dist, the true pre-merge baseline, not this branch stale merge-base) gives 4/9 FAIL (C2,C3,C4,K1b), not the 6/9 the story baseline narrative assumes, because B-cc54 signal extraction already independently fixes the C1a/C1b cases this story also targets. Consequence: this branch cannot cleanly merge into main (git 3-way merge on convergence-breaker.ts conflicts, both sides rewrote the same function region), and whichever resolution is chosen must reconcile with B-cc54's shipped, doneRequiredCommand-gated regression suite -- a reconciliation never evaluated across any of the 4 review rounds; background.md and plan.md never mention B-cc54. This is not a request to keep the deleted bare-number rule; the story's deciding evidence (no real producer) is empirically false once measured against current main, and merging as-is breaks an existing passing DONE-gate test.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-24T02:50:42.026Z",
@@ -490,7 +490,9 @@
         "tmp/s3-red/red-s3-digest-collapse.mjs"
       ],
       "signatureTag": "missing|ts|round-central-premise",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T03:30:17.327Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-027",
