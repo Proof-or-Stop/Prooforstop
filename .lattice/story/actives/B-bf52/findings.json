@@ -376,7 +376,7 @@
       "desc": "cross-host (codex-cli host-B round 3), recorded by the main agent: matrix case identifier-attached-long-decimal is tagged solely hex-rule-overreach but also depends on the number rule staying narrow. Restoring the former unconditional digit rewrite makes it fail alongside the four correctly-tagged digit-rule-overreach cases, so the matrix invariant that guardedBy names the rule whose mutation makes a case fail is untrue for this case and can send a maintainer to the wrong rule.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T02:02:50.672Z",
@@ -386,7 +386,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved and independently verified. The dual dependence this finding reported disappeared with the number rule: with that rule deleted, identifier-attached-long-decimal still passes, so the dependence was never load-bearing. The case is retagged from hex-rule-overreach to attached-hash-overreach, which is now the tightest available name for it — dropping the new attached-hash rules a-f LETTER requirement collapses worker-1721775600 and fails THIS CASE AND NOTHING ELSE, revert-proved against the built smoke. The residual same-direction overlap is stated in the case comment rather than hidden: it fails equally if the free-standing hash rules (?<![\\w-]) anchor is dropped, and reintroducing the unconditional /\\d+/g fails it alongside the four digit-rule-overreach cases, which is the same-direction overlap the matrix header already documents as acceptable.",
+      "resolvedAt": "2026-07-24T02:32:29.044Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-022",
