@@ -466,8 +466,11 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
  * B-bf52 CHK-001: hashing is length-agnostic, so truncating buys the digest
  * nothing. The former 200-character cut landed INSIDE the fixed header of a real
  * DEV-gate rejection (machine.ts's preamble plus
- * renderProofStoryDiagnosticReport, whose header alone is 244 normalized
- * characters), so every rejection for one story collapsed to one key no matter
+ * renderProofStoryDiagnosticReport, whose preamble plus six header lines MEASURE
+ * 257 normalized characters, and 433 by the point the first gap row begins in a
+ * typical two-trigger report — both figures measured against this normalizer,
+ * not asserted; F-018 corrects an earlier "244" that was never measured), so
+ * every rejection for one story collapsed to one key no matter
  * which gaps were outstanding — reading incremental progress as one gate failing
  * repeatedly. What remains is a pure sanity bound, applied to the raw input so a
  * pathological reason (an embedded transcript or stack trace) cannot make the
@@ -507,53 +510,107 @@ function boundReasonForDigest(reason: string): string {
  *
  * The command name is kept verbatim; the error message is normalized so two
  * rejections differing only in INCIDENTAL detail collapse to one key while
- * substantively different rejections keep separate keys. The normalization is
- * deliberately narrow and each rule's exact scope is load-bearing (B-bf52):
+ * substantively different rejections keep separate keys.
  *
- *  - `0x…` values, FREE-STANDING hex ids/hashes of 7+ digits and ISO-8601
- *    timestamps → `#`. The hex rule carries the same identifier-attachment
- *    protection as the number rule below, because decimal digits are a SUBSET
- *    of hex digits: without it, `session-1234567` and `worker-1721775600` are
- *    eaten by this earlier rule before the number rule ever sees them (F-014).
- *  - ABSOLUTE paths only, and only at a token start (string start, or after
- *    whitespace, quote, paren, bracket, `:`, `=` or `,`): POSIX `/…` and Windows
- *    `c:\…`. A relative repo path (`src/core/alpha.ts`) and a mid-token slash
- *    (`DEV/REVIEW`) are deliberately LEFT ALONE — they name WHAT failed, and
- *    rewriting them collapsed two different failures into one key.
- *  - durations and sizes written as a number with a unit suffix (`45s`, `8m`,
- *    `2h`, `1.5ms`, `12kb`) → `#`. Heartbeat and lock-contention ages are pure
- *    wall-clock noise that changes on essentially every retry, so leaving them
- *    in would mint a fresh key per retry and the breaker would never fire.
- *  - STANDALONE numbers only (`attempt 41`, `pid 4821`, `3>=2`, `-19`, `3.5`,
- *    and the same at the end of a sentence: `exceeded 19.`) → `#`. A digit run
- *    attached to an identifier by a word character or a hyphen (`CHK-001`,
- *    `B-bf52`, `round-2`) is part of that identifier's NAME and is preserved,
- *    and so is a digit run whose dot is INTERNAL to a longer numeric sequence
- *    (`v0.3.229`, `1.2.3`) — but a dot that merely ENDS a sentence is not a
- *    protective character (F-015).
+ * THE GOVERNING POLICY (B-bf52, adopted in review round 4 after three rounds of
+ * oscillation): normalize ONLY provably-volatile SHAPES, and leave every
+ * ambiguous bare number alone.
+ *
+ * The oscillation is the evidence for that policy. Rounds 1-3 tried to decide,
+ * per case, whether a bare number was substantive or volatile. Every narrowing
+ * produced a case where the breaker silently NEVER TRIPS (F-007 unit-suffixed
+ * durations, F-015 sentence-final numbers, F-019 review-run ids, F-022
+ * ppid-derived session ids); every widening produced a case where two
+ * SUBSTANTIVELY different failures falsely FREEZE a story (F-002 dotted
+ * versions, F-014 identifier-attached decimals, F-020 ports, percentages and
+ * decimal thresholds in real test output). That is structural, not a sequence of
+ * near misses: in free text a bare number is not syntactically decidable —
+ * `CHK-002` versus `RR-002`, `attempt 3` versus `port 3000` are the same shape.
+ *
+ * The tie is broken by which direction has a real producer. `(attempt N)`, the
+ * volatile bare counter the general number rule existed to absorb, appears
+ * NOWHERE in this repo outside the smoke's own invented fixture. F-020's shapes
+ * are real and reachable: `test-evidence` output is interpolated VERBATIM into a
+ * `story_advance` DONE rejection (core/machine.ts, `Cannot enter DONE: test
+ * ${result}: ${output}`), so `connection to localhost:3000 refused` versus
+ * `:4000` are two different validation failures that a bare-number rule reads as
+ * one gate failing twice — the exact defect this story exists to remove. Failing
+ * toward "distinct" therefore fails toward never falsely freezing, which is this
+ * story's purpose, and runaway retries remain separately covered by the
+ * burn-alert system.
+ *
+ * The rule chain, in order:
+ *
+ *  1. `0x…` values → `#`.
+ *  2. ATTACHED hashes: a hyphen/underscore-attached run of 7+ hex characters
+ *     that contains at least one a-f LETTER → `#`. A letter-bearing hex run is
+ *     provably a digest, never a human ordinal, so `sess-d7efe197b316c43a`
+ *     collapses (F-022) while `session-1234567` stays distinct (F-014).
+ *  3. FREE-STANDING hashes: a run of 7+ hex characters attached to nothing →
+ *     `#`, with dot-adjacency excluded so it cannot bite a chunk out of a
+ *     decimal (F-016).
+ *  4. ISO-8601 timestamps → `#`.
+ *  5. ABSOLUTE paths only, and only at a token start (string start, or after
+ *     whitespace, quote, paren, bracket, `:`, `=` or `,`): Windows `c:\…` then
+ *     POSIX `/…`. A relative repo path (`src/core/alpha.ts`) and a mid-token
+ *     slash (`DEV/REVIEW`) are deliberately LEFT ALONE — they name WHAT failed.
+ *  6. Durations and sizes written as a number WELDED TO A UNIT (`45s`, `8m`,
+ *     `2h`, `1.5ms`, `12kb`) → `#`. A unit suffix is what makes the number
+ *     provably volatile: heartbeat and lock-contention ages are wall-clock noise
+ *     that moves on every retry, so leaving them in mints a fresh key per retry
+ *     and the breaker never fires (F-007).
+ *
+ * There is deliberately NO general free-standing-number rule. It was present in
+ * rounds 1-3 and is DELETED: a bare number carries no shape evidence either way,
+ * and normalizing it is what produced F-002, F-014 and F-020.
  *
  * Both directions are load-bearing and both are guarded case-by-case in
  * tasks/convergence-breaker-smoke.ts: widening a rule re-introduces the false
- * freeze this contract exists to prevent, and narrowing the duration or number
- * rule re-introduces the opposite failure — a genuine livelock whose repeat
- * count never accumulates.
+ * freeze this contract exists to prevent, and deleting the duration, hash or
+ * path rules re-introduces the opposite failure — a genuine livelock whose
+ * repeat count never accumulates.
  */
 export function gateFailureDigest(command: string, reason: string): string {
   const normalized = boundReasonForDigest(reason)
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
-    // B-bf52 F-014: the identifier-attachment protection is NOT optional here.
-    // `0-9` is a subset of `0-9a-f`, so a bare `\b` boundary let this rule
-    // consume any identifier-attached decimal run of 7+ digits BEFORE the
-    // number rule below could protect it: `session-1234567` vs `session-7654321`
-    // and `worker-1721775600` vs `worker-1721775601` (epoch-suffixed ids) both
-    // collapsed, i.e. two DIFFERENT identifiers read as one gate failing twice —
-    // exactly the false freeze this contract exists to prevent, and silently
-    // contradicting the CHK-003 promise that identifier digits survive. The
-    // lookarounds mirror the number rule's, minus the dot: a hash is still
-    // collapsed when it is introduced by `=`/`:`/quote/space or followed by a
-    // file extension.
-    .replace(/(?<![\w-])[0-9a-f]{7,}(?![\w-])/g, '#') // free-standing hex ids / hashes
+    // B-bf52 F-022: an ATTACHED hash. A hyphen/underscore-attached run of 7+ hex
+    // characters that contains at least one a-f LETTER is provably a digest and
+    // never a human ordinal, which is exactly the distinction the deleted number
+    // rule could not make. `deriveLocalSessionId` (core/owner-session.ts) mints
+    // `sess-${sha256.slice(0,16)}` from host+root+PPID, so every host that
+    // re-execs mints a NEW session id; without this rule the ownership-gate
+    // rejection that names it (`… is owned by Proofbound session sess-<hash> …`)
+    // minted a fresh digest key on essentially every retry and the breaker never
+    // fired. The letter requirement is the whole safety argument: it is what
+    // keeps `session-1234567` / `worker-1721775600` distinct (F-014), because a
+    // human ordinal or an epoch suffix is decimal and therefore letter-free.
+    // Runs BEFORE the free-standing rule below; the two are disjoint by
+    // construction (this one REQUIRES a `-`/`_` before the run, that one FORBIDS
+    // any word character or hyphen there).
+    //
+    // Accepted asymmetry: this rule carries no dot-adjacency guard, unlike the
+    // free-standing rule. The shape that would need one is a hyphen-attached
+    // letter-bearing hex run immediately followed by a decimal point
+    // (`x-abcdef1.5`); no producer in this tree emits it, and the nearest real
+    // shape (`commit-a1b2c3d.patch`) is a digest that SHOULD collapse.
+    .replace(/(?<=[-_])(?=[0-9a-f]*[a-f])[0-9a-f]{7,}(?![\w-])/g, '#') // attached hashes / digests
+    // B-bf52 F-014 + F-016: a FREE-STANDING hash. The identifier-attachment
+    // protection is not optional — `0-9` is a subset of `0-9a-f`, so a bare `\b`
+    // boundary let this rule consume any identifier-attached decimal run of 7+
+    // digits: `session-1234567` vs `session-7654321` and `worker-1721775600` vs
+    // `worker-1721775601` (epoch-suffixed ids) both collapsed, i.e. two DIFFERENT
+    // identifiers read as one gate failing twice.
+    //
+    // The dot-adjacency lookarounds are F-016: without `(?!\.\d)` this rule bites
+    // the integer part out of a decimal whose digits happen to reach 7, so
+    // `heartbeat 1234567.5ms ago` normalized to `heartbeat #.# ago` while
+    // `heartbeat 123456.5ms ago` (six digits) normalized to `heartbeat # ago` —
+    // one duration rendering, two keys, straddling an arbitrary threshold. Only
+    // `(?!\.\d)` has a named producer; `(?<!\d\.)` is retained as its symmetric
+    // half. Both can only make this rule collapse LESS, which is the direction
+    // this policy deliberately fails toward.
+    .replace(/(?<![\w-])(?<!\d\.)[0-9a-f]{7,}(?![\w-])(?!\.\d)/g, '#') // free-standing hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
     // B-bf52 CHK-002: an absolute path is machine-specific, so it must still
     // collapse — but ONLY when it is a path. The former rule anchored on any
@@ -572,44 +629,45 @@ export function gateFailureDigest(command: string, reason: string): string {
     // per-user `c:\users\<name>\...` root would not collapse on a Windows host.
     .replace(/(?:^|(?<=[\s"'(\[:=,]))[a-z]:\\[^\s"')\]]*/g, '#') // windows absolute paths
     .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')       // posix absolute paths
-    // B-bf52 F-007: a duration or size is a number welded to a unit letter, so
-    // the standalone-number rule below cannot see it — its lookahead treats the
-    // unit as an identifier tail. That is not academic: every lease/lock
+    // B-bf52 F-007: a duration or size is a number WELDED TO A UNIT, and the
+    // unit is the shape evidence that makes it provably volatile. This is the
+    // one numeric rule the policy keeps. That is not academic: every lease/lock
     // contention message renders `heartbeat ${age} ago` with age from
     // formatLeaseAge / formatLockAge (`45s`, `8m`, `2h`) — story-owner-lease.ts,
     // cli/ownership-gate.ts, main-write-lock.ts, validation-execution-lock.ts —
     // so without this rule a story_advance retried against a live foreign lease
     // or a held lock mints a NEW key on essentially every retry, the repeat
     // count never reaches 2, and the breaker never fires for exactly the stuck
-    // runaway it exists to stop. Runs BEFORE the number rule so the digits are
-    // consumed together with their unit. The dot is handled by the same
-    // targeted lookarounds as the number rule (F-015): `heartbeat 45s.` at the
-    // end of a sentence must still collapse.
+    // runaway it exists to stop. It carries the same identifier-attachment
+    // lookarounds as the deleted number rule, so `B-bf52` and `v0.3.229` are
+    // untouched, plus the dot-adjacency pair (F-015): `heartbeat 45s.` at the end
+    // of a sentence must still collapse, while `1.5ms` must not be split.
     .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?:ms|s|m|h|d|kb|mb|gb|b)(?![\w-])(?!\.\d)/g, '#') // durations / sizes
-    // B-bf52 CHK-003: a free-standing counter is incidental, but a digit run
-    // ATTACHED to an identifier is part of that identifier's name. The former
-    // unconditional rule rewrote both, so `CHK-001` and `CHK-002` — two
-    // different checklist items — both became `chk-#`. This one matches only a
-    // standalone number, i.e. one not preceded or followed by a word character
-    // or a hyphen, so `attempt 41`, `3>=2`, `0/4 lanes` and `pid 4821` still
-    // collapse while `CHK-001`, `round-2` and story ids survive.
     //
-    // The dot is deliberately NOT a member of the protection set (F-015). It is
-    // protective only when it sits BETWEEN digits, which is what the two
-    // targeted lookarounds express: `(?<!\d\.)` refuses to start a match on the
-    // tail of a dotted sequence and `(?!\.\d)` refuses to end one just before
-    // its continuation, so `v0.3.229` and `v0.3.230` stay whole (F-002: they are
-    // different version REQUIREMENTS, and the earlier unconditional rule made
-    // both `v#.#.#`) while a sentence-final period stays plain punctuation, so
-    // `exceeded 5.` and `exceeded 19.` collapse as the free-standing counters
-    // they are. Putting `.` in the character class did both jobs at once and so
-    // re-introduced the F-007 under-collapse — a livelock minting a fresh key
-    // per retry — for every message ending a bare number at a full stop.
+    // ── NO GENERAL FREE-STANDING-NUMBER RULE (B-bf52 round-4 policy) ──────────
     //
-    // The sign is consumed by the match rather than excluded by the lookbehind
-    // (F-003): treating a leading `-` as an identifier hyphen left `-5` and
-    // `-19` distinct, so a countdown in a rejection message never collapsed.
-    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?![\w-])(?!\.\d)/g, '#') // free-standing numbers only
+    // Rounds 1-3 ended here with `/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?![\w-])(?!\.\d)/g
+    // -> '#'`, on the theory that a bare number is an incidental counter. It is
+    // DELETED, and its deletion is load-bearing, not an omission:
+    //
+    //  - `test-evidence` output is interpolated VERBATIM into the DONE rejection
+    //    at core/machine.ts (`Cannot enter DONE: test ${result}: ${output}`), so
+    //    every bare number a real test harness prints reached this rule. Under it
+    //    `connection to localhost:3000 refused` and `…:4000`, `coverage 82%` and
+    //    `coverage 91%`, `expected >= 0.95, got 0.72` and `got 0.61` each
+    //    collapsed to ONE key — two DIFFERENT validation failures counted as one
+    //    gate failing twice, which is the false freeze this story exists to
+    //    remove, reintroduced by this story's own fix (F-020).
+    //  - The shape it existed to absorb, `(attempt N)`, has NO producer: it
+    //    appears nowhere in this repo outside the smoke's own invented fixture.
+    //
+    // Consequences are accepted deliberately, not overlooked: a bare retry
+    // counter, a countdown (F-003), a sentence-final ordinal (F-015), a holder
+    // pid and a review-run ordinal (F-019) now keep SEPARATE keys, so a runaway
+    // that varies one of them will not accumulate a gate-repeat count. That
+    // failure mode is bounded by the burn-alert system, which watches spend
+    // rather than message text; a false freeze is not bounded by anything except
+    // an interactive human TTY acknowledgement.
     .replace(/\s+/g, ' ')
     .trim();
   const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);
