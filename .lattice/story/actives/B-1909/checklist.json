@@ -230,21 +230,21 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Withdrawing a proper subset of bindings leaves a non-empty effective set and the DONE intent-equivalence path proceeds",
+            "desc": "Withdrawing a proper subset of bindings leaves a non-empty effective set; the write-time applier succeeds and the DONE intent-equivalence path proceeds",
             "type": "logic",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Withdrawing ALL acceptance bindings yields a blocking empty_scope_after_withdrawal gap that requires explicit re-approval instead of an empty-scope pass",
+            "desc": "Withdrawing ALL acceptance bindings WITHOUT an explicit full-withdrawal re-approval is HARD-REFUSED by the sole applier at write time, independent of doneGateMode (proven by asserting refusal under the default observe config)",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "The floor evaluates the effective (non-withdrawn) set, not the original bindings, so leaving withdrawn originals present cannot fake surviving scope",
+            "desc": "The floor evaluates the effective (non-withdrawn) set, not the original bindings, so leaving withdrawn originals present cannot fake surviving scope; the DONE empty_scope_after_withdrawal diagnostic exists only as defense-in-depth",
             "type": "logic",
             "priority": "must"
           }
