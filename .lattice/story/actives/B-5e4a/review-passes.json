@@ -65,6 +65,37 @@
         "scanEscalationReason": null
       },
       "_hash": "e618059eeb9804e6a54c7578c3ff09c4e82e57f7c5f952f7477e06f4a9e0bc27"
+    },
+    {
+      "id": "B-5e4a:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: CHK-001/CHK-002 all must-priority verificationIntent entries have matching intentRef verificationEvidence (none result=fail). Independently reproduced red harness (8/8 pass), test:lifecycle-registry-contract (48 filenames, floor 40, 0 divergences), the CHK-002:edge:0 bite-test removal (exact 2 named divergences reproduced in isolated dist/src copy), CHK-001:edge:1 legacy-metadata transcript, and the 47-command/index-36 wiring claim. No coverage gaps or unsubstantiated evidence found. No blocker.",
+      "createdAt": "2026-07-24T01:19:00.683Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-003",
+      "envelopeId": "79e3425ff9cce80bb3b980639f3039fc66d192f4c9044d697c7ca4ba0ac577c2",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5e4a/background.md",
+          ".lattice/story/actives/B-5e4a/checklist.json",
+          ".lattice/story/actives/B-5e4a/plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "lattice.config.json",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "tmp/b5e4a-red/red-registry-coverage.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/validate.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "50877b371d0020efbab4fdc57cd2765c6d726b8611a247461d471f2686a3c2fa"
     }
   ]
 }
