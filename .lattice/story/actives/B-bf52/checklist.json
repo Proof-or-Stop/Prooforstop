@@ -393,11 +393,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "The pre-existing assertions still pass alongside the matrix, and the section-7c completeness guard is BIDIRECTIONAL — it names an UNCLASSIFIED prefix when a scanned producer has no entry and a NO PRODUCER entry when a declared prefix has none — so enumeration drift is caught by the suite rather than by the next review round. The separate B-cc54 boundary claim is verified by its own command, node packages/main/dist/tasks/gate-repeat-block-smoke.js exiting 0 with git diff main on that path empty. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
-          "headHash": "80363eec03b99c502f4e891fabdc512baa2fe229",
-          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
-          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
-          "timestamp": "2026-07-24T13:12:44.353Z"
+          "note": "The pre-existing assertions still pass alongside the matrix, and the section-7c completeness guard is BIDIRECTIONAL — it names an UNCLASSIFIED prefix when a scanned producer has no entry and a NO PRODUCER entry when a declared prefix has none. The separate B-cc54 boundary claim is verified by its own command, node packages/main/dist/tasks/gate-repeat-block-smoke.js exiting 0 with git diff main on that path empty. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
+          "headHash": "8e7cfec4e4e39f4703b7e2154d18f7aab7501365",
+          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
+          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
+          "timestamp": "2026-07-24T14:14:56.589Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
