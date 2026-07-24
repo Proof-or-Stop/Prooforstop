@@ -59,6 +59,21 @@
       "_hash": "d2c228e4190a55babc38da9986edc6f783286c522afe0b43e8f4e483f3212fcb",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-005",
+      "desc": "packages/main/src/tasks/convergence-breaker-smoke.ts:316-318 — the new must-still-collapse case 'timestamp-and-attempt-counter' uses the exact same two literal fixture strings (\"gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)\" / \"...T09:59:59Z (attempt 41)\") already asserted for digest-equality and counter-accumulation-to-2 at lines 165-166 and 172-173 in the pre-existing section 7 (unchanged by this diff). The new section 7b matrix explicitly frames itself (comment at line ~182) as replacing the removed ALPHA/BETA fixture and adding fresh must-differ/must-still-collapse coverage, but this one case adds no new coverage over the pre-existing K1 timestamp/attempt-counter assertion it duplicates -- same input strings, same digest-equality check, same counter-reaches-2 check, run twice under two different code paths for no additional signal.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T00:00:22.837Z",
+      "reviewRound": "2026-07-23T23:22:59.637Z",
+      "reviewRunId": "B-bf52:RR-002",
+      "_hash": "bc495c9e375cbe6d9186fb4f032c28b8e04425138bb733cd1e3c2c5fe8390de4",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
