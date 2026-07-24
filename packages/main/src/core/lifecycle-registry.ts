@@ -645,6 +645,10 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'pre-review-check.json',
   'topology-critic-receipt.json',
   'topology-exclusion-approvals.json',
+  // REVIEW loop ledger written via REVIEW_LOOP_FILENAME constant
+  // (core/review-loop.ts) through join(storyDir, ...) sites in store.ts;
+  // B-5e4a F-001.
+  'review-loops.jsonl',
 ]);
 
 /**

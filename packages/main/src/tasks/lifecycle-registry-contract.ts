@@ -229,21 +229,25 @@ function checkArtifactReferences(): void {
 
 /**
  * Cross-check 5 (B-5e4a CHK-002): the four acceptance-topology StoryStore
- * artifact filenames must classify via classifyLifecycleArtifact as
+ * artifact filenames — plus the review-loops.jsonl REVIEW loop ledger
+ * (B-5e4a F-001) — must classify via classifyLifecycleArtifact as
  * kind='lifecycle' under an active story dir. This is the runtime projection of
  * the B-5e4a registration (registry membership alone is not enough — the
  * classifier's prefix + storyId + closed-set pipeline must accept the full
  * path).
  */
-const ACCEPTANCE_TOPOLOGY_ARTIFACT_FILENAMES = [
+const CLASSIFICATION_CROSS_CHECK_FILENAMES = [
   'acceptance-basis.json',
   'pre-review-check.json',
   'topology-critic-receipt.json',
   'topology-exclusion-approvals.json',
+  // REVIEW loop ledger written via join(this.storyDir(...), REVIEW_LOOP_FILENAME)
+  // in store.ts; B-5e4a F-001.
+  'review-loops.jsonl',
 ] as const;
 
 function checkAcceptanceTopologyArtifactClassification(): void {
-  for (const fileName of ACCEPTANCE_TOPOLOGY_ARTIFACT_FILENAMES) {
+  for (const fileName of CLASSIFICATION_CROSS_CHECK_FILENAMES) {
     const path = `.lattice/story/actives/B-5e4a/${fileName}`;
     const classification = classifyLifecycleArtifact(path);
     if (!classification || classification.kind !== 'lifecycle') {
@@ -260,13 +264,20 @@ function checkAcceptanceTopologyArtifactClassification(): void {
 /**
  * Cross-check 6 (B-5e4a CHK-002): StoryStore top-level artifact filename
  * coverage invariant. Derives, from packages/main/src/core/store.ts SOURCE,
- * every single-segment filename literal (no slash) passed to the
- * readJson/writeJson/appendJsonl-style story-dir helpers, and asserts each
- * derived filename is either registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES
- * or listed in the named exemption constant below. This closes the B-956f /
- * B-bf52 regression class mechanically: a new StoryStore top-level artifact
- * write without a registry entry fails this contract with a named divergence
- * instead of surfacing later as an OUT_OF_SCOPE scope violation.
+ * every top-level story artifact filename reachable through TWO write/read
+ * shapes:
+ *   1. single-segment filename literals (no slash) passed to the
+ *      readJson/writeJson-style story-dir helpers, and
+ *   2. `join(this.storyDir(<arg>), <X>)` sites (B-5e4a F-001), where <X> is a
+ *      string literal or an identifier resolved to one (store.ts const, or a
+ *      const followed through store.ts's relative import — e.g.
+ *      REVIEW_LOOP_FILENAME → './review-loop.js' → 'review-loops.jsonl').
+ * Each derived filename must be either registered in
+ * LATTICE_LIFECYCLE_ARTIFACT_FILENAMES or listed in the named exemption
+ * constant below. This closes the B-956f / B-bf52 regression class
+ * mechanically: a new StoryStore top-level artifact write without a registry
+ * entry fails this contract with a named divergence instead of surfacing later
+ * as an OUT_OF_SCOPE scope violation.
  */
 const STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS: ReadonlySet<string> = new Set([
   // dead writeLegacyReceiptRefs path, Authority future-capability domain,
@@ -275,24 +286,128 @@ const STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Sanity floor for the derived set. store.ts currently references ~48 distinct
- * top-level filenames through the helpers; a derivation yielding fewer than
- * this floor means the extraction regex or the helper call shape drifted, and
- * the check must fail loudly rather than report vacuous coverage.
+ * Sanity floor for the derived set. store.ts currently references ~49 distinct
+ * top-level filenames through the two derivation passes (helper literals +
+ * storyDir join sites); a derivation yielding fewer than this floor means an
+ * extraction regex or a call shape drifted, and the check must fail loudly
+ * rather than report vacuous coverage.
  */
 const STORYSTORE_DERIVED_SET_FLOOR = 40;
 
 /**
- * Matches a story-dir helper call whose second argument is a single-segment
- * filename literal, e.g.:
+ * Pass 1: matches a story-dir helper call whose second argument is a
+ * single-segment filename literal, e.g.:
  *   this.readJson<StoryInfo>(storyId, 'index.json')
  *   this.writeJson(storyId, 'scope-check.json', data)
  * Capsule/nested writes use template literals with a directory prefix
  * (`${CAPSULE_DIR_NAME}/...`) and therefore never match; type-position string
- * unions and join(...) literals do not match the helper-call shape either.
+ * unions do not match the helper-call shape either. join(this.storyDir(...))
+ * sites are covered by pass 2 (STORYSTORE_STORYDIR_JOIN_SITE_RE, B-5e4a F-001).
  */
 const STORYSTORE_TOP_LEVEL_ARTIFACT_CALL_RE =
-  /\.(?:readJson|writeJson|appendJsonl)\w*(?:<[^(]*?>)?\(\s*[A-Za-z_$][\w$]*\s*,\s*'([a-z0-9-]+\.(?:json|jsonl|md))'/g;
+  /\.(?:readJson|writeJson)\w*(?:<[^(]*?>)?\(\s*[A-Za-z_$][\w$]*\s*,\s*'([a-z0-9-]+\.(?:json|jsonl|md))'/g;
+
+/**
+ * Pass 2 (B-5e4a F-001): matches a `join(this.storyDir(<arg>), <X>)` site in
+ * store.ts where <X> is a single-quoted string literal (capture group 1) or an
+ * identifier (capture group 2). store.ts writes some top-level story artifacts
+ * — e.g. the review-loops.jsonl REVIEW loop ledger, via appendFileSync /
+ * writeFileSync — through this path shape instead of the readJson/writeJson
+ * helpers, so pass 1 alone cannot see them.
+ */
+const STORYSTORE_STORYDIR_JOIN_SITE_RE =
+  /\bjoin\(\s*this\.storyDir\(\s*[A-Za-z_$][\w$]*\s*\)\s*,\s*(?:'([^']*)'|([A-Za-z_$][\w$]*))/g;
+
+/**
+ * Domain filter for pass 2: only resolved values shaped like a top-level story
+ * artifact filename belong to this coverage check. Directory names (e.g.
+ * CAPSULE_DIR_NAME → 'capsule') and slash-containing relative paths live in
+ * other classifier domains and are correctly filtered out here.
+ */
+const TOP_LEVEL_ARTIFACT_FILENAME_RE = /^[a-z0-9][a-z0-9-]*\.(?:json|jsonl|md)$/;
+
+/** Escapes an identifier for safe interpolation into a RegExp (`$` in idents). */
+function escapeIdentForRegExp(ident: string): string {
+  return ident.replace(/\$/g, '\\$');
+}
+
+/** Resolves `const <IDENT> = '<literal>'` within the given source, or null. */
+function resolveConstLiteral(source: string, ident: string): string | null {
+  const re = new RegExp(String.raw`\bconst\s+${escapeIdentForRegExp(ident)}\b\s*=\s*'([^']*)'`);
+  const match = source.match(re);
+  return match ? match[1] : null;
+}
+
+/**
+ * Follows store.ts's named-import statement for `ident` to its relative module
+ * (e.g. './review-loop.js' → src/core/review-loop.ts, which ships alongside
+ * dist) and resolves `const <original name> = '<literal>'` there. Handles
+ * `X as Y` aliasing; returns null when the identifier is not imported from a
+ * resolvable relative module or the module declares no such const literal.
+ */
+function resolveImportedLiteral(storeSource: string, storeDir: string, ident: string): string | null {
+  const importRe = /import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+'(\.[^']*)'/g;
+  for (const importMatch of storeSource.matchAll(importRe)) {
+    const clause = importMatch[1];
+    const moduleRel = importMatch[2];
+    for (const rawName of clause.split(',')) {
+      const name = rawName.trim().replace(/^type\s+/, '');
+      if (!name) continue;
+      const aliasMatch = name.match(/^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/);
+      const localName = aliasMatch ? aliasMatch[2] : name;
+      if (localName !== ident) continue;
+      const sourceName = aliasMatch ? aliasMatch[1] : name;
+      const modulePath = join(storeDir, moduleRel).replace(/\.js$/, '.ts');
+      if (!existsSync(modulePath)) return null;
+      return resolveConstLiteral(readFileSync(modulePath, 'utf-8'), sourceName);
+    }
+  }
+  return null;
+}
+
+/**
+ * True when the join-site identifier is declared as a typed string PARAMETER
+ * of a store.ts method (e.g. `storyFilePath(storyId: string, file: string)`).
+ * Such sites are generic helper plumbing — the concrete filenames flow in from
+ * call sites, which pass 1 covers for the readJson/writeJson helpers — not a
+ * per-artifact derivation blind spot.
+ */
+function isStoreHelperParameter(source: string, ident: string): boolean {
+  const re = new RegExp(String.raw`[(,]\s*${escapeIdentForRegExp(ident)}\s*:\s*string\b`);
+  return re.test(source);
+}
+
+/**
+ * Pass 2 derivation: resolves every `join(this.storyDir(...), <X>)` site to a
+ * filename. An identifier that resolves to no string literal AND is not a
+ * typed helper parameter is a derivation blind spot and fails loudly with a
+ * named divergence — never skipped silently (B-5e4a F-001).
+ */
+function deriveStoryDirJoinFilenames(source: string, storeDir: string): Set<string> {
+  const derived = new Set<string>();
+  for (const match of source.matchAll(STORYSTORE_STORYDIR_JOIN_SITE_RE)) {
+    const literal = match[1];
+    const ident = match[2];
+    let resolved: string | null = null;
+    if (literal !== undefined) {
+      resolved = literal;
+    } else {
+      resolved = resolveConstLiteral(source, ident) ?? resolveImportedLiteral(source, storeDir, ident);
+      if (resolved === null) {
+        if (isStoreHelperParameter(source, ident)) continue;
+        record(
+          'storystore-coverage',
+          `join(this.storyDir(...), ${ident}) site in store.ts: identifier ${ident} cannot be resolved to a ` +
+          `string literal (not a store.ts const, not a const behind a resolvable relative import, not a typed ` +
+          `helper parameter) — derivation blind spot; coverage was NOT verified for this site`,
+        );
+        continue;
+      }
+    }
+    if (TOP_LEVEL_ARTIFACT_FILENAME_RE.test(resolved)) derived.add(resolved);
+  }
+  return derived;
+}
 
 function resolveStoryStoreSourcePath(): string {
   const here = dirname(fileURLToPath(import.meta.url));
@@ -311,26 +426,35 @@ function deriveStoryStoreTopLevelFilenames(source: string): Set<string> {
   return derived;
 }
 
-/** Returns the derived-set size (0 when the derivation itself is broken). */
-function checkStoryStoreTopLevelArtifactCoverage(): number {
+interface StoryStoreCoverageResult {
+  /** Merged derived-set size across both passes (0 when the derivation itself is broken). */
+  derivedCount: number;
+  /** Filenames contributed by the storyDir join-site pass (pass 2), sorted. */
+  joinSiteFilenames: readonly string[];
+}
+
+function checkStoryStoreTopLevelArtifactCoverage(): StoryStoreCoverageResult {
   const storePath = resolveStoryStoreSourcePath();
   if (!existsSync(storePath)) {
     record(
       'storystore-coverage',
       `cannot locate StoryStore source at ${storePath} — the derivation is broken; coverage was NOT verified`,
     );
-    return 0;
+    return { derivedCount: 0, joinSiteFilenames: [] };
   }
   const source = readFileSync(storePath, 'utf-8');
   const derived = deriveStoryStoreTopLevelFilenames(source);
+  const joinDerived = deriveStoryDirJoinFilenames(source, dirname(storePath));
+  for (const fileName of joinDerived) derived.add(fileName);
+  const joinSiteFilenames = [...joinDerived].sort();
   if (derived.size < STORYSTORE_DERIVED_SET_FLOOR) {
     record(
       'storystore-coverage',
       `derived StoryStore top-level artifact set has only ${derived.size} entries, below the sanity floor of ` +
-      `${STORYSTORE_DERIVED_SET_FLOOR} — the derivation is broken (extraction regex or store.ts helper shape drifted); ` +
+      `${STORYSTORE_DERIVED_SET_FLOOR} — the derivation is broken (extraction regex or store.ts call shape drifted); ` +
       `coverage was NOT verified`,
     );
-    return derived.size;
+    return { derivedCount: derived.size, joinSiteFilenames };
   }
   const missing = [...derived]
     .filter((fileName) =>
@@ -361,7 +485,7 @@ function checkStoryStoreTopLevelArtifactCoverage(): number {
       );
     }
   }
-  return derived.size;
+  return { derivedCount: derived.size, joinSiteFilenames };
 }
 
 function main(): void {
@@ -369,7 +493,7 @@ function main(): void {
   checkProcessFactLifecycle();
   checkArtifactReferences();
   checkAcceptanceTopologyArtifactClassification();
-  const storyStoreDerivedCount = checkStoryStoreTopLevelArtifactCoverage();
+  const storyStoreCoverage = checkStoryStoreTopLevelArtifactCoverage();
 
   if (divergences.length > 0) {
     console.error('lifecycle-registry consistency: FAIL');
@@ -385,8 +509,10 @@ function main(): void {
   const phaseCount = Object.keys(artifactsByPhase).length;
   console.log(
     `lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, ` +
-    `${phaseCount} phases projected, ${storyStoreDerivedCount} StoryStore top-level artifact filenames derived ` +
-    `(floor ${STORYSTORE_DERIVED_SET_FLOOR}) and registered-or-exempted, 0 divergences`,
+    `${phaseCount} phases projected, ${storyStoreCoverage.derivedCount} StoryStore top-level artifact filenames derived ` +
+    `(floor ${STORYSTORE_DERIVED_SET_FLOOR}; storyDir join-site pass: ` +
+    `${storyStoreCoverage.joinSiteFilenames.length > 0 ? storyStoreCoverage.joinSiteFilenames.join(', ') : 'none'}) ` +
+    `and registered-or-exempted, 0 divergences`,
   );
 }
 
