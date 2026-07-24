@@ -186,7 +186,47 @@
       "context": "Cover three cases: breaker fires at the threshold on identical repeated blocks; breaker does NOT fire when the block reason changes between attempts; counter resets after the gate passes. Register the smoke in the validate command set.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Three identical gate failures (same command, same reason string) -> maxGateFailureCount=3, assessBreaker with maxGateRepeat=3 trips with gate-repeat in reasons array; WHY: fire-on-identical baseline -- breaker detects a real livelock",
+            "type": "cli"
+          },
+          {
+            "desc": "Three gate failures each with a DIFFERENT reason (each occurs exactly once) -> maxGateFailureCount=1, assessBreaker does not trip; WHY: no-fire-on-progress baseline -- genuinely progressing story is never penalised",
+            "type": "cli"
+          },
+          {
+            "desc": "Two identical failures, then resetGateFailureCounts (simulating a gate pass / successful transition), then one more identical failure -> maxGateFailureCount=1 (counter was reset by progress); WHY: reset-on-progress baseline -- counter does not accumulate across successful transitions",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reason changes on attempt threshold-1 (e.g. threshold=2: one failure with reason-A, then switch to reason-B) -> reason-A at count 1, reason-B at count 1, neither reaches threshold, no trip; WHY: boundary -- reason change just before threshold prevents trip",
+            "type": "cli"
+          },
+          {
+            "desc": "Two distinct reasons that each independently accumulate to threshold (A x2 then B x2, threshold=2) -> maxGateFailureCount=2 for both keys; assessBreaker trips once reporting the MAX; WHY: multiple independent counters reaching threshold simultaneously",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two reasons with first 200 normalized chars identical but tails genuinely differ (the exact B-cc54 digest collision scenario: ProofStory invariant header + different Diagnostic gaps) -> after fix these are distinct keys each at count=1, breaker does NOT trip; before fix they collapse to count=2 and breaker trips incorrectly on a progressing story; WHY: regression guard for the root cause -- the single most important smoke case for B-cc54",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker calls resetGateFailureCounts between every bumpGateFailureCount (reset-after-every-bump) -> counter never reaches threshold, genuine repeat loop runs forever without tripping the breaker; WHY: reset must only be called on actual gate-pass progress and not be invocable arbitrarily by any co-located process",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount with reason containing the breaker own freeze message text (renderBreakerFreeze output fed back as a new gate failure reason) -> treated as an ordinary reason string producing its own digest key, no recursive special behavior or amplification; WHY: breaker output fed back as input must not cause feedback loops or bypass counting",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
