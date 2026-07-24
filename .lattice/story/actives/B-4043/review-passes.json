@@ -483,6 +483,36 @@
         "scanEscalationReason": null
       },
       "_hash": "177671477d19c11d142c2c8f6b9796339caf3ddfc3fdbc6e598cdc0622a29e9a"
+    },
+    {
+      "id": "B-4043:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-010 re-audit: CHK-004:adversarial:fail-closed-mutations evidence entry is restored to the default-mode acceptance-rollout-smoke.js command and I re-ran it live at rebuilt current head (57/57 assertions PASS), confirming it literally exercises the realConsumerMutations battery via runAcceptanceRolloutGate plus tampered-signature/stale-report rejection and rollback -- exactly the codes its own text enumerates. The custom ref CHK-004:hardening:issuance-replay-integrity is honest, not inflationary: its note discloses it is REVIEW-introduced hardening and not one of the 15 frozen intents, and the mechanically-derived acceptance_topology_check evidenceRefs (queried live) exclude this ref entirely, so it cannot inflate any gate-computed coverage metric; I independently re-ran --issuer-mutations live (7/7 PASS) and confirmed its registration in lattice.config.json validate.commands line 97. F-007s fix (test:proofstory-acceptance-rollout appended to package.jsons npm test chain, consumed by doneRequiredCommands root full test suite) independently makes the restored default-mode command gate-reachable at DONE, not just human-run. All 16 verificationEvidence entries carry materialHash/storyFilesHash matching the current clean tree at head f11ff8f4 (confirmed via git status --porcelain empty). Re-ran verify-process-fact-contract.mjs (PASS), the frozen-cohort-bound default-mode smoke (PASS 57), pre-review-check-smoke --proof-scenarios (PASS, emitted the exact 23 scenario records), and freshly regenerated run-proofstory-acceptance-rollout-cohort.mjs from scratch (12 source records, exit 0) to confirm the pipeline is not stale. The 23-scenario proof set is surjective over all 15 frozen intents but uneven -- CHK-004:adversarial:fail-closed-mutations gets 4 records (A-MUT-9/11/12/15: mutation-polarity restore, direct-store authority bypass, evidence-cutoff boundary, critic-reattestation) vs 1-2 for most others. I traced this: none of those 4 are the receipt/waiver/inventory/false-block/omission mutations the intent text names -- they are generic pre_review_check-gate properties anchored to the nearest adversarial ref as a label of convenience inside a shared cross-story smoke fixture. This is benign, not a hidden gap: that proof-scenarios catalog is claimed as checklist evidence only for CHK-001s three intents (whose own bound command is this exact invocation); CHK-002..005 bind separate commands verified directly against their own text, and the mechanical topology evidenceRefs computation reads only checklist.jsons own verificationEvidence array, never this catalog, so the unevenness cannot inflate any enforced coverage number. No blocker found.",
+      "createdAt": "2026-07-24T16:35:27.099Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-025",
+      "envelopeId": "12d296a075291789af9511db9dc42617f4be489685abb10ba4c6fac8d35ae35d",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "577740908341547d009e984cc3e0b1291bbf199ac50206c7fd1b8c6c3973cedb"
     }
   ]
 }
