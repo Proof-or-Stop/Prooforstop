@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "NOT DELIVERED. This is recorded as a failure to deliver, not as a redefinition of the item. There is no recognition rule left to revert, so this item has no revert-proof. Recorded as absent rather than substituted with a proof of something else. The mutations that DO localize are for the delivered rules and are cited under CHK-002 and CHK-004.",
-          "headHash": "9b6a06a8726433c1355f9103d4a8c2fb7c828568",
+          "note": "NOT DELIVERED, and the canonical record is truthful in four places while one FROZEN artifact remains stale for a reason the lifecycle imposes rather than a choice. Truthful: plan.md records the withdrawal and its proof; every CHK-003 evidence note states NOT DELIVERED; the operator-confirmed scope-shrinkage-decision.json lists CHK-003 as removed; and the suite asserts the opposite of this item via must-still-collapse checklist-ordinal, unfixed-bug-ordinal and bcc54-story-id-digits. Stale and uncorrectable here: the ProofStory acceptance binding still says identifier-embedded ordinals stay distinct, because proofstory_contract_set has allowedPhases PLAN only, verified at packages/main/src/core/command-policy.ts:420 — the contract is frozen pre-DEV by design. The checklist status field likewise has no withdrawn value and the success flag does not persist on the item. Cross-host review filed this as F-062 and it is resolved partially_mitigated, not fixed, with the gap raised as a separate workflow task. The underlying reason for the withdrawal is unchanged: a bare ordinal in a rejection is textually identical to a third-party label, so recognition is not achievable from message text alone, and for a brake the tie breaks toward collapse.",
+          "headHash": "d048d9a2d0f52dd198bc3f8834cbd4ec50114b5b",
           "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
           "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
-          "timestamp": "2026-07-24T16:09:42.371Z"
+          "timestamp": "2026-07-24T17:43:57.699Z"
         }
       ]
     },
