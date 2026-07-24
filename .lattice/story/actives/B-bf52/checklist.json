@@ -76,11 +76,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Two cases pin the prefix-window residual, both guard prefix-window-residual: 'scope-extension-proposal-ordinal-past-window' and 'requirement-ordinal-past-window'. The second is an honest cost of this design reported by the implementer: req- is allowlisted and its id IS protected, yet its only story_advance-reachable producer at core/proofstory.ts:1026 renders it inside a ProofStory report whose fixed banner already exceeds the 200-character cut, so the pair collapses anyway. Measured relaxation bound: widening to 592 leaves B-cc54 green, 600 breaks it; 200 is kept for byte-compatibility, not because no relaxation exists. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
-          "headHash": "03cd04a279fa36bfe41c2c6c06e5b384adbdadaa",
-          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
-          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
-          "timestamp": "2026-07-24T13:12:29.246Z"
+          "note": "Two cases pin the prefix-window residual, both guard prefix-window-residual: 'scope-extension-proposal-ordinal-past-window' and 'requirement-ordinal-past-window'. The second is an honest cost: req- is allowlisted and its id IS protected, but its only story_advance-reachable producer at core/proofstory.ts:1026 renders it past the window, so the pair collapses anyway. Widening the window to 592 leaves B-cc54 green and 600 breaks it; the window stays where it is for byte-compatibility, not because no relaxation exists. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
+          "headHash": "d8e09e589175481c6e0973a1bf3c7d73fd0dd63e",
+          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
+          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
+          "timestamp": "2026-07-24T14:14:40.123Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
