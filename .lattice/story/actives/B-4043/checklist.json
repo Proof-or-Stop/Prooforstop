@@ -417,13 +417,13 @@
           "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Rebound to the --issuer-mutations suite so the ledger binds a command that literally runs these assertions (answers F-008). That suite genuinely discharges this intent: it drives clean-control PASS, then targets substituted caller reports, a missing restoration commit, and a forged restoration commit, and each must be rejected before the observation is signed; exit 0 PASS (7 assertions). STATED PLAINLY rather than glossed: the 7th assertion in that suite is the F-006 post-checkout hook regression, which is hardening introduced by a REVIEW finding and is NOT part of this intent's frozen enumeration (receipt/quorum/waiver/inventory/false-block/omission codes). It is not claimed as coverage of this intent; it simply travels in the same suite. The default-mode 57-assertion suite remains bound by the other 7 intent refs, so no coverage was lost by rebinding this one.",
-          "headHash": "41196ee9a75382e5628935dbcd61d3aa431b7945",
+          "note": "RESTORED after F-009/F-010. My F-008 fix rebound this ref to --issuer-mutations, which was wrong and two lanes independently proved it: this intent enumerates rejections by the REAL GATE CONSUMER (missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, waiver delta, weaker inventory, false-block, omission-detection), and that battery is the realConsumerMutations loop calling runAcceptanceRolloutGate, which lives ONLY in the default-mode suite. --issuer-mutations is a mutually exclusive branch that never reaches runAcceptanceRolloutGate or deriveAcceptanceRolloutReport, so the rebind left this intent with zero evidence exercising its own text. The default-mode command is restored here; verified live at this head: exit 0, PASS (57 assertions).",
+          "headHash": "ede920999cbaf014f953c22af56fa0e726551533",
           "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
           "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T15:19:59.855Z"
+          "timestamp": "2026-07-24T15:49:51.858Z"
         }
       ]
     },
