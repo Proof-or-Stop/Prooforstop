@@ -538,7 +538,7 @@
       "desc": "cross-host (codex-cli host-B round 5), recorded by the main agent: the substantive-id allowlist omits BUG-. Real producer at packages/main/src/core/machine.ts:1195 renders \"Cannot enter DONE: 1 unfixed bug(s): BUG-001\"; that and the BUG-002 variant both digest to story_advance/a3e4d0356493. Fixing BUG-001 and then being blocked by BUG-002 is substantive progress read as one repeated failure, i.e. the exact false freeze this story exists to remove. Proves the hand-written enumeration is incomplete and needs a completeness guard, not just one more entry.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T03:36:29.674Z",
@@ -548,7 +548,9 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "signatureTag": "edge|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "bug- added to SUBSTANTIVE_ID_PREFIXES so BUG-001/BUG-002 (machine.ts:1195) key distinctly. Added completeness guard convergence-breaker-smoke.ts section 7c: comment-aware scan of core/handlers id-mint (PREFIX-\\${) and rejection-literal ordinal shapes; every discovered prefix must be allowlisted or in an explicit commented exclusion category, else it fails naming the offending prefix. Verified: BUG-001/BUG-002 distinct; revert-proof removing bug- fails only unfixed-bug-ordinal (1/18); dropping tea- from exclusions fails the completeness guard naming tea-.",
+      "resolvedAt": "2026-07-24T04:03:53.148Z"
     },
     {
       "id": "B-bf52:F-030",
