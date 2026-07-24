@@ -81,7 +81,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:489-491 doc-residue: the top-of-function docstring above extractGateBlockSignals still asserts unqualified that bracketed reason codes and diagnostic-gap ids \"Both come from a bounded vocabulary, so a genuinely stuck loop keeps emitting the SAME set and still trips.\" This exact sentence is byte-identical to the pre-F-002-fix version (verified via git show d07885e8c8, the commit that introduced the vulnerable {3,} bracket pattern) -- it was never revised when F-002 was fixed. F-002 itself established that only the diagnostic-gap-id source (fixed missing|invalid|stale|unreadable|tampered_ prefixes) is a true bounded vocabulary; the bracketed-reason-code source is bounded only in SYNTACTIC FORMAT (must contain an underscore) not in an enumerable vocabulary -- any freshly invented multi-word snake_case bracketed token (e.g. [totally_made_up_marker]) still matches and counts as a distinct signal. The newer, better-reasoned comment added directly above the regex line (lines ~497-504) already hedges this correctly (\"that is what actually makes the vocabulary bounded rather than merely claiming it is\"), but it sits right next to the older, unedited blanket claim it was meant to correct, so the overclaiming sentence F-002 was about survives verbatim in the docstring a future reader hits first.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-24T00:53:40.129Z",
@@ -89,7 +89,11 @@
       "reviewRunId": "B-cc54:RR-007",
       "_hash": "0d4f51bafbc1351c7cac3bbf192f7a9d8291351bc6a9f04ca4da9eb57a77fefb",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted: the docstring still carried the pre-fix sentence claiming a bounded VOCABULARY, byte-identical to what F-002 was correcting — the same claim-versus-code gap that caused F-002 in the first place. The comment now states what is actually bounded (the FORM: multi-word snake_case, not an enumerable set) and says plainly that a freshly invented snake_case token would still register as a signal, with the reason that is acceptable.",
+      "resolvedAt": "2026-07-24T01:27:33.630Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cc54:F-006",
