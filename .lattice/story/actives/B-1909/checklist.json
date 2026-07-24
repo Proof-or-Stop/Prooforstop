@@ -6,7 +6,30 @@
       "context": "packages/main/src/core/types.ts:691 ChecklistItem, handlers/checklist.ts:564 status union, cli/command-catalog.ts:435 z.enum(['pending','in_progress','done']). Item gains status 'withdrawn' plus a decisionRef naming the authorizing scope-shrinkage decision. The item keeps its original title/context/userSees/verificationIntent verbatim; withdrawal is a disposition, not a rewrite of what was planned. Also decide the fate of the currently-dead --success flag rather than leaving it documented but unpersisted.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ChecklistStatus accepts withdrawn and a withdrawn item with decisionRef round-trips through readChecklist/writeChecklist unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A legacy checklist item (no status=withdrawn, no decisionRef) still loads and reads exactly as before",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "checklist_update refuses a direct status=withdrawn write and its error points to scope_shrinkage_decision_set as the sole authorized applier",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

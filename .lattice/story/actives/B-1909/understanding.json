@@ -1,0 +1,47 @@
+{
+  "task": "Give the canonical product record a way to say a planned checklist item and its acceptance binding were legitimately WITHDRAWN after review proved them undeliverable, instead of leaving them recorded as DONE/asserted.",
+  "outcome": "After an authorized scope-shrinkage decision that removes CHK-nnn, both checklist_get and proofstory_contract_get show that item and its binding as withdrawn (never delivered), reachable from DEV/REVIEW/TEST without returning to PLAN; withdrawn never counts toward delivered/completed-success; the original binding stays byte-for-byte in the audit record; and a story cannot pass by withdrawing every core binding.",
+  "facts": [
+    "checklist_update status enum is pending|in_progress|done at cli/command-catalog.ts:435 and handlers/checklist.ts:564; ChecklistItem is core/types.ts:691 with no status field of its own union (status typed on ChecklistData items).",
+    "The --success flag is only forwarded into the subagent_result process event at handlers/checklist.ts:770 (success: args.success !== false); it is never written onto the checklist item, so it does not persist (verified on B-bf52 CHK-003 which has no success key).",
+    "proofstory_contract_set has allowedPhases ['PLAN'] at core/command-policy.ts:420; it is the frozen PLAN writer of acceptanceBindings.",
+    "scope_shrinkage_decision_set already has allowedPhases ['PLAN','DEV','REVIEW','TEST'] (command-policy.ts) and is the intentional post-DEV shrinkage writer requiring userConfirmed:true when confirmed.",
+    "ScopeShrinkageDecisionData (types.ts:2605) carries only decision/userConfirmed/removedMilestoneIds/reason/approvedBy; buildScopeShrinkageDecision is core/proofstory.ts:1285-1310; confirmedShrinkageIds (proofstory.ts:1424) returns removedMilestoneIds when confirmed+userConfirmed.",
+    "confirmedShrinkageIds is consumed at proofstory.ts:1514 (DONE intent equivalence) and 1864 (review-completeness evidence coverage) to SKIP milestone verificationIntentRefs — the existing shrinkage idiom is read-time projection, not a stored flip.",
+    "checklistAllDoneGuard (core/machine.ts:355) blocks DEV->REVIEW unless every item.status==='done'; this is the load-bearing gate that a new terminal status must satisfy.",
+    "There are 24 status==='done' sites under packages/main/src/core and handlers (verified by grep); load-bearing: machine.ts:355, artifact-contract.ts:133, checklist.ts:82 counts, story-query.ts:568, hints.ts:70, session.ts:435, milestone-status.ts:456/560.",
+    "ProofStoryContractData (types.ts:2573) has acceptanceBindings: ProofStoryAcceptanceBinding[] and no disposition field; ProofStoryAcceptanceBinding (types.ts:2508) has id/checklistRefs/verificationIntentRefs/milestoneIds/note.",
+    "evaluateProofStoryReviewCompleteness (proofstory.ts:1858) iterates proofStoryContract.acceptanceBindings to collect required verificationIntentRefs; a withdrawn binding's intents must drop out of that required set.",
+    "B-bf52 is the precedent: scope-shrinkage-decision.json set removedMilestoneIds:['CHK-003'] confirmed+userConfirmed, yet CHK-003 is still status done and AB-003 still asserts 'identifier-embedded ordinals stay distinct'; finding B-bf52:F-062 filed this as a canonical-record inconsistency."
+  ],
+  "constraints": [
+    "The PLAN freeze on proofstory_contract_set must stay: the correction is append-only, never an edit or delete of an original binding.",
+    "done must keep meaning genuinely delivered; withdrawn must never increment delivered or completed-success counts anywhere.",
+    "Withdrawal authority must be unforgeable by a DEV agent: it flows only from a confirmed+userConfirmed scope-shrinkage decision recorded by the operator.",
+    "The checklist layer and the acceptance-contract layer are two records linked by the same decision id, with consistency validated in both directions; neither silently drives the other.",
+    "Per CLAUDE.md handler convention, every schema constraint must be re-validated at handler entry and at every consuming gate, and the internal-call path that bypasses Zod must be tested.",
+    "A story must not obtain a formal PASS by withdrawing every acceptance binding; full withdrawal requires explicit re-approval (minimum-delivery floor).",
+    "Existing scope-shrinkage decisions without the new fields must keep loading (B-bf52 decision.json is the compatibility fixture).",
+    "Change is TypeScript-only inside packages/main; no network, no destructive git."
+  ],
+  "unknowns": [
+    "Whether the operator should also be able to mark withdrawn incrementally via checklist_update, or whether the scope-shrinkage decision writer is the sole applier — resolved in decision_set (sole-writer chosen for unforgeable authority and consistency)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/hints.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/",
+    "packages/main/src/validate.ts"
+  ],
+  "timestamp": "2026-07-24T19:46:08.433Z"
+}
