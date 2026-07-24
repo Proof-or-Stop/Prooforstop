@@ -42,7 +42,51 @@
       "context": "Add a repeat-block ledger keyed on (storyId, gate, digest of the block reason). Increment on an identical consecutive block; reset when the gate passes or the block reason changes, so a genuinely progressing review is never penalised.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After fix, gateFailureDigest(cmd, reasonA) vs gateFailureDigest(cmd, reasonB) where both share the 200-char invariant ProofStory header but have different Diagnostic gaps tails -> produces two distinct digest keys; WHY: core fix verification -- different blockers must not collide",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount called with blocker-A twice then blocker-B once (all with shared header, different tails) -> maxGateFailureCount returns 2 (blocker-A count), not 3; WHY: counter correctly tracks per-distinct-key after digest fix",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount with genuinely identical reason 3 times -> maxGateFailureCount returns 3 and assessBreaker trips with gate-repeat; WHY: fix must not break detection of real infinite loops -- desirable collisions preserved",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gateFailureDigest with reason >10KB containing many volatile tokens (absolute paths, ISO timestamps, hex IDs, bare numbers) -> normalization produces a stable deterministic key; same 10KB reason called twice returns identical digest; WHY: large-input stress + normalization idempotency",
+            "type": "cli"
+          },
+          {
+            "desc": "gateFailureDigest with empty reason string -> returns a valid non-empty digest key without throwing; WHY: null/empty input safety boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "gateFailureDigest with two reasons that differ only by whitespace variation (multiple spaces vs single space, trailing newlines) -> same digest because normalization collapses whitespace; WHY: whitespace-only differences are not semantically distinct blockers",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two reasons whose first 200 chars are identical and whose tails differ by a single trailing space character -> must produce distinct keys after fix; WHY: minimal distinguishing delta ensures the fix does not use a too-coarse comparison window that still truncates",
+            "type": "cli"
+          },
+          {
+            "desc": "Reason crafted so normalization collapses the tail entirely to # sequences (all content beyond char 200 is digits and absolute paths) -> still distinguishable from a reason whose tail has a different count of # tokens; WHY: normalization must not destroy ALL distinguishing information in the tail",
+            "type": "cli"
+          },
+          {
+            "desc": "Two reasons that differ only in digits within the first 200 chars (e.g. b-1234 vs b-5678, both normalized to b-#) -> SHOULD still collide (same semantic blocker, only volatile tokens differ); WHY: fix must not over-discriminate by removing normalization -- desirable collisions must be preserved",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
