@@ -139,6 +139,21 @@
       "resolvedAt": "2026-07-24T01:27:35.398Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-cc54:F-008",
+      "desc": "packages/main/src/core/convergence-breaker.ts:504-517 extractGateBlockSignals only captures diagnostic-gap ids that literally START with one of 5 whitelisted prefixes (missing|invalid|stale|unreadable|tampered) via the unbracketed regex, plus any bracketed underscore-token. Most REAL gap codes emitted by proofstory.ts are neither bracketed nor prefix-whitelisted -- e.g. milestone_missing_verification_intent_refs (proofstory.ts:1050), acceptance_binding_missing_verification_intent_refs (proofstory.ts:1093), scope_ambiguity, milestone_source_requirement_unbound, uncovered_required_milestones, review_completeness_missing_evidence, and every trigger-reason code (high_assurance_risk, collision_required_standard, ...). Verified by direct execution of the actual gateFailureDigest/extractGateBlockSignals source against the two REAL codes above with the same invariant banner used in production (machine.ts:179 renderProofStoryDiagnosticReport format): they collapse onto the IDENTICAL digest key -- reproducing the exact B-cc54 root-cause bug (different unmet preconditions sharing a repeat-block key) that this story exists to eliminate. The smoke test never catches this because gate-repeat-block-smoke.ts:67 GAPS_3 uses a FABRICATED gap code missing_verification_intent_refs that does not exist anywhere in production code (grep confirms) and only happens to satisfy the whitelist by starting with missing_ -- masking that the two real production codes for this exact precondition are uncovered and still collide. CHK-002:happy:0 (different Diagnostic gaps tails -> distinct keys) is therefore false for the majority of real gap/trigger codes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-24T01:34:47.968Z",
+      "reviewRound": "2026-07-24T01:15:47.893Z",
+      "reviewRunId": "B-cc54:RR-009",
+      "_hash": "14c4c26ff9f84f9bea4811dbfef5d722c9d2e99a4137dd0a27abc57c283b0b9e",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
