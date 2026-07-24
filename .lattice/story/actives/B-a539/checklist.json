@@ -38,7 +38,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "git show 304d459c8d --stat && git show 304d459c8d -- lattice.config.json",
+          "result": "pass",
+          "note": "git show 304d459c8d reports \"1 file changed, 1 deletion(-)\" and the diff contains exactly one removed line, the bare string entry. An ordered-subsequence comparison of the pre-edit (48) and post-edit (47) normalised lists consumed all 47 post entries with that single removal, so no other entry was added, removed, reordered or reworded.",
+          "headHash": "978ad617046dbef9ec96377bed0bd3832ca5ee16",
+          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
+          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
+          "timestamp": "2026-07-24T17:58:56.155Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
