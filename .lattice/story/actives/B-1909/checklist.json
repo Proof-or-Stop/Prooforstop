@@ -260,6 +260,18 @@
           "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
           "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
           "timestamp": "2026-07-24T21:37:51.252Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "effectiveAcceptanceBindings excludes the withdrawn binding while the original acceptanceBindings[AB-1] object survives byte-for-byte (JSON compared before/after).",
+          "headHash": "ce50902adea444d0f9aad7131b9403c2f6e25cd1",
+          "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
+          "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
+          "timestamp": "2026-07-24T21:37:54.982Z"
         }
       ]
     },
