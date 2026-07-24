@@ -1172,6 +1172,24 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T17:36:22.495Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-bf52:F-062",
+      "desc": "cross-host (codex-cli host-B, final review): the recorded non-delivery is internally inconsistent at the story-record level, even though codex found NO defect in the shipped code across its other four items. CHK-003 still carries status done and its title, userSees and verificationIntent all describe the withdrawn behaviour as delivered, and the ProofStory contract binding still states that identifier-embedded ordinals stay distinct, while the implementation and its tests deliberately produce one key for that pair. The source comments and the inverse test cases are accurate; the canonical product record is not. Note one part of the report was a timing artefact rather than an error: codex read scope_shrinkage_decision_get as not configured because it ran concurrently with the decision being written, and the decision is now present and readable with the operator confirmation and CHK-003 listed as removed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T17:41:43.968Z",
+      "reviewRound": "2026-07-24T16:08:34.598Z",
+      "_hash": "01419e925a80aa19376fd25ba80491c10a3ffa83b6c89a344b8c438d2065f086",
+      "files": [
+        ".lattice/story/actives/B-bf52/checklist.json",
+        ".lattice/story/actives/B-bf52/proofstory.json"
+      ],
+      "signatureTag": "missing|json|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
