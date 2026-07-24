@@ -89,6 +89,21 @@
       "_hash": "41a40c0cc0da23511cc91562931673dcbf70ff1a7e0d3b1a8127009814e9c0b3",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-007",
+      "desc": "packages/main/src/core/convergence-breaker.ts:510 the narrowed standalone-number rule `(?<![\\w-])\\d+(?![\\w-])` does not normalize a digit run directly attached to a UNIT-LETTER suffix (e.g. 45s, 5m, 2h) because the follow-char is a word character, so the negative lookahead blocks the match. Three real, story_advance-reachable rejection messages embed exactly this shape via formatLeaseAge/formatLockAge (heartbeat `${age} ago`, age like 45s/5m/2h): (1) packages/main/src/core/story-owner-lease.ts:591-598,616-640 formatLeaseAge/formatNonOwnerError (thrown from cli/ownership-gate.ts non-owner story_advance rejection -- the common no-lease-owned-by-me path), (2) packages/main/src/cli/ownership-gate.ts:301-306 active-lease --takeover rejection, (3) packages/main/src/core/main-write-lock.ts:71-113 formatLockAge/buildMainWriteLockContentionMessage (DONE-phase main-write-lock contention), (4) packages/main/src/core/validation-execution-lock.ts:233-262 formatLockAge/buildValidationLockContentionMessage (TEST-phase validation-lock contention). Verified against the built packages/main/dist/core/convergence-breaker.js: gateFailureDigest(story_advance, msg-with-45s) !== gateFailureDigest(story_advance, msg-with-46s) for all four message shapes (confirmed by direct node execution), so a story_advance retried against an actively-heartbeating foreign lease or a held lock gets a NEW digest key on essentially every retry and maxGateFailureCount never reaches 2 -- assessBreaker never trips gate-repeat for exactly the runaway-retry-loop scenario the breaker exists to catch. Confirmed this is a functional REGRESSION: the OLD unconditional /\\d+/g rule DID collapse these same two messages to one key (verified directly), so narrowing broke a previously-working case. This also falsifies the CHK-003 verificationIntent edge claim recorded in plan.md #3 (Confirmed no production rejection message embeds a volatile counter attached to an identifier: the only attached-counter shapes in the tree are step record ids at planned-steps-executor.ts:1298 and :1309, and that module throws no Error) -- that module indeed throws nothing, but the heartbeat-age shape above DOES throw reachable Errors and was missed by that survey. None of CHK-004s must-still-collapse matrix cases (packages/main/src/tasks/convergence-breaker-smoke.ts) exercise a digit-attached-to-unit-letter shape -- its only counter/timestamp case uses ISO-8601 timestamps plus a free-standing (attempt N) counter -- so the regression guard does not catch this. Fix: normalize the digit+unit-letter age shape (e.g. \\\\b\\\\d+[smh]\\\\b) before/alongside the standalone-number rule, or normalize via the formatted age helper output generally.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-24T00:04:19.152Z",
+      "reviewRound": "2026-07-23T23:22:59.637Z",
+      "reviewRunId": "B-bf52:RR-003",
+      "_hash": "2e6dbcdafe7f416e9d64d0a576c2df1c7cf3f0fef266445c7531c1b13118df8e",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
