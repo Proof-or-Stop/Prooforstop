@@ -329,9 +329,9 @@
       "id": "CHK-005",
       "title": "Validate withdrawal authority and cross-layer consistency in both directions",
       "context": "Refuse status withdrawn with no decisionRef, or with a decisionRef naming a decision that does not exist, is not confirmed/userConfirmed, or does not list that item in withdrawnChecklistItemRefs. Refuse a binding withdrawal that is not authorized by the same kind of decision, and refuse the two layers citing different decision ids for the same shrinkage. Per CLAUDE.md Handler coding convention, enforce at Zod, at handler entry, and at every consuming gate, and test the internal-call path that bypasses Zod. Withdrawal authority follows the scope-shrinkage decision's existing approval, so a DEV agent cannot unilaterally withdraw a binding.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T21:44:53.922Z",
       "verificationIntent": {
         "happy": [
           {
