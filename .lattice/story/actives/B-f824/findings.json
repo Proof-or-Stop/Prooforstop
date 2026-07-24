@@ -5,7 +5,7 @@
       "desc": "type-safety: packages/main/src/tasks/flow-stability-smoke.ts:4849,4876,4885 read the new reviewWindowSuiteExecutions field via `((x ?? {}) as unknown as Record<string, unknown>).reviewWindowSuiteExecutions` instead of the plain typed `x?.reviewWindowSuiteExecutions` used one line above for the sibling unchangedSuiteExecutions field on the exact same object (e.g. line 4844). deriveDonePreparePassConvergence already returns DonePrepareConvergence | null with reviewWindowSuiteExecutions as a required number field (done-prepare.ts:123,205), so no cast is structurally needed; the erase-to-Record<string, unknown> cast just discards compile-time protection against a typo in the new field name in three freshly-added assertions.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T01:06:00.539Z",
@@ -16,7 +16,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "missing|ts|type-safety-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the three erase-to-Record casts at flow-stability-smoke.ts:4849/4876/4885 with plain typed optional-chain access matching the sibling unchangedSuiteExecutions style (commit 931085db0bee); npm --prefix packages/main run build clean proves compile-time field-name checking restored; test:flow-stability-smoke green.",
+      "resolvedAt": "2026-07-24T01:43:27.920Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
