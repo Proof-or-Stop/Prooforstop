@@ -91,22 +91,36 @@ reviewer re-attestation is already split (observable vs blocking, boundary =
 
 **Owner**: lattice-implementer
 **DependsOn**: CHK-002
+**Scope note (OQ-1 resolution, PLAN round 3)**: the scope reviewer verified the stale
+sentence ("...repeated unchanged-suite execution, and unsuccessful-closeout constraints
+remain independently blocking") exists ONLY in
+`done-prepare-automation-execution-plan.md:734`. The other two docs named in the frozen
+CHK-004 context (`workflow-convergence-failure-remediation-execution-plan.md`,
+`done-prepare-heartbeat-review-assurance-ux-execution-plan.md`) carry a
+"B-c163 convergence contract (implemented)" section that never mentions suite-execution
+counting — they need NO edits, and injecting new `reviewWindowSuiteExecutions` prose into
+them would be scope creep. The item title says "three decisions docs": satisfy it by
+verifying all three (rg audit) while rewriting only the one doc that is actually stale.
+
 **Files**:
-- Modify: docs/requirements/decisions/done-prepare-automation-execution-plan.md,
-  docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md,
+- Modify: docs/requirements/decisions/done-prepare-automation-execution-plan.md
+- Verify-only (no edits): docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md,
   docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md
 
 **Verify**:
 - `rg -n "remain independently blocking" docs/requirements/decisions/` shows only prose
   consistent with the phase-anchored split (or updated wording).
-- `rg -ln "reviewWindowSuiteExecutions" docs/requirements/decisions/` lists all three docs.
+- `rg -ln "unchangedSuiteExecutions|reviewWindowSuiteExecutions" docs/requirements/decisions/`
+  lists only done-prepare-automation-execution-plan.md (the other two stay silent on
+  suite-execution counting).
 - docs-drift preflight stays green.
 
 **DoneWhen**:
-- Each of the three docs states: `unchangedSuiteExecutions` blocks only on per-group
-  duplicate executed terminals at or after the current TEST entry plus contradictory
-  reused terminals with `commandExecutions > 0`; `reviewWindowSuiteExecutions` records
-  whole-window per-group duplicates as observable, non-blocking telemetry.
+- done-prepare-automation-execution-plan.md states: `unchangedSuiteExecutions` blocks only
+  on per-group duplicate executed terminals at or after the current TEST entry plus
+  contradictory reused terminals with `commandExecutions > 0`;
+  `reviewWindowSuiteExecutions` records whole-window per-group duplicates as observable,
+  non-blocking telemetry.
 - The rewritten prose stays consistent with the sibling
-  reviewerReattestations/postTestReviewerReattestations split documentation
-  in the same docs (no contradictions introduced).
+  reviewerReattestations/postTestReviewerReattestations split documentation in that doc.
+- The other two docs are verified untouched by `git diff` (no injected prose).

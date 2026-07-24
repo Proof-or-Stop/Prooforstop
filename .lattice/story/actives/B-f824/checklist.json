@@ -150,12 +150,10 @@
         "requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
         "requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
-      "userSees": "rg -n \"remain independently blocking\" docs/requirements/decisions/ returns only prose consistent with the phase-anchored split, and all three updated docs name reviewWindowSuiteExecutions as observable telemetry",
+      "userSees": "rg -n \"remain independently blocking\" docs/requirements/decisions/ returns only prose consistent with the phase-anchored split, done-prepare-automation-execution-plan.md names reviewWindowSuiteExecutions as observable telemetry, and git diff shows the other two B-c163 docs untouched",
       "files": {
         "modify": [
-          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
-          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
-          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
         ],
         "create": [],
         "test": []
@@ -163,14 +161,14 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "All three decisions docs describe the phase-anchored split for unchangedSuiteExecutions and name reviewWindowSuiteExecutions as observable telemetry",
+            "desc": "done-prepare-automation-execution-plan.md describes the phase-anchored split for unchangedSuiteExecutions and names reviewWindowSuiteExecutions as observable telemetry, consistent with its reviewerReattestations split prose",
             "type": "docs",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "rg across docs/requirements/decisions finds no remaining claim that repeated unchanged-suite execution blocks unconditionally in any phase",
+            "desc": "rg across docs/requirements/decisions finds no remaining claim that repeated unchanged-suite execution blocks unconditionally, and the two other B-c163 docs remain untouched by git diff (no injected suite-counting prose)",
             "type": "cli",
             "priority": "must"
           }
