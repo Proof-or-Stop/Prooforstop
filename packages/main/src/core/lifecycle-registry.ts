@@ -636,6 +636,15 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'grill.json',
   'clusters.json',
   'scope-extension-decisions.json',
+  // Acceptance-topology story artifacts written by StoryStore (commits
+  // bff1a4c277 / 78a483a4d6); registered in B-5e4a. Provenance-only
+  // registration — no gate evidence semantics change. Deliberately excludes
+  // authority-receipt-refs.json (dead writeLegacyReceiptRefs path, Authority
+  // future-capability domain; see B-5e4a scope-boundary excludedScope).
+  'acceptance-basis.json',
+  'pre-review-check.json',
+  'topology-critic-receipt.json',
+  'topology-exclusion-approvals.json',
 ]);
 
 /**
