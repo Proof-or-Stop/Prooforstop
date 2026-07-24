@@ -76,11 +76,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Two cases pin the prefix-window residual, both guard prefix-window-residual: 'scope-extension-proposal-ordinal-past-window' and 'requirement-ordinal-past-window'. The second is an honest cost: req- is allowlisted and its id IS protected, but its only story_advance-reachable producer at core/proofstory.ts:1026 renders it past the window, so the pair collapses anyway. Widening the window to 592 leaves B-cc54 green and 600 breaks it; the window stays where it is for byte-compatibility, not because no relaxation exists. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
-          "headHash": "d8e09e589175481c6e0973a1bf3c7d73fd0dd63e",
-          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
-          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
-          "timestamp": "2026-07-24T14:14:40.123Z"
+          "note": "Two cases guard prefix-window-residual: 'blocking-finding-cited-id-past-window' and 'requirement-ordinal-past-window'. The window residual was REBUILT on a different fixture this round because, once the punctuation reduction was deleted, every SEP- token in the old fixture became comma- or period-attached and the pair could no longer measure the window at any cut — recorded as a rebuild, not restated as if unchanged. Honest weakening also recorded in source: 'requirement-ordinal-past-window' now normalizes identically and no legal window reaches it. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
+          "headHash": "6500dc0efd94c2cd650d63269dac3d77c619c571",
+          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
+          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
+          "timestamp": "2026-07-24T14:52:23.852Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
