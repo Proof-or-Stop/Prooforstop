@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Closed-set narrow trust for story-dir artifacts stays (B-b9d0); fixes add named entries, never open the set",
+    "A recurring manual-catch-up bug class deserves a mechanical invariant, not another one-off patch",
+    "Registration is provenance-only; never couple it to gate evidence semantics",
+    "Exclusions must be named and auditable, not silent"
+  ],
+  "drivers": [
+    "Every acceptance-topology story hits a blocking false OUT_OF_SCOPE and needs a manual acknowledge",
+    "The registry has needed hand-patching at least twice before (B-12a1, B-3ed9); the class keeps regressing",
+    "The scope gate is trust infrastructure in this repo; changes must be minimal and reviewable"
+  ],
+  "options": [
+    {
+      "name": "A: register only acceptance-basis.json",
+      "pros": [
+        "smallest diff",
+        "unblocks the reported symptom"
+      ],
+      "cons": [
+        "three other live acceptance-topology filenames keep triggering the same false violation",
+        "regression class stays open; next new artifact repeats the incident"
+      ]
+    },
+    {
+      "name": "B: register all four acceptance-topology filenames + coverage-invariant smoke",
+      "pros": [
+        "fixes all live occurrences of the symptom",
+        "smoke mechanically derives StoryStore top-level writes and fails with a named filename on any future gap",
+        "matches existing lifecycle-registry-contract style of named-divergence checks"
+      ],
+      "cons": [
+        "slightly larger diff",
+        "smoke needs a named exemption list for the excluded legacy filename"
+      ]
+    },
+    {
+      "name": "C: open the classifier to any json under a story dir",
+      "pros": [
+        "never needs registry updates again"
+      ],
+      "cons": [
+        "reverses the deliberate B-b9d0 narrow-trust policy",
+        "arbitrary unknown files under story dirs would silently pass scope"
+      ]
+    }
+  ],
+  "chosen": "B: register all four acceptance-topology filenames + coverage-invariant smoke",
+  "rationale": "B fixes every live occurrence of the false violation and closes the regression class mechanically with a named-divergence invariant, at the cost of a slightly larger but still narrow diff; A leaves known-broken filenames in place and C weakens the trust boundary the scope gate exists to enforce.",
+  "preMortem": [
+    {
+      "scenario": "The smoke derivation (source scan of store.ts write literals) is too clever and breaks when store.ts is refactored",
+      "trigger": "A rename of writeJson or a move of writers out of store.ts makes the scan return an empty set",
+      "consequence": "The invariant silently passes on zero derived filenames and stops guarding anything",
+      "mitigation": "Assert the derived set has a sane minimum size (>= the count of currently known writers) so an empty or shrunken derivation fails loudly"
+    },
+    {
+      "scenario": "Registering the four filenames masks a genuine scope violation where an agent hand-edits acceptance-basis.json",
+      "trigger": "A malicious or buggy agent writes arbitrary content to a registered filename in its story dir",
+      "consequence": "The path classifies as lifecycle_artifact and the scope gate does not flag it",
+      "mitigation": "This is unchanged pre-existing semantics for all registered artifacts: classification is provenance-only and content integrity is enforced separately by artifact signatures (acceptance-basis has its own signing per bff1a4c277); no new exposure is added"
+    },
+    {
+      "scenario": "The named exemption for the legacy receipt-refs filename rots: its write path goes live later and stays unregistered",
+      "trigger": "Future Authority-domain work revives writeLegacyReceiptRefs without touching the registry",
+      "consequence": "That story hits the same false OUT_OF_SCOPE violation this story fixes",
+      "mitigation": "The exemption entry carries a comment naming the owning domain and the condition for removal; the smoke failure message tells the future implementer exactly which constant to update"
+    },
+    {
+      "scenario": "Parallel in-flight stories (e.g. B-4043 acceptance topology Wave 4) touch the same registry region and conflict on merge",
+      "trigger": "Both stories modify lifecycle-registry.ts near line 599",
+      "consequence": "Merge conflict or combined-state semantic drift at DONE",
+      "mitigation": "The diff is additive set entries only; DONE gate requires merging main first, and the combination review discipline for framework stories covers the merged state"
+    }
+  ],
+  "timestamp": "2026-07-24T00:06:22.330Z"
+}

@@ -7,7 +7,35 @@
       "userSees": "node repro: classifyLifecycleArtifact(.lattice/story/actives/B-bf52/acceptance-basis.json) returns kind=lifecycle instead of null; scope classifier output shows category=lifecycle_artifact rule=lifecycle_artifact allowed=true for the same path",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "classifyLifecycleArtifact returns kind=lifecycle for .lattice/story/actives/<id>/acceptance-basis.json and the other three topology filenames; classifyScopePath returns category=lifecycle_artifact allowed=true",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An unregistered basename in the same story dir (e.g. random.json) still classifies null / out_of_scope — the closed set stays closed",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The four filenames under a legacy docs/story/<id>/ prefix still classify as legacy-metadata, unchanged",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A crafted path like .lattice/story/actives/../../etc/acceptance-basis.json or a non-canonical storyId does not classify as lifecycle (path traversal / id checks unchanged)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
