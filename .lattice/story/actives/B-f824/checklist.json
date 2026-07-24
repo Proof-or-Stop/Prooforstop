@@ -43,7 +43,41 @@
       "context": "In deriveDonePreparePassConvergence: keep field unchangedSuiteExecutions as the blocking counter but compute it as per-group max(0, postTestExecutedCount - 1) using facts.testEntryAt as the boundary, plus contradictory reused terminals with commandExecutions greater than zero in any phase; add a new observable field reviewWindowSuiteExecutions = per-group max(0, totalExecutedCount - 1) counted across the whole window so redundancy stays visible without blocking. Update DonePrepareConvergence type at done-prepare.ts:205, the transcript regex parser at :1077-:1097, the render line at :1666, and assertDonePreparePassConvergence which must keep asserting only on the blocking fields.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "done_prepare PASS transcript renders the convergence line as convergence: metadataRollbacks=0 reviewerReattestations=N postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 reviewWindowSuiteExecutions=M successfulCloseout=1 and a B-956f-shaped closing reaches DONE prepare: PASS instead of convergence invariant failed",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveDonePreparePassConvergence returns both counters: blocking unchangedSuiteExecutions counts only per-group post-TEST duplicate executed terminals plus contradictory reused terminals; observable reviewWindowSuiteExecutions counts whole-window per-group duplicates",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "donePrepareJsonResult parses the new convergence render line including reviewWindowSuiteExecutions into the JSON convergence block",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Terminal timestamped exactly at facts.testEntryAt counts as post-TEST (>= comparison, same convention as postTestReviewerIdentityIds)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Transcript without a convergence line (older shape) does not crash donePrepareJsonResult and yields no convergence block",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "assertDonePreparePassConvergence still throws when unchangedSuiteExecutions is nonzero and never consults the observable field, so demoting blocking data into the observable field cannot pass the gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
