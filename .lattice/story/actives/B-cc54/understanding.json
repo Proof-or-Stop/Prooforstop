@@ -1,0 +1,26 @@
+{
+  "task": "The repeat-block breaker keys repeated gate failures on a 200-character prefix of the refusal text, so genuinely different blockers collapse onto one key and freeze a story that is actually making progress.",
+  "outcome": "Fixing one unmet precondition at a time no longer looks like a stuck loop: each distinct blocker gets its own repeat-block key, while a genuinely identical blocker still accumulates to the trip threshold.",
+  "facts": [
+    "A repeat-block breaker already exists (B-bbaf) in core/convergence-breaker.ts; its contract comment says it counts same-(command,reason) failures.",
+    "gateFailureDigest normalizes the reason then slices to 200 chars before hashing.",
+    "For ProofStory gate failures the first 200 normalized chars are an invariant banner; the Diagnostic gaps section naming the unmet precondition sits far beyond it.",
+    "Digit normalization collapses trigger reasons (4) and (6) to the same text.",
+    "Reproduced on B-cc54 itself: three distinct blockers shared one key and tripped gate-repeat 3>=2.",
+    "Clearing the resulting freeze requires an interactive human TTY ack, which an unattended run cannot obtain.",
+    "The spike resolved the only open unknown: review-convergence.ts keys on a finding-count trend, not refusal identity, and is advisory-only, so it cannot observe this failure mode."
+  ],
+  "constraints": [
+    "Must stay fail-closed: a genuinely stuck loop must still reach the trip threshold.",
+    "Must not rewrite finding attribution or auto-satisfy any gate.",
+    "Must not change behaviour for reasons that carry no structured signal.",
+    "The signal vocabulary must be genuinely bounded (F-002): any bracketed lowercase word would let a loop mint a fresh key per attempt and escape the brake."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-24T00:39:59.777Z"
+}

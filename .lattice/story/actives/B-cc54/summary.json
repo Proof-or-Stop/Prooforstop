@@ -1,0 +1,56 @@
+{
+  "storyId": "B-cc54",
+  "changes": "packages/main/src/core/convergence-breaker.ts: gateFailureDigest no longer keys repeated gate failures on a bare 200-character prefix. A new extractGateBlockSignals pulls the blocker's structured identity out of the whole normalized reason — bracketed reason codes that contain an underscore, plus gap ids and trigger reasons anchored on the bullet shape proofstory.ts:1911 actually renders — and the digest keys on a JSON encoding of (prefix, signals). A reason carrying no structured signal keeps the historical prefix-only key byte-for-byte. packages/main/src/tasks/gate-repeat-block-smoke.ts: new smoke covering all 37 verification intents plus regression cases. lattice.config.json: registers the smoke in validate.commands.",
+  "usage": "node packages/main/dist/tasks/gate-repeat-block-smoke.js — or just run lattice validate, which now includes it. No API or CLI surface changed; the behaviour change is that story_advance no longer freezes a story that is fixing one unmet precondition at a time.",
+  "expectedOutcome": "An unattended run that fixes one blocker at a time is no longer misread as a stuck loop and frozen; a genuinely repeated blocker still trips the brake.",
+  "actualTranscript": "node packages/main/dist/tasks/gate-repeat-block-smoke.js prints five ok CHK lines then 'gate-repeat-block-smoke: PASS' and exits 0; convergence-breaker-smoke still PASSes. Observed live during this story: after the fix landed, a new blocker ('story_review check not passed') received its own digest key at count=1 instead of accumulating onto the earlier ProofStory keys.",
+  "outcomeDiff": "No difference for the delivered scope. One scope correction along the way: the story was written as if no repeat-block breaker existed, but one already did (B-bbaf); the real defect was its dedup key, so the granted new module core/gate-repeat-block.ts was deliberately never created and machine.ts was never modified.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Recorded verbatim from lattice-review-test-coverage, not softened: the defect class of evidence-that-looks-verified-but-is-not recurred FIVE times in this story (F-001 assertions authored after the fix, F-004 stale red-evidence, F-006 stale verificationEvidence, F-008 fabricated fixture code, F-010 intent refs chosen to make the ledger look complete). Only F-006 was caught by an automated invariant, and that invariant is pre-existing platform infrastructure this story merely had to satisfy — not something this story built. The other four were caught solely by reviewers manually re-deriving ground truth. This story adds NO mechanical guard that would categorically catch a structurally identical sixth occurrence: protection against recurrence is exactly as good as the next reviewer's diligence, and is not structurally better than before this story started. Second limitation: signal extraction is bounded in FORM (multi-word snake_case anchored on the render shape), not as an enumerable set, so a newly invented snake_case token in a gate reason would register as a signal. Third: nothing couples a code commit to evidence recapture — the stale-evidence gate reliably fails closed, but staying fresh is discipline, not an invariant.",
+  "pitfalls": "Order matters and cost me two rounds: land and COMMIT every code change first, then re-capture verification evidence, or the evidence binds a pre-fix storyFilesHash and validate fails with 'verification coverage missing 37 required intent(s)'. Do not write a fixture code from memory — grep core/proofstory.ts: GAPS_3 used a fabricated 'missing_verification_intent_refs' that exists nowhere in production and passed only because it started with the whitelisted 'missing_' prefix, masking the fact that real gap codes extracted zero signals and the headline bug was still live. Prove RED with the CURRENT assertion set, not an earlier draft of it; assertions authored after the fix prove nothing. red_evidence_create is PLAN-only, so correcting a stale red-evidence record needs a REPLAN round-trip. finding_resolve is REVIEW-only. Reviewers and the main agent share one worktree, so revert-and-restore RED proofs race each other and a concurrent validate holds a story-scoped lock — wait for it rather than retrying, since every failed story_advance feeds the very gate-repeat counter this story is about.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 460341
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 159607
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 2684607
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 1010082
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 5723911
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 73542
+    }
+  },
+  "totalDurationMs": 10112719,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-24T02:15:17.192Z",
+  "updatedAt": "2026-07-24T02:15:17.192Z"
+}

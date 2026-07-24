@@ -466,6 +466,80 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
  * (hashes, ids, timestamps, bare numbers, paths) so two rejections that differ
  * only in incidental detail collapse to the same key.
  */
+/**
+ * B-cc54: pull the STRUCTURED blocker identity out of a normalized gate reason.
+ *
+ * gateFailureDigest hashes only the first 200 normalized characters. For a
+ * structured gate failure that prefix is an invariant banner — every ProofStory
+ * DEV-gate refusal opens with the same "cannot enter dev: proofstory dev gate is
+ * enforce ... status: fail blocking: yes hardening level: high_assurance" text —
+ * while the part naming WHICH precondition is unmet ("diagnostic gaps: -
+ * missing_acceptance_binding ...") sits far beyond character 200. Digit
+ * normalization erases what is left ("trigger reasons (4)" and "(6)" both
+ * collapse to "(#)").
+ *
+ * Reproduced on B-cc54 itself: three genuinely DIFFERENT blockers (missing
+ * intent snapshot -> missing acceptance binding -> missing verificationIntentRefs)
+ * collapsed onto one digest, so fixing one precondition at a time read as a stuck
+ * repeat loop and froze the story. Clearing that freeze demands an interactive
+ * human ack, which an unattended run can never obtain — so a false positive here
+ * is precisely a "needs a human" failure.
+ *
+ * The key therefore also carries the blocker's structured identity: bracketed
+ * reason codes ([missing_scope_boundary]) and diagnostic gap ids
+ * (- missing_spike_evidence [warn; spike.json]).
+ *
+ * F-005: be precise about what "bounded" means here, because an earlier draft of
+ * this comment claimed a bounded VOCABULARY that the code did not enforce — and
+ * that gap between claim and code is exactly what F-002 turned out to be. What is
+ * bounded is the FORM, not an enumerable set: a token counts only if it is
+ * multi-word snake_case. Any freshly invented multi-word snake_case token would
+ * still register as a signal. That is acceptable because such tokens are emitted
+ * by gate code, not by free text, and the alternative (accepting any bracketed
+ * word) demonstrably let ordinary annotations mint a new key per attempt. What
+ * the form restriction buys is that a genuinely stuck loop keeps emitting the
+ * SAME set and still trips: this widens the key, it never resets the counter on
+ * free text.
+ */
+export function extractGateBlockSignals(normalizedReason: string): string[] {
+  const signals = new Set<string>();
+  // Bracketed reason codes: [missing_scope_boundary], [init_check_tampered], ...
+  //
+  // F-002: the bracket pattern MUST require at least one underscore. An earlier
+  // draft accepted any bracketed lowercase word, which silently admitted ordinary
+  // annotations like [note] / [info] / [todo] / [warn]. A genuinely stuck loop
+  // whose reason text carried a VARYING plain word would then get a fresh key on
+  // every attempt and escape the brake entirely — reintroducing exactly the
+  // unbounded loop this module exists to stop. Requiring an underscore restricts
+  // the FORM of an accepted token; it does not enumerate a fixed set.
+  for (const m of normalizedReason.matchAll(/\[([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\]/g)) signals.add(m[1]);
+
+  // F-008: capture diagnostic gap ids and trigger reasons by their STRUCTURAL
+  // position, not by a prefix whitelist. An earlier draft only accepted tokens
+  // starting with missing/invalid/stale/unreadable/tampered, which matched a
+  // FABRICATED fixture but almost none of the codes production actually emits —
+  // acceptance_binding_missing_verification_intent_refs,
+  // milestone_source_requirement_unbound, review_completeness_missing_evidence,
+  // scope_ambiguity and every trigger reason extracted ZERO signals, so real
+  // distinct blockers still collided on one key and the headline bug survived.
+  //
+  // proofstory.ts renders each entry as "  - <code> [<severity>; <artifact>]: …"
+  // and each trigger reason as "  - <code>: …", so a bullet followed by a
+  // multi-word snake_case token followed by '[' or ':' is a reliable, bounded
+  // anchor. Ordinary prose bullets ("- If there is no output for 4 minutes…")
+  // and anti-stall action labels ("- [retry] …") do not match it.
+  for (const m of normalizedReason.matchAll(/-\s+([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\s*[[:]/g)) {
+    signals.add(m[1]);
+  }
+
+  // Codes mentioned inline rather than as a bullet (kept from the first draft;
+  // narrower than the structural rule above, and harmless alongside it).
+  for (const m of normalizedReason.matchAll(/\b((?:missing|invalid|stale|unreadable|tampered)_[a-z0-9_]+)/g)) {
+    signals.add(m[1]);
+  }
+  return [...signals].sort();
+}
+
 export function gateFailureDigest(command: string, reason: string): string {
   const normalized = String(reason ?? '')
     .toLowerCase()
@@ -475,9 +549,20 @@ export function gateFailureDigest(command: string, reason: string): string {
     .replace(/\/[^\s"']+/g, '#')                 // absolute paths
     .replace(/\d+/g, '#')                        // bare numbers
     .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 200);
-  const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);
+    .trim();
+  // B-cc54: scan the WHOLE normalized reason for structured blocker identity,
+  // then key on prefix + that identity. A reason carrying no structured signal
+  // keeps the historical prefix-only key, so existing behaviour is unchanged.
+  const signals = extractGateBlockSignals(normalized);
+  const prefix = normalized.slice(0, 200);
+  // F-003: encode the parts unambiguously instead of concatenating them with a
+  // literal " signals:" delimiter. Concatenation only resisted forgery by accident
+  // (a reason containing the delimiter text also fed its own extraction); a JSON
+  // encoding makes the boundary structural, so no reason body can impersonate a
+  // signal list. A reason with no signals still hashes the bare prefix, keeping
+  // the historical key byte-identical.
+  const basis = signals.length > 0 ? JSON.stringify([prefix, signals]) : prefix;
+  const h = createHash('sha1').update(`${command}\n${basis}`).digest('hex').slice(0, 12);
   return `${command}/${h}`;
 }
 
