@@ -935,7 +935,7 @@
       "desc": ".lattice/story/actives/B-bf52/checklist.json:101 CHK-001:adversarial:0 evidence command is bound to the WRONG script: node packages/main/dist/tasks/gate-repeat-block-smoke.js (B-cc54's suite), while its own file field (line 100) and its note text are entirely about convergence-breaker-smoke.ts (case 'proofstory-gap-signal-set' [guard: signals-fold], mutation M11, and 'bcc54-cross-vendor-noise' retraction). Reproduced: proofstory-gap-signal-set exists only in convergence-breaker-smoke.ts:837, nowhere in gate-repeat-block-smoke.ts. Running the literally-recorded command prints only the generic 'ok CHK-001..CHK-005 / gate-repeat-block-smoke: PASS' banner -- nothing demonstrating the M11/signals-fold claim. Every sibling adversarial evidence entry in this checklist (CHK-002:adversarial:0, CHK-003:adversarial:0, CHK-004:adversarial:0) correctly binds command to convergence-breaker-smoke.js; this one alone diverges. The underlying claim IS true when the correct command is run (independently reproduced: M11 fails exactly proofstory-gap-signal-set and nothing else), so this is an evidence-binding defect, not a code defect -- but the recorded artifact, taken literally, does not reproduce what its note asserts.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T12:34:04.321Z",
@@ -943,7 +943,9 @@
       "reviewRunId": "B-bf52:RR-028",
       "_hash": "6424702e856a5250687a5c1d4125ebb11b28c0226d7d3b8d6209e8ddb39d4034",
       "signatureTag": "adversarial|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T12:35:48.825Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-050",
