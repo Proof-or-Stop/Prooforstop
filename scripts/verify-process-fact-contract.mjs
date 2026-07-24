@@ -698,6 +698,54 @@ function hasDiffEnumerationBlockingBranch(body) {
   return ok;
 }
 
+/** True when a subtree contains a real binary `<x>.timestamp >= facts.testEntryAt` comparison (F-002: a comment cannot satisfy this — comments are not AST nodes). */
+function hasTestEntryAnchoredComparison(body) {
+  let ok = false;
+  const walk = (n) => {
+    if (ok) return;
+    if (ts.isBinaryExpression(n)
+        && n.operatorToken.kind === ts.SyntaxKind.GreaterThanEqualsToken
+        && ts.isPropertyAccessExpression(n.left) && n.left.name.text === 'timestamp'
+        && ts.isPropertyAccessExpression(n.right) && n.right.name.text === 'testEntryAt'
+        && ts.isIdentifier(n.right.expression) && n.right.expression.text === 'facts') {
+      ok = true;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(body);
+  return ok;
+}
+
+/** True when a subtree contains a ThrowStatement. */
+function subtreeThrows(node) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isThrowStatement(n)) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a function body contains an `if` whose CONDITION references the given property and whose then-branch throws (F-003: adapts hasDiffEnumerationBlockingBranch; a dead-code reference outside the throwing branch cannot satisfy this). */
+function hasPropertyGuardedThrowingBranch(body, propName) {
+  let ok = false;
+  const walk = (n) => {
+    if (ok) return;
+    if (ts.isIfStatement(n)
+        && subtreeReferencesProperty(n.expression, propName)
+        && subtreeThrows(n.thenStatement)) {
+      ok = true;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(body);
+  return ok;
+}
+
 /** True when a function body contains an object-literal property with the given name. */
 function bodyHasObjectPropertyNamed(body, propName) {
   let found = false;
@@ -2136,14 +2184,17 @@ function assertCloseoutTrustBoundary() {
   // semantics, not an implementation detail. Anchor it mechanically: the derive
   // must split blocking executed duplicates at the current TEST entry, and the
   // blocking assert must never consume the whole-window telemetry counter
-  // (blocking on it recreated the B-956f closeout deadlock). The negative check
-  // is AST-scoped so a comment mentioning the counter cannot satisfy or trip it.
-  const donePrepareHandlerText = read('packages/main/src/handlers/done-prepare.ts');
-  assert(donePrepareHandlerText.includes('event.timestamp >= facts.testEntryAt'), 'packages/main/src/handlers/done-prepare.ts: convergence derive must anchor blocking duplicate-suite counting at the current TEST entry (event.timestamp >= facts.testEntryAt)');
+  // (blocking on it recreated the B-956f closeout deadlock). All checks are
+  // AST-scoped (comments are not AST nodes): a comment cannot satisfy the
+  // positive anchors or trip the negative one, and F-003 additionally requires
+  // the blocking counter in a real throwing if-condition, not dead code.
   const donePrepareConvergenceSf = parseSourceFile('packages/main/src/handlers/done-prepare.ts');
+  const convergenceDeriveFn = findFunctionDeclaration(donePrepareConvergenceSf, 'deriveDonePreparePassConvergence');
+  assert(convergenceDeriveFn && convergenceDeriveFn.body, 'packages/main/src/handlers/done-prepare.ts: deriveDonePreparePassConvergence function declaration must exist');
+  assert(convergenceDeriveFn?.body && hasTestEntryAnchoredComparison(convergenceDeriveFn.body), 'packages/main/src/handlers/done-prepare.ts: convergence derive must anchor blocking duplicate-suite counting at the current TEST entry (a real `<event>.timestamp >= facts.testEntryAt` comparison inside deriveDonePreparePassConvergence; a comment cannot satisfy this)');
   const convergenceAssertFn = findFunctionDeclaration(donePrepareConvergenceSf, 'assertDonePreparePassConvergence');
   assert(convergenceAssertFn && convergenceAssertFn.body, 'packages/main/src/handlers/done-prepare.ts: assertDonePreparePassConvergence function declaration must exist');
-  assert(convergenceAssertFn?.body && subtreeReferencesProperty(convergenceAssertFn.body, 'unchangedSuiteExecutions'), 'packages/main/src/handlers/done-prepare.ts: convergence blocking assert must keep post-TEST duplicate-suite executions (unchangedSuiteExecutions) fail-closed');
+  assert(convergenceAssertFn?.body && hasPropertyGuardedThrowingBranch(convergenceAssertFn.body, 'unchangedSuiteExecutions'), 'packages/main/src/handlers/done-prepare.ts: convergence blocking assert must keep post-TEST duplicate-suite executions fail-closed via an if-condition referencing unchangedSuiteExecutions whose then-branch throws (a dead-code reference cannot satisfy this)');
   assert(convergenceAssertFn?.body && !subtreeReferencesProperty(convergenceAssertFn.body, 'reviewWindowSuiteExecutions'), 'packages/main/src/handlers/done-prepare.ts: reviewWindowSuiteExecutions must remain observable never-blocking telemetry; the convergence blocking assert must not consume it (whole-window blocking recreated the B-956f DONE deadlock)');
   assert(read(processFactRegistryPath).includes('...PROCESS_FACT_CLOSEOUT_TELEMETRY'), `${processFactRegistryPath}: durable closeout convergence facts must be included in the final registry`);
 
