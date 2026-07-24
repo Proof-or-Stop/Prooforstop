@@ -337,7 +337,9 @@
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/requirements/decisions/review-run-binding-race.md",
         "CHK-002"
-      ]
+      ],
+      "resolution": "The new quorum_submit guard faithfully mirrors the floor predicate AS IT IS, including its lack of an EMPTY_STORY_FILES_HASH no-signal exclusion. Rationale: the guard exists to refuse exactly the set of resubmissions the floor would drift-accept (docs/requirements/decisions/story-files-hash-material-drift.md lists review escalation host verdicts as an adopted storyFilesHash binding); if the guard unilaterally added the EMPTY_STORY_FILES_HASH exclusion that eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948-969) does not have, an empty-story-diff corner would let a resubmit through while the floor still drift-accepts the old verdicts, recreating the B-bf52 poisoning in that corner. The guard additionally skips legacy events whose storyFilesHash field is absent/blank (no signal, no collision claim). Adding the EMPTY_STORY_FILES_HASH no-signal guard to the FLOOR (per review-run-binding-race.md mandatory-guard guidance) is a floor-semantics change, which is explicitly excluded scope for B-3144; when a future story adds it to the floor, the quorum guard must be updated in lockstep, and the guard comment will say so.",
+      "resolvedAt": "2026-07-24T20:46:07.546Z"
     }
   ]
 }
