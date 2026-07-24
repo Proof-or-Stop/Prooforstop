@@ -33,6 +33,21 @@
       "_hash": "fab1d2fb1b388afb9be02d52f94c13feaed3391cd62a3ad4f15754c0ed5acb1f",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc54:F-003",
+      "desc": "packages/main/src/core/convergence-breaker.ts:520 basis = signals.length>0 ? prefix + signals: + sorted.join(,) : prefix concatenates two logically distinct pieces (raw prefix text, structured signal list) with a fixed unescaped literal delimiter and no length cap on the appended signal list. Adversarially attempted a collision where a reason whose literal text already contains the substring signals:<token> forges an identical basis to a different reason that genuinely detected <token> as a signal; this did NOT succeed against the current 5-keyword + bracket vocabulary because extraction is content-based over the WHOLE reason (any literal occurrence of a vocabulary-shaped token is picked up wherever it appears, including inside the would-be forged tail), so the forged copy is always double-counted by its own extraction and the strings diverge. However this closure is incidental to the current narrow vocabulary, not an enforced invariant: if the vocabulary is ever broadened (already shown too permissive in a separate high finding), or the literal word signals followed by colon ever appears verbatim in ordinary reason prose without matching either regex, two semantically different reasons could produce byte-identical basis strings, silently merging them into one repeat-block key. Recommend an unambiguous encoding, e.g. combine hash of prefix with hash of sorted signal list separately, instead of raw string concatenation, as defense in depth. Non-blocking today (no working exploit constructed) but flagged per the story's own adversarial-collision requirement.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T00:29:37.280Z",
+      "reviewRound": "2026-07-24T00:21:09.115Z",
+      "reviewRunId": "B-cc54:RR-002",
+      "_hash": "62be07ac2b73acc594b077fff0b344d6c4c71cce4ec9edf79e0a0fb276724519",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
