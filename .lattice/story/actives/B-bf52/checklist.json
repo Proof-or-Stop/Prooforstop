@@ -264,11 +264,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ checklist-ordinal [guard: digit-rule]' asserts CHK-001 and CHK-002 produce keys=2 counter=1 breaker=proceed.",
-          "headHash": "082000a1eb06315224c2502db98d579d86b6621f",
-          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
-          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
-          "timestamp": "2026-07-23T23:20:34.815Z"
+          "note": "Case 'must-differ checklist-ordinal [guard: digit-rule-overreach]' asserts CHK-001 and CHK-002 give keys=2 counter=1 breaker=proceed, and prints both compared values literally. 'dotted-version-requirement' and 'review-round-ordinal' extend the same direction. Re-recorded after F-013.",
+          "headHash": "7dfda62dfb3cbbcaddf05e05bae0fde024ff333a",
+          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
+          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
+          "timestamp": "2026-07-24T01:43:30.378Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
