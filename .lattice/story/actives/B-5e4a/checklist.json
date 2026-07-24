@@ -50,11 +50,11 @@
           "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
           "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
           "result": "pass",
-          "note": "Red harness (recorded as red evidence, exit 1 with 4/8 at baseline d8db64c) now exits 0 with 8/8 after commit 14e7a69e0d: classifyLifecycleArtifact returns kind=lifecycle for all four registered filenames under .lattice/story/actives/B-5e4a/.",
-          "headHash": "90167c49759a122cc43843fdc43b710010a39bad",
-          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
-          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
-          "timestamp": "2026-07-24T00:27:24.855Z"
+          "note": "Re-run at HEAD 27103e76b1 (post F-001/F-002 fixes): 8/8 assertions hold — classifyLifecycleArtifact returns kind=lifecycle for all four acceptance-topology filenames under .lattice/story/actives/B-5e4a/. Baseline red (4/8, exit 1) recorded as red evidence at d8db64c.",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,11 +62,11 @@
           "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
           "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
           "result": "pass",
-          "note": "Negative controls in the same harness: random.json and an unregistered basename variant in the same story dir still classify null — the closed set stays closed after the fix.",
-          "headHash": "90167c49759a122cc43843fdc43b710010a39bad",
-          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
-          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
-          "timestamp": "2026-07-24T00:27:24.855Z"
+          "note": "Re-run at HEAD 27103e76b1: negative controls hold — random.json and an unregistered basename variant in the same story dir still classify null; the closed set stays closed after registering the four filenames plus review-loops.jsonl (F-001).",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,22 +74,22 @@
           "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
           "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
           "result": "pass",
-          "note": "Adversarial controls in the same harness: a traversal path (.lattice/story/actives/../../../etc/acceptance-basis.json) and a non-canonical story id both still classify null — path traversal and id checks unchanged.",
-          "headHash": "90167c49759a122cc43843fdc43b710010a39bad",
-          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
-          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
-          "timestamp": "2026-07-24T00:27:24.855Z"
+          "note": "Re-run at HEAD 27103e76b1: adversarial controls hold — traversal path (.lattice/story/actives/../../../etc/acceptance-basis.json) and non-canonical story id still classify null; path traversal and id checks unchanged.",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
           "kind": "manual_transcript",
-          "command": "node -e \"import('./packages/main/dist/core/lifecycle-registry.js').then(m => ... classifyLifecycleArtifact('docs/story/B-0000/<name>'))\"",
+          "command": "node -e classifyLifecycleArtifact(docs/story/B-0000/<name>) for all four filenames",
           "result": "pass",
-          "note": "All four filenames under the legacy docs/story/<id>/ prefix classify as legacy-metadata after the fix (transcript: acceptance-basis.json -> legacy-metadata, pre-review-check.json -> legacy-metadata, topology-critic-receipt.json -> legacy-metadata, topology-exclusion-approvals.json -> legacy-metadata), unchanged legacy behavior.",
-          "headHash": "d6530d2e9384e68ec4795debfa83914b3fd8ae66",
-          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
-          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
-          "timestamp": "2026-07-24T00:27:47.166Z"
+          "note": "Re-run at HEAD 27103e76b1: all four filenames under the legacy docs/story/<id>/ prefix classify as legacy-metadata — legacy behavior unchanged by the registry additions.",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         }
       ]
     },
@@ -145,13 +145,13 @@
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
-          "command": "npm run test:lifecycle-registry-contract (after removing acceptance-basis.json from dist registry copy)",
+          "command": "npm run test:lifecycle-registry-contract (bite test: remove a registry filename from dist copy)",
           "result": "pass",
-          "note": "Main-agent bite test (independent of implementer): removed acceptance-basis.json from the built dist registry, contract task FAILED exit 1 with two named divergences ([acceptance-topology-classification] ... acceptance-basis.json ... returned null; [storystore-coverage] ... acceptance-basis.json ... neither in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES nor in STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS). Restored byte-identical (cmp), re-run PASS with 48 filenames derived, 0 divergences.",
-          "headHash": "91a500fca5605fe1727a74dd4b81cd6a34fb30ae",
-          "materialHash": "739aa0487652ba3c6bf63c980a0e17eb452c63a1be0f3744f359a4ab442f4a3f",
-          "storyFilesHash": "14be72c034d3378813b6ac7cec9acae3a951f3d1f228a686b9e47e55fa540b64",
-          "timestamp": "2026-07-24T00:53:55.391Z"
+          "note": "Bite tests at both the pre-F-001 tree (acceptance-basis.json removal → two named divergences, byte-identical restore via cmp, re-run green) and post-F-001 (review-loops.jsonl removal → two named divergences naming it, restore, green). Removal of any registered derived filename fails loudly naming that filename.",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -159,11 +159,11 @@
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "Green output states: 48 StoryStore top-level artifact filenames derived (floor 40) and registered-or-exempted. The floor assertion fails loudly with a derivation-is-broken message when the derived set shrinks below 40, so an empty/shrunken source scan cannot pass vacuously.",
-          "headHash": "91a500fca5605fe1727a74dd4b81cd6a34fb30ae",
-          "materialHash": "739aa0487652ba3c6bf63c980a0e17eb452c63a1be0f3744f359a4ab442f4a3f",
-          "storyFilesHash": "14be72c034d3378813b6ac7cec9acae3a951f3d1f228a686b9e47e55fa540b64",
-          "timestamp": "2026-07-24T00:53:55.391Z"
+          "note": "Re-run at HEAD 27103e76b1: output asserts 49 filenames derived against floor 40; a shrunken/empty derivation fails loudly with a derivation-is-broken message instead of passing vacuously (floor unchanged at 40 after the count moved 48→49 with the F-001 join-site pass).",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,23 +171,23 @@
           "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
           "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS contains exactly authority-receipt-refs.json (with the dead-writeLegacyReceiptRefs / Authority-domain comment); the coverage check emits a named divergence for any derived filename outside registry+exemptions — demonstrated by the bite test where an unregistered filename produced the [storystore-coverage] divergence naming it. Stale/redundant-exemption guards also fail if the exemption list drifts.",
-          "headHash": "91a500fca5605fe1727a74dd4b81cd6a34fb30ae",
-          "materialHash": "739aa0487652ba3c6bf63c980a0e17eb452c63a1be0f3744f359a4ab442f4a3f",
-          "storyFilesHash": "14be72c034d3378813b6ac7cec9acae3a951f3d1f228a686b9e47e55fa540b64",
-          "timestamp": "2026-07-24T00:53:55.391Z"
+          "note": "Exemption list admits exactly authority-receipt-refs.json (dead writeLegacyReceiptRefs path, Authority domain, commented). Any other unregistered top-level write fails: demonstrated by the review-loops.jsonl divergence pre-F-001-fix, the storystore-coverage bite tests, and the F-002 adversarial scratch probe where an unresolvable identifier at a storyDir join site emits the named blind-spot divergence (isEnclosingCallableParameter scoped check, commit f99744a8b7).",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
           "file": "lattice.config.json",
-          "command": "node bin/lattice.js validate --json",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
           "result": "pass",
-          "note": "lattice validate now runs the invariant as validate.commands[36] (node packages/main/dist/tasks/lifecycle-registry-contract.js, wired by commit b034a4b686 adjacent to the sibling contract smokes). Full validate exit 0, allPass true, 47/47 commands; the command output confirms: 48 StoryStore top-level artifact filenames derived (floor 40) and registered-or-exempted, 0 divergences, and the four newly registered filenames classify as lifecycle_artifact.",
-          "headHash": "b034a4b68660b1a47a5088495532e86bf05851f2",
-          "materialHash": "364ef34a22903fc10443f2c11fc683366e98882b72c79cb5cfb69990f746aca7",
-          "storyFilesHash": "05e8b1fe2d3dd8379285fe736e195645176fa66561d7846681cb9c765908c545",
-          "timestamp": "2026-07-24T01:11:04.654Z"
+          "note": "Re-run at HEAD 27103e76b1: PASS — 49 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl) and registered-or-exempted, 0 divergences. Wired as validate.commands[36] (commit b034a4b686); full lattice validate ran green with it at the CHK-002 wiring step (allPass true, 47/47).",
+          "headHash": "27103e76b1e799752c3e4442f179be4c661688ce",
+          "materialHash": "3bcaf5adadb9c98cece54a679690207c72722d72e883d21b0f8e65fe8e9dff7d",
+          "storyFilesHash": "aa4c5a74cc75fd65877a83484dbd9e68411a3b0a8f924ac3cf19238546ea8d98",
+          "timestamp": "2026-07-24T02:21:31.220Z"
         }
       ]
     }
