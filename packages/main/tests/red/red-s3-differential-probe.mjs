@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * DIFFERENTIAL PROBE for B-bf52 (F-052): this branch's `gateFailureDigest` against
- * a SEPARATELY BUILT comparison normalizer — normally a freshly built `main`.
+ * DIFFERENTIAL PROBE for B-bf52 (F-052, F-053): this branch's `gateFailureDigest`
+ * against a SEPARATELY BUILT comparison normalizer — normally a freshly built `main`.
  *
  * WHY THIS FILE EXISTS, stated plainly because it is a correction. Rounds 9-11 of
  * this story quoted differential results and per-rejection cost figures in prose
@@ -12,6 +12,27 @@
  * another). An unrepeatable number is not evidence. This script is the artifact
  * those claims should have cited: every figure any later note quotes about this
  * story's differential behaviour or its cost must come from running it.
+ *
+ * ── THIS PROBE'S OWN FAILURE, RECORDED (F-053) ───────────────────────────────
+ *
+ * Stated plainly rather than folded into a changelog, because it is the same
+ * defect class the probe exists to catch. The matrix committed in round 11 PASSED
+ * while `(bug-2` and `(bug-5` — a NON-id token in an UNMATCHED opening paren —
+ * digested APART on this branch and COLLAPSED on main. That is the
+ * worse-than-main direction BAR 2 is supposed to be the standing guard against,
+ * and the probe did not see it for one reason: every wrapper in its matrix was
+ * BALANCED (`[CHK-001]`, `"CHK-001"`, `(CHK-001).`, `|bug-N|`, `%bug-N%`), so the
+ * matrix could not express the defect. A green run therefore attested to a
+ * property nobody had measured.
+ *
+ * A probe whose matrix cannot express the defect it exists to catch is not a
+ * guard against that defect — it is the same failure as an evidence note that
+ * restates a claim instead of proving it, and it is worse than having no probe,
+ * because it reads as a measurement. The `F-053 …` rows below are the repair, and
+ * the way to check that the repair is real is to make the defect again: restore
+ * the unconditional strip in a scratch copy of the normalizer and confirm this
+ * script FAILS on those rows. A probe that has never been observed red on the
+ * defect is exactly the thing this paragraph is about.
  *
  * It is the companion of red-s3-digest-collapse.mjs. That harness asserts an
  * ABSOLUTE contract (these classes must key apart, those must collapse). This one
@@ -125,6 +146,12 @@ const unfixedBug = (id) => `Cannot enter DONE: 1 unfixed bug(s): ${id}`;
  *                     of the two bars, and this script does not double-count it.
  *   forged-composite  a colon-joined NON-id, e.g. codex's `timeout:bug-2`. Must tie.
  *   welded            an artifact id welded into a larger token. Must tie.
+ *   unmatched-wrapper an artifact id inside an UNBALANCED wrapper — `(bug-2`,
+ *                     `bug-2)`, `(bug-2]`, `"bug-2`. NOT an id: the token is not
+ *                     the id, and stripping an opening character nothing closes
+ *                     is what made it look like one (F-053). Must tie; this is
+ *                     the kind whose ABSENCE let round 11's matrix pass while the
+ *                     branch was worse than main.
  *   volatile          nothing substantive varies (timestamps, hashes, attempt
  *                     counts, story-id digits, re-minted bookkeeping ids). Must tie.
  */
@@ -143,6 +170,7 @@ const EXPECT = {
   'cost-composite': 'tie (accepted cost)',
   'forged-composite': 'tie (must not be finer)',
   welded: 'tie (must not be finer)',
+  'unmatched-wrapper': 'tie (must not be finer)',
   volatile: 'tie (must not be finer)',
 };
 
@@ -189,6 +217,22 @@ const PAIRS = [
   ['welded non-ascii head e-acute-bug-N', 'welded', tap('ébug-2 still red'), tap('ébug-5 still red')],
   ['welded colon-equals loopId=B-bf52:RL-NNN', 'welded', reviewLoop('RL-001'), reviewLoop('RL-002')],
   ['welded colon reviewRunId B-bf52:RR-NNN', 'welded', staleRun('RR-002'), staleRun('RR-003')],
+  // ── F-053 (round 12): UNMATCHED wrappers, and the rows this matrix lacked ──
+  // Every wrapper row above and below is BALANCED, which is why round 11's matrix
+  // passed while `(bug-2` leaked. These four are the unbalanced shapes; each is the
+  // byte-for-byte twin of a balanced row with one character deleted, so the pair of
+  // groups measures BALANCE rather than the presence of punctuation.
+  ['F-053 unmatched OPEN paren (bug-N', 'unmatched-wrapper', tap('(bug-2 reproducer still red'), tap('(bug-5 reproducer still red')],
+  ['F-053 unmatched CLOSE paren bug-N)', 'unmatched-wrapper', tap('bug-2) reproducer still red'), tap('bug-5) reproducer still red')],
+  ['F-053 MISMATCHED pair (bug-N]', 'unmatched-wrapper', tap('(bug-2] reproducer still red'), tap('(bug-5] reproducer still red')],
+  ['F-053 unmatched OPEN quote "bug-N', 'unmatched-wrapper', tap('"bug-2 reproducer still red'), tap('"bug-5 reproducer still red')],
+  // Their BALANCED twins, in the retry-stable lane: a wrapped artifact id IS an id
+  // and the branch is entitled to be finer. Without these the unmatched rows above
+  // could be satisfied by simply deleting the strip.
+  ['F-053 balanced paren (bug-N)', 'bare-id', tap('(bug-2) reproducer still red'), tap('(bug-5) reproducer still red')],
+  ['F-053 balanced paren + comma (bug-N),', 'bare-id', tap('(bug-2), reproducer still red'), tap('(bug-5), reproducer still red')],
+  ['F-053 balanced bracket [bug-N]', 'bare-id', tap('[bug-2] reproducer still red'), tap('[bug-5] reproducer still red')],
+  ['F-053 balanced quotes "bug-N"', 'bare-id', tap('"bug-2" reproducer still red'), tap('"bug-5" reproducer still red')],
   // ── BARE ids in every real delimiter position (the BOUND on the F-052 cost) ─
   // If the colon-composite cost were unbounded — if artifact ids had simply stopped
   // being protected — these rows would tie too. They are what makes "the cost is

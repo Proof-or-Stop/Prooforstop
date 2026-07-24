@@ -300,33 +300,47 @@ const HEALTHY: BreakerCounters = {
 //                            colon tag is the F-052 member of this group and is
 //                            ALSO the record of what closing that hole costs; see
 //                            its declaration for why one tag carries both;
-//   substantive-id-lead-punct-strip /
-//   substantive-id-trail-punct-strip
-//                            the inverse: the case fails if the whole-token test
-//                            is made too STRICT, so a REAL id inside real
-//                            punctuation stops being protected and this branch
-//                            merely ties with main;
+//   substantive-id-wrapper-pair-strip /
+//   substantive-id-sentence-punct-strip
+//                            the inverse: the case fails if the punctuation strip
+//                            in front of the whole-token test is made too STRICT,
+//                            so a REAL id inside real punctuation stops being
+//                            protected and this branch merely ties with main;
+//   substantive-id-balanced-wrapper-strip
+//                            F-053, and the opposite direction of the same rule:
+//                            the case fails if the strip stops requiring the
+//                            wrapper to be BALANCED, so a NON-id token reduces to
+//                            an id (`(bug-2` -> `bug-2`) and keys apart where main
+//                            collapses. It replaces the two halves of the old
+//                            independent-run strip, whose tags
+//                            (`substantive-id-lead-punct-strip`,
+//                            `…-trail-punct-strip`) are deleted rather than
+//                            renamed because the rule they named is gone;
 //   allowlist-boundedness    the case fails if the allowlist GROWS past the
 //                            lifecycle-artifact vocabulary (adding `b-` is the
 //                            concrete mistake it stops), and is the inverse
 //                            revert of `substantive-id-allowlist` on the same
 //                            rule.
 //
-// MEASURED OVERLAPS, RE-DERIVED FROM SCRATCH IN ROUND 11 (F-052) against the
-// current 40-case set — every row below was produced by mutating the built
+// MEASURED OVERLAPS, RE-DERIVED FROM SCRATCH IN ROUND 12 (F-053) against the
+// current 46-case set — every row below was produced by mutating the built
 // normalizer in a detached, freshly built worktree's dist and reading back the
-// failing case names, and NO row was carried forward from round 10. That
-// re-derivation is not ceremony: three rows below CHANGED, and one of them is a
-// guard this suite lost. A tag names the revert a case is HERE to catch, not the
-// only revert that can fail it, and pretending otherwise is how the false ISO
-// claim and the false trailing-`\b` claim both got written.
+// failing case names, and NO row was carried forward from round 11. That
+// re-derivation is not ceremony: SEVEN rows below changed, two of them in ways no
+// case-count arithmetic predicts (the head and tail anchors now catch unmatched
+// wrappers; the two strips became MORE independent, not less). A tag names the
+// revert a case is HERE to catch, not the only revert that can fail it, and
+// pretending otherwise is how the false ISO claim and the false trailing-`\b`
+// claim both got written.
 //
-//   digit rule DELETED        fails 19 of 40 — the whole collapse lane's digit
+//   digit rule DELETED        fails 23 of 46 — the whole collapse lane's digit
 //                             group, `bcc54-*`, the review-bookkeeping cases, every
-//                             `embedded-test-output-*` case and all three
+//                             `embedded-test-output-*` case (including the four
+//                             F-053 unmatched-wrapper ones) and all three
 //                             colon-composite cases, because with no digit rule
 //                             EVERY ordinal survives (it also fails B-cc54's own
-//                             suite);
+//                             suite). It was 19 of 40 in round 11; the four new
+//                             names are the whole difference;
 //   hex rule DELETED          fails `hex-id` and `bcc54-cross-vendor-noise`;
 //   path rule DELETED         fails the three `path-rule-collapse` cases and
 //                             `bcc54-cross-vendor-noise`;
@@ -338,16 +352,25 @@ const HEALTHY: BreakerCounters = {
 //   id HEAD anchor `^`
 //   DROPPED                   fails exactly `embedded-test-output-hyphen-compounds`,
 //                             `…-slash-joined-names`, `…-doubled-prefix`,
+//                             `…-unmatched-open-paren`, `…-unmatched-open-quote`,
 //                             `open-blocking-finding-composite-id` and
-//                             `embedded-test-output-label-qualified-id` — every
-//                             head-welded shape, the F-043/F-048/F-052 family;
+//                             `embedded-test-output-label-qualified-id` — seven, not
+//                             the five measured in round 11. This ROW CHANGED, and
+//                             the change is a GAIN that was not designed: with the
+//                             head anchor gone the id is found inside the token
+//                             again, so `(bug-2` is protected by that mutation just
+//                             as `de-bug-2` is. The F-053 cases therefore also guard
+//                             the head anchor, which is worth knowing when reading a
+//                             failure report — a group containing BOTH balanced-strip
+//                             and head-welded names means the anchor, not the strip;
 //   id TAIL anchor `$`
 //   DROPPED                   fails exactly `embedded-test-output-digit-letter-tail`,
 //                             `…-slash-welded-tail`, `…-dot-welded-tail`,
-//                             `…-hyphen-welded-tail`, `…-non-ascii-welded-tail` and
-//                             `verification-intent-ref-lane-suffix`. That is the
-//                             F-051 group, and the four middle names are the shapes
-//                             a trailing `\b` admitted;
+//                             `…-hyphen-welded-tail`, `…-non-ascii-welded-tail`,
+//                             `…-unmatched-close-paren` and
+//                             `verification-intent-ref-lane-suffix` — seven, not the
+//                             six of round 11, and the mirror of the row above:
+//                             `bug-2)` is a welded TAIL under an unanchored pattern;
 //   doubled-prefix lookahead
 //   DROPPED                   fails exactly `embedded-test-output-doubled-prefix`;
 //   `<label>:` QUALIFIER
@@ -355,7 +378,7 @@ const HEALTHY: BreakerCounters = {
 //   (the F-052 revert)        fails exactly `open-blocking-finding-composite-id` and
 //                             `embedded-test-output-label-qualified-id`. Re-adding it
 //                             REPEATABLY fails the SAME two, which is the point of
-//                             the swap made in this round: round 10's `a:b:bug-N`
+//                             the swap made in round 11: round 10's `a:b:bug-N`
 //                             fixture caught only the repeatable variant and passed
 //                             happily while the single-segment variant leaked, so it
 //                             was replaced by codex's `timeout:bug-N`, which catches
@@ -368,33 +391,66 @@ const HEALTHY: BreakerCounters = {
 //                             colon-composite tag a real guard in BOTH directions:
 //                             no interior `:` structure can be re-added at either end
 //                             without failing a named case;
-//   OPENING punctuation strip
-//   DISABLED                  fails exactly `excluded-keyword-parenthesized-item-id`
-//                             and `embedded-test-output-bracketed-and-quoted-id`;
-//   CLOSING punctuation strip
-//   DISABLED                  fails those TWO AND `checklist-not-done-comma-list`,
-//                             `scope-extension-proposal-sentence-final-period`,
-//                             `blocking-finding-desc-semicolon-attached-id` and
-//                             `scope-extension-proposal-ordinal` — six in total.
-//                             The two strips are therefore NOT independent: the
-//                             parenthesized and bracketed/quoted renders close with
-//                             punctuation too, so they fail under either. Only-the-
-//                             opening-group failing means the opening class; the
-//                             larger group means the closing class;
+//   BALANCED wrapper peel
+//   DISABLED                  fails exactly `excluded-keyword-parenthesized-item-id`,
+//                             `embedded-test-output-bracketed-and-quoted-id`,
+//                             `…-balanced-paren-wrapped-id` and
+//                             `…-balanced-wrapper-then-sentence-punct` — the four
+//                             `substantive-id-wrapper-pair-strip` cases and nothing
+//                             else;
+//   SENTENCE-punct strip
+//   DISABLED                  fails `scope-extension-proposal-ordinal`,
+//                             `excluded-keyword-parenthesized-item-id`,
+//                             `embedded-test-output-balanced-wrapper-then-sentence-punct`,
+//                             `checklist-not-done-comma-list`,
+//                             `scope-extension-proposal-sentence-final-period` and
+//                             `blocking-finding-desc-semicolon-attached-id` — six.
+//                             This ROW CHANGED in a way that matters for reading the
+//                             report: under the round-11 independent-run strip the
+//                             closing-class mutation failed the bracketed/quoted case
+//                             too, so the two strips were NOT independent. They now
+//                             overlap on exactly TWO cases — the two whose token
+//                             carries a wrapper AND trailing sentence punctuation —
+//                             and the bracketed/quoted case is no longer among them,
+//                             because brackets and quotes are wrappers rather than
+//                             sentence punctuation. A failure group containing
+//                             `…-bracketed-and-quoted-id` therefore means the WRAPPER
+//                             peel; one containing `checklist-not-done-comma-list`
+//                             means the SENTENCE class;
+//   BALANCE requirement
+//   DROPPED (the F-053
+//   revert: back to the two
+//   independent runs
+//   `^[("'[{<]+` and
+//   `[)"'\]}>,;:.!?]+$`)      fails exactly `embedded-test-output-unmatched-open-paren`,
+//                             `…-unmatched-close-paren`, `…-mismatched-wrapper-pair`
+//                             and `…-unmatched-open-quote` — the four
+//                             `substantive-id-balanced-wrapper-strip` cases and
+//                             NOTHING else, with every balanced case still passing.
+//                             That disjointness is the measurement the round-11 suite
+//                             could not make: it had no case in this set at all, so
+//                             this mutation failed nothing and the leak shipped;
+//   strip ORDER reversed
+//   (peel attempted BEFORE
+//   the sentence strip)       fails exactly `excluded-keyword-parenthesized-item-id`
+//                             and `embedded-test-output-balanced-wrapper-then-sentence-punct`
+//                             — the two cases whose token is `(<id>).` or `(<id>),`,
+//                             which never looks balanced while the sentence character
+//                             is still attached. The order is a property of the
+//                             SEQUENCE and this is its single-mutation guard;
 //   whole-token BODY reduced
 //   to `\d+` (the F-032
 //   prefix-before-digits
 //   revert)                   fails exactly `scope-extension-proposal-ordinal` and
 //                             its sentence-final twin — the two COMPOUND-id cases,
 //                             and nothing else;
-//   allowlist EMPTIED         fails 10 cases — every must-differ case whose
+//   allowlist EMPTIED         fails 12 cases — every must-differ case whose
 //                             distinctness comes from a protected id — and NOTHING
-//                             else, with the suite still reaching and naming them.
-//                             It was 11 in round 10; the difference is
-//                             `open-blocking-finding-delimiter-attached-id`, which
-//                             F-052 moved out of the must-differ lane;
+//                             else, with the suite still reaching and naming them. It
+//                             was 10 in round 11; the two additions are the F-053
+//                             balanced must-differ cases;
 //   placeholder alphabet made
-//   DECIMAL                   fails the SAME 10. The two mutations are
+//   DECIMAL                   fails the SAME 12. The two mutations are
 //                             indistinguishable by case name, which is honest to
 //                             state: both destroy id protection outright, one by
 //                             refusing to protect and one by making every restored
@@ -406,24 +462,25 @@ const HEALTHY: BreakerCounters = {
 //                             start `b-`), plus B-cc54's own suite;
 //   allowlist WIDENED with
 //   `rr-`/`rp-`/`rl-`/`i-`    fails exactly `init-check-issue-ordinal` — and NOTHING
-//                             ELSE. This ROW CHANGED in round 11 and the change is a
-//                             LOSS, so it is stated as one rather than restated as a
-//                             pass: in round 10 the same mutation also failed
-//                             `stale-review-run-evidence`. Measured individually,
-//                             `rr-` alone, `rp-` alone and `rl-` alone now each fail
-//                             NOTHING; only `i-` alone still fails a case. The cause
-//                             is the qualifier deletion: every RR-/RP-/RL- render
-//                             site welds the id behind a `:` or an `=`
-//                             (`B-bf52:RR-002`, `loopId=B-bf52:RL-001`), so under a
-//                             form with no interior structure those tokens are not
-//                             ids whether or not their prefix is allowlisted. The
-//                             two exclusions still stand on their own reasoning and
-//                             the two collapse assertions are still TRUE, but they no
-//                             longer have a single-mutation guard. Measured
-//                             compositely instead: `rr-` allowlisted AND the
-//                             qualifier re-added fails `stale-review-run-evidence`;
-//                             `rl-` allowlisted AND the head anchor dropped fails
-//                             `review-loop-ordinal`;
+//                             ELSE. This row was a LOSS when it changed in round 11
+//                             and it is re-measured, not restated, here: `rr-` alone,
+//                             `rp-` alone and `rl-` alone each still fail NOTHING, and
+//                             only `i-` alone still fails a case. The cause is the
+//                             F-052 qualifier deletion: every RR-/RP-/RL- render site
+//                             welds the id behind a `:` or an `=` (`B-bf52:RR-002`,
+//                             `loopId=B-bf52:RL-001`), so under a form with no interior
+//                             structure those tokens are not ids whether or not their
+//                             prefix is allowlisted. The two exclusions still stand on
+//                             their own reasoning and the two collapse assertions are
+//                             still TRUE; they simply have no single-mutation guard.
+//                             Measured compositely, and quoted with everything the
+//                             composite fails rather than only the interesting name:
+//                             `rr-` allowlisted AND the qualifier re-added fails
+//                             `stale-review-run-evidence` plus the two colon-composite
+//                             cases the qualifier alone already fails; `rl-`
+//                             allowlisted AND the head anchor dropped fails
+//                             `review-loop-ordinal` plus the seven cases the head
+//                             anchor alone already fails;
 //   prefix cut made
 //   UNCONDITIONAL 200         fails exactly `signal-less-long-rejection`;
 //   signals FOLD collapsed
@@ -438,7 +495,7 @@ const HEALTHY: BreakerCounters = {
 // matrix ran, and the mutation named ZERO cases while the evidence claimed it
 // "fails the substantive-id cases". Localization is a promise this suite makes,
 // and a mutation that kills the run before the matrix is a promise broken. The
-// row above is the re-measurement: 10 cases, named, suite intact.
+// row above is the re-measurement: 12 cases, named, suite intact.
 //
 // Localization therefore works by GROUP, which is what the grouped failure report
 // prints: a single group means that rule regressed, and a case failing alone means
@@ -666,6 +723,30 @@ let digestMatrixSummary = '';
     '# fail 2',
     `not ok 1 - [${id}] has no passing verification evidence`,
     `not ok 2 - "${id}" is not waived`,
+  ].join('\n');
+
+  // ── The same producer once more, for the WRAPPER BALANCE (F-053) ───────────
+  // The sixth leak, and the first one that was in the punctuation STRIP rather
+  // than in the id pattern. Rounds 9-11 stripped a leading run of opening
+  // characters and a trailing run of closing characters INDEPENDENTLY, so half a
+  // wrapper was removed as readily as a whole one: cross-host codex measured
+  // `not ok 1 - (bug-2 reproducer still red` against its `(bug-5` sibling and
+  // found them digesting APART on this branch while main collapses both, because
+  // the leading strip deleted an UNMATCHED `(` and reduced the NON-id token
+  // `(bug-2` to the id `bug-2`. `bug-2)` was the mirror.
+  //
+  // Same producer as every other leak in this guard — core/machine.ts:1190 embeds
+  // RAW test output — and an unbalanced paren is ordinary there: TAP names carry
+  // shell fragments, smiley faces and truncated expressions all the time. One
+  // parameterized fixture spans BOTH directions, so the balanced and unmatched
+  // shapes are built from the same bytes and differ only in whether the wrapper is
+  // closed; that is what makes the pair of lanes a measurement of BALANCE rather
+  // than of two unrelated fixtures.
+  const doneTestFailureWrappedTail = (ord: string, lead: string, trail: string): string => [
+    'Cannot enter DONE: test FAIL: # tests 1',
+    '# pass 0',
+    '# fail 1',
+    `not ok 1 - ${lead}bug-${ord}${trail} reproducer still red`,
   ].join('\n');
 
   // ── The real REVIEW checklist-not-done rejection (F-051) ───────────────────
@@ -910,19 +991,49 @@ let digestMatrixSummary = '';
     // the three cases are simultaneously the record of what the deletion costs and
     // the standing guard against paying it back.
     | 'substantive-id-colon-composite-cost'
-    // Fails if the OPENING wrapping-punctuation strip is narrowed or removed, so
-    // a real id inside real punctuation — core/machine.ts:204's `(CHK-001).` —
-    // stops being the whole token and loses protection. The over-strict
-    // direction, from the head end.
-    | 'substantive-id-lead-punct-strip'
-    // The same, from the tail end: fails if the CLOSING wrapping-punctuation
-    // strip is narrowed or removed, so `CHK-001,` (core/machine.ts:1169),
-    // `SEP-B-bf52-001.` (core/machine.ts:269) and `CHK-001;` (the `'; '` join at
-    // core/machine.ts:756) lose protection. Kept separate from the opening tag
-    // because they are separate character classes and separate mutations —
-    // though not INDEPENDENT ones, and the measured overlap is recorded in the
-    // section header rather than implied here.
-    | 'substantive-id-trail-punct-strip'
+    // ── the F-053 strip change: three tags replacing two ───────────────────
+    //
+    // The two tags this family replaces (`substantive-id-lead-punct-strip`,
+    // `…-trail-punct-strip`) named the two halves of an INDEPENDENT-RUN strip:
+    // `^[("'[{<]+` off the head and `[)"'\]}>,;:.!?]+$` off the tail, each
+    // enumerating characters without reference to the other. That was the last
+    // enumeration left in this guard and it leaked exactly the way the other five
+    // did: half a wrapper was stripped as readily as a whole one, so the NON-id
+    // `(bug-2` reduced to `bug-2` and was protected while main collapses it
+    // (F-053). The strip is now SENTENCE-punctuation-then-BALANCED-PAIRS, so the
+    // reverts worth naming are the parts of THAT, and the old tags are deleted
+    // rather than renamed, because a tag that outlives its rule attests to a
+    // guard nobody has.
+    //
+    // Fails if the BALANCED WRAPPER PEEL is narrowed or removed, so a real id
+    // inside real punctuation — core/machine.ts:204's `(CHK-001).`, a bracketed
+    // or quoted id in embedded test output — stops being the whole token and
+    // loses protection. The OVER-STRICT direction, and the one under which this
+    // branch merely ties with main instead of beating it.
+    | 'substantive-id-wrapper-pair-strip'
+    // Fails if the TRAILING SENTENCE-PUNCTUATION strip `[,;:.!?]+$` is narrowed
+    // or removed, so `CHK-001,` (core/machine.ts:1169), `SEP-B-bf52-001.`
+    // (core/machine.ts:269) and `CHK-001;` (the `'; '` join at core/machine.ts:756)
+    // lose protection. Also the over-strict direction, kept separate from the
+    // wrapper tag because it is a separate mutation on a separate class — though
+    // not an INDEPENDENT one, and the measured overlap is recorded in the section
+    // header rather than implied here.
+    | 'substantive-id-sentence-punct-strip'
+    // F-053, and the OPPOSITE direction from the two above: fails if the strip
+    // stops requiring the wrapper to be BALANCED — if it is reverted to the two
+    // independent character-class runs, or to any rule that removes an opening
+    // character nothing closes. That is the worse-than-main direction, because it
+    // lets a NON-id token reduce to an id: `(bug-2` and `(bug-5` key APART under
+    // the unconditional strip and COLLAPSE on main, so a retry loop whose embedded
+    // test output carries an unbalanced paren mints a fresh key every attempt and
+    // the breaker never trips.
+    //
+    // The cases carrying this tag are deliberately the same bytes as the
+    // `substantive-id-wrapper-pair-strip` cases with the closing character
+    // removed, so the two tags pin the balance property from both sides and a
+    // reader can see that BALANCE — not the presence of punctuation — is what the
+    // decision turns on.
+    | 'substantive-id-balanced-wrapper-strip'
     | 'allowlist-boundedness'
     // F-033, the ACCEPTED residual: fails if the 200-character prefix cut on the
     // signals branch is WIDENED. It is the direction B-cc54's
@@ -1128,26 +1239,68 @@ let digestMatrixSummary = '';
       // own: core/machine.ts:202-206 renders `… appears in checklist (CHK-001).
       // [excluded_keyword]`. The token is `(chk-001).` — an opening paren in
       // front, a paren AND a sentence period behind — so it is protected only
-      // because the whole-token test strips a RUN of wrapping punctuation off
-      // each end before deciding.
+      // because the whole-token test strips the wrapping punctuation off before
+      // deciding.
+      //
+      // F-053 RETAG, and this case is now what pins the strip's ORDER as well as
+      // its existence. The sentence period has to come off FIRST: peel-then-strip
+      // never sees a balanced pair here, because the token ends in `.` and not in
+      // `)`, so reversing the two steps leaves `(chk-001)` un-peeled, the anchored
+      // whole-token test refuses it and this pair collapses. Sentence-first, then
+      // peel, reduces it to `chk-001`.
       //
       // Two different checklist items carrying an excluded keyword are two
       // different things to fix; removing the keyword from one and then being
       // blocked on the next is progress.
       name: 'excluded-keyword-parenthesized-item-id',
-      guardedBy: 'substantive-id-lead-punct-strip',
+      guardedBy: 'substantive-id-wrapper-pair-strip',
       a: excludedScopeKeyword('CHK-001'),
       b: excludedScopeKeyword('CHK-002'),
     },
     {
       // F-051, the BRACKETED and QUOTED positions, in the one channel that
       // really delivers them (see the fixture's comment for why no first-party
-      // producer does). Both wrappings sit in the same opening/closing character
-      // classes, so one mutation fails both and one case names them.
+      // producer does). Both wrappings are BALANCED pairs in TOKEN_WRAPPER_PAIRS,
+      // so one mutation fails both and one case names them.
       name: 'embedded-test-output-bracketed-and-quoted-id',
-      guardedBy: 'substantive-id-lead-punct-strip',
+      guardedBy: 'substantive-id-wrapper-pair-strip',
       a: doneTestFailureWrappedItemId('CHK-001'),
       b: doneTestFailureWrappedItemId('CHK-002'),
+    },
+    {
+      // F-053, the BALANCED half of the balance measurement, and the pair whose
+      // bytes the two unmatched collapse cases are built from by deleting one
+      // character. `(bug-2)` is a wrapped artifact id: the paren pair peels
+      // because `)` closes `(`, the whole-token test then sees `bug-2`, and two
+      // different reproducers stay two different things to fix.
+      //
+      // It is deliberately the SAME producer, the SAME stem and the SAME ordinals
+      // as `embedded-test-output-unmatched-open-paren` and its closing twin in the
+      // collapse lane. Read together, the three cases say what the rule actually
+      // turns on: not the presence of a paren, but whether something closes it.
+      // Read alone, either lane could be satisfied by a rule that is simply wrong
+      // in the other direction — which is exactly how rounds 9-11 passed a probe
+      // whose every wrapper was balanced while `(bug-2` leaked.
+      name: 'embedded-test-output-balanced-paren-wrapped-id',
+      guardedBy: 'substantive-id-wrapper-pair-strip',
+      a: doneTestFailureWrappedTail('2', '(', ')'),
+      b: doneTestFailureWrappedTail('5', '(', ')'),
+    },
+    {
+      // F-053, the ORDER, pinned from the embedded-output channel as well as from
+      // the first-party `(CHK-001).` render above. A balanced pair followed by a
+      // list comma — `(bug-2),` — is protected ONLY if the sentence punctuation
+      // comes off before the peel is attempted; under the reverse order the token
+      // still ends in `,` when the peel looks at it, no pair is seen, and the pair
+      // collapses.
+      //
+      // Two cases pin this order because it is a property of the SEQUENCE rather
+      // than of either step, and the two channels fail independently: this one
+      // survives if core/machine.ts ever stops parenthesizing its item ids.
+      name: 'embedded-test-output-balanced-wrapper-then-sentence-punct',
+      guardedBy: 'substantive-id-wrapper-pair-strip',
+      a: doneTestFailureWrappedTail('2', '(', '),'),
+      b: doneTestFailureWrappedTail('5', '(', '),'),
     },
     {
       // F-051, the COMMA-attached position, from the real producer at
@@ -1157,7 +1310,7 @@ let digestMatrixSummary = '';
       // being blocked by CHK-002 is the ordinary shape of a story working
       // through its checklist.
       name: 'checklist-not-done-comma-list',
-      guardedBy: 'substantive-id-trail-punct-strip',
+      guardedBy: 'substantive-id-sentence-punct-strip',
       a: checklistNotDone(['CHK-001', 'CHK-009']),
       b: checklistNotDone(['CHK-002', 'CHK-009']),
     },
@@ -1168,7 +1321,7 @@ let digestMatrixSummary = '';
       // proposal is placed last and the first is held constant — the mirror of
       // the comma case above, built from the same kind of real list render.
       name: 'scope-extension-proposal-sentence-final-period',
-      guardedBy: 'substantive-id-trail-punct-strip',
+      guardedBy: 'substantive-id-sentence-punct-strip',
       a: scopeExtensionPending(['SEP-B-bf52-009', 'SEP-B-bf52-001']),
       b: scopeExtensionPending(['SEP-B-bf52-009', 'SEP-B-bf52-002']),
     },
@@ -1179,7 +1332,7 @@ let digestMatrixSummary = '';
       // description lands immediately in front of that separator. The second
       // finding is held constant.
       name: 'blocking-finding-desc-semicolon-attached-id',
-      guardedBy: 'substantive-id-trail-punct-strip',
+      guardedBy: 'substantive-id-sentence-punct-strip',
       a: twoBlockingFindings('CHK-001'),
       b: twoBlockingFindings('CHK-002'),
     },
@@ -1250,9 +1403,11 @@ let digestMatrixSummary = '';
       // moment `rr-` or `rp-` was re-added. It does not any more: core/review-run.ts
       // renders the id as `bound reviewRunId B-bf52:RR-002`, a COLON composite, and
       // with the round-10 qualifier deleted that token is not an id whether or not
-      // its prefix is allowlisted. Measured directly: `rr-` alone fails NOTHING,
-      // `rp-` alone fails NOTHING; `rr-` allowlisted AND the qualifier re-added is
-      // what fails this case. The assertion below is still TRUE and still worth
+      // its prefix is allowlisted. Measured directly, and RE-MEASURED FROM SCRATCH
+      // in round 12 rather than carried forward: `rr-` alone fails NOTHING, `rp-`
+      // alone fails NOTHING; `rr-` allowlisted AND the qualifier re-added is what
+      // fails this case (together with the two colon-composite cases the qualifier
+      // alone already fails). The assertion below is still TRUE and still worth
       // pinning — it is what the code does at a real render site — but the allowlist
       // exclusion it was built to guard now rests on its reasoning and on the
       // section 7c completeness guard rather than on this case.
@@ -1284,8 +1439,12 @@ let digestMatrixSummary = '';
       // `loopid=b-bf52:rl-001,` — an id WELDED behind an `=`, which is not wrapping
       // punctuation. The whole-token rule therefore refuses it for the same reason
       // it refuses `bug-2/x`, and it would refuse it with `rl-` allowlisted too.
-      // Mutation testing confirms: `rl-` alone fails nothing here; `rl-` plus a
-      // dropped id-head anchor is what fails this case. The assertion below is
+      // Mutation testing confirms, re-measured from scratch in round 12: `rl-`
+      // alone fails nothing here; `rl-` plus a dropped id-head anchor is what fails
+      // this case (together with the seven cases the head anchor alone already
+      // fails, four of them head-welded and two of them F-053 unmatched wrappers,
+      // which is why the composite is quoted with its whole failure set rather than
+      // only its interesting name). The assertion below is
       // still TRUE and still worth pinning — it is what the code does at a real
       // render site — but the tag's own comment now says which revert it does and
       // does not catch.
@@ -1310,8 +1469,8 @@ let digestMatrixSummary = '';
       // reports the SAME unfixed problem as `I-2` instead of `I-1` would therefore
       // mint a fresh key on every attempt, which is the unbounded retry loop this
       // module exists to stop. `i-` was removed from the allowlist and this pair
-      // must now COLLAPSE; it fails the moment `i-` is re-added (re-measured in
-      // round 11: `i-` ALONE still fails exactly this case).
+      // must now COLLAPSE; it fails the moment `i-` is re-added (re-measured from
+      // scratch in round 12: `i-` ALONE still fails exactly this case).
       //
       // As of F-052 this is the ONLY case on the `review-bookkeeping-not-allowlisted`
       // tag that is still a single-mutation guard, and the reason is a property of
@@ -1443,6 +1602,69 @@ let digestMatrixSummary = '';
       guardedBy: 'substantive-id-token-tail-exact',
       a: doneTestFailureWeldedTail('2', 'é'),
       b: doneTestFailureWeldedTail('5', 'é'),
+    },
+    // ── F-053: the UNMATCHED-WRAPPER group, the sixth leak ────────────────────
+    // The first leak in this guard that was in the punctuation STRIP rather than
+    // in the id pattern, and the one that falsified the source comment claiming
+    // "the only strings it accepts are strings that are themselves artifact ids".
+    // The pattern is applied to the token AFTER the strip, so a strip that can
+    // remove HALF a wrapper can hand the pattern an id that the token was not.
+    //
+    // Each case below is the byte-for-byte twin of
+    // `embedded-test-output-balanced-paren-wrapped-id` in the must-differ lane
+    // with one character deleted, so the two lanes together measure BALANCE and
+    // not the presence of punctuation.
+    {
+      // F-053 (a). An UNMATCHED OPENING paren, the shape cross-host codex
+      // measured: `not ok 1 - (bug-2 reproducer still red` and its `(bug-5`
+      // sibling digested APART under the independent-run strip — `^[("'[{<]+`
+      // deleted the `(` without asking whether anything closed it — while main
+      // collapses both. Worse than main, and reachable from the same
+      // core/machine.ts:1190 channel as every other leak here: an unbalanced paren
+      // is ordinary in TAP names, shell fragments and truncated expressions.
+      //
+      // Measured revert: fails when the wrapper peel stops requiring a MATCHING
+      // closer, i.e. when it is reverted to the two independent character-class
+      // runs of rounds 9-11.
+      name: 'embedded-test-output-unmatched-open-paren',
+      guardedBy: 'substantive-id-balanced-wrapper-strip',
+      a: doneTestFailureWrappedTail('2', '(', ''),
+      b: doneTestFailureWrappedTail('5', '(', ''),
+    },
+    {
+      // F-053 (b). The MIRROR: an UNMATCHED CLOSING paren. `bug-2)` was stripped
+      // by the old trailing run `[)"'\]}>,;:.!?]+$` with nothing opening it, so the
+      // same defect ran from the other end. It gets its own case because the two
+      // ends were separate character classes and separate mutations — the leak
+      // history in this guard is four rounds of fixing one end and leaving the
+      // other open.
+      name: 'embedded-test-output-unmatched-close-paren',
+      guardedBy: 'substantive-id-balanced-wrapper-strip',
+      a: doneTestFailureWrappedTail('2', '', ')'),
+      b: doneTestFailureWrappedTail('5', '', ')'),
+    },
+    {
+      // F-053 (c). A token with one opener and one closer that do NOT match:
+      // `(bug-2]`. Under the old strip both runs fired and the token reduced to an
+      // id, and under a naive "strip one leading and one trailing punctuation
+      // character" repair it still would. This case is what makes the rule
+      // MATCHED-pair rather than merely one-each, and it is the shape a
+      // hand-written repair is most likely to miss.
+      name: 'embedded-test-output-mismatched-wrapper-pair',
+      guardedBy: 'substantive-id-balanced-wrapper-strip',
+      a: doneTestFailureWrappedTail('2', '(', ']'),
+      b: doneTestFailureWrappedTail('5', '(', ']'),
+    },
+    {
+      // F-053 (d). An unmatched opening QUOTE. The quote characters are the ones
+      // whose opener and closer are the SAME byte, so a balanced-pair rule has to
+      // treat a single `"` as unmatched rather than as a character that closes
+      // itself — the one-character token `"` would otherwise slice to nothing.
+      // `"bug-2` is what a truncated TAP name looks like, and it collapses on main.
+      name: 'embedded-test-output-unmatched-open-quote',
+      guardedBy: 'substantive-id-balanced-wrapper-strip',
+      a: doneTestFailureWrappedTail('2', '"', ''),
+      b: doneTestFailureWrappedTail('5', '"', ''),
     },
     // ── F-052: the THREE colon-composite forms, one accepted cost ─────────────
     // Round 10 protected the first two of these and LEAKED the third, because the
