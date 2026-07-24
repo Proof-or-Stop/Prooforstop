@@ -320,7 +320,21 @@
         "test": [
           "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "The withdrawn item.decisionRef and the binding disposition.decisionRef both equal the single stamped decisionId.",
+          "headHash": "50450009817d46901ac57a11254d3d2217efa0e3",
+          "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
+          "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
+          "timestamp": "2026-07-24T21:37:58.713Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
