@@ -288,11 +288,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a compound artifact id keeps its trailing ordinal; M6 fails exactly that case. Three review-bookkeeping cases pin the converse — 'stale-review-run-evidence', 'review-loop-ordinal', 'init-check-issue-ordinal' — because each id is re-minted or retyped on retry. Four cases guard the token boundary against real embedded test output: 'embedded-test-output-hyphen-compounds', 'embedded-test-output-slash-joined-names' and 'embedded-test-output-doubled-prefix' [guard: substantive-id-token-start], plus 'embedded-test-output-digit-letter-tail' [guard: substantive-id-token-end]. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
-          "headHash": "3216147a30ee03ea8a7a3fda4b5667c83334de3f",
-          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
-          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
-          "timestamp": "2026-07-24T12:17:31.217Z"
+          "note": "The substantive-id guard is now a WHOLE-TOKEN test rather than a boundary assertion, because boundary assertions leaked four times to four different punctuation shapes. Six cases pin it: 'embedded-test-output-hyphen-compounds' and 'embedded-test-output-slash-joined-names' [guard: substantive-id-token-head-exact]; 'embedded-test-output-digit-letter-tail', 'embedded-test-output-slash-welded-tail', 'embedded-test-output-dot-welded-tail', 'embedded-test-output-hyphen-welded-tail' and 'embedded-test-output-non-ascii-welded-tail' [guard: substantive-id-token-tail-exact]; 'embedded-test-output-doubled-prefix' [guard: substantive-id-doubled-prefix]; 'embedded-test-output-repeated-qualifier' [guard: substantive-id-qualifier-bounded]. Two honest costs are pinned rather than hidden: 'verification-intent-ref-lane-suffix' records that a colon-SUFFIXED composite such as an intentRef loses protection and ties with main — closing it would re-admit the colon as an interior welding character and reintroduce the F-051 defect class — and 'requirement-ordinal-past-window' records the req- window cost. Three review-bookkeeping ids stay collapsed under review-bookkeeping-not-allowlisted; the tag's comment was corrected after measurement showed adding rl- alone fails nothing, because machine.ts:646 welds it behind an equals sign. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
+          "headHash": "b4225edfccb207e9b3503a4834772e70171b327f",
+          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
+          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
+          "timestamp": "2026-07-24T13:12:39.439Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
