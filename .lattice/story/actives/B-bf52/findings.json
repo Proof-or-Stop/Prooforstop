@@ -674,6 +674,26 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-037",
+      "desc": "checklist.json CHK-001:adversarial:0 verificationEvidence note (timestamp 2026-07-24T03:29:47Z, this round's re-record) states: \"This story's own falsifiability guard for not regressing that class [B-cc54's C1/signals-fold mechanism] is matrix case 'must-still-collapse bcc54-cross-vendor-noise'\". This is the exact same false claim that convergence-breaker-smoke.ts:392-401 documents as having been disproven 'by the test-coverage lane': extractGateBlockSignals returns [] for BOTH bcc54-cross-vendor-noise fixtures, so that case never reaches the signals fold and cannot guard it. Re-verified now: mutating `const basis = signals.length > 0 ? JSON.stringify([prefix, signals]) : prefix;` (convergence-breaker.ts:682) to `const basis = prefix;`, rebuilding, and running the smoke shows exactly 1 of 18 cases fails -- 'proofstory-gap-signal-set' (guardedBy signals-fold) -- while 'bcc54-cross-vendor-noise' keeps PASSING. So the CHK-001:adversarial:0 evidence note is citing the wrong case; the actual guard for this intent is 'proofstory-gap-signal-set', not 'bcc54-cross-vendor-noise'. Despite the story's own code comments documenting this exact mistake as fixed, the checklist evidence for the very intent this mistake concerns was re-recorded this round still repeating it -- the same stale-citation defect class as prior findings (F-001/F-012/F-013/F-017/F-018/F-028) and last round's identical bcc54-cross-vendor-noise claim.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T04:20:24.334Z",
+      "reviewRound": "2026-07-24T04:03:11.191Z",
+      "reviewRunId": "B-bf52:RR-020",
+      "_hash": "cdd2cee08556a730b8eb8b488f189c51131a42a7b47e4b9a665eca000a9fcf69",
+      "files": [
+        ".lattice/story/actives/B-bf52/checklist.json",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "adversarial|json|checklist-json-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
