@@ -4,7 +4,7 @@
   "title": "Stop the convergence breaker from collapsing substantively different gate failures into one repeat counter",
   "description": "gateFailureDigest normalizes a gate-rejection reason and then truncates it to 200 characters before hashing, and its normalizer also rewrites any slash-bearing token and any digit run. Four classes of substantively different rejections therefore share one counter key, so two DIFFERENT gate failures read as one gate failing twice, maxGateRepeat reaches the 2 threshold, and the convergence breaker freezes a story that was in fact making incremental progress. Unfreezing then requires an interactive human ack at a real TTY, which is the most expensive failure mode this workflow has.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "convergence-breaker",
@@ -314,6 +314,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-24T17:43:07.804Z",
+      "branch": "story/B-bf52",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T19:58:57.779Z",
       "branch": "story/B-bf52",
       "user": "Harmonygo",
       "sessionId": "main-agent-s2s1-stable-f93ff408f3",
