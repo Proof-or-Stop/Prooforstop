@@ -23,6 +23,31 @@
         "scanEscalationReason": null
       },
       "_hash": "da40089bad934e29b2d1f3ee5473a059ffcce6e2c01ddc72f9ff5a3fc8da718c"
+    },
+    {
+      "id": "B-1909:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: independently verified commit ac756995e7 fixes both prior findings. F-001 (buildScopeShrinkageDecision refs reset instead of accumulated): confirmed via direct read of core/proofstory.ts that withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs now go through a new unionStringRefs(existing, incoming) helper (existing first, incoming appended, Set-deduped) before the confirmed-must-withdraw check reads the merged arrays; also independently ran a 4-call sequential script against the built dist/core/proofstory.js buildScopeShrinkageDecision directly (not just re-running the implementers own smoke) proving accumulation, dedup, and stable order across 4 chained calls under one decisionId, plus a bonus decisionId-immutability guard (F-007) that was not requested but is a correct hardening. F-003 (normalizeScopeRefArray duplicated optionalStringArray): confirmed optionalStringArray is now exported from core/proofstory.ts, handlers/proofstory.ts imports and reuses it directly, and the private duplicate plus its now-dead withdrawnBindingIdsFrom/withdrawnChecklistItemIdsFrom imports are deleted (grep confirms zero remaining references). Re-ran npm --prefix packages/main run build (clean tsc) plus both packages/main/dist/tasks/withdrawn-disposition-smoke.js and scope-shrinkage-withdrawal-floor-smoke.js (both PASS) against the fixed build. Also read the dashboard.ts F-005 fix for another reviewer: consistent use of isDeliveredChecklistStatus/isWithdrawnChecklistStatus, no residual literal status===done. No blocking quality issues remain from this reviewer.",
+      "createdAt": "2026-07-24T22:40:59.705Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-009",
+      "envelopeId": "7a57868389a768256863a88315a37cff16de0b8c1175e99dd5f5bfefdb9d9c1a",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0cf4394c7a1062703698b4c59352256beb9bced1c65572d256bbeb8bc6a57eff"
     }
   ]
 }
