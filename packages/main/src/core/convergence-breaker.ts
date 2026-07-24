@@ -651,12 +651,15 @@ export function listSubstantiveIdPrefixes(): string[] {
 }
 
 /**
- * A substantive artifact id is the ENTIRE whitespace-delimited token (F-051).
+ * A substantive artifact id is the ENTIRE whitespace-delimited token, AS IT
+ * ARRIVES — nothing is removed from a token before it is tested (F-054).
  *
  * WHY THIS IS A SHAPE, NOT ANOTHER BOUNDARY. Four successive revisions of this
  * guard stated the rule as a boundary ASSERTION around the id — "the stem must
  * not be preceded by X", "the ordinal must be followed by Y" — and every one of
  * them was defeated by a punctuation character its author had not enumerated.
+ * Two more stated it as a whole-token test applied to a REDUCED token, and both
+ * were defeated by a reduction its author had not thought through.
  * The reachable channel is core/machine.ts:1190, `Cannot enter DONE: test
  * ${evidence.result}: ${evidence.output}`, which embeds RAW third-party test
  * output in the digest, so the enumeration was being tested against arbitrary
@@ -691,17 +694,38 @@ export function listSubstantiveIdPrefixes(): string[] {
  *                           an unbounded enumeration re-introduced inside a form
  *                           whose entire justification was having no enumeration
  *                           left to leak.
+ *   whole token AFTER an
+ *   INDEPENDENT-RUN punctuation
+ *   strip (round 11)        `^[("'[{<]+` off the head and `[)"'\]}>,;:.!?]+$` off
+ *                           the tail, each end enumerating characters without
+ *                           reference to the other, so HALF a wrapper came off as
+ *                           readily as a whole one: the NON-id `(bug-2` reduced to
+ *                           `bug-2` and was protected, and `bug-2)` was the mirror
+ *                           (F-053).
+ *   whole token AFTER a
+ *   BALANCED-ONLY strip
+ *   (round 12)              matched wrapper pairs peeled one at a time, preceded by
+ *                           an UNCONDITIONAL `[,;:.!?]+$` sentence-punctuation
+ *                           strip. The balance rule closed the wrapper half; the
+ *                           sentence half was still an enumeration and still
+ *                           unconditional, so the arbitrary TAP subtest name
+ *                           `bug-2:` reduced to `bug-2` and was protected —
+ *                           `not ok 1 - bug-2: reproducer still red` and its
+ *                           `bug-5:` sibling digested APART on that branch while
+ *                           main collapses them (F-054).
  *
- * Every one of those leaks has the same structure: an id WELDED into a larger
- * token was protected as though the token were the id. So the rule is stated as
- * the property that is actually wanted, and it is not an assertion at all — it is
- * a WHOLE-TOKEN TEST. `normalizeGateReason` splits the reason on whitespace,
- * strips a run of wrapping punctuation off each token, and protects the token
- * only if EVERYTHING THAT REMAINS is an artifact id. A token that merely CONTAINS
- * an id is not an id, and no embedded punctuation can change that, because the
- * decision is made per token instead of per position.
+ * Every one of those leaks has the same structure: something that was NOT an
+ * artifact id was made to look like one, either by finding the id inside a larger
+ * token or by REMOVING characters from the token until an id was what remained.
+ * So the rule is stated as the property that is actually wanted, and it is not an
+ * assertion at all — it is a WHOLE-TOKEN TEST WITH NO REDUCTION.
+ * `normalizeGateReason` splits the reason on whitespace and protects a token only
+ * if THE TOKEN ITSELF, byte for byte, is an artifact id. A token that merely
+ * CONTAINS an id is not an id, and no embedded or attached punctuation can change
+ * that, because nothing is ever taken off before the test.
  *
- * The pattern, applied to one stripped token and anchored at both ends:
+ * The pattern, applied to one whitespace-delimited token as it arrives and
+ * anchored at both ends:
  *
  *   ^(?:<stems>)-(?!(?:<stems>)-)[a-z0-9-]*\d$
  *    └── stem ──┘└─ no doubled ─┘└── body ───┘
@@ -714,76 +738,84 @@ export function listSubstantiveIdPrefixes(): string[] {
  *               preceded by `bf52-`, so a rule matching only the prefix
  *               immediately before the digits left it unprotected.
  *
- * There is NO interior structure left: after the wrapping-punctuation strip, a
+ * There is NO interior structure left and NOTHING RUNS IN FRONT OF THE TEST: a
  * token is protected only when it IS an artifact id. Built FROM the allowlist, so
  * the two cannot drift apart, and there is nothing else in the form to enumerate.
  *
- * THE COST OF HAVING NO QUALIFIER, stated symmetrically because it is symmetric
- * (F-052). Every COLON-JOINED COMPOSITE now collapses, and that includes two real
- * first-party renders, not only the forged one that produced the finding:
+ * THE CLOSURE ARGUMENT, stated as the reason this revision is different in kind
+ * from the six before it. Rounds 7-12 each closed the leak they had been shown by
+ * fixing the CHARACTER SET — a wider lookbehind, an anchor, a balance requirement,
+ * a safer punctuation list — and each time the next round found a character or a
+ * combination the previous author had not listed. The class is closed HERE not
+ * because the punctuation set is finally right, but because THERE IS NO REDUCTION
+ * AT ALL. A manufacture vector needs a step that turns a non-id into an id; every
+ * one of the six leaks used such a step (find the id inside the token, or take
+ * characters off the token until an id remains). With the step deleted there is
+ * nothing left to be incomplete about: the token either IS an artifact id or it is
+ * not, and that question has no enumeration in it. Enumerating SAFER punctuation
+ * would not have closed it — the identical manufacture works with a trailing comma
+ * in a list of test names, and core/machine.ts:1190 embeds raw third-party output,
+ * which can place any punctuation character against any name.
  *
- *   prefix form  handlers/finding.ts:552 mints a finding id as `${storyId}:F-${NNN}`
- *                and core/machine.ts:756 renders it verbatim, so `B-bf52:F-012`
- *                and `B-bf52:F-013` normalize alike to `b-#:f-#`;
- *   suffix form  core/verification.ts:22-24 mints an intentRef as
- *                `${itemId}:${lane}:${index}`, rendered at core/machine.ts:1173, so
- *                `CHK-001:happy:0` normalizes to `chk-#:happy:#`;
- *   forged form  `timeout:bug-2` in embedded test output, which is what the
- *                qualifier was leaking.
+ * THE COST, stated plainly and NOT softened, because it is larger than the cost
+ * the previous two revisions recorded. ONLY BARE ids beat main now. Three groups
+ * of shapes that were protected in round 12 now TIE with main instead:
  *
- * On all three this branch now TIES with main (main's `/\d+/g` collapses them too)
- * instead of beating it on the first two while leaking on the third. That is ONE
- * rule with ONE honest cost, in place of a rule with a rescue clause that leaked.
- * The cost is bounded to the composite forms: a BARE artifact id in every real
- * delimiter position this tree renders — space-separated, at the very start of a
- * reason, parenthesized, bracketed, quoted, comma-attached, semicolon-attached and
- * sentence-final — is still protected, and each of those positions is a named
- * must-differ case in tasks/convergence-breaker-smoke.ts. The three collapse cases
- * tagged `substantive-id-colon-composite-cost` in that file are where the cost
- * itself is pinned, so it is visible in the suite and not only in this comment.
+ *   colon composites  (F-052, unchanged) the real PREFIX composite `B-bf52:F-012`
+ *                     (handlers/finding.ts:552, rendered at core/machine.ts:756),
+ *                     the real SUFFIX composite `CHK-001:happy:0`
+ *                     (core/verification.ts:22-24, rendered at :1173), and the
+ *                     forged `timeout:bug-2`;
+ *   wrapped ids       (F-054, NEW cost) `(CHK-001)` from core/machine.ts:204,
+ *                     `[CHK-001]` and `"CHK-001"` from embedded test output. A
+ *                     wrapper is not part of the id, but removing it is a
+ *                     reduction, and a reduction is what leaked;
+ *   punctuation-attached ids
+ *                     (F-054, NEW cost) `CHK-001,` from the list join at
+ *                     core/machine.ts:1169, `SEP-B-bf52-001.` from the
+ *                     sentence-final list at :273, `CHK-001;` from the `'; '` join
+ *                     at :756.
  *
- * THE RESIDUAL, and its direction. A real id introduced by a character outside
- * the wrapping-punctuation classes below — `itemId=CHK-001` is the standing
- * example, and the colon composites above are now the other one — is not the whole
- * token, so it is NOT protected and its ordinal collapses. That makes the breaker
- * fire EARLIER, which is the fail-safe direction for a circuit breaker, and it is
- * never worse than main, which collapses those shapes too.
+ * What is still protected, and what the must-differ lane in
+ * tasks/convergence-breaker-smoke.ts pins: a BARE id — one that arrives as the
+ * whole whitespace-delimited token. Real producers do render those: the LAST id of
+ * the checklist list at core/machine.ts:1169 (that join has no trailing period),
+ * the LAST id of the unfixed-bug list at :1195, a finding ordinal cited at the end
+ * of a reviewer description before the bracketed reason code at :1181, and any
+ * bare id in the raw test output :1190 embeds. Every one of the shapes that LOST
+ * protection is now a named must-still-collapse case in that file, so the cost is
+ * visible in the matrix and not only in this comment.
+ *
+ * THE RESIDUAL, and its direction. A real id that arrives attached to ANY other
+ * character — a wrapper, a list comma, a sentence period, a `:` composite, an
+ * `itemId=` prefix — is not the whole token, so it is NOT protected and its
+ * ordinal collapses. That makes the breaker fire EARLIER, which is the fail-safe
+ * direction for a circuit breaker, and it is never worse than main, which
+ * collapses those shapes too.
  *
  * The opposite error — protecting a NON-id — is the one that hands a stuck agent
  * back an unbounded retry loop. The claim this comment used to make about it was
  * that "the pattern is anchored at both ends over a character class that excludes
  * every welding character, so the only strings it accepts are strings that are
- * themselves artifact ids", and F-053 measured that FALSE — twice falsified now,
- * once by the qualifier (`timeout:bug-2`) and once by the STRIP that runs before
- * the pattern ever sees the token.
+ * themselves artifact ids". That claim was FALSE three times while a reduction
+ * existed — the qualifier admitted `timeout:bug-2` (F-052), the independent-run
+ * strip admitted `(bug-2` (F-053), the sentence strip admitted `bug-2:` (F-054) —
+ * and it is true now for a reason that can be checked by reading the code rather
+ * than by trusting the list: the anchored pattern is applied to the token itself,
+ * so the set of protected strings IS the set of strings the pattern matches.
  *
- * The pattern was never the whole rule. What the pattern is applied to is the
- * token AFTER a punctuation strip, so the honest statement has to be about the
- * PAIR. The strip was the last enumeration left in this guard — a leading run of
- * opening characters and a trailing run of closing characters, each removed
- * without reference to the other — and an enumeration leaked a sixth time:
- * `(bug-2` is a NON-id whose leading paren was removed even though nothing closed
- * it, so it reduced to `bug-2` and was protected. Its `(bug-5` sibling then keyed
- * APART on this branch while main collapses both, and the mirror `bug-2)` had the
- * same defect. See TOKEN_WRAPPER_PAIRS below for the balanced-only replacement.
- *
- * With a BALANCED-ONLY strip the claim becomes true, and it is stated with the
- * measurement rather than asserted: what the anchored pattern sees is either the
- * token itself or the token with matched wrapper pairs and trailing SENTENCE
- * punctuation removed, and neither of those operations can turn a non-id into an
- * id — removing a matched pair removes exactly two characters that were already
- * outside the id, and `[,;:.!?]` are outside `[a-z0-9-]` in every position. The
- * command that measures it, and the only thing that should be trusted here:
+ * The command that measures it, and the only thing that should be trusted here:
  *
  *   node packages/main/tests/red/red-s3-differential-probe.mjs <path-to-a-main-dist>
  *
- * That probe runs every leak shape from rounds 7-12 against a separately built
+ * That probe runs every leak shape from rounds 7-13 against a separately built
  * comparison normalizer and exits non-zero if this build distinguishes any ordinal
  * that a retry re-mints. Do not quote a number from this comment; run it. And note
- * what F-053 also measured about the probe itself: until round 12 every wrapper
- * pair in its matrix was BALANCED, so the probe PASSED while this regression was
- * live. A probe whose matrix cannot express a defect is not a guard against it,
- * which is why the unmatched pairs are now rows in it.
+ * what F-053 and F-054 both measured about the probe itself: it PASSED twice while
+ * a live regression was in the tree, once because every wrapper in its matrix was
+ * BALANCED and once because no row ended in a stripped punctuation character. A
+ * probe whose matrix cannot express a defect is not a guard against it, which is
+ * why both of those row groups are now in it.
  *
  * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, an alternation over
  * zero stems is the empty string and `(?:)` matches EVERYWHERE, so the pattern
@@ -805,66 +837,33 @@ function buildSubstantiveIdRe(prefixes: Iterable<string>): RegExp {
 const SUBSTANTIVE_ID_RE = buildSubstantiveIdRe(SUBSTANTIVE_ID_PREFIXES);
 
 /**
- * Punctuation that WRAPS a token without being part of it — and the sixth leak,
- * which was in the strip rather than in the pattern (F-053).
+ * THE PUNCTUATION STRIP IS DELETED (F-054), and this note is where it was.
  *
- * A rendered rejection puts real ids inside real punctuation:
- * core/machine.ts:204 renders `... appears in <source> (CHK-001). [excluded_keyword]`,
- * core/machine.ts:269 ends its pending list with `SEP-B-bf52-001.`, and
- * core/machine.ts:1169 renders `CHK-001, CHK-002`. Stripping that punctuation
- * before the whole-token test is what lets those ids stay protected while
- * `bug-2/x` — whose extra characters are NOT wrapping punctuation — does not.
+ * Rounds 9-12 kept a reduction in front of the whole-token test — first two
+ * independent character-class runs (`^[("'[{<]+` and `[)"'\]}>,;:.!?]+$`), then
+ * balanced wrapper pairs preceded by an unconditional `[,;:.!?]+$` sentence
+ * strip. Its purpose was real: core/machine.ts:204 renders `(CHK-001).`, :273
+ * ends its pending list with `SEP-B-bf52-001.` and :1169 joins ids with `, `, so
+ * without a strip those ids are not the whole token and lose protection.
  *
- * WHAT ROUNDS 9-11 DID, AND WHY IT LEAKED. The strip was two independent
- * character-class runs: `^[("'[{<]+` off the head, `[)"'\]}>,;:.!?]+$` off the
- * tail. Each end enumerated the characters its author had thought of and neither
- * knew anything about the other, so the strip could remove HALF a wrapper.
- * Cross-host codex measured the consequence in the reachable channel — the raw
- * test output core/machine.ts:1190 embeds — where `not ok 1 - (bug-2 reproducer
- * still red` and its `(bug-5` sibling digested APART on this branch and COLLAPSE
- * on main: the leading strip removed an UNMATCHED `(`, so the NON-id token
- * `(bug-2` reduced to the id `bug-2` and was protected. `bug-2)` was the mirror.
- * An unbalanced paren is ordinary in TAP names, in shell fragments and in
- * anything a third-party runner prints, so this is the same worse-than-main
- * direction as F-043/F-048/F-051/F-052, reached through the one piece of the rule
- * that was still an enumeration.
+ * It is deleted anyway, because a reduction is the mechanism every manufacture
+ * vector needs. F-053 measured the independent-run form admitting `(bug-2`;
+ * F-054 measured the balanced form admitting `bug-2:` — an arbitrary TAP subtest
+ * name in the raw output core/machine.ts:1190 embeds, whose trailing colon the
+ * unconditional sentence strip removed, so `not ok 1 - bug-2: reproducer still
+ * red` and its `bug-5:` sibling keyed APART here while main collapses them.
+ * Replacing `[,;:.!?]` with a "safer" set does not close that: `bug-2,` is the
+ * same manufacture with a list comma, and raw third-party output can place any
+ * punctuation character against any name.
  *
- * THE REPLACEMENT, in two parts with the order load-bearing:
- *
- *   1. TRAILING SENTENCE PUNCTUATION `[,;:.!?]+$`, removed unconditionally.
- *      These are the characters that terminate a sentence or a list AFTER an id
- *      and can never open anything, so they have no partner to be balanced
- *      against. They cannot re-open the hole either: stripping happens only at
- *      the token's END, so an interior `:` is still part of the string the
- *      anchored whole-token test has to accept, and it cannot (`:` is outside
- *      `[a-z0-9-]`).
- *   2. BALANCED WRAPPER PAIRS ONLY, peeled one matched pair at a time while the
- *      FIRST and LAST characters of what remains are a pair in TOKEN_WRAPPER_PAIRS.
- *      A wrapper is only a wrapper if something closes it. `(chk-001)` peels;
- *      `(bug-2` does not, because `2` does not close `(`; `bug-2)` does not,
- *      because `b` opens nothing.
- *
- * The ORDER is what makes the real render work. core/machine.ts:204 emits
- * `(CHK-001).` and a list can emit `(CHK-001),`: the sentence punctuation has to
- * come off FIRST, or the token still ends in `.` and the paren pair never looks
- * balanced. Sentence-first then peel reduces both to `chk-001`.
- *
- * This is a SHAPE rather than a longer list, in the same sense the whole-token
- * test is: "balanced" is a property of the token, so adding a wrapper kind to the
- * map cannot admit a half-wrapper, and the enumeration that leaked six times has
- * nothing left to be incomplete about. The unmatched shapes are pinned by name in
- * tasks/convergence-breaker-smoke.ts under `substantive-id-balanced-wrapper-strip`
- * and measured against a main build by tests/red/red-s3-differential-probe.mjs.
+ * So the cost is PAID instead of engineered around — `(CHK-001)`, `CHK-001,`,
+ * `SEP-B-bf52-001.` and `CHK-001;` now tie with main — and the protected set is
+ * exactly the set of tokens SUBSTANTIVE_ID_RE matches. Nothing is enumerated,
+ * therefore nothing can be enumerated incompletely. The lost shapes are pinned by
+ * name as must-still-collapse cases in tasks/convergence-breaker-smoke.ts under
+ * `substantive-id-no-reduction`, and the manufacture vectors are measured against
+ * a main build by tests/red/red-s3-differential-probe.mjs.
  */
-const TOKEN_SENTENCE_PUNCT_RE = /[,;:.!?]+$/;
-const TOKEN_WRAPPER_PAIRS = new Map<string, string>([
-  ['(', ')'],
-  ['[', ']'],
-  ['{', '}'],
-  ['<', '>'],
-  ['"', '"'],
-  ["'", "'"],
-]);
 
 /**
  * Placeholder encoding for a protected token.
@@ -900,7 +899,7 @@ function decodeTokenIndex(encoded: string): number {
 
 /**
  * The whole-token walk that lifts substantive artifact ids out of a reason
- * (F-051).
+ * (F-051, F-054).
  *
  * A TOKEN WALK, not one mega-regex, and that is the point: the decision is made
  * once per whitespace-delimited token, so an id welded into a larger token is
@@ -908,14 +907,17 @@ function decodeTokenIndex(encoded: string): number {
  * inside the string and then tried to fence the position off with boundary
  * assertions, which is what leaked four times.
  *
- * Whitespace separators are preserved verbatim (`split` with a capturing group),
- * as is any wrapping punctuation that was stripped for the test, so the only
- * bytes this step rewrites are the id itself.
+ * NOTHING IS REMOVED FROM A TOKEN BEFORE IT IS TESTED (F-054). The token that the
+ * anchored pattern sees is the token the reason contained, so the set of protected
+ * strings is exactly the set the pattern matches and there is no step in which a
+ * non-id can become an id. Rounds 9-12 ran a punctuation strip here; it is deleted
+ * rather than narrowed, because narrowing it is what leaked twice (`(bug-2` under
+ * the independent runs, `bug-2:` under the balanced form with its unconditional
+ * sentence strip). See the note above SUBSTANTIVE_ID_RE for the cost.
  *
- * The strip is BALANCED-ONLY (F-053): trailing sentence punctuation first, then
- * matched wrapper pairs peeled one at a time. `lead` and `trail` accumulate the
- * exact characters removed, in the order they have to be put back, so the
- * reassembly below is still byte-preserving.
+ * Whitespace separators are preserved verbatim (`split` with a capturing group)
+ * and a protected token is replaced whole, so the only bytes this step rewrites
+ * are the id itself.
  */
 function protectSubstantiveIds(
   lowered: string,
@@ -928,28 +930,14 @@ function protectSubstantiveIds(
     // Odd positions are the captured whitespace separators; the empty strings
     // `split` produces at a leading/trailing separator are skipped here too.
     if (!token || i % 2 === 1) continue;
-    const sentence = TOKEN_SENTENCE_PUNCT_RE.exec(token)?.[0] ?? '';
-    let core = sentence ? token.slice(0, token.length - sentence.length) : token;
-    let lead = '';
-    let trail = sentence;
-    // Peel one MATCHED pair per iteration. A single-character token can never be
-    // a pair (`"` would otherwise "close" itself and slice to nothing), hence the
-    // length floor.
-    while (core.length >= 2) {
-      const closer = TOKEN_WRAPPER_PAIRS.get(core[0]);
-      if (closer === undefined || core[core.length - 1] !== closer) break;
-      lead += core[0];
-      trail = core[core.length - 1] + trail;
-      core = core.slice(1, -1);
-    }
-    if (!core || !SUBSTANTIVE_ID_RE.test(core)) continue;
-    let index = keptIndex.get(core);
+    if (!SUBSTANTIVE_ID_RE.test(token)) continue;
+    let index = keptIndex.get(token);
     if (index === undefined) {
       index = kept.length;
-      kept.push(core);
-      keptIndex.set(core, index);
+      kept.push(token);
+      keptIndex.set(token, index);
     }
-    parts[i] = `${lead}${encodeTokenIndex(index)}${trail}`;
+    parts[i] = encodeTokenIndex(index);
   }
   return parts.join('');
 }
@@ -1056,17 +1044,23 @@ export function gateFailureDigest(command: string, reason: string): string {
   // constraint and measurement contradicts it. B-cc54's CHK-002:adversarial:1
   // requires a signal-free tail past its banner to leave the key UNCHANGED, and
   // that banner fixture normalizes to exactly 592 characters — so cuts of 593 and
-  // above break B-cc54's suite, while every cut from 216 (the divergence point of
+  // above break B-cc54's suite, while every cut from 258 (the divergence point of
   // the residual pair below) through 592 would fix that pair and leave B-cc54
-  // green. A 376-character window exists; it is simply NOT TAKEN, and the reason
+  // green. A 335-character window exists; it is simply NOT TAKEN, and the reason
   // is the one already given above: on the signals branch this story keeps
   // B-cc54's 200-character prefix EXACTLY, so every key it produces is
   // byte-identical to before this change. Widening would rekey every ProofStory
   // gate rejection in the system to buy back a residual that is already never
-  // worse than main. The `scope-extension-proposal-ordinal-past-window` collapse
-  // case and its within-window twin `scope-extension-proposal-ordinal` in
+  // worse than main. The `blocking-finding-cited-id-past-window` collapse case and
+  // its within-window twin `blocking-finding-cited-id-within-window` in
   // tasks/convergence-breaker-smoke.ts pin BOTH directions of this residual, so it
-  // stays a known, tested boundary rather than a surprise.
+  // stays a known, tested boundary rather than a surprise. (Those two replaced the
+  // `SEP-…` pair that carried this residual through round 12: after the F-054
+  // deletion every `SEP-` token in core/machine.ts:273's render is comma- or
+  // period-attached and therefore unprotected, so neither half of that pair keyed
+  // apart at any window and it could no longer measure this cut. Measured: a
+  // 592-character cut fails the new past-window case and failed nothing on the old
+  // one.)
   const prefix = signals.length > 0 ? normalized.slice(0, 200) : normalized.slice(0, 16_384);
   // F-003: encode the parts unambiguously instead of concatenating them with a
   // literal " signals:" delimiter. Concatenation only resisted forgery by accident
