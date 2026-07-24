@@ -244,6 +244,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
       }
     },
     {
