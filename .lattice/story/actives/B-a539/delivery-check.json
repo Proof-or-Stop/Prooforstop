@@ -1,0 +1,35 @@
+{
+  "storyId": "B-a539",
+  "checkedAt": "2026-07-24T19:42:17.069Z",
+  "headHash": "703aee56708e73d0e9a7f93234f1d9d3b52a7bd2",
+  "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
+  "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
+  "reviewRound": "2026-07-24T18:02:45.716Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#规则",
+      "promise": "代码验证统一用 lattice validate (no new claim introduced by this story; this change makes no CLAUDE.md/README edit)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only shows only lattice.config.json changed (plus .lattice/story/actives/B-a539/* metadata); no .md file is touched. The checklist relatedDocs entry citing CLAUDE.md is contextual (the story executes verification through lattice validate per this pre-existing convention), not a new documentation promise. The convention itself is upheld: node bin/lattice.js validate --json ran and produced a real invocation record (47 command results) used as evidence, consistent with the pre-existing rule."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Verified via git show 304d459c8d --stat and git show 304d459c8d -- lattice.config.json: 1 file changed, 1 deletion. Independently re-ran a node script reading lattice.config.json, confirming validate.commands has exactly 47 entries (was 48) and exactly one entry references reviewer-scan-budget-guard-smoke.js -- the object form command=node args=[reviewer-scan-budget-guard-smoke.js] focus=[fast] with no shell/cwd/env/timeoutMs/optional fields, matching the pre-edit surviving entry byte-for-byte apart from the removed duplicate bare-string line. Filtering by focus=fast still selects this entry."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Checklist verificationEvidence records a real validate --json invocation (LATTICE_MAX_TIMEOUT_MS=3600000 node bin/lattice.js validate --json): 47 command results total, exactly one referencing reviewer-scan-budget-guard-smoke.js (label configured validate.commands[11], code 0, output reviewer-scan-budget-guard: PASS, 6 prompt copies clean, 7 required phrases present). Independently confirmed the current lattice.config.json state matches this (47 entries, 1 match) via a fresh node script run in this review. The two failing commands in that same run (validate-progress-heartbeat-smoke.js, quorum-submit-smoke.js) are confirmed unrelated by diff scope: git diff main...HEAD --name-only shows the only non-story-metadata file changed is lattice.config.json, and neither failing script is touched by this diff. Independently reproduced a hang exceeding 60 seconds on validate-progress-heartbeat-smoke.js standalone, consistent with the reported host-load/timeout flake rather than a regression caused by this change."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Single-line config dedup (lattice.config.json, commit 304d459c8d) verified independently: validate.commands drops from 48 to 47 entries, exactly one reviewer-scan-budget-guard-smoke.js reference survives (the focus=fast object form), confirmed both by direct JSON inspection and by a real validate --json invocation record showing code 0 pass. No CLAUDE.md/README promise is introduced or altered by this change. The two unrelated in-run validate failures are outside this diff's file scope and do not block delivery."
+  },
+  "_hash": "a9e5bfe788c38784632841ebb6726f72450d01cb10e9c36d9a838f33a9df66db"
+}
