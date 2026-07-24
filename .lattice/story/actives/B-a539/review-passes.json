@@ -1,0 +1,27 @@
+{
+  "passes": [
+    {
+      "id": "B-a539:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Single-line deletion in lattice.config.json removes the duplicate bare-string validate.commands entry for reviewer-scan-budget-guard-smoke.js, keeping the focus:[fast]-tagged object entry. Not a concept deletion/replacement: the concept/script itself is fully intact (packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts unchanged, still registered exactly once). Verified via git diff main...HEAD -- lattice.config.json (single-line deletion only), grep -n reviewer-scan-budget-guard-smoke lattice.config.json (1 hit), and a programmatic dup-identity scan over all 47 validate.commands entries (0 duplicate groups). No blocker.",
+      "createdAt": "2026-07-24T18:04:17.025Z",
+      "reviewRound": "2026-07-24T18:02:45.716Z",
+      "reviewRunId": "B-a539:RR-001",
+      "envelopeId": "f8dc7f3beec1920c3695d140099d6e17b980c1be2b5376cf04d96dd03675ed92",
+      "writerSessionId": "sess-12d4654412aecbb01251458208b2b803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a539/checklist.json",
+          ".lattice/story/actives/B-a539/plan.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "34d903bb945a8095d5ed354ecea3a5d180bb5b0d2a367d7c357399162268d349"
+    }
+  ]
+}
