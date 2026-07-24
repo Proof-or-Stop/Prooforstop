@@ -52,6 +52,39 @@
         "scanEscalationReason": null
       },
       "_hash": "1cc66d330cc709bbd9e021ecf7ceee5fb33f8ab8d3be348f77a9cfd867e5940e"
+    },
+    {
+      "id": "B-cc54:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement in this round (targeted regex/extraction fix to extractGateBlockSignals + one comment correction). Independently re-verified F-008/F-009: fresh real gap codes not in the fixture set (milestone_unknown_checklist_ref, acceptance_binding_unknown_milestone, uncovered_required_milestones) key distinctly and a repeated one still accumulates; fed real anti-stall [retry]/[fix]/[discard] text, real dispatch-prompt prose bullets, and renderBreakerFreeze next-step-hint text through extractGateBlockSignals directly -- zero signals captured in all three (no over-capture / no new escape hatch). Grepped core/proofstory.ts and confirmed all 9 gap/trigger codes used across the fixtures are genuinely emitted there. Independently reproduced RED by removing the new structural-bullet loop, rebuilding, and running the smoke: fails at CHK-005 F-008 assertion (1 !== 4), exit 1; restoring gives a byte-identical file (empty diff) and PASS, exit 0. Reran convergence-breaker-smoke.js: still PASS. No remaining contradictory comment: F-005 docstring and both inline comments (F-002 bracket-pattern, F-008 bullet-pattern) now consistently say form-restricted-not-enumerated.",
+      "createdAt": "2026-07-24T01:44:48.578Z",
+      "reviewRound": "2026-07-24T01:39:42.449Z",
+      "reviewRunId": "B-cc54:RR-010",
+      "envelopeId": "321ddbc9b6d8e5d01baa31028f2aabd3b6c0440a88151ba3ebc74347c1f54f91",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/anti-stall.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/findings.json",
+          ".lattice/story/actives/B-cc54/plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "337338ba83f6608eaf28140d234fb1d602d65e61492196eb9029f4c2b39b3d7f"
     }
   ]
 }
