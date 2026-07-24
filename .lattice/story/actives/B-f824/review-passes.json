@@ -508,6 +508,33 @@
         "scanEscalationReason": null
       },
       "_hash": "91f22d85276efdb776062e05814f29d55ec4abe5ba57d8ea0d7a97ade69895d9"
+    },
+    {
+      "id": "B-f824:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 re-attestation. review_incremental_context confirms freshnessClassification=KNOWN_UNRELATED_MATERIAL_DRIFT: storyFilesHash unchanged from prior pass RP-015 (a79a946f7e1f049bd1705cf4e63d2389f934b8b7433671bfb9fe82961428df60 both rounds); only materialHash moved due to auto-merge of main (e4fc4c4852, sibling B-5e4a). Diffed the one changed file that overlaps this story's declared scope, scripts/verify-process-fact-contract.mjs (allowedTest): the added delta is solely assertAcceptanceTopologyLifecycleFilenameContract (B-5e4a acceptance-topology filename registration), unrelated to this story's unchangedSuiteExecutions/reviewWindowSuiteExecutions convergence split; CHK-003 target file process-fact-registry.ts is untouched by the merge. All 15 must verificationIntent entries across CHK-001..CHK-004 retain the same valid verificationEvidence verified in RP-015 (no evidence file in this story's scope changed). Re-ran packages/main test:flow-stability-smoke (PASS, includes Cases A-D convergence assertions) and npm run test:process-fact-contract (PASS) on the merged tree as fresh confirmation. No blocker.",
+      "createdAt": "2026-07-24T03:41:30.942Z",
+      "reviewRound": "2026-07-24T03:38:21.644Z",
+      "reviewRunId": "B-f824:RR-018",
+      "envelopeId": "8b20000edb488ab4d582d70220746f71fabd85d1b049c4d2255faca49b1ce7e8",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "06a5ee03c4269714fed5ed77ed6d17b4810ca72885d0b4b0daa34b8f7aec3b40"
     }
   ]
 }
