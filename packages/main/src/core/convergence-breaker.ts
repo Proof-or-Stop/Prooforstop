@@ -552,21 +552,70 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * substantive when it names WHICH lifecycle artifact the gate refused on, and
  * every other digit run is incidental.
  *
- * The members, each with its story_advance-reachable render site:
- *   chk-  checklist item — core/machine.ts checklist gate
- *   f-    finding        — blocking-finding rejection
- *   bug-  bug report     — core/machine.ts:1195 `Cannot enter DONE: 1 unfixed bug(s): BUG-001`
- *   sep-  scope-extension proposal — core/machine.ts:269 `Cannot enter INIT_CHECK: N
- *         scope extension proposal(s) are still pending: SEP-<storyId>-001`, minted by
- *         handlers/scope-anti-expansion.ts:120
- *   req-  requirement id — core/proofstory.ts:1026 `<milestone> references
- *         sourceRequirementId REQ-001, which is not in original intent
- *         keyRequirementIds`, surfaced by the ProofStory DEV gate
+ * MEMBERSHIP IS DECIDED BY A MEASUREMENT, NOT BY THE EXISTENCE OF A PRODUCER
+ * (F-056, review round 14). The pattern below is a WHOLE-TOKEN test with no
+ * reduction, so a prefix earns its place here only if some producer renders its id
+ * as the ENTIRE whitespace-delimited token. A prefix whose every native render is
+ * comma-, period- or colon-attached is never protected in practice no matter what
+ * this set says — its entry buys nothing — while the prefix itself remains an
+ * active false-positive surface, because core/machine.ts:1190 embeds RAW
+ * third-party test output in the digest and an ordinary label can look exactly
+ * like the id. So the criterion is: NAMES WHICH ARTIFACT MUST BE FIXED, SURVIVES
+ * THE RETRY, AND HAS A BARE NATIVE RENDER.
+ *
+ * The members, each with the story_advance-reachable render site that emits it
+ * BARE (verified by reading the producer, round 14):
+ *   chk-  checklist item — core/machine.ts:1169 joins the pending ids with `, ` and
+ *         adds NO trailing period, so the LAST id of that list is the whole token;
+ *         a reviewer citing the item at the end of the last blocking-finding
+ *         description (:756, wrapped by :1181) is bare too.
+ *   bug-  bug report — core/machine.ts:1195 `Cannot enter DONE: 1 unfixed bug(s):
+ *         BUG-001`, same list join, same bare last element.
  * Two gate refusals naming DIFFERENT members are two different failures; a story
  * that clears CHK-001 and then trips on CHK-002 is making progress, and counting
  * that as one gate failing twice is the false freeze this story exists to kill.
  *
- * WHAT WAS REMOVED, AND WHY (review round 6, cross-host codex).
+ * WHAT WAS REMOVED FOR HAVING NO BARE NATIVE RENDER (F-056, round 14). Each entry
+ * records the MEASUREMENT that removed it — the producer was read, not assumed —
+ * rather than being deleted silently, because a silent drop is indistinguishable
+ * from an oversight:
+ *   `f-`   finding id. NEVER BARE. Every mint is composite: audit-meta-store.ts:187
+ *          and :501 and handlers/finding.ts:552 all build `${storyId}:F-${NNN}`,
+ *          and the one story_advance render (core/machine.ts:756, wrapped by
+ *          :1181) interpolates that id whole, so the token is `b-bf52:f-012` — a
+ *          colon composite this form has not protected since F-052. The entry
+ *          therefore protected nothing, and `f-` is the WORST of the three to keep:
+ *          a single letter is the most likely shape to collide with an ordinary
+ *          hyphenated label in the third-party output :1190 embeds.
+ *   `req-` requirement id. NEVER BARE. The only ordinal-bearing `REQ-` in the tree
+ *          is the key-requirement id (core/proofstory.ts:85 defaults it to
+ *          `REQ-001`), and its only story_advance-reachable render is
+ *          core/proofstory.ts:1026 — `… references sourceRequirementId REQ-001,
+ *          which is not in original intent keyRequirementIds.` — surfaced by the
+ *          report renderer at :1911. The token is `req-001,`: COMMA-ATTACHED.
+ *          (core/planner.ts:863-865 mints `REQ-empty` / `REQ-vague` /
+ *          `REQ-placeholder`, which carry no ordinal at all.)
+ *   `sep-` scope-extension proposal id. NEVER BARE. handlers/scope-anti-expansion.ts:121
+ *          mints `SEP-${storyId}-${NNN}` and the only story_advance render is
+ *          core/machine.ts:273, `… are still pending: ${ids.join(', ')}.` — every
+ *          element but the last is comma-attached and the last is period-attached.
+ *          (handlers/init-preflight.ts:254 joins the same ids with no trailing
+ *          period, but init_preflight is not story_advance and cli-engine.ts:1500
+ *          bumps the counter for story_advance ONLY, so that render never reaches
+ *          this normalizer.) Its compound shape could not match the pure-ordinal
+ *          body below in any case.
+ * REMOVAL COST, stated rather than implied: all three already collapsed before
+ * this change, because the F-054 deletion left nothing to strip their attached
+ * punctuation. Removing them changes no digest for any first-party render; what it
+ * changes is third-party text, where `f-2` / `req-3` / `sep-1` stop being
+ * protected. There is consequently NO single-mutation guard on the `sep-` removal
+ * (re-adding it changes no observable behaviour, since no bare `SEP-<ordinal>`
+ * shape exists anywhere), and the smoke says so instead of implying one. `f-` and
+ * `req-` DO have one: the must-still-collapse `bare-finding-ordinal` and
+ * `embedded-test-output-bare-requirement-ordinal` cases in
+ * tasks/convergence-breaker-smoke.ts key APART the moment either is re-added.
+ *
+ * WHAT WAS REMOVED EARLIER, AND WHY (review round 6, cross-host codex).
  *   `ab-` / `oq-`  DEAD CONFIG (F-035). No `AB-` producer exists anywhere in
  *                  packages/main/src; `OQ-` appears only in comments and in the
  *                  open_question_resolve schema description, and no story_advance
@@ -638,7 +687,7 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * `bcc54-story-id-digits` case in tasks/convergence-breaker-smoke.ts is the
  * standing guard that `b-` never joins it.
  */
-const SUBSTANTIVE_ID_PREFIXES = new Set(['bug-', 'chk-', 'f-', 'req-', 'sep-']);
+const SUBSTANTIVE_ID_PREFIXES = new Set(['bug-', 'chk-']);
 
 /**
  * The allowlist, exported READ-ONLY so the completeness guard in
@@ -713,12 +762,31 @@ export function listSubstantiveIdPrefixes(): string[] {
  *                           `not ok 1 - bug-2: reproducer still red` and its
  *                           `bug-5:` sibling digested APART on that branch while
  *                           main collapses them (F-054).
+ *   whole token, NO
+ *   reduction, PERMISSIVE
+ *   BODY `[a-z0-9-]*\d`
+ *   (round 13)              closed the reduction class outright and left the leak in
+ *                           the PATTERN instead. This is the eighth leak and the first
+ *                           that is not about the token's surroundings at all: the
+ *                           body existed to carry a COMPOUND id (`SEP-B-bf52-001`),
+ *                           and `[a-z0-9-]*` accepts an ordinary hyphenated WORD just
+ *                           as readily. The bare tokens `bug-fix-2` and `bug-fix-5` —
+ *                           a routine TAP subtest name in the raw output
+ *                           core/machine.ts:1190 embeds — matched as artifact ids and
+ *                           digested APART while main collapses them, which is the
+ *                           worse-than-main direction. `chk-abc-1` is the same
+ *                           manufacture with a letter body and `bug-2a1` with an
+ *                           alphanumeric one (F-056).
  *
- * Every one of those leaks has the same structure: something that was NOT an
- * artifact id was made to look like one, either by finding the id inside a larger
- * token or by REMOVING characters from the token until an id was what remained.
+ * Every one of the first seven leaks has the same structure: something that was NOT
+ * an artifact id was made to look like one, either by finding the id inside a
+ * larger token or by REMOVING characters from the token until an id was what
+ * remained. The eighth needed no such step — the pattern simply ACCEPTED a non-id —
+ * which is why closing it is a change to the pattern and NOT another revision of
+ * the reduction: the reduction stayed deleted and is not coming back.
  * So the rule is stated as the property that is actually wanted, and it is not an
- * assertion at all — it is a WHOLE-TOKEN TEST WITH NO REDUCTION.
+ * assertion at all — it is a WHOLE-TOKEN TEST, WITH NO REDUCTION, OVER A PURE
+ * ORDINAL.
  * `normalizeGateReason` splits the reason on whitespace and protects a token only
  * if THE TOKEN ITSELF, byte for byte, is an artifact id. A token that merely
  * CONTAINS an id is not an id, and no embedded or attached punctuation can change
@@ -727,64 +795,87 @@ export function listSubstantiveIdPrefixes(): string[] {
  * The pattern, applied to one whitespace-delimited token as it arrives and
  * anchored at both ends:
  *
- *   ^(?:<stems>)-(?!(?:<stems>)-)[a-z0-9-]*\d$
- *    └── stem ──┘└─ no doubled ─┘└── body ───┘
+ *   ^(?:<stems>)-\d+$
+ *    └── stem ──┘└ord┘
  *
- *   no doubled  `(?!(?:<stems>)-)` keeps `BUG-BUG-2` out (F-048 (b)). It is
- *               retained from the previous revision because it is a statement
- *               about the id's own shape, not about its surroundings.
- *   body        `[a-z0-9-]*\d` is what makes a COMPOUND id work (F-032):
- *               `SEP-B-bf52-001` has `sep-` at its head but its ordinal is
- *               preceded by `bf52-`, so a rule matching only the prefix
- *               immediately before the digits left it unprotected.
+ *   body        `\d+` — a PURE ORDINAL, and nothing else. The token is a stem, a
+ *               hyphen and digits, or it is not an id. There is no character class
+ *               left in which an ordinary word can hide, which is the whole content
+ *               of the F-056 fix.
+ *
+ * WHAT THE PURE ORDINAL COSTS, stated rather than softened: the COMPOUND id
+ * `SEP-B-bf52-001` (F-032) can no longer be protected in any position, because its
+ * ordinal is preceded by `bf52-`. That costs nothing measurable, and the reason is
+ * the same measurement that removed `sep-` from the allowlist above — the only
+ * story_advance render of that id (core/machine.ts:273) attaches a comma or a
+ * period to every element, so no `SEP-` token has been protected since the F-054
+ * deletion anyway. The compound body was carrying a capability nothing used, at the
+ * price of admitting every hyphenated word in third-party output.
+ *
+ * WHAT ELSE THE PURE ORDINAL SUBSUMES. The doubled-prefix lookahead
+ * `(?!(?:<stems>)-)` that rounds 9-13 carried for F-048 (b) is DELETED, not
+ * retained-but-unused: with a pure-ordinal body `bug-bug-2` cannot match, because
+ * the characters after the stem are not digits. Keeping a lookahead that provably
+ * cannot fire would be a guard nobody has, so it goes and the standing case
+ * `embedded-test-output-doubled-prefix` is RETAGGED onto the body rule that now
+ * refuses it (measured: widening the body back fails that case).
  *
  * There is NO interior structure left and NOTHING RUNS IN FRONT OF THE TEST: a
  * token is protected only when it IS an artifact id. Built FROM the allowlist, so
  * the two cannot drift apart, and there is nothing else in the form to enumerate.
  *
- * THE CLOSURE ARGUMENT, stated as the reason this revision is different in kind
- * from the six before it. Rounds 7-12 each closed the leak they had been shown by
- * fixing the CHARACTER SET — a wider lookbehind, an anchor, a balance requirement,
- * a safer punctuation list — and each time the next round found a character or a
- * combination the previous author had not listed. The class is closed HERE not
- * because the punctuation set is finally right, but because THERE IS NO REDUCTION
- * AT ALL. A manufacture vector needs a step that turns a non-id into an id; every
- * one of the six leaks used such a step (find the id inside the token, or take
- * characters off the token until an id remains). With the step deleted there is
- * nothing left to be incomplete about: the token either IS an artifact id or it is
- * not, and that question has no enumeration in it. Enumerating SAFER punctuation
- * would not have closed it — the identical manufacture works with a trailing comma
- * in a list of test names, and core/machine.ts:1190 embeds raw third-party output,
- * which can place any punctuation character against any name.
+ * THE CLOSURE ARGUMENT, and how F-056 changed it. Rounds 7-12 each closed the leak
+ * they had been shown by fixing the CHARACTER SET — a wider lookbehind, an anchor,
+ * a balance requirement, a safer punctuation list — and each time the next round
+ * found a character or a combination the previous author had not listed. Round 13
+ * closed that class by deleting the reduction outright: a manufacture vector needs
+ * a step that turns a non-id into an id, and with the step gone there is nothing
+ * left to be incomplete about at the token's EDGES. That argument was correct and
+ * it still stands — F-056 did not re-open it, and the reduction is not coming back.
+ * What round 13 got wrong was assuming the argument covered the token's INTERIOR
+ * too. It did not: with no reduction at all, `bug-fix-2` needs no manufacture step,
+ * because the pattern accepted it as written. So the closure argument is now stated
+ * in two halves, both of which have to hold:
  *
- * THE COST, stated plainly and NOT softened, because it is larger than the cost
- * the previous two revisions recorded. ONLY BARE ids beat main now. Three groups
- * of shapes that were protected in round 12 now TIE with main instead:
+ *   edges     nothing is removed from the token before the test, so no non-id can
+ *             become an id (rounds 7-13, unchanged);
+ *   interior  the accepted body is `\d+`, so the set of accepted strings is exactly
+ *             `<stem>-<digits>` — a set small enough to enumerate in one line, with
+ *             no character class in which a word can hide (F-056).
  *
- *   colon composites  (F-052, unchanged) the real PREFIX composite `B-bf52:F-012`
- *                     (handlers/finding.ts:552, rendered at core/machine.ts:756),
- *                     the real SUFFIX composite `CHK-001:happy:0`
- *                     (core/verification.ts:22-24, rendered at :1173), and the
- *                     forged `timeout:bug-2`;
- *   wrapped ids       (F-054, NEW cost) `(CHK-001)` from core/machine.ts:204,
- *                     `[CHK-001]` and `"CHK-001"` from embedded test output. A
- *                     wrapper is not part of the id, but removing it is a
- *                     reduction, and a reduction is what leaked;
+ * THE COST, stated plainly and NOT softened. ONLY BARE, PURELY-ORDINAL ids beat
+ * main now. Four groups of shapes tie with main instead:
+ *
+ *   colon composites  (F-052) the real SUFFIX composite `CHK-001:happy:0`
+ *                     (core/verification.ts:22-24, rendered at :1173) and the forged
+ *                     `timeout:bug-2`. The real PREFIX composite `B-bf52:F-012` is
+ *                     no longer a separate cost, because F-056 removed `f-` from the
+ *                     allowlist entirely;
+ *   wrapped ids       (F-054) `(CHK-001)` from core/machine.ts:204, `[CHK-001]` and
+ *                     `"CHK-001"` from embedded test output. A wrapper is not part
+ *                     of the id, but removing it is a reduction, and a reduction is
+ *                     what leaked;
  *   punctuation-attached ids
- *                     (F-054, NEW cost) `CHK-001,` from the list join at
- *                     core/machine.ts:1169, `SEP-B-bf52-001.` from the
- *                     sentence-final list at :273, `CHK-001;` from the `'; '` join
- *                     at :756.
+ *                     (F-054) `CHK-001,` from the list join at core/machine.ts:1169
+ *                     and `CHK-001;` from the `'; '` join at :756;
+ *   compound ids and
+ *   retired prefixes  (F-056, NEW cost) `SEP-B-bf52-001` is not a pure ordinal, and
+ *                     `F-012` / `REQ-001` / `SEP-…` are not allowlisted at all. All
+ *                     four of those renders were ALREADY tying with main before this
+ *                     change (every one of them is comma-, period- or colon-attached
+ *                     at its producer, see the allowlist comment above), so the
+ *                     measured cost of F-056 against a first-party render is ZERO;
+ *                     what it changes is third-party text.
  *
  * What is still protected, and what the must-differ lane in
- * tasks/convergence-breaker-smoke.ts pins: a BARE id — one that arrives as the
- * whole whitespace-delimited token. Real producers do render those: the LAST id of
- * the checklist list at core/machine.ts:1169 (that join has no trailing period),
- * the LAST id of the unfixed-bug list at :1195, a finding ordinal cited at the end
- * of a reviewer description before the bracketed reason code at :1181, and any
- * bare id in the raw test output :1190 embeds. Every one of the shapes that LOST
- * protection is now a named must-still-collapse case in that file, so the cost is
- * visible in the matrix and not only in this comment.
+ * tasks/convergence-breaker-smoke.ts pins: a BARE PURELY-ORDINAL `chk-`/`bug-` id —
+ * one that arrives as the whole whitespace-delimited token. Real producers do
+ * render those: the LAST id of the checklist list at core/machine.ts:1169 (that
+ * join has no trailing period), the LAST id of the unfixed-bug list at :1195, a
+ * checklist id cited at the end of a reviewer description before the bracketed
+ * reason code at :1181, and any bare id in the raw test output :1190 embeds. Every
+ * one of the shapes that LOST protection is a named must-still-collapse case in
+ * that file, so the cost is visible in the matrix and not only in this comment.
  *
  * THE RESIDUAL, and its direction. A real id that arrives attached to ANY other
  * character — a wrapper, a list comma, a sentence period, a `:` composite, an
@@ -797,25 +888,34 @@ export function listSubstantiveIdPrefixes(): string[] {
  * back an unbounded retry loop. The claim this comment used to make about it was
  * that "the pattern is anchored at both ends over a character class that excludes
  * every welding character, so the only strings it accepts are strings that are
- * themselves artifact ids". That claim was FALSE three times while a reduction
- * existed — the qualifier admitted `timeout:bug-2` (F-052), the independent-run
- * strip admitted `(bug-2` (F-053), the sentence strip admitted `bug-2:` (F-054) —
- * and it is true now for a reason that can be checked by reading the code rather
- * than by trusting the list: the anchored pattern is applied to the token itself,
- * so the set of protected strings IS the set of strings the pattern matches.
+ * themselves artifact ids". That claim was FALSE FOUR times — the qualifier
+ * admitted `timeout:bug-2` (F-052), the independent-run strip admitted `(bug-2`
+ * (F-053), the sentence strip admitted `bug-2:` (F-054), and the permissive body
+ * admitted `bug-fix-2` with no strip at all (F-056). The last of those is the one
+ * that shows why the sentence about "a character class that excludes every welding
+ * character" was the wrong claim to make: the class did exclude every welding
+ * character, and the leak came through the characters it INCLUDED. The claim is now
+ * made about the accepted SET rather than the excluded characters, which is
+ * checkable by reading one line: the anchored pattern `^(?:<stems>)-\d+$` is applied
+ * to the token itself, so the set of protected strings is exactly
+ * `{stem}-{digits}`.
  *
  * The command that measures it, and the only thing that should be trusted here:
  *
  *   node packages/main/tests/red/red-s3-differential-probe.mjs <path-to-a-main-dist>
  *
- * That probe runs every leak shape from rounds 7-13 against a separately built
+ * That probe runs every leak shape from rounds 7-14 against a separately built
  * comparison normalizer and exits non-zero if this build distinguishes any ordinal
  * that a retry re-mints. Do not quote a number from this comment; run it. And note
- * what F-053 and F-054 both measured about the probe itself: it PASSED twice while
- * a live regression was in the tree, once because every wrapper in its matrix was
- * BALANCED and once because no row ended in a stripped punctuation character. A
- * probe whose matrix cannot express a defect is not a guard against it, which is
- * why both of those row groups are now in it.
+ * what F-053, F-054 and F-056 each measured about the probe itself: it PASSED THREE
+ * TIMES while a live regression was in the tree — once because every wrapper in its
+ * matrix was BALANCED, once because no row ended in a stripped punctuation
+ * character, and once because every welded row put material BEFORE the stem or
+ * AFTER the ordinal and none put an ordinary word BETWEEN them. A probe whose
+ * matrix cannot express a defect is not a guard against it; all three row groups
+ * are now in it, and the running count is recorded in the probe's own header
+ * because it is the evidence that a probe's matrix must be extended by every defect
+ * that slips past it.
  *
  * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, an alternation over
  * zero stems is the empty string and `(?:)` matches EVERYWHERE, so the pattern
@@ -832,7 +932,10 @@ function buildSubstantiveIdRe(prefixes: Iterable<string>): RegExp {
     .sort((a, b) => b.length - a.length || a.localeCompare(b));
   if (stems.length === 0) return /(?!)/;
   const alt = stems.join('|');
-  return new RegExp(`^(?:${alt})-(?!(?:${alt})-)[a-z0-9-]*\\d$`);
+  // F-056: the body is a PURE ORDINAL. Nothing may sit between the stem's hyphen
+  // and the digits — not a word, not a letter, not another hyphen — because
+  // anything that may sit there is a place an ordinary label can hide.
+  return new RegExp(`^(?:${alt})-\\d+$`);
 }
 const SUBSTANTIVE_ID_RE = buildSubstantiveIdRe(SUBSTANTIVE_ID_PREFIXES);
 

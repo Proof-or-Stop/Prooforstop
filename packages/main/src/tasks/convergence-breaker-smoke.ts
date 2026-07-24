@@ -292,7 +292,6 @@ const HEALTHY: BreakerCounters = {
 //                            `/\d+/g` with no allowlist;
 //   substantive-id-token-head-exact /
 //   substantive-id-token-tail-exact /
-//   substantive-id-doubled-prefix /
 //   substantive-id-colon-composite-cost
 //                            the case fails if the WHOLE-TOKEN test is loosened,
 //                            so that an id welded into a larger token is
@@ -300,6 +299,32 @@ const HEALTHY: BreakerCounters = {
 //                            colon tag is the F-052 member of this group and is
 //                            ALSO the record of what closing that hole costs; see
 //                            its declaration for why one tag carries both;
+//   substantive-id-pure-ordinal-body
+//                            F-056, and the tag that replaces two of round 13's
+//                            (`substantive-id-whole-token`,
+//                            `substantive-id-doubled-prefix`). The case fails if the
+//                            id BODY is widened from `\d+` back to anything that
+//                            admits a letter, a word or an interior hyphen between
+//                            the stem and the ordinal. That is the eighth leak, and
+//                            it is a DIFFERENT shape from the seven before it: no
+//                            reduction is involved and the token's edges are
+//                            untouched — the pattern simply accepted `bug-fix-2`;
+//   retired-prefix-not-allowlisted
+//                            F-056. The case fails if a prefix removed for having no
+//                            BARE native render (`f-`, `req-`, `sep-`) is put back.
+//                            It is the inverse revert of `substantive-id-allowlist`
+//                            in the other direction from `allowlist-boundedness`:
+//                            that one stops the allowlist growing past the
+//                            lifecycle-artifact vocabulary, this one stops it
+//                            re-acquiring a member of that vocabulary that no
+//                            producer renders bare;
+//   pinned-behaviour-documentation
+//                            F-057, and the only tag here that does NOT name a
+//                            revert. A case carrying it is TRUE, is worth pinning
+//                            because it records what a real render site normalizes
+//                            to, and has NO reachable single mutation — its comment
+//                            quotes the measured composite instead. It exists so the
+//                            grouped failure report cannot imply a guard nobody has;
 //   substantive-id-no-reduction
 //                            F-054, and the tag that replaces the three strip tags
 //                            of round 12 (`substantive-id-wrapper-pair-strip`,
@@ -322,24 +347,75 @@ const HEALTHY: BreakerCounters = {
 //                            revert of `substantive-id-allowlist` on the same
 //                            rule.
 //
-// MEASURED OVERLAPS, RE-DERIVED FROM SCRATCH IN ROUND 13 (F-054) against the
+// THE ROUND-14 RETIREMENT REGISTER (F-056 / F-057). Five cases and two tags left
+// the matrix this round. They are listed here, with the reason each stopped being
+// able to fail, because a case that quietly disappears is indistinguishable from a
+// case that was never there — and three of these five were, at some point, quoted
+// as evidence that something was guarded.
+//
+//   embedded-test-output-bare-compound-id   RETIRED. It asserted that a BARE
+//         `SEP-B-bf52-001` keys apart from `-002`, which was the single-mutation
+//         guard on the round-13 compound BODY. The pure ordinal removes that
+//         capability deliberately (a compound id cannot be a pure ordinal), and the
+//         measurement behind the removal is that no `SEP-` token in a story_advance
+//         rejection was protected anyway: core/machine.ts:273 attaches a comma or a
+//         period to every element it emits. Its tag `substantive-id-whole-token`
+//         goes with it;
+//   scope-extension-proposal-sentence-final-period  RETIRED. A
+//         `substantive-id-no-reduction` cost case built from the same `SEP-`
+//         producer. With `sep-` off the allowlist, restoring a sentence strip no
+//         longer makes it key apart, so it could not fail for the reason its tag
+//         named. Measured: `SENTENCE-punct strip RESTORED` fails 5 cases and this
+//         was not one of them. The no-reduction tag keeps 13 live cases;
+//   open-blocking-finding-composite-id      RETIRED. The real PREFIX composite
+//         `B-bf52:F-012`, and the single-mutation guard on the F-052 qualifier
+//         through round 13. With `f-` off the allowlist, re-adding the qualifier no
+//         longer makes that token an id, so it became a two-mutation composite.
+//         Measured: `<label>: QUALIFIER re-added` fails exactly
+//         `embedded-test-output-label-qualified-id`, which is now the qualifier's
+//         standing guard because its stem is still allowlisted;
+//   requirement-ordinal-past-window         RETIRED, and this one is F-057 direct:
+//         cross-host codex judged it documentation rather than a guard, and the
+//         judgement holds twice over. Its `REQ-` ordinal sits at normalized
+//         character 753, past every admissible cut (B-cc54 caps the signals window
+//         at 592), AND after F-054 the token is `req-001,` so the two sides
+//         normalized identically and no window was deciding anything. It is
+//         REPLACED rather than relabelled — see
+//         `embedded-test-output-bare-requirement-ordinal`, which fails on the single
+//         mutation `req-` re-added — because a guard that can be restored should be
+//         restored, not annotated;
+//   finding-ordinal                         RE-DECIDED, not retired: it moves from
+//         must-differ to must-still-collapse as `bare-finding-ordinal`, on the
+//         measurement that no producer renders a finding id bare. Same fixture,
+//         opposite lane, and it is now the single-mutation guard on the `f-`
+//         removal.
+//
+// The two tags deleted with them are `substantive-id-whole-token` and
+// `substantive-id-doubled-prefix` (the latter because a pure-ordinal body makes its
+// lookahead unable to fire; its case is retagged, not retired). Deleted rather than
+// renamed, for the reason this file has applied three times now: a tag that outlives
+// its rule attests to a guard nobody has.
+//
+// MEASURED OVERLAPS, RE-DERIVED FROM SCRATCH IN ROUND 14 (F-056/F-057) against the
 // current 51-case set. Every row below was produced by mutating the BUILT
 // normalizer in a detached, freshly built worktree's dist and reading back the
-// failing case names, and NOT ONE ROW WAS CARRIED FORWARD from round 12. That
-// re-derivation is not ceremony: the matrix itself changed shape — seven cases
-// moved lanes, four were added — so a carried-forward row would have described a
-// matrix that no longer exists. A tag names the revert a case is HERE to catch,
-// not the only revert that can fail it, and pretending otherwise is how the false
-// ISO claim and the false trailing-`\b` claim both got written.
+// failing case names, and NOT ONE ROW WAS CARRIED FORWARD from round 13. The matrix
+// changed shape again — five cases left, five arrived, two moved lanes, two tags
+// were deleted and three added — so a carried-forward row would have described a
+// matrix that no longer exists. A tag names the revert a case is HERE to catch, not
+// the only revert that can fail it, and pretending otherwise is how the false ISO
+// claim and the false trailing-`\b` claim both got written.
 //
-//   digit rule DELETED        fails 33 of 51 — the whole collapse lane's digit
-//                             group, `bcc54-*`, the review-bookkeeping cases, every
+//   digit rule DELETED        fails 36 of 51 — the whole collapse lane's digit
+//                             group, `bcc54-*`, the review-bookkeeping and
+//                             pinned-documentation cases, every
 //                             `embedded-test-output-*` case, the whole
-//                             `substantive-id-no-reduction` group and all three
+//                             `substantive-id-no-reduction` group, both
+//                             `retired-prefix-not-allowlisted` cases and both
 //                             colon-composite cases, because with no digit rule
 //                             EVERY ordinal survives (it also fails B-cc54's own
 //                             suite). It does NOT fail either `prefix-window-residual`
-//                             case: those two collapse on the WINDOW, which no
+//                             case: those collapse on the WINDOW, which no
 //                             normalizer rule reaches;
 //   hex rule DELETED          fails `hex-id` and `bcc54-cross-vendor-noise`;
 //   path rule DELETED         fails the three `path-rule-collapse` cases and
@@ -349,149 +425,181 @@ const HEALTHY: BreakerCounters = {
 //                             `signal-less-long-rejection`;
 //   ISO rule deleted ALONE    fails NOTHING (it is redundant with the digit rule
 //                             for a pure-digit timestamp — see `iso-timestamp-only`).
-//                             LOCALIZATION CAVEAT, measured this round rather than
-//                             assumed: deleting BOTH the ISO and the digit rule does
+//                             LOCALIZATION CAVEAT, re-measured this round rather than
+//                             carried: deleting BOTH the ISO and the digit rule does
 //                             not name `iso-timestamp-only` either — it aborts the
 //                             run at section 7's own ISO assertion, which sits ABOVE
-//                             this matrix. So the disjunction the tag names has no
-//                             mutation that reaches the matrix at all. That is the
-//                             same class of broken localization promise the
-//                             empty-allowlist row below records, and it is stated
-//                             here instead of being left as an implied guarantee;
+//                             this matrix. So the disjunction the tag names still has
+//                             no mutation that reaches the matrix at all, and the tag
+//                             says so instead of implying a guarantee;
 //   id HEAD anchor `^`
-//   DROPPED                   fails exactly `embedded-test-output-hyphen-compounds`,
+//   DROPPED                   fails exactly 6 — `embedded-test-output-hyphen-compounds`,
 //                             `…-slash-joined-names`, `…-doubled-prefix`,
-//                             `…-unmatched-open-paren`, `…-unmatched-open-quote`,
-//                             `open-blocking-finding-composite-id` and
-//                             `embedded-test-output-label-qualified-id` — seven,
-//                             unchanged in COUNT from round 12 but re-measured, not
-//                             restated. The two unmatched-wrapper names are still in
-//                             it: with the head anchor gone the id is found inside
-//                             the token again, so `(bug-2` is protected by that
-//                             mutation even though nothing peels the paren;
+//                             `…-unmatched-open-paren`, `…-unmatched-open-quote` and
+//                             `embedded-test-output-label-qualified-id`. This ROW
+//                             SHRANK from seven, and the missing name is the retired
+//                             `open-blocking-finding-composite-id`; nothing else
+//                             moved. The two unmatched-wrapper names are still in it:
+//                             with the head anchor gone the id is found inside the
+//                             token again, so `(bug-2` is protected by that mutation
+//                             even though nothing peels the paren;
 //   id TAIL anchor `$`
-//   DROPPED                   fails 13 — `embedded-test-output-digit-letter-tail`,
-//                             `…-slash-welded-tail`, `…-dot-welded-tail`,
-//                             `…-hyphen-welded-tail`, `…-non-ascii-welded-tail`,
-//                             `…-unmatched-close-paren`, `…-trailing-colon-name`,
-//                             `…-trailing-comma-name`, `…-trailing-period-name`,
+//   DROPPED                   fails 13 — `embedded-test-output-alnum-body-ordinal`,
+//                             `…-digit-letter-tail`, `…-slash-welded-tail`,
+//                             `…-dot-welded-tail`, `…-hyphen-welded-tail`,
+//                             `…-non-ascii-welded-tail`, `…-unmatched-close-paren`,
+//                             `…-trailing-colon-name`, `…-trailing-comma-name`,
+//                             `…-trailing-period-name`,
 //                             `checklist-not-done-comma-list`,
-//                             `scope-extension-proposal-sentence-final-period`,
 //                             `blocking-finding-desc-semicolon-attached-id` and
-//                             `verification-intent-ref-lane-suffix`. This ROW GREW
-//                             from seven to thirteen and the growth is the F-054
-//                             deletion showing through: every punctuation-attached
-//                             shape is now held apart from an id by the TAIL ANCHOR
-//                             ALONE, where round 12 held it apart by a balance rule
-//                             as well. Worth knowing when reading a failure report —
-//                             a group this large means the anchor, not the matrix;
-//   doubled-prefix lookahead
-//   DROPPED                   fails exactly `embedded-test-output-doubled-prefix`;
+//                             `verification-intent-ref-lane-suffix`. The COUNT is
+//                             unchanged from round 13 and the SET is not: it lost the
+//                             retired `scope-extension-proposal-sentence-final-period`
+//                             and gained the new `…-alnum-body-ordinal`, whose token
+//                             `bug-2a1` has a protected `bug-2` prefix once the tail
+//                             is unanchored. Equal counts across a reshaped matrix are
+//                             exactly the coincidence a carried-forward row would have
+//                             hidden;
+//   id BODY widened to
+//   `[a-z0-9-]*\d`
+//   (THE F-056 REVERT, and the
+//   single mutation from the
+//   SHIPPED form)             fails exactly 4 — `embedded-test-output-word-body-ordinal`,
+//                             `…-chk-word-body-ordinal`, `…-alnum-body-ordinal` and
+//                             `…-doubled-prefix`. That last one is why the retag is
+//                             honest: with the body permissive and no lookahead,
+//                             `bug-bug-2` is an id again;
+//   id BODY widened AND the
+//   round-13 doubled-prefix
+//   lookahead RESTORED
+//   (the literal round-13
+//   pattern)                  fails 3 — the same set MINUS `…-doubled-prefix`, which
+//                             the lookahead refuses for a reason unrelated to the
+//                             body. Quoted separately because this is the composite
+//                             that made round 13's matrix LOOK as though it covered
+//                             the between-the-stem-and-the-ordinal position;
+//   id BODY widened to
+//   `[a-z0-9]*\d` (alnum only,
+//   no interior hyphen — the
+//   "safer narrowing" repair)  fails exactly `embedded-test-output-alnum-body-ordinal`.
+//                             This row is the reason that case exists: a repair that
+//                             forbade only the interior HYPHEN would pass every other
+//                             case in this matrix while still admitting `bug-2a1`,
+//                             which is the close-one-character-leave-the-next mistake
+//                             rounds 7-12 made six times;
 //   `<label>:` QUALIFIER
-//   RE-ADDED, once
-//   (the F-052 revert)        fails exactly `open-blocking-finding-composite-id` and
-//                             `embedded-test-output-label-qualified-id`;
+//   RE-ADDED (the F-052
+//   revert)                   fails exactly `embedded-test-output-label-qualified-id`.
+//                             ONE case now, where round 13 named two, because the
+//                             other was the retired `open-blocking-finding-composite-id`;
 //   TRAILING `:`-segments
 //   ADMITTED
 //   (`(?::[a-z0-9-]+)*$`,
 //   the suffix rescue)        fails exactly `verification-intent-ref-lane-suffix`.
-//                             With the row above, this is what makes the
+//                             With the row above, this is what keeps the
 //                             colon-composite tag a real guard in BOTH directions:
 //                             no interior `:` structure can be re-added at either end
 //                             without failing a named case;
 //   SENTENCE-punct strip
 //   RESTORED
 //   (`[,;:.!?]+$`, THE F-054
-//   REVERT)                   fails exactly six — `embedded-test-output-trailing-colon-name`,
-//                             `…-trailing-comma-name`, `…-trailing-period-name`,
-//                             `checklist-not-done-comma-list`,
-//                             `scope-extension-proposal-sentence-final-period` and
-//                             `blocking-finding-desc-semicolon-attached-id`. The
-//                             first three are NON-ids and are the leak itself; the
-//                             last three are REAL ids and are the cost. One mutation,
+//   REVERT)                   fails exactly five — `checklist-not-done-comma-list`,
+//                             `blocking-finding-desc-semicolon-attached-id`,
+//                             `embedded-test-output-trailing-colon-name`,
+//                             `…-trailing-comma-name` and `…-trailing-period-name`.
+//                             The last three are NON-ids and are the leak itself; the
+//                             first two are REAL ids and are the cost. One mutation,
 //                             both halves of the trade, which is the honest shape of
-//                             this decision;
+//                             this decision. It was six in round 13; the missing name
+//                             is the retired `scope-extension-proposal-sentence-final-period`;
 //   BALANCED wrapper peel
-//   RESTORED                  fails exactly `embedded-test-output-balanced-paren-wrapped-id`
-//                             and `…-bracketed-and-quoted-id`;
+//   RESTORED                  fails exactly `embedded-test-output-bracketed-and-quoted-id`
+//                             and `…-balanced-paren-wrapped-id`;
 //   ROUND-12 REDUCTION
 //   RESTORED IN FULL
 //   (sentence strip THEN
-//   balanced peel)            fails exactly ten: the six of the sentence row, the two
-//                             of the peel row, plus
+//   balanced peel)            fails exactly nine: the five of the sentence row, the
+//                             two of the peel row, plus
 //                             `excluded-keyword-parenthesized-item-id` and
 //                             `embedded-test-output-balanced-wrapper-then-sentence-punct`
 //                             — the two tokens that are BOTH wrapped and
 //                             punctuation-terminated, which neither half reduces
-//                             alone. This is the exact revert this round exists to
+//                             alone. This is the exact revert round 13 exists to
 //                             stop, and it is the row to check first if the
 //                             `substantive-id-no-reduction` group ever goes red;
 //   ROUND-11 REDUCTION
 //   RESTORED
 //   (the two independent runs
 //   `^[("'[{<]+` and
-//   `[)"'\]}>,;:.!?]+$`)      fails exactly fourteen: the ten above plus the four
+//   `[)"']}>,;:.!?]+$`)       fails exactly thirteen: the nine above plus the four
 //                             unmatched-wrapper cases. The nesting is the point —
 //                             each older reduction fails a SUPERSET of the newer
 //                             one's cases, so the group size localizes WHICH
 //                             reduction came back;
-//   whole-token BODY reduced
-//   to `\d+` (the F-032
-//   prefix-before-digits
-//   revert)                   fails exactly `embedded-test-output-bare-compound-id`.
-//                             This ROW SHRANK from two cases to one, and the reason
-//                             is the F-054 cost: the two `SEP-…` must-differ cases it
-//                             used to fail are now collapse cases, so the compound
-//                             body's only guard is the bare-id case built from the
-//                             embedded-output channel;
-//   allowlist EMPTIED         fails 7 — every must-differ case whose distinctness
+//   allowlist EMPTIED         fails 5 — every must-differ case whose distinctness
 //                             comes from a protected id (`checklist-ordinal`,
-//                             `checklist-ordinal-at-reason-start`, `finding-ordinal`,
-//                             `unfixed-bug-ordinal`, `checklist-not-done-final-bare-id`,
-//                             `embedded-test-output-bare-compound-id`,
+//                             `checklist-ordinal-at-reason-start`,
+//                             `unfixed-bug-ordinal`,
+//                             `checklist-not-done-final-bare-id`,
 //                             `blocking-finding-cited-id-within-window`) — and
 //                             NOTHING else, with the suite still reaching and naming
-//                             them. It was 12 in round 12; the five fewer are exactly
-//                             the wrapped and punctuation-attached must-differ cases
-//                             the deletion moved to the collapse lane, which is the
-//                             cost showing up as a smaller blast radius;
+//                             them. It was 7 in round 13; the two fewer are the
+//                             retired `embedded-test-output-bare-compound-id` and the
+//                             re-decided `finding-ordinal`, i.e. exactly the two cases
+//                             whose distinctness came from a prefix that is no longer
+//                             allowlisted;
 //   placeholder alphabet made
-//   DECIMAL                   fails the SAME 7. The two mutations are
+//   DECIMAL                   fails the SAME 5. The two mutations are
 //                             indistinguishable by case name, which is honest to
 //                             state: both destroy id protection outright, one by
 //                             refusing to protect and one by making every restored
 //                             token identical;
 //   allowlist WIDENED with
-//   `b-`                      fails `bcc54-story-id-digits` and, incidentally,
-//                             `embedded-test-output-bare-compound-id` (its compound
-//                             body starts `b-`, so the doubled-prefix lookahead then
-//                             refuses `sep-b-bf52-001`), plus B-cc54's own suite;
+//   `b-`                      fails exactly `bcc54-story-id-digits`, plus B-cc54's own
+//                             suite. ONE case now, where round 13 named two: the
+//                             incidental second failure was
+//                             `embedded-test-output-bare-compound-id`, which is
+//                             retired;
+//   allowlist WIDENED with
+//   `f-` (F-056)              fails exactly `bare-finding-ordinal`;
+//   allowlist WIDENED with
+//   `req-` (F-056)            fails exactly `embedded-test-output-bare-requirement-ordinal`;
+//   allowlist WIDENED with
+//   `sep-` (F-056)            fails NOTHING, measured, and this row is here BECAUSE it
+//                             fails nothing. `SEP-` ids are compound, so a pure
+//                             ordinal refuses them whatever the allowlist says; even
+//                             the composite `sep-` allowlisted AND the body widened
+//                             fails only the three permissive-body cases and no
+//                             `sep-`-specific one. The removal is therefore UNGUARDED
+//                             and the matrix says so rather than inventing a
+//                             `SEP-<ordinal>` fixture no producer mints, which would
+//                             be the `ab-`/`oq-` mistake (F-035) in a new costume;
+//   allowlist WIDENED with
+//   `f-`, `req-` AND `sep-`
+//   (the whole F-056
+//   reduction reverted)       fails exactly 2 — `bare-finding-ordinal` and
+//                             `embedded-test-output-bare-requirement-ordinal`. Two of
+//                             the three removals are caught; the third is the row
+//                             above;
 //   allowlist WIDENED with
 //   `rr-`/`rp-`/`rl-`/`i-`    fails exactly `init-check-issue-ordinal` — and NOTHING
-//                             ELSE. Re-measured from scratch: `rr-` alone, `rp-`
-//                             alone and `rl-` alone each fail NOTHING, and only `i-`
-//                             alone fails a case. The cause is that every
-//                             RR-/RP-/RL- render site welds the id behind a `:` or an
-//                             `=` (`B-bf52:RR-002`, `loopId=B-bf52:RL-001,`), so under
-//                             a form with no interior structure and no reduction those
-//                             tokens are not ids whether or not their prefix is
-//                             allowlisted. The exclusions still stand on their own
-//                             reasoning and the two collapse assertions are still
-//                             TRUE; they simply have no single-mutation guard.
-//                             Measured compositely, and quoted with everything each
-//                             composite fails rather than only the interesting name:
-//                             `rr-` allowlisted AND the qualifier re-added fails
-//                             `stale-review-run-evidence` plus the two colon-composite
-//                             cases the qualifier alone already fails (3 total);
-//                             `rl-` allowlisted AND the head anchor dropped now fails
-//                             only the seven head-anchor cases and NOT
-//                             `review-loop-ordinal` — a CHANGE from round 12, because
-//                             `loopid=b-bf52:rl-001,` ends in a comma that used to be
-//                             stripped first. The composite that fails it is `rl-`
-//                             allowlisted AND the head anchor dropped AND the sentence
-//                             strip restored (14 total). Three mutations to reach one
-//                             case is not a guard, and this row says so rather than
-//                             implying one;
+//                             ELSE. Re-measured from scratch: `rr-` alone and `rl-`
+//                             alone each fail NOTHING, `i-` alone fails exactly that
+//                             one case. The cause is unchanged by the pure ordinal:
+//                             every RR-/RP-/RL- render site welds the id behind a `:`
+//                             or an `=` (`B-bf52:RR-002`, `loopId=B-bf52:RL-001,`), so
+//                             those tokens are not ids whether or not their prefix is
+//                             allowlisted. Measured compositely, and quoted with
+//                             everything each composite fails rather than only the
+//                             interesting name: `rr-` allowlisted AND the qualifier
+//                             re-added fails `stale-review-run-evidence` plus
+//                             `embedded-test-output-label-qualified-id` (2 total);
+//                             `rl-` allowlisted AND the head anchor dropped AND the
+//                             sentence strip restored fails `review-loop-ordinal` plus
+//                             eleven others (12 total). Two and three mutations to
+//                             reach one case each is not a guard, which is why both
+//                             of those cases now carry
+//                             `pinned-behaviour-documentation` instead;
 //   prefix cut made
 //   UNCONDITIONAL 200         fails exactly `signal-less-long-rejection`;
 //   prefix cut WIDENED to 592
@@ -500,15 +608,9 @@ const HEALTHY: BreakerCounters = {
 //   value — B-cc54's
 //   CHK-002:adversarial:1
 //   breaks at 593)            fails exactly `blocking-finding-cited-id-past-window`.
-//                             This is a NEW row and the reason the F-033 residual
-//                             changed producer: measured on the round-12 `SEP-…`
-//                             pair the same mutation failed NOTHING, because after
-//                             the deletion neither half of that pair keys apart at
-//                             any window. It also does not fail
-//                             `requirement-ordinal-past-window`, even composed with a
-//                             restored sentence strip (that composite fails 7 cases
-//                             and not this one), because the `REQ-` ordinal would sit
-//                             at normalized character 753 — past every legal cut;
+//                             It no longer needs the caveat round 13 attached about
+//                             `requirement-ordinal-past-window`, because that case is
+//                             retired;
 //   signals FOLD collapsed
 //   to prefix alone           fails exactly `proofstory-gap-signal-set` (and
 //                             B-cc54's own suite).
@@ -596,28 +698,12 @@ let digestMatrixSummary = '';
     `declared by the contract, covered by a shared classifier rule, or carry an explicit acknowledgement that a reviewer can see. ` +
     `Run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or revert it. Blocking path: ${path}`;
 
-  // ── The real pending scope-extension-proposal rejection (F-032) ────────────
-  // core/machine.ts:269 renders `Cannot enter INIT_CHECK: ${pending.length} scope
-  // extension proposal(s) are still pending: ${ids}. [scope_extension_proposal_pending]`
-  // plus its next-action line; handlers/scope-anti-expansion.ts:120 mints the ids
-  // as `SEP-${storyId}-${NNN}`. Composed here as it renders.
-  //
-  // This is the COMPOUND-id shape that defeated the first mechanism: the ordinal
-  // `-001` is preceded by `bf52-`, not by `sep-`, so a rule that inspects only
-  // the prefix immediately before a digit run left it unprotected even with
-  // `sep-` allowlisted.
-  //
-  // F-054 COST, stated where the producer is quoted rather than only in the case:
-  // this render joins its ids with `, ` and closes the list with `.`, so EVERY
-  // `SEP-` token it emits has punctuation attached and NONE of them is the whole
-  // token. With the reduction deleted, no id in this real rejection is protected
-  // any more, and both of the cases built from it are in the must-still-collapse
-  // lane. The compound BODY is still guarded — by
-  // `embedded-test-output-bare-compound-id`, from the one channel that can carry a
-  // bare compound id.
-  const scopeExtensionPending = (ids: string[]): string =>
-    `Cannot enter INIT_CHECK: ${ids.length} scope extension proposal(s) are still pending: ${ids.join(', ')}. [scope_extension_proposal_pending]\n` +
-    `→ Run scope_extension_decide for each proposal, then rerun scope_freeze_check.`;
+  // ── RETIRED FIXTURE: the pending scope-extension-proposal rejection ────
+  // Round 13 quoted core/machine.ts:273 here to build two cases. Both are retired
+  // in round 14 (F-056) and the builder goes with them, because a fixture with no
+  // case is a producer citation nothing checks. See the retirement register above
+  // the matrix for `embedded-test-output-bare-compound-id` and
+  // `scope-extension-proposal-sentence-final-period`.
 
   // ── The real DONE test-evidence rejection (F-043) ──────────────────────────
   // core/machine.ts:1190 returns `Cannot enter DONE: test ${evidence.result}:
@@ -777,22 +863,40 @@ let digestMatrixSummary = '';
     `not ok 1 - ${lead}bug-${ord}${trail} reproducer still red`,
   ].join('\n');
 
-  // ── The same producer, carrying a BARE COMPOUND id (F-032 under F-054) ─────
-  // The compound body `[a-z0-9-]*\d` in SUBSTANTIVE_ID_RE exists so that
-  // `SEP-B-bf52-001` — whose ordinal is preceded by `bf52-`, not by `sep-` — is
-  // protected. Stated plainly, because the deletion moved it: the FIRST-PARTY
-  // producer of that id (core/machine.ts:273) renders its whole pending list with
-  // a trailing sentence period and comma separators, so no `SEP-` token in a
-  // story_advance rejection is ever bare, and none of them is protected any more.
-  // The channel that can still deliver a bare compound id is the one that has
-  // delivered every leak in this guard: core/machine.ts:1190 embeds RAW test
-  // output, and a TAP line naming the proposal a test asserted on is ordinary.
-  // That is where the compound body is pinned now, and the case says so.
-  const doneTestFailureBareCompoundId = (proposalId: string): string => [
+  // ── The same producer, carrying an arbitrary BARE TOKEN (F-056) ───────────
+  // F-056, THE EIGHTH LEAK, and the FIRST that is not about the token's
+  // surroundings. Rounds 7-13 fixed the EDGES of the token; round 13 closed that
+  // whole class by deleting the reduction. The BODY was left permissive, and that
+  // is where this one came through: `[a-z0-9-]*\d` was carried over so a COMPOUND
+  // id would match, and `[a-z0-9-]*` accepts an ordinary hyphenated WORD just as
+  // readily. The bare token `bug-fix-2` — a routine TAP subtest name needing NO
+  // manufacture step at all — was protected as an artifact id, so `bug-fix-2` and
+  // `bug-fix-5` keyed APART while main collapses them. `chk-abc-1` is the same
+  // manufacture with a letter body, `bug-2a1` with an alphanumeric one.
+  //
+  // Same producer as every other leak in this guard (core/machine.ts:1190 embeds
+  // RAW test output), and ONE fixture that takes the WHOLE token, so each body
+  // shape is a separately named case rather than a bundle. It generalizes round
+  // 13's `doneTestFailureBareCompoundId`, whose only caller was the `SEP-`
+  // compound must-differ case that the pure-ordinal body retires.
+  //
+  // WHAT THE ROUND-13 COMMENT SAID HERE, recorded rather than quietly deleted so
+  // the reversal is legible: it argued that the compound body existed to protect
+  // `SEP-B-bf52-001` (whose ordinal is preceded by `bf52-`, not by `sep-`), that
+  // the first-party producer at core/machine.ts:273 renders every element of its
+  // pending list comma- or period-attached, and that the compound body was
+  // therefore pinned by the raw-test-output channel instead. Two of those three
+  // statements were TRUE and are re-verified above; the conclusion drawn from them
+  // was wrong. Since NO first-party render of that id was protected anyway, the
+  // compound body was buying a capability nothing used, at the price of admitting
+  // every hyphenated word in third-party output. So it is deleted with `sep-`, and
+  // the `embedded-test-output-bare-compound-id` must-differ case it justified is
+  // RETIRED (see the retirement register above the matrix).
+  const doneTestFailureBareToken = (token: string): string => [
     'Cannot enter DONE: test FAIL: # tests 1',
     '# pass 0',
     '# fail 1',
-    `not ok 1 - ${proposalId} was never decided before the freeze check`,
+    `not ok 1 - ${token} reproducer still red`,
   ].join('\n');
 
   // ── The real REVIEW checklist-not-done rejection (F-051) ───────────────────
@@ -833,23 +937,12 @@ let digestMatrixSummary = '';
     `  - ${intentRef} [missing] the acceptance check has no passing evidence\n` +
     `→ Run verification_evidence_add to record logic/integration/browser/manual evidence, or use waiver to explicitly exempt`;
 
-  // ── The real REVIEW→TEST open-blocking-finding rejection (F-048/F-051) ─────
-  // core/machine.ts:753 renders `${blocking.length} open blocking finding(s):
-  // ${id} [${severity}] ${desc}` and core/machine.ts:1181 wraps it as
-  // `Cannot enter TEST: ${message} [${code}]`. handlers/finding.ts:552 mints the
-  // id as `${storyId}:F-${NNN}`, so the finding id arrives as ONE token with the
-  // story id welded onto its head — `B-bf52:F-012`.
-  //
-  // That composite is the render round 10 added an optional `<label>:` QUALIFIER
-  // to SUBSTANTIVE_ID_RE to rescue, and F-052 is the measurement that the rescue
-  // admitted arbitrary non-ids (`timeout:bug-2`). The qualifier is gone, so under
-  // the bare whole-token test this token is not an id and the pair COLLAPSES —
-  // not worse than main, which collapses it too, but no better either. It is the
-  // PREFIX member of the three-form colon-composite cost. Everything except the
-  // finding ordinal is held constant so the case isolates that one position.
-  const openBlockingFinding = (findingOrdinal: string): string =>
-    `Cannot enter TEST: 1 open blocking finding(s): B-bf52:${findingOrdinal} [high] ` +
-    `the substantive-id guard admits a non-id [review_finding_blocking]`;
+  // ── RETIRED FIXTURE: the single open-blocking-finding rejection ────────
+  // Round 13 quoted core/machine.ts:753/1181 here to build
+  // `open-blocking-finding-composite-id`. That case is retired in round 14 (F-056)
+  // because `f-` is no longer allowlisted, so re-admitting the F-052 qualifier no
+  // longer reaches it; the builder goes with it. The SAME producer is still quoted
+  // below in its two- and three-finding forms, which carry live cases.
 
   // ── The SAME producer with TWO blocking findings (F-051, semicolon) ────────
   // core/machine.ts:756 joins the findings with `'; '`, and `${f.desc}` is
@@ -946,18 +1039,14 @@ let digestMatrixSummary = '';
     'Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.',
   );
 
-  // ── The real ProofStory milestone-binding gap (F-051, the `req-` member) ───
-  // core/proofstory.ts:1026 renders `${milestone.id} references sourceRequirementId
-  // ${milestone.sourceRequirementId}, which is not in original intent
-  // keyRequirementIds.` and the DEV gate surfaces it as one diagnostic gap line
-  // inside the report above. This is the ONLY story_advance-reachable producer of
-  // a `REQ-` ordinal in this tree, which is why it is quoted here — and why the
-  // case built from it is in the COLLAPSE lane. See that case for the
-  // measurement.
-  const proofStoryRequirementGap = (requirementId: string): string => proofStoryDevGateBlock(
-    'milestone_source_requirement_unbound', 'milestone-ledger.json',
-    `M1 references sourceRequirementId ${requirementId}, which is not in original intent keyRequirementIds.`,
-  );
+  // ── RETIRED FIXTURE: the ProofStory milestone-binding gap ─────────────
+  // Round 13 quoted core/proofstory.ts:1026 here to build
+  // `requirement-ordinal-past-window`. Round 14 retires that case (F-057: it could
+  // not fail under any configured window) and replaces its guard with a BARE `REQ-`
+  // pair in the raw-test-output channel, so the builder is no longer reachable. The
+  // producer citation it carried now lives where it is load-bearing: in the
+  // `req-` removal record in core/convergence-breaker.ts and in the
+  // CALLER_SUPPLIED_ID_SHAPES citation in section 7c, both of which are checked.
 
   // ── Fixture PRECONDITIONS, asserted against the REAL normalizer ────────────
   // A matrix case only proves what its fixtures actually exercise. The
@@ -1008,12 +1097,40 @@ let digestMatrixSummary = '';
     | 'path-rule-overreach'
     | 'path-rule-collapse'
     | 'substantive-id-allowlist'
-    // F-032: fails if a substantive id is matched by the prefix immediately
-    // before its digit run instead of as a WHOLE TOKEN — the revert under which
-    // a COMPOUND id such as `SEP-B-bf52-001` loses its trailing ordinal even
-    // though `sep-` is allowlisted. The simple-id cases above do NOT fail under
-    // that revert, which is why this tag is separate from the allowlist tag.
-    | 'substantive-id-whole-token'
+    // F-056: fails if the id BODY is widened from a PURE ORDINAL (`\d+`) back to
+    // anything that admits a letter, a word or an interior hyphen between the stem
+    // and the digits — `[a-z0-9-]*\d` is the exact revert, and it is what round 13
+    // shipped. Under it the bare tokens `bug-fix-2`, `chk-abc-1` and `bug-2a1` are
+    // protected as artifact ids although no producer mints any of them, and pairs
+    // of them key APART while main collapses them: worse than main, with no
+    // manufacture step involved at all.
+    //
+    // It REPLACES two tags that the pure ordinal retires. `substantive-id-whole-token`
+    // named the F-032 compound-id mechanism, whose only case
+    // (`embedded-test-output-bare-compound-id`) asserted that `SEP-B-bf52-001` keys
+    // apart — behaviour this revision deliberately removes.
+    // `substantive-id-doubled-prefix` named the `(?!(?:<stems>)-)` lookahead, which
+    // is deleted because a pure ordinal cannot match `bug-bug-2` in the first place;
+    // its case is retagged here, and measurement confirms the body widening is what
+    // fails it now. Both old tags are deleted rather than renamed: a tag that
+    // outlives its rule attests to a guard nobody has.
+    | 'substantive-id-pure-ordinal-body'
+    // F-056: fails if a prefix REMOVED from the allowlist for having no bare native
+    // render is put back. The removals are `f-`, `req-` and `sep-`, each measured at
+    // its producer (see SUBSTANTIVE_ID_PREFIXES in core/convergence-breaker.ts for
+    // the citations); the point of the tag is that re-adding one is silent otherwise,
+    // because none of them changes any FIRST-PARTY digest — they were all already
+    // collapsing on attached punctuation. What re-adding one does change is
+    // third-party text, and that is what these cases are built from.
+    //
+    // Only TWO of the three removals are reachable by a single mutation, and the tag
+    // says so rather than implying three: re-adding `f-` fails `bare-finding-ordinal`
+    // and re-adding `req-` fails `embedded-test-output-bare-requirement-ordinal`,
+    // while re-adding `sep-` fails NOTHING, because every `SEP-` id is compound and
+    // a compound cannot match a pure ordinal whatever the allowlist says. Inventing
+    // a `SEP-<ordinal>` fixture to manufacture a guard would be a fixture no producer
+    // mints, which is the `ab-`/`oq-` mistake (F-035) in a new costume.
+    | 'retired-prefix-not-allowlisted'
     // ── the F-051 shape change: four tags replacing three boundary-era ones ──
     //
     // The three tags this family replaces (`substantive-id-token-start`,
@@ -1038,12 +1155,6 @@ let digestMatrixSummary = '';
     // cases, because rounds 7-9 fixed the head three times while leaving this
     // end open.
     | 'substantive-id-token-tail-exact'
-    // Fails if `(?!(?:<stems>)-)` is dropped, under which the doubled prefix
-    // `BUG-BUG-2` is protected (F-048 b). Retained from the previous revision
-    // and now standing alone, because it is a statement about the id's own
-    // shape rather than about its surroundings — the one part of the old guard
-    // that was never a boundary assertion.
-    | 'substantive-id-doubled-prefix'
     // F-052, THE ACCEPTED COST, named as a cost rather than as a guard.
     //
     // Round 10 carried an optional `<label>:` QUALIFIER — `(?:[a-z0-9-]+:)?` — in
@@ -1055,18 +1166,26 @@ let digestMatrixSummary = '';
     // entire justification was having no enumeration left to leak, so it was
     // DELETED and the whole-token test now has zero interior structure.
     //
-    // Deleting it costs every colon-joined composite symmetrically, which is why
-    // ONE tag covers all three of them: the branch now TIES with main on the real
-    // PREFIX composite (`B-bf52:F-012`, handlers/finding.ts:552), on the real
-    // SUFFIX composite (`CHK-001:happy:0`, core/verification.ts:22-24) and on the
-    // forged one, instead of beating main on the first two while leaking on the
-    // third.
+    // Deleting it costs every colon-joined composite symmetrically: the branch TIES
+    // with main on the real SUFFIX composite (`CHK-001:happy:0`,
+    // core/verification.ts:22-24) and on the forged one, instead of beating main on
+    // the real ones while leaking on the forged one.
     //
     // A case carrying this tag fails if ANY interior `:` structure is re-admitted
     // to SUBSTANTIVE_ID_RE — a leading `(?:[a-z0-9-]+:)?` or `(?:[a-z0-9-]+:)*`
-    // for the prefix forms, a trailing `(?::[a-z0-9-]+)*` for the suffix form. So
-    // the three cases are simultaneously the record of what the deletion costs and
-    // the standing guard against paying it back.
+    // for the prefix form, a trailing `(?::[a-z0-9-]+)*` for the suffix form. So
+    // the cases are simultaneously the record of what the deletion costs and the
+    // standing guard against paying it back.
+    //
+    // SHRANK FROM THREE CASES TO TWO IN ROUND 14 (F-056), and the reason is a
+    // retirement, not a deletion: the third was the real PREFIX composite
+    // `B-bf52:F-012` (handlers/finding.ts:552, rendered at core/machine.ts:756).
+    // With `f-` removed from the allowlist, re-admitting a leading qualifier no
+    // longer makes that token an id — `f-` is not a stem — so the case stopped
+    // being a single-mutation guard on the qualifier and became a two-mutation
+    // composite. It is RETIRED and the qualifier's standing single-mutation guard is
+    // `embedded-test-output-label-qualified-id`, whose stem (`bug-`) is still
+    // allowlisted. See the retirement register above the matrix.
     | 'substantive-id-colon-composite-cost'
     // ── the F-054 deletion: ONE tag replacing three ────────────────────────
     //
@@ -1127,41 +1246,44 @@ let digestMatrixSummary = '';
     // on an unbounded loop (review_run_start for `rr-`, "re-run the corresponding
     // reviewer" for `i-`, opening another loop for `rl-`).
     //
-    // MEASURED CAVEAT, F-052 round 11 — and this tag is now weaker than its name
-    // suggests, so the weakening is stated instead of implied. Of the three cases
-    // carrying it, only ONE is a standing single-mutation guard on the allowlist:
+    // AS OF ROUND 14 THIS TAG CARRIES EXACTLY ONE CASE, and that is the point of the
+    // change (F-057). Through round 13 it carried three, two of which were not
+    // guards at all: `stale-review-run-evidence` needed `rr-` allowlisted AND the
+    // F-052 qualifier re-added, and `review-loop-ordinal` needed THREE simultaneous
+    // mutations. Cross-host codex judged the latter to be documentation rather than
+    // a guard, and it was right; a tag whose members are mostly unreachable makes the
+    // grouped failure report lie about what regressed. Both moved to
+    // `pinned-behaviour-documentation`, and what is left here is the real guard:
     //
-    //   init-check-issue-ordinal   REAL guard. `  - product-reviewer: high I-1 …`
-    //                              renders the id BARE, so `i-` alone fails it.
-    //   stale-review-run-evidence  DIRECTION only, as of round 11. core/review-run.ts
-    //                              renders `bound reviewRunId B-bf52:RR-002`, a
-    //                              COLON composite; with the F-052 qualifier gone
-    //                              that token is not an id whether or not `rr-` is
-    //                              allowlisted, and `rr-` alone now fails NOTHING
-    //                              (it failed this case in round 10). Measured
-    //                              compositely: `rr-` allowlisted AND the qualifier
-    //                              re-added is what fails it.
-    //   review-loop-ordinal        DIRECTION only, since round 10. core/machine.ts:646
-    //                              renders `loopId=B-bf52:RL-001,` — welded behind an
-    //                              `=` AND terminated by a comma — so `rl-` alone
-    //                              fails nothing. RE-MEASURED IN ROUND 13, and the
-    //                              composite GREW: `rl-` allowlisted AND the id-head
-    //                              anchor dropped no longer fails it either, because
-    //                              the trailing comma is no longer removed. It takes
-    //                              THREE simultaneous mutations — `rl-` allowlisted,
-    //                              head anchor dropped, sentence strip restored — to
-    //                              reach this case, which is no guard at all, and the
-    //                              row is quoted that way rather than rounded down.
+    //   init-check-issue-ordinal   `  - product-reviewer: high I-1 …` renders the id
+    //                              BARE and PURELY ORDINAL, so `i-` alone fails it —
+    //                              re-measured in round 14 against the pure-ordinal
+    //                              body, which does not change it (`i-1` is a stem, a
+    //                              hyphen and a digit).
     //
-    // This is a real cost of the F-052 and F-054 deletions and it is recorded as one:
-    // two of the three exclusions lost their single-mutation test. Buying them back means
-    // re-admitting interior `:` structure, which is the leak itself, so the
-    // exclusions keep standing on their own reasoning (a review run and a review
-    // loop are both re-minted on retry) and on the completeness guard in section 7c,
-    // which still requires `rr-`/`rp-`/`rl-`/`i-` to be CLASSIFIED. The two
-    // assertions remain TRUE and worth pinning — they are what the code does at real
-    // render sites — they are simply no longer what would catch a re-add.
-    | 'review-bookkeeping-not-allowlisted';
+    // The exclusions for `rr-`/`rp-`/`rl-` still stand, on their own reasoning (a
+    // review run and a review loop are both re-minted on retry) and on the
+    // completeness guard in section 7c, which still requires all four to be
+    // CLASSIFIED. What they no longer have is a matrix case pretending to catch a
+    // re-add.
+    | 'review-bookkeeping-not-allowlisted'
+    // F-057, and the honest home for an assertion that is TRUE, worth pinning, and
+    // NOT a single-mutation guard.
+    //
+    // Every other tag in this union names a revert: flip that one thing and exactly
+    // these cases fail. A case here names no reachable single revert — its comment
+    // states the COMPOSITE that would fail it, measured, and that composite is two
+    // or three simultaneous mutations. It is kept because it PINS WHAT THE CODE DOES
+    // AT A REAL RENDER SITE: if a producer is reworded, or a rule interaction changes
+    // what that render normalizes to, the assertion notices even though no single
+    // mutation reaches it.
+    //
+    // The tag exists so the grouped failure report cannot imply a guard that does not
+    // exist. Reading a group of these in a failure report means "a real render moved",
+    // not "rule X regressed". The alternative considered and rejected was DELETING
+    // these cases: that would drop a live assertion about a real producer in order to
+    // keep the tag vocabulary tidy, and the missing assertion would be invisible.
+    | 'pinned-behaviour-documentation';
   interface DigestCase { name: string; a: string; b: string; guardedBy: GuardRule }
 
   const MUST_DIFFER: DigestCase[] = [
@@ -1208,24 +1330,6 @@ let digestMatrixSummary = '';
       b: 'CHK-002 has no passing verification evidence and no waiver [verification_evidence_missing]',
     },
     {
-      // Two different open findings. A reviewer round that resolves F-012 and
-      // then blocks on F-013 is progress, not a repeat.
-      //
-      // F-052: this case is ALSO what BOUNDS the colon-composite cost, and it is
-      // deliberately the same artifact kind as the case that pays it. Deleting the
-      // qualifier makes `B-bf52:F-012` collapse
-      // (`open-blocking-finding-composite-id`, collapse lane); a BARE `F-012` in
-      // ordinary delimiter position is unaffected and still keys apart. Without
-      // this pair the honest reading of the deletion would be "finding ordinals
-      // stopped mattering", which is not what was measured. The same bound is
-      // asserted for checklist ids by `checklist-ordinal` and its
-      // punctuation-position siblings; this is the finding-id half of it.
-      name: 'finding-ordinal',
-      guardedBy: 'substantive-id-allowlist',
-      a: 'review blocker: finding F-012 is still open and unresolved',
-      b: 'review blocker: finding F-013 is still open and unresolved',
-    },
-    {
       // Two different open bugs (F-029). The producer is core/machine.ts:1195,
       // `Cannot enter DONE: ${n} unfixed bug(s): ${ids}`, quoted here as it
       // renders. Under `/\d+/g` both became `bug-#`, so fixing BUG-001 and then
@@ -1255,31 +1359,6 @@ let digestMatrixSummary = '';
       guardedBy: 'substantive-id-allowlist',
       a: checklistNotDone(['CHK-009', 'CHK-001']),
       b: checklistNotDone(['CHK-009', 'CHK-002']),
-    },
-    {
-      // F-032 under F-054. `SEP-B-bf52-001` is a COMPOUND id: its ordinal is
-      // preceded by `bf52-`, not by `sep-`, so the mechanism that inspected the
-      // single prefix in front of a digit run left it unprotected — allowlisting
-      // `sep-` changed nothing and the two proposals still shared a key.
-      //
-      // This case is the ONLY one that fails when the whole-token BODY is reverted
-      // to prefix-before-digits (`\d+`) while the allowlist itself is left intact,
-      // which is what makes it the single-rule guard on that mechanism.
-      //
-      // WHY IT IS BUILT FROM EMBEDDED TEST OUTPUT AND NOT FROM THE `SEP-` PRODUCER,
-      // stated rather than quietly swapped: through round 12 this case used
-      // core/machine.ts:273's pending-proposal render, which was protected only
-      // because a punctuation strip removed the list comma or the sentence period
-      // first. That strip is deleted (F-054), so no `SEP-` token in that rejection
-      // is the whole token and the pair now collapses — it is a
-      // `substantive-id-no-reduction` cost case in the other lane. The channel that
-      // still delivers a BARE compound id is core/machine.ts:1190's raw test
-      // output, the same channel every leak in this guard was found in, and a TAP
-      // line naming the proposal under test is ordinary there.
-      name: 'embedded-test-output-bare-compound-id',
-      guardedBy: 'substantive-id-whole-token',
-      a: doneTestFailureBareCompoundId('SEP-B-bf52-001'),
-      b: doneTestFailureBareCompoundId('SEP-B-bf52-002'),
     },
     {
       // F-033, the WITHIN-window half of the accepted residual, rebuilt on a
@@ -1418,8 +1497,15 @@ let digestMatrixSummary = '';
       // pinning — it is what the code does at a real render site — but the allowlist
       // exclusion it was built to guard now rests on its reasoning and on the
       // section 7c completeness guard rather than on this case.
+      // RELABELLED IN ROUND 14 (F-057), and the relabel is the honest reading of the
+      // measurement two rounds already recorded: this needs `rr-` allowlisted AND the
+      // F-052 qualifier re-added, so it is a two-mutation composite, not a guard.
+      // Round 14 re-measured it against the pure-ordinal body and it did not improve:
+      // `b-bf52:rr-002` is not a stem-hyphen-digits token under ANY single mutation.
+      // The assertion is TRUE and is kept, because it pins what a real render site
+      // (core/review-run.ts:1442) normalizes to; the tag now says what it is.
       name: 'stale-review-run-evidence',
-      guardedBy: 'review-bookkeeping-not-allowlisted',
+      guardedBy: 'pinned-behaviour-documentation',
       a: staleReviewEvidence('RR-002'),
       b: staleReviewEvidence('RR-003'),
     },
@@ -1455,8 +1541,29 @@ let digestMatrixSummary = '';
       // still TRUE and still worth pinning — it is what the code does at a real
       // render site — but the tag's own comment now says which revert it does and
       // does not catch.
+      // RELABELLED IN ROUND 14 (F-057), DELIBERATELY RATHER THAN REPAIRED. Cross-host
+      // codex judged this case to be documentation rather than a guard because it
+      // takes three coordinated mutations to fail, and that judgement is accepted.
+      // The alternative was considered and REJECTED: the only way to make a single
+      // mutation reach `loopid=b-bf52:rl-001,` is to re-admit interior `=`/`:`
+      // welding or to restore a trailing-punctuation strip — i.e. to re-open F-052
+      // or F-053/F-054 in order to manufacture a test. Buying a guard by
+      // re-introducing the defect it would guard against is not a trade this suite
+      // gets to make.
+      //
+      // RE-MEASURED IN ROUND 14 against the pure-ordinal body: the composite is
+      // UNCHANGED at three (`rl-` allowlisted, head anchor dropped, sentence strip
+      // restored), because the body change does not touch this token — `rl-001` is
+      // already a pure ordinal, and what refuses it is the welding on both sides.
+      //
+      // What the assertion still pins, and why it is kept rather than deleted: this
+      // is what core/machine.ts:646, wrapped by :1192, actually normalizes to. If
+      // that render is reworded — a space introduced after `loopId=`, the trailing
+      // comma dropped — the id becomes the whole token, the pair starts keying apart,
+      // and this case reports it. That is a producer change, not a rule revert, which
+      // is precisely what `pinned-behaviour-documentation` is for.
       name: 'review-loop-ordinal',
-      guardedBy: 'review-bookkeeping-not-allowlisted',
+      guardedBy: 'pinned-behaviour-documentation',
       a: openReviewLoop('RL-001'),
       b: openReviewLoop('RL-002'),
     },
@@ -1543,16 +1650,118 @@ let digestMatrixSummary = '';
       // thing were an artifact id. It is not one — no producer mints `BUG-BUG-N` —
       // and main collapses it.
       //
-      // It keeps its own case because the `(?!(?:<stems>)-)` lookahead is the one
-      // part of the old guard that was never a boundary assertion: it is a
-      // statement about the id's own shape, and it survives the shape change
-      // unchanged. Measured: dropping the lookahead fails this case and nothing
-      // else; dropping the HEAD anchor fails it too, along with the other
-      // head-welded cases.
+      // RETAGGED IN ROUND 14, not re-decided (F-056). Through round 13 this case
+      // was the single-mutation guard on the `(?!(?:<stems>)-)` lookahead. That
+      // lookahead is DELETED, because with a PURE-ORDINAL body it provably cannot
+      // fire: `bug-bug-2` fails the body test at the first `b`, so there is nothing
+      // for a doubled-prefix guard to refuse that the body does not refuse first.
+      // Keeping a lookahead that cannot fire would be a guard nobody has, so the
+      // rule went and the case moved onto the rule that now refuses this token.
+      // Measured: widening the body back to `[a-z0-9-]*\d` fails this case; the
+      // HEAD anchor drop fails it too, along with the other head-welded cases.
       name: 'embedded-test-output-doubled-prefix',
-      guardedBy: 'substantive-id-doubled-prefix',
+      guardedBy: 'substantive-id-pure-ordinal-body',
       a: doneTestFailureDoubledPrefix('2'),
       b: doneTestFailureDoubledPrefix('5'),
+    },
+    // ── F-056: the PERMISSIVE-BODY group, the eighth leak ─────────────────────
+    //
+    // Every case here is a BARE whitespace-delimited token — nothing wrapped, nothing
+    // attached, nothing welded on either side — that the round-13 body `[a-z0-9-]*\d`
+    // accepted as an artifact id and the pure ordinal `\d+` refuses. This group is
+    // where the leak lives that neither the differential probe nor this matrix could
+    // express before round 14: the probe's welded rows all put material BEFORE the
+    // stem or AFTER the ordinal, and its doubled-prefix row only repeated a
+    // recognised stem, so nothing in either file put an ordinary WORD between the
+    // stem and the ordinal.
+    //
+    // Every one is ordinary raw test output, which core/machine.ts:1190 embeds
+    // verbatim, and main collapses all of them.
+    {
+      // THE LEAK ITSELF, in the shape it was reported. `bug-fix-2` is a routine TAP
+      // subtest name — a two-word case label with an index — and under the round-13
+      // body it was protected as an artifact id, so `bug-fix-2` and `bug-fix-5`
+      // digested APART while main collapses them. No producer in this tree mints
+      // `BUG-FIX-N`.
+      name: 'embedded-test-output-word-body-ordinal',
+      guardedBy: 'substantive-id-pure-ordinal-body',
+      a: doneTestFailureBareToken('bug-fix-2'),
+      b: doneTestFailureBareToken('bug-fix-5'),
+    },
+    {
+      // The same manufacture on the OTHER allowlisted stem, so the group cannot be
+      // read as a `bug-` peculiarity. `chk-abc-1` is a label with an alphabetic
+      // middle segment; the round-13 body accepted `abc-` as body characters exactly
+      // as it accepted `fix-`.
+      name: 'embedded-test-output-chk-word-body-ordinal',
+      guardedBy: 'substantive-id-pure-ordinal-body',
+      a: doneTestFailureBareToken('chk-abc-1'),
+      b: doneTestFailureBareToken('chk-abc-2'),
+    },
+    {
+      // The same manufacture with NO interior hyphen at all — an ALPHANUMERIC body,
+      // `bug-2a1`. It has its own case because a repair that merely forbade an
+      // interior HYPHEN (the shape of the first case) would still admit this one:
+      // `[a-z0-9]*\d` is exactly the kind of narrowing that closed one character and
+      // left the next, which is the mistake rounds 7-12 made six times. Only a body
+      // that is digits and nothing else refuses both.
+      name: 'embedded-test-output-alnum-body-ordinal',
+      guardedBy: 'substantive-id-pure-ordinal-body',
+      a: doneTestFailureBareToken('bug-2a1'),
+      b: doneTestFailureBareToken('bug-5a1'),
+    },
+    // ── F-056: the RETIRED PREFIXES, and the guards on their removal ──────────
+    //
+    // `f-`, `req-` and `sep-` were removed from SUBSTANTIVE_ID_PREFIXES because none
+    // of them has a BARE native render — every first-party token they produce is
+    // comma-, period- or colon-attached, so none was protected after the F-054
+    // deletion and their entries bought nothing. The citations are in the allowlist
+    // comment in core/convergence-breaker.ts and were re-read at the producer in
+    // round 14, not taken on trust.
+    //
+    // The removal is therefore INVISIBLE in first-party renders — which is exactly
+    // why it needs a guard. What it changes is THIRD-PARTY text: `f-2` is a single
+    // letter and an ordinal, the most collidable shape in this whole vocabulary, and
+    // core/machine.ts:1190 embeds arbitrary test output. Both cases below are built
+    // from that channel.
+    {
+      // The `f-` removal, guarded. This pair was a MUST-DIFFER case named
+      // `finding-ordinal` through round 13, asserting that a bare `F-012` keys apart
+      // from `F-013`. It is RE-DECIDED, not deleted, and the re-decision is the
+      // measurement in the allowlist comment: no producer renders a finding id bare.
+      // Every mint is `${storyId}:F-${NNN}` (core/audit-meta-store.ts:187 and :501,
+      // handlers/finding.ts:552) and the one story_advance render interpolates it
+      // whole (core/machine.ts:756, wrapped by :1181), so the token that reaches the
+      // digest is always `b-bf52:f-012` — a colon composite this form has not
+      // protected since F-052. The old case was asserting a distinction the tree
+      // never produces, while `f-` stayed live as a false-positive surface.
+      //
+      // It fails the moment `f-` is re-added to the allowlist, which makes it the
+      // standing single-mutation guard on that removal.
+      name: 'bare-finding-ordinal',
+      guardedBy: 'retired-prefix-not-allowlisted',
+      a: 'review blocker: finding F-012 is still open and unresolved',
+      b: 'review blocker: finding F-013 is still open and unresolved',
+    },
+    {
+      // The `req-` removal, guarded, and the REPLACEMENT for round 13's
+      // `requirement-ordinal-past-window` (F-057). That case asserted the same
+      // collapse from the real ProofStory producer, but cross-host codex judged it
+      // documentation rather than a guard and was right: the gap line's ordinal sits
+      // at normalized character 753, past EVERY admissible prefix cut (B-cc54 caps
+      // the signals window at 592), so no configured window could affect it — and
+      // after F-054 the token is `req-001,` anyway, so the two sides normalized
+      // identically and the window was not what collapsed them.
+      //
+      // Rather than relabel a case that could not fail, the guard is RESTORED in a
+      // shape that can: the same prefix, rendered BARE, in the raw-test-output
+      // channel. `REQ-001` and `REQ-002` are ordinary TAP names here, they collapse
+      // now, and they key APART the moment `req-` is re-added — a single mutation.
+      // The old case is retired (see the retirement register above the matrix).
+      name: 'embedded-test-output-bare-requirement-ordinal',
+      guardedBy: 'retired-prefix-not-allowlisted',
+      a: doneTestFailureBareToken('REQ-001'),
+      b: doneTestFailureBareToken('REQ-002'),
     },
     {
       // The TOKEN-END group (F-051), five welded tails from one producer, one
@@ -1690,17 +1899,6 @@ let digestMatrixSummary = '';
       b: checklistNotDone(['CHK-002', 'CHK-009']),
     },
     {
-      // THE COST (was must-differ in round 12). The SENTENCE-FINAL-PERIOD position
-      // from the real producer at core/machine.ts:273
-      // (`… are still pending: ${ids.join(', ')}.`). The last id in that list is
-      // the one followed by the period, so every `SEP-` token this rejection can
-      // emit is punctuation-attached and none is protected.
-      name: 'scope-extension-proposal-sentence-final-period',
-      guardedBy: 'substantive-id-no-reduction',
-      a: scopeExtensionPending(['SEP-B-bf52-009', 'SEP-B-bf52-001']),
-      b: scopeExtensionPending(['SEP-B-bf52-009', 'SEP-B-bf52-002']),
-    },
-    {
       // THE COST (was must-differ in round 12). The SEMICOLON-attached position:
       // core/machine.ts:756 joins two blocking findings with `'; '`, so an id cited
       // at the end of the FIRST finding's description lands in front of that
@@ -1803,30 +2001,6 @@ let digestMatrixSummary = '';
     // SYMMETRY is visible in the suite: this is not two wins and one bug fix, it is
     // one rule that now ties with main in every colon position.
     {
-      // The PREFIX composite, and the render the qualifier existed for. The real
-      // REVIEW→TEST rejection (core/machine.ts:753, wrapped by :1181) names the
-      // blocking finding by the id handlers/finding.ts:552 mints as
-      // `${storyId}:F-${NNN}`, so the whole token is `B-bf52:F-012`.
-      //
-      // This pair was a MUST-DIFFER case named
-      // `open-blocking-finding-delimiter-attached-id` in round 10, and asserting it
-      // is exactly what required the qualifier. The assertion was not wrong about
-      // what is DESIRABLE — resolving F-012 and then being blocked by F-013 really
-      // is a reviewer round making progress — but the only available mechanism for
-      // it was an unbounded label enumeration, and that mechanism protected
-      // non-ids. The pair is therefore RE-DECIDED to collapse and moved here.
-      //
-      // The cost is real and bounded: two different blocking findings share one
-      // key, so the breaker fires EARLIER on a REVIEW→TEST retry loop. That is the
-      // fail-safe direction, main collapses this pair too (`b-#:f-#` on both
-      // sides), and a BARE `F-012` is still protected — `finding-ordinal` in the
-      // must-differ lane is the standing proof of that bound.
-      name: 'open-blocking-finding-composite-id',
-      guardedBy: 'substantive-id-colon-composite-cost',
-      a: openBlockingFinding('F-012'),
-      b: openBlockingFinding('F-013'),
-    },
-    {
       // The SUFFIX composite. Already pinned in round 10 (under
       // `substantive-id-token-tail-exact`) because the qualifier only ever
       // rescued the head end; it is RETAGGED here, not re-decided, since the code
@@ -1873,47 +2047,6 @@ let digestMatrixSummary = '';
       guardedBy: 'substantive-id-colon-composite-cost',
       a: doneTestFailureLabelQualified('2'),
       b: doneTestFailureLabelQualified('5'),
-    },
-    {
-      // F-051, and the honest measurement of the `req-` allowlist member. Its
-      // ONLY story_advance-reachable producer is core/proofstory.ts:1026,
-      // surfaced as a diagnostic gap line inside the ProofStory DEV-gate report
-      // — and that report's fixed banner alone runs well past the 200-character
-      // prefix cut, so the differing `REQ-` ordinal never reaches the hash and
-      // the pair collapses even though `req-` IS allowlisted and the id IS
-      // protected by the normalizer.
-      //
-      // Same accepted residual as `blocking-finding-cited-id-past-window` and the
-      // same direction (main collapses it too), but worth its own case because it
-      // says something the allowlist alone does not: `req-` is allowlisted and
-      // protects NOTHING that this tree currently renders.
-      //
-      // MEASURED CAVEAT, F-054, and it WEAKENS this case rather than restating it.
-      // proofstory.ts:1026 renders `… sourceRequirementId REQ-001, which is not in
-      // original intent keyRequirementIds.`, so the token is `req-001,` — COMMA
-      // ATTACHED. With the reduction deleted, the two sides now normalize
-      // IDENTICALLY (measured: divergence index 804 of a 804-character normalized
-      // reason, i.e. no divergence at all), so the window is not what collapses
-      // them and NO widening of any size would change that.
-      //
-      // It is therefore no longer a single-mutation guard on the prefix window, and
-      // it is not one on the reduction either: with a sentence strip restored the
-      // ordinal survives but lands at normalized character 753 (measured), past
-      // every ADMISSIBLE cut — B-cc54's CHK-002:adversarial:1 caps the signals
-      // window at 592, so 592 is the widest legal value. Measured directly: the
-      // composite `prefix cut widened to 592 AND sentence strip restored` fails
-      // seven cases and NOT this one. The standing single-mutation guard on the
-      // window is `blocking-finding-cited-id-past-window` below.
-      //
-      // What this case still pins, and why it is kept: `req-` is allowlisted and
-      // protects NOTHING this tree renders. That is a fact about the allowlist, not
-      // about the window, and it is worth failing on if it changes — if the gap
-      // line ever moves inside the window AND the id is ever rendered bare, this
-      // pair starts keying apart and fails here.
-      name: 'requirement-ordinal-past-window',
-      guardedBy: 'prefix-window-residual',
-      a: proofStoryRequirementGap('REQ-001'),
-      b: proofStoryRequirementGap('REQ-002'),
     },
     {
       // F-033, the ACCEPTED residual, pinned in its own direction.
@@ -2269,6 +2402,20 @@ let digestMatrixSummary = '';
 // invent a prefix no producer emits yet — but it bounds its DRIFT, which is the
 // property this story can actually deliver.
 //
+// A THIRD FAILURE MODE THIS GUARD STILL CANNOT SEE (F-056, round 14), recorded so
+// the green line below is not read as more than it is. `f-`, `req-` and `sep-` each
+// had a real, gate-reachable producer AND an allowlist entry, so BOTH directions
+// were satisfied and the guard was green — while none of the three was ever
+// actually protected, because every token those producers emit has punctuation or a
+// colon attached and the whole-token test has no reduction. "Has a producer" is not
+// "has a BARE render", and only the second one makes an allowlist entry do
+// anything. There is no scan for that: deciding it means reading the render site
+// and asking what the whitespace-delimited token is. What CAN be mechanized is the
+// consequence, and it is: every allowlist member now has a must-differ matrix case
+// built from a real bare render, and every EXCLUDED_NEVER_RENDERED_BARE member that
+// admits one has a must-still-collapse case that fails if it is re-added. An entry
+// that protects nothing therefore has nothing to point at.
+//
 // This guard scans production source (core + handlers) for the artifact-id
 // ordinal shapes the finding names — `PREFIX-${…}` id-MINT templates (the
 // authoritative producers of every id that can appear, interpolated, in a
@@ -2331,6 +2478,31 @@ let digestMatrixSummary = '';
   // DIFFERENT ground recorded in category (a): its shape is gate-reachable, its
   // ordinal simply does not survive the retry.)
   const EXCLUDED_SHAPE_CONFUSABLE = new Set(['init-']);
+  // (c2) F-056, round 14: a prefix whose producer is REAL and gate-reachable and
+  // whose ordinal IS retry-stable, but which NO producer ever renders BARE. Under a
+  // whole-token test with no reduction, such a prefix is never protected however it
+  // is classified, so allowlisting it buys nothing — while the prefix itself stays
+  // an active false-positive surface, because core/machine.ts:1190 embeds RAW
+  // third-party test output and an ordinary label can have the same shape. Each was
+  // measured at its producer in round 14 and the citation is in the allowlist
+  // comment in core/convergence-breaker.ts:
+  //
+  //   f-    every mint is `${storyId}:F-${NNN}` (core/audit-meta-store.ts:187, :501;
+  //         handlers/finding.ts:552) and the one story_advance render interpolates it
+  //         whole (core/machine.ts:756, wrapped by :1181), so the token is
+  //         `b-bf52:f-012`. A single letter is also the most collidable stem in this
+  //         vocabulary, which is why it is the one that had to go first.
+  //   req-  core/proofstory.ts:1026 renders `… sourceRequirementId REQ-001, which is
+  //         not …`, surfaced by the report renderer at :1911 — COMMA-attached.
+  //   sep-  core/machine.ts:273 renders `… still pending: ${ids.join(', ')}.` — every
+  //         element comma-attached except the last, which is period-attached.
+  //
+  // Guarded, in the collapse direction, by the must-still-collapse
+  // `bare-finding-ordinal` and `embedded-test-output-bare-requirement-ordinal`
+  // cases. `sep-` has NO single-mutation guard and the matrix does not pretend
+  // otherwise: its ids are compound, and a compound cannot match a pure-ordinal body
+  // whatever the allowlist says.
+  const EXCLUDED_NEVER_RENDERED_BARE = new Set(['f-', 'req-', 'sep-']);
   // (d) Ids minted by subsystems whose records are NEVER emitted by a
   // story_advance transition-guard rejection: playbook / learning / capability /
   // handoff / autopilot / dispatch / cluster / planner / grill / review-escalation
@@ -2353,6 +2525,7 @@ let digestMatrixSummary = '';
     { label: 'EXCLUDED_REVIEW_BOOKKEEPING', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_REVIEW_BOOKKEEPING },
     { label: 'EXCLUDED_STORY_ID', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_STORY_ID },
     { label: 'EXCLUDED_SHAPE_CONFUSABLE', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_SHAPE_CONFUSABLE },
+    { label: 'EXCLUDED_NEVER_RENDERED_BARE', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_NEVER_RENDERED_BARE },
     { label: 'EXCLUDED_NON_GATE_SUBSYSTEM', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_NON_GATE_SUBSYSTEM },
   ];
   const isClassified = (p: string): boolean => CLASSIFICATION_SETS.some(({ set }) => set.has(p));
@@ -2386,11 +2559,15 @@ let digestMatrixSummary = '';
       renderFile: 'src/core/proofstory.ts',
       renderNeedle: 'references sourceRequirementId ',
       note:
-        'MEASURED INERT at its only render site: the ProofStory diagnostic report preamble exceeds 200 ' +
-        'normalized characters even in its minimal form, so the REQ ordinal always lands past the F-033 ' +
-        'prefix window and two unbound requirements collapse anyway. Kept because the render site is real ' +
-        'and the ordinal genuinely names WHICH requirement is unbound; it protects nothing today, and it ' +
-        'has no must-differ matrix case for exactly that reason.',
+        'EXCLUDED, not substantive (F-056, round 14). Round 13 kept req- allowlisted and described it as ' +
+        'MEASURED INERT because the ProofStory report preamble pushes the ordinal past the prefix window. ' +
+        'Round 14 re-read the producer and found a second, more basic reason it protects nothing: the render ' +
+        'at core/proofstory.ts:1026 is "... sourceRequirementId REQ-001, which is not ...", so the token is ' +
+        'COMMA-ATTACHED and a whole-token test with no reduction never sees an id at all. A prefix that ' +
+        'cannot be protected is not inert config, it is a live false-positive surface in the third-party ' +
+        'output core/machine.ts:1190 embeds, so it is excluded rather than kept. The citation stays because ' +
+        'the shape and the render site are both still real; the collapse direction is guarded by the ' +
+        'must-still-collapse embedded-test-output-bare-requirement-ordinal case.',
     },
   ];
 

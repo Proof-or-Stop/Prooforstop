@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * DIFFERENTIAL PROBE for B-bf52 (F-052, F-053, F-054): this branch's
+ * DIFFERENTIAL PROBE for B-bf52 (F-052, F-053, F-054, F-056): this branch's
  * `gateFailureDigest` against a SEPARATELY BUILT comparison normalizer — normally
  * a freshly built `main`.
  *
@@ -14,14 +14,17 @@
  * those claims should have cited: every figure any later note quotes about this
  * story's differential behaviour or its cost must come from running it.
  *
- * ── THIS PROBE HAS PASSED TWICE DURING A LIVE REGRESSION (F-053, F-054) ──────
+ * ── THIS PROBE HAS PASSED THREE TIMES DURING A LIVE REGRESSION ───────────────
+ * ── (F-053, F-054, F-056) ────────────────────────────────────────────────────
  *
  * Stated plainly and first, rather than folded into a changelog, because it is
  * the same defect class the probe exists to catch — and it has now happened
- * TWICE, each time because a manufacture vector was missing from the matrix
+ * THREE times, each time because a manufacture vector was missing from the matrix
  * below. Each miss added the missing vector; nothing else about the probe
  * changed, which is the honest summary of what this file's history proves about
- * green runs of it.
+ * green runs of it. THE RUNNING COUNT IS THE POINT: it is the evidence that a
+ * probe's matrix must be extended by every defect that slips past it, and that a
+ * green run of this file is a statement about the matrix, not about the build.
  *
  *   round 11  The matrix PASSED while `(bug-2` and `(bug-5` — a NON-id token in
  *             an UNMATCHED opening paren — digested APART on this branch and
@@ -36,12 +39,33 @@
  *             PUNCTUATION CHARACTER, so again the matrix could not express the
  *             defect. Repair: the `F-054 …` rows, which carry a non-id body
  *             ending in EACH character the deleted strip removed.
+ *   round 13  The matrix PASSED A THIRD TIME while `bug-fix-2` and `bug-fix-5` —
+ *             an ordinary two-word TAP subtest name, needing NO reduction and no
+ *             manufacture step at all — digested APART on this branch and
+ *             COLLAPSED on main, because the round-13 id BODY `[a-z0-9-]*\d`
+ *             accepted an ordinary hyphenated WORD between the stem and the
+ *             ordinal. Cause, and it is a DIFFERENT shape of gap from the first
+ *             two: every `welded` row in the matrix put material BEFORE the stem
+ *             (`de-bug-N`, `scenario/bug-N`, `suite_bug-N`, `#bug-N`) or AFTER
+ *             the ordinal (`bug-N/x`, `bug-N.x`, `bug-N_x`), and the one row that
+ *             put material in BETWEEN — `BUG-BUG-N` — only repeated a RECOGNISED
+ *             STEM, which the doubled-prefix lookahead refused for a reason that
+ *             had nothing to do with the body. So no row in the matrix could
+ *             express "an ordinary WORD sits between the prefix and the ordinal".
+ *             Repair: the `F-056 …` permissive-body rows, which put a word, a
+ *             letter run and an alphanumeric run in that position.
+ *
+ * The first two misses were about the token's EDGES and the third about its
+ * INTERIOR, which is why "add another punctuation character" would not have found
+ * it: the matrix had been extended twice along an axis the third defect was not
+ * on. When this file passes, read it as "no vector IN THIS MATRIX is worse than
+ * the comparison", never as "this build is not worse than the comparison".
  *
  * A probe whose matrix cannot express the defect it exists to catch is not a
  * guard against that defect — it is the same failure as an evidence note that
  * restates a claim instead of proving it, and it is worse than having no probe,
  * because it reads as a measurement. So the way to check that a repair is real is
- * to make the defect again: restore the reduction in a scratch copy of the
+ * to make the defect again: restore the defect in a scratch copy of the
  * normalizer and confirm this script FAILS on exactly the rows that name it. A
  * probe that has never been observed red on the defect is exactly the thing this
  * paragraph is about.
@@ -63,6 +87,55 @@
  * Run the round-12 reduction IN FULL (sentence strip then balanced peel) and the
  * wrapper rows join them. The two demonstrations together are why the matrix below
  * is believed to express this defect class, rather than assumed to.
+ *
+ * THE F-056 DEMONSTRATION, RUN AND RECORDED, in three parts, because the third
+ * miss is the one this matrix is newly extended for and a bare "it goes red" would
+ * be the same unrepeatable claim this file exists to replace. All three ran against
+ * ONE freshly built `main` comparison dist, with the build under test supplied by
+ * LATTICE_DIST from a DETACHED worktree so nothing in the story worktree moved.
+ *
+ *   (1) THE DEFECT IS REAL, and worse than main. Against the round-13 build
+ *       (`git worktree add --detach <scratch> HEAD` before this change, built with
+ *       tsc), `not ok 1 - bug-fix-2 …` and its `bug-fix-5` sibling digest APART
+ *       while main collapses them; `f-2` / `f-5` likewise. Round 13 normalized
+ *       `bug-fix-2` to itself; this build normalizes it to `bug-fix-#`; main
+ *       normalizes it to `bug-fix-#` too. `CHK-001`/`CHK-002` and
+ *       `BUG-001`/`BUG-002` still key apart here and still collapse on main, which
+ *       is the bound.
+ *   (2) THE MISS IS REPRODUCED, not asserted. The ROUND-13 matrix — this file as it
+ *       stood before the `F-056 …` rows, 81 pairs — run against that same round-13
+ *       build scores 0 BAR 1, 0 BAR 2 and EXITS 0. The regression was live and the
+ *       probe was green, for the third time.
+ *   (3) THE REPAIR IS RED ON THE DEFECT. The ROUND-14 matrix (this file, 87 pairs)
+ *       against the SAME round-13 build: exit 1, 0 BAR 1, 9 BAR 2 — the five
+ *       `F-056 …` permissive-body rows plus the four `retired-prefix` rows
+ *       (`bare F-NNN`, `bare SEP compound`, `bare REQ-NNN`, and the bare non-id
+ *       label `f-N`), which is exactly the two things F-056 changes and nothing
+ *       else.
+ *
+ * Isolating the BODY change alone, in a detached copy of THIS build with the
+ * allowlist left reduced, and BOTH variants are quoted because the difference
+ * between them is the whole reason this miss was possible:
+ *
+ *   body widened to `[a-z0-9-]*\d`, NO lookahead (the single mutation from the
+ *   SHIPPED form)                     exit 1, 0 BAR 1, 7 BAR 2 — the five
+ *                                     `F-056 …` rows PLUS both `F-048b doubled
+ *                                     prefix` rows, which this build refuses by the
+ *                                     body and nothing else;
+ *   body widened AND the round-13
+ *   doubled-prefix lookahead restored
+ *   (the literal round-13 pattern)    exit 1, 0 BAR 1, 5 BAR 2 — the five `F-056 …`
+ *                                     rows only. The two doubled-prefix rows stay
+ *                                     TIED, because the lookahead refuses them for a
+ *                                     reason that has nothing to do with the body.
+ *
+ * That second line is the miss in one measurement: for three rounds the only row in
+ * this matrix that put material between the stem and the ordinal was refused by a
+ * lookahead, so the matrix looked as though it covered that position while covering
+ * one special case of it.
+ *
+ * Three demonstrations, three defect classes, and each one is the reason its row
+ * group exists.
  *
  * It is the companion of red-s3-digest-collapse.mjs. That harness asserts an
  * ABSOLUTE contract (these classes must key apart, those must collapse). This one
@@ -186,12 +259,15 @@ const requirementGap = (requirementId) =>
  *                     the comparison. Reported in its own column: a divergence here
  *                     means the accepted cost stopped being paid (the qualifier is
  *                     back), which is a design regression the matrix case
- *                     `open-blocking-finding-composite-id` fails on — it is NOT one
- *                     of the two bars, and this script does not double-count it.
+ *                     `embedded-test-output-label-qualified-id` fails on — it is NOT
+ *                     one of the two bars, and this script does not double-count it.
+ *                     (Round 13 named `open-blocking-finding-composite-id` here; that
+ *                     case is retired, because F-056 removed `f-` from the allowlist
+ *                     and the qualifier can no longer reach it.)
  *   cost-attached     the F-054 ACCEPTED COST, and the new one. A REAL artifact id
  *                     with punctuation ATTACHED — `(CHK-001).` from
  *                     core/machine.ts:204, `CHK-001,` from the list join at :1169,
- *                     `SEP-B-bf52-001.` from :273, `CHK-001;` from the `'; '` join
+ *                     `CHK-001;` from the `'; '` join
  *                     at :756, and bracketed/quoted/parenthesised ids in embedded
  *                     test output. Round 12 protected these with a punctuation
  *                     strip; that strip is the step every manufacture vector needs,
@@ -201,6 +277,28 @@ const requirementGap = (requirementId) =>
  *                     tagged `substantive-id-no-reduction` are what fail.
  *   forged-composite  a colon-joined NON-id, e.g. codex's `timeout:bug-2`. Must tie.
  *   welded            an artifact id welded into a larger token. Must tie.
+ *   permissive-body   F-056, THE THIRD MISS. A BARE token — nothing wrapped,
+ *                     nothing attached, nothing welded on either side — that is not
+ *                     an artifact id because an ordinary WORD, letter run or
+ *                     alphanumeric run sits BETWEEN the prefix and the ordinal:
+ *                     `bug-fix-2`, `chk-abc-1`, `bug-2a1`, `BUG-BUG-2`. No reduction
+ *                     is involved and no manufacture step is needed; the round-13
+ *                     body `[a-z0-9-]*\d` simply accepted them. Every one is
+ *                     ordinary raw test output, which core/machine.ts:1190 embeds
+ *                     verbatim, and main collapses all of them. Must tie;
+ *                     branch-finer is BAR 2, because it means the body is permissive
+ *                     again and a stuck agent whose embedded output carries one can
+ *                     mint a fresh key on every retry.
+ *   retired-prefix    F-056. A token whose PREFIX was removed from the allowlist
+ *                     because its native producer never renders it BARE — `f-`,
+ *                     `req-`, `sep-`. Distinguishing one would not be unsafe in the
+ *                     retry sense (a finding ordinal is retry-stable), but it buys
+ *                     nothing, because every first-party render of those ids is
+ *                     comma-, period- or colon-attached and therefore unprotected
+ *                     anyway; and it costs, because in third-party output the SAME
+ *                     shape is an ordinary label and `f-2` is the most collidable
+ *                     token in the vocabulary. Must tie; branch-finer means the
+ *                     allowlist grew back, and the report says so by name.
  *   manufactured-by-reduction
  *                     THE CLASS THIS STORY KEEPS BEING BROKEN BY. A token that is
  *                     NOT an artifact id, but that some REDUCTION applied before
@@ -237,13 +335,37 @@ const EXPECT = {
   'forged-composite': 'tie (must not be finer)',
   welded: 'tie (must not be finer)',
   'manufactured-by-reduction': 'tie (must not be finer)',
+  'permissive-body': 'tie (must not be finer)',
+  'retired-prefix': 'tie (must not be finer)',
   volatile: 'tie (must not be finer)',
+};
+
+/**
+ * Why branch-finer is a violation, per kind. BAR 2's one-line verdict used to say
+ * "a non-retry-stable ordinal", which is accurate for `welded`, `volatile`,
+ * `forged-composite` and `manufactured-by-reduction` and NOT for `retired-prefix`
+ * (a finding ordinal really is retry-stable; the reason it must tie is that no
+ * producer renders it bare, so protecting it buys nothing and costs a false
+ * positive). Rather than shoehorn one sentence over both, the report prints the
+ * reason the kind itself carries.
+ */
+const BAR2_REASON = {
+  welded: 'an id welded into a larger token is not an id',
+  volatile: 'the varying ordinal is re-minted on retry',
+  'forged-composite': 'a colon-joined non-id is not an id',
+  'manufactured-by-reduction': 'a reduction is back in front of the whole-token test',
+  'permissive-body': 'the id body is permissive again and accepts an ordinary word',
+  'retired-prefix': 'a prefix with no bare native render is allowlisted again',
 };
 
 const PAIRS = [
   // ── F-052: codex's forged pair and the three colon composites ──────────────
   ['F-052 forged label qualifier timeout:bug-N (codex)', 'forged-composite', tap('timeout:bug-2 reproducer still red'), tap('timeout:bug-5 reproducer still red')],
-  ['F-052 real PREFIX composite B-bf52:F-NNN', 'cost-composite', blockingFinding('F-012'), blockingFinding('F-013')],
+  // RE-KINDED IN ROUND 14 (F-056): with `f-` removed from the allowlist this is no
+  // longer an ACCEPTED COST of the colon rule — it is a retired prefix, and it would
+  // tie even if the qualifier came back. The live single-mutation guard on the
+  // qualifier is the forged row above, whose stem is still allowlisted.
+  ['F-052 real PREFIX composite B-bf52:F-NNN', 'retired-prefix', blockingFinding('F-012'), blockingFinding('F-013')],
   ['F-052 real SUFFIX composite CHK-NNN:lane:idx', 'cost-composite', intentRef('CHK-001:happy:0'), intentRef('CHK-002:happy:0')],
   ['F-052 repeated qualifier a:b:bug-N', 'forged-composite', tap('a:b:bug-2 reproducer still red'), tap('a:b:bug-5 reproducer still red')],
   ['F-052 trailing colon label bug-N:timeout', 'forged-composite', tap('bug-2:timeout reproducer still red'), tap('bug-5:timeout reproducer still red')],
@@ -255,8 +377,35 @@ const PAIRS = [
   // ── F-048 (round 8): slash HEAD and DOUBLED prefix ─────────────────────────
   ['F-048a slash head scenario/bug-N', 'welded', tap('scenario/bug-2 still red'), tap('scenario/bug-5 still red')],
   ['F-048a slash head suite/req-N', 'welded', tap('suite/req-2 binding'), tap('suite/req-5 binding')],
-  ['F-048b doubled prefix BUG-BUG-N', 'welded', tap('BUG-BUG-2 reproducer still red'), tap('BUG-BUG-5 reproducer still red')],
-  ['F-048b doubled prefix CHK-CHK-N', 'welded', tap('CHK-CHK-2 still red'), tap('CHK-CHK-5 still red')],
+  // RE-KINDED IN ROUND 14 (F-056). These two were `welded` rows, and reading them
+  // that way is what hid the third miss: `BUG-BUG-2` puts material BETWEEN the stem
+  // and the ordinal, which is the permissive-body position, but it only repeats a
+  // RECOGNISED STEM, so the round-13 doubled-prefix lookahead refused it for a reason
+  // that had nothing to do with the body. The matrix therefore looked as if it
+  // covered the between-position while covering only its one special case. They are
+  // moved to the kind that names what they actually probe, and the three genuinely
+  // new rows below are what covers the general position.
+  ['F-048b doubled prefix BUG-BUG-N', 'permissive-body', tap('BUG-BUG-2 reproducer still red'), tap('BUG-BUG-5 reproducer still red')],
+  ['F-048b doubled prefix CHK-CHK-N', 'permissive-body', tap('CHK-CHK-2 still red'), tap('CHK-CHK-5 still red')],
+  // ── F-056 (round 14): an ordinary WORD between the prefix and the ordinal ──
+  // The rows the matrix lacked for three rounds, and the reason it passed while
+  // `bug-fix-2` leaked: every welded row put material before the stem or after the
+  // ordinal, and the only between-position row repeated a recognised stem. Each of
+  // these is a BARE whitespace-delimited token — nothing wrapped, nothing attached —
+  // and each is an ordinary TAP subtest name that core/machine.ts:1190 embeds raw.
+  // Main collapses all of them. Distinguishing any is BAR 2.
+  ['F-056 word body bug-fix-N', 'permissive-body', tap('bug-fix-2 reproducer still red'), tap('bug-fix-5 reproducer still red')],
+  ['F-056 word body chk-abc-N', 'permissive-body', tap('chk-abc-1 has no evidence'), tap('chk-abc-2 has no evidence')],
+  ['F-056 alnum body bug-Na1', 'permissive-body', tap('bug-2a1 reproducer still red'), tap('bug-5a1 reproducer still red')],
+  // The same position with a LONGER word run and a second interior hyphen, so a
+  // repair that forbade only ONE interior segment would still be caught. This is the
+  // shape the F-054 rows taught: close a class, not a character.
+  ['F-056 two-segment body chk-scope-gate-N', 'permissive-body', tap('chk-scope-gate-1 still red'), tap('chk-scope-gate-2 still red')],
+  // A bare NON-id whose body is purely alphabetic before the ordinal, on the `bug-`
+  // stem, in the position a real producer uses (`Cannot enter DONE: … unfixed
+  // bug(s): …`) rather than only in TAP output — so the class is probed through a
+  // first-party render shape too, not just through embedded output.
+  ['F-056 word body in the unfixed-bug render', 'permissive-body', unfixedBug('BUG-FIX-1'), unfixedBug('BUG-FIX-2')],
   // ── F-051 (round 9): welded TAILS ──────────────────────────────────────────
   ['F-051 letter tail bug-Nx', 'welded', tap('bug-2x reproducer still red'), tap('bug-5x reproducer still red')],
   ['F-051 slash tail bug-N/x', 'welded', tap('bug-2/x reproducer still red'), tap('bug-5/x reproducer still red')],
@@ -328,9 +477,15 @@ const PAIRS = [
   ['F-054 cost CHK-NNN bracketed', 'cost-attached', tap('[CHK-001] has no passing verification evidence'), tap('[CHK-002] has no passing verification evidence')],
   ['F-054 cost CHK-NNN double-quoted', 'cost-attached', tap('"CHK-001" is not waived'), tap('"CHK-002" is not waived')],
   ['F-054 cost CHK-NNN semicolon-attached (machine.ts:756)', 'cost-attached', twoFindings('CHK-001'), twoFindings('CHK-002')],
-  ['F-054 cost SEP compound sentence-final period (machine.ts:273)', 'cost-attached', sepPending(['SEP-B-bf52-001']), sepPending(['SEP-B-bf52-002'])],
-  ['F-054 cost SEP compound comma-attached (machine.ts:273)', 'cost-attached', sepPending(['SEP-B-bf52-001', 'SEP-B-bf52-009']), sepPending(['SEP-B-bf52-002', 'SEP-B-bf52-009'])],
-  ['F-054 cost REQ-NNN comma-attached (proofstory.ts:1026)', 'cost-attached', requirementGap('REQ-001'), requirementGap('REQ-002')],
+  // RE-KINDED IN ROUND 14 (F-056). These three were `cost-attached` rows, i.e. real
+  // ids the F-054 deletion stopped protecting. They are now RETIRED PREFIXES as
+  // well: `sep-` and `req-` left the allowlist because these very renders are the
+  // only ones the tree has and both attach punctuation to every token they emit. The
+  // rows stay, because they are the measurement behind that removal — read them as
+  // "the producer really does render it attached", not as a cost still being paid.
+  ['F-056 retired SEP compound sentence-final period (machine.ts:273)', 'retired-prefix', sepPending(['SEP-B-bf52-001']), sepPending(['SEP-B-bf52-002'])],
+  ['F-056 retired SEP compound comma-attached (machine.ts:273)', 'retired-prefix', sepPending(['SEP-B-bf52-001', 'SEP-B-bf52-009']), sepPending(['SEP-B-bf52-002', 'SEP-B-bf52-009'])],
+  ['F-056 retired REQ-NNN comma-attached (proofstory.ts:1026)', 'retired-prefix', requirementGap('REQ-001'), requirementGap('REQ-002')],
   // ── BARE ids in every real delimiter position (the BOUND on both costs) ────
   // If the cost were unbounded — if artifact ids had simply stopped being
   // protected — these rows would tie too. They are what makes "only BARE ids beat
@@ -339,13 +494,24 @@ const PAIRS = [
   // core/machine.ts:1190 embeds.
   ['bare CHK-NNN space-delimited', 'bare-id', 'verification gap: missing evidence coverage for CHK-001', 'verification gap: missing evidence coverage for CHK-002'],
   ['bare CHK-NNN at reason start', 'bare-id', 'CHK-001 has no passing verification evidence [verification_evidence_missing]', 'CHK-002 has no passing verification evidence [verification_evidence_missing]'],
-  ['bare F-NNN space-delimited', 'bare-id', 'review blocker: finding F-012 is still open and unresolved', 'review blocker: finding F-013 is still open and unresolved'],
+  // RE-KINDED IN ROUND 14 (F-056), and this row is the one to read first when asking
+  // what the allowlist reduction actually costs. It was a `bare-id` row: a bare
+  // `F-012` in ordinary delimiter position, expected branch-finer. It ties now,
+  // because `f-` is gone — and the measured justification is that NO producer emits
+  // this token: every finding id is minted `${storyId}:F-NNN` and rendered whole.
+  // Branch-finer here means `f-` is back in the allowlist.
+  ['retired bare F-NNN space-delimited', 'retired-prefix', 'review blocker: finding F-012 is still open and unresolved', 'review blocker: finding F-013 is still open and unresolved'],
   ['bare BUG-NNN after colon-space (machine.ts:1195)', 'bare-id', unfixedBug('BUG-001'), unfixedBug('BUG-002')],
   ['bare BUG-NNN last in list (machine.ts:1195)', 'bare-id', unfixedBugs(['BUG-009', 'BUG-001']), unfixedBugs(['BUG-009', 'BUG-002'])],
   ['bare CHK-NNN last in list (machine.ts:1169)', 'bare-id', checklistPending(['CHK-009', 'CHK-001']), checklistPending(['CHK-009', 'CHK-002'])],
   ['bare CHK-NNN cited before the reason code (machine.ts:756/1181)', 'bare-id', citedInLastFinding('CHK-001'), citedInLastFinding('CHK-002')],
-  ['bare SEP compound in raw test output', 'bare-id', tap('SEP-B-bf52-001 was never decided before the freeze check'), tap('SEP-B-bf52-002 was never decided before the freeze check')],
-  ['bare REQ-NNN in raw test output', 'bare-id', tap('REQ-001 milestone binding'), tap('REQ-002 milestone binding')],
+  ['retired bare SEP compound in raw test output', 'retired-prefix', tap('SEP-B-bf52-001 was never decided before the freeze check'), tap('SEP-B-bf52-002 was never decided before the freeze check')],
+  ['retired bare REQ-NNN in raw test output', 'retired-prefix', tap('REQ-001 milestone binding'), tap('REQ-002 milestone binding')],
+  // The false-positive surface the `f-` removal is FOR: a single letter and an
+  // ordinal is the most collidable shape in this vocabulary, and `f-2` as a bare TAP
+  // case label is ordinary third-party output. Under round 13 this pair keyed APART
+  // while main collapsed it.
+  ['F-056 bare non-id label f-N in raw test output', 'retired-prefix', tap('f-2 rejects an unsigned receipt'), tap('f-5 rejects an unsigned receipt')],
   // ── retry-volatile shapes: must tie ────────────────────────────────────────
   ['volatile bare attempt ordinal', 'volatile', 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)', 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 41)'],
   ['volatile ISO timestamp', 'volatile', 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)', 'gate BLOCKED for B-bbaf at 2026-07-14T09:59:59Z (attempt 3)'],
@@ -370,7 +536,7 @@ const buildCostFixture = () => {
   let body = '';
   let i = 0;
   while ((head + body).length < 16_384) {
-    body += `not ok ${i} - packages/main/src/core/seg-${i}.ts CHK-0${i % 10} bug-${i} de-bug-${i} timeout:bug-${i} B-bf52:F-0${i % 10} `;
+    body += `not ok ${i} - packages/main/src/core/seg-${i}.ts CHK-0${i % 10} bug-${i} de-bug-${i} bug-fix-${i} timeout:bug-${i} B-bf52:F-0${i % 10} `;
     i += 1;
   }
   const reason = (head + body).slice(0, 16_384);
@@ -470,7 +636,7 @@ if (!compare) {
       verdict = 'OK   branch finer on a retry-stable bare id';
       finerOk += 1;
     } else {
-      verdict = `FAIL BAR 2 — branch DISTINGUISHES a non-retry-stable ordinal (${kind})`;
+      verdict = `FAIL BAR 2 — branch DISTINGUISHES what it must not (${kind}: ${BAR2_REASON[kind] ?? 'the varying ordinal is not retry-stable'})`;
       bar2 += 1;
     }
     if (rc === 'differ' && RETRY_STABLE.has(kind)) bar1Eligible += 1;
@@ -484,7 +650,8 @@ if (!compare) {
   console.log(`  ${finerOk} branch-finer on a retry-stable BARE artifact id (expected, and the BOUND on both costs)`);
   console.log(`  ${costPaid} accepted-cost pairs where the comparison keeps a colon composite or an attached id and the branch does not`);
   console.log(`  ${costUnpaid} branch-finer on an accepted-cost pair  (F-052/F-054 expect 0; a WARN, not a bar — the`);
-  console.log('        matrix cases open-blocking-finding-composite-id and the substantive-id-no-reduction group');
+  console.log('        matrix cases embedded-test-output-label-qualified-id and the substantive-id-no-reduction'); 
+  console.log('        group'); 
   console.log('        in tasks/convergence-breaker-smoke.ts are what fail if a cost stops being paid, so this');
   console.log('        script does not double-count them)');
   console.log(`  ${comparisonLeaks} pairs where the COMPARISON build leaks (keys apart on a re-minted ordinal) and this one does not`);
