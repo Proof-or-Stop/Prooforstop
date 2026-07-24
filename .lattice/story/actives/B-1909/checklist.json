@@ -168,9 +168,9 @@
       "id": "CHK-003",
       "title": "Extend the scope-shrinkage decision into the single authorizing record both layers cite",
       "context": "core/proofstory.ts:162-169 BuildScopeShrinkageDecisionArgs and 1285-1310 buildScopeShrinkageDecision currently carry only removedMilestoneIds, reason, approvedBy, userConfirmed. Add a stable decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs (for example the finding id that proved undeliverability). Existing decisions without these fields must keep loading; B-bf52's own decision.json is the compatibility fixture.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T21:44:48.307Z",
       "verificationIntent": {
         "happy": [
           {
