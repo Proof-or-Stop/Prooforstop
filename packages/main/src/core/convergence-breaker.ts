@@ -510,11 +510,30 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
   // annotations like [note] / [info] / [todo] / [warn]. A genuinely stuck loop
   // whose reason text carried a VARYING plain word would then get a fresh key on
   // every attempt and escape the brake entirely — reintroducing exactly the
-  // unbounded loop this module exists to stop. Real reason codes are multi-word
-  // snake_case, so the underscore requirement is what actually makes the
-  // vocabulary bounded rather than merely claiming it is.
+  // unbounded loop this module exists to stop. Requiring an underscore restricts
+  // the FORM of an accepted token; it does not enumerate a fixed set.
   for (const m of normalizedReason.matchAll(/\[([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\]/g)) signals.add(m[1]);
-  // Diagnostic gap ids: "- missing_acceptance_binding [warn; proofstory.json]"
+
+  // F-008: capture diagnostic gap ids and trigger reasons by their STRUCTURAL
+  // position, not by a prefix whitelist. An earlier draft only accepted tokens
+  // starting with missing/invalid/stale/unreadable/tampered, which matched a
+  // FABRICATED fixture but almost none of the codes production actually emits —
+  // acceptance_binding_missing_verification_intent_refs,
+  // milestone_source_requirement_unbound, review_completeness_missing_evidence,
+  // scope_ambiguity and every trigger reason extracted ZERO signals, so real
+  // distinct blockers still collided on one key and the headline bug survived.
+  //
+  // proofstory.ts renders each entry as "  - <code> [<severity>; <artifact>]: …"
+  // and each trigger reason as "  - <code>: …", so a bullet followed by a
+  // multi-word snake_case token followed by '[' or ':' is a reliable, bounded
+  // anchor. Ordinary prose bullets ("- If there is no output for 4 minutes…")
+  // and anti-stall action labels ("- [retry] …") do not match it.
+  for (const m of normalizedReason.matchAll(/-\s+([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\s*[[:]/g)) {
+    signals.add(m[1]);
+  }
+
+  // Codes mentioned inline rather than as a bullet (kept from the first draft;
+  // narrower than the structural rule above, and harmless alongside it).
   for (const m of normalizedReason.matchAll(/\b((?:missing|invalid|stale|unreadable|tampered)_[a-z0-9_]+)/g)) {
     signals.add(m[1]);
   }

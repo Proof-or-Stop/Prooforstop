@@ -61,10 +61,31 @@ function proofStoryReason(gaps: string[]): string {
     + gaps.map(g => `  - ${g} [warn; proofstory.json]: this precondition is not satisfied.`).join('\n');
 }
 
-/** The three real blockers B-cc54 hit, in the order it hit them. */
+/**
+ * The three real blockers B-cc54 hit, in the order it hit them.
+ *
+ * F-008: every code here must be one production actually emits (grep
+ * core/proofstory.ts). An earlier draft used a FABRICATED
+ * 'missing_verification_intent_refs', which exists nowhere in production and
+ * passed only because it happened to start with the whitelisted 'missing_'
+ * prefix — masking the fact that almost no real gap code was being extracted.
+ */
 const GAPS_1 = ['missing_original_intent_snapshot', 'missing_intent_collision', 'missing_red_evidence'];
 const GAPS_2 = ['missing_acceptance_binding', 'missing_spike_evidence'];
-const GAPS_3 = ['missing_verification_intent_refs'];
+const GAPS_3 = ['acceptance_binding_missing_verification_intent_refs'];
+
+/**
+ * Real production gap/trigger codes that do NOT start with any of the prefixes
+ * the first draft whitelisted. Under that draft each of these extracted zero
+ * signals, so genuinely different blockers collided on one key and the headline
+ * bug survived untouched.
+ */
+const REAL_UNPREFIXED_CODES = [
+  'acceptance_binding_missing_verification_intent_refs',
+  'milestone_source_requirement_unbound',
+  'review_completeness_missing_evidence',
+  'scope_ambiguity',
+];
 
 const REASON_1 = proofStoryReason(GAPS_1);
 const REASON_2 = proofStoryReason(GAPS_2);
@@ -409,6 +430,25 @@ function chk005(): void {
 
   // CHK-005:adversarial:0 — the exact B-cc54 collision shape.
   assert.notEqual(digest(REASON_1), digest(REASON_2), 'CHK-005:adversarial:0 the B-cc54 collision must not recur');
+
+  // CHK-005:adversarial:0 (F-008) — the same collision, but driven by REAL
+  // production codes that carry none of the whitelisted prefixes. This is the
+  // case the fabricated fixture was hiding: under the prefix-only draft all four
+  // extracted zero signals and shared one key.
+  const realKeys = REAL_UNPREFIXED_CODES.map(c => digest(proofStoryReason([c])));
+  assert.equal(
+    new Set(realKeys).size, REAL_UNPREFIXED_CODES.length,
+    'CHK-005:adversarial:0 (F-008) real production gap codes must each key distinctly',
+  );
+  // ...and the same real code repeated must still accumulate (fail-closed).
+  withDir((dir) => {
+    const stuck = proofStoryReason([REAL_UNPREFIXED_CODES[0]]);
+    for (let i = 0; i < THRESHOLD; i++) bumpGateFailureCount(dir, CMD, stuck);
+    assert.ok(
+      maxGateFailureCount(readGateFailureCounts(dir)) >= THRESHOLD,
+      'CHK-004:happy:0 (F-008) a repeated real gap code must still reach the threshold',
+    );
+  });
 
   // CHK-005:adversarial:1 — reset-after-every-bump can hold the counter down, which is
   // why reset is wired ONLY to a successful advance (documented invariant, asserted here).
