@@ -76,11 +76,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'sanity-bound' digests an oversize reason of 450,025 characters to story_advance/e86264c1f7f2, exercising the retained 16,384-character bound rather than assuming it exists.",
-          "headHash": "1aacbf72344704597e9e75e71683e3388d388452",
-          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
-          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
-          "timestamp": "2026-07-23T23:20:26.823Z"
+          "note": "Corrected after F-012: the earlier record for this intent cited the sanity-bound shape-check, which passes whether or not the bound exists and therefore proved nothing. The load-bearing proof is matrix case 'sanity-bound-is-applied' at packages/main/src/tasks/convergence-breaker-smoke.ts:446-458 (guardedBy sanity-bound), which asserts an oversize reason digests EXACTLY as its own bounded prefix does: gateFailureDigest(cmd, TRANSCRIPT) === gateFailureDigest(cmd, TRANSCRIPT.slice(0, MAX_REASON_CHARS)). Removing .slice(0, MAX_REASON_CHARS) from boundReasonForDigest makes the two keys diverge and this case fail, which the test-coverage lane reproduced empirically while the other 18 cases kept passing. That is the bound being exercised rather than silently absent.",
+          "headHash": "9e212b0fa5c45ff18b919664aedbe92ce5b8a2d8",
+          "materialHash": "17969f3fb7d0bf4643eff1a972274c2bb24fb5001779ec62c56f3fc9a6ab11cb",
+          "storyFilesHash": "4bf45b60d85f0384c81eeae39aab06469e4199c5bdf5e351e1239a1ef70500d7",
+          "timestamp": "2026-07-24T00:54:50.661Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
