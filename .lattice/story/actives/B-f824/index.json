@@ -4,7 +4,7 @@
   "title": "Stop reviewer independent validates from poisoning done_prepare convergence",
   "description": "The done_prepare convergence invariant (deriveDonePreparePassConvergence in packages/main/src/handlers/done-prepare.ts) counts every executed validation_terminal event in the [last REVIEW entry, now] window grouped by (commandSetHash, materialHash, storyFilesHash) and hard-fails DONE when any group has more than one executed terminal. Reviewer lanes legitimately execute the suite during REVIEW because independent verification is the review policy, and the single-slot PASS receipt in test-evidence.json is evicted whenever a different validation identity persists its receipt, forcing the closeout validate to re-execute an already-executed identity. Observed on B-956f closing 2026-07-23: reviewer lane executed cmdSet 34090591 during REVIEW, a second lane with identity 15aa0ab1 evicted the receipt, then the TEST-phase closeout validate re-executed 34090591, producing unchangedSuiteExecutions=1 and permanently poisoning the window; the only recovery was a ceremony DEV to REVIEW bounce that contradicts the reviewer independent-verification mandate. Fix: mirror the existing reviewerReattestations versus postTestReviewerReattestations split inside the same derivation - the blocking counter must count only per-group duplicate executed terminals at or after the current TEST entry plus contradictory reused terminals reporting commandExecutions greater than zero, while pre-TEST review-window duplicate executions become observable non-blocking telemetry in a new field. This changes DONE gate behavior for the closeout convergence check.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -55,11 +55,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T00:58:56.071Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-f824",
     "branch": "story/B-f824",
     "createdAt": "2026-07-24T00:00:48.214Z"
-  }
+  },
+  "currentReviewRound": "2026-07-24T00:58:56.071Z"
 }
