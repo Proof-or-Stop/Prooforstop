@@ -184,11 +184,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-still-collapse machine-absolute-path [guard: path-rule-collapse]' asserts the same logical lock path under /Users and under /private/var gives keys=1 counter=2 breaker=trips. 'delimiter-attached-absolute-path' extends this to paths introduced by a colon, equals or comma.",
-          "headHash": "145abf6eaace1949229f53ffd8bbe941630c5976",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:27.242Z"
+          "note": "Case 'must-still-collapse machine-absolute-path [guard: path-rule-collapse]' asserts the same logical lock path under /Users and under /private/var gives keys=1 counter=2 breaker=trips; 'delimiter-attached-absolute-path' extends it to paths introduced by a colon, equals or comma; 'windows-absolute-path' covers drive-letter paths.",
+          "headHash": "c4799378e5166784f7a2d0efa315f0480a196d3e",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:17.236Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
