@@ -1,0 +1,28 @@
+{
+  "passes": [
+    {
+      "id": "B-1909:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Independently re-verified fixes for F-002 and F-005 (commits ac756995e7 + c865b13ba6). F-002: buildScopeShrinkageDecision now unions withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs with existing (unionStringRefs, dedup, stable order) instead of resetting to only the latest calls args; decisionId is now immutable once stamped (conflicting caller decisionId throws, record left byte-identical); dead withdrawnChecklistItemIdsFrom/withdrawnBindingIdsFrom imports removed from handlers/proofstory.ts. Reproduced the original two-sequential-call regression with a standalone script against the fixed tree: withdrawnChecklistItemRefs now stays [CHK-002] after a second call withdrawing AB-1 under the same decisionId (previously reset to []). New regression coverage in scope-shrinkage-withdrawal-floor-smoke.ts and withdrawn-disposition-smoke.ts both pass. F-005: dashboard.ts migrated checklistDone to isDeliveredChecklistStatus, added a checklistWithdrawn bucket via isWithdrawnChecklistStatus, progress bar fills on done+withdrawn (terminal) while numeric label stays delivered-only with a separate (+N withdrawn) annotation. lattice validate --lint passes (3 tsconfigs). No new concept residue introduced. Both findings genuinely resolved; no blocking concept-completeness issue remains this round.",
+      "createdAt": "2026-07-24T22:40:55.289Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-008",
+      "envelopeId": "9e343913f93abdc4e03dbab57ef496824f258085ba68268bd7dafcac655e76c2",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "da40089bad934e29b2d1f3ee5473a059ffcce6e2c01ddc72f9ff5a3fc8da718c"
+    }
+  ]
+}
