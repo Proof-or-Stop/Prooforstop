@@ -421,6 +421,40 @@
         "scanEscalationReason": null
       },
       "_hash": "90c22aff6aa5fe0d631d2dc1f4d52855f5eb1f7f042b46e02997e70534d8a5b6"
+    },
+    {
+      "id": "B-4043:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round re-review confirming prior RP-012 pass still holds. git diff b2f7d5fa5b..HEAD --name-only shows only 9 files under .lattice/story/actives/B-4043/ changed -- zero production/test source touched (0-line diff on acceptance-rollout.ts, proofstory-acceptance-rollout-smoke.ts, package.json). F-008/F-009/F-010 match the diff exactly: F-008 rebind of CHK-004:adversarial:fail-closed-mutations to --issuer-mutations was proven wrong by F-009/F-010 since --issuer-mutations never calls runAcceptanceRolloutGate; the ref was RESTORED to the default-mode command and the issuer-mutations hardening moved to a new custom non-frozen ref CHK-004:hardening:issuance-replay-integrity (checklist.json lines 380-435). Re-confirmed both security properties live at current head f11ff8f: (1) all 7 execFileSync(git,...) call sites in acceptance-rollout.ts route through hardenedGitArgs(); (2) default-mode smoke is wired into DONE-required npm test chain via test:proofstory-acceptance-rollout in root package.json test script, and I ran it live end-to-end: node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js exited 0 with real-git-flow cohort run, printed PASS (57 assertions). Diff is metadata-only; no new findings warranted.",
+      "createdAt": "2026-07-24T16:28:06.848Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-027",
+      "envelopeId": "9bdbe97c1eead7b15b06a4d299c0a963ee4f5654ada1885ecbda4b7592ef82b1",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cadd031511a6a8615a1e2e9c1395aa49460bf21d527d7a782ce1fccd320ee613"
     }
   ]
 }
