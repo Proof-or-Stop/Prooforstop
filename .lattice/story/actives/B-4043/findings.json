@@ -237,7 +237,7 @@
       "desc": ".lattice/story/actives/B-4043/scope-contract.json:152 (DEV-phase scope-acknowledgement entry, timestamp 2026-07-24T17:55:59.937Z, actor main-agent, describing the lifecycle-registry.ts registration): repeats verbatim the same false claim F-011 already found and resolved elsewhere in this story -- \"a full lattice validate run under a provider-less environment passes all 47 configured commands with 0 failures\" -- for the identical event (registering acceptance-rollout-report.json in lifecycle-registry.ts / clearing the lifecycle-registry-contract divergence). The F-011 fix round re-captured all 16 checklist.json verificationEvidence notes with the corrected figure (49) plus an explicit correction paragraph, and findings.json:F-011 records the resolution, but scope-contract.json itself was never touched (git diff 51484ca32f..45be26eefa -- .lattice/story/actives/B-4043/scope-contract.json is empty) and still asserts the same self-contradictory count: lifecycle-registry-contract only entered the validate set after the main merge, so it cannot be among any 47-command run, exactly as F-011 already established. The story's written record therefore still contains an uncorrected instance of the same misstatement about what that validate run covered, alongside the one place (checklist.json) where it was fixed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-24T19:18:32.057Z",
@@ -250,7 +250,11 @@
         ".lattice/story/actives/B-4043/checklist.json"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted; the finding is right and it caught exactly the check I had asked this lane to run but had not run on myself. When F-011 was fixed I corrected the false '47 configured commands' figure in the 16 evidence notes but missed the same sentence in the scope-contract acknowledgement for lifecycle-registry.ts, leaving the written record with one corrected and one uncorrected instance of a claim already disproved. Fixed by issuing a new acknowledgement for the same path whose reason states the verified figure of 49 and carries an explicit CORRECTION per F-012 paragraph naming the stale figure, its provenance (pre-merge commit b8e28971d0) and why it is self-contradictory (lifecycle-registry-contract only entered the command set after the main merge). Note on mechanics, stated because it matters for how a future reader should interpret the file: scope_contract_acknowledge APPENDS, it does not rewrite, so acknowledgement[5] still carries the original wrong text and acknowledgement[6] is the correction. That is the correct shape for an append-only audit trail — the erroneous record stays visible and is explicitly superseded rather than being quietly erased. Deliberately NOT changed: the '47' occurrences inside findings.json, because there the figure appears in the F-011/F-012 finding bodies and resolutions that quote the wrong claim in order to explain it; rewriting those would destroy the correction record itself.",
+      "resolvedAt": "2026-07-24T19:20:10.878Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }

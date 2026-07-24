@@ -162,10 +162,26 @@
       "phase": "DEV",
       "headHash": "cf3365b7da15cd1644d95d75cb86110954ab8281",
       "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Registering this story's own new artifact. lifecycle-registry-contract failed with 1 divergence: StoryStore reads and writes acceptance-rollout-report.json, a top-level story artifact introduced by THIS story, but the filename was neither in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES nor in the named-exemption list. The edit is a single additive line placed next to its siblings acceptance-basis.json and pre-review-check.json; no existing entry is altered and no exemption is used. Verified: lifecycle-registry-contract now reports 0 divergences, and a full lattice validate run under a provider-less environment passed ALL 49 configured commands with 0 failures. This surfaced only under validate, not when running the smokes by hand. CORRECTION per F-012: an earlier version of this acknowledgement said 47 configured commands. That figure was stale (carried over from a pre-merge run at b8e28971d0) and self-contradictory, since lifecycle-registry-contract itself only entered the command set after the main merge and therefore cannot appear in any 47-command state. F-011 corrected the same false figure in the 16 evidence notes; this acknowledgement was missed in that pass, leaving the written record internally inconsistent until now.",
+      "timestamp": "2026-07-24T19:19:28.491Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "72936e22c5f86c689def1c8eef064f35c9964a53",
+      "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3"
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-24T17:55:59.938Z",
+  "updatedAt": "2026-07-24T19:19:28.491Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
