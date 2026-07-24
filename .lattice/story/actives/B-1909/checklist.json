@@ -202,6 +202,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
       }
     },
     {
