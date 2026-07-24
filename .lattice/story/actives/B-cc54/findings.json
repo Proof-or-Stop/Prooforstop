@@ -62,7 +62,7 @@
       "desc": "red-evidence.json (record RED-20260723234230, PLAN-phase-locked via red_evidence_create allowedPhases=[PLAN]) still describes the ABANDONED first-draft fixture from commit 00bba7d1b3: observedFailure references evaluateScopeAntiExpansionGate refusing with a missing_scope_boundary reason and an implied TRIP_CODE marker. The smoke was rewritten twice since (d07885e8c8 keys on gateFailureDigest/extractGateBlockSignals against a ProofStory DEV-gate banner reason; e749555297 expanded to 37 per-intent assertions), and the actual reproducible RED message is now literally different: AssertionError CHK-001:happy:0 distinct blockers must not share a key. The CHK-001 verificationEvidence notes were correctly rewritten with the accurate current-fixture RED/GREEN procedure (which I independently reproduced: reverting only the basis=prefix hunk in convergence-breaker.ts builds clean and fails at exactly that assertion with zero ok-CHK lines; restoring gives a clean git diff and a 0-exit PASS with all 37 intents covered). But red-evidence.json itself was never corrected or annotated to note the divergence, because red_evidence_create is PLAN-only and the story is past PLAN. A future forensic audit that reads red_evidence_get for B-cc54 (exactly the kind of trust artifact this reviewer role and the B-4043 postmortem this story is about both rely on) would be given a materially false description of the reproduction steps and the failing gate/function involved. Severity is medium, not high, because the actual fix-verification claim (the thing F-001 blocked on) is now independently confirmed true and fully covered; this is a stale supplementary artifact, not an unverifiable fix.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T00:32:33.424Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-cc54:RR-004",
       "_hash": "69607192324b200a3eaa09f458286ca6ac2f989b3ea2d943cf888c14703c5307",
       "signatureTag": "adversarial|unknown|evidence-json-record",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Corrected rather than waived. The story was rolled back to PLAN (the only phase where red_evidence_create is permitted) and a new record RED-20260724003921 was issued binding the RED that is reproducible today, with a note declaring it supersedes RED-20260723234230. A future auditor calling red_evidence_get now sees both records and the supersession, instead of a single misleading one.",
+      "resolvedAt": "2026-07-24T00:46:44.733Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
