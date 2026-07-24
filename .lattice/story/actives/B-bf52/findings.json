@@ -963,6 +963,23 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T12:35:53.290Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-bf52:F-051",
+      "desc": "cross-host (codex-cli host-B, final state) and verified worse than main: the trailing word boundary is not a sufficient token-END assertion. In a real embedded test-evidence rejection, Cannot enter DONE: test FAIL: not ok 1 - bug-2/x reproducer still red versus the bug-5/x variant digest differently on this branch and collapse on main, because the boundary succeeds before the slash and the partial substring bug-2 is protected as if it were an id. The same leak occurs for bug-2.x, bug-2-x and bug-2 followed by a non-ascii letter, so the comment claims about whole-token matching and a safe trailing boundary are false; the existing bug-2x case only covers a following ascii word character. This is the FOURTH leak in the same guard (word boundary, then negative lookbehind, then positive start assertion, now the trailing boundary), which is the evidence that boundary assertions are the wrong shape. Main-agent-validated convergent fix, 32 direction cases: require the artifact id to be the ENTIRE whitespace-delimited token after stripping surrounding punctuation, with one optional <qualifier>: segment to keep the real composite storyId:F-NNN render at machine.ts:756 protected. A whole-token test cannot be defeated by embedded punctuation.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T12:40:11.285Z",
+      "reviewRound": "2026-07-24T12:16:14.339Z",
+      "_hash": "979c03184340e22c00d05fd303cae684c1db583f211f816b5de63de67e9aea60",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
