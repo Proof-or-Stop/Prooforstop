@@ -46,6 +46,33 @@
         "scanEscalationReason": null
       },
       "_hash": "f6e64cc7fbbd5d1b9b77a4ed825d5bf5d6e03ef1244699ba8dfc85bfb4e9112d"
+    },
+    {
+      "id": "B-a539:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: both CHK-001 and CHK-002 have all must-priority happy/edge/adversarial intents covered by concrete, non-generic evidence with matching materialHash/storyFilesHash; CHK-002:happy exactly-once claim verified adequate despite the surrounding aborted run.",
+      "createdAt": "2026-07-24T18:06:23.910Z",
+      "reviewRound": "2026-07-24T18:02:45.716Z",
+      "reviewRunId": "B-a539:RR-002",
+      "envelopeId": "31551dc862fcdc24151abf3cebc4f59cf3cac5c48eeb4226823aaa35828ae867",
+      "writerSessionId": "sess-12d4654412aecbb01251458208b2b803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a539/background.md",
+          ".lattice/story/actives/B-a539/checklist.json",
+          ".lattice/story/actives/B-a539/plan.md",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a539/index.json",
+          ".lattice/story/actives/B-a539/review.json",
+          ".lattice/story/actives/B-a539/scope-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d1e70ebec00a4418e901f82282902315d75e91482e92b41b50b8cde74e97bec2"
     }
   ]
 }
