@@ -584,6 +584,31 @@
         "scanEscalationReason": null
       },
       "_hash": "3f5173ad48749792471db7b2d8be4acb5e5fc463afb0ce8b873e930d1d0b7e7c"
+    },
+    {
+      "id": "B-f824:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 6 incremental: verified the two new AST-scoped negative assertions in scripts/verify-process-fact-contract.mjs (commit 638ce1ee40) are non-vacuous against synthetic violation/comment-decoy sources, confirmed event.timestamp >= facts.testEntryAt is a real functional predicate in done-prepare.ts (not just prose), confirmed assertDonePreparePassConvergence body references unchangedSuiteExecutions but not reviewWindowSuiteExecutions matching the negative check, ran npm run test:process-fact-contract and packages/main test:flow-stability-smoke both green, and confirmed CHK-003 verificationIntent/Evidence still all-pass. No blocker.",
+      "createdAt": "2026-07-24T04:00:52.125Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-022",
+      "envelopeId": "0d2d3df8c44f66d43b23d745c1004fd66ada4228c65ece134ad2f5bf7fc9afc8",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8b6d4266b486b40a698147502c5f0a57773360e9e3d32bdcd85fe7801870cd50"
     }
   ]
 }
