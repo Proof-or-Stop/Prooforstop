@@ -49,10 +49,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Positive path sets item.status=withdrawn with decisionRef and reads it back through checklist_get; round-trips through store read/write.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Checklist items seeded without status=withdrawn/decisionRef load and render exactly as before (all fixture items lack decisionRef).",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,10 +73,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Direct checklist_update status=withdrawn throws matching /scope_shrinkage_decision_set/ and the item stays done (no write).",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         }
       ]
     },
@@ -133,10 +133,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "checklistAllDoneGuard returns true for a done+withdrawn checklist, so DEV->REVIEW advances treating withdrawn as terminal.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,10 +145,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "slim counts and summarizeChecklist report done=1 (delivered-only) and withdrawn=1 separately; withdrawn never increments the delivered/done tally.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -157,10 +157,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "checklist_get renders the withdrawn item with status 'withdrawn' and asserts notEqual 'done' — no renderer shows it as DONE.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         }
       ]
     },
@@ -214,10 +214,10 @@
           "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
           "result": "pass",
           "note": "buildScopeShrinkageDecision generates an SD- decisionId, persists withdrawnChecklistItemRefs, and preserves createdAt/decisionId across updates.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -226,10 +226,10 @@
           "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
           "result": "pass",
           "note": "A legacy decision object with no new fields loads; withdrawnChecklistItemIdsFrom/withdrawnBindingIdsFrom return empty sets and effectiveAcceptanceBindings keeps all bindings.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -238,10 +238,10 @@
           "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
           "result": "pass",
           "note": "A confirmed decision naming no withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/removedMilestoneIds is rejected (nothing to withdraw).",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         }
       ]
     },
@@ -294,10 +294,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "scope_shrinkage_decision_set appends {bindingId,disposition:withdrawn,decisionRef} and proofstory_contract_get shows it, run with story phase DEV and phase REVIEW (no PLAN return).",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -306,10 +306,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "effectiveAcceptanceBindings excludes the withdrawn binding while the original acceptanceBindings[AB-1] object survives byte-for-byte (JSON compared before/after).",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -318,10 +318,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "COMMAND_POLICIES.proofstory_contract_set.allowedPhases deepEquals ['PLAN'] (freeze intact); scope_shrinkage_decision_set reaches DEV/REVIEW/TEST — the correction path, not proofstory_contract_set, does the withdrawal.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         }
       ]
     },
@@ -379,10 +379,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "The withdrawn item.decisionRef and the binding disposition.decisionRef both equal the single stamped decisionId.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -391,10 +391,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "A decision naming a non-existent checklist item (/not a checklist item/) or non-existent binding (/not an acceptance binding/) is refused and mutates nothing; single-applier design makes cross-layer id mismatch structurally impossible.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -403,10 +403,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Layer independence: an item-only decision leaves the bound binding active; a binding-only decision leaves every checklist item unchanged. No silent cross-cancellation.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -415,10 +415,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "The smoke calls scope_shrinkage_decision_set on the handler directly (the internal, Zod-bypassing path) and the ref/authority refusals still fire at the handler level.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         }
       ]
     },
@@ -469,10 +469,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Withdrawing a proper subset (AB-1 of AB-1/AB-2) leaves a non-empty effective set; the applier succeeds.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -481,10 +481,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Withdrawing all bindings without fullWithdrawalReapproval is HARD-REFUSED (/empty_scope_after_withdrawal/) in a config-less temp root (default observe), proving independence from doneGateMode; with the re-approval field it is allowed.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -493,10 +493,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "The empty-scope floor reads effectiveAcceptanceBindings (non-withdrawn); approved full withdrawal empties the effective set to length 0, so leaving withdrawn originals cannot fake surviving scope.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         }
       ]
     },
@@ -549,10 +549,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Positive both-phase direction (DEV+REVIEW): checklist_get and proofstory_contract_get both report withdrawn; smoke prints PASS.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -561,10 +561,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Negative direction: done stays delivered (count 1), withdrawn excluded from counts, original binding survives byte-for-byte.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -573,10 +573,10 @@
           "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
           "result": "pass",
           "note": "Negative refusals: direct withdrawn refused, non-existent item/binding refused, all-bindings-withdrawn refused without re-approval, allowed with it.",
-          "headHash": "58fc5f59cfac6382f31cef4c3080993f1cba5398",
-          "materialHash": "b2d5e1b2f11df9a1976507fa1923c04a0137e8316755c2bccf75d4711af80c06",
-          "storyFilesHash": "78faf67245fc3f8f7116da54060d5d8b16f13fb503ff39b312ef2180a098f217",
-          "timestamp": "2026-07-24T22:58:19.759Z"
+          "headHash": "c0e20b735d77871efa2487f1050560bc7a884e34",
+          "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+          "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+          "timestamp": "2026-07-24T23:04:09.211Z"
         }
       ]
     }
