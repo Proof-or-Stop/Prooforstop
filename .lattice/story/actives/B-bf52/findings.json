@@ -1069,7 +1069,7 @@
       "desc": "cross-host (codex-cli host-B) and verified worse than main: the id BODY is too permissive. The pattern allows an arbitrary hyphenated word between the prefix and the ordinal, so an ordinary bare token such as bug-fix-2 versus bug-fix-5 in embedded test output is treated as an artifact id and the two digest apart while main collapses them. This is the eighth leak but the FIRST in the pattern rather than the reduction, which stayed deleted. codex also established the fact that fixes it cleanly: F-, REQ- and SEP- never arrive BARE from their native producers — F- renders only as the composite storyId:F-NNN, REQ- is comma-attached in the ProofStory report, SEP- is comma- or period-attached in the pending-proposal report — so after the reduction was deleted those three already collapsed and their allowlist entries buy nothing, while f- as a single letter is an active false-positive surface in third-party output. Main-agent-validated fix, 20 direction cases: restrict the body to a PURE ORDINAL and reduce the allowlist to the prefixes measured to have a bare native render. The token must be exactly a prefix, a hyphen and digits. bug-fix-2, chk-abc-1, bug-2a1 and f-2 all collapse; bare CHK- and BUG- ordinals stay distinct; F-, REQ- and SEP- tie with main, which is what they already did.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T14:59:56.724Z",
@@ -1079,7 +1079,9 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "signatureTag": "edge|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T15:32:24.031Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-057",
