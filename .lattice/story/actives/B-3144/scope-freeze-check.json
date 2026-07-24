@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3144",
+  "checkedAt": "2026-07-24T20:10:04.144Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "c4b54e7aa0086c79a773a5d9ffdcb52cc9556bc28a2e294ae0a66a445d752e4c",
+  "executionBoundaryHash": "2c5deabf305449e4b047565a8c36db85cf638ef06f3900931baac85d048152fd",
+  "freshnessHash": "2c8a30e5b3528b4a8dc6a0b885df08322e3a139cec46190a1c12860fc5b6fa2e",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "changes to floor/escalation acceptance semantics (eventsWithStoryFilesHashDowngrade stays as-is)",
+    "customerKeyRef",
+    "Layer4",
+    "material-scoped runId scheme migration (<storyId>-q-<digest>-rN)",
+    "process-events.jsonl integrity hash chain",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "changes to floor/escalation acceptance semantics (eventsWithStoryFilesHashDowngrade stays as-is)",
+      "source": "scopeBoundary.excluded",
+      "text": "changes to floor/escalation acceptance semantics (eventsWithStoryFilesHashDowngrade stays as-is)",
+      "excluded": true
+    },
+    {
+      "keyword": "material-scoped runId scheme migration (<storyId>-q-<digest>-rN)",
+      "source": "checklist.excludes",
+      "text": "material-scoped runId scheme migration (<storyId>-q-<digest>-rN)",
+      "itemId": "CHK-003",
+      "excluded": true
+    },
+    {
+      "keyword": "material-scoped runId scheme migration (<storyId>-q-<digest>-rN)",
+      "source": "scopeBoundary.excluded",
+      "text": "material-scoped runId scheme migration (<storyId>-q-<digest>-rN)",
+      "excluded": true
+    },
+    {
+      "keyword": "process-events.jsonl integrity hash chain",
+      "source": "checklist.excludes",
+      "text": "process-events.jsonl integrity hash chain",
+      "itemId": "CHK-003",
+      "excluded": true
+    },
+    {
+      "keyword": "process-events.jsonl integrity hash chain",
+      "source": "scopeBoundary.excluded",
+      "text": "process-events.jsonl integrity hash chain",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a24db6c1ad341ee6be434e86c30529cdafa7399d3739c4f478f9fcb222d9bd1c"
+}
