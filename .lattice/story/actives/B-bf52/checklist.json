@@ -52,11 +52,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Matrix case 'must-differ dev-gate-one-gap-differs [guard: truncation-removal]' reconstructs the real DEV-gate render (machine.ts:179 preamble plus renderProofStoryDiagnosticReport) twice, identical for the first 244 normalized characters and differing only in the outstanding gap, and reports keys=2.",
-          "headHash": "2856fd3aa847fb4ccbb27f7bb1987f9c6d006dde",
-          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
-          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
-          "timestamp": "2026-07-23T23:20:24.475Z"
+          "note": "Case 'must-differ dev-gate-one-gap-differs [guard: truncation-removal]' reconstructs the real DEV-gate render (machine.ts:179 preamble plus renderProofStoryDiagnosticReport) twice, identical for the first 244 normalized characters and differing only in the outstanding gap, and reports keys=2. Re-recorded against the round-3 matrix (24 cases) after F-013.",
+          "headHash": "ba2ac008e59ca2c2ea295fe0e7ef23ae7d38f98e",
+          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
+          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
+          "timestamp": "2026-07-24T01:43:18.219Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
