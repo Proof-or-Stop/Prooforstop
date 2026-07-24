@@ -4846,7 +4846,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       'pre-TEST reviewer executions plus one post-TEST closeout execution per group must not block PASS convergence',
     );
     assert.equal(
-      ((reviewWindowPoisoning ?? {}) as unknown as Record<string, unknown>).reviewWindowSuiteExecutions, 1,
+      reviewWindowPoisoning?.reviewWindowSuiteExecutions, 1,
       'whole-window duplicate executions must stay observable as reviewWindowSuiteExecutions telemetry',
     );
     assert.doesNotThrow(
@@ -4873,7 +4873,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     ]));
     assert.equal(boundaryAtTestEntry?.unchangedSuiteExecutions, 0, 'one pre-TEST baseline plus one execution at exactly testEntryAt must not block');
     assert.equal(
-      ((boundaryAtTestEntry ?? {}) as unknown as Record<string, unknown>).reviewWindowSuiteExecutions, 1,
+      boundaryAtTestEntry?.reviewWindowSuiteExecutions, 1,
       'the boundary duplicate must still be counted in whole-window telemetry',
     );
     assert.doesNotThrow(() => assertDonePreparePassConvergence(boundaryAtTestEntry!));
@@ -4882,7 +4882,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     ]));
     assert.equal(singlePostTestExecution?.unchangedSuiteExecutions, 0, 'a single post-TEST execution must not block');
     assert.equal(
-      ((singlePostTestExecution ?? {}) as unknown as Record<string, unknown>).reviewWindowSuiteExecutions, 0,
+      singlePostTestExecution?.reviewWindowSuiteExecutions, 0,
       'a single execution must not register whole-window duplicate telemetry',
     );
     assert.doesNotThrow(() => assertDonePreparePassConvergence(singlePostTestExecution!));
