@@ -461,216 +461,108 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
 }
 
 /**
- * The SANITY bound applied to a raw gate-failure reason before it is normalized.
- *
- * B-bf52 CHK-001: hashing is length-agnostic, so truncating buys the digest
- * nothing. The former 200-character cut landed INSIDE the fixed header of a real
- * DEV-gate rejection (machine.ts's preamble plus
- * renderProofStoryDiagnosticReport, whose preamble plus six header lines MEASURE
- * 257 normalized characters, and 433 by the point the first gap row begins in a
- * typical two-trigger report — both figures measured against this normalizer,
- * not asserted; F-018 corrects an earlier "244" that was never measured), so
- * every rejection for one story collapsed to one key no matter
- * which gaps were outstanding — reading incremental progress as one gate failing
- * repeatedly. What remains is a pure sanity bound, applied to the raw input so a
- * pathological reason (an embedded transcript or stack trace) cannot make the
- * normalization pathological either. A generous worst-case real rejection — 20
- * gap rows, 15 trigger rows, 10 parent-rollup rows plus the header — measures
- * 7,448 characters, so 16,384 sits roughly 2.2x above the worst realistic
- * message. Accepted residual: two reasons identical up to the bound and
- * differing only past it still collapse.
- *
- * Exported so the smoke can assert the bound is genuinely APPLIED
- * (`digest(huge) === digest(huge.slice(0, MAX_REASON_CHARS))`) rather than
- * asserting a well-formed digest, which holds whether or not the bound exists.
+ * A stable digest for "the same gate failing the same reason". The command name
+ * is kept verbatim; the error message is normalized to strip volatile tokens
+ * (hashes, ids, timestamps, bare numbers, paths) so two rejections that differ
+ * only in incidental detail collapse to the same key.
  */
-export const MAX_REASON_CHARS = 16_384;
-
 /**
- * Apply the sanity bound to a raw reason, without splitting a surrogate pair.
+ * B-cc54: pull the STRUCTURED blocker identity out of a normalized gate reason.
  *
- * B-bf52 F-009 (cross-host): `String.prototype.slice` cuts UTF-16 code UNITS, so
- * a reason whose 16,384th unit is the HIGH half of an astral character (emoji,
- * CJK extension) would leave a lone high surrogate at the end, which hashes as a
- * replacement encoding rather than as the original character. Deterministic, so
- * it never destabilized a key across calls, but the bound is trivially made
- * code-point safe by dropping that dangling half.
+ * gateFailureDigest hashes only the first 200 normalized characters. For a
+ * structured gate failure that prefix is an invariant banner — every ProofStory
+ * DEV-gate refusal opens with the same "cannot enter dev: proofstory dev gate is
+ * enforce ... status: fail blocking: yes hardening level: high_assurance" text —
+ * while the part naming WHICH precondition is unmet ("diagnostic gaps: -
+ * missing_acceptance_binding ...") sits far beyond character 200. Digit
+ * normalization erases what is left ("trigger reasons (4)" and "(6)" both
+ * collapse to "(#)").
+ *
+ * Reproduced on B-cc54 itself: three genuinely DIFFERENT blockers (missing
+ * intent snapshot -> missing acceptance binding -> missing verificationIntentRefs)
+ * collapsed onto one digest, so fixing one precondition at a time read as a stuck
+ * repeat loop and froze the story. Clearing that freeze demands an interactive
+ * human ack, which an unattended run can never obtain — so a false positive here
+ * is precisely a "needs a human" failure.
+ *
+ * The key therefore also carries the blocker's structured identity: bracketed
+ * reason codes ([missing_scope_boundary]) and diagnostic gap ids
+ * (- missing_spike_evidence [warn; spike.json]).
+ *
+ * F-005: be precise about what "bounded" means here, because an earlier draft of
+ * this comment claimed a bounded VOCABULARY that the code did not enforce — and
+ * that gap between claim and code is exactly what F-002 turned out to be. What is
+ * bounded is the FORM, not an enumerable set: a token counts only if it is
+ * multi-word snake_case. Any freshly invented multi-word snake_case token would
+ * still register as a signal. That is acceptable because such tokens are emitted
+ * by gate code, not by free text, and the alternative (accepting any bracketed
+ * word) demonstrably let ordinary annotations mint a new key per attempt. What
+ * the form restriction buys is that a genuinely stuck loop keeps emitting the
+ * SAME set and still trips: this widens the key, it never resets the counter on
+ * free text.
  */
-function boundReasonForDigest(reason: string): string {
-  const bounded = String(reason ?? '').slice(0, MAX_REASON_CHARS);
-  if (bounded.length === 0) return bounded;
-  const last = bounded.charCodeAt(bounded.length - 1);
-  // 0xd800-0xdbff is the high-surrogate range: a lone one means the low half was
-  // cut off by the bound.
-  return last >= 0xd800 && last <= 0xdbff ? bounded.slice(0, -1) : bounded;
+export function extractGateBlockSignals(normalizedReason: string): string[] {
+  const signals = new Set<string>();
+  // Bracketed reason codes: [missing_scope_boundary], [init_check_tampered], ...
+  //
+  // F-002: the bracket pattern MUST require at least one underscore. An earlier
+  // draft accepted any bracketed lowercase word, which silently admitted ordinary
+  // annotations like [note] / [info] / [todo] / [warn]. A genuinely stuck loop
+  // whose reason text carried a VARYING plain word would then get a fresh key on
+  // every attempt and escape the brake entirely — reintroducing exactly the
+  // unbounded loop this module exists to stop. Requiring an underscore restricts
+  // the FORM of an accepted token; it does not enumerate a fixed set.
+  for (const m of normalizedReason.matchAll(/\[([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\]/g)) signals.add(m[1]);
+
+  // F-008: capture diagnostic gap ids and trigger reasons by their STRUCTURAL
+  // position, not by a prefix whitelist. An earlier draft only accepted tokens
+  // starting with missing/invalid/stale/unreadable/tampered, which matched a
+  // FABRICATED fixture but almost none of the codes production actually emits —
+  // acceptance_binding_missing_verification_intent_refs,
+  // milestone_source_requirement_unbound, review_completeness_missing_evidence,
+  // scope_ambiguity and every trigger reason extracted ZERO signals, so real
+  // distinct blockers still collided on one key and the headline bug survived.
+  //
+  // proofstory.ts renders each entry as "  - <code> [<severity>; <artifact>]: …"
+  // and each trigger reason as "  - <code>: …", so a bullet followed by a
+  // multi-word snake_case token followed by '[' or ':' is a reliable, bounded
+  // anchor. Ordinary prose bullets ("- If there is no output for 4 minutes…")
+  // and anti-stall action labels ("- [retry] …") do not match it.
+  for (const m of normalizedReason.matchAll(/-\s+([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\s*[[:]/g)) {
+    signals.add(m[1]);
+  }
+
+  // Codes mentioned inline rather than as a bullet (kept from the first draft;
+  // narrower than the structural rule above, and harmless alongside it).
+  for (const m of normalizedReason.matchAll(/\b((?:missing|invalid|stale|unreadable|tampered)_[a-z0-9_]+)/g)) {
+    signals.add(m[1]);
+  }
+  return [...signals].sort();
 }
 
-/**
- * A stable digest for "the same gate failing the same reason".
- *
- * The command name is kept verbatim; the error message is normalized so two
- * rejections differing only in INCIDENTAL detail collapse to one key while
- * substantively different rejections keep separate keys.
- *
- * THE GOVERNING POLICY (B-bf52, adopted in review round 4 after three rounds of
- * oscillation): normalize ONLY provably-volatile SHAPES, and leave every
- * ambiguous bare number alone.
- *
- * The oscillation is the evidence for that policy. Rounds 1-3 tried to decide,
- * per case, whether a bare number was substantive or volatile. Every narrowing
- * produced a case where the breaker silently NEVER TRIPS (F-007 unit-suffixed
- * durations, F-015 sentence-final numbers, F-019 review-run ids, F-022
- * ppid-derived session ids); every widening produced a case where two
- * SUBSTANTIVELY different failures falsely FREEZE a story (F-002 dotted
- * versions, F-014 identifier-attached decimals, F-020 ports, percentages and
- * decimal thresholds in real test output). That is structural, not a sequence of
- * near misses: in free text a bare number is not syntactically decidable —
- * `CHK-002` versus `RR-002`, `attempt 3` versus `port 3000` are the same shape.
- *
- * The tie is broken by which direction has a real producer. `(attempt N)`, the
- * volatile bare counter the general number rule existed to absorb, appears
- * NOWHERE in this repo outside the smoke's own invented fixture. F-020's shapes
- * are real and reachable: `test-evidence` output is interpolated VERBATIM into a
- * `story_advance` DONE rejection (core/machine.ts, `Cannot enter DONE: test
- * ${result}: ${output}`), so `connection to localhost:3000 refused` versus
- * `:4000` are two different validation failures that a bare-number rule reads as
- * one gate failing twice — the exact defect this story exists to remove. Failing
- * toward "distinct" therefore fails toward never falsely freezing, which is this
- * story's purpose, and runaway retries remain separately covered by the
- * burn-alert system.
- *
- * The rule chain, in order:
- *
- *  1. `0x…` values → `#`.
- *  2. ATTACHED hashes: a hyphen/underscore-attached run of 7+ hex characters
- *     that contains at least one a-f LETTER → `#`. A letter-bearing hex run is
- *     provably a digest, never a human ordinal, so `sess-d7efe197b316c43a`
- *     collapses (F-022) while `session-1234567` stays distinct (F-014).
- *  3. FREE-STANDING hashes: a run of 7+ hex characters attached to nothing →
- *     `#`, with dot-adjacency excluded so it cannot bite a chunk out of a
- *     decimal (F-016).
- *  4. ISO-8601 timestamps → `#`.
- *  5. ABSOLUTE paths only, and only at a token start (string start, or after
- *     whitespace, quote, paren, bracket, `:`, `=` or `,`): Windows `c:\…` then
- *     POSIX `/…`. A relative repo path (`src/core/alpha.ts`) and a mid-token
- *     slash (`DEV/REVIEW`) are deliberately LEFT ALONE — they name WHAT failed.
- *  6. Durations and sizes written as a number WELDED TO A UNIT (`45s`, `8m`,
- *     `2h`, `1.5ms`, `12kb`) → `#`. A unit suffix is what makes the number
- *     provably volatile: heartbeat and lock-contention ages are wall-clock noise
- *     that moves on every retry, so leaving them in mints a fresh key per retry
- *     and the breaker never fires (F-007).
- *
- * There is deliberately NO general free-standing-number rule. It was present in
- * rounds 1-3 and is DELETED: a bare number carries no shape evidence either way,
- * and normalizing it is what produced F-002, F-014 and F-020.
- *
- * Both directions are load-bearing and both are guarded case-by-case in
- * tasks/convergence-breaker-smoke.ts: widening a rule re-introduces the false
- * freeze this contract exists to prevent, and deleting the duration, hash or
- * path rules re-introduces the opposite failure — a genuine livelock whose
- * repeat count never accumulates.
- */
 export function gateFailureDigest(command: string, reason: string): string {
-  const normalized = boundReasonForDigest(reason)
+  const normalized = String(reason ?? '')
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
-    // B-bf52 F-022: an ATTACHED hash. A hyphen/underscore-attached run of 7+ hex
-    // characters that contains at least one a-f LETTER is provably a digest and
-    // never a human ordinal, which is exactly the distinction the deleted number
-    // rule could not make. `deriveLocalSessionId` (core/owner-session.ts) mints
-    // `sess-${sha256.slice(0,16)}` from host+root+PPID, so every host that
-    // re-execs mints a NEW session id; without this rule the ownership-gate
-    // rejection that names it (`… is owned by Proofbound session sess-<hash> …`)
-    // minted a fresh digest key on essentially every retry and the breaker never
-    // fired. The letter requirement is the whole safety argument: it is what
-    // keeps `session-1234567` / `worker-1721775600` distinct (F-014), because a
-    // human ordinal or an epoch suffix is decimal and therefore letter-free.
-    // Runs BEFORE the free-standing rule below; the two are disjoint by
-    // construction (this one REQUIRES a `-`/`_` before the run, that one FORBIDS
-    // any word character or hyphen there).
-    //
-    // Accepted asymmetry: this rule carries no dot-adjacency guard, unlike the
-    // free-standing rule. The shape that would need one is a hyphen-attached
-    // letter-bearing hex run immediately followed by a decimal point
-    // (`x-abcdef1.5`); no producer in this tree emits it, and the nearest real
-    // shape (`commit-a1b2c3d.patch`) is a digest that SHOULD collapse.
-    .replace(/(?<=[-_])(?=[0-9a-f]*[a-f])[0-9a-f]{7,}(?![\w-])/g, '#') // attached hashes / digests
-    // B-bf52 F-014 + F-016: a FREE-STANDING hash. The identifier-attachment
-    // protection is not optional — `0-9` is a subset of `0-9a-f`, so a bare `\b`
-    // boundary let this rule consume any identifier-attached decimal run of 7+
-    // digits: `session-1234567` vs `session-7654321` and `worker-1721775600` vs
-    // `worker-1721775601` (epoch-suffixed ids) both collapsed, i.e. two DIFFERENT
-    // identifiers read as one gate failing twice.
-    //
-    // The dot-adjacency lookarounds are F-016: without `(?!\.\d)` this rule bites
-    // the integer part out of a decimal whose digits happen to reach 7, so
-    // `heartbeat 1234567.5ms ago` normalized to `heartbeat #.# ago` while
-    // `heartbeat 123456.5ms ago` (six digits) normalized to `heartbeat # ago` —
-    // one duration rendering, two keys, straddling an arbitrary threshold. Only
-    // `(?!\.\d)` has a named producer; `(?<!\d\.)` is retained as its symmetric
-    // half. Both can only make this rule collapse LESS, which is the direction
-    // this policy deliberately fails toward.
-    .replace(/(?<![\w-])(?<!\d\.)[0-9a-f]{7,}(?![\w-])(?!\.\d)/g, '#') // free-standing hex ids / hashes
+    .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
-    // B-bf52 CHK-002: an absolute path is machine-specific, so it must still
-    // collapse — but ONLY when it is a path. The former rule anchored on any
-    // slash, so it ate the tail of every slash-bearing token: `DEV/REVIEW` and
-    // `DEV/TEST` both became `dev#`, and `src/core/alpha.ts` and
-    // `src/core/beta.ts` both became `src#`. These match a leading root only at
-    // a TOKEN START (string start, whitespace, quote, paren, bracket, or one of
-    // the `:` / `=` / `,` delimiters that real messages use to introduce a path
-    // with no space, e.g. `cwd=/Users/...`) and then consume the rest of the
-    // token, so `/Users/...` and `/private/var/...` still collapse to one key —
-    // including when the path continues into repo-relative segments, which are
-    // consumed in the same match rather than left as a per-host remainder —
-    // while a mid-token slash is left alone. Structural, not an enumeration of
-    // machine roots. F-006: the Windows drive-letter form is handled first,
-    // since it carries no forward slash and would otherwise survive whole, so a
-    // per-user `c:\users\<name>\...` root would not collapse on a Windows host.
-    .replace(/(?:^|(?<=[\s"'(\[:=,]))[a-z]:\\[^\s"')\]]*/g, '#') // windows absolute paths
-    .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')       // posix absolute paths
-    // B-bf52 F-007: a duration or size is a number WELDED TO A UNIT, and the
-    // unit is the shape evidence that makes it provably volatile. This is the
-    // one numeric rule the policy keeps. That is not academic: every lease/lock
-    // contention message renders `heartbeat ${age} ago` with age from
-    // formatLeaseAge / formatLockAge (`45s`, `8m`, `2h`) — story-owner-lease.ts,
-    // cli/ownership-gate.ts, main-write-lock.ts, validation-execution-lock.ts —
-    // so without this rule a story_advance retried against a live foreign lease
-    // or a held lock mints a NEW key on essentially every retry, the repeat
-    // count never reaches 2, and the breaker never fires for exactly the stuck
-    // runaway it exists to stop. It carries the same identifier-attachment
-    // lookarounds as the deleted number rule, so `B-bf52` and `v0.3.229` are
-    // untouched, plus the dot-adjacency pair (F-015): `heartbeat 45s.` at the end
-    // of a sentence must still collapse, while `1.5ms` must not be split.
-    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?:ms|s|m|h|d|kb|mb|gb|b)(?![\w-])(?!\.\d)/g, '#') // durations / sizes
-    //
-    // ── NO GENERAL FREE-STANDING-NUMBER RULE (B-bf52 round-4 policy) ──────────
-    //
-    // Rounds 1-3 ended here with `/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?![\w-])(?!\.\d)/g
-    // -> '#'`, on the theory that a bare number is an incidental counter. It is
-    // DELETED, and its deletion is load-bearing, not an omission:
-    //
-    //  - `test-evidence` output is interpolated VERBATIM into the DONE rejection
-    //    at core/machine.ts (`Cannot enter DONE: test ${result}: ${output}`), so
-    //    every bare number a real test harness prints reached this rule. Under it
-    //    `connection to localhost:3000 refused` and `…:4000`, `coverage 82%` and
-    //    `coverage 91%`, `expected >= 0.95, got 0.72` and `got 0.61` each
-    //    collapsed to ONE key — two DIFFERENT validation failures counted as one
-    //    gate failing twice, which is the false freeze this story exists to
-    //    remove, reintroduced by this story's own fix (F-020).
-    //  - The shape it existed to absorb, `(attempt N)`, has NO producer: it
-    //    appears nowhere in this repo outside the smoke's own invented fixture.
-    //
-    // Consequences are accepted deliberately, not overlooked: a bare retry
-    // counter, a countdown (F-003), a sentence-final ordinal (F-015), a holder
-    // pid and a review-run ordinal (F-019) now keep SEPARATE keys, so a runaway
-    // that varies one of them will not accumulate a gate-repeat count. That
-    // failure mode is bounded by the burn-alert system, which watches spend
-    // rather than message text; a false freeze is not bounded by anything except
-    // an interactive human TTY acknowledgement.
+    .replace(/\/[^\s"']+/g, '#')                 // absolute paths
+    .replace(/\d+/g, '#')                        // bare numbers
     .replace(/\s+/g, ' ')
     .trim();
-  const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);
+  // B-cc54: scan the WHOLE normalized reason for structured blocker identity,
+  // then key on prefix + that identity. A reason carrying no structured signal
+  // keeps the historical prefix-only key, so existing behaviour is unchanged.
+  const signals = extractGateBlockSignals(normalized);
+  const prefix = normalized.slice(0, 200);
+  // F-003: encode the parts unambiguously instead of concatenating them with a
+  // literal " signals:" delimiter. Concatenation only resisted forgery by accident
+  // (a reason containing the delimiter text also fed its own extraction); a JSON
+  // encoding makes the boundary structural, so no reason body can impersonate a
+  // signal list. A reason with no signals still hashes the bare prefix, keeping
+  // the historical key byte-identical.
+  const basis = signals.length > 0 ? JSON.stringify([prefix, signals]) : prefix;
+  const h = createHash('sha1').update(`${command}\n${basis}`).digest('hex').slice(0, 12);
   return `${command}/${h}`;
 }
 

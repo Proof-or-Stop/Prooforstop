@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-cc54",
+  "id": "IC-20260723234140",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "When a phase gate refuses the same story with a block reason whose digest is identical to the previous consecutive refusal, and this repeats N times (configurable, default 3), the gate layer hard-stops the transition (raises an error the caller must handle, does NOT terminate the orchestrator process, does NOT auto-satisfy the gate, does NOT rewrite finding attribution). The stop emits a machine-actionable diagnostic naming the specific unmet precondition so a downstream agent can self-correct without human adjudication. The breaker is scoped per (storyId, gate, reasonDigest) and its counter resets when the gate passes or the block reason changes. The breaker is fail-closed: it only stops and reports.",
+  "acceptedInterpretationHash": "sha256:7889bcd116468252df1b5d71835ad72e2fcd872d84c5d833d9c9ec279be2dd7e",
+  "notes": "Probed 6 potential collisions: (1) 'block reason code' could mean categorical error code vs digest of full reason vs literal string -- resolved by CHK-002 explicitly using digest and background showing byte-identical refusals; (2) 'hard-stopped' could mean warning vs preventing transition -- resolved by execution-boundary requiring breaker never advance phase; (3) 'no human in loop' could mean breaker self-corrects vs enables correction -- resolved by scope-boundary excluding auto-rewrite and acceptanceClaim forbidding auto-satisfaction; (4) per-story vs global -- resolved by CHK-002 keying on storyId; (5) process crash vs gate-layer error -- resolved by per-story keying implying gate-layer signal not process kill; (6) threshold N pinned vs configurable -- acceptanceClaim says N, CHK-003 says default 3, clearly configurable. All six resolve to a single reading.",
+  "createdAt": "2026-07-23T23:41:40.746Z",
+  "updatedAt": "2026-07-23T23:41:40.746Z"
+}

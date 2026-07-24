@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "proofstory.spike.v1",
+  "storyId": "B-cc54",
+  "spikes": [
+    {
+      "id": "SPIKE-20260723234327",
+      "question": "Where is the correct choke point to count identical gate refusals, and does an existing convergence signal already cover this?",
+      "status": "resolved",
+      "disposableCodePaths": [],
+      "note": "Also confirmed the literal loop text lives at handlers/transition-effects.ts:279 (the B-f675 targeted-re-review advisory), which is what the orchestrator kept acting on.",
+      "createdAt": "2026-07-23T23:43:27.548Z",
+      "updatedAt": "2026-07-23T23:43:28.100Z",
+      "result": "Two findings. (1) A convergence signal already exists: core/review-convergence.ts assessReviewConvergenceAtEntry (STALL_MIN_ROUNDS=4, STALL_WINDOW=3), but handlers/transition-effects.ts documents it as 'SOFT, advisory-only ... never affects the transition result', so it appends text and never blocks — which is why the B-4043 loop survived 54 rounds. It also keys on a finding-count trend, not on refusal identity, so it cannot see a gate refusing for the same reason. (2) The right choke point is the gate reason producer in core/machine.ts: evaluateScopeAntiExpansionGate returns {ok:false, reason} where every reason carries a bracketed reason code (e.g. [missing_scope_boundary], [init_check_tampered]). That reason text is a stable, digestible key per (storyId, gate), so a repeat-block ledger can be keyed on a digest of it without touching finding attribution. Conclusion: add a new orthogonal detector rather than escalating review-convergence, and wire it at the machine.ts reason producer."
+    }
+  ],
+  "createdAt": "2026-07-23T23:43:27.548Z",
+  "updatedAt": "2026-07-23T23:43:28.100Z"
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-cc54",
+  "mode": "correctness_fix",
+  "allowed": [
+    "lattice.config.json",
+    "packages/main/src/core/gate-repeat-block.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+  ],
+  "excluded": [
+    "Codex orchestrator busy-wait polling (item 2; lives outside this repo)",
+    "context compaction behaviour (item 3; outside this repo)",
+    "global cap on review rounds (would cut off genuinely converging reviews)",
+    "packages/main/src/handlers/finding.ts (must NOT auto-rewrite finding agent attribution; that would forge review provenance)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User instruction 2026-07-23: write the B-4043 burn forensics up as a Lattice story in proofbound, fixing item (4) the non-converging review loop. User also required the remedy be autonomous (no human-in-the-loop adjudication).",
+  "createdAt": "2026-07-23T23:31:29.827Z",
+  "updatedAt": "2026-07-23T23:31:29.827Z",
+  "_hash": "6f05c6c21f812aa76f891ff83a42fd5cce9f9c5079be1f3f0147dc47f1d12c07"
+}
