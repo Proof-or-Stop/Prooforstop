@@ -44,6 +44,8 @@ import { StoryStore } from '../core/store.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { createChecklistHandlers, summarizeChecklist } from '../handlers/checklist.js';
 import { effectiveAcceptanceBindings } from '../core/proofstory.js';
+import { checklistAllDoneGuard } from '../core/machine.js';
+import { COMMAND_POLICIES } from '../core/command-policy.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type {
   ChecklistData,
@@ -194,6 +196,23 @@ function run(): void {
       chk: createChecklistHandlers(ctx),
     };
 
+    // ── CHK-004 ADVERSARIAL: the PLAN freeze is intact ───────────────────────
+    // proofstory_contract_set stays PLAN-only (the frozen binding writer), while
+    // the append-only correction path (scope_shrinkage_decision_set) is the one
+    // that reaches DEV/REVIEW/TEST. This proves the freeze was NOT relaxed to add
+    // the withdrawal capability.
+    assert.deepEqual(
+      COMMAND_POLICIES['proofstory_contract_set'].allowedPhases,
+      ['PLAN'],
+      'proofstory_contract_set stays PLAN-frozen',
+    );
+    for (const phase of ['DEV', 'REVIEW', 'TEST'] as const) {
+      assert.ok(
+        (COMMAND_POLICIES['scope_shrinkage_decision_set'].allowedPhases as readonly string[]).includes(phase),
+        `scope_shrinkage_decision_set (the post-PLAN correction path) reaches ${phase}`,
+      );
+    }
+
     // ── POSITIVE: withdrawal recorded + rendered from DEV and from REVIEW ─────
     assertPositiveWithdrawal(h, 'B-pos-dev', 'DEV');
     assertPositiveWithdrawal(h, 'B-pos-review', 'REVIEW');
@@ -212,6 +231,23 @@ function run(): void {
     const summary = summarizeChecklist(h.store.readChecklist('B-pos-dev'));
     assert.equal(summary.done, 1, 'summarizeChecklist: withdrawn is not counted as done/delivered');
     assert.equal(summary.withdrawn, 1, 'summarizeChecklist: withdrawn has its own count');
+
+    // ── CHK-002 HAPPY: withdrawn is TERMINAL for advancement, not just excluded ─
+    // A checklist of done + withdrawn items satisfies the DEV→REVIEW every-item
+    // terminal guard (withdrawn is recorded-undeliverable, no longer outstanding).
+    const sGuard = 'B-guard-terminal';
+    seedStory(h.store, sGuard, 'DEV');
+    h.store.writeChecklist(sGuard, {
+      items: [
+        { id: 'CHK-001', title: 'CHK-001', status: 'done', startTime: null, endTime: null },
+        { id: 'CHK-002', title: 'CHK-002', status: 'withdrawn', decisionRef: 'SD-terminal-fixture', startTime: null, endTime: null },
+      ],
+    } as ChecklistData);
+    assert.equal(
+      checklistAllDoneGuard({ store: h.store, storyId: sGuard, projectRoot: root }),
+      true,
+      'checklistAllDoneGuard advances a done+withdrawn checklist (withdrawn is terminal)',
+    );
 
     // ── NEGATIVE: direct checklist_update status='withdrawn' is refused ───────
     const sDirect = 'B-neg-direct';
