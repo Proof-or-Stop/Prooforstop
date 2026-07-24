@@ -117,6 +117,34 @@
         "scanEscalationReason": null
       },
       "_hash": "d758942e94fea34b41137a310a2e536c549a20a48d2bbd8e8f1886c4d0785e05"
+    },
+    {
+      "id": "B-cc54:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at current HEAD (83ebf87) after F-010 landed mid-review (an independent lane relabelled the same CHK-004:happy:0 mislabel I had flagged and was about to note, to CHK-002:happy:2 -- confirmed via git diff, the code now reads CHK-002:happy:2 at both call sites). Coverage: 37/37 verificationIntent entries have valid verificationEvidence, all captured atomically at the F-010 fix commit (7a9c2efa91); git diff from that commit to current HEAD touches only .lattice bookkeeping, zero material files; evidence_refresh reports 0 stale candidates; standalone node packages/main/dist/tasks/gate-repeat-block-smoke.js exits 0 with all 5 ok lines. F-006 freshness holds at the current head, not just at capture time. F-008 fixture honesty re-verified exhaustively: programmatically extracted every gap/trigger code literal from proofstory.ts (gap()+pushTrigger() call sites) and cross-checked every snake_case token in the smoke's fixtures (GAPS_1/2/3, REAL_UNPREFIXED_CODES, BANNER) -- all are real production codes at their cited lines; unmatched tokens were only CLI command names and one code my own regex missed via a ternary (missing_spike_evidence, confirmed real). No sixth fabricated fixture found. extractGateBlockSignals now anchors structurally on proofstory.ts's actual render format (bullet+code+[ or :, proofstory.ts:1904-1917) and the fix is wired into the real gate path (cli-engine.ts:1508), not just unit-tested. Full validate: ran twice outside this tool call in isolation to cross-check an anomaly -- a first full run (contaminated by concurrent activity in this shared worktree) showed an overall dirtied-worktree fail attributed to an unrelated, documented-hermetic command; re-running that exact command alone reproduced clean with zero worktree diff, confirming a transient race unrelated to B-cc54's code. gate-repeat-block-smoke.js itself returned code=0 in every run. HONEST META-JUDGMENT, recorded as requested rather than softened: across this story the same defect CLASS -- evidence or fixture that looks verified but is not -- has now recurred FIVE times, not four: F-001 (assertions authored after the fix), F-004 (stale red-evidence artifact), F-006 (stale verificationEvidence), F-008 (fabricated fixture code), and F-010 (checklist refs picked to make the coverage ledger look complete rather than checked against what each ref actually claims -- and per F-010's own resolvedReason, this exact shortcut was 'copied a second time during the F-008 fix', i.e. it recurred within its own recurrence). Of these five, only F-006 was caught by a genuinely new-to-the-platform automated invariant (the materialHash/storyFilesHash freshness gate in validate/evidence_refresh) -- and that gate is pre-existing platform infrastructure this story merely had to satisfy, not something this story built. F-001, F-004, F-008, and F-010 were each caught exclusively by a reviewer manually re-deriving ground truth (reverting code and re-running, tracing commit timestamps, grepping production source, checking each ref's literal text against assertion content) and were each remediated as a one-off correction of the specific instance found. No new mechanical guard exists that would categorically catch a structurally identical sixth occurrence: nothing in gate-repeat-block-smoke.ts cross-checks its own fixture codes against a canonical export from proofstory.ts; nothing re-validates a red-evidence artifact's liveness against the current tree; nothing proves an assertion's evidence was captured after a genuine revert-rerun rather than asserted from memory; nothing checks a relabelled ref's literal text against the assertion it is attached to. The actual required deliverable (37/37 genuine, fresh, functioning fix, wired into production) is sound and verified today, but the audit trail's protection against a sixth instance of this defect class is exactly as good as the next reviewer's diligence, not structurally better than before this story started. Not blocking DONE on this -- the coverage mandate is satisfied -- but recording it plainly as asked.",
+      "createdAt": "2026-07-24T02:03:04.750Z",
+      "reviewRound": "2026-07-24T02:00:28.057Z",
+      "reviewRunId": "B-cc54:RR-014",
+      "envelopeId": "70110768d974812786b66fc255dbd547ee6dc43498b89dc71961dd3002b87204",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/findings.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f870d130fe41fbbd019292800bd223b5033ace6a217e17a18141b10952ce76fe"
     }
   ]
 }
