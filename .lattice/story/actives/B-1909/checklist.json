@@ -193,6 +193,11 @@
             "desc": "A decision that does not cite the item/binding is refused, and citing two different decision ids across the two layers for the same shrinkage is refused",
             "type": "logic",
             "priority": "must"
+          },
+          {
+            "desc": "Layer independence: a decision listing ONLY withdrawnChecklistItemRefs withdraws only the checklist item and leaves its binding active; a decision listing ONLY withdrawnAcceptanceBindingRefs withdraws only the binding and leaves the checklist item unchanged (no silent cross-cancellation)",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "adversarial": [

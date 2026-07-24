@@ -79,6 +79,8 @@ Shared primitives introduced (used by several items — build first):
 - Modify: packages/main/src/handlers/proofstory.ts (the scope_shrinkage_decision_set handler applies the binding disposition into proofstory.json under the same write path; proofstory_contract_get renders original + disposition; confirm proofstory_contract_set stays PLAN-frozen and refuses disposition writes)
 - Test: DEV+REVIEW invocation smoke in CHK-007
 
+**OQ-2 (resolved) — why a separate vocabulary, not applicability.mode**: `bindingDispositions[]` is deliberately NOT the existing `verificationTopology.applicability.mode='not_applicable'`. That field lives on the binding written by the PLAN-frozen `proofstory_contract_set`, so it is unreachable from DEV/REVIEW (the exact constraint this story removes); it means "never applied" not "planned then proven undeliverable"; and mutating it would overwrite the frozen original F-062 requires kept readable. We DO reuse the auditable `decisionRef` pattern that AT_INVALID_NA_DECISION / notApplicableDecision already require. Do not reroute through applicability.mode.
+
 **Verify**:
 - After the decision writer runs in DEV (and in REVIEW), `proofstory_contract_get` shows the binding with disposition withdrawn while the original binding object is unchanged
 - `proofstory_contract_set` run outside PLAN still refused
@@ -110,17 +112,21 @@ Shared primitives introduced (used by several items — build first):
 
 **Owner**: lattice-implementer
 **DependsOn**: CHK-004
+**OQ-1 (resolved) — enforce at WRITE time, not the DONE gate**: per milestone-triggered-gate-mode-default-decision.md, `evaluateDoneIntentEquivalence` gaps only block under opt-in `doneGateMode='enforce'` (default `observe` is non-blocking). A floor placed only there would be advisory by default — the exact silent empty-scope pass this story prevents. So the PRIMARY guarantee is a **hard refusal in the sole applier** (`scope_shrinkage_decision_set`): applying a binding withdrawal that would empty the effective (non-withdrawn) binding set is REFUSED unless the confirmed decision carries an explicit full-withdrawal re-approval field. This is independent of `doneGateMode` and does not flip that default. The DONE `empty_scope_after_withdrawal` diagnostic gap is added ONLY as defense-in-depth (visible under observe, blocking under enforce).
 **Files**:
-- Modify: packages/main/src/core/proofstory.ts (DONE intent-equivalence ~1514 and review-completeness ~1858 both drive their required set from effectiveAcceptanceBindings; add a blocking `empty_scope_after_withdrawal` gap when the original contract had bindings but the effective set is empty, requiring explicit re-approval)
-- Test: subset-withdraw proceeds; full-withdraw blocks — logic tests + CHK-007
+- Modify: packages/main/src/core/proofstory.ts (add `effectiveAcceptanceBindings`; the write-time applier refuses to empty the effective set without explicit re-approval; DONE intent-equivalence ~1514 and review-completeness ~1858 drive their required set from `effectiveAcceptanceBindings` and add the defense-in-depth `empty_scope_after_withdrawal` gap)
+- Modify: packages/main/src/handlers/proofstory.ts (surface the write-time refusal error)
+- Test: subset-withdraw proceeds; full-withdraw refused at write time; logic tests + CHK-007
 
 **Verify**:
-- Withdraw a proper subset → DONE path proceeds
-- Withdraw every binding → blocking gap `empty_scope_after_withdrawal` requiring explicit re-approval
+- Withdraw a proper subset → applier succeeds, effective set non-empty, DONE path proceeds
+- Withdraw every binding without re-approval → applier HARD-REFUSES (write-time), independent of doneGateMode
+- Withdraw every binding WITH explicit re-approval → allowed, and DONE surfaces the empty-scope diagnostic (blocking under enforce)
 
 **DoneWhen**:
 - The floor reads the effective (non-withdrawn) set, not original bindings
-- Both DONE consumers honor the floor identically
+- Full withdrawal is refused at the write point unless explicit re-approval is recorded — proven not to depend on doneGateMode
+- The DONE diagnostic gap exists as defense-in-depth only
 
 ## CHK-007: Add a smoke covering both directions of the recorded acceptance
 
