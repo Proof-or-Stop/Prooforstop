@@ -210,6 +210,24 @@
         "scanEscalationReason": null
       },
       "_hash": "71df9635e946c125f4c9c89c68bbd922b2745a5b09ab79e21da8aea00dd9546c"
+    },
+    {
+      "id": "B-bf52:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge confirmation of RP-004 (behavior lane), not a re-audit. Verified: (1) git diff 280a5440b4 -- packages/main/src/core/convergence-breaker.ts packages/main/src/tasks/convergence-breaker-smoke.ts packages/main/tests/red/ is empty — this stories files are byte-identical to what was reviewed at RP-004; (2) git diff 280a5440b4 --stat -- packages/main/src packages/main/tests shows exactly the 9 other-story files the merge brought in (lattice-brand.ts, lifecycle-registry.ts, process-fact-registry.ts, done-prepare.ts + 3 done-prepare smokes, flow-stability-smoke.ts, lifecycle-registry-contract.ts); (3) gate-repeat-block-smoke.ts is also byte-identical vs 280a5440b4; (4) grepped the 9 merged files for convergence-breaker/gateFailureDigest/bumpGateFailureCount/assessBreaker references — only hit is process-fact-registry.ts:1390, a pre-existing (unchanged by this merge) rationale string describing an unrelated process-fact entry, not a functional import/call; the merges own diff to that file touches a different rationale field entirely. No merged file imports or calls into convergence-breaker.ts or its callers. (5) Rebuilt dist (tsc) then ran all four probes fresh: node packages/main/dist/tasks/convergence-breaker-smoke.js PASS (full must-differ/must-still-collapse matrix), node packages/main/dist/tasks/gate-repeat-block-smoke.js PASS (5/5), node packages/main/tests/red/red-s3-digest-collapse.mjs PASS 10/10, node packages/main/tests/red/red-s3-differential-probe.mjs PASS (BAR3 4/4 delivered classes distinguished; differential lane vs a second build correctly SKIP in this single-checkout context, not a failure). (6) review_escalation_status confirms ok:true, assuranceLevel full-3x2, fullQuorum 3/3x2, materialHash/storyFilesHash match this review context binding. No behavioral, scope, or userSees findings from RP-004 are invalidated by the merge; checklist CHK-001..CHK-004 behavior is unchanged.",
+      "createdAt": "2026-07-24T19:19:33.642Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-039",
+      "envelopeId": "eb9042de6756a60b5670aedfd06e5a8a2f5cc1755aaea2ff37f84fd34f703a1b",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "62bbbbc6e01717b7302363f85a59bca26e0a9ed36a855b0d284cb9d682e2c8c6"
     }
   ]
 }
