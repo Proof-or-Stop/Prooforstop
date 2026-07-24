@@ -1,6 +1,6 @@
 {
   "storyId": "B-f824",
-  "checkedAt": "2026-07-24T00:12:14.353Z",
+  "checkedAt": "2026-07-24T00:21:37.340Z",
   "features": [
     {
       "feature": "Fix deriveDonePreparePassConvergence so reviewer-driven executed validation_terminal events during REVIEW no longer permanently hard-fail DONE convergence (root fix for the B-956f-shaped poisoning)",
@@ -52,9 +52,9 @@
       "source": "description"
     },
     {
-      "feature": "The canonical decisions/ prose describing the implemented B-c163 convergence contract ('repeated unchanged-suite execution ... constraints remain independently blocking', duplicated verbatim in done-prepare-automation-execution-plan.md, workflow-convergence-failure-remediation-execution-plan.md, and done-prepare-heartbeat-review-assurance-ux-execution-plan.md) documents the current unconditional-blocking behavior as an implemented contract; the checklist's doc-update coverage (CHK-003) is scoped to smoke files and packages/main/src/core/process-fact-registry.ts only, not to updating this decisions/ prose to describe the new phase-anchored split",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "The canonical decisions/ prose describing the implemented B-c163 convergence contract (repeated unchanged-suite execution ... constraints remain independently blocking) documents the current unconditional-blocking behavior as an implemented contract and must be updated to the phase-anchored split before it goes stale",
+      "covered_by": "CHK-004",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:done-prepare-automation-execution-plan.md"
     }
@@ -192,13 +192,26 @@
   },
   "summary": {
     "total": 8,
-    "covered": 7,
+    "covered": 8,
     "excluded": 0,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "4c6bba81b855692166099dae8dfc1dd0e6341a55c495d5a49edb0810616f84a1",
-  "openQuestions": []
+  "_hash": "0083d639c0c87f2dfcd181bb8c5af15c082e7708388a2ff60a41f0c98aedc109",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "CHK-004 context and plan.md both state the B-c163 sentence about repeated unchanged-suite execution and unsuccessful-closeout constraints remaining independently blocking is duplicated verbatim in done-prepare-automation-execution-plan.md, workflow-convergence-failure-remediation-execution-plan.md, and done-prepare-heartbeat-review-assurance-ux-execution-plan.md, and plan.md CHK-004 Verify requires reviewWindowSuiteExecutions to appear via rg -ln in all three docs. On this re-review, that exact sentence (and the whole reviewerReattestations/postTestReviewerReattestations paragraph beside it) exists only in done-prepare-automation-execution-plan.md's B-c163 convergence contract section. The same-named section in the other two docs starts directly at the closeout idle/max-timeout bullet and contains no mention of unchanged-suite-execution blocking or reviewerReattestations at all, so there is no stale unconditional-blocking claim to fix there today. Should CHK-004 be narrowed to only done-prepare-automation-execution-plan.md (the doc that actually carries the stale-prone prose), or is deliberately injecting new reviewWindowSuiteExecutions prose into the other two docs intended for some other reason not stated in the checklist or plan.md?",
+      "evidence": "done-prepare-automation-execution-plan.md line 734 has: Metadata rollback, human confirmation, repeated unchanged-suite execution, and unsuccessful-closeout constraints remain independently blocking. workflow-convergence-failure-remediation-execution-plan.md lines 713-724 and done-prepare-heartbeat-review-assurance-ux-execution-plan.md lines 376-387 (both titled B-c163 convergence contract implemented) contain only the closeout-timeout and DONE-required-reuse bullets and never mention unchanged-suite-execution or reviewerReattestations.",
+      "sourcePointers": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md#L730-L734",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#L713-L724",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md#L376-L387",
+        ".lattice/story/actives/B-f824/checklist.json#CHK-004.context",
+        ".lattice/story/actives/B-f824/plan.md#CHK-004"
+      ]
+    }
+  ]
 }
