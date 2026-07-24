@@ -504,9 +504,9 @@
       "id": "CHK-007",
       "title": "Add a smoke covering both directions of the recorded acceptance",
       "context": "Register under packages/main/src/tasks/ and validate.commands, following the existing proofstory smoke tasks. Positive direction: after a scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW, with no PLAN return. Negative direction: done still means delivered; withdrawn is excluded from delivered/completed counts; withdrawn without a valid decisionRef is refused; a decision not citing the item is refused; mismatched decision ids across the two layers are refused; the original binding survives withdrawal unmodified; and withdrawing all core bindings does not yield a pass.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T21:45:00.129Z",
       "verificationIntent": {
         "happy": [
           {
