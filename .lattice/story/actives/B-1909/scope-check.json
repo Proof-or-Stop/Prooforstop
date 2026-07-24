@@ -1,6 +1,6 @@
 {
   "storyId": "B-1909",
-  "checkedAt": "2026-07-24T19:57:52.817Z",
+  "checkedAt": "2026-07-24T20:06:42.014Z",
   "features": [
     {
       "feature": "Add 'withdrawn' as a terminal checklist disposition (ChecklistStatus union) alongside pending/in_progress/done",
@@ -136,9 +136,9 @@
       "source": "description"
     },
     {
-      "feature": "A checklist withdrawn must not silently cancel a binding, and a binding withdrawal must not silently rewrite the checklist (independent partial-withdrawal-per-layer is not itself asserted by any verificationIntent entry)",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Layer independence: a decision listing ONLY withdrawnChecklistItemRefs withdraws only the checklist item (binding stays active), and a decision listing ONLY withdrawnAcceptanceBindingRefs withdraws only the binding (checklist item stays unchanged) -- no silent cross-cancellation between the two layers",
+      "covered_by": "CHK-005",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
@@ -180,15 +180,15 @@
     {
       "feature": "Milestone ledger rows already have an analogous third-disposition mechanism ('not_applicable' status + auditable notApplicableDecision {reason, decidedBy, decidedAt}) requiring an independently auditable justification, exactly the same problem class ('legitimately excluded planned item') this story solves at the checklist/binding layer",
       "covered_by": null,
-      "status": "orphan-suspect",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "OQ-2 resolution (scope-check.json) + plan.md CHK-004: new withdrawn/bindingDispositions vocabulary is intentionally kept separate from MilestoneLedgerItem.notApplicableDecision because notApplicableDecision means 'never applied to this story' (a PLAN classification) while 'withdrawn' means 'planned as a real promise, then proven undeliverable' (a post-freeze correction); the auditable-decisionRef pattern is reused even though the disposition vocabulary is distinct -- a recorded, reasoned choice, not an oversight.",
       "source": "decisions:milestone-not-applicable-justification.md"
     },
     {
       "feature": "ProofStoryAcceptanceBinding.verificationTopology.applicability already has a 'not_applicable' mode plus decisionRef, and structural rule 11 already requires 'an independently auditable decision reference' for any acceptance-binding exemption -- an existing mechanism for the same concept CHK-004/CHK-005's new bindingDispositions[] independently reinvents",
       "covered_by": null,
-      "status": "orphan-suspect",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "OQ-2 resolution (scope-check.json) + plan.md CHK-004: bindingDispositions[] deliberately does NOT reuse verificationTopology.applicability.mode='not_applicable' because that field lives on the binding written only by the PLAN-frozen proofstory_contract_set (allowedPhases=['PLAN']), making it unreachable from DEV/REVIEW -- exactly the constraint this story exists to remove; mutating it would also overwrite the frozen original binding F-062 requires stay byte-for-byte readable. The auditable decisionRef pattern (AT_INVALID_NA_DECISION / rule 11) is reused; the disposition vocabulary is not.",
       "source": "decisions:proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     }
   ],
@@ -325,36 +325,13 @@
   },
   "summary": {
     "total": 27,
-    "covered": 24,
-    "excluded": 0,
-    "gaps": 1,
-    "orphanSuspect": 2,
+    "covered": 25,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "6e489649951245d3524d40b1d4aa8af6b536430451ed88dc0726e5207d21b2bd",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "Does CHK-006's 'empty_scope_after_withdrawal' gap unconditionally block DONE, or does it inherit the project's doneGateMode observe/enforce convention that already governs every other diagnostic gap added inside evaluateDoneIntentEquivalence (core/proofstory.ts:1514/1864)? If it inherits that convention, the guarantee decision.json calls 'the single most important guarantee' and 'never silently yield a formal pass' would be advisory-only (non-blocking) under the documented default doneGateMode='observe', which is exactly the silent empty-scope pass the story exists to prevent.",
-      "evidence": "milestone-triggered-gate-mode-default-decision.md: '`doneGateMode` resolves via loadConfig(root).proofStory?.doneGateMode ?? 'observe' ... enforce remains strictly opt-in'; milestone-status-done-gate-reconciliation.md: 'the report's blocking is mode === 'enforce' && gaps.length > 0 ... a NON-BLOCKING diagnostic under the default observe mode and only blocks under enforce'. CHK-006's own context places the new floor 'relative to the existing DONE intent-equivalence path in core/proofstory.ts:1514 and 1864' -- the same function these two decision docs describe as observe/enforce-gated for its diagnostic gaps -- but neither CHK-006's context nor its verificationIntent mentions doneGateMode, observe, or enforce at all.",
-      "sourcePointers": [
-        "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
-        "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md#L46-L48"
-      ],
-      "resolution": "The empty-scope floor must NOT be a diagnostic gap that inherits doneGateMode. Per milestone-triggered-gate-mode-default-decision.md, doneGateMode stays observe by default and evaluateDoneIntentEquivalence gaps only block under opt-in enforce, so a floor placed only there would be advisory by default — the exact silent pass this story prevents. Resolution: the floor is enforced at WRITE time in the sole applier (scope_shrinkage_decision_set), which HARD-REFUSES applying a binding withdrawal that would empty the effective (non-withdrawn) acceptance-binding set unless an explicit full-withdrawal re-approval field is recorded on the confirmed decision. This is independent of doneGateMode and does not flip that default. The empty_scope_after_withdrawal DONE diagnostic gap remains ONLY as defense-in-depth (visible under observe, blocking under enforce), never the sole line. CHK-006 context and verificationIntent are updated to say the guarantee lives at the write-time refusal, not the DONE gate.",
-      "resolvedAt": "2026-07-24T19:59:39.943Z"
-    },
-    {
-      "id": "OQ-2",
-      "q": "B-1909 introduces a THIRD parallel 'legitimately excluded planned item' vocabulary (checklist status='withdrawn'+decisionRef, plus a new ProofStoryContractData.bindingDispositions[] append-only array) alongside two already-shipped analogous mechanisms: (a) MilestoneLedgerItem.notApplicableDecision{reason,decidedBy,decidedAt} for milestone rows, and (b) ProofStoryAcceptanceBinding.verificationTopology.applicability.mode='not_applicable'+decisionRef+reason for acceptance bindings (with structural rule 11/AT_INVALID_NA_DECISION already requiring 'an independently auditable decision reference'). None of understanding.json's facts, decision.json's options, or the checklist context mention or reconcile with either existing mechanism. Is the new checklist/binding disposition model intentionally a separate vocabulary (and if so why not reuse/extend the existing applicability.mode/notApplicableDecision shape), or should CHK-003/CHK-004 be redesigned to route through the already-shipped applicability mechanism on verificationTopology instead of adding a second binding-level disposition array?",
-      "evidence": "milestone-not-applicable-justification.md: 'Require an auditable notApplicableDecision on every not_applicable milestone row ... reason/decidedBy/decidedAt'; proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md line ~202-206: 'applicability: { mode: required|docs_only|optional|not_applicable, reason?, decisionRef? }' and rule 11: 'not_applicable requires an independently auditable decision reference; a note written inside the topology is not enough' and code AT_INVALID_NA_DECISION. B-1909's understanding.json/decision.json/checklist.json contain zero references to verificationTopology, applicability, or notApplicableDecision.",
-      "sourcePointers": [
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-        "docs/requirements/decisions/milestone-not-applicable-justification.md"
-      ],
-      "resolution": "The new checklist withdrawn+decisionRef and the append-only ProofStoryContractData.bindingDispositions[] are intentionally a SEPARATE vocabulary, not a reroute through the existing applicability.mode/notApplicableDecision shapes, for three grounded reasons. (1) Freeze/phase reachability: applicability.mode=not_applicable lives inside verificationTopology on ProofStoryAcceptanceBinding, which is only written by proofstory_contract_set (allowedPhases PLAN, command-policy.ts:420). This story's whole purpose is a correction reachable from DEV/REVIEW/TEST without returning to PLAN, so mutating a PLAN-frozen field is exactly what must NOT happen. (2) Semantics differ: not_applicable and MilestoneLedgerItem.notApplicableDecision mean this row never applied to this story, whereas withdrawn means it was planned as a real promise and then review proved it undeliverable so scope legitimately shrank — a post-freeze event, not a PLAN classification. (3) Append-only audit: bindingDispositions is a new record BESIDE the byte-for-byte-preserved original binding; overwriting applicability.mode on the original binding would destroy the frozen promise that F-062 says must remain readable. Alignment we DO adopt: the withdrawal cites an independently-auditable decisionRef exactly as AT_INVALID_NA_DECISION (rule 11) and notApplicableDecision already require, so the auditable-decision-reference pattern is shared even though the disposition vocabulary is distinct. plan.md and decision rationale note this explicitly so the separate vocabulary is a recorded choice, not an oversight.",
-      "resolvedAt": "2026-07-24T20:00:11.535Z"
-    }
-  ]
+  "_hash": "49d613c155a4db3a0d74b791188c6837bd5e81df309df422141e2136e5c98a1b",
+  "openQuestions": []
 }
