@@ -152,7 +152,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:153-167 F-006 post-checkout hook-regression assertion (runIssuerMutationSmoke, only reachable via --issuer-mutations) is not bound as verificationEvidence to any of the 15 checklist intentRefs: none of CHK-001..005 evidence command fields literally include --issuer-mutations (all use verify-process-fact-contract.mjs / pre-review-check-smoke --proof-scenarios / run-proofstory-acceptance-rollout-cohort.mjs / the default-mode acceptance-rollout-smoke.js). All 15 evidence note fields mention the hook regression only in prose, which the test-coverage rule of concrete correspondence does not accept as a substitute for a bound command. I independently confirmed the assertion genuinely bites: in an isolated clone at the same head, zeroing GIT_UNTRUSTED_REPO_ARGS makes 'node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations' fail on exactly 'issuer replay must not execute hooks from the caller-supplied evidence repository' (exit 1), and restoring the file returns PASS with 7 assertions; the invocation is also a real fail-closed gate via lattice.config.json validate.commands line 97 (independent of the story checklist), so the underlying security property is mechanically enforced. The gap is purely in this story's own coverage ledger: this is the same defect class previously flagged as F-010 on a prior story (an orphan assertion invisible to intent coverage). Given verificationIntent is frozen from DEV, the fix does not require a new intent id: CHK-004:adversarial:fail-closed-mutations (the closest fit for evidence-repo tampering defenses) could be amended or given an added verificationEvidence entry whose command literally runs --issuer-mutations, giving this specific regression a traceable home.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T15:14:18.088Z",
@@ -165,7 +165,11 @@
         ".lattice/story/actives/B-4043/checklist.json"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted: no evidence command literally invoked --issuer-mutations, so the new assertion was invisible to the coverage ledger even though the control itself is gate-enforced in validate.commands. Fixed by rebinding CHK-004:adversarial:fail-closed-mutations to 'node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations'. I deliberately did NOT follow the suggestion as a pure label swap: that intent enumerates rollout-gate consumer rejections (receipt/quorum/waiver/inventory/false-block/omission codes), not git-hook execution during replay, so claiming it covers the hook regression would be the same convenience-labelling defect flagged as F-010 on a prior story. What justifies the rebinding is that the --issuer-mutations suite genuinely discharges this intent on its own terms — clean control PASS, then substituted caller report, missing restoration commit, and forged restoration commit each rejected before signing (exit 0, PASS 7 assertions). The evidence note states plainly that the 7th assertion (the F-006 hook regression) is REVIEW-introduced hardening outside this intent's frozen enumeration and is not claimed as its coverage. The default-mode 57-assertion suite remains bound by the other 7 refs, so rebinding cost no coverage.",
+      "resolvedAt": "2026-07-24T15:20:19.323Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
