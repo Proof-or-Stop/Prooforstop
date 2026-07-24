@@ -405,11 +405,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Nine re-derived revert-proofs over six rule groups, each leaving all other cases passing: sanity-bound delete (2 cases), 200-char cut restore (2), POSIX path delete (3), path rule widen (2), Windows delete (1), hex delete (1), hex widen (1), duration delete (5), number widen (5). Guard tags were split into overreach/collapse pairs for path, digit and hex precisely because a single tag mis-localized — cross-host codex caught the path conflation, and the implementer caught two more (hex-id mis-tagged as digit-rule; two lock fixtures varying pid as well as age, now holding pid constant as the real contention shape).",
-          "headHash": "d130c3b50b7d8d60a170242c32450d6214924039",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:38.085Z"
+          "note": "Fourteen re-derived revert-proofs across ten guard groups, every guard tag re-derived from scratch after the round-4 policy change (none survived unchanged). The number-rule-removal group makes the policy decision itself revertible and therefore falsifiable: reintroducing the deleted rule fails exactly its six cases. Guard tags were split into overreach/collapse pairs for path, digit and hash precisely because single tags mis-localized -- cross-host codex caught the path and attached-decimal conflations, and the implementer caught two more (hex-id mis-tagged as digit-rule; two lock fixtures varying pid as well as age, now holding pid constant).",
+          "headHash": "f99ac8eb8c1c7dfe9f6cbb05595905a8e54de707",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:31.372Z"
         }
       ]
     }
