@@ -2,8 +2,8 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Register the five missing StoryStore top-level artifact filenames in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
-      "context": "packages/main/src/core/lifecycle-registry.ts line ~599. Add acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json, authority-receipt-refs.json with a comment noting their origin (acceptance-topology block; legacy receipt refs). Registration is provenance-only; no gate evidence semantics change.",
+      "title": "Register the four missing acceptance-topology artifact filenames in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
+      "context": "packages/main/src/core/lifecycle-registry.ts line ~599. Add acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json with a comment noting their acceptance-topology origin. Registration is provenance-only; no gate evidence semantics change. The unregistered legacy receipt-refs filename is explicitly out of scope (see scope-boundary excludedScope).",
       "userSees": "node repro: classifyLifecycleArtifact(.lattice/story/actives/B-bf52/acceptance-basis.json) returns kind=lifecycle instead of null; scope classifier output shows category=lifecycle_artifact rule=lifecycle_artifact allowed=true for the same path",
       "status": "pending",
       "startTime": null,
@@ -12,7 +12,7 @@
     {
       "id": "CHK-002",
       "title": "Add a registry-coverage invariant smoke so unregistered story artifacts cannot silently regress",
-      "context": "Extend the lifecycle registry contract or add a smoke under packages/main/src/tasks/ that (1) asserts each of the five newly registered filenames classifies as lifecycle_artifact via classifyLifecycleArtifact, and (2) mechanically derives the set of top-level story artifact filenames StoryStore writes (e.g. scan store.ts writeJson/writeFileSync literals whose relative path has no slash) and asserts every one is present in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, with a named divergence message listing any missing filename. Wire it into lattice validate the same way sibling smokes are wired.",
+      "context": "Extend the lifecycle registry contract or add a smoke under packages/main/src/tasks/ that (1) asserts each of the four newly registered filenames classifies as lifecycle_artifact via classifyLifecycleArtifact, and (2) mechanically derives the set of top-level story artifact filenames StoryStore writes (e.g. scan store.ts writeJson/writeFileSync literals whose relative path has no slash) and asserts every one is present in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES or in a small named exemption list (the excluded legacy receipt-refs filename, with a comment saying why), with a named divergence message listing any missing filename. Wire it into lattice validate the same way sibling smokes are wired.",
       "userSees": "lattice validate output includes the new smoke passing; temporarily removing a filename from the registry makes the smoke fail with a message naming that filename",
       "status": "pending",
       "startTime": null,
