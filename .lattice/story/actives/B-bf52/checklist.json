@@ -405,11 +405,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proofs cover every changed rule and both guard directions, each named in the suite output: M1/M2 path rule, M3 digit rule, M4 hex rule, M5a/M5b the ISO-digit redundancy, M6 whole-token, M7/M8/M9/M14 allowlist membership, M10 conditional prefix, M11 signals fold, M12/M12b window widening, M13 placeholder encoding, M15 token-start guard, and G1/G2/G3 for the completeness guard's unclassified, no-producer and broken-citation directions. On the window: M12b (200 to 592) leaves B-cc54's suite green while M12 (200 to 600) breaks it, so widening IS available up to about 592 and 200 is kept for byte-compatibility — the earlier claim that widening was unavailable is withdrawn. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
-          "headHash": "d4dde86662cdcbc1b5081dfcede3501a0896f9cb",
-          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
-          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
-          "timestamp": "2026-07-24T11:34:24.724Z"
+          "note": "A differential probe against a freshly built main covers 26 pairs from immutable worktree copies: zero pairs where the branch collapses what main distinguishes, zero where it distinguishes an ordinal that is not retry-stable. Every rule mutation localizes to its own tag group, and the measured-overlaps block in the suite records the table; its first draft mis-attributed two cases and was corrected against measurement before commit. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
+          "headHash": "c40a7fe89061ae418e8c3e7d35302eefd3b06ecc",
+          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
+          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
+          "timestamp": "2026-07-24T12:17:43.599Z"
         }
       ]
     }
