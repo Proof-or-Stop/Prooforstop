@@ -192,6 +192,18 @@
           "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
           "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
           "timestamp": "2026-07-24T21:37:41.645Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+          "result": "pass",
+          "note": "A confirmed decision naming no withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/removedMilestoneIds is rejected (nothing to withdraw).",
+          "headHash": "1c464fc16caa572e649a076d29c752998324f588",
+          "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
+          "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
+          "timestamp": "2026-07-24T21:37:45.432Z"
         }
       ]
     },
