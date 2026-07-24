@@ -209,6 +209,38 @@
         "scanEscalationReason": null
       },
       "_hash": "dcb13dc4e42578c3164b28937b58a62a6cd3718d590263d1cd58cc4a4edcd8db"
+    },
+    {
+      "id": "B-1909:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Third main-sync re-bind (~461 commits merged cleanly). Reconfirmed packages/main/src/tasks/withdrawn-disposition-smoke.ts and scope-shrinkage-withdrawal-floor-smoke.ts remain byte-identical to previously-approved commit c865b13ba6 (git diff empty); both npm run test:withdrawn-disposition-smoke and npm run test:scope-shrinkage-withdrawal-floor-smoke PASS after rebuild. All prior findings F-004/F-006/F-007/F-008/F-009 remain resolved with genuine, independently-verified fixes; no new smoke/coverage changes to re-review. Verdict: PASS.",
+      "createdAt": "2026-07-24T23:51:24.997Z",
+      "reviewRound": "2026-07-24T23:50:27.062Z",
+      "reviewRunId": "B-1909:RR-015",
+      "envelopeId": "1de3364da6b29465aaadc150f0726b981b1b93ba6922eef19b9a0d97657f367b",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44d4c03f61a1c1ef39dc7fe8bd5985df472f1080080db13e448acb9d4103f867"
     }
   ]
 }
