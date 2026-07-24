@@ -21,12 +21,19 @@
  *   RESOLVED effective command set, never raw literal tables (preMortem #1).
  * @changes
  *   - [CHK-002] Add lifecycle registry consistency contract
+ *   - [B-5e4a CHK-002] Add acceptance-topology artifact classification check +
+ *     StoryStore top-level artifact filename coverage invariant
  */
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   COMMAND_LIFECYCLE_PHASES,
+  LATTICE_LIFECYCLE_ARTIFACT_FILENAMES,
   LIFECYCLE_ORACLE_ARTIFACT_REFS,
   LIFECYCLE_PHASE_ARTIFACTS,
   LIFECYCLE_TRANSITIONS,
+  classifyLifecycleArtifact,
   isLifecycleArtifact,
   lifecycleArtifactsByPhase,
   lifecycleArtifactsByTransition,
@@ -220,10 +227,149 @@ function checkArtifactReferences(): void {
   }
 }
 
+/**
+ * Cross-check 5 (B-5e4a CHK-002): the four acceptance-topology StoryStore
+ * artifact filenames must classify via classifyLifecycleArtifact as
+ * kind='lifecycle' under an active story dir. This is the runtime projection of
+ * the B-5e4a registration (registry membership alone is not enough — the
+ * classifier's prefix + storyId + closed-set pipeline must accept the full
+ * path).
+ */
+const ACCEPTANCE_TOPOLOGY_ARTIFACT_FILENAMES = [
+  'acceptance-basis.json',
+  'pre-review-check.json',
+  'topology-critic-receipt.json',
+  'topology-exclusion-approvals.json',
+] as const;
+
+function checkAcceptanceTopologyArtifactClassification(): void {
+  for (const fileName of ACCEPTANCE_TOPOLOGY_ARTIFACT_FILENAMES) {
+    const path = `.lattice/story/actives/B-5e4a/${fileName}`;
+    const classification = classifyLifecycleArtifact(path);
+    if (!classification || classification.kind !== 'lifecycle') {
+      record(
+        'acceptance-topology-classification',
+        `${fileName} does not classify as kind='lifecycle' under .lattice/story/actives/<storyId>/ — ` +
+        `classifyLifecycleArtifact('${path}') returned ${classification ? `kind='${classification.kind}'` : 'null'} ` +
+        `(is ${fileName} missing from LATTICE_LIFECYCLE_ARTIFACT_FILENAMES?)`,
+      );
+    }
+  }
+}
+
+/**
+ * Cross-check 6 (B-5e4a CHK-002): StoryStore top-level artifact filename
+ * coverage invariant. Derives, from packages/main/src/core/store.ts SOURCE,
+ * every single-segment filename literal (no slash) passed to the
+ * readJson/writeJson/appendJsonl-style story-dir helpers, and asserts each
+ * derived filename is either registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES
+ * or listed in the named exemption constant below. This closes the B-956f /
+ * B-bf52 regression class mechanically: a new StoryStore top-level artifact
+ * write without a registry entry fails this contract with a named divergence
+ * instead of surfacing later as an OUT_OF_SCOPE scope violation.
+ */
+const STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS: ReadonlySet<string> = new Set([
+  // dead writeLegacyReceiptRefs path, Authority future-capability domain,
+  // register it when its write path goes live.
+  'authority-receipt-refs.json',
+]);
+
+/**
+ * Sanity floor for the derived set. store.ts currently references ~48 distinct
+ * top-level filenames through the helpers; a derivation yielding fewer than
+ * this floor means the extraction regex or the helper call shape drifted, and
+ * the check must fail loudly rather than report vacuous coverage.
+ */
+const STORYSTORE_DERIVED_SET_FLOOR = 40;
+
+/**
+ * Matches a story-dir helper call whose second argument is a single-segment
+ * filename literal, e.g.:
+ *   this.readJson<StoryInfo>(storyId, 'index.json')
+ *   this.writeJson(storyId, 'scope-check.json', data)
+ * Capsule/nested writes use template literals with a directory prefix
+ * (`${CAPSULE_DIR_NAME}/...`) and therefore never match; type-position string
+ * unions and join(...) literals do not match the helper-call shape either.
+ */
+const STORYSTORE_TOP_LEVEL_ARTIFACT_CALL_RE =
+  /\.(?:readJson|writeJson|appendJsonl)\w*(?:<[^(]*?>)?\(\s*[A-Za-z_$][\w$]*\s*,\s*'([a-z0-9-]+\.(?:json|jsonl|md))'/g;
+
+function resolveStoryStoreSourcePath(): string {
+  const here = dirname(fileURLToPath(import.meta.url));
+  // dist/tasks → dist → packages/main (runtime) and src/tasks → src →
+  // packages/main (tsx). The TypeScript SOURCE ships alongside dist, so both
+  // execution modes resolve the same file.
+  const packageRoot = join(here, '..', '..');
+  return join(packageRoot, 'src', 'core', 'store.ts');
+}
+
+function deriveStoryStoreTopLevelFilenames(source: string): Set<string> {
+  const derived = new Set<string>();
+  for (const match of source.matchAll(STORYSTORE_TOP_LEVEL_ARTIFACT_CALL_RE)) {
+    derived.add(match[1]);
+  }
+  return derived;
+}
+
+/** Returns the derived-set size (0 when the derivation itself is broken). */
+function checkStoryStoreTopLevelArtifactCoverage(): number {
+  const storePath = resolveStoryStoreSourcePath();
+  if (!existsSync(storePath)) {
+    record(
+      'storystore-coverage',
+      `cannot locate StoryStore source at ${storePath} — the derivation is broken; coverage was NOT verified`,
+    );
+    return 0;
+  }
+  const source = readFileSync(storePath, 'utf-8');
+  const derived = deriveStoryStoreTopLevelFilenames(source);
+  if (derived.size < STORYSTORE_DERIVED_SET_FLOOR) {
+    record(
+      'storystore-coverage',
+      `derived StoryStore top-level artifact set has only ${derived.size} entries, below the sanity floor of ` +
+      `${STORYSTORE_DERIVED_SET_FLOOR} — the derivation is broken (extraction regex or store.ts helper shape drifted); ` +
+      `coverage was NOT verified`,
+    );
+    return derived.size;
+  }
+  const missing = [...derived]
+    .filter((fileName) =>
+      !LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName) &&
+      !STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS.has(fileName))
+    .sort();
+  for (const fileName of missing) {
+    record(
+      'storystore-coverage',
+      `StoryStore reads/writes top-level story artifact ${fileName} but it is neither in ` +
+      `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES nor in STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS — register it in ` +
+      `packages/main/src/core/lifecycle-registry.ts or add a justified named exemption`,
+    );
+  }
+  // Stale-exemption guard: every exemption must still be derived from store.ts
+  // and must not be silently double-listed in the registry.
+  for (const fileName of STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS) {
+    if (!derived.has(fileName)) {
+      record(
+        'storystore-coverage',
+        `exemption ${fileName} is no longer derived from StoryStore — remove the stale exemption`,
+      );
+    }
+    if (LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
+      record(
+        'storystore-coverage',
+        `exemption ${fileName} is now registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES — remove the redundant exemption`,
+      );
+    }
+  }
+  return derived.size;
+}
+
 function main(): void {
   checkCommandDimension();
   checkProcessFactLifecycle();
   checkArtifactReferences();
+  checkAcceptanceTopologyArtifactClassification();
+  const storyStoreDerivedCount = checkStoryStoreTopLevelArtifactCoverage();
 
   if (divergences.length > 0) {
     console.error('lifecycle-registry consistency: FAIL');
@@ -239,7 +385,8 @@ function main(): void {
   const phaseCount = Object.keys(artifactsByPhase).length;
   console.log(
     `lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, ` +
-    `${phaseCount} phases projected, 0 divergences`,
+    `${phaseCount} phases projected, ${storyStoreDerivedCount} StoryStore top-level artifact filenames derived ` +
+    `(floor ${STORYSTORE_DERIVED_SET_FLOOR}) and registered-or-exempted, 0 divergences`,
   );
 }
 
