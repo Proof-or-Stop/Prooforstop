@@ -44,6 +44,21 @@
       "_hash": "ce7d515dfd0b73191bf71a43ac6a5a28d48b07612425b3775d38a418d2627097",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-004",
+      "desc": "packages/main/src/core/convergence-breaker.ts:463-468 — the function's top JSDoc still states the error message is \"normalized to strip volatile tokens (hashes, ids, timestamps, bare numbers, paths)\" unqualified. This is now inaccurate: CHK-002 narrowed path-stripping to token-start absolute paths only (relative repo paths and mid-token slashes like DEV/REVIEW are deliberately left untouched), and CHK-003 narrowed number-stripping to standalone numbers only (identifier-attached digits like CHK-001 are deliberately preserved). A maintainer reading only this doc comment would believe ALL paths and ALL bare numbers are still stripped, which is precisely the kind of doc/implementation mismatch this story's own root cause (an over-broad implementation vs. a narrower intended contract) illustrates. The doc comment should name the narrower rule (token-start absolute paths; standalone digit runs) so a future edit does not re-widen the regex believing it is restoring documented behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T00:00:21.357Z",
+      "reviewRound": "2026-07-23T23:22:59.637Z",
+      "reviewRunId": "B-bf52:RR-002",
+      "_hash": "d2c228e4190a55babc38da9986edc6f783286c522afe0b43e8f4e483f3212fcb",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
