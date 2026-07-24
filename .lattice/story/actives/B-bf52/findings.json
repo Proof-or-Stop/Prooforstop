@@ -1003,6 +1003,24 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T13:48:20.082Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-bf52:F-053",
+      "desc": "cross-host (codex-cli host-B) and verified worse than main: the punctuation strip lets a NON-id token reduce to an id. In a real Cannot enter DONE rejection carrying raw test output, not ok 1 - (bug-2 reproducer still red versus the (bug-5 sibling digest differently on the branch and collapse on main, because the leading strip removes an UNMATCHED opening paren and reduces (bug-2 to bug-2. The mirror case bug-2) has the same defect. This falsifies both the strictly-better-than-main claim and the source comment claiming only tokens that are themselves artifact ids are accepted. The committed probe passes anyway because its enumerated pairs all use BALANCED wrappers, so its BAR 2 can report zero while the regression exists — the probe matrix needs the unmatched shapes too. Main-agent-validated fix, 23 direction cases: strip trailing sentence punctuation unconditionally, but strip a wrapper pair ONLY when it is balanced, iterating while the first and last characters are a matching pair. Balanced (CHK-001), [BUG-001], quoted ids and (CHK-001), stay protected; unmatched (bug-2, bug-2), [bug-2 and quote-prefixed variants collapse.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T13:52:25.547Z",
+      "reviewRound": "2026-07-24T13:47:54.823Z",
+      "_hash": "cdc272467e5392065d0fea95d71a55e597749842e1959338b6b1be47986a56a3",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/tests/red/red-s3-differential-probe.mjs"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
