@@ -596,7 +596,7 @@
       "desc": "cross-host (codex-cli host-B round 6), recorded by the main agent: sep- is a REAL substantive artifact-id prefix wrongly placed in the completeness guard exclusion list at convergence-breaker-smoke.ts:871. Producer scope-anti-expansion.ts:120 mints SEP-<storyId>-<NNN>; machine.ts:269 renders them into a story_advance INIT_CHECK rejection. SEP-B-bf52-001 and SEP-B-bf52-002 collapse to story_advance/e2db55c93f47, so a host resolving scope-extension proposals sequentially falsely freezes. This is an F-029-class hole hidden inside the guard: the scan DOES discover sep-, but the false exclusion makes it report all-classified. TWO fixes required: (1) remove sep- from the exclusion list and make it substantive; (2) SEP is a COMPOUND id SEP-<storyId>-<ordinal> where only the final ordinal is substantive and the storyId in the middle is constant within a per-story counter, so the allowlist mechanism (which only inspects the single prefix immediately before a digit run) cannot protect the trailing ordinal by adding sep- alone; the digit rule must recognise a substantive artifact id as a WHOLE token (an allowlisted prefix followed by the rest of its id ending in a digit) and protect it entire. Main agent validated a whole-token approach 17/17 including SEP-001 vs SEP-002 distinct while b-1234/b-5678, story ids, attempts, heartbeats and RR- all still collapse.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T04:10:20.622Z",
@@ -607,7 +607,11 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "signatureTag": "edge|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "sep- removed from the exclusion list and added to SUBSTANTIVE_ID_PREFIXES, and the underlying mechanism replaced: a substantive artifact id is now matched as a WHOLE TOKEN (allowlisted prefix, then the rest of the id, ending in a digit) and lifted out before normalization, so the compound SEP-B-bf52-001 is protected entire rather than only up to the prefix immediately before a digit run. The digit rule reverts to main's bare /\\d+/g since the allowlist is applied by the extraction step. The placeholder index is encoded in a non-digit non-hex alphabet between U+0001 sentinels; a numeric index would be rewritten by the bare-number rule and every kept token would restore identically (mutation M13 reproduces exactly that trap and is caught by 5 matrix cases). Verified: matrix case scope-extension-proposal-ordinal (guard substantive-id-whole-token) is the ONLY case that fails when whole-token matching is reverted to prefix-before-digits with the allowlist left intact; SEP-...-001 vs -002 digest distinctly while b-1234/b-5678, heartbeats, bare attempts, RR- and RL- all still collapse. gate-repeat-block-smoke.ts stays byte-unmodified and exits 0.",
+      "resolvedAt": "2026-07-24T10:14:48.528Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-033",

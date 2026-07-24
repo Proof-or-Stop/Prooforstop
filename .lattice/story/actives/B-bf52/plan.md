@@ -38,8 +38,10 @@ what this branch now ships:
    collapse to one token.
 2. The digit rule is scoped by SEMANTICS rather than syntax: an ordinal that names WHICH lifecycle
    artifact failed is substantive; every other digit run is noise. A bounded allowlist over this
-   repo's own artifact-id vocabulary (`chk-`, `f-`, `rp-`, `rr-`, `ab-`, `oq-`, `init-`, `req-`)
-   preserves those ordinals and normalizes everything else.
+   repo's own artifact-id vocabulary preserves those ordinals — as WHOLE TOKENS, so a compound id
+   such as `SEP-<storyId>-<NNN>` keeps its trailing ordinal — and normalizes everything else.
+   Review bookkeeping ids (`rr-`, `rp-`, `rl-`) are deliberately NOT in the allowlist: they are
+   re-minted on retry, so collapsing them is the fail-safe direction for a brake.
 
 ## 3. Why the digit rule is semantic and not syntactic
 
