@@ -1,0 +1,60 @@
+{
+  "storyId": "B-f824",
+  "checkedAt": "2026-07-24T02:17:44.294Z",
+  "headHash": "cbb7d29609ad5e2e29213db5728776c5a4211a1c",
+  "materialHash": "9c99d9d520e8b049e97ae52e2ff2916f1462017811638bad43416cdca45c92a6",
+  "storyFilesHash": "a79a946f7e1f049bd1705cf4e63d2389f934b8b7433671bfb9fe82961428df60",
+  "reviewRound": "2026-07-24T01:43:23.466Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#L734-736",
+      "promise": "unchangedSuiteExecutions (blocking) counts only per-group duplicate executed terminals (commandExecutions>0) timestamped at or after the current TEST entry (>= boundary, same convention as postTestReviewerReattestations), plus every contradictory reused terminal with commandExecutions>0 in any phase",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "packages/main/src/handlers/done-prepare.ts deriveDonePreparePassConvergence (lines ~1614-1637): postTestExecuted = executed.filter(event.timestamp >= facts.testEntryAt); unchangedSuiteExecutions += Math.max(0, postTestExecuted.length-1) plus reused-with-commandExecutions>0 count, matching the same >= convention comment referencing postTestReviewerIdentityIds directly above it."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#L736",
+      "promise": "reviewWindowSuiteExecutions records whole-window per-group duplicate executed terminals as observable, never-blocking telemetry, rendered in the convergence line after unchangedSuiteExecutions",
+      "verifiedBy": "diff/grep + code read + real machine run against compiled dist",
+      "evidence": "done-prepare.ts:1637 reviewWindowSuiteExecutions += Math.max(0, executed.length-1) (whole window, no testEntryAt filter); assertDonePreparePassConvergence (~1650-1660) never references reviewWindowSuiteExecutions; renderPass (~1687-1690) emits 'unchangedSuiteExecutions=... reviewWindowSuiteExecutions=... successfulCloseout=...' in that exact order. Directly executed the story's red_evidence expectedGreenCommand against packages/main/dist/handlers/done-prepare.js and captured: GREEN output with {\"unchangedSuiteExecutions\":0,\"reviewWindowSuiteExecutions\":1,\"successfulCloseout\":1}, process exit code 0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#L734",
+      "promise": "post-TEST repeated unchanged-suite execution, and unsuccessful-closeout constraints remain independently blocking (edited sentence adding the post-TEST qualifier to the pre-existing blocking-constraints sentence)",
+      "verifiedBy": "diff/grep + test run",
+      "evidence": "assertDonePreparePassConvergence still throws on nonzero unchangedSuiteExecutions and successfulCloseout!==1; flow-stability-smoke Case B (two post-TEST executed duplicates in one group) and Case D (contradictory reused terminal) both assert.throws(/done_prepare convergence invariant failed/), confirmed by running npm --prefix packages/main run test:flow-stability-smoke -> passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md (scope boundary)",
+      "promise": "The two sibling B-c163 docs (workflow-convergence-failure-remediation-execution-plan.md, done-prepare-heartbeat-review-assurance-ux-execution-plan.md) are verify-only and remain untouched by this story per the OQ-1 scope resolution",
+      "verifiedBy": "git diff",
+      "evidence": "git diff main...HEAD -- docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md produced zero output (exit 0, no diff). rg -n \"remain independently blocking\" docs/requirements/decisions/ and rg -ln \"unchangedSuiteExecutions|reviewWindowSuiteExecutions\" docs/requirements/decisions/ both return only done-prepare-automation-execution-plan.md, confirming no injected prose in the other two docs."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build completed clean (tsc, no errors). npm --prefix packages/main run test:flow-stability-smoke -> '✓ flow stability smoke passed' (process exits 0; source contains 566 assert.* calls in this file including the B-f824 block, any throw aborts before the pass line prints). Source-verified: Case A (B-956f window shape: executed cmdset-x pre-TEST, executed cmdset-y pre-TEST, executed cmdset-x post-TEST, reused cmdset-x exec=0 post-TEST -> unchangedSuiteExecutions=0, reviewWindowSuiteExecutions=1, assert.doesNotThrow); Case B (two post-TEST executed cmdset-x in same group -> unchangedSuiteExecutions=1, assert.throws /done_prepare convergence invariant failed/); Case C (boundary: executed terminal at exactly testEntryAt counts post-TEST via >= comparison; single post-TEST execution alone -> 0/0); Case D (reused cmdset-x commandExecutions=46 pre-TEST -> still >=1 blocking, assert.throws). All four cases plus the boundary sub-case are present verbatim in packages/main/src/tasks/flow-stability-smoke.ts lines ~4835-4902."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same test:flow-stability-smoke run additionally covers: deriveDonePreparePassConvergence base-case deepEqual asserting both unchangedSuiteExecutions and reviewWindowSuiteExecutions fields (line ~4744); donePrepareJsonResult backward-tolerant parse of a pre-split (old-shape) transcript line correctly defaults the missing reviewWindowSuiteExecutions to 0 (line ~4686); assert.doesNotMatch on handler source confirming PASS never prints hardcoded zero counters (line ~4794). Independently re-ran the story's own red_evidence expectedGreenCommand directly against the compiled packages/main/dist/handlers/done-prepare.js (bypassing the smoke harness) and captured: 'GREEN: reviewer pre-TEST executions no longer poison convergence: {\"metadataRollbacks\":0,\"reviewerReattestations\":0,\"postTestReviewerReattestations\":0,\"humanConfirmations\":0,\"unchangedSuiteExecutions\":0,\"reviewWindowSuiteExecutions\":1,\"successfulCloseout\":1}' with process exit code 0 -- this independently confirms the derive/assert/render chain end-to-end on compiled dist, not just source-level assertions."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke -> 'done-prepare-merge-rerun smoke passed'. npm --prefix packages/main run test:done-prepare-auto-closeout-smoke -> 'done-prepare-auto-closeout smoke passed'. npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke -> 'done-prepare-closure-heartbeat smoke passed'. npm run test:process-fact-contract -> 'Process fact contract verified'. rg -n \"convergence: metadataRollbacks=\" packages/main/src confirms all 5 enumerated strict-regex matcher sites (merge-rerun-smoke.ts:335,500; auto-closeout-smoke.ts:369,1214; closure-heartbeat-smoke.ts type+deepEqual ~672-691) were updated to the new 7-field line shape including reviewWindowSuiteExecutions; only the deliberate old-shape backward-compat fixture (flow-stability-smoke.ts:4684) and an unrelated source-scan doesNotMatch (line 4794) remain on the pre-split 6-field text, both intentional per inline B-f824 comments. Full aggregate node bin/lattice.js validate --json (46 configured commands across the whole monorepo) completed with status=pass, allPass=true."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "rg -n \"remain independently blocking\" docs/requirements/decisions/ returns exactly one match (done-prepare-automation-execution-plan.md:734) carrying the new post-TEST qualifier. rg -ln \"unchangedSuiteExecutions|reviewWindowSuiteExecutions\" docs/requirements/decisions/ lists only that same file. git diff main...HEAD -- docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md produced no output, confirming the other two B-c163 docs are untouched per the OQ-1 scope resolution. This is a docs-only change verified by direct grep/diff commands rather than a unit test, which is the appropriate verification method for prose-accuracy claims."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docsPromises verified directly in code (deriveDonePreparePassConvergence, assertDonePreparePassConvergence, renderPass, donePrepareJsonResult parser) and independently re-confirmed by executing the story's own red_evidence expectedGreenCommand against compiled dist, which printed GREEN with the correct split counters and exit code 0. All 4 checklist items have real assertions covering happy/edge/adversarial paths (B-956f window shape, post-TEST duplicate blocking, exact-boundary timestamp, contradictory reused terminals, backward-compatible old-shape transcript parsing). Full aggregate lattice validate --json across the whole monorepo (46 commands) passed with allPass=true. No TODO/FIXME/HACK found in the diff's 5 changed source files."
+  },
+  "_hash": "753f4c31dff8a74e44783c3dae6a862cc7c3ffb05e5155a107e3cc435e61d8a9"
+}
