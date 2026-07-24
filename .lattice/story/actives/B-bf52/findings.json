@@ -1050,7 +1050,7 @@
       "desc": "cross-host (codex-cli host-B): the committed differential probe is blind to the trailing-punctuation manufacture class. Its matrix covers welded tails, unmatched wrappers and colon composites but contains no NON-id whose body ends in a stripped punctuation character, so it exits 0 while the F-054 regression is live. This is the second time the probe passed during a real regression, which is the same defect class as an evidence note that restates instead of proves: a guard that cannot express the defect is not a guard. The probe must carry a case for every manufacture vector measured on this story and must be re-verified red-on-defect after the fix.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T14:20:46.438Z",
@@ -1060,7 +1060,9 @@
         "packages/main/tests/red/red-s3-differential-probe.mjs"
       ],
       "signatureTag": "missing|mjs|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 3348aec112. packages/main/tests/red/red-s3-differential-probe.mjs now carries EVERY manufacture vector measured on this story, 81 pairs, including a non-id whose body ends in each character the deleted strip removed: F-054 trailing COLON name bug-N:, trailing COMMA name bug-N,, trailing PERIOD name bug-N. — plus bug-N;, bug-N!, bug-N?, bug-N:. and chk-NNN: so no member of the round-12 [,;:.!?] class can be re-introduced quietly, and four leading-punctuation rows (open-bracket bug-N, open-brace bug-N, open-angle bug-N, open-single-quote bug-N) covering the same manufacture from the head. A new kind manufactured-by-reduction replaces the round-12 unmatched-wrapper kind, which named only half the class, and a new kind cost-attached carries the F-054 accepted cost so a build that is FINER on a real attached id is reported as the cost not being paid. RED-ON-DEFECT VERIFIED, not assumed: with the round-12 sentence strip [,;:.!?]+$ restored in an ISOLATED copy of the built normalizer (a detached worktree dist, nothing in the story worktree moved) and the comparison a freshly built main, the probe EXITS 1 with 0 BAR 1 and 8 BAR 2 violations on exactly the eight rows whose body ends in a stripped character, plus 4 WARN rows reporting the accepted cost is no longer paid (CHK-NNN comma-attached, CHK-NNN semicolon-attached, and both SEP- renders). No other row moves — the unbalanced-wrapper and leading-punctuation rows stay tied, because a trailing strip does not reach them. The probe header now states that it has PASSED TWICE during a live regression (round 11, every wrapper balanced so (bug-2 could not be expressed; round 12, no row ended in a stripped punctuation character so bug-2: could not be expressed) and that each such miss added the missing vector — nothing else about the probe changed. VERIFIED against a freshly built main, exit code captured directly: node packages/main/tests/red/red-s3-differential-probe.mjs <fresh-main-dist> = 0 over 81 pairs — 70 tie, 11 branch-finer on retry-stable BARE artifact ids, 0 accepted-cost pairs unpaid, 0 BAR 1, 0 BAR 2. Per-rejection cost from that same run: ratio 2.09x versus the comparison build on a 16,384-character reason (200 warm-up calls, median of 9 reps x 400 calls); quote the ratio and the command, not the milliseconds.",
+      "resolvedAt": "2026-07-24T14:51:38.161Z"
     }
   ]
 }
