@@ -122,6 +122,26 @@
       ],
       "signatureTag": "adversarial|ts|edge-second-clause",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1909:F-008",
+      "desc": "CHK-005:adversarial:0 evidence overclaims file/level: note says the smoke calls scope_shrinkage_decision_set on the handler directly and the ref/authority refusals still fire at the handler level, citing withdrawn-disposition-smoke.ts. The ref refusals (bad item/binding) ARE exercised at the handler level in that file (h.ps.scope_shrinkage_decision_set with bad refs). But the authority refusal (userConfirmed missing on a confirmed decision) is never called through ps.scope_shrinkage_decision_set (the handler) in either smoke; it is only exercised by calling the pure buildScopeShrinkageDecision() function directly, and that test lives in the OTHER file (scope-shrinkage-withdrawal-floor-smoke.ts lines ~151-156), not the cited file. The handler also has its own separate defense-in-depth authority check (hasWithdrawals && !(confirmed&&userConfirmed)) that is never exercised at all (e.g. via decision=rejected + withdrawal refs).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T22:13:29.001Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-006",
+      "_hash": "2d1f25683dac1d95a12fec0fd59a52508302301d53587a82f19d2c09042a05b2",
+      "files": [
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+        "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-evidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
