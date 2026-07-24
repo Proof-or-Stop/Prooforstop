@@ -660,6 +660,32 @@
         "scanEscalationReason": null
       },
       "_hash": "41938feb3b285ed5904eb14f1b3bb9e456cd9a895a33c120608270a3ebb5e95e"
+    },
+    {
+      "id": "B-f824:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 7, final): incremental scope since RP-022 is exactly one file, scripts/verify-process-fact-contract.mjs, hardening the F-002/F-003 guard checks to AST-scoped hasTestEntryAnchoredComparison + hasPropertyGuardedThrowingBranch. Maps to CHK-003 must-intents only, all cli-type, re-verified fresh: npm run test:process-fact-contract and flow-stability-smoke both pass. All 4 checklist items (15/15 must intents) have concrete non-generic verificationEvidence, 0 failing, 0 gaps. No test-coverage gap found.",
+      "createdAt": "2026-07-24T04:08:16.909Z",
+      "reviewRound": "2026-07-24T04:05:51.059Z",
+      "reviewRunId": "B-f824:RR-027",
+      "envelopeId": "f136b8f5e7dcb3298c22520698353fb764f604e7cde06b0cd273fea684c5bdeb",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37a8cb0af28c686975237dfb552204a9e033e39f75209665d1996445c7ceca3f"
     }
   ]
 }
