@@ -303,9 +303,9 @@
           "packages/main/src/tasks/quorum-submit-smoke.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-24T21:11:23.211Z",
-      "endTime": null,
+      "endTime": "2026-07-24T22:45:56.564Z",
       "verificationIntent": {
         "happy": [
           {
@@ -501,6 +501,15 @@
       "itemId": "CHK-001",
       "action": "update",
       "from": "pending",
+      "to": "done",
+      "reason": "Delivered and verified: smoke 58 checks green, fact contract verified, full npm test green (commits c9090580, 82cb24b262, f561a2f2b7)."
+    },
+    {
+      "timestamp": "2026-07-24T22:45:56.564Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
       "to": "done",
       "reason": "Delivered and verified: smoke 58 checks green, fact contract verified, full npm test green (commits c9090580, 82cb24b262, f561a2f2b7)."
     }
