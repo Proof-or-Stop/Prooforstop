@@ -264,11 +264,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "'must-differ checklist-ordinal', 'finding-ordinal' and 'unfixed-bug-ordinal' [guard: substantive-id-allowlist] assert that an ordinal naming WHICH lifecycle artifact failed survives normalization, printing both compared values literally. 'init-check-issue-ordinal' is deliberately NOT in this group: review showed the init-check issue id is reviewer-self-assigned, overwritten wholesale on every init_check_set and remediated by re-running the reviewer, so it is bookkeeping, and it now sits in must-still-collapse under review-bookkeeping-not-allowlisted. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
-          "headHash": "097255311de4c403687fb4348d2a35859b7f75d0",
-          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
-          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
-          "timestamp": "2026-07-24T11:34:17.839Z"
+          "note": "'must-differ checklist-ordinal', 'finding-ordinal' and 'unfixed-bug-ordinal' [guard: substantive-id-allowlist] assert an ordinal naming WHICH lifecycle artifact failed survives normalization, printing both compared values. 'open-blocking-finding-delimiter-attached-id [guard: substantive-id-token-start-overstrict]' proves the positive token-start assertion is not TOO strict: a real id introduced by an opening delimiter is still protected. 'init-check-issue-ordinal' is deliberately excluded from this group — the init-check issue id is reviewer-self-assigned, overwritten wholesale on every init_check_set and remediated by re-running the reviewer, so it is bookkeeping and sits in must-still-collapse. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
+          "headHash": "6f306bd4ceec3264e9bd072e2d0dd5112fdc69cf",
+          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
+          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
+          "timestamp": "2026-07-24T12:17:27.268Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
