@@ -448,6 +448,23 @@
       ],
       "signatureTag": "edge|ts|cross-host-codex",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-025",
+      "desc": "cross-host (codex-cli host-B round 4), recorded by the main agent: plan.md justifies accepting under-normalization by claiming the residual runaway risk is bounded by this repo burn-alert system. That claim is FALSE. Burn scanning runs only through doctor and usage_sweep (handlers/doctor.ts:146, core/usage-burn-alert.ts:348), labels itself advisory, supplies no gate evidence, never changes exit status, cannot stop a session, and is disabled by LATTICE_BURN_ALERT_RECENT_HOURS=0. The accepted residuals therefore have NO automatic bound inside a story_advance retry loop, and the justification must be corrected rather than restated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T02:37:36.926Z",
+      "reviewRound": "2026-07-24T02:32:11.264Z",
+      "_hash": "26f4d610a0004b86b88e669f6ea9c56fb95b365eb4a9034b2afd8bef09139b80",
+      "files": [
+        ".lattice/story/actives/B-bf52/plan.md"
+      ],
+      "signatureTag": "missing|md|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
