@@ -422,6 +422,34 @@
         "scanEscalationReason": null
       },
       "_hash": "9a7e2d9448231d9bcfe35369c989221d6969994bf30a0b0544e35ddb2b538daf"
+    },
+    {
+      "id": "B-bf52:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round confirmation (round 2026-07-24T23:00:04.606Z) post merge->re-review cascade: main advanced 51 sibling-story commits and the story rolled TEST->DEV->REVIEW, minting this new round; storyFilesHash unchanged (9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b), so this is a confirmation of test-coverage verdicts already reached at RP-005/RP-010, not a re-audit. Verified: (1) git diff 280a5440b4 -- packages/main/src/core/convergence-breaker.ts packages/main/src/tasks/convergence-breaker-smoke.ts packages/main/tests/red/ is empty. (2) git rev-list --count HEAD..main = 0. (3) Spot-checked the 19 verificationEvidence notes across CHK-001..CHK-004 (5+5+4+5): every case name and guard tag they cite (signals-conditional-prefix, prefix-window-residual, path-rule-overreach, path-rule-collapse, digit-rule-collapse, signals-fold, phase-pair, in-repo-file-path, bare-attempt-ordinal, blocking-finding-cited-path-past-window/within-window, proofstory-gap-signal-set, machine-absolute-path, delimiter-attached-absolute-path, machine-path-into-repo-relative-segments) is present in the current convergence-breaker-smoke.ts. Confirmed CHK-003s three NOT-DELIVERED-labelled notes (happy:0, edge:1, adversarial:0) are backed by fact: checklist-ordinal and unfixed-bug-ordinal both exist in the MUST_COLLAPSE array (guardedBy digit-rule-collapse, run via the must-still-collapse lane), i.e. the code genuinely collapses the CHK-001-vs-CHK-002 pair the frozen userSees demanded stay distinct -- matching the notes claim rather than contradicting it. (4) Rebuilt dist from a clean tsc (0 errors); re-ran both suites: npm run test:convergence-breaker PASS (5 must-differ counter=1 + 16 must-still-collapse counter=2/breaker-trips, exit 0), node dist/tasks/gate-repeat-block-smoke.js PASS (5/5 CHK, exit 0); re-ran both probes: red-s3-digest-collapse.mjs 10/10 PASS, red-s3-differential-probe.mjs PASS against a freshly built comparison of CURRENT main (447a337847, built in a fresh detached worktree since prior comparison builds on disk were 59-235 commits stale) -- BAR3 4/4 delivered classes distinguished, 13/13 volatile classes tie, 4/4 delivered classes branch-finer than main as expected, 0 BAR1/BAR2 violations. gate-repeat-block-smoke.ts confirmed byte-identical to main (git diff main on that path empty). No blocker.",
+      "createdAt": "2026-07-24T23:08:24.008Z",
+      "reviewRound": "2026-07-24T23:00:04.606Z",
+      "reviewRunId": "B-bf52:RR-044",
+      "envelopeId": "e8d453d82a20a90d72665d0cecb021effbdf06a91a1a68678872b1b739b99f0a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "scanEscalationReason": "Confirmation-only round: source content of all in-scope files verified byte-unchanged since prior fully test-coverage-reviewed rounds RP-005/RP-010 (git diff vs 280a5440b4 empty), so full re-read of file bodies was not required beyond targeted spot-checks of the 19 verificationEvidence notes against the smoke matrix; rebuild + re-execution of both suites and both probes (one against a freshly built current-main comparison) was the substantive re-verification for this round."
+      },
+      "_hash": "19e1eff639fe04b918e33980303a7985f8298f616a7adba61927a152479c91ba"
     }
   ]
 }
