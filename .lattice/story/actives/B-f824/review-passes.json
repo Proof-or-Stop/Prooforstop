@@ -346,6 +346,35 @@
         "scanEscalationReason": null
       },
       "_hash": "eff88fc84c4cae1787eb6ceb66567fa3ac06c4b9dd4c43fb64811640bfcfc679"
+    },
+    {
+      "id": "B-f824:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 re-attestation for review-assurance floor rebinding. review_incremental_context confirmed isFirstPass=false, scopeChanged=false, freshnessClassification=CURRENT_MATERIAL, changedFiles=(none), impactedFiles=(none) since prior pass RP-010 (priorHeadHash 56d3478d). Independently verified git diff 56d3478d..HEAD --stat: only .lattice/story/actives/B-f824/* metadata files changed (index.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json, test-evidence.json, closeout-write-receipts.jsonl); zero diff confirmed on the two fully-read RP-010 files (done-prepare-automation-execution-plan.md, convergence-breaker.ts). Doc-code consistency verdict from RP-010 remains valid; no new symbols or doc paragraphs to compare; no finding registered.",
+      "createdAt": "2026-07-24T03:11:41.376Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-016",
+      "envelopeId": "67c7e41932f73240790bd4e16aefe3880045b8f5a92dd45ee0b903a4c68271b9",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6fbb0fc5f614f3422c5a88795af229dd0a49e57d6ab4f3304913440f116862e5"
     }
   ]
 }
