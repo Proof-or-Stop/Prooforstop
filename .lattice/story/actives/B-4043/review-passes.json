@@ -151,6 +151,35 @@
       },
       "readDiagnostics": [],
       "_hash": "11401a814f7e177121d72a4033910cff0f1693a0174de64c6c21f63d437e4a03"
+    },
+    {
+      "id": "B-4043:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Independently re-verified F-005 resolution: illustrative-abridged-shape wording present exactly as claimed at execution-plan.md:753-755; header line3 and Wave4 line1566 status match; committed in-diff. Only 2 (not 3) does-not-claim hits remain (lines 41,759), both legitimate boundary statements, no stale disclaimer. CHK-005 measured status/boundary/thresholds/results/rollback/Wave3A-exclusion all present and match current signed acceptance-rollout-report.json (verdict=pass, storyFilesHash current, not superseded). Section 19 items 2/3/5/8 all marked Resolved with concrete content, not left open. No doc-code drift found.",
+      "createdAt": "2026-07-24T12:55:10.682Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-012",
+      "envelopeId": "a6e61edc2e1c797a188cbefb8af73a28b62171635e6f82598ca1db12f81a8859",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24ef795f85c2227a71c7d6f37296200e76301e9c4f7ca63a2c5d3d1af050adec"
     }
   ]
 }
