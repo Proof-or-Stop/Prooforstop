@@ -419,7 +419,7 @@
       "desc": "cross-host (codex-cli host-B round 4), recorded by the main agent: the ppid-derived-session-id fixture varies the LEASE OWNER session id while claiming to model one retrying host. formatNonOwnerError (story-owner-lease.ts:636) renders lease.sessionId as the owner and ctx.currentSessionId as the rejected caller; a genuine retry against the same owner keeps lease.sessionId CONSTANT, and a change to it means ownership actually changed, i.e. a substantively different failure. The attached-hash rule collapses them anyway, so an owner change between two rejected attempts now falsely freezes the story. The smoke therefore guards the opposite of the required behavior. Same token shape, opposite requirement by position: the attached-hash rule cannot distinguish them.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T02:37:35.353Z",
@@ -430,7 +430,9 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "signatureTag": "edge|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T03:30:15.091Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-024",
