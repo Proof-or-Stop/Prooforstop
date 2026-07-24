@@ -32,6 +32,39 @@
         "scanEscalationReason": null
       },
       "_hash": "8c9ff03af940ddf03877c12671f08d8c4655e77f7683d4f125e7d7515eff4241"
+    },
+    {
+      "id": "B-5e4a:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted ~9 meaningful new symbols from git diff main...HEAD; Step2 found 1 referencing paragraph (new bullet in docs/requirements/decisions/lifecycle-artifact-scope.md #Verification); Step3 comparison confirmed byte-accurate against diff and mechanically verified by running both lifecycle-registry-contract.js and verify-process-fact-contract.mjs (both PASS). No doc-code drift found; OQ-1 resolution (single new bullet, existing verify-process-fact-contract.mjs bullet left unchanged) matches delivered diff exactly.",
+      "createdAt": "2026-07-24T01:18:59.481Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-004",
+      "envelopeId": "ebdaf36af2f4c9522bcdd777c90434bec6a786ba7ed935097789598faa2b4eca",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5e4a/plan.md",
+          ".lattice/story/actives/B-5e4a/scope-check.json",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5e4a/background.md",
+          ".lattice/story/actives/B-5e4a/checklist.json",
+          ".lattice/story/actives/B-5e4a/review.json",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e618059eeb9804e6a54c7578c3ff09c4e82e57f7c5f952f7477e06f4a9e0bc27"
     }
   ]
 }
