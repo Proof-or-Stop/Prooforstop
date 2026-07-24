@@ -349,7 +349,7 @@ function chk004(): void {
     for (const r of plain) bumpGateFailureCount(dir, CMD, r);
     assert.ok(
       maxGateFailureCount(readGateFailureCounts(dir)) >= THRESHOLD,
-      'CHK-004:happy:0 (F-002) such a loop must still reach the trip threshold',
+      'CHK-002:happy:2 (F-002) such a loop must still reach the trip threshold',
     );
   });
   // ...while real multi-word reason codes stay distinguishable.
@@ -446,7 +446,7 @@ function chk005(): void {
     for (let i = 0; i < THRESHOLD; i++) bumpGateFailureCount(dir, CMD, stuck);
     assert.ok(
       maxGateFailureCount(readGateFailureCounts(dir)) >= THRESHOLD,
-      'CHK-004:happy:0 (F-008) a repeated real gap code must still reach the threshold',
+      'CHK-002:happy:2 (F-008) a repeated real gap code must still reach the threshold',
     );
   });
 
