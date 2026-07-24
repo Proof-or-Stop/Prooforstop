@@ -513,6 +513,31 @@
         "scanEscalationReason": null
       },
       "_hash": "577740908341547d009e984cc3e0b1291bbf199ac50206c7fd1b8c6c3973cedb"
+    },
+    {
+      "id": "B-4043:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round re-review: confirmed the only change since RP-016 is CHK-001.relatedDocs CJK->English (git show 3e6f30e63f touches only checklist.json/index.json/process-events.jsonl/process-metrics.json, materialHash unchanged at 1ffed995...). Verified all 16 verificationEvidence entries programmatically: materialHash/storyFilesHash match current head (0 mismatches), 0 result=fail. Confirmed CHK-004:adversarial:fail-closed-mutations remains bound to the default-mode command (no --issuer-mutations), matching the F-009/F-010 restoration note; the separate CHK-004:hardening:issuance-replay-integrity custom ref correctly retains --issuer-mutations as its own non-frozen entry. No blocker.",
+      "createdAt": "2026-07-24T16:42:42.095Z",
+      "reviewRound": "2026-07-24T16:39:55.171Z",
+      "reviewRunId": "B-4043:RR-030",
+      "envelopeId": "452fec8171c5acc4c41131db65b4e99d8e3fe54a9e58681105e2b186c610eac2",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/process-events.jsonl"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": "prior full read at RP-016 covered source/docs; this round is scoped to the relatedDocs-only metadata diff per dispatcher instruction, verified via git show + programmatic checklist.json evidence-field diff"
+      },
+      "_hash": "ad2957e352711b8d5aa61394609a5cb92b7c25f3489917e70a6f310ed3714734"
     }
   ]
 }
