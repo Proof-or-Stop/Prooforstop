@@ -423,6 +423,18 @@
           "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
           "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
           "timestamp": "2026-07-24T21:38:13.383Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Withdrawing all bindings without fullWithdrawalReapproval is HARD-REFUSED (/empty_scope_after_withdrawal/) in a config-less temp root (default observe), proving independence from doneGateMode; with the re-approval field it is allowed.",
+          "headHash": "fae47fad666e94e1354bd55091a3818506b0c456",
+          "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
+          "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
+          "timestamp": "2026-07-24T21:38:17.552Z"
         }
       ]
     },
