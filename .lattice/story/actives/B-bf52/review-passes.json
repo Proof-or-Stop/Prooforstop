@@ -57,6 +57,26 @@
         "scanEscalationReason": null
       },
       "_hash": "9416bf787fd4b76304345bda76d759b53867467e8b1dbcc19707e6087bb449b3"
+    },
+    {
+      "id": "B-bf52:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Extended differential sweep (2 rounds, 45 fixture pairs) run against a freshly built main (worktree at e436eb544704) vs this commit ee60df9b31, covering VERIFY(1) shapes: slash-joined labels for all 5 allowlisted prefixes, doubled-prefix (same+mixed+triple), underscore-joined compounds, digit-letter tails, and real ids after string-start/whitespace/paren/bracket/colon/quote/comma -- zero worse-than-main cases; every divergence is either both-collapse (tied with main) or branch-strictly-better. Retry stability confirmed (same input digests identically across repeated calls). VERIFY(2): traced all 5 real production render sites (core/machine.ts:1195 BUG-, :1169 CHK-, :756 F- via composite storyId:F-NNN, :273 SEP-, core/proofstory.ts:1026 REQ-) -- every one introduces its id via a protected delimiter (colon+space or comma/semicolon+space); hunted unprotected-delimiter shapes (=, hyphen, slash, period, brace, angle, pipe) and confirmed each ties with main (never worse), matching the itemId=CHK-001 residual reasoning in the code comment. VERIFY(3): packages/main/src/tasks/gate-repeat-block-smoke.ts is byte-identical to main (empty diff) and its compiled suite (node dist/tasks/gate-repeat-block-smoke.js) exits 0. VERIFY(4): mutated the live regex back to the exact pre-F-048 form `(?<![\\\\w-])(?:${alt})-[a-z0-9-]*\\\\d\\\\b`, rebuilt, and ran the full convergence-breaker-smoke matrix (27 cases) to completion before it asserts -- exactly 2 of 27 named cases fail (embedded-test-output-slash-joined-names, embedded-test-output-doubled-prefix) and nothing else, matching the AssertionError's own grouped report. Also cross-ran the tracked RED harness (tests/red/red-s3-digest-collapse.mjs) against both builds: 9/9 pass on branch, 4/9 fail on fresh main (defect genuinely present pre-fix, not vacuous). Read checklist.json (4 items, all done) and cross-checked userSees against gateFailureDigest/normalizeGateReason/buildSubstantiveIdTokenRe in packages/main/src/core/convergence-breaker.ts (lines 463-936). Confirmed scope-contract.json acknowledgements cover both extra tracked files (acceptance-basis.json lifecycle artifact, tests/red/red-s3-digest-collapse.mjs acknowledged-expansion) -- no unscoped material changes. No candidate decisions/ doc governs this digest mechanism specifically (workflow-convergence-failure-remediation-execution-plan.md covers an unrelated subsystem, candidate-spec-routing.ts / story-dispatch.ts). No blocker found; all measurements performed in an immutable detached scratch worktree at HEAD (ee60df9b31) plus a freshly built main scratch worktree, both since removed; shared worktree left clean.",
+      "createdAt": "2026-07-24T12:32:00.663Z",
+      "reviewRound": "2026-07-24T12:16:14.339Z",
+      "reviewRunId": "B-bf52:RR-027",
+      "envelopeId": "b882db14ae8e66d4529a8e0c9d9b2604ef6142eea298c26871a7786e23c9ffa0",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "728f623bbfc895fcecc5871006bbc0a49f72c7bcfe4f73f28515f3f2a0f59d9e"
     }
   ]
 }
