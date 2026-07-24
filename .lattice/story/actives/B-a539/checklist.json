@@ -137,11 +137,11 @@
           "kind": "manual_transcript",
           "command": "node -e \"full-identity duplicate scan over validate.commands\"",
           "result": "pass",
-          "note": "Post-edit full-identity scan (serialising every field: command, args, shell, cwd, env, timeoutMs, optional, focus) over all 47 entries reports zero duplicate groups. A second scan keyed on execution identity alone (ignoring the focus and label selection tags) also reports zero duplicates.",
-          "headHash": "906111d7389346c71b548f845c24e6bded31e078",
-          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
-          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
-          "timestamp": "2026-07-24T18:01:37.993Z"
+          "note": "Re-attested post-merge. Full-identity scan (all fields) and execution-identity scan (ignoring focus/label) over all 47 current entries both report zero duplicate groups.",
+          "headHash": "ca86ce66cdee645a797f2f0f1ace9664e2f42ad6",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:48.634Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
