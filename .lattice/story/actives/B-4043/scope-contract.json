@@ -130,10 +130,26 @@
       "phase": "DEV",
       "headHash": "e05ed5a389ab11796764e8fb4d4ef1a64636b13e",
       "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to close F-007. The 57-assertion rollout smoke proving CHK-002/003/004's thresholds, adapter sufficiency, false-block controls, mode invariance and rollback was registered only in smoke-manifest.json, which is read solely by run-all-smokes.js (npm run test:all) — a script absent from lattice validate, doneRequiredCommands and the root npm test chain, so it ran in no gate at all. The only placement that puts it in the DONE path is the root npm test chain, which doneRequiredCommands executes; that requires one additive script entry plus one chain append in package.json. Verified it actually runs, not merely configured: npm run test:proofstory-acceptance-rollout exits 0 in 916s with PASS (57 assertions). Purely additive, no existing script altered. Known cost accepted: package.json now sits in this story's diff, so later main merges will drift storyFilesHash and force evidence re-capture.",
+      "timestamp": "2026-07-24T14:31:12.594Z",
+      "paths": [
+        "package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "51e28272aa280a59261f3f612e5863469fd0754a",
+      "materialHash": "d9de76b61f9381d325d9c8a0a29ff10c184250ae55c239acfe875e01e009adc9"
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-24T11:55:59.296Z",
+  "updatedAt": "2026-07-24T14:31:12.594Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -179,6 +195,7 @@
     "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
     "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
     "lattice.config.json": "lattice.config.json",
-    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json"
+    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json",
+    "package.json": "package.json"
   }
 }
