@@ -48,10 +48,40 @@ roots and behaves identically on macOS and Linux. A mid-token slash (`DEV/REVIEW
 and `/tmp/...`, still collapse to one token. Measured: all eight direction cases satisfied.
 
 **Digit rule (CHK-003).** Match only a *standalone* number — not preceded or followed by a word
-character or hyphen. Free-standing counters (`attempt 41`, `3>=2`, `0/4 lanes`) still collapse;
-identifier-embedded ordinals (`CHK-001`, story ids) survive. Confirmed no production rejection message
-embeds a volatile counter attached to an identifier: the only attached-counter shapes in the tree are
-step record ids at planned-steps-executor.ts:1298 and :1309, and that module throws no `Error`.
+character, a hyphen or a dot, with a leading sign consumed by the match. Free-standing counters
+(`attempt 41`, `3>=2`, `0/4 lanes`, `pid 4821`, `-19`) still collapse; identifier-embedded ordinals
+(`CHK-001`, story ids, `round-2`, dotted versions such as `v0.3.229`) survive.
+
+**This section previously asserted the opposite of the truth and that claim is retracted.** It read:
+"Confirmed no production rejection message embeds a volatile counter attached to an identifier: the
+only attached-counter shapes in the tree are step record ids at planned-steps-executor.ts:1298 and
+:1309, and that module throws no `Error`." That survey was **wrong**. It looked only for counters
+attached to an identifier by a hyphen or a word stem and missed the far more common shape: a volatile
+number welded to a *unit letter*. Four `story_advance`-reachable rejection sites render exactly that,
+all via `formatLeaseAge` / `formatLockAge` producing `45s`, `8m`, `2h` inside `heartbeat <age> ago`:
+
+1. `packages/main/src/core/story-owner-lease.ts:591-598,616-640` — `formatLeaseAge` /
+   `formatNonOwnerError`, thrown from the ownership gate on the ordinary "story is owned by another
+   session" `story_advance` path;
+2. `packages/main/src/cli/ownership-gate.ts:301-306` — the active-lease `--takeover` refusal;
+3. `packages/main/src/core/main-write-lock.ts:71-113` — DONE-phase main-write-lock contention;
+4. `packages/main/src/core/validation-execution-lock.ts:233-262` — TEST-phase validation-lock
+   contention.
+
+Because the narrowed digit rule's lookahead treats the trailing unit letter as an identifier tail, it
+leaves `45s` intact, so each retry against a live foreign lease or a held lock mints a **new** key,
+the repeat count never reaches 2, and the breaker never fires — for precisely the stuck retry loop it
+exists to stop. The old unconditional `/\d+/g` did collapse these, so narrowing alone was a functional
+regression, not merely an uncovered edge (found in review round 1 by the behavior lane and
+independently by cross-host codex; recorded as F-007).
+
+**Duration rule (F-007), the answer.** A separate rule matching a standalone number *plus a unit
+suffix* (`ms|s|m|h|d|kb|mb|gb|b`) runs immediately **before** the digit rule, so the digits are
+consumed together with their unit and the four messages above collapse again. It is deliberately
+narrow — the same protection set (`[\w.-]`) guards both ends, so `B-bf52`, `CHK-001` and `v0.3.229`
+are untouched. All four real message shapes are fixtures in the CHK-004 must-still-collapse lane,
+tagged `duration-rule`; deleting the rule fails exactly those four cases and leaves the other sixteen
+passing.
 
 **Matrix (CHK-004).** The existing distinctness guard at
 packages/main/src/tasks/convergence-breaker-smoke.ts:180-182 uses `reason ALPHA` / `reason BETA` —
@@ -64,11 +94,14 @@ must-still-collapse cases assert it reaches 2 and `assessBreaker` still trips.
 ## 4. Risk and its guard
 
 The change makes the breaker fire *less* often. Left unguarded that would let a stuck agent regain an
-unbounded retry loop — the mechanism's whole purpose. CHK-004's must-still-collapse lane is the guard:
-timestamps and attempt counters, machine-specific absolute paths, and hex ids each still produce one
-key, accumulate to 2, and trip `assessBreaker`. Each of the three rule changes reverted individually
-must fail a *named subset* of the matrix and leave the rest passing, so a regression localizes to the
-rule that caused it.
+unbounded retry loop — the mechanism's whole purpose. F-007 is the proof that this risk is real and
+not theoretical: the first cut of the digit rule did exactly that to four live lease/lock contention
+messages. CHK-004's must-still-collapse lane is the guard: the four real lease/lock heartbeat-age
+messages, negative counters, machine-specific absolute paths (POSIX, Windows and delimiter-attached),
+hex ids and the applied sanity bound each still produce one key, accumulate to 2, and trip
+`assessBreaker`. Each of the four rule changes — sanity bound, path rules, duration rule, digit rule —
+reverted individually must fail a *named subset* of the matrix and leave the rest passing, so a
+regression localizes to the rule that caused it.
 
 Accepted effect, no migration: stories holding `gate-failure-counts.json` entries keyed by the old
 digest will not match the new key, so an accumulated count appears to reset. `resetGateFailureCounts`

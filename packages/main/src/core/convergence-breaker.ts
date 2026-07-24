@@ -461,28 +461,78 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
 }
 
 /**
- * A stable digest for "the same gate failing the same reason". The command name
- * is kept verbatim; the error message is normalized to strip volatile tokens
- * (hashes, ids, timestamps, bare numbers, paths) so two rejections that differ
- * only in incidental detail collapse to the same key.
+ * The SANITY bound applied to a raw gate-failure reason before it is normalized.
+ *
+ * B-bf52 CHK-001: hashing is length-agnostic, so truncating buys the digest
+ * nothing. The former 200-character cut landed INSIDE the fixed header of a real
+ * DEV-gate rejection (machine.ts's preamble plus
+ * renderProofStoryDiagnosticReport, whose header alone is 244 normalized
+ * characters), so every rejection for one story collapsed to one key no matter
+ * which gaps were outstanding — reading incremental progress as one gate failing
+ * repeatedly. What remains is a pure sanity bound, applied to the raw input so a
+ * pathological reason (an embedded transcript or stack trace) cannot make the
+ * normalization pathological either. A generous worst-case real rejection — 20
+ * gap rows, 15 trigger rows, 10 parent-rollup rows plus the header — measures
+ * 7,448 characters, so 16,384 sits roughly 2.2x above the worst realistic
+ * message. Accepted residual: two reasons identical up to the bound and
+ * differing only past it still collapse.
+ *
+ * Exported so the smoke can assert the bound is genuinely APPLIED
+ * (`digest(huge) === digest(huge.slice(0, MAX_REASON_CHARS))`) rather than
+ * asserting a well-formed digest, which holds whether or not the bound exists.
+ */
+export const MAX_REASON_CHARS = 16_384;
+
+/**
+ * Apply the sanity bound to a raw reason, without splitting a surrogate pair.
+ *
+ * B-bf52 F-009 (cross-host): `String.prototype.slice` cuts UTF-16 code UNITS, so
+ * a reason whose 16,384th unit is the HIGH half of an astral character (emoji,
+ * CJK extension) would leave a lone high surrogate at the end, which hashes as a
+ * replacement encoding rather than as the original character. Deterministic, so
+ * it never destabilized a key across calls, but the bound is trivially made
+ * code-point safe by dropping that dangling half.
+ */
+function boundReasonForDigest(reason: string): string {
+  const bounded = String(reason ?? '').slice(0, MAX_REASON_CHARS);
+  if (bounded.length === 0) return bounded;
+  const last = bounded.charCodeAt(bounded.length - 1);
+  // 0xd800-0xdbff is the high-surrogate range: a lone one means the low half was
+  // cut off by the bound.
+  return last >= 0xd800 && last <= 0xdbff ? bounded.slice(0, -1) : bounded;
+}
+
+/**
+ * A stable digest for "the same gate failing the same reason".
+ *
+ * The command name is kept verbatim; the error message is normalized so two
+ * rejections differing only in INCIDENTAL detail collapse to one key while
+ * substantively different rejections keep separate keys. The normalization is
+ * deliberately narrow and each rule's exact scope is load-bearing (B-bf52):
+ *
+ *  - `0x…` values, hex ids/hashes of 7+ digits and ISO-8601 timestamps → `#`.
+ *  - ABSOLUTE paths only, and only at a token start (string start, or after
+ *    whitespace, quote, paren, bracket, `:`, `=` or `,`): POSIX `/…` and Windows
+ *    `c:\…`. A relative repo path (`src/core/alpha.ts`) and a mid-token slash
+ *    (`DEV/REVIEW`) are deliberately LEFT ALONE — they name WHAT failed, and
+ *    rewriting them collapsed two different failures into one key.
+ *  - durations and sizes written as a number with a unit suffix (`45s`, `8m`,
+ *    `2h`, `1.5ms`, `12kb`) → `#`. Heartbeat and lock-contention ages are pure
+ *    wall-clock noise that changes on essentially every retry, so leaving them
+ *    in would mint a fresh key per retry and the breaker would never fire.
+ *  - STANDALONE numbers only (`attempt 41`, `pid 4821`, `3>=2`, `-19`, `3.5`)
+ *    → `#`. A digit run attached to an identifier by a word character, a hyphen
+ *    or a dot (`CHK-001`, `B-bf52`, `round-2`, `v0.3.229`) is part of that
+ *    identifier's NAME and is deliberately preserved.
+ *
+ * Both directions are load-bearing and both are guarded case-by-case in
+ * tasks/convergence-breaker-smoke.ts: widening a rule re-introduces the false
+ * freeze this contract exists to prevent, and narrowing the duration or number
+ * rule re-introduces the opposite failure — a genuine livelock whose repeat
+ * count never accumulates.
  */
 export function gateFailureDigest(command: string, reason: string): string {
-  // B-bf52 CHK-001: hashing is length-agnostic, so truncating buys the digest
-  // nothing. The former 200-character cut landed INSIDE the fixed header of a
-  // real DEV-gate rejection (machine.ts's preamble plus
-  // renderProofStoryDiagnosticReport, whose header alone is 244 normalized
-  // characters), so every rejection for one story collapsed to one key no matter
-  // which gaps were outstanding — reading incremental progress as one gate
-  // failing repeatedly. What remains is a pure SANITY bound, applied to the raw
-  // input so a pathological reason (an embedded transcript or stack trace)
-  // cannot make the normalization below pathological either. A generous
-  // worst-case real rejection — 20 gap rows, 15 trigger rows, 10 parent-rollup
-  // rows plus the header — measures 7,448 characters, so 16,384 sits roughly
-  // 2.2x above the worst realistic message. Accepted residual: two reasons
-  // identical up to the bound and differing only past it still collapse.
-  const MAX_REASON_CHARS = 16_384;
-  const normalized = String(reason ?? '')
-    .slice(0, MAX_REASON_CHARS)
+  const normalized = boundReasonForDigest(reason)
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
@@ -491,23 +541,44 @@ export function gateFailureDigest(command: string, reason: string): string {
     // collapse — but ONLY when it is a path. The former rule anchored on any
     // slash, so it ate the tail of every slash-bearing token: `DEV/REVIEW` and
     // `DEV/TEST` both became `dev#`, and `src/core/alpha.ts` and
-    // `src/core/beta.ts` both became `src#`. This one matches a leading slash
-    // only at a TOKEN START (string start, whitespace, quote, paren or bracket)
-    // and then consumes the rest of the token, so `/Users/...` and
-    // `/private/var/...` still collapse to one key — including when the path
-    // continues into repo-relative segments, which are consumed in the same
-    // match rather than left as a per-host remainder — while a mid-token slash
-    // is left alone. Structural, not an enumeration of machine roots, so it
-    // behaves identically on macOS and Linux.
-    .replace(/(?:^|(?<=[\s"'(\[]))\/[^\s"')\]]*/g, '#') // machine-specific absolute paths
+    // `src/core/beta.ts` both became `src#`. These match a leading root only at
+    // a TOKEN START (string start, whitespace, quote, paren, bracket, or one of
+    // the `:` / `=` / `,` delimiters that real messages use to introduce a path
+    // with no space, e.g. `cwd=/Users/...`) and then consume the rest of the
+    // token, so `/Users/...` and `/private/var/...` still collapse to one key —
+    // including when the path continues into repo-relative segments, which are
+    // consumed in the same match rather than left as a per-host remainder —
+    // while a mid-token slash is left alone. Structural, not an enumeration of
+    // machine roots. F-006: the Windows drive-letter form is handled first,
+    // since it carries no forward slash and would otherwise survive whole, so a
+    // per-user `c:\users\<name>\...` root would not collapse on a Windows host.
+    .replace(/(?:^|(?<=[\s"'(\[:=,]))[a-z]:\\[^\s"')\]]*/g, '#') // windows absolute paths
+    .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')       // posix absolute paths
+    // B-bf52 F-007: a duration or size is a number welded to a unit letter, so
+    // the standalone-number rule below cannot see it — its lookahead treats the
+    // unit as an identifier tail. That is not academic: every lease/lock
+    // contention message renders `heartbeat ${age} ago` with age from
+    // formatLeaseAge / formatLockAge (`45s`, `8m`, `2h`) — story-owner-lease.ts,
+    // cli/ownership-gate.ts, main-write-lock.ts, validation-execution-lock.ts —
+    // so without this rule a story_advance retried against a live foreign lease
+    // or a held lock mints a NEW key on essentially every retry, the repeat
+    // count never reaches 2, and the breaker never fires for exactly the stuck
+    // runaway it exists to stop. Runs BEFORE the number rule so the digits are
+    // consumed together with their unit.
+    .replace(/(?<![\w.-])-?\d+(?:\.\d+)?(?:ms|s|m|h|d|kb|mb|gb|b)(?![\w.-])/g, '#') // durations / sizes
     // B-bf52 CHK-003: a free-standing counter is incidental, but a digit run
     // ATTACHED to an identifier is part of that identifier's name. The former
     // unconditional rule rewrote both, so `CHK-001` and `CHK-002` — two
     // different checklist items — both became `chk-#`. This one matches only a
-    // standalone number, i.e. one not preceded or followed by a word character
-    // or a hyphen, so `attempt 41`, `3>=2` and `0/4 lanes` still collapse while
-    // `CHK-001`, `round-2` and story ids survive.
-    .replace(/(?<![\w-])\d+(?![\w-])/g, '#')     // free-standing numbers only
+    // standalone number, i.e. one not preceded or followed by a word character,
+    // a hyphen or a dot, so `attempt 41`, `3>=2`, `0/4 lanes` and `pid 4821`
+    // still collapse while `CHK-001`, `round-2`, story ids and dotted versions
+    // survive (F-002: `v0.3.229` and `v0.3.230` are different requirements, and
+    // without `.` in the protection set both became `v#.#.#`). The sign is
+    // consumed by the match rather than excluded by the lookbehind (F-003):
+    // treating a leading `-` as an identifier hyphen left `-5` and `-19`
+    // distinct, so a countdown in a rejection message never collapsed.
+    .replace(/(?<![\w.-])-?\d+(?:\.\d+)?(?![\w.-])/g, '#')     // free-standing numbers only
     .replace(/\s+/g, ' ')
     .trim();
   const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);
