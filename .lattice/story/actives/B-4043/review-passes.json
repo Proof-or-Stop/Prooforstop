@@ -707,6 +707,42 @@
         "scanEscalationReason": null
       },
       "_hash": "a81514cb2752a24e3f2692c4c0dde20f9da4c0135e4d50fdd076223d57d77409"
+    },
+    {
+      "id": "B-4043:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round: verified the 2 real fixes since RP-018 (commit 0b09a8bc4f). (1) lifecycle-registry.ts registers acceptance-rollout-report.json in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES next to sibling acceptance-basis.json/pre-review-check.json (provenance-only, matches store.ts readJson/writeJson call sites at store.ts:806,811); ran lifecycle-registry-contract.js in an isolated clone -> PASS 0 divergences. (2) proofstory-pre-review-check-smoke.ts cli() helper now pins LATTICE_OWNER_SESSION_ADAPTER_PROVIDER (overridable, defaults to claude-code) so full-envelope reviewer dispatch inside the nested --rollout-cohort-case smoke does not depend on the caller shell exporting a provider. Empirically reproduced the original bug in an isolated clone by reverting just this hunk and running node dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations with LATTICE_OWNER_SESSION_ADAPTER_PROVIDER/LATTICE_ACTIVITY_SOURCE/CLAUDE_CODE_SESSION_ID/CLAUDE_SESSION_ID/CODEX_*/OPENAI_SESSION_ID/ANTIGRAVITY_SESSION_ID/AGY_SESSION_ID all unset (the true validate-child-env shape per validation-command-environment.ts VALIDATION_TRANSPORT_ENV_KEY_LIST): reverted code fails dispatch with unsupported session host provider absent; restoring the fix and rebuilding gives PASS (7 assertions). Adversarial angle 1 (pinning masks a production gap): no -- dispatch fail-closed on absent/unknown provider is deliberate (story-dispatch.ts reviewerPromptHostForProvider throws by design, matching the never-fabricate-host-evidence rule) and this exact fail-closed path is independently asserted in quorum-submit-smoke.ts (assert.throws .../unsupported session host provider/) and story-owner-lease-smoke.ts; validate legitimately strips host-identity env as non-semantic transport (validation-command-environment.ts VALIDATION_TRANSPORT_ENV_KEY_LIST), so a nested smoke needs its own pinned identity, same pattern already used in quorum-submit-smoke.ts/story-owner-lease-smoke.ts. Adversarial angle 2 (claude-code default specifically): no coverage loss -- the codex-host render path is independently exercised via reviewerHostRenderIdentity(...,codex) in codex-registry-mode-smoke.ts/prompt-registry-smoke.ts and via explicit LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=codex overrides elsewhere; the actual cross-host quorum proof recorded by this smoke (the rollout-cohort-case block) comes from quorum_submits explicit hostA=claude-cli/providerA=claude, hostB=codex-cli/providerB=codex CLI arguments, which are independent of the ambient session-adapter env, so the pinned default never substitutes for genuine cross-host evidence; override remains available (?? claude-code only applies when unset). Re-confirmed both standing security properties: all 8 execFileSync(git,...) call sites in acceptance-rollout.ts route through hardenedGitArgs() (grep confirmed, no execSync/shell-string bypass); the default-mode (no --issuer-mutations) 57-assertion proofstory-acceptance-rollout-smoke.js is reachable from the DONE-required gate via lattice.config.json doneRequiredCommands root full test suite = npm test -> package.json test:proofstory-acceptance-rollout -> node dist/tasks/proofstory-acceptance-rollout-smoke.js (note: lattice validate itself only wires the --issuer-mutations variant via validate.commands; the bare default-mode invocation is reached through doneRequiredCommands npm test, not through validate.commands). Confirmed no code/doc changes after 0b09a8bc4f (git log/diff 0b09a8bc4f..HEAD on src/tests/docs/scripts/.claude/.lattice-codex is empty -- only lattice metadata record commits follow).",
+      "createdAt": "2026-07-24T18:37:31.987Z",
+      "reviewRound": "2026-07-24T18:00:39.840Z",
+      "reviewRunId": "B-4043:RR-033",
+      "envelopeId": "60a036bddf413773c58fefd7e12fd6696895be3c1003050b60e33df412af11d4",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "79b967b9bfecea695548fba695c5181701576acb89d94388c4afb2d797434601"
     }
   ]
 }
