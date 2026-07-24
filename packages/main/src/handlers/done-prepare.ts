@@ -203,6 +203,8 @@ export interface DonePrepareJsonResult {
     postTestReviewerReattestations: number;
     humanConfirmations: number;
     unchangedSuiteExecutions: number;
+    // B-f824: observable whole-window duplicate-execution telemetry (never asserted).
+    reviewWindowSuiteExecutions: number;
     successfulCloseout: number;
   };
 }
@@ -1073,8 +1075,11 @@ export function donePrepareJsonResult(storyId: string, transcript: string): Done
   const basis = transcript.match(/existingEvidenceBasis=(fresh|stale|missing)/)?.[1] as DonePrepareJsonResult['existingEvidenceBasis'];
   const timeoutLayer = transcript.match(/timeoutLayer=(command|phase|idle|max)/)?.[1] as Exclude<DonePrepareJsonResult['timeoutLayer'], null> | undefined;
   const refusalText = transcript.match(/refusalReasons=([^;\n]*?)(?=\s+timeoutLayer=|\s+existingEvidenceBasis=|;|$)/)?.[1];
+  // B-f824: reviewWindowSuiteExecutions is an optional group so transcripts
+  // rendered before the phase-anchored split (old line shape) still parse;
+  // the missing field defaults to 0.
   const convergenceMatch = transcript.match(
-    /convergence: metadataRollbacks=(\d+) reviewerReattestations=(\d+) postTestReviewerReattestations=(\d+) humanConfirmations=(\d+) unchangedSuiteExecutions=(\d+) successfulCloseout=(\d+)/,
+    /convergence: metadataRollbacks=(\d+) reviewerReattestations=(\d+) postTestReviewerReattestations=(\d+) humanConfirmations=(\d+) unchangedSuiteExecutions=(\d+)(?: reviewWindowSuiteExecutions=(\d+))? successfulCloseout=(\d+)/,
   );
   return {
     schemaVersion: 'lattice.done_prepare.v1',
@@ -1095,7 +1100,8 @@ export function donePrepareJsonResult(storyId: string, transcript: string): Done
         postTestReviewerReattestations: Number(convergenceMatch[3]),
         humanConfirmations: Number(convergenceMatch[4]),
         unchangedSuiteExecutions: Number(convergenceMatch[5]),
-        successfulCloseout: Number(convergenceMatch[6]),
+        reviewWindowSuiteExecutions: convergenceMatch[6] === undefined ? 0 : Number(convergenceMatch[6]),
+        successfulCloseout: Number(convergenceMatch[7]),
       },
     } : {}),
   };
@@ -1603,13 +1609,26 @@ export function deriveDonePreparePassConvergence(
     }
     validationGroups.set(key, [...(validationGroups.get(key) ?? []), event]);
   }
+  // B-f824: phase-anchored suite-execution split, mirroring the
+  // reviewerReattestations / postTestReviewerReattestations split above. The
+  // B-956f incident showed reviewer-lane independent validates during REVIEW
+  // (review policy) plus one forced closeout re-execution permanently poisoned
+  // the whole-window count and deadlocked DONE. Blocking unchangedSuiteExecutions
+  // now counts only per-group duplicate executed terminals at or after the
+  // current TEST entry (>= facts.testEntryAt, same convention as
+  // postTestReviewerIdentityIds) plus contradictory reused terminals with
+  // commandExecutions > 0 in any phase; reviewWindowSuiteExecutions keeps the
+  // whole-window per-group duplicate count as observable, non-blocking telemetry.
   let unchangedSuiteExecutions = 0;
+  let reviewWindowSuiteExecutions = 0;
   for (const terminals of validationGroups.values()) {
     const executed = terminals.filter((event) => eventText(event, 'disposition') === 'executed' && eventNumber(event, 'commandExecutions') > 0);
-    unchangedSuiteExecutions += Math.max(0, executed.length - 1);
+    const postTestExecuted = executed.filter((event) => event.timestamp >= facts.testEntryAt);
+    unchangedSuiteExecutions += Math.max(0, postTestExecuted.length - 1);
     unchangedSuiteExecutions += terminals.filter(
       (event) => eventText(event, 'disposition') === 'reused' && eventNumber(event, 'commandExecutions') > 0,
     ).length;
+    reviewWindowSuiteExecutions += Math.max(0, executed.length - 1);
   }
   const successfulCloseout = steps.every((step) => step.status !== 'blocked')
     && blockingRows(runbook).length === 0
@@ -1621,11 +1640,14 @@ export function deriveDonePreparePassConvergence(
     postTestReviewerReattestations,
     humanConfirmations,
     unchangedSuiteExecutions,
+    reviewWindowSuiteExecutions,
     successfulCloseout,
   };
 }
 
 export function assertDonePreparePassConvergence(convergence: DonePrepareConvergence): void {
+  // B-f824: reviewWindowSuiteExecutions is observable telemetry only and is
+  // deliberately NOT asserted here (asserting it recreated the B-956f deadlock).
   if (
     convergence.metadataRollbacks !== 0
     || convergence.postTestReviewerReattestations !== 0
@@ -1664,6 +1686,7 @@ function renderPass(args: {
     ...(convergence ? [`convergence: metadataRollbacks=${convergence.metadataRollbacks} reviewerReattestations=${convergence.reviewerReattestations} ` +
       `postTestReviewerReattestations=${convergence.postTestReviewerReattestations} ` +
       `humanConfirmations=${convergence.humanConfirmations} unchangedSuiteExecutions=${convergence.unchangedSuiteExecutions} ` +
+      `reviewWindowSuiteExecutions=${convergence.reviewWindowSuiteExecutions} ` +
       `successfulCloseout=${convergence.successfulCloseout}`] : [
       'convergenceUnavailable: missing durable REVIEW-to-TEST attempt window; no zero-cost convergence claim emitted',
     ]),

@@ -4689,6 +4689,9 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
+      // B-f824: the transcript above uses the pre-split (old) line shape; the
+      // backward-tolerant parser must default the missing field to 0.
+      reviewWindowSuiteExecutions: 0,
       successfulCloseout: 1,
     });
     const baseFacts = {
@@ -4744,6 +4747,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
+      // B-f824: derive now always emits the observable telemetry field.
+      reviewWindowSuiteExecutions: 0,
       successfulCloseout: 1,
     });
     const duplicateExecution = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, {
