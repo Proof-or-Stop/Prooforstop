@@ -398,6 +398,29 @@
         "scanEscalationReason": null
       },
       "_hash": "142b493c20b076b9017283a6964fe50e3e5339218addce3ee26f3a8ae562266f"
+    },
+    {
+      "id": "B-f824:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 re-attestation for review-assurance floor rebinding. No material change since RP-011 (round 3 full re-verification): review_incremental_context confirms freshnessClassification=CURRENT_MATERIAL, scopeChanged=false, changedFiles=none. Re-verified checklist_get: 4/4 items done, verificationIntent/Evidence coverage unchanged (0 failing, 0 waivers across all items). Re-ran test:flow-stability-smoke as sanity check: passed unchanged. No blocker.",
+      "createdAt": "2026-07-24T03:11:59.623Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-015",
+      "envelopeId": "a2e4170b54f2750dd12aa1e2b7583ee382d5eb1aad36e8527fce049b71116f80",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f647cde036e6dbb483bc8d0a6794cb6d8de11ee5b20baedcee5cdb28f7e02f40"
     }
   ]
 }
