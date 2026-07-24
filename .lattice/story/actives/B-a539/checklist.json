@@ -126,11 +126,11 @@
           "kind": "integration_test",
           "command": "LATTICE_MAX_TIMEOUT_MS=3600000 node bin/lattice.js validate --json",
           "result": "pass",
-          "note": "Complete unfocused validate run: the JSON invocation record contains 47 command results, of which exactly ONE references reviewer-scan-budget-guard-smoke.js: {label: configured validate.commands[11], command: node, args: [packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js], code: 0, output: \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 7 required phrases present)\"}. The stderr per-command record independently agrees (one start line, one end line, code=0). A prior run reproduced the same count of one. The overall run status is fail on two unrelated timing-sensitive commands (validate-progress-heartbeat-smoke.js, which times out waiting for a fixture file under host load and passes standalone, and quorum-submit-smoke.js, which exceeded its own 600s budget); neither references this script nor lattice.config.json parsing, and this change only removes work.",
-          "headHash": "17ff66a55d7e5aa9b11969113378a14d00ca5db0",
-          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
-          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
-          "timestamp": "2026-07-24T18:53:07.078Z"
+          "note": "Re-attested post-merge on the merged story-owned lattice.config.json. Complete validate run: status=pass, 47 command results, ALL passing (zero failures), of which exactly ONE references reviewer-scan-budget-guard-smoke.js with code:0 and output \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 7 required phrases present)\". The stderr per-command record shows exactly one start line for that script. This supersedes the earlier pre-merge attestation and confirms exactly-once holds after main was merged (which raised the quorum-submit-smoke budget to 20m, letting the full run complete green under lighter host load).",
+          "headHash": "3ab3a7b738d216d2bb61a6a871a21ce314abfcff",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:19:54.108Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
