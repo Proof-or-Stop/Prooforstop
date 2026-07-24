@@ -466,6 +466,42 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
  * (hashes, ids, timestamps, bare numbers, paths) so two rejections that differ
  * only in incidental detail collapse to the same key.
  */
+/**
+ * B-cc54: pull the STRUCTURED blocker identity out of a normalized gate reason.
+ *
+ * gateFailureDigest hashes only the first 200 normalized characters. For a
+ * structured gate failure that prefix is an invariant banner — every ProofStory
+ * DEV-gate refusal opens with the same "cannot enter dev: proofstory dev gate is
+ * enforce ... status: fail blocking: yes hardening level: high_assurance" text —
+ * while the part naming WHICH precondition is unmet ("diagnostic gaps: -
+ * missing_acceptance_binding ...") sits far beyond character 200. Digit
+ * normalization erases what is left ("trigger reasons (4)" and "(6)" both
+ * collapse to "(#)").
+ *
+ * Reproduced on B-cc54 itself: three genuinely DIFFERENT blockers (missing
+ * intent snapshot -> missing acceptance binding -> missing verificationIntentRefs)
+ * collapsed onto one digest, so fixing one precondition at a time read as a stuck
+ * repeat loop and froze the story. Clearing that freeze demands an interactive
+ * human ack, which an unattended run can never obtain — so a false positive here
+ * is precisely a "needs a human" failure.
+ *
+ * The key therefore also carries the blocker's structured identity: bracketed
+ * reason codes ([missing_scope_boundary]) and diagnostic gap ids
+ * (- missing_spike_evidence [warn; spike.json]). Both come from a bounded
+ * vocabulary, so a genuinely stuck loop keeps emitting the SAME set and still
+ * trips. This widens the key; it never resets the counter on free text.
+ */
+export function extractGateBlockSignals(normalizedReason: string): string[] {
+  const signals = new Set<string>();
+  // Bracketed reason codes: [missing_scope_boundary], [init_check_tampered], ...
+  for (const m of normalizedReason.matchAll(/\[([a-z][a-z0-9_]{3,})\]/g)) signals.add(m[1]);
+  // Diagnostic gap ids: "- missing_acceptance_binding [warn; proofstory.json]"
+  for (const m of normalizedReason.matchAll(/\b((?:missing|invalid|stale|unreadable|tampered)_[a-z0-9_]+)/g)) {
+    signals.add(m[1]);
+  }
+  return [...signals].sort();
+}
+
 export function gateFailureDigest(command: string, reason: string): string {
   const normalized = String(reason ?? '')
     .toLowerCase()
@@ -475,9 +511,14 @@ export function gateFailureDigest(command: string, reason: string): string {
     .replace(/\/[^\s"']+/g, '#')                 // absolute paths
     .replace(/\d+/g, '#')                        // bare numbers
     .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 200);
-  const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);
+    .trim();
+  // B-cc54: scan the WHOLE normalized reason for structured blocker identity,
+  // then key on prefix + that identity. A reason carrying no structured signal
+  // keeps the historical prefix-only key, so existing behaviour is unchanged.
+  const signals = extractGateBlockSignals(normalized);
+  const prefix = normalized.slice(0, 200);
+  const basis = signals.length > 0 ? `${prefix} signals:${signals.join(',')}` : prefix;
+  const h = createHash('sha1').update(`${command}\n${basis}`).digest('hex').slice(0, 12);
   return `${command}/${h}`;
 }
 
