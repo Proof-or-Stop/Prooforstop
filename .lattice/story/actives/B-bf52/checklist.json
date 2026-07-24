@@ -100,11 +100,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proof executed during DEV: restoring .slice(0, 200) alone and rebuilding fails exactly 'truncation-removal -> dev-gate-one-gap-differs, dev-gate-gap-count-differs' (2 of 12) with the other 10 cases still passing, so these checks are bound to this change.",
-          "headHash": "aa96e1b58bffe46e0b3538ea089d73036258896e",
-          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
-          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
-          "timestamp": "2026-07-23T23:20:28.895Z"
+          "note": "Revert-proof re-derived against the round-3 matrix: restoring the pre-story 200-character cut fails exactly {dev-gate-one-gap-differs, dev-gate-gap-count-differs} (guard truncation-removal) and leaves the other 22 cases passing, so these checks are bound to this change. Independently reproduced by the test-coverage lane.",
+          "headHash": "a2b6f4e5a7c638efb6db6f7edb0b8241533dc051",
+          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
+          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
+          "timestamp": "2026-07-24T01:43:23.728Z"
         }
       ]
     },
