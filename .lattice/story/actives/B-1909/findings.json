@@ -44,6 +44,28 @@
       "_hash": "6fa7dce18598f2f1686f2fc18c52735cdd2b01a77b76a1ab6d4e34772b25d9fb",
       "signatureTag": "missing|unknown|handlers-proofstory-normalizescoperefarray",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1909:F-004",
+      "desc": "CHK-002:edge:0 evidence overclaims: intent names 5 call sites (checklist.ts:82, story-query.ts:568, hints.ts:70, session.ts:435, milestone-status.ts) that must exclude withdrawn from delivered counts. Cited evidence (withdrawn-disposition-smoke.ts) only exercises checklist.ts (checklist_get slim + summarizeChecklist). grep confirms story-query.ts, hints.ts, session.ts, milestone-status.ts are never touched by either smoke task, though git diff shows each carries its OWN independently modified counting/rendering implementation (duplicated, not delegating to checklist.ts summarizeChecklist). Passing the checklist.ts test does not prove correctness for the other 4 named, load-bearing sites; no test anywhere in repo touches them.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T22:12:56.704Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-006",
+      "_hash": "cc0e58d44e1f2494f20ba4a5de0aefc80daf59f8b0068e6a5748f89a381d4b57",
+      "files": [
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/src/handlers/hints.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-evidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
