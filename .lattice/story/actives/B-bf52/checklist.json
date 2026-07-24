@@ -196,11 +196,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-still-collapse machine-path-into-repo-relative-segments [guard: path-rule-collapse]' asserts a path continuing from a machine root into repo-relative segments is consumed in one match, leaving no per-host remainder.",
-          "headHash": "adcbc0c7d21b9e458d0234281c9744c8c8618039",
-          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
-          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
-          "timestamp": "2026-07-24T03:29:50.183Z"
+          "note": "Case 'must-still-collapse machine-path-into-repo-relative-segments [guard: path-rule-collapse]' asserts a path continuing from a machine root into repo-relative segments is consumed in one match, leaving no per-host remainder. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
+          "headHash": "000f4e76edc3f4b9b625e5332cff6a21df6914a7",
+          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
+          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
+          "timestamp": "2026-07-24T10:15:47.522Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
