@@ -670,6 +670,7 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
         postTestReviewerReattestations?: number;
         humanConfirmations?: number;
         unchangedSuiteExecutions?: number;
+        reviewWindowSuiteExecutions?: number;
         successfulCloseout?: number;
       };
     };
@@ -685,6 +686,9 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
       postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
+      // B-f824: fixture's real validate executes once in the whole window, so
+      // the observable review-window duplicate counter is 0 as well.
+      reviewWindowSuiteExecutions: 0,
       successfulCloseout: 1,
     });
     assert.match(parsed.transcript ?? '', /^DONE prepare: PASS$/m);
