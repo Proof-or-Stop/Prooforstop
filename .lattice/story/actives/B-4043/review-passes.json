@@ -567,6 +567,38 @@
         "scanEscalationReason": null
       },
       "_hash": "735189f08116e9cec68203409cb2688789364a6a773162288fd26d37f64c3673"
+    },
+    {
+      "id": "B-4043:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round: only change since RP-015 is the checklist.json CHK-001 relatedDocs anchor edit (AGENTS.md#流程事实双層契約 -> AGENTS.md (two-layer process-fact contract section)), confirmed via git diff f11ff8f4eb..6584a3e2ce (zero production/test files; only .lattice/story/actives/B-4043/* metadata). No concept deletion/replacement occurred; concept-residue check completed, no blocker. Verified: read english-artifact-gate.ts source (AUTHOR_METADATA_BASENAMES matches the 7 gate-scanned files exactly), grep-scanned all 7 for CJK (0 matches), grep-scanned git log main..HEAD for CJK (0 matches), ran npm run test:english-only-guards (7/7 pass incl. real git-log-reader test). New relatedDocs text names AGENTS.md and uniquely, accurately identifies its single 流程事实双層契約 heading (verified only one such heading exists) so traceability is preserved.",
+      "createdAt": "2026-07-24T16:43:23.428Z",
+      "reviewRound": "2026-07-24T16:39:55.171Z",
+      "reviewRunId": "B-4043:RR-028",
+      "envelopeId": "3b2cd3b3f7dc2a8eae2c6b101a65f5e94bfacf5f62e19d8916bacafa6ebabba3",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/decision.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/understanding.json",
+          "AGENTS.md",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e9d31a91a244ee8dac13b151586f8c3000834a09b222533a816cd7da5c196863"
     }
   ]
 }
