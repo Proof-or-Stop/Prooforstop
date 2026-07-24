@@ -174,6 +174,55 @@
         "scanEscalationReason": null
       },
       "_hash": "52e2785a2075981e058c5c3ea724a5328ff5cdd6e9290f60856ec52202f6e9aa"
+    },
+    {
+      "id": "B-5e4a:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 rebind after merge-induced storyFilesHash drift (main merge of 92 sibling-story commits moved lattice.config.json via a sibling's validate-command line; no story code changed since RP-005/RR-007). Re-verified git diff main...HEAD --stat and full diffs of every non-metadata story-owned file: still the same purely-additive diff already passed twice (RP-001, RP-005). lifecycle-registry.ts adds 5 new registered filenames (comment-documented, backward-compat preserved, no removals). lifecycle-registry-contract.ts (full diff read) adds two new cross-checks (acceptance-topology classification + StoryStore coverage invariant) plus derivation helpers -- purely additive, no deleted functions/checks. lattice.config.json gains one new smoke-registration line for lifecycle-registry-contract.js. docs/requirements/decisions/lifecycle-artifact-scope.md and scripts/verify-process-fact-contract.mjs get additive doc/contract entries only. Only deletions in the whole diff: checklist.json pending/null status fields flipping to done+timestamps and index.json phase field (expected story-metadata progression, not concept residue), plus one PASS log-message line rewritten to include StoryStore coverage counts (purely additive expansion of the same message, not a symbol removal). No concept was deleted or replaced this round, so no repo-wide residue grep applies; recording pass per the no-blocker branch.",
+      "createdAt": "2026-07-24T03:06:42.281Z",
+      "reviewRound": "2026-07-24T03:04:59.168Z",
+      "reviewRunId": "B-5e4a:RR-011",
+      "envelopeId": "f2d756a630bcb685ab8649ab94040fcd337371c6f38f668bcbe36e0275955b4c",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "lattice.config.json",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5e4a/acceptance-basis.json",
+          ".lattice/story/actives/B-5e4a/checklist.json",
+          ".lattice/story/actives/B-5e4a/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-5e4a/decision.json",
+          ".lattice/story/actives/B-5e4a/delivery-check.json",
+          ".lattice/story/actives/B-5e4a/done-required-evidence.json",
+          ".lattice/story/actives/B-5e4a/findings.json",
+          ".lattice/story/actives/B-5e4a/index.json",
+          ".lattice/story/actives/B-5e4a/intent-collision.json",
+          ".lattice/story/actives/B-5e4a/original-intent-snapshot.json",
+          ".lattice/story/actives/B-5e4a/plan.md",
+          ".lattice/story/actives/B-5e4a/process-events.jsonl",
+          ".lattice/story/actives/B-5e4a/process-metrics.json",
+          ".lattice/story/actives/B-5e4a/prompt-envelopes.json",
+          ".lattice/story/actives/B-5e4a/proofstory.json",
+          ".lattice/story/actives/B-5e4a/red-evidence.json",
+          ".lattice/story/actives/B-5e4a/review-passes.json",
+          ".lattice/story/actives/B-5e4a/review-runs.json",
+          ".lattice/story/actives/B-5e4a/review.json",
+          ".lattice/story/actives/B-5e4a/scope-check.json",
+          ".lattice/story/actives/B-5e4a/scope-contract.json",
+          ".lattice/story/actives/B-5e4a/summary.json",
+          ".lattice/story/actives/B-5e4a/test-evidence.json",
+          ".lattice/story/actives/B-5e4a/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f71345ed44066d0fbae649cbdfeefcd5219acb079aa9742ee9fd1102d97e7418"
     }
   ]
 }
