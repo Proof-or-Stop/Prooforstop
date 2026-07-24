@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-cc54:F-001",
+      "desc": "packages/main/src/tasks/gate-repeat-block-smoke.ts CHK-001 (happy:0, happy:1, edge:0, adversarial:0, adversarial:1) — 5 of 37 verificationIntent entries describe the actual root-cause bug (gateFailureDigest .slice(0,200) truncation makes DIFFERENT block reasons collide when they share the 200-char invariant banner) and phrase the expected observation as RED (\"both return the same digest key today\"). All 5 are recorded as verificationEvidence result=pass at headHash e749555297 with note \"RED was captured by reverting the fix\" — but (1) git history shows e749555297 (CHK-005: cover all 37 intents) is chronologically AFTER the actual fix commit d07885e8c8 (key the repeat-block breaker on the actual blocker), so these exact per-intent-labeled assertions were authored/evaluated only against already-fixed code; (2) the ONLY red-evidence artifact on file (.lattice/story/actives/B-cc54/red-evidence.json, baselineHeadHash=00bba7d1b3) documents a structurally different scenario — evaluateScopeAntiExpansionGate refusing with the SAME reason 3x asserting an abandoned TRIP_CODE marker — not the different-reasons-collide-via-truncation defect CHK-001 actually describes. There is no commit, stash, or artifact anywhere in the repo showing the current CHK-001 assertions (e.g. assert.notEqual(digest(REASON_1), digest(REASON_2))) ever failing pre-fix. The RED claim in verificationEvidence is therefore unverifiable and, given the timeline, appears not to have occurred as stated — a self-serving evidence claim recorded by the same agent that authored both the fix and the smoke, for the headline bug this story exists to prove.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T00:25:55.876Z",
+      "reviewRound": "2026-07-24T00:21:09.115Z",
+      "reviewRunId": "B-cc54:RR-003",
+      "_hash": "86b9ab8d243cd4abe419a49d96196328fcc50ae963f39c0413daec1177ce8d26",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
