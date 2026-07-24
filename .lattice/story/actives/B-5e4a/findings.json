@@ -1,0 +1,89 @@
+{
+  "findings": [
+    {
+      "id": "B-5e4a:F-001",
+      "desc": "packages/main/src/tasks/lifecycle-registry-contract.ts:264-266 STORYSTORE_TOP_LEVEL_ARTIFACT_CALL_RE only matches literal filenames passed to .readJson/.writeJson/.appendJsonl helper calls. packages/main/src/core/store.ts:1000/1021/1028 writes the top-level story artifact review-loops.jsonl via join(this.storyDir(storyId), REVIEW_LOOP_FILENAME) + appendFileSync/writeFileSync (a constant reference, not through the readJson/writeJson helper, and there is no appendJsonl method in store.ts despite the regex naming it) -- so review-loops.jsonl is invisible to the derivation and is NOT in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES. Verified live: classifyLifecycleArtifact(\".lattice/story/actives/B-5e4a/review-loops.jsonl\") returns null, the exact same OUT_OF_SCOPE misclassification bug class this story exists to close, and it is invisible to the new coverage smoke (PASS, 0 divergences, 48/48). This contradicts the smoke comment at lifecycle-registry-contract.ts:~248 (\"closes the B-956f / B-bf52 regression class mechanically ... a new StoryStore top-level artifact write without a registry entry fails this contract\") and the CHK-002 DoneWhen promise -- the mechanism only covers one write-call shape, not all StoryStore write paths.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T01:16:16.362Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-002",
+      "_hash": "3d740b8aa4001db454b55e06402057960093ed9f5f99e600a7364284e0acd672",
+      "files": [
+        "packages/main/src/tasks/lifecycle-registry-contract.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/review-loop.ts",
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-5e4a:F-001@e3b2af8"
+    },
+    {
+      "id": "B-5e4a:F-002",
+      "desc": "packages/main/src/tasks/lifecycle-registry-contract.ts:375-378 isStoreHelperParameter searches the ENTIRE store.ts source text for `[(,]<ident>: string` rather than scoping to the enclosing method, so it false-positives on identifier-name collisions with unrelated methods. Verified with a bite test: given store.ts already declares `storyFilePath(storyId: string, file: string)`, a hypothetical future method `someNewMethod(storyId: string) { const file = computeDynamicName(); return join(this.storyDir(storyId), file); }` (a genuinely dynamic top-level filename, NOT a generic helper parameter) makes isStoreHelperParameter(source, \"file\") return true purely because an unrelated existing parameter is also named `file: string` — so deriveStoryDirJoinFilenames silently `continue`s past it instead of hitting the fail-loud derivation-blind-spot record() path the code comment at line 380-384 promises (\"never skipped silently\"). This undermines the exact regression class B-5e4a/F-001 was built to close: a new StoryStore top-level artifact write escaping the coverage smoke without a named divergence, specifically when its join-site local identifier happens to share a name with any typed string parameter elsewhere in store.ts (common names like file/path/name are plausible collisions). Does not affect current store.ts (no live write exploits this), but is a real latent gap in the newly-added pass-2 code.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T01:55:35.306Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-005",
+      "_hash": "df0079cca90b3849d48272670e03f0f18908b759342316b37f6a585d512a5830",
+      "files": [
+        "packages/main/src/tasks/lifecycle-registry-contract.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-5e4a:F-002@f99744a"
+    },
+    {
+      "id": "B-5e4a:F-003",
+      "desc": "packages/main/src/tasks/lifecycle-registry-contract.ts:382-393 findEnclosingBraceOpen (used by isEnclosingCallableParameter, F-002 fix) does a naive char-by-char brace-depth scan with no string/comment stripping, contradicting its own doc claim (\"Balanced {...} pairs encountered on the way ... cancel out via the depth counter\"). Repro (isolated harness, verbatim-copied function bodies, not committed): a genuine helper-parameter join site that needs MULTI-HOP ascension past a non-callable block (if/for) — e.g. `someMethod(storyId: string, file: string): void { const s ='x } y'; if (storyId) { const path = join(this.storyDir(storyId), file); } }` — misclassifies as NOT a helper parameter (isEnclosingCallableParameter returns false) because the stray unmatched '}' inside the string literal (or a `//` comment) inflates the depth counter and desyncs the backward scan past the true enclosing method brace. Verified this is single-hop-safe (no bug when the join call sits directly in the method body with no intervening block, matching both real store.ts sites at storyFilePath/writeJson) and confirmed the failure direction stays SAFE (fails toward the named divergence, never toward silently accepting an unrelated coincidentally-named identifier — a constructed dangerous-direction probe returned false as expected, not a false accept). Does not affect current store.ts (both live join sites are single-hop, 49/49 derived, 0 divergences) but is a real latent gap: a future entirely legitimate store.ts change (wrap a real join(this.storyDir(...), file) call in a validation if-block, with any comment or string literal containing an unmatched } somewhere between that block and the method) would make this exact CHK-002 coverage smoke fail with a spurious derivation-blind-spot divergence on genuine helper plumbing, contradicting the just-fixed docstring at lines 452-469 promise that ambiguity always fails toward the named divergence for genuinely unresolved identifiers only — here it misfires on a resolved one.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T02:07:20.026Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-006",
+      "_hash": "fecb3f21c54c2bcd5d4b10471aba8de6fdb9e6ede634d757d5a70300341658a5",
+      "files": [
+        "packages/main/src/tasks/lifecycle-registry-contract.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "dismissReason": "Round-3 medium, dismissible per decay rules with documented rationale: (1) the defect requires multi-hop brace ascension past an unmatched brace inside a string/comment — a shape that does not exist anywhere in current store.ts (verified: both real helper sites are single-hop, contract runs 49/49 derived, 0 divergences); (2) the failure direction is provably safe — the reviewer own dangerous-direction probe confirmed the walker can only fail toward emitting a spurious named divergence (fail-loud CI signal), never toward silently accepting an unrelated identifier, so the story acceptance claim (no silent registry regression) holds regardless; (3) worst case is a self-announcing contract failure during a hypothetical future store.ts refactor, at which point the walker gets hardened with a string/comment mask. Latent robustness improvement, not a correctness hole.",
+      "dismissedAt": "2026-07-24T02:08:39.397Z"
+    },
+    {
+      "id": "B-5e4a:F-004",
+      "desc": "lattice verification_evidence_refresh_stale --dryRun (B-5e4a) reports all 8 verificationEvidence entries on CHK-001 (happy:0, edge:0, edge:1, adversarial:0) and CHK-002 (happy:0, edge:0, edge:1, adversarial:0) as STALE relative to current HEAD. Confirmed mechanically: git diff <evidence.headHash> HEAD -- packages/main/src/core/lifecycle-registry.ts packages/main/src/tasks/lifecycle-registry-contract.ts shows both files changed by the two post-round-1 fix commits (e3b2af8743 Resolves F-001, f99744a8b7 Resolves F-002) after the evidence was recorded, which is why buildVerificationCoverage classifies these must-priority entries (all but CHK-001:edge:1, which is should) as status=stale/not-covered -- surfacing as missingRequired>0 on lattice validate --story=B-5e4a. I independently re-ran both cited commands (npm --prefix packages/main run test:lifecycle-registry-contract; node tmp/b5e4a-red/red-registry-coverage.mjs) and confirmed the underlying claims still hold in substance: contract now PASSes with 49 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl), 0 divergences; red harness PASSes 8/8. So this is a freshness/hash-binding gap, not a functional regression -- but a bare hash-touch refresh via verification_evidence_refresh_stale (which preserves the note field verbatim, per checklist.ts) would silence the staleness flag while leaving two notes with a now-inaccurate literal count: CHK-002:edge:1 note says the derivation floor check demonstrates 48 filenames derived (floor 40) and CHK-002:happy:0 note says 48/47 commands ... 48 StoryStore top-level artifact filenames derived -- the smoke now reports 49 (floor unchanged) after the F-001 fix registered review-loops.jsonl via the new storyDir join-site pass. Recommend recording fresh verificationEvidence (not a bare hash touch) for CHK-001/CHK-002 bound to current HEAD with notes updated to the current 49-count / pass-2-inclusive smoke output before TEST->DONE. Separately: F-001/F-002 fixes themselves carry adequate self-documented verification -- bite tests and adversarial scratch probes are recorded in the finding desc/dismiss text (F-001: live classifyLifecycleArtifact repro; F-002: constructed parameter-collision bite test; F-003: dismissed with a documented dangerous-direction probe showing fail-safe direction) and I reproduced the current green state independently, so no separate finding is filed on that point.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T02:20:19.624Z",
+      "reviewRound": "2026-07-24T02:10:02.005Z",
+      "reviewRunId": "B-5e4a:RR-009",
+      "_hash": "7d84272395da58e6daf1cc3d10fe07b3c7c20bf129f5f6d61669fc3d280b5e09",
+      "files": [
+        "packages/main/src/tasks/lifecycle-registry-contract.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        ".lattice/story/actives/B-5e4a/checklist.json"
+      ],
+      "signatureTag": "missing|ts|lattice-verification-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Recorded 8 fresh verificationEvidence entries (verification_evidence_batch_add) bound to current HEAD 27103e76b1, re-running every cited command rather than hash-touching: red harness 8/8, contract task PASS with the corrected 49-derived count (notes updated from the stale 48 to 49 including the storyDir join-site pass for review-loops.jsonl), legacy-prefix transcript re-run, bite-test notes extended to cover both the pre- and post-F-001 trees and the F-002 adversarial probe. No bare refresh_stale hash touch was used, per the finding recommendation.",
+      "resolvedAt": "2026-07-24T02:21:43.040Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

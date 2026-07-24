@@ -1,0 +1,28 @@
+{
+  "task": "Register the four acceptance-topology story artifact filenames (acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json) in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and add a coverage-invariant smoke so unregistered StoryStore top-level artifacts cannot silently regress.",
+  "outcome": "acceptance_basis_generate and the other topology steps no longer trigger blocking OUT_OF_SCOPE scope violations on their own generated metadata; classifyLifecycleArtifact returns kind=lifecycle for all four filenames; lattice validate includes a smoke that fails with a named filename if any StoryStore top-level artifact write is unregistered and unexempted.",
+  "facts": [
+    "classifyLifecycleArtifact (packages/main/src/core/lifecycle-registry.ts) recognizes top-level story-dir files only when the basename is in the closed set LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (line ~599); unregistered basenames return null and classifyScopePath then reports category=unknown rule=out_of_scope allowed=false",
+    "Live repro against dist: the four acceptance-topology filenames classify null while siblings (proofstory.json, red-evidence.json) classify lifecycle",
+    "The four writers in core/store.ts (writeAcceptanceBasis, writePreReviewCheck, writeTopologyCriticReceipt, writeTopologyExclusionApprovals) are all called live from handlers/proofstory.ts",
+    "Registration is provenance-only classification; scope-path-classifier hint states gate evidence is still checked separately",
+    "B-12a1 previously hand-added ten intent artifact filenames to the same set; B-3ed9 added three command-family filenames — the set has needed repeated manual catch-up",
+    "packages/main/src/tasks/lifecycle-registry-contract.ts already cross-checks registry dimensions against independent truth sources and fails with named divergences — the natural home or template for the new invariant",
+    "authority-receipt-refs.json is also unregistered but excluded from this story: dead writeLegacyReceiptRefs path, Authority future-capability domain (scope-boundary excludedScope names it)"
+  ],
+  "constraints": [
+    "Closed-set narrow trust policy from B-b9d0 must stay; do not open the classifier to arbitrary story-dir files",
+    "No change to LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS / capsule subdirectory coverage",
+    "No change to gate evidence semantics",
+    "The coverage smoke must exempt authority-receipt-refs.json by name with a comment explaining why",
+    "Version bump discipline: CLI patch version +1 on merge since this changes runtime behavior"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/lifecycle-registry-contract.ts",
+    "packages/main/src/validate.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-24T00:05:48.962Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-5e4a",
+  "records": [
+    {
+      "id": "RED-20260724002425",
+      "trigger": "red_evidence_required: bug fix work (false OUT_OF_SCOPE classification of acceptance-topology story artifacts)",
+      "acceptanceTargetRef": "sha256:e4608de509ce3e2daa2049a08bea80962fd970e0814fb4e3d709311680385be9",
+      "baselineHeadHash": "d8db64c9e4a8728d57218e18f0cd5a13c1ac7d33",
+      "baselineMaterialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+      "observedFailure": "Against the story baseline build, classifyLifecycleArtifact returns null for all four acceptance-topology story artifacts (.lattice/story/actives/B-5e4a/acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json), so classifyScopePath reports category=unknown rule=out_of_scope allowed=false and the scope gate blocks. Live confirmation in this very story: scope_contract_check flags OUT_OF_SCOPE on .lattice/story/actives/B-5e4a/acceptance-basis.json immediately after acceptance_basis_generate wrote it. The harness reports 4/8 FAIL and exits 1; the four negative controls (arbitrary basename, unregistered basename variant, traversal path, non-canonical story id) pass at baseline and must keep passing after the fix, so the harness cannot be satisfied by opening the closed set.",
+      "failingCommand": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+      "expectedGreenCommand": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+      "greenRelation": {
+        "targetRef": "sha256:e4608de509ce3e2daa2049a08bea80962fd970e0814fb4e3d709311680385be9",
+        "relation": "same_acceptance",
+        "command": "node tmp/b5e4a-red/red-registry-coverage.mjs"
+      },
+      "note": "Same harness is red and green: exit 1 at baseline (4/8), must exit 0 (8/8) after CHK-001 registers the four filenames. Controls pin the closed-set trust policy.",
+      "createdAt": "2026-07-24T00:24:25.964Z"
+    }
+  ],
+  "createdAt": "2026-07-24T00:24:25.964Z",
+  "updatedAt": "2026-07-24T00:24:25.964Z"
+}
