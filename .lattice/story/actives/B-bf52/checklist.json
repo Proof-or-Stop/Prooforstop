@@ -264,11 +264,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "'must-differ checklist-ordinal' and 'checklist-ordinal-at-reason-start' [guard: substantive-id-allowlist], plus 'finding-ordinal' and 'unfixed-bug-ordinal', assert that an ordinal naming WHICH lifecycle artifact failed survives normalization. Five further must-differ cases prove the whole-token test is not TOO strict, each guarded by the rule it exercises: 'open-blocking-finding-delimiter-attached-id' (qualifier), 'excluded-keyword-parenthesized-item-id' and 'embedded-test-output-bracketed-and-quoted-id' (leading-punctuation strip), 'checklist-not-done-comma-list' and 'scope-extension-proposal-sentence-final-period' and 'blocking-finding-desc-semicolon-attached-id' (trailing-punctuation strip). Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
-          "headHash": "8aadbfccb53ab164be1327101371b204577a8728",
-          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
-          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
-          "timestamp": "2026-07-24T13:12:37.513Z"
+          "note": "Cases guarded substantive-id-allowlist assert that an ordinal naming WHICH lifecycle artifact failed survives normalization: 'checklist-ordinal', 'checklist-ordinal-at-reason-start', 'finding-ordinal' and 'unfixed-bug-ordinal'. Cases guarded substantive-id-wrapper-pair-strip and substantive-id-sentence-punct-strip prove the whole-token test is not TOO strict, keeping a real id protected when a real rejection wraps it in balanced punctuation or ends a sentence with it. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
+          "headHash": "ed1585a0674853dab6e9200e2783aff1cb87576d",
+          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
+          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
+          "timestamp": "2026-07-24T14:14:48.617Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
