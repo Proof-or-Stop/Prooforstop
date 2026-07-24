@@ -1,0 +1,31 @@
+{
+  "storyId": "B-c054",
+  "name": "red-evidence-canon-policy-foundation",
+  "title": "Land RFC 8785 CANON and fail-closed red-evidence policy resolution, surfaced in doctor",
+  "description": "The trusted RED-evidence subsystem spec (docs/requirements/decisions/red-evidence-subsystem-spec.md, DONE and on main) needs its foundation leaf: a single RFC 8785 JCS canonicalizer that the whole subsystem digests through, plus the fail-closed policy resolver that owns the §1.2 policy table, registries, and the §1.12 hard safety floors. No existing canonicalizer can serve — core/digest.ts sorts by localeCompare and authority-signing maps null to undefined — so this must be a new leaf, proven differentially so no later reviewer re-litigates it. It terminates at a non-gating doctor health check, and deliberately commits no redEvidence block to lattice.config.json because pinnedPath is host-specific and required-with-no-default.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "red-evidence",
+    "canonicalization",
+    "rfc-8785",
+    "policy-resolver",
+    "fail-closed",
+    "doctor"
+  ],
+  "createdAt": "2026-07-24T23:42:59.614Z",
+  "startedAt": "2026-07-24T23:42:59.614Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-24T23:43:00.610Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
+    }
+  ]
+}
