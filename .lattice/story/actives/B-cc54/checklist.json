@@ -94,7 +94,47 @@
       "context": "When the counter reaches the threshold (default 3), stop the loop and emit a diagnostic that states the actual unmet precondition rather than a generic refusal, e.g. that findings lack agent attribution and that re-review cannot clear it because attribution is fixed at finding_add time.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assessBreaker({maxGateRepeat:2}, thresholds={maxGateRepeat:2}, priorState={autoRecoveriesSpent:1}) -> action=freeze, reasons array includes string matching gate-repeat; WHY: confirms hard-stop fires when threshold met and recovery budget exhausted",
+            "type": "cli"
+          },
+          {
+            "desc": "enforceConvergenceBreakerGate on command=story_advance when gate-failure counter >= threshold -> throws Error whose message includes storyId and tripped counter description (gate-repeat N>=T); WHY: diagnostic must name the specific tripped signal so an unattended agent can self-correct, not a generic refused-to-advance",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "assessBreaker with maxGateRepeat=1 and threshold=2 -> tripped=false, action=proceed; WHY: boundary just below threshold must not trip",
+            "type": "cli"
+          },
+          {
+            "desc": "assessBreaker with maxGateRepeat=2 and default threshold=2 -> tripped=true because comparison is >= (inclusive at threshold per user stated discipline: same reason twice = livelock); WHY: >= boundary correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_CONVERGENCE_MAX_GATE_REPEAT env set to 0 -> envNumber rejects 0 (allowZero not set for maxGateRepeat), falls back to default 2; WHY: env misconfiguration setting threshold to 0 must not disable the breaker",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "assessBreaker with maxGateRepeat=threshold but priorState.autoRecoveriesSpent=0 -> action=auto-recover (NOT freeze), advance PROCEEDS; attacker gets threshold more attempts in the fresh window before actual freeze; WHY: auto-recovery effectively doubles the runway -- a real loop needs 2 x threshold identical repetitions before hard-stop",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_CONVERGENCE_MAX_GATE_REPEAT set to 100000 (at CONVERGENCE_ENV_MAX sanity ceiling) -> accepted by envNumber as valid, breaker effectively disabled requiring 100K repeats before trip; WHY: sanity ceiling is permissive enough to let a determined operator neutralize the safety brake via env alone",
+            "type": "cli"
+          },
+          {
+            "desc": "Malformed priorState JSON with frozen set to string yes (not boolean true), autoRecoveriesSpent=NaN -> normalizeState coerces frozen to false (=== true fails for string) and recoveries to 0 via num(); WHY: type coercion in persisted state means an attacker who writes frozen as a truthy-but-non-boolean value bypasses the freeze check",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
