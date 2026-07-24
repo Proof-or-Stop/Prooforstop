@@ -50,6 +50,17 @@
           "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
           "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
           "timestamp": "2026-07-24T17:58:56.155Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"count validate.commands entries referencing reviewer-scan-budget-guard-smoke.js\"",
+          "result": "pass",
+          "note": "Post-edit scan: validate.commands length 47 and exactly one entry references reviewer-scan-budget-guard-smoke.js, namely {command:node, args:[packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js], focus:[fast]}. grep -c on the file also prints 1 and the file parses as JSON.",
+          "headHash": "d4ffb707ca70732fe977aa10e2b24195cfde0b49",
+          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
+          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
+          "timestamp": "2026-07-24T18:00:38.016Z"
         }
       ]
     },
