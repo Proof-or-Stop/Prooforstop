@@ -46,7 +46,7 @@
       "desc": "quality: scripts/verify-process-fact-contract.mjs:2146 asserts subtreeReferencesProperty(convergenceAssertFn.body, \"unchangedSuiteExecutions\") true, but this only checks the property is referenced ANYWHERE inside assertDonePreparePassConvergence, not that it appears inside the throwing if-condition specifically. Verified by construction (ran the exact helper against a mutated body): adding an inert `const _dead = convergence.unchangedSuiteExecutions;` statement while REMOVING `unchangedSuiteExecutions` from the actual `if (...) throw` blocking condition still makes subtreeReferencesProperty return true, so this check would pass even if the invariant it claims to guard (unchangedSuiteExecutions stays fail-closed, per the assert message at done-prepare.ts:1655) were silently defeated. Contrast with the file's own pre-existing stronger idiom at scripts/verify-process-fact-contract.mjs:685-699 (hasDiffEnumerationBlockingBranch), which specifically requires the property to appear inside an IfStatement whose branch returns/throws, not merely somewhere in the function body. The new check at 2146 (and its sibling negative check at 2147, which is fine since absence-anywhere is a legitimately stronger claim than presence-anywhere) should use the same if-condition-scoped idiom for the positive case to actually bind the blocking semantics rather than mere reference presence.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T04:00:05.457Z",
@@ -54,7 +54,11 @@
       "reviewRunId": "B-f824:RR-021",
       "_hash": "755c3152f32cdb77b586303e2163cba277d825c2ac757373b0ed60a2df660d5b",
       "signatureTag": "adversarial|unknown|quality-scripts-verify",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the body-wide subtreeReferencesProperty positive check with hasPropertyGuardedThrowingBranch adapted from the hasDiffEnumerationBlockingBranch idiom: requires an IfStatement in assertDonePreparePassConvergence whose condition references unchangedSuiteExecutions and whose then-branch throws; dead-code-only references now FAIL the contract (probe verified). Negative reviewWindowSuiteExecutions check unchanged. Commit 592304c309.",
+      "resolvedAt": "2026-07-24T04:05:55.218Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
