@@ -424,6 +424,19 @@
           "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
           "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
           "timestamp": "2026-07-24T15:49:51.858Z"
+        },
+        {
+          "intentRef": "CHK-004:hardening:issuance-replay-integrity",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations",
+          "result": "pass",
+          "note": "Custom hardening ref, deliberately NOT one of the 15 frozen verificationIntent ids (answers F-008 without the mislabelling that caused F-009/F-010). The issuance-path hardening this binds was introduced by REVIEW findings, not by the original intent set: F-004 required the signed observation to bind replayed production facts rather than caller-supplied reports, and F-006 required the replay not to execute code from the caller-supplied evidence repository. No frozen intent enumerates issuance-path integrity, so rather than force it onto one, it is recorded under its own ref. Command verified live at this head: exit 0, PASS (7 assertions) covering substituted caller report, missing restoration commit, forged restoration commit, and the post-checkout hook regression. Enforcement is independent of this ledger entry: --issuer-mutations is registered in lattice.config.json validate.commands, confirmed gate-reachable by the quality lane.",
+          "headHash": "a2f73fa050b219b42bf73fcef25ee5b7e052b9e9",
+          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
+          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
+          "timestamp": "2026-07-24T15:49:53.017Z"
         }
       ]
     },
