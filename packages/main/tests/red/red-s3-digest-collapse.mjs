@@ -54,21 +54,42 @@
  * asserts that piece and does NOT overlap B-cc54's contract, because its fixtures
  * extract ZERO signals — the branch B-cc54's mechanism never reaches.
  *
- * What remains is the three normalizer-OVERREACH classes B-cc54 does not touch
+ * What remains is the two normalizer-OVERREACH classes B-cc54 does not touch
  * and which still collapsed against main immediately before this story's change:
  *
  *   C2  different phase targets, e.g. DEV/REVIEW vs DEV/TEST — main's path rule
  *       rewrites from ANY slash in a token, so both became `dev#`
- *   C3  different checklist items, e.g. CHK-001 vs CHK-002 — main's `/\d+/g` runs
- *       inside identifier tokens, so both became `chk-#`
  *   C4  different files under a shared first path segment, e.g. src/core/a.ts vs
  *       src/core/b.ts — the same path rule, greedy from the first slash
  *
- * Four incidental-difference classes must KEEP collapsing (regression guard):
+ * ── C3 IS WITHDRAWN AND MOVED TO THE COLLAPSE SIDE (F-058) ───────────────────
+ *
+ * C3 was "different checklist items, e.g. CHK-001 vs CHK-002, must key apart".
+ * This harness asserted it for fifteen review rounds. It is NOT delivered, and the
+ * assertion is INVERTED rather than deleted, because the collapse is now a decided
+ * contract and needs a standing test.
+ *
+ * The reason is a proof, not a budget. core/machine.ts:1190 interpolates RAW
+ * third-party test output into the reason the digest keys on, and in that channel
+ * the bare token `bug-2` (an ordinary TAP subtest name) is TEXTUALLY IDENTICAL to a
+ * bare artifact ordinal such as the `BUG-002` of `Cannot enter DONE: 1 unfixed
+ * bug(s): BUG-002`. Recognising the artifact ordinal therefore necessarily
+ * recognises the third-party label, and eight successive attempts to separate them
+ * (rounds 7-14) each leaked to a shape their author had not enumerated. For a
+ * circuit breaker the safe direction is to COLLAPSE — too fine a key lets a stuck
+ * agent mint a fresh key on every retry and the brake never fires, while too coarse
+ * a key fires the brake early at the cost of one human acknowledgement. So the
+ * artifact-id apparatus is deleted and every ordinal collapses, exactly as main
+ * does it. Delivering C3 needs the digest to consult STORY STATE rather than
+ * message text; that is named as a follow-up in core/convergence-breaker.ts.
+ *
+ * Five incidental-difference classes must KEEP collapsing (regression guard):
  *   K1  ISO timestamps (K1a) and bare attempt ordinals (K1b)
  *   K2  machine-specific absolute paths (/Users/... vs /private/var/...)
  *   K3  hex ids / digests
  *   K4  story-id digits (b-1234 vs b-5678) — B-cc54's own contract
+ *   K5  artifact ordinals (the withdrawn C3) and the third-party label that is
+ *       indistinguishable from one
  */
 import { strict as assert } from 'node:assert';
 
@@ -106,7 +127,7 @@ const same = (label, a, b) =>
     ),
   );
 
-console.log(`S3 RED — gateFailureDigest must distinguish substantive gate failures (dist: ${DIST})`);
+console.log(`S3 RED — gateFailureDigest must distinguish paths/phases and must collapse ordinals (dist: ${DIST})`);
 
 // (C1a and C1b removed — see the ownership note in the header. That class is
 // delivered and guarded by B-cc54, not by this story.)
@@ -136,13 +157,6 @@ differ(
   'transition refused: phase DEV/TEST is blocked by an unmet gate',
 );
 
-// C3: different checklist items are different failures.
-differ(
-  'C3 different checklist item ids are distinct',
-  'verification gap: missing evidence coverage for CHK-001',
-  'verification gap: missing evidence coverage for CHK-002',
-);
-
 // C4: different in-repo files are different failures.
 differ(
   'C4 different in-repo file paths are distinct',
@@ -150,7 +164,7 @@ differ(
   'scope violation: story touched src/core/beta.ts outside its contract',
 );
 
-// K1..K4: incidental differences must still collapse (regression guard).
+// K1..K5: incidental differences must still collapse (regression guard).
 //
 // DECISION HISTORY for K1b, recorded rather than erased, because it was flipped
 // and then flipped back:
@@ -171,11 +185,19 @@ differ(
 //   round 6     The syntactic framing itself is abandoned. Round 4 was right
 //               that no syntactic rule separates `CHK-001` from `b-1234`; K4
 //               below is the proof, since B-cc54 requires the latter to collapse
-//               while C3 requires the former to stay distinct. The separation is
-//               SEMANTIC: an ordinal naming WHICH lifecycle artifact failed is
-//               substantive, and this repo mints those ids from a bounded
-//               vocabulary (SUBSTANTIVE_ID_PREFIXES). Everything else, including
-//               a bare ordinal and a story id, normalizes exactly as main did.
+//               while C3 required the former to stay distinct. The separation was
+//               attempted SEMANTICALLY instead: an ordinal naming WHICH lifecycle
+//               artifact failed was treated as substantive, drawn from a bounded
+//               hand-written vocabulary of id prefixes.
+//   round 15    THE SEMANTIC ROUTE FAILS TOO, and K1b's `same` outlives the
+//               reasoning that once qualified it (F-058). A semantic rule still has
+//               to RECOGNISE its vocabulary in text, and in the raw third-party
+//               output core/machine.ts:1190 embeds, `bug-2` and `BUG-002` are the
+//               same string shape — so the vocabulary cannot be recognised without
+//               also recognising arbitrary labels. Eight rounds of pattern
+//               refinement measured that. C3 is withdrawn (see the header), the
+//               vocabulary is deleted, and K5 below asserts the collapse that
+//               replaces it. K1b's verdict never changed through any of this.
 same(
   'K1a ISO timestamps still collapse (ordinal held constant)',
   'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)',
@@ -200,6 +222,29 @@ same(
   'K4 story-id digits still collapse (B-cc54 CHK-002:adversarial:2, verbatim)',
   'gate blocked for b-1234',
   'gate blocked for b-5678',
+);
+// K5: the WITHDRAWN C3, asserted in the direction the story actually delivers.
+//
+// Read the two assertions together — that is the whole content of F-058. The first
+// is a real first-party render (core/machine.ts:1195). The second is ordinary raw
+// test output, which core/machine.ts:1190 embeds verbatim into the very reason this
+// digest keys on. Lower-cased and whitespace-delimited, the token under decision is
+// the same string shape in both, so no rule over message text can key the first pair
+// apart while keeping the second pair together. Eight rounds of pattern refinement
+// measured that; the ninth records it.
+//
+// These two lines are the standing guard on the decision: if a later change makes
+// either pair key APART, the artifact-id apparatus is back and with it the leak that
+// let a stuck agent mint a fresh counter key on every retry.
+same(
+  'K5a artifact ordinals collapse — the WITHDRAWN C3, from a real producer (F-058)',
+  'Cannot enter DONE: 1 unfixed bug(s): BUG-001',
+  'Cannot enter DONE: 1 unfixed bug(s): BUG-002',
+);
+same(
+  'K5b a third-party TAP label of the SAME shape collapses too (F-058, codex reproducer)',
+  'Cannot enter DONE: test FAIL: # tests 1\n# pass 0\n# fail 1\nnot ok 1 - bug-2 reproducer still red',
+  'Cannot enter DONE: test FAIL: # tests 1\n# pass 0\n# fail 1\nnot ok 1 - bug-5 reproducer still red',
 );
 
 console.log(

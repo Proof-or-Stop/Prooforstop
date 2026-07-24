@@ -541,561 +541,110 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
 }
 
 /**
- * B-bf52 C3: the bounded vocabulary of id prefixes whose ORDINAL is substantive.
+ * B-bf52 F-058: WHY THERE IS NO ARTIFACT-ID ALLOWLIST HERE, and why re-adding one
+ * is not a matter of getting the pattern right.
  *
- * The digit rule cannot decide "substantive vs volatile" syntactically — nothing
- * in the SHAPE of `b-1234` distinguishes it from `CHK-001`, and an earlier draft
- * of this story that tried to draw the line syntactically (identifier-attached
- * digits are substantive) is exactly what put it in conflict with B-cc54, whose
- * CHK-002:adversarial:2 requires `gate blocked for b-1234` and `... b-5678` to
- * keep ONE key. So the line is drawn SEMANTICALLY instead: an ordinal is
- * substantive when it names WHICH lifecycle artifact the gate refused on, and
- * every other digit run is incidental.
+ * This story set out to deliver three classes. C2 (different phase targets) and C4
+ * (different in-repo file paths) are delivered by the narrowed POSIX path rule
+ * below. C3 — "`CHK-001` and `CHK-002` are two different gate failures, so they
+ * must not share one counter key" — IS NOT DELIVERED, and what follows is a proof
+ * that it cannot be, from message text alone. It is not a preference, a deferral or
+ * a budget decision.
  *
- * MEMBERSHIP IS DECIDED BY A MEASUREMENT, NOT BY THE EXISTENCE OF A PRODUCER
- * (F-056, review round 14). The pattern below is a WHOLE-TOKEN test with no
- * reduction, so a prefix earns its place here only if some producer renders its id
- * as the ENTIRE whitespace-delimited token. A prefix whose every native render is
- * comma-, period- or colon-attached is never protected in practice no matter what
- * this set says — its entry buys nothing — while the prefix itself remains an
- * active false-positive surface, because core/machine.ts:1190 embeds RAW
- * third-party test output in the digest and an ordinary label can look exactly
- * like the id. So the criterion is: NAMES WHICH ARTIFACT MUST BE FIXED, SURVIVES
- * THE RETRY, AND HAS A BARE NATIVE RENDER.
+ * THE PROOF (cross-host codex, review round 15). core/machine.ts:1190 renders
+ * `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`, i.e. it
+ * interpolates RAW third-party test output into the very text this function keys
+ * on. In that channel a bare token like `bug-2` — an ordinary TAP subtest name or a
+ * parameterized-test label — is TEXTUALLY IDENTICAL to a bare artifact ordinal:
  *
- * The members, each with the story_advance-reachable render site that emits it
- * BARE (verified by reading the producer, round 14):
- *   chk-  checklist item — core/machine.ts:1169 joins the pending ids with `, ` and
- *         adds NO trailing period, so the LAST id of that list is the whole token;
- *         a reviewer citing the item at the end of the last blocking-finding
- *         description (:756, wrapped by :1181) is bare too.
- *   bug-  bug report — core/machine.ts:1195 `Cannot enter DONE: 1 unfixed bug(s):
- *         BUG-001`, same list join, same bare last element.
- * Two gate refusals naming DIFFERENT members are two different failures; a story
- * that clears CHK-001 and then trips on CHK-002 is making progress, and counting
- * that as one gate failing twice is the false freeze this story exists to kill.
+ *   not ok 1 - bug-2 reproducer still red        third-party label
+ *   Cannot enter DONE: 1 unfixed bug(s): BUG-002 artifact ordinal
  *
- * WHAT WAS REMOVED FOR HAVING NO BARE NATIVE RENDER (F-056, round 14). Each entry
- * records the MEASUREMENT that removed it — the producer was read, not assumed —
- * rather than being deleted silently, because a silent drop is indistinguishable
- * from an oversight:
- *   `f-`   finding id. NEVER BARE. Every mint is composite: audit-meta-store.ts:187
- *          and :501 and handlers/finding.ts:552 all build `${storyId}:F-${NNN}`,
- *          and the one story_advance render (core/machine.ts:756, wrapped by
- *          :1181) interpolates that id whole, so the token is `b-bf52:f-012` — a
- *          colon composite this form has not protected since F-052. The entry
- *          therefore protected nothing, and `f-` is the WORST of the three to keep:
- *          a single letter is the most likely shape to collide with an ordinary
- *          hyphenated label in the third-party output :1190 embeds.
- *   `req-` requirement id. NEVER BARE. The only ordinal-bearing `REQ-` in the tree
- *          is the key-requirement id (core/proofstory.ts:85 defaults it to
- *          `REQ-001`), and its only story_advance-reachable render is
- *          core/proofstory.ts:1026 — `… references sourceRequirementId REQ-001,
- *          which is not in original intent keyRequirementIds.` — surfaced by the
- *          report renderer at :1911. The token is `req-001,`: COMMA-ATTACHED.
- *          (core/planner.ts:863-865 mints `REQ-empty` / `REQ-vague` /
- *          `REQ-placeholder`, which carry no ordinal at all.)
- *   `sep-` scope-extension proposal id. NEVER BARE. handlers/scope-anti-expansion.ts:121
- *          mints `SEP-${storyId}-${NNN}` and the only story_advance render is
- *          core/machine.ts:273, `… are still pending: ${ids.join(', ')}.` — every
- *          element but the last is comma-attached and the last is period-attached.
- *          (handlers/init-preflight.ts:254 joins the same ids with no trailing
- *          period, but init_preflight is not story_advance and cli-engine.ts:1500
- *          bumps the counter for story_advance ONLY, so that render never reaches
- *          this normalizer.) Its compound shape could not match the pure-ordinal
- *          body below in any case.
- * REMOVAL COST, stated rather than implied: all three already collapsed before
- * this change, because the F-054 deletion left nothing to strip their attached
- * punctuation. Removing them changes no digest for any first-party render; what it
- * changes is third-party text, where `f-2` / `req-3` / `sep-1` stop being
- * protected. There is consequently NO single-mutation guard on the `sep-` removal
- * (re-adding it changes no observable behaviour, since no bare `SEP-<ordinal>`
- * shape exists anywhere), and the smoke says so instead of implying one. `f-` and
- * `req-` DO have one: the must-still-collapse `bare-finding-ordinal` and
- * `embedded-test-output-bare-requirement-ordinal` cases in
- * tasks/convergence-breaker-smoke.ts key APART the moment either is re-added.
+ * Lower-cased and whitespace-delimited, the token under decision is the same string
+ * in both. There is no property OF THE MESSAGE TEXT that separates them, because
+ * there is no difference in the message text to find. Any rule that recognises
+ * `BUG-002` therefore recognises `bug-2` as well, and any rule that refuses `bug-2`
+ * refuses `BUG-002` too. The two outcomes are the only two available.
  *
- * WHAT WAS REMOVED EARLIER, AND WHY (review round 6, cross-host codex).
- *   `ab-` / `oq-`  DEAD CONFIG (F-035). No `AB-` producer exists anywhere in
- *                  packages/main/src; `OQ-` appears only in comments and in the
- *                  open_question_resolve schema description, and no story_advance
- *                  transition guard renders an open-question id. They protected
- *                  nothing, and their presence made the allowlist look better
- *                  evidenced than it was.
- *   `init-`        WRONG SHAPE (F-034). The only `INIT-${…}` mint is
- *                  handlers/draft-check.ts:81, which ids draft-check issues; that
- *                  artifact is never rendered by a story_advance guard. `init-` is
- *                  now an explicit EXCLUSION in the completeness guard, not a
- *                  silent omission.
- *   `i-`           UNSTABLE ORDINAL (F-044, review round 8). F-034 replaced
- *                  `init-` with `i-` on the strength of the RENDER site being real
- *                  — core/machine.ts:1044 does interpolate `${issue.id}` — but the
- *                  render site was never the criterion. The criterion is stability
- *                  across a retry, and `i-` fails it exactly as `rr-`/`rp-`/`rl-`
- *                  do: cli/command-catalog.ts:2315 declares `issue.id` OPTIONAL and
- *                  reviewer-self-assigned free text, handlers/init-check.ts:139-142
- *                  drops the calling agent's previous record and rewrites its issues
- *                  wholesale on every init_check_set, and the remediation the
- *                  rejection itself prints (core/machine.ts:1036-1044, "re-run the
- *                  corresponding reviewer") is precisely the action that re-mints
- *                  those ids from scratch. So a reviewer re-run that reports the
- *                  SAME unfixed problem can renumber it, mint a fresh digest key,
- *                  and the brake never trips — the unbounded-retry hole. Removing
- *                  `i-` does NOT undo F-034: `init-` is dead config either way and
- *                  stays excluded. `i-` moves to the review-bookkeeping exclusion
- *                  category in tasks/convergence-breaker-smoke.ts, and the
- *                  must-still-collapse `init-check-issue-ordinal` case there is the
- *                  standing guard against re-adding it.
+ * That is why this guard leaked EIGHT times. Rounds 7-14 each closed the shape they
+ * had been shown — a wider lookbehind, a token-start anchor, a balanced-wrapper
+ * rule, a deleted punctuation strip, a pure-ordinal body — and each time the next
+ * round found another shape, because every one of those fixes was an attempt to
+ * separate two strings that are equal. The eight leaks were not eight oversights;
+ * they were eight measurements of one impossibility.
  *
- * WHAT IS DELIBERATELY NOT HERE, AND WHY (F-030, cross-host codex round 5; F-044,
- * round 8). The criterion above is "names WHICH artifact must be FIXED", and the
- * test of that is whether the ordinal SURVIVES the retry the rejection asks for.
- * Review BOOKKEEPING
- * ids — `RR-` (review run) and `RP-` (review pass) — fail it: they name the
- * bookkeeping record that changes on retry, not the artifact at fault. An
- * earlier draft of this story listed them, which reintroduced the inverse-risk
- * hole: "review evidence ... bound reviewRunId B-x:RR-002 is stale" and its
- * RR-003 variant would key differently, and since starting another reviewer run
- * does NOT repair stale evidence (see staleMaterialHint in core/review-run.ts —
- * the fix is to return to DEV), a host repeating review_run_start then
- * story_advance would mint a fresh key on every attempt and the breaker would
- * never trip. That is the unbounded retry loop this module exists to stop, so
- * `rr-`/`rp-` are excluded and the `stale-review-run-evidence` collapse case in
- * tasks/convergence-breaker-smoke.ts is the standing guard against re-adding
- * them. `rl-` (review loop) is excluded on the SAME ground — see the exclusion
- * category in that file for its honest justification. `i-` (INIT_CHECK reviewer
- * issue) is excluded on that same ground too: the id is caller-written, optional,
- * and rewritten wholesale by the next init_check_set, so "re-run the reviewer" —
- * the remediation the rejection prints — renumbers it, and the
- * `init-check-issue-ordinal` collapse case is its standing guard.
+ * WHICH WAY THE TIE BREAKS, and why that removes the allowlist rather than shrinking
+ * it. For a circuit breaker OVER-RECOGNISING is the dangerous direction: a key that
+ * is too fine lets a stuck agent mint a fresh key on every retry, so the brake never
+ * fires — the unbounded loop this module exists to stop. A key that is too coarse
+ * makes the brake fire EARLY: a false freeze, which costs one human acknowledgement.
+ * Every exclusion this story made applied that principle — `rr-`, `rp-`, `rl-` and
+ * `i-` were all excluded because a retry re-mints them — and applied consistently it
+ * removes the allowlist itself. So it is removed: every digit run collapses to `#`,
+ * byte for byte as main does it, and the accepted cost is that a story which clears
+ * CHK-001 and then trips on CHK-002 still reads as one gate failing twice.
  *
- * ACCEPTED RESIDUAL — THIS ENUMERATION IS NOT PROVABLY COMPLETE. It is a
- * hand-written vocabulary, and no mechanism here can invent a prefix that no
- * producer emits yet: a NEW artifact id that starts appearing in a
- * story_advance rejection is, until someone classifies it, treated as volatile
- * and its ordinals collapse (the direction that makes the breaker fire MORE
- * often, i.e. fail-safe for a breaker, but still a false freeze). What IS
- * bounded is DRIFT: the bidirectional completeness guard in
- * tasks/convergence-breaker-smoke.ts section 7c fails when a scanned producer's
- * prefix is unclassified AND when a classified prefix has no producer, so a
- * newly minted or newly deleted id shape is caught by the suite rather than by
- * the next round of review. Do not read this list as "the set of substantive
- * ordinals"; read it as "the set decided so far, with its drift bounded".
+ * WHAT WOULD ACTUALLY DELIVER C3, named so this is a follow-up and not a silence.
+ * Recognising an artifact ordinal is possible, but not from the message: the digest
+ * would have to CONSULT STORY STATE — ask the store whether `CHK-002` is a checklist
+ * item OF THIS STORY, whether `BUG-002` is one of its open bug reports — so that the
+ * decision is made against the story's own artifact inventory instead of against a
+ * string shape. A third-party label that happens to look like an id is then refused
+ * because the story has no such artifact, which is the distinction the text does not
+ * carry. That is a different design with different costs — `gateFailureDigest` stops
+ * being a pure function of `(command, reason)` and becomes store-dependent on a hot
+ * path that must stay cheap, and the inventory itself changes between attempts — and
+ * it is out of scope here.
  *
- * Keep this set SMALL and evidence-backed. Every prefix added here is a prefix
- * whose ordinals stop collapsing, which makes the breaker fire LESS often; the
- * `bcc54-story-id-digits` case in tasks/convergence-breaker-smoke.ts is the
- * standing guard that `b-` never joins it.
+ * The must-still-collapse `embedded-test-output-third-party-label` case in
+ * tasks/convergence-breaker-smoke.ts is the permanent record of this decision: it
+ * uses codex's exact `bug-2`/`bug-5` pair and it fails the moment anything in this
+ * file starts recognising that shape again.
  */
-const SUBSTANTIVE_ID_PREFIXES = new Set(['bug-', 'chk-']);
-
-/**
- * The allowlist, exported READ-ONLY so the completeness guard in
- * tasks/convergence-breaker-smoke.ts can reconcile it against the artifact-id
- * prefixes production source actually emits. A copy is returned so no caller can
- * widen the live set (which would make the breaker fire less often) at runtime.
- */
-export function listSubstantiveIdPrefixes(): string[] {
-  return [...SUBSTANTIVE_ID_PREFIXES].sort();
-}
-
-/**
- * A substantive artifact id is the ENTIRE whitespace-delimited token, AS IT
- * ARRIVES — nothing is removed from a token before it is tested (F-054).
- *
- * WHY THIS IS A SHAPE, NOT ANOTHER BOUNDARY. Four successive revisions of this
- * guard stated the rule as a boundary ASSERTION around the id — "the stem must
- * not be preceded by X", "the ordinal must be followed by Y" — and every one of
- * them was defeated by a punctuation character its author had not enumerated.
- * Two more stated it as a whole-token test applied to a REDUCED token, and both
- * were defeated by a reduction its author had not thought through.
- * The reachable channel is core/machine.ts:1190, `Cannot enter DONE: test
- * ${evidence.result}: ${evidence.output}`, which embeds RAW third-party test
- * output in the digest, so the enumeration was being tested against arbitrary
- * text rather than against this repo's own renders. The measured history:
- *
- *   `\b` (round 7)          a hyphen is a NON-word character, so it CREATES the
- *                           boundary `\b` asks for: `de-bug-2` / `de-bug-7`,
- *                           `scenario-f-2` and `over-req-3` each kept a
- *                           protected-looking tail (F-043).
- *   `(?<![\w-])` (round 8)  closed exactly those two characters. A SLASH is
- *                           neither, so `scenario/bug-2` walked through; and the
- *                           match began at the FIRST allowlisted stem it found, so
- *                           the doubled prefix `BUG-BUG-2` did too (F-048).
- *   positive token-START +
- *   trailing `\b` (round 9) closed the head. The TAIL was still an assertion, and
- *                           `\b` succeeds between a digit and a slash, a dot, a
- *                           hyphen or a non-ascii letter — so `bug-2/x`,
- *                           `bug-2.x`, `bug-2-x` and `bug-2é` all had the
- *                           SUBSTRING `bug-2` protected inside a larger token
- *                           (F-051). Cross-host codex measured all four as WORSE
- *                           THAN MAIN, which rewrites every ordinal to `#` and
- *                           collapses them.
- *   whole token + optional
- *   `<label>:` QUALIFIER
- *   (round 10)              closed both ends, then re-opened ONE of them by hand.
- *                           The qualifier was added to rescue the composite render
- *                           `B-bf52:F-012`, and it accepted ANY label, not only a
- *                           story id: in the raw test output core/machine.ts:1190
- *                           embeds, `timeout:bug-2` and `timeout:bug-5` are
- *                           ordinary TAP subtest names, and they keyed APART on
- *                           that branch while main collapses them (F-052). It was
- *                           an unbounded enumeration re-introduced inside a form
- *                           whose entire justification was having no enumeration
- *                           left to leak.
- *   whole token AFTER an
- *   INDEPENDENT-RUN punctuation
- *   strip (round 11)        `^[("'[{<]+` off the head and `[)"'\]}>,;:.!?]+$` off
- *                           the tail, each end enumerating characters without
- *                           reference to the other, so HALF a wrapper came off as
- *                           readily as a whole one: the NON-id `(bug-2` reduced to
- *                           `bug-2` and was protected, and `bug-2)` was the mirror
- *                           (F-053).
- *   whole token AFTER a
- *   BALANCED-ONLY strip
- *   (round 12)              matched wrapper pairs peeled one at a time, preceded by
- *                           an UNCONDITIONAL `[,;:.!?]+$` sentence-punctuation
- *                           strip. The balance rule closed the wrapper half; the
- *                           sentence half was still an enumeration and still
- *                           unconditional, so the arbitrary TAP subtest name
- *                           `bug-2:` reduced to `bug-2` and was protected —
- *                           `not ok 1 - bug-2: reproducer still red` and its
- *                           `bug-5:` sibling digested APART on that branch while
- *                           main collapses them (F-054).
- *   whole token, NO
- *   reduction, PERMISSIVE
- *   BODY `[a-z0-9-]*\d`
- *   (round 13)              closed the reduction class outright and left the leak in
- *                           the PATTERN instead. This is the eighth leak and the first
- *                           that is not about the token's surroundings at all: the
- *                           body existed to carry a COMPOUND id (`SEP-B-bf52-001`),
- *                           and `[a-z0-9-]*` accepts an ordinary hyphenated WORD just
- *                           as readily. The bare tokens `bug-fix-2` and `bug-fix-5` —
- *                           a routine TAP subtest name in the raw output
- *                           core/machine.ts:1190 embeds — matched as artifact ids and
- *                           digested APART while main collapses them, which is the
- *                           worse-than-main direction. `chk-abc-1` is the same
- *                           manufacture with a letter body and `bug-2a1` with an
- *                           alphanumeric one (F-056).
- *
- * Every one of the first seven leaks has the same structure: something that was NOT
- * an artifact id was made to look like one, either by finding the id inside a
- * larger token or by REMOVING characters from the token until an id was what
- * remained. The eighth needed no such step — the pattern simply ACCEPTED a non-id —
- * which is why closing it is a change to the pattern and NOT another revision of
- * the reduction: the reduction stayed deleted and is not coming back.
- * So the rule is stated as the property that is actually wanted, and it is not an
- * assertion at all — it is a WHOLE-TOKEN TEST, WITH NO REDUCTION, OVER A PURE
- * ORDINAL.
- * `normalizeGateReason` splits the reason on whitespace and protects a token only
- * if THE TOKEN ITSELF, byte for byte, is an artifact id. A token that merely
- * CONTAINS an id is not an id, and no embedded or attached punctuation can change
- * that, because nothing is ever taken off before the test.
- *
- * The pattern, applied to one whitespace-delimited token as it arrives and
- * anchored at both ends:
- *
- *   ^(?:<stems>)-\d+$
- *    └── stem ──┘└ord┘
- *
- *   body        `\d+` — a PURE ORDINAL, and nothing else. The token is a stem, a
- *               hyphen and digits, or it is not an id. There is no character class
- *               left in which an ordinary word can hide, which is the whole content
- *               of the F-056 fix.
- *
- * WHAT THE PURE ORDINAL COSTS, stated rather than softened: the COMPOUND id
- * `SEP-B-bf52-001` (F-032) can no longer be protected in any position, because its
- * ordinal is preceded by `bf52-`. That costs nothing measurable, and the reason is
- * the same measurement that removed `sep-` from the allowlist above — the only
- * story_advance render of that id (core/machine.ts:273) attaches a comma or a
- * period to every element, so no `SEP-` token has been protected since the F-054
- * deletion anyway. The compound body was carrying a capability nothing used, at the
- * price of admitting every hyphenated word in third-party output.
- *
- * WHAT ELSE THE PURE ORDINAL SUBSUMES. The doubled-prefix lookahead
- * `(?!(?:<stems>)-)` that rounds 9-13 carried for F-048 (b) is DELETED, not
- * retained-but-unused: with a pure-ordinal body `bug-bug-2` cannot match, because
- * the characters after the stem are not digits. Keeping a lookahead that provably
- * cannot fire would be a guard nobody has, so it goes and the standing case
- * `embedded-test-output-doubled-prefix` is RETAGGED onto the body rule that now
- * refuses it (measured: widening the body back fails that case).
- *
- * There is NO interior structure left and NOTHING RUNS IN FRONT OF THE TEST: a
- * token is protected only when it IS an artifact id. Built FROM the allowlist, so
- * the two cannot drift apart, and there is nothing else in the form to enumerate.
- *
- * THE CLOSURE ARGUMENT, and how F-056 changed it. Rounds 7-12 each closed the leak
- * they had been shown by fixing the CHARACTER SET — a wider lookbehind, an anchor,
- * a balance requirement, a safer punctuation list — and each time the next round
- * found a character or a combination the previous author had not listed. Round 13
- * closed that class by deleting the reduction outright: a manufacture vector needs
- * a step that turns a non-id into an id, and with the step gone there is nothing
- * left to be incomplete about at the token's EDGES. That argument was correct and
- * it still stands — F-056 did not re-open it, and the reduction is not coming back.
- * What round 13 got wrong was assuming the argument covered the token's INTERIOR
- * too. It did not: with no reduction at all, `bug-fix-2` needs no manufacture step,
- * because the pattern accepted it as written. So the closure argument is now stated
- * in two halves, both of which have to hold:
- *
- *   edges     nothing is removed from the token before the test, so no non-id can
- *             become an id (rounds 7-13, unchanged);
- *   interior  the accepted body is `\d+`, so the set of accepted strings is exactly
- *             `<stem>-<digits>` — a set small enough to enumerate in one line, with
- *             no character class in which a word can hide (F-056).
- *
- * THE COST, stated plainly and NOT softened. ONLY BARE, PURELY-ORDINAL ids beat
- * main now. Four groups of shapes tie with main instead:
- *
- *   colon composites  (F-052) the real SUFFIX composite `CHK-001:happy:0`
- *                     (core/verification.ts:22-24, rendered at :1173) and the forged
- *                     `timeout:bug-2`. The real PREFIX composite `B-bf52:F-012` is
- *                     no longer a separate cost, because F-056 removed `f-` from the
- *                     allowlist entirely;
- *   wrapped ids       (F-054) `(CHK-001)` from core/machine.ts:204, `[CHK-001]` and
- *                     `"CHK-001"` from embedded test output. A wrapper is not part
- *                     of the id, but removing it is a reduction, and a reduction is
- *                     what leaked;
- *   punctuation-attached ids
- *                     (F-054) `CHK-001,` from the list join at core/machine.ts:1169
- *                     and `CHK-001;` from the `'; '` join at :756;
- *   compound ids and
- *   retired prefixes  (F-056, NEW cost) `SEP-B-bf52-001` is not a pure ordinal, and
- *                     `F-012` / `REQ-001` / `SEP-…` are not allowlisted at all. All
- *                     four of those renders were ALREADY tying with main before this
- *                     change (every one of them is comma-, period- or colon-attached
- *                     at its producer, see the allowlist comment above), so the
- *                     measured cost of F-056 against a first-party render is ZERO;
- *                     what it changes is third-party text.
- *
- * What is still protected, and what the must-differ lane in
- * tasks/convergence-breaker-smoke.ts pins: a BARE PURELY-ORDINAL `chk-`/`bug-` id —
- * one that arrives as the whole whitespace-delimited token. Real producers do
- * render those: the LAST id of the checklist list at core/machine.ts:1169 (that
- * join has no trailing period), the LAST id of the unfixed-bug list at :1195, a
- * checklist id cited at the end of a reviewer description before the bracketed
- * reason code at :1181, and any bare id in the raw test output :1190 embeds. Every
- * one of the shapes that LOST protection is a named must-still-collapse case in
- * that file, so the cost is visible in the matrix and not only in this comment.
- *
- * THE RESIDUAL, and its direction. A real id that arrives attached to ANY other
- * character — a wrapper, a list comma, a sentence period, a `:` composite, an
- * `itemId=` prefix — is not the whole token, so it is NOT protected and its
- * ordinal collapses. That makes the breaker fire EARLIER, which is the fail-safe
- * direction for a circuit breaker, and it is never worse than main, which
- * collapses those shapes too.
- *
- * The opposite error — protecting a NON-id — is the one that hands a stuck agent
- * back an unbounded retry loop. The claim this comment used to make about it was
- * that "the pattern is anchored at both ends over a character class that excludes
- * every welding character, so the only strings it accepts are strings that are
- * themselves artifact ids". That claim was FALSE FOUR times — the qualifier
- * admitted `timeout:bug-2` (F-052), the independent-run strip admitted `(bug-2`
- * (F-053), the sentence strip admitted `bug-2:` (F-054), and the permissive body
- * admitted `bug-fix-2` with no strip at all (F-056). The last of those is the one
- * that shows why the sentence about "a character class that excludes every welding
- * character" was the wrong claim to make: the class did exclude every welding
- * character, and the leak came through the characters it INCLUDED. The claim is now
- * made about the accepted SET rather than the excluded characters, which is
- * checkable by reading one line: the anchored pattern `^(?:<stems>)-\d+$` is applied
- * to the token itself, so the set of protected strings is exactly
- * `{stem}-{digits}`.
- *
- * The command that measures it, and the only thing that should be trusted here:
- *
- *   node packages/main/tests/red/red-s3-differential-probe.mjs <path-to-a-main-dist>
- *
- * That probe runs every leak shape from rounds 7-14 against a separately built
- * comparison normalizer and exits non-zero if this build distinguishes any ordinal
- * that a retry re-mints. Do not quote a number from this comment; run it. And note
- * what F-053, F-054 and F-056 each measured about the probe itself: it PASSED THREE
- * TIMES while a live regression was in the tree — once because every wrapper in its
- * matrix was BALANCED, once because no row ended in a stripped punctuation
- * character, and once because every welded row put material BEFORE the stem or
- * AFTER the ordinal and none put an ordinary word BETWEEN them. A probe whose
- * matrix cannot express a defect is not a guard against it; all three row groups
- * are now in it, and the running count is recorded in the probe's own header
- * because it is the evidence that a probe's matrix must be extended by every defect
- * that slips past it.
- *
- * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, an alternation over
- * zero stems is the empty string and `(?:)` matches EVERYWHERE, so the pattern
- * would degrade to "protect nearly everything" rather than to "protect nothing" —
- * and (measured, on the previous revision) that threw the suite off at an earlier
- * assertion instead of failing the named cases the matrix exists to localize to.
- * An empty allowlist must mean "protect NOTHING", so it yields a regex that
- * cannot match at all and the substantive-id matrix cases then fail BY NAME.
- */
-function buildSubstantiveIdRe(prefixes: Iterable<string>): RegExp {
-  const stems = [...prefixes]
-    .map((p) => p.slice(0, -1))
-    .filter((s) => s.length > 0)
-    .sort((a, b) => b.length - a.length || a.localeCompare(b));
-  if (stems.length === 0) return /(?!)/;
-  const alt = stems.join('|');
-  // F-056: the body is a PURE ORDINAL. Nothing may sit between the stem's hyphen
-  // and the digits — not a word, not a letter, not another hyphen — because
-  // anything that may sit there is a place an ordinary label can hide.
-  return new RegExp(`^(?:${alt})-\\d+$`);
-}
-const SUBSTANTIVE_ID_RE = buildSubstantiveIdRe(SUBSTANTIVE_ID_PREFIXES);
-
-/**
- * THE PUNCTUATION STRIP IS DELETED (F-054), and this note is where it was.
- *
- * Rounds 9-12 kept a reduction in front of the whole-token test — first two
- * independent character-class runs (`^[("'[{<]+` and `[)"'\]}>,;:.!?]+$`), then
- * balanced wrapper pairs preceded by an unconditional `[,;:.!?]+$` sentence
- * strip. Its purpose was real: core/machine.ts:204 renders `(CHK-001).`, :273
- * ends its pending list with `SEP-B-bf52-001.` and :1169 joins ids with `, `, so
- * without a strip those ids are not the whole token and lose protection.
- *
- * It is deleted anyway, because a reduction is the mechanism every manufacture
- * vector needs. F-053 measured the independent-run form admitting `(bug-2`;
- * F-054 measured the balanced form admitting `bug-2:` — an arbitrary TAP subtest
- * name in the raw output core/machine.ts:1190 embeds, whose trailing colon the
- * unconditional sentence strip removed, so `not ok 1 - bug-2: reproducer still
- * red` and its `bug-5:` sibling keyed APART here while main collapses them.
- * Replacing `[,;:.!?]` with a "safer" set does not close that: `bug-2,` is the
- * same manufacture with a list comma, and raw third-party output can place any
- * punctuation character against any name.
- *
- * So the cost is PAID instead of engineered around — `(CHK-001)`, `CHK-001,`,
- * `SEP-B-bf52-001.` and `CHK-001;` now tie with main — and the protected set is
- * exactly the set of tokens SUBSTANTIVE_ID_RE matches. Nothing is enumerated,
- * therefore nothing can be enumerated incompletely. The lost shapes are pinned by
- * name as must-still-collapse cases in tasks/convergence-breaker-smoke.ts under
- * `substantive-id-no-reduction`, and the manufacture vectors are measured against
- * a main build by tests/red/red-s3-differential-probe.mjs.
- */
-
-/**
- * Placeholder encoding for a protected token.
- *
- * The index is written in a NON-DIGIT, NON-HEX alphabet (`g`-`z`) between two
- * U+0001 sentinels, and that is load-bearing rather than cosmetic: a numeric
- * index would be rewritten by the bare-number rule below, every placeholder
- * would collapse to the same text, and every protected token would then restore
- * to whichever token happened to be first — turning the fix into a new collision
- * source. `g`-`z` is also outside `[0-9a-f]`, so the hash rule cannot eat a
- * placeholder either.
- */
-const TOKEN_PLACEHOLDER_ALPHABET = 'ghijklmnopqrstuvwxyz';
-const TOKEN_SENTINEL = '\u0001';
-const TOKEN_SENTINEL_RE = /\u0001/g;
-const TOKEN_PLACEHOLDER_RE = /\u0001([g-z]+)\u0001/g;
-function encodeTokenIndex(index: number): string {
-  const base = TOKEN_PLACEHOLDER_ALPHABET.length;
-  let n = index;
-  let out = '';
-  do {
-    out = TOKEN_PLACEHOLDER_ALPHABET[n % base] + out;
-    n = Math.floor(n / base);
-  } while (n > 0);
-  return `${TOKEN_SENTINEL}${out}${TOKEN_SENTINEL}`;
-}
-function decodeTokenIndex(encoded: string): number {
-  const base = TOKEN_PLACEHOLDER_ALPHABET.length;
-  let n = 0;
-  for (const ch of encoded) n = n * base + TOKEN_PLACEHOLDER_ALPHABET.indexOf(ch);
-  return n;
-}
-
-/**
- * The whole-token walk that lifts substantive artifact ids out of a reason
- * (F-051, F-054).
- *
- * A TOKEN WALK, not one mega-regex, and that is the point: the decision is made
- * once per whitespace-delimited token, so an id welded into a larger token is
- * simply not a candidate. Every previous revision made the decision per POSITION
- * inside the string and then tried to fence the position off with boundary
- * assertions, which is what leaked four times.
- *
- * NOTHING IS REMOVED FROM A TOKEN BEFORE IT IS TESTED (F-054). The token that the
- * anchored pattern sees is the token the reason contained, so the set of protected
- * strings is exactly the set the pattern matches and there is no step in which a
- * non-id can become an id. Rounds 9-12 ran a punctuation strip here; it is deleted
- * rather than narrowed, because narrowing it is what leaked twice (`(bug-2` under
- * the independent runs, `bug-2:` under the balanced form with its unconditional
- * sentence strip). See the note above SUBSTANTIVE_ID_RE for the cost.
- *
- * Whitespace separators are preserved verbatim (`split` with a capturing group)
- * and a protected token is replaced whole, so the only bytes this step rewrites
- * are the id itself.
- */
-function protectSubstantiveIds(
-  lowered: string,
-  kept: string[],
-  keptIndex: Map<string, number>,
-): string {
-  const parts = lowered.split(/(\s+)/);
-  for (let i = 0; i < parts.length; i += 1) {
-    const token = parts[i];
-    // Odd positions are the captured whitespace separators; the empty strings
-    // `split` produces at a leading/trailing separator are skipped here too.
-    if (!token || i % 2 === 1) continue;
-    if (!SUBSTANTIVE_ID_RE.test(token)) continue;
-    let index = keptIndex.get(token);
-    if (index === undefined) {
-      index = kept.length;
-      kept.push(token);
-      keptIndex.set(token, index);
-    }
-    parts[i] = encodeTokenIndex(index);
-  }
-  return parts.join('');
-}
 
 /**
  * The volatile-token normalization applied to a gate reason before it is keyed.
  *
- * Extracted (same rule order as main's) so a test can assert a fixture's
- * PRECONDITION — "these two reasons share their first 200 normalized characters
- * and only then diverge" — against the REAL rule chain. The alternative, a
- * hand-mirrored copy of the chain inside the smoke (which
- * tasks/gate-repeat-block-smoke.ts carries as `normalizePrefix`), can drift out
- * of sync with production silently and then attest to a precondition that no
- * longer holds.
+ * Exported — main keeps this chain inline inside `gateFailureDigest` — so a test can
+ * assert a fixture's PRECONDITION ("these two reasons share their first 200
+ * normalized characters and only then diverge") against the REAL rule chain. The
+ * alternative, a hand-mirrored copy of the chain inside a smoke (which
+ * tasks/gate-repeat-block-smoke.ts carries as `normalizePrefix`), can drift out of
+ * sync with production silently and then attest to a precondition that no longer
+ * holds.
  *
- * Structure: extract-protect, normalize, restore. Substantive artifact ids are
- * lifted out first by the whole-token walk above, the volatile-token rules then
- * run EXACTLY as main runs them (the digit rule is main's bare `/\d+/g` — the
- * allowlist is applied by the extraction step, not by a special-cased digit
- * rule), and the ids are put back before the whitespace fold.
- *
- * A machine path is never protected under the whole-token rule — a path token is
- * not an id, whatever it contains — so the path rule sees exactly the text it saw
- * before this story, and the two rules no longer interact at all.
+ * Every rule here is main's, byte for byte, EXCEPT the POSIX path rule, which is
+ * narrowed to token start. See the F-058 note above for why the digit rule is main's
+ * bare `/\d+/g` and why nothing is lifted out in front of it.
  */
 export function normalizeGateReason(reason: string): string {
-  const kept: string[] = [];
-  const keptIndex = new Map<string, number>();
-  const protectedText = protectSubstantiveIds(
-    // U+0001 never appears in a rendered gate reason; stripping it means no
-    // caller-supplied text can forge a placeholder and impersonate a protected id.
-    String(reason ?? '').replace(TOKEN_SENTINEL_RE, '').toLowerCase(),
-    kept,
-    keptIndex,
-  );
-  return protectedText
+  return String(reason ?? '')
+    .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
     // Machine-absolute POSIX paths, anchored at TOKEN START (B-bf52 C2/C4). The
-    // former `\/[^\s"']+` rewrote from ANY slash anywhere in a token, so it ate
-    // the tail of every slash-bearing identifier — `DEV/REVIEW` and `DEV/TEST`
-    // both became `dev#`, and `src/core/alpha.ts` and `src/core/beta.ts` both
-    // became `src#`, so a story that fixed one phase target or one file and then
-    // tripped on another read as one gate failing twice. Anchoring to a token
-    // start (or to a delimiter that really does introduce a path: quote, paren,
-    // bracket, colon, equals, comma) keeps per-machine roots collapsing while
-    // leaving relative in-repo paths and slash-joined identifiers intact.
+    // former `\/[^\s"']+` rewrote from ANY slash anywhere in a token, so it ate the
+    // tail of every slash-bearing identifier — `DEV/REVIEW` and `DEV/TEST` both
+    // became `dev#`, and `src/core/alpha.ts` and `src/core/beta.ts` both became
+    // `src#`, so a story that fixed one phase target or one file and then tripped on
+    // another read as one gate failing twice. Anchoring to a token start (or to a
+    // delimiter that really does introduce a path: quote, paren, bracket, colon,
+    // equals, comma) keeps per-machine roots collapsing while leaving relative
+    // in-repo paths and slash-joined identifiers intact.
+    //
+    // THIS RULE HAS THE AMBIGUITY THE ID RULE DID NOT, WHICH IS WHY IT SURVIVES
+    // (F-058). A token-start absolute path is STRUCTURALLY distinguishable from a
+    // slash-bearing identifier — the leading `/` is at the token boundary, and no
+    // identifier this tree renders begins with one — so recognising the first does
+    // not force recognising the second. That is exactly the property `bug-2` versus
+    // `BUG-002` lacks, and it is why C2/C4 never leaked while C3 leaked eight times.
     .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')
-    // Bare digit runs, byte-for-byte main's rule (B-bf52 C3). A bare `attempt 3`,
-    // a welded `45s` heartbeat age, `0/4 lanes` and the story-id ordinal in
-    // `b-1234` all still become `#`; the ONLY reason `chk-001` survives is that it
-    // was lifted out above.
+    // Bare digit runs, byte-for-byte main's rule. A bare `attempt 3`, a welded `45s`
+    // heartbeat age, `0/4 lanes`, the story-id ordinal in `b-1234` AND every
+    // lifecycle-artifact ordinal (`chk-001`, `bug-002`) all become `#`. The last of
+    // those is C3's accepted cost; see F-058 above.
     .replace(/\d+/g, '#')
-    .replace(TOKEN_PLACEHOLDER_RE, (_m: string, code: string) => kept[decodeTokenIndex(code)] ?? '#')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -1129,41 +678,40 @@ export function gateFailureDigest(command: string, reason: string): string {
   //
   // ACCEPTED RESIDUAL (F-033), measured, not assumed. The 200-character window on
   // the signals branch is a real blind spot: when two rejections extract the
-  // IDENTICAL signal set and their ONLY difference is a substantive ordinal
-  // sitting PAST character 200 of the normalized reason, both the prefix and the
-  // signal list are equal, so the two still collapse onto one key and clearing
-  // one then tripping on the next reads as one repeated failure.
+  // IDENTICAL signal set and their ONLY difference is a token this normalizer
+  // PRESERVES — after F-058 that means an in-repo path, since every ordinal
+  // collapses — sitting PAST character 200 of the normalized reason, both the
+  // prefix and the signal list are equal, so the two still collapse onto one key
+  // and clearing one then tripping on the next reads as one repeated failure.
   //
   // This is accepted rather than fixed because it is NEVER WORSE THAN MAIN, and
   // that comparison was measured rather than argued: main truncates at 200
-  // unconditionally AND rewrites every ordinal to `#`, so main collapses that
-  // same pair — and collapses the within-200 pair too. Within the 200-character
-  // window this branch is strictly better (the ordinal survives and the pair
-  // keys apart); past it, the two branches are equal. The improvement is
-  // therefore BOUNDED, not regressive.
+  // unconditionally AND rewrites every slash-bearing token from its first slash,
+  // so main collapses that same pair — and collapses the within-200 pair too.
+  // Within the 200-character window this branch is strictly better (the path
+  // survives and the pair keys apart); past it, the two branches are equal. The
+  // improvement is therefore BOUNDED, not regressive.
   //
   // WHY 200 IS KEPT, stated accurately (F-042). An earlier revision of this
   // comment said widening the window "is not available"; that overstated the
   // constraint and measurement contradicts it. B-cc54's CHK-002:adversarial:1
   // requires a signal-free tail past its banner to leave the key UNCHANGED, and
   // that banner fixture normalizes to exactly 592 characters — so cuts of 593 and
-  // above break B-cc54's suite, while every cut from 258 (the divergence point of
+  // above break B-cc54's suite, while every cut from 275 (the divergence point of
   // the residual pair below) through 592 would fix that pair and leave B-cc54
-  // green. A 335-character window exists; it is simply NOT TAKEN, and the reason
+  // green. A 318-character window exists; it is simply NOT TAKEN, and the reason
   // is the one already given above: on the signals branch this story keeps
   // B-cc54's 200-character prefix EXACTLY, so every key it produces is
   // byte-identical to before this change. Widening would rekey every ProofStory
   // gate rejection in the system to buy back a residual that is already never
-  // worse than main. The `blocking-finding-cited-id-past-window` collapse case and
-  // its within-window twin `blocking-finding-cited-id-within-window` in
+  // worse than main. The `blocking-finding-cited-path-past-window` collapse case
+  // and its within-window twin `blocking-finding-cited-path-within-window` in
   // tasks/convergence-breaker-smoke.ts pin BOTH directions of this residual, so it
-  // stays a known, tested boundary rather than a surprise. (Those two replaced the
-  // `SEP-…` pair that carried this residual through round 12: after the F-054
-  // deletion every `SEP-` token in core/machine.ts:273's render is comma- or
-  // period-attached and therefore unprotected, so neither half of that pair keyed
-  // apart at any window and it could no longer measure this cut. Measured: a
-  // 592-character cut fails the new past-window case and failed nothing on the old
-  // one.)
+  // stays a known, tested boundary rather than a surprise. (That pair is measured
+  // on a cited in-repo PATH, and in round 15 that stopped being a detail: the
+  // round-14 pair varied a checklist ORDINAL, which after F-058 collapses on the
+  // digit rule at every window, so it could no longer measure this cut at all —
+  // the same defect that had already retired the `SEP-…` pair before it.)
   const prefix = signals.length > 0 ? normalized.slice(0, 200) : normalized.slice(0, 16_384);
   // F-003: encode the parts unambiguously instead of concatenating them with a
   // literal " signals:" delimiter. Concatenation only resisted forgery by accident
