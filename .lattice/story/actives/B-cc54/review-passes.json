@@ -85,6 +85,38 @@
         "scanEscalationReason": null
       },
       "_hash": "337338ba83f6608eaf28140d234fb1d602d65e61492196eb9029f4c2b39b3d7f"
+    },
+    {
+      "id": "B-cc54:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after F-008/F-009 fix (commit 7db9b3bd1d). Verified: [[:]] char class is a literal bracket/colon set, not a POSIX class; the third regex pass over normalized reasons shows no catastrophic backtracking (linear time up to 50KB adversarial input). Traced real proofstory.ts:1907/1911 rendering shapes and confirmed the new structural anchor (dash+whitespace+snake_case+optional-whitespace+immediate [ or :) matches real gap/trigger codes but not prose bullets, hint lines, slice ids (hyphenated), or hyphenated agentIds elsewhere in machine.ts -- no over-capture path found in story_advance-reachable renderers I traced (proofstory.ts, phase-gates.ts, machine.ts, transition-orchestrator.ts). No-signal fallback verified byte-identical to the historical prefix-only key by direct comparison. Rebuilt (tsc clean, no errors), ran gate-repeat-block-smoke.js (PASS, all 5 CHK groups) and convergence-breaker-smoke.js (PASS) directly, and ran the full npm test suite (all suites, exit 0). No dead code / unused imports / as-any / empty catches in the changed files. Pre-existing open finding F-010 (low, test-coverage lane, mislabeled intentRef) is not in my lane and is not a blocker for code quality.",
+      "createdAt": "2026-07-24T01:59:18.922Z",
+      "reviewRound": "2026-07-24T01:39:42.449Z",
+      "reviewRunId": "B-cc54:RR-011",
+      "envelopeId": "590aaa1f970d0198ddf4b2359055bf383eb9aab60c1e28abeb753ce0dafc1c2b",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/findings.json",
+          "lattice.config.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d758942e94fea34b41137a310a2e536c549a20a48d2bbd8e8f1886c4d0785e05"
     }
   ]
 }
