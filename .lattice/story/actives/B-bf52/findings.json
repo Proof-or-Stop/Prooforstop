@@ -1080,6 +1080,24 @@
       ],
       "signatureTag": "edge|ts|cross-host-codex",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-057",
+      "desc": "cross-host (codex-cli host-B): two coverage problems. First, the differential probe cannot express a bare token that begins with a permitted prefix, carries an ordinary hyphenated label and ends in an ordinal — its welded rows all put material before the prefix or after the ordinal, and its doubled-prefix row only repeats a recognised stem — so it reported PASS while the bug-fix-2 regression was live. That is the THIRD time this probe passed during a real regression. Second, codex judges two guards to be documentation rather than guards: requirement-ordinal-past-window executes but no configured window can affect it any more, and review-loop-ordinal now needs three coordinated mutations to fail, so neither meaningfully protects against accidentally allowlisting its prefix. Either restore a meaningful single-mutation guard for each or relabel them explicitly as pinned-behaviour documentation, and say which was chosen.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T14:59:57.824Z",
+      "reviewRound": "2026-07-24T14:51:32.384Z",
+      "_hash": "7025414866442d6ba81fac00b1ebe79c78ee204eb74c32b2072dd9c2d35b2678",
+      "files": [
+        "packages/main/tests/red/red-s3-differential-probe.mjs",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
