@@ -844,7 +844,7 @@
       "desc": "i- allowlist member fails the item-3 retry-stability test the story itself uses to justify excluding rr-/rp-/rl-. cli/command-catalog.ts:2315 declares INIT_CHECK issue.id as optional, reviewer self-assigned free text (\"for example I-1\"). handlers/init-check.ts:135-140 (init_check_set) fully OVERWRITES the calling agents prior issue records on every call -- there is no persistence of a previously self-assigned id across reviewer re-runs -- and machine.ts:1036-1039s own rejection text names the documented remediation path as \"you must fix them and re-run the corresponding reviewer first\". Unlike chk-/f-/bug-/req-, which are durable ids minted once by the system and never regenerated, i- is retyped from scratch by an independently-dispatched reviewer instance every retry, with nothing enforcing (or even, per templates/agents/lattice-review-story-init.md, prompting for) a stable id across runs -- the exact re-minted-on-retry disqualifier the story used to exclude rr-/rp-/rl- (\"a review loop is re-minted on retry ... the breaker would never trip\"). Concretely worse-than-main: for the SAME unfixed issue restated with the SAME desc but a different self-assigned id (I-1 -> I-2), this branch keeps the two rejections distinct (verified: normalizeGateReason keeps them apart, matching the intentional init-check-issue-ordinal must-differ case) while mains blanket digit-strip normalizer collapses them (verified via a standalone reimplementation of mains gateFailureDigest). That collapse is what lets the breaker correctly trip on a genuine stuck retry; this branch loses it whenever the reviewers self-assigned label happens to change for an issue that has not actually changed. This is distinct from the intentional I-1-vs-I-2-different-issues behavior CHK-004 tests for -- the risk is specifically when the SAME issue gets a different or absent label across runs, which the allowlists own criterion (\"names WHICH artifact the gate refused on\") and its citation at convergence-breaker-smoke.ts:1148-1154 do not address.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-24T10:47:54.468Z",
@@ -852,7 +852,11 @@
       "reviewRunId": "B-bf52:RR-023",
       "_hash": "3b99e36433114df6fd27dc453d3817484d9221bf7f3b2261956ad8e7b661ee26",
       "signatureTag": "adversarial|unknown|allowlist-member-fails",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed and fixed by REMOVING `i-`. The allowlist is now bug-, chk-, f-, req-, sep-. Verified at each cited site: cli/command-catalog.ts:2315 declares issue.id as `z.string().optional()` with \"Reviewer self-assigned ID, for example I-1; optional.\"; handlers/init-check.ts:139-142 filters out the calling agent`s previous record and pushes a fresh {agentId, checkedAt, issues}, so that agent`s issues are rewritten wholesale on every init_check_set; and core/machine.ts:1036-1044 prints \"you must fix them and re-run the corresponding reviewer first\" as the remediation — which is precisely the call that renumbers the ids. Same class as rr-/rp-/rl-, so `i-` moved to EXCLUDED_REVIEW_BOOKKEEPING in tasks/convergence-breaker-smoke.ts with that justification written next to it, keeping the bidirectional completeness guard satisfied (its CALLER_SUPPLIED_ID_SHAPES citation is retained and still resolves — the entry now demonstrates that \"gate-reachable\" and \"substantive\" are different tests). F-034 is NOT undone: `init-` remains excluded as dead config, which was F-034`s real content. Standing guard: `init-check-issue-ordinal` moves from the must-differ lane to must-still-collapse [guard: review-bookkeeping-not-allowlisted]; mutation M14 (i- re-added) fails exactly that case. Consequential rework: the F-033 prefix-window residual fixture was rebuilt on the SEP producer, since with `i-` unprotected the I-1/I-2 pair no longer measures a window boundary at all.",
+      "resolvedAt": "2026-07-24T11:14:00.275Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
