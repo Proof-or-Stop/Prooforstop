@@ -1,0 +1,29 @@
+{
+  "passes": [
+    {
+      "id": "B-cc54:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check: the scope-granted NEW module packages/main/src/core/gate-repeat-block.ts was correctly never created (spike found breaker logic already lives in convergence-breaker.ts). Grep confirms every reference to that filename appears only in story-bookkeeping JSON (scope-contract.json, acceptance-basis.json, execution-boundary.json, scope-boundary.json, checklist.json, understanding.json, plan.md prose) recording unused scope grants -- zero references from actual .ts/.js source. The smoke gate-repeat-block-smoke.ts imports only pre-existing exports from ../core/convergence-breaker.js; no import of a non-existent parallel module. review-convergence.ts, transition-effects.ts, and finding.ts (protected) all show zero diff vs main. machine.ts was allowed-modify scope but untouched (unused grant, not residue). Fix is a single extension of gateFailureDigest (new extractGateBlockSignals composes prefix + structured signal set) -- no parallel/duplicate digest concept introduced. lattice.config.json diff registers only the one new smoke command. No concept-deletion residue found.",
+      "createdAt": "2026-07-24T00:22:32.904Z",
+      "reviewRound": "2026-07-24T00:21:09.115Z",
+      "reviewRunId": "B-cc54:RR-001",
+      "envelopeId": "52ec95f2b71d0c1b7051698a8d4977753f142da29df50a02dd63fd0ec363405a",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1e8e6b88dc61648e7f1f2227d1a7f4477ca0e617a76e85c4714584af7791fae"
+    }
+  ]
+}
