@@ -694,6 +694,26 @@
       ],
       "signatureTag": "adversarial|json|checklist-json-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-038",
+      "desc": "checklist.json CHK-003 verificationEvidence notes (happy:0, edge:1, adversarial:0; all re-recorded this round, timestamps 2026-07-24T03:29:51-54Z) repeatedly cite a matrix case named 'must-differ review-run-ordinal [guard: substantive-id-allowlist]'. That case does not exist in the current convergence-breaker-smoke.ts matrix: grep for 'name: ' shows only 18 cases and none named review-run-ordinal. Per convergence-breaker-smoke.ts:596-609, this case was RENAMED to 'stale-review-run-evidence' and moved to the MUST_COLLAPSE lane with FLIPPED semantics as the F-030 fix (rr-/rp- removed from SUBSTANTIVE_ID_PREFIXES so RR- ordinals now must COLLAPSE, not differ) -- a change CHK-003's own title/context describes. So these three evidence notes describe behaviour that is the OPPOSITE of what the code now does. CHK-003:adversarial:0 additionally miscounts the digit-rule-widen revert-proof group as '{checklist-ordinal, finding-ordinal, review-run-ordinal}'; empirically re-verified by reverting `.replace(/([a-z]+-)?\\d+/g, ...)` (convergence-breaker.ts:640) to unconditional `.replace(/\\d+/g, '#')`, rebuilding, and running the smoke: the actual failing set is exactly {checklist-ordinal, finding-ordinal, unfixed-bug-ordinal} (3 of 18 cases; B-cc54's gate-repeat-block-smoke still exits 0 as claimed), omitting the real third case 'unfixed-bug-ordinal' entirely. Same stale-citation defect class as F-001/F-012/F-013/F-017/F-018/F-028 and last round's bcc54-cross-vendor-noise claim, recurring again in this round's re-recorded evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T04:20:41.710Z",
+      "reviewRound": "2026-07-24T04:03:11.191Z",
+      "reviewRunId": "B-bf52:RR-020",
+      "_hash": "5c72196d02583ee5e81fe3f04f6da8302a8f5b223028375a7135e583ff1400f6",
+      "files": [
+        ".lattice/story/actives/B-bf52/checklist.json",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "adversarial|json|checklist-json-verificationevidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
