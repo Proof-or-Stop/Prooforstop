@@ -76,11 +76,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Corrected after F-012: the earlier record for this intent cited the sanity-bound shape-check, which passes whether or not the bound exists and therefore proved nothing. The load-bearing proof is matrix case 'sanity-bound-is-applied' at packages/main/src/tasks/convergence-breaker-smoke.ts:446-458 (guardedBy sanity-bound), which asserts an oversize reason digests EXACTLY as its own bounded prefix does: gateFailureDigest(cmd, TRANSCRIPT) === gateFailureDigest(cmd, TRANSCRIPT.slice(0, MAX_REASON_CHARS)). Removing .slice(0, MAX_REASON_CHARS) from boundReasonForDigest makes the two keys diverge and this case fail, which the test-coverage lane reproduced empirically while the other 18 cases kept passing. That is the bound being exercised rather than silently absent.",
-          "headHash": "9e212b0fa5c45ff18b919664aedbe92ce5b8a2d8",
-          "materialHash": "17969f3fb7d0bf4643eff1a972274c2bb24fb5001779ec62c56f3fc9a6ab11cb",
-          "storyFilesHash": "4bf45b60d85f0384c81eeae39aab06469e4199c5bdf5e351e1239a1ef70500d7",
-          "timestamp": "2026-07-24T00:54:50.661Z"
+          "note": "Case 'must-still-collapse sanity-bound-is-applied [guard: sanity-bound]' asserts an oversize reason digests EXACTLY as its own bounded prefix: gateFailureDigest(cmd, TRANSCRIPT) === gateFailureDigest(cmd, TRANSCRIPT.slice(0, MAX_REASON_CHARS)). Deleting the bound makes the keys diverge and fails exactly {beyond-sanity-bound, sanity-bound-is-applied} while the other 22 cases pass — reproduced by the test-coverage lane. This replaces the F-012 citation of the old shape-check, which passed whether or not the bound existed.",
+          "headHash": "81787e1148e1ba78f81f14f4f53c74b63f35620a",
+          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
+          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
+          "timestamp": "2026-07-24T01:43:21.170Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
