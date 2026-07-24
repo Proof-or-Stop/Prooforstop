@@ -98,8 +98,8 @@
       "title": "Add a registry-coverage invariant smoke so unregistered story artifacts cannot silently regress",
       "context": "Extend the lifecycle registry contract or add a smoke under packages/main/src/tasks/ that (1) asserts each of the four newly registered filenames classifies as lifecycle_artifact via classifyLifecycleArtifact, and (2) mechanically derives the set of top-level story artifact filenames StoryStore writes (e.g. scan store.ts writeJson/writeFileSync literals whose relative path has no slash) and asserts every one is present in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES or in a small named exemption list (the excluded legacy receipt-refs filename, with a comment saying why), with a named divergence message listing any missing filename. Wire it into lattice validate the same way sibling smokes are wired.",
       "userSees": "lattice validate output includes the new smoke passing; temporarily removing a filename from the registry makes the smoke fail with a message naming that filename",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-24T00:33:44.492Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
