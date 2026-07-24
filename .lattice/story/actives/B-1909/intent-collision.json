@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-1909",
+  "id": "IC-20260724200855",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Two linked records, not one field: (Layer 1) a stored terminal checklist status withdrawn + decisionRef, and (Layer 2) an append-only ProofStoryContractData.bindingDispositions record beside the frozen original binding. The sole authorized applier is scope_shrinkage_decision_set (confirmed+userConfirmed), which stamps both layers with the same decisionId; checklist_update and proofstory_contract_set refuse withdrawn/disposition writes. withdrawn is terminal-but-not-delivered for every consumer, and the empty-scope floor is enforced at write time (refuse emptying the effective binding set without explicit re-approval), independent of doneGateMode.",
+  "acceptedInterpretationHash": "sha256:3c6df673b881ca7491074c9afc23385324aa60def51354340af10ece51484f41",
+  "notes": "Resolves the ambiguity between (a) a projection-only read model, (b) a persisting success boolean on done, and (c) reusing applicability.mode. Chose stored withdrawn status + append-only binding disposition applied solely by the shrinkage decision writer (decision.json Option B; OQ-1/OQ-2 resolved in scope review).",
+  "createdAt": "2026-07-24T20:08:55.574Z",
+  "updatedAt": "2026-07-24T20:08:55.574Z"
+}

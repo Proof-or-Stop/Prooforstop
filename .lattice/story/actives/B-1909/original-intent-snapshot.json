@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-1909",
+  "sourceText": "In the proofbound repo there is no way to record that a planned checklist item was WITHDRAWN because review proved it undeliverable. Story B-bf52 hit this and a cross-host reviewer filed it as a real inconsistency (F-062): checklist_update status accepts only pending|in_progress|done so a withdrawn item stays done (reads as delivered) and the success flag never persists, and proofstory_contract_set is PLAN-frozen so an acceptance binding review proved false (AB-003) cannot be corrected from DEV/REVIEW. Implement two linked layers (checklist disposition + append-only acceptance-binding withdrawal) joined by one scope-shrinkage decision id, with authority and cross-layer consistency validation, and a guard so a story cannot pass by withdrawing every core binding.",
+  "normalizedOutcome": "After an authorized scope_shrinkage_decision_set that removes CHK-nnn, both checklist_get and proofstory_contract_get show that item and its binding as withdrawn (never delivered), reachable from DEV/REVIEW/TEST without returning to PLAN; withdrawn never counts as delivered/completed-success; the original binding stays byte-for-byte auditable; and withdrawing every core binding is refused unless explicitly re-approved.",
+  "acceptanceClaim": "A withdrawn checklist item and its acceptance binding are recorded and rendered as WITHDRAWN (not DONE), authorized solely by a confirmed scope-shrinkage decision that cites them, with the empty-scope withdrawal refused at write time.",
+  "keyRequirementIds": [
+    "REQ-append-only-binding-withdrawal",
+    "REQ-no-empty-scope-pass",
+    "REQ-withdrawn-disposition"
+  ],
+  "requestHash": "sha256:79e70d5e5c489eb5edfa0e68d6c9187ea476dcc7f27571027641f81e47db2b5b",
+  "createdAt": "2026-07-24T20:08:54.170Z",
+  "updatedAt": "2026-07-24T20:08:54.170Z"
+}

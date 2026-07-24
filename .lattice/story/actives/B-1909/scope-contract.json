@@ -1,0 +1,50 @@
+{
+  "storyId": "B-1909",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/hints.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/validate.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/command-policy.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "command-policy.ts is protected: proofstory_contract_set stays PLAN-frozen (allowedPhases unchanged); scope_shrinkage_decision_set already allows PLAN/DEV/REVIEW/TEST. New args are registered in command-catalog.ts, not command-policy.ts.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-24T20:08:57.221Z",
+  "updatedAt": "2026-07-24T20:08:57.221Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/artifact-contract.ts": "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/milestone-status.ts": "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-query.ts": "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/handlers/hints.ts": "packages/main/src/handlers/hints.ts",
+    "packages/main/src/handlers/session.ts": "packages/main/src/handlers/session.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/validate.ts": "packages/main/src/validate.ts",
+    "packages/main/src/tasks/withdrawn-disposition-smoke.ts": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts"
+  }
+}
