@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proof executed during DEV: restoring the unconditional digit-run rewrite alone fails exactly 'digit-rule -> checklist-ordinal, review-round-ordinal, story-id' (3 of 12) while the free-standing-counter collapse case keeps passing.",
-          "headHash": "55fd02214d8e16442c3b171550f117909287f34e",
-          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
-          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
-          "timestamp": "2026-07-23T23:20:37.795Z"
+          "note": "Re-derived revert-proofs: widening the number rule back to /\\d+/g fails exactly the four digit-rule-overreach cases plus identifier-attached-long-decimal, while every digit-rule-collapse case keeps passing; restoring the round-1 form fails {dotted-version-requirement, negative-counter}; widening the hex rule back to \\b boundaries fails only {identifier-attached-long-decimal}. Both directions are therefore independently bound.",
+          "headHash": "8eca92c965f0674745f8728d9a073b7d55da86fb",
+          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
+          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
+          "timestamp": "2026-07-24T01:43:33.182Z"
         }
       ]
     },
