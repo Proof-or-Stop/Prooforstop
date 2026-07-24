@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:510 — the narrowed digit-rule regex `(?<![\\w-])\\d+(?![\\w-])` only treats a digit run as identifier-attached when preceded/followed by a word char or ASCII hyphen; a `.` does not protect. Verified empirically: normalize(\"requires lattice-cli v0.3.229 or newer\") and normalize(\"requires lattice-cli v0.3.230 or newer\") both reduce to \"requires lattice-cli v0.#.# or newer\" (identical digest). Any rejection reason embedding a dotted version/semver string (a realistic shape given version-bump.ts already formats messages like \"expected X.Y.Z\") collapses two substantively different failures into one gate-failure key -- exactly the C4 over-collapse class this story exists to fix, for a token shape CHK-003/CHK-004 never exercises. gateFailureDigest is exported general-purpose, not scoped to the one current call site.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T00:00:01.921Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-bf52:RR-002",
       "_hash": "88729c71a08f6229ed4af100b90d97e05aba12c0ae4deef93919d3cdee40b952",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The number rule's protection set was widened from [\\w-] to [\\w.-], so a digit run attached by a dot is treated as part of the identifier: 'requires lattice-cli v0.3.229 or newer' and the same message with v0.3.230 now keep separate digest keys. Guarded by must-differ case 'dotted-version-requirement' (guard: digit-rule), which drives the real counter and asserts keys=2 counter=1. Revert-proof: restoring the round-1 form (?<![\\w-])\\d+(?![\\w-]) fails digit-rule/dotted-version-requirement and digit-rule/negative-counter with the other 18 passing.",
+      "resolvedAt": "2026-07-24T00:33:29.356Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-003",
