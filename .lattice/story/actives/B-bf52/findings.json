@@ -857,6 +857,21 @@
       "resolvedAt": "2026-07-24T11:14:00.275Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bf52:F-045",
+      "desc": ".lattice/story/actives/B-bf52/checklist.json:211 CHK-002:adversarial:0 evidence note is factually wrong and was NOT updated in this round's re-recording. It claims mutation M1 (path rule widened to main's form, i.e. convergence-breaker.ts path-rule line reverted to /\\/[^\\s\"']+/g) fails signal-less-long-rejection PLUS a case named init-check-issue-ordinal-past-window. Reproduced by mutation: (a) that case name does not exist anywhere in convergence-breaker-smoke.ts -- it was renamed to scope-extension-proposal-ordinal-past-window (per this round's own CHK-001:edge:0/edge:1 notes); (b) even under the correct current name, M1 does NOT fail it. Actual M1 failure set, reproduced from a clean build: exactly phase-pair, in-repo-file-path, signal-less-long-rejection (3 of 23 cases); scope-extension-proposal-ordinal-past-window passes under M1. The evidence cites a nonexistent case name and an incorrect failure claim for an adversarial revert-proof.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T11:31:13.949Z",
+      "reviewRound": "2026-07-24T11:13:41.302Z",
+      "reviewRunId": "B-bf52:RR-025",
+      "_hash": "984ad48ec35a1acf0131b0fedabfea61d1247a12e75633fdd794449562e8c09d",
+      "signatureTag": "adversarial|unknown|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
