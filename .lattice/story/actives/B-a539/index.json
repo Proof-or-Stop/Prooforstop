@@ -4,7 +4,7 @@
   "title": "Remove duplicated reviewer-scan-budget smoke entry from validate.commands",
   "description": "lattice.config.json registers 'node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js' twice in validate.commands: index 4 as a bare string with no options, and index 12 as an object carrying focus:[fast]. Both parse to the same execution identity (command 'node', one script arg, no shell, no cwd, no env, no timeoutMs, no optional flag), so the smoke is invoked twice on every unfocused 'lattice validate' run, wasting time on every phase transition that validates. Fix: delete the bare string at index 4 and keep the focus-tagged object, which is a strict superset because unfocused runs execute every configured command while only focus-tagged commands survive 'validate --focus=fast'. Acceptance: 'lattice validate' must invoke reviewer-scan-budget-guard-smoke.js exactly once while preserving its arguments, timeout, execution context and fail-closed behaviour, and no other entry sharing that script path with meaningfully different execution parameters may be removed.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "validate",
@@ -58,11 +58,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-12d4654412aecbb01251458208b2b803",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T18:02:45.716Z",
+      "branch": "story/B-a539",
+      "user": "Harmonygo",
+      "sessionId": "sess-12d4654412aecbb01251458208b2b803",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-a539",
     "branch": "story/B-a539",
     "createdAt": "2026-07-24T17:31:58.364Z"
-  }
+  },
+  "currentReviewRound": "2026-07-24T18:02:45.716Z"
 }
