@@ -208,11 +208,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proof re-derived against the final matrix: widening the path rule back to the greedy any-slash form fails EXACTLY {phase-pair, in-repo-file-path} and leaves the other 13 cases passing, and B-cc54's suite stays exit 0 under that revert. The implementer's mutation harness asserts each anchor occurs exactly once and re-reads the file from disk before rebuilding, after an earlier regex-on-regex mutation silently no-opped and read as a pass.",
-          "headHash": "ce96c0c13f043b3a8f4cb9ce2b4844ff59b4a94a",
-          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
-          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
-          "timestamp": "2026-07-24T03:29:50.957Z"
+          "note": "Two revert-proofs, one per direction. Mutation M1 (path rule widened to main's form) fails the path-rule-overreach cases plus, by a real cross-dependency, 'signal-less-long-rejection' and 'init-check-issue-ordinal-past-window'. Mutation M2 (path rule deleted) fails the path-rule-collapse cases plus 'bcc54-cross-vendor-noise'. Subsets are named in the suite output rather than counted here. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
+          "headHash": "c79f5580ca87a478ba309ff2b0e0a03441bfa6e5",
+          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
+          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
+          "timestamp": "2026-07-24T10:15:48.330Z"
         }
       ]
     },
