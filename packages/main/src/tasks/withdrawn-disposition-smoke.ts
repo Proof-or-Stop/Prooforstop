@@ -37,18 +37,24 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { createChecklistHandlers, summarizeChecklist } from '../handlers/checklist.js';
+import { createStoryQueryHandlers } from '../handlers/story-query.js';
+import { createSessionHandlers } from '../handlers/session.js';
+import { decorateResult } from '../handlers/hints.js';
 import { effectiveAcceptanceBindings } from '../core/proofstory.js';
+import { buildMilestoneStatusReport } from '../core/milestone-status.js';
 import { checklistAllDoneGuard } from '../core/machine.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
 import type { HandlerContext } from '../handlers/context.js';
 import type {
   ChecklistData,
+  MilestoneLedgerData,
   ProofStoryContractData,
   StoryInfo,
 } from '../core/types.js';
@@ -182,6 +188,65 @@ function assertPositiveWithdrawal(h: Handles, storyId: string, phase: StoryInfo[
   );
 }
 
+/**
+ * F-006: session_brief (session.ts) must render a withdrawn item as WITHDRAWN,
+ * never DONE, and exclude it from the delivered/done tally. session_brief only
+ * renders the active-story checklist when it detects a `story/<id>` branch, so
+ * this needs a real git-backed root (the public handler surface — never the
+ * module-private summarizeChecklist copy).
+ */
+function assertSessionBriefExcludesWithdrawn(): void {
+  const root = mkdtempSync(join(tmpdir(), 'b1909-session-brief-'));
+  try {
+    const git = (...gitArgs: string[]): void => {
+      execFileSync('git', gitArgs, { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] });
+    };
+    git('init', '-q');
+    git('config', 'user.email', 'smoke@noreply.local');
+    git('config', 'user.name', 'smoke');
+    git('config', 'commit.gpgsign', 'false');
+    writeFileSync(join(root, '.gitkeep'), '');
+    git('add', '.');
+    git('commit', '-q', '-m', 'init');
+    git('checkout', '-q', '-b', 'story/B-sess');
+
+    const ctx = makeCtx(root);
+    const h: Handles = {
+      store: ctx.store,
+      ps: createProofStoryHandlers(ctx),
+      chk: createChecklistHandlers(ctx),
+    };
+    const session = createSessionHandlers(ctx);
+
+    seedStory(h.store, 'B-sess', 'DEV');
+    seedChecklist(h.store, 'B-sess', ['CHK-001', 'CHK-002']);
+    seedContract(h.store, 'B-sess', [
+      { id: 'AB-1', checklistRefs: ['CHK-002'] },
+      { id: 'AB-2', checklistRefs: ['CHK-001'] },
+    ]);
+    // Withdraw CHK-002 through the REAL applier so the fixture is genuine.
+    h.ps.scope_shrinkage_decision_set({
+      storyId: 'B-sess', decision: 'confirmed', userConfirmed: true,
+      reason: 'CHK-002 proved undeliverable', approvedBy: 'operator',
+      withdrawnChecklistItemRefs: ['CHK-002'],
+    });
+
+    const brief = session.session_brief({ concise: true });
+    assert.ok(
+      /## Checklist \(1\/2 done, 1 withdrawn\)/.test(brief),
+      'session_brief header counts done DELIVERED-only (1/2) and surfaces withdrawn separately',
+    );
+    assert.ok(!/2\/2 done/.test(brief), 'session_brief never folds the withdrawn item into the done tally');
+    assert.ok(/withdrawn \(1\):/.test(brief), 'session_brief renders a dedicated withdrawn block');
+    assert.ok(
+      !/CHK-002.*\bdone\b/i.test(brief),
+      'session_brief never labels the withdrawn CHK-002 as done',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function run(): void {
   const root = mkdtempSync(join(tmpdir(), 'b1909-withdrawn-disposition-'));
   try {
@@ -231,6 +296,175 @@ function run(): void {
     const summary = summarizeChecklist(h.store.readChecklist('B-pos-dev'));
     assert.equal(summary.done, 1, 'summarizeChecklist: withdrawn is not counted as done/delivered');
     assert.equal(summary.withdrawn, 1, 'summarizeChecklist: withdrawn has its own count');
+
+    // ── F-004: the OTHER named count consumers ALSO exclude withdrawn ─────────
+    // CHK-002:edge:0 names 5 counting sites; the block above only covered
+    // checklist.ts. Prove the remaining load-bearing sites through their REAL
+    // public handlers / exported functions (never the module-private
+    // summarizeChecklist copies in story-query / session / hints). Reuse
+    // B-pos-dev: CHK-001 done, CHK-002 withdrawn under a real decision.
+    const sq = createStoryQueryHandlers(ctx);
+
+    // story-query.ts story_list projection (clDone/clTotal path): clDone counts
+    // DELIVERED (done) only, withdrawn surfaced as a separate `+Nw` suffix, so a
+    // withdrawn item is never counted as done nor left looking permanently stuck.
+    const devRows = sq.story_list({ phase: 'DEV' }) as Array<{ storyId: string; checklist: string }>;
+    const posDevRow = devRows.find((r) => r.storyId === 'B-pos-dev')!;
+    assert.ok(posDevRow, 'story_list surfaces the seeded DEV story');
+    assert.equal(
+      posDevRow.checklist,
+      '1/2 +1w',
+      'story_list clDone counts done-only (1/2), withdrawn shown separately (+1w), never counted as done',
+    );
+
+    // hints.ts checklist_update hint path (via the exported decorateResult
+    // consumer). With CHK-001 done + CHK-002 withdrawn the summary is all-TERMINAL
+    // (allDone), so the hint is the advancement hint — proving withdrawn is NOT
+    // bucketed as pending/outstanding (which would instead emit a "下一项" hint
+    // naming CHK-002 and keep the story looking incomplete).
+    const hint = decorateResult({
+      cmd: 'checklist_update',
+      args: { storyId: 'B-pos-dev', status: 'done' },
+      result: 'CHK-001 marked done',
+      store: h.store,
+      root,
+      activeStory: null,
+    });
+    assert.equal(typeof hint, 'string', 'checklist_update hint decorates the result');
+    const hintText = hint as string;
+    assert.ok(
+      hintText.includes('所有 2 个 item 已 done'),
+      'hint fires the all-terminal advancement path (withdrawn counted as terminal, not outstanding)',
+    );
+    assert.ok(hintText.includes('REVIEW'), 'DEV all-terminal hint points at REVIEW');
+    assert.ok(
+      !hintText.includes('下一项'),
+      'hint never proposes a next pending item — withdrawn is not bucketed as pending',
+    );
+    assert.ok(
+      !hintText.includes('CHK-002'),
+      'the withdrawn CHK-002 is never surfaced by the hint as an outstanding item',
+    );
+
+    // core/milestone-status.ts buildMilestoneStatusReport (exported): a milestone
+    // whose checklistRef points at a withdrawn item treats it as TERMINAL — no
+    // "still ${status}" incompleteness risk, no "Complete checklist item" next
+    // action, and checklist=complete in statusDetail (the checklistRefsComplete
+    // change). Built from the REAL withdrawn checklist for B-pos-dev.
+    const posDevStory = h.store.readStory('B-pos-dev');
+    const posDevChecklist = h.store.readChecklist('B-pos-dev');
+    const withdrawnLedger: MilestoneLedgerData = {
+      schemaVersion: 'proofstory.milestone_ledger.v1',
+      storyId: 'B-pos-dev',
+      state: 'confirmed',
+      milestones: [{
+        id: 'M-1',
+        sourceRequirementId: 'REQ-1',
+        claim: 'delivers CHK-002',
+        doneMeans: 'CHK-002 accounted for',
+        requiredEvidence: [],
+        checklistRefs: ['CHK-002'],
+        verificationIntentRefs: [],
+        status: 'covered',
+      }],
+      createdAt: posDevStory.createdAt,
+      updatedAt: posDevStory.createdAt,
+    };
+    const withdrawnReport = buildMilestoneStatusReport({
+      story: posDevStory,
+      checklist: posDevChecklist,
+      milestoneLedger: withdrawnLedger,
+    });
+    const withdrawnSub = withdrawnReport.milestones[0].subObjectives.find((s) => s.id === 'CHK-002')!;
+    assert.equal(withdrawnSub.status, 'withdrawn', 'milestone subObjective mirrors the withdrawn status');
+    assert.equal(withdrawnSub.risks.length, 0, 'a withdrawn checklist ref raises no incompleteness risk');
+    assert.ok(
+      !withdrawnReport.risks.some((r) => /Checklist item CHK-002 is/.test(r)),
+      'milestone_status raises no "Checklist item CHK-002 is ..." risk for a terminal withdrawn ref',
+    );
+    assert.ok(
+      !withdrawnReport.nextActions.some((a) => /Complete checklist item CHK-002/.test(a)),
+      'milestone_status proposes no "Complete checklist item CHK-002" action for a withdrawn ref',
+    );
+    assert.ok(
+      /checklist=complete/.test(withdrawnReport.milestones[0].statusDetail),
+      'withdrawn ref counts as TERMINAL toward checklistRefsComplete (statusDetail=complete)',
+    );
+    // CONTROL differential: the SAME milestone against a NON-terminal CHK-002
+    // DOES raise the incompleteness risk + next action + checklist=incomplete,
+    // proving the withdrawn-terminal branch above is load-bearing, not vacuous.
+    const inProgressChecklist: ChecklistData = {
+      items: posDevChecklist.items.map((it) =>
+        it.id === 'CHK-002' ? { ...it, status: 'in_progress' as const } : it,
+      ),
+    };
+    const controlReport = buildMilestoneStatusReport({
+      story: posDevStory,
+      checklist: inProgressChecklist,
+      milestoneLedger: withdrawnLedger,
+    });
+    assert.ok(
+      controlReport.risks.some((r) => /Checklist item CHK-002 is in_progress/.test(r)),
+      'control: a non-terminal CHK-002 DOES raise the incompleteness risk (branch is load-bearing)',
+    );
+    assert.ok(
+      /checklist=incomplete/.test(controlReport.milestones[0].statusDetail),
+      'control: a non-terminal CHK-002 keeps the milestone checklist=incomplete',
+    );
+
+    // ── F-006: story_get + session_brief renderers NEVER show withdrawn as DONE ─
+    // story_get (story-query.ts) returns the checklist projection; the withdrawn
+    // item renders as status='withdrawn' with its decisionRef, never 'done'.
+    const posDevGet = sq.story_get({ storyId: 'B-pos-dev' }) as { checklist: ChecklistData };
+    const getItem = posDevGet.checklist.items.find((i) => i.id === 'CHK-002')!;
+    assert.equal(getItem.status, 'withdrawn', 'story_get renders CHK-002 as withdrawn');
+    assert.notEqual(getItem.status, 'done', 'story_get never labels the withdrawn item DONE');
+    assert.ok(getItem.decisionRef, 'story_get surfaces the withdrawn item decisionRef (terminal, authorized)');
+    // session_brief (session.ts) is exercised in its own git-backed root below.
+    assertSessionBriefExcludesWithdrawn();
+
+    // ── F-008: the userConfirmed authority refusal fires at the HANDLER level ──
+    // The existing evidence only exercised the pure buildScopeShrinkageDecision()
+    // fn (in the floor smoke). Drive the refusals through ps.scope_shrinkage_decision_set
+    // (the real handler) and prove nothing is mutated.
+    const sAuth = 'B-neg-authority';
+    seedStory(h.store, sAuth, 'DEV');
+    seedChecklist(h.store, sAuth, ['CHK-001']);
+    seedContract(h.store, sAuth, [{ id: 'AB-1', checklistRefs: ['CHK-001'] }]);
+    // (a) decision='confirmed' with userConfirmed omitted/false + a real ref is
+    // refused at the handler, mutating nothing.
+    assert.throws(
+      () => h.ps.scope_shrinkage_decision_set({
+        storyId: sAuth, decision: 'confirmed', userConfirmed: false,
+        reason: 'attempt to withdraw without user confirmation', approvedBy: 'operator',
+        withdrawnChecklistItemRefs: ['CHK-001'],
+      }),
+      /userConfirmed/i,
+      'handler refuses a confirmed withdrawal missing userConfirmed',
+    );
+    assert.equal(h.store.readScopeShrinkageDecision(sAuth), null, 'authority refusal (a) wrote no decision');
+    assert.equal(h.store.readChecklist(sAuth).items[0].status, 'done', 'authority refusal (a) left the item done');
+    assert.equal(
+      (h.store.readProofStoryContract(sAuth)!.bindingDispositions ?? []).length,
+      0,
+      'authority refusal (a) wrote no disposition',
+    );
+    // (b) the handler's OWN defense-in-depth authority guard: decision='rejected'
+    // with withdrawal refs does NOT throw inside buildScopeShrinkageDecision (a
+    // rejected decision needs no userConfirmed / removal set), so it exclusively
+    // exercises the handler-level `hasWithdrawals && !(confirmed&&userConfirmed)`
+    // check — the very site F-008 flagged as never covered.
+    assert.throws(
+      () => h.ps.scope_shrinkage_decision_set({
+        storyId: sAuth, decision: 'rejected',
+        reason: 'reject yet still name a withdrawal ref', approvedBy: 'operator',
+        withdrawnChecklistItemRefs: ['CHK-001'],
+      }),
+      /require decision=confirmed with userConfirmed/,
+      'handler defense-in-depth refuses withdrawal refs on a rejected decision',
+    );
+    assert.equal(h.store.readScopeShrinkageDecision(sAuth), null, 'authority refusal (b) wrote no decision');
+    assert.equal(h.store.readChecklist(sAuth).items[0].status, 'done', 'authority refusal (b) left the item done');
 
     // ── CHK-002 HAPPY: withdrawn is TERMINAL for advancement, not just excluded ─
     // A checklist of done + withdrawn items satisfies the DEV→REVIEW every-item

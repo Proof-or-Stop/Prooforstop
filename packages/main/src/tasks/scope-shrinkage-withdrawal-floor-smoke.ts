@@ -249,6 +249,85 @@ function run(): void {
       'direct checklist_update withdrawn is refused and redirects to the sole applier',
     );
 
+    // ── F-009: evidenceRefs persists through the writer AND is returned by
+    //     scope_shrinkage_decision_get (the CHK-003:happy:0 intent) ────────────
+    const s7 = 'B-t007';
+    seedStory(store, s7); seedChecklist(store, s7, ['CHK-001', 'CHK-002']); seedContract(store, s7, ['AB-1']);
+    // AB-1 is bound to CHK-001 (positional seedContract), so withdrawing the
+    // CHK-002 checklist item leaves AB-1 effective — no empty-scope trip.
+    ps.scope_shrinkage_decision_set({
+      storyId: s7, decision: 'confirmed', userConfirmed: true,
+      reason: 'withdraw CHK-002 and record the authorizing audit evidence', approvedBy: 'op',
+      withdrawnChecklistItemRefs: ['CHK-002'], evidenceRefs: ['B-bf52:F-062'],
+    });
+    const gotEvidence = JSON.parse(
+      ps.scope_shrinkage_decision_get({ storyId: s7, json: true }),
+    ) as ScopeShrinkageDecisionData;
+    assert.deepEqual(
+      gotEvidence.evidenceRefs, ['B-bf52:F-062'],
+      'evidenceRefs persists and scope_shrinkage_decision_get returns it',
+    );
+
+    // ── F-001/F-002/F-007 regression (proving the committed union + immutable-id
+    //     fix): two scope_shrinkage_decision_set calls under ONE decisionId must
+    //     ACCUMULATE both withdrawal ref sets (union), and a conflicting caller
+    //     decisionId must be REJECTED with the record left unchanged ────────────
+    const s8 = 'B-t008';
+    seedStory(store, s8); seedChecklist(store, s8, ['CHK-001', 'CHK-002']); seedContract(store, s8, ['AB-1', 'AB-2']);
+    // Call 1: withdraw the CHK-002 checklist item (auto-generates the decisionId).
+    ps.scope_shrinkage_decision_set({
+      storyId: s8, decision: 'confirmed', userConfirmed: true,
+      reason: 'call 1 withdraws the CHK-002 checklist item', approvedBy: 'op',
+      withdrawnChecklistItemRefs: ['CHK-002'],
+    });
+    const storedId = store.readScopeShrinkageDecision(s8)!.decisionId!;
+    assert.ok(storedId, 'call 1 stamped a decisionId');
+    // Call 2: REUSE the stored decisionId, withdraw AB-1 (a binding) WITHOUT
+    // repeating CHK-002. Pre-fix this reset withdrawnChecklistItemRefs to []; the
+    // union fix must instead preserve CHK-002 and add AB-1. (AB-2 stays effective,
+    // so no empty-scope trip.)
+    ps.scope_shrinkage_decision_set({
+      storyId: s8, decision: 'confirmed', userConfirmed: true,
+      reason: 'call 2 withdraws AB-1 under the same decisionId', approvedBy: 'op',
+      decisionId: storedId,
+      withdrawnAcceptanceBindingRefs: ['AB-1'],
+    });
+    const accum = store.readScopeShrinkageDecision(s8)!;
+    assert.equal(accum.decisionId, storedId, 'decisionId is stable across both calls');
+    assert.deepEqual(
+      accum.withdrawnChecklistItemRefs, ['CHK-002'],
+      'call 2 does NOT reset the checklist ref set — union preserves CHK-002',
+    );
+    assert.deepEqual(
+      accum.withdrawnAcceptanceBindingRefs, ['AB-1'],
+      'call 2 accumulates the binding ref (union), not just the latest call',
+    );
+    // Both layers stay correctly stamped under the one decisionId.
+    const accumChecklist = store.readChecklist(s8);
+    const accumItem = accumChecklist.items.find((i) => i.id === 'CHK-002')!;
+    assert.equal(accumItem.status, 'withdrawn', 'CHK-002 stays withdrawn after the second call');
+    assert.equal(accumItem.decisionRef, storedId, 'CHK-002 cites the single decisionId');
+    const accumContract = store.readProofStoryContract(s8)!;
+    const ab1Disp = (accumContract.bindingDispositions ?? []).find((d) => d.bindingId === 'AB-1');
+    assert.equal(ab1Disp?.disposition, 'withdrawn', 'AB-1 disposition recorded by the second call');
+    assert.equal(ab1Disp?.decisionRef, storedId, 'AB-1 disposition cites the same single decisionId');
+    // F-007: a third call passing a decisionId that DIFFERS from the stored one is
+    // rejected, and the persisted record is left byte-identical.
+    const beforeReject = JSON.stringify(store.readScopeShrinkageDecision(s8));
+    assert.throws(
+      () => ps.scope_shrinkage_decision_set({
+        storyId: s8, decision: 'confirmed', userConfirmed: true,
+        reason: 'a conflicting decisionId must be refused', approvedBy: 'op',
+        decisionId: 'SD-conflicting', withdrawnChecklistItemRefs: ['CHK-002'],
+      }),
+      /immutable/i,
+      'a caller decisionId conflicting with the stored one is rejected',
+    );
+    assert.equal(
+      JSON.stringify(store.readScopeShrinkageDecision(s8)), beforeReject,
+      'the rejected conflicting-id call left the decision record byte-identical',
+    );
+
     console.log('scope-shrinkage-withdrawal-floor-smoke: PASS');
   } finally {
     rmSync(root, { recursive: true, force: true });
