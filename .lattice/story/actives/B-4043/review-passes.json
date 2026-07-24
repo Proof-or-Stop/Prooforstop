@@ -629,6 +629,43 @@
         "scanEscalationReason": null
       },
       "_hash": "ed3aa912487320e4c06a48bc39a137fbd1b92677bd0927a806045dedf8db7ed3"
+    },
+    {
+      "id": "B-4043:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted ~230 diff symbol tokens (mostly local vars/consts from acceptance-rollout.ts + its smoke/cohort-runner; exported: AcceptanceRolloutReportV1/AcceptanceRolloutMetricsV1/AcceptanceRolloutReceiptV1/deriveAcceptanceRolloutReport/runProofStoryAcceptanceRolloutCohort/evaluateAcceptanceRolloutForContext/resolveAcceptanceRolloutGateMode + ACCEPTANCE_ROLLOUT_* consts). Step2 grepped docs/CLI.md + docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, compared 6 referenced paragraphs (Wave 3/Wave 4 CLI.md section lines 505-560; execution-plan Wave-4 measured-cohort table lines 1709-1721; Wave-4 implemented-contract lines 1564-1601; decision record #19 lines 1758-1780; rollback section 1328-1361; human-audit-checklist boundary rows). No blockers found. Targeted re-checks per dispatch: (1) regenerated acceptance-rollout-report.json (mtime 18:34, binding.materialHash matches current REVIEW task-context materialHash) metrics compared field-by-field against the Wave-4 measured-cohort table: matchedPairCount=6/baselineSampleCount=6/candidateSampleCount=6 = doc's 3 seeded + 3 control pairs per arm; registeredSeedCount=3/detectedSeedCount=3 = doc 3/3 100%; falsePassCount=0; omissionSeedCount=1/omissionDetectedCount=1/omissionDetectionRate=1 = doc 1/1 100%; falseBlockCount=0/falseBlockRate=0; mislabeled3x1Count=0; waiverDelta=0; inventoryShrankCount=0; verdict=pass diagnostics=[]; 12 full-3x2 tags + rounds:3 + codex/claude providers matches doc 'codex-cli + claude-cli, three rounds, full-3x2'. No drift. (2) CHK-005: canonical execution plan Wave-4 section states IMPLEMENTED-FLAT-PROJECT-BOUNDARY with exact thresholds/measured table/rollback (config-only mode change verified against config.ts acceptanceRolloutGateMode, never deletes/rewrites reports/receipts/history)/explicit Wave-3A-unimplemented-and-excluded language (decision-record #7/#8, human-audit-checklist); no selective-applicability or authority overclaim language found. Holds. (3) New lifecycle artifact acceptance-rollout-report.json: only doc surface enumerating it is docs/CLI.md (already present, lines 483-528), describing writer/reader/check commands and thresholds without quoting specific measured numbers, so no other enumeration doc needs updating; registry (lifecycle-registry.ts) plus scripts/verify-process-fact-contract.mjs coverage-invariant (line ~4290-4303) are the only places needing the raw filename. (4) CJK re-entry: scanned all english-artifact-gate AUTHOR_METADATA_BASENAMES files under .lattice/story/actives/B-4043/ (background.md/index.json/checklist.json/decision.json/understanding.json/plan.md; summary.json absent) plus git log main..HEAD commit subjects/bodies for this branch — zero CJK codepoints found in any.",
+      "createdAt": "2026-07-24T18:06:51.605Z",
+      "reviewRound": "2026-07-24T18:00:39.840Z",
+      "reviewRunId": "B-4043:RR-035",
+      "envelopeId": "c117b47ca3881f728bcd2b44917ef3c1e55f4746a98bc3681815fe0b85e5b064",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/decision.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/understanding.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1918bc966fae44af74d36fff8417f5491c04bfc5f5fa608a4578a215a1e9efa9"
     }
   ]
 }
