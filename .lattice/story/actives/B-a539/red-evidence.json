@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-a539",
+  "records": [
+    {
+      "id": "RED-20260724173856",
+      "trigger": "validate.commands registers reviewer-scan-budget-guard-smoke.js twice, so an unfocused lattice validate invokes it twice.",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "193299d0bc88602a0a933d6041e1ef6277e8303d",
+      "baselineMaterialHash": "44492a19326b8302916fa72c7852cff6ad9bdeb3e57b6c011f9d5b91ca884c37",
+      "observedFailure": "At baseline HEAD 193299d0bc88602a0a933d6041e1ef6277e8303d the exactly-once assertion over lattice.config.json exits 1 with \"FAIL: expected exactly 1 reviewer-scan-budget-guard-smoke entry, found 2\". validate.commands index 4 is the bare string and index 12 is the focus-tagged object, both resolving to the same execution identity.",
+      "failingCommand": "node -e \"const c=require(\\\"./lattice.config.json\\\");const n=c.validate.commands.filter(x=>JSON.stringify(x).includes(\\\"reviewer-scan-budget-guard-smoke.js\\\")).length;if(n!==1){console.error(\\\"FAIL: expected exactly 1 reviewer-scan-budget-guard-smoke entry, found \\\"+n);process.exit(1);}console.log(\\\"OK: exactly 1 entry\\\");\"",
+      "expectedGreenCommand": "node bin/lattice.js validate --json (count command results referencing reviewer-scan-budget-guard-smoke.js == 1)",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "same_acceptance",
+        "command": "node bin/lattice.js validate --json (count command results referencing reviewer-scan-budget-guard-smoke.js == 1)"
+      },
+      "note": "Red captured before any edit to lattice.config.json.",
+      "createdAt": "2026-07-24T17:38:56.747Z"
+    }
+  ],
+  "createdAt": "2026-07-24T17:38:56.747Z",
+  "updatedAt": "2026-07-24T17:38:56.747Z"
+}

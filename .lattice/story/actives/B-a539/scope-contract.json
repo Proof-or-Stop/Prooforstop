@@ -1,0 +1,34 @@
+{
+  "storyId": "B-a539",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/core/validation-executor.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/**",
+    "packages/utils/src/**",
+    "docs/**"
+  ],
+  "scopeChangeReason": "Config-only deduplication of one duplicated validate.commands entry; the validate runner and the smoke script must not change.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-24T17:38:47.595Z",
+  "updatedAt": "2026-07-24T17:38:47.595Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/**": "packages/main/src/**",
+    "packages/utils/src/**": "packages/utils/src/**",
+    "docs/**": "docs/**"
+  }
+}
