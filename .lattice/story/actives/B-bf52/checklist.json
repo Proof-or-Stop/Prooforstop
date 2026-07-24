@@ -196,11 +196,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "'must-still-collapse machine-path-into-repo-relative-segments [guard: path-rule-collapse]' asserts a path continuing from a machine root into repo-relative segments is consumed in one match. Since the id guard is a whole-token test with no reduction, a machine path can never be protected as an id, so the two rules do not interact. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
-          "headHash": "f8ad320bbda538bce949b4d4ef3bec8f7d0decd4",
-          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
-          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
-          "timestamp": "2026-07-24T14:52:30.542Z"
+          "note": "'must-still-collapse machine-path-into-repo-relative-segments [guard: path-rule-collapse]' asserts a path from a machine root into repo-relative segments is consumed in one match. Because the id test is a whole-token pure-ordinal match with no reduction, a path can never be taken for an id, so the two rules do not interact. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure comes from a command named here.",
+          "headHash": "613303b7f9ea5a0f20ed118abda9e6c42297f903",
+          "materialHash": "6b05d1d4b46c8a7c5f48dfbacd792a42018d5934b460055f9b8d3b5addeac3ef",
+          "storyFilesHash": "4900645b650299878a3cc0b9214456421808927fa96e7f97a450b12becfcbfbc",
+          "timestamp": "2026-07-24T15:33:22.118Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
