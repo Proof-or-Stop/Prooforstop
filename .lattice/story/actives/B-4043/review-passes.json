@@ -455,6 +455,34 @@
         "scanEscalationReason": null
       },
       "_hash": "cadd031511a6a8615a1e2e9c1395aa49460bf21d527d7a782ce1fccd320ee613"
+    },
+    {
+      "id": "B-4043:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Re-review of the F-009 restoration (my own prior finding), scoped per dispatch to the metadata-only delta since b2f7d5fa5b. Confirmed via git diff --name-only b2f7d5fa5b..HEAD: only 9 files under .lattice/story/actives/B-4043 changed (acceptance-rollout-report.json, checklist.json, findings.json, index.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json); zero production/test source touched; git status clean. RESTORATION VERIFIED CORRECT: checklist.json CHK-004:adversarial:fail-closed-mutations verificationEvidence entry is bound to the default-mode command (LATTICE_ROLLOUT_COHORT_INPUT_PATH env var, proofstory-acceptance-rollout-smoke.js, no flag) which contains realConsumerMutations (smoke.ts lines 363-389, 11 mutations through the real runAcceptanceRolloutGate consumer, codes AR_SAMPLE_COUNT_LT_3, AR_SOURCE_EVIDENCE_INVALID, AR_REGISTERED_CAMPAIGN_INCOMPLETE, each followed by an exact-restoration assertion), tampered-signature rejection (lines 391-399, generic enforcement-blocked regex) and stale-report rejection (lines 401-416, AR_REPORT_STALE) -- i.e. the intent's own literal enumeration. Programmatically confirmed all 15 frozen verificationIntent ids across CHK-001 through CHK-005 still have at least one verificationEvidence entry, none dropped by the restoration, and confirmed the only new intentRef introduced anywhere in the whole checklist.json diff since b2f7d5fa5b is CHK-004:hardening:issuance-replay-integrity; no other verificationIntent desc, status or title text changed. CUSTOM REF IS HONEST, NOT SMUGGLED: programmatically verified CHK-004:hardening:issuance-replay-integrity is not among CHK-004's 3 frozen verificationIntent ids (happy, edge, adversarial); its own note plainly discloses this as deliberately not one of the 15 frozen verificationIntent ids; it does not remove or dilute evidence on any frozen ref; and it is separately and genuinely gate-enforced as its own lattice.config.json validate.commands entry, line 97, unchanged and pre-existing, rather than being a documentation-only claim. GATE-REACHABILITY of the restored default-mode command confirmed structurally: package.json root test script's last entry is npm run test:proofstory-acceptance-rollout, which equals node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js with no flag, and lattice.config.json doneRequiredCommands root full test suite entry is plain npm test, so the default-mode battery is DONE-required-gate-reachable, distinct from and additional to the issuer-mutations entry in validate.commands. DIST INTEGRITY: built packages/main plus packages/utils from the frozen source in an isolated clone, not the shared worktree, and diffed the resulting dist/tasks/proofstory-acceptance-rollout-smoke.js byte for byte against the shared worktree's existing dist; identical, so the shared worktree's dist is not stale or hand-edited relative to the frozen src. F-008 RESOLUTION RECORD CORRECTION CONFIRMED: findings.json F-008 resolvedReason is now explicitly marked CORRECTED RECORD, retracting the prior discharges-on-its-own-terms claim and stating the concept and test-coverage lanes were right; text matches what actually changed in checklist.json. RESIDUE: repo-wide grep for both intentRef strings, fail-closed-mutations and issuance-replay-integrity, outside node_modules, dist and .git shows hits confined to .lattice/story/actives/B-4043 story metadata only; no leakage into docs/requirements or plan.md, and plan.md and understanding remain unchanged (docs lane RR-026 independently confirmed the same). LIVE CONFIRMATION: launched both the restored default-mode command and the issuer-mutations command myself in a fresh isolated clone built from a git clone of the shared worktree with its own node_modules and packages-utils dist, tsc rebuild, to directly witness the code-path split; both were still executing at review-note time, roughly 18 to 19 minutes real git-checkout-heavy runtime, consistent with the quality lane's own independently-reported roughly 12 minute or 916 second timing for this same command, and had not printed a final result by the time I filed this pass; I did not block indefinitely on my own redundant run. This is corroborated rather than substituted for: the quality lane, review-passes.json B-4043 RR-023, already completed live execution of both suites in its own isolated clone at this exact current HEAD and reported PASS 57 assertions for default mode and PASS 7 assertions for issuer-mutations, independently confirming the same code-path exclusivity and pass status I verified by source read. No blocker from this lane: the restoration is complete and correct, the custom ref is an honest not-smuggled mechanism, no production or test source changed this round, and residue is clean.",
+      "createdAt": "2026-07-24T16:29:37.783Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-024",
+      "envelopeId": "f3d1433e7275f1faba58c2cccfa2de00f4f1d7dea49892815ac085a9d06cd0e9",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "177671477d19c11d142c2c8f6b9796339caf3ddfc3fdbc6e598cdc0622a29e9a"
     }
   ]
 }
