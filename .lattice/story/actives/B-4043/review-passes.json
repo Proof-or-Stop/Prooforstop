@@ -839,6 +839,44 @@
         "scanEscalationReason": null
       },
       "_hash": "489f55bbc56b72372faeabe5ae1108779e454c7a9397dd8e93deaf9d260221e2"
+    },
+    {
+      "id": "B-4043:RP-027",
+      "agent": "lattice-review-docs",
+      "note": "Re-review of F-012 remediation, story-level (no new diff symbols to extract; fallback full-text scan per role fallback-1). Verified: scope-contract.json acknowledgements[5] (2026-07-24T17:55:59.937Z, lifecycle-registry.ts) still literally contains the false 'passes all 47 configured commands' text, confirming the file was NOT rewritten in place, matching the described append-only mechanism. Read handler source packages/main/src/handlers/scope-contract.ts line 426 (acknowledgements: [...contract.acknowledgements, ack]) -- there is no update/rewrite code path, so append-then-supersede is the only mechanically possible fix shape, not a rationalization. acknowledgements[6] (2026-07-24T19:19:28.491Z) carries the verified 49 figure plus an explicit 'CORRECTION per F-012' paragraph naming the stale figure, its provenance (pre-merge commit b8e28971d0), and the self-contradiction (lifecycle-registry-contract entered the set only after the main merge). Also confirmed via prewrite-guard.ts line 147, semantic-scope-gate.ts line 82, and scope-contract.ts line 252 that all acknowledgement consumers only do contract.acknowledgements.some(...) boolean path-coverage checks -- the reason-text content (including the stale 47) has zero gating/functional effect; its only role is human-readable audit trail, and it is now accompanied by an unambiguous correction. Grepping scope-contract.json for '47 configured' vs '49 configured' yields exactly one stale hit and one corrected hit at adjacent indices (5 then 6), same path, monotonic timestamp, with an explicit forward-pointer between them: defensible, not silently contradictory, though a reader must read both entries rather than trust the first grep hit alone. findings.json's 47-occurrences are confirmed to sit exclusively inside F-011/F-012 finding desc/resolvedReason text quoting the wrong claim in order to explain/refute it, correctly left untouched per this story's own finding-history-immutability precedent (F-001 through F-010 also preserve superseded claims verbatim in desc/resolvedReason). Full story-directory plus docs-tree sweep for a third uncorrected instance, or any other stale factual assertion of the same class: grepped the whole repo for '47 configured' and '47 command' (hits only in findings.json and checklist.json, both already accounted for and already corrected); grepped the whole story directory for the bare token 47 across all 11 files that matched -- process-metrics.json's value:47 is an unrelated blockedTaskCount metric, test-evidence.json's 'configured validate.commands[47]' is a zero-based array-index label inside the current real 49-entry command list (not a total-count claim), and the remaining hits are unrelated timestamps and hashes; no third instance found. Also checked docs/CLI.md, README.md, CLAUDE.md, plan.md, background.md, the execution-plan decision doc, and acceptance-rollout-report.json for any validate-command-count or similar numeric claim: none state a specific total, so none are stale. Confirmed via git diff --stat from the F-011 fix commit 2972d2a066 through current HEAD, restricted to non-.lattice paths, that the diff is empty -- no production source, docs, or the rollout-report artifact changed in this or the prior remediation round; the only touched paths across both rounds are .lattice/story/actives/B-4043 bookkeeping files (scope-contract.json, checklist.json, findings.json, index.json, process-events.jsonl, process-metrics.json). F-012 remediation is correct, complete, and consistent with this story's established finding/acknowledgement-history-immutability convention; no new blocker.",
+      "createdAt": "2026-07-24T19:23:23.392Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-041",
+      "envelopeId": "65d6199241b7d9eac03c7ee239803fb0083b477f48eb00732ed062b850f163fd",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          ".lattice/story/actives/B-4043/test-evidence.json",
+          "docs/CLI.md",
+          "packages/main/src/core/prewrite-guard.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/handlers/scope-contract.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "633051306ddcc488d0a7ddf33ad29cf7c7b51d90f46ce65c01b948e2f4b60cb1"
     }
   ]
 }
