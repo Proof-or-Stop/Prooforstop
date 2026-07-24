@@ -213,6 +213,37 @@
         "scanEscalationReason": null
       },
       "_hash": "bc0f28151347fa69022803e3f7a10fe4ce5271136d99267ab063679b47204a0c"
+    },
+    {
+      "id": "B-4043:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: audited all 15 verificationIntent refs against verificationEvidence at head 4ccc1f1f65 (evidence commit 485fe96ff2). (1) Ancestry: F-004 code fix b8e28971d0 is an ancestor of the evidence-recording commit, so headHash/materialHash postdate the change. (2) Literal executability: only 4 distinct commands back all 15 entries; I actually re-ran all 4 myself -- verify-process-fact-contract.mjs (exit 0), run-proofstory-acceptance-rollout-cohort.mjs (real 7m10s run, exit 0, fresh sourceInventoryDigest/observationReceipt signatures differ per-run, proving genuine re-execution not replay), pre_review_check smoke --proof-scenarios with LATTICE_ACTIVE_STORY_ID+LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE set (exit 0, 76s, emitted exactly 23 scenario records: 17 mutation/5 positive/1 transcript), and acceptance-rollout-smoke.js with LATTICE_ROLLOUT_COHORT_INPUT_PATH (exit 0, 20s, PASS 57 assertions). No other entry has the previously-fixed missing-env-var defect. (3) Intent mapping: extracted all 23 scenario intentRefs and confirmed an exact 1:1 bijection onto the 15 CHK intent ids, no blanket coverage, no intent unmapped. (4) Vacuity sweep: confirmed the disclosed rollout-smoke vacuity (default run never calls runIssuerMutationSmoke; only --issuer-mutations exercises the caller-report-substitution defence) is the already-resolved F-004 finding, and independently re-verified lattice.config.json validate.commands still runs proofstory-acceptance-rollout-smoke.js --issuer-mutations as a real gate (line 97) at current HEAD. Swept proofstory-pre-review-check-smoke.ts and found --proof-scenarios intentionally skips most artifact-tamper-mutation variants, but none of those skipped cases are claimed as scenario records for any of the 15 intents, so there is no false coverage claim. No new blocking gap found. Noted: a transient uncommitted edit appeared in packages/main/src/core/acceptance-rollout.ts (assertCallerReportMatches neutered) from a concurrent reviewer lane's own adversarial mutation check in this shared worktree; restored to HEAD via git checkout -- before concluding (git status now clean).",
+      "createdAt": "2026-07-24T13:15:29.687Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-013",
+      "envelopeId": "2eedf26e58f811343868c9c3866fb69feb7209c060c3f3ff892391b803e8aab6",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/smoke-manifest.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cef4ef456acaf7ee69cb5475073b4ffbdf94067208bca5474907a7faf5f06f87"
     }
   ]
 }
