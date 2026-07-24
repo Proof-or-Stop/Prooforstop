@@ -315,6 +315,23 @@
       "_hash": "1844d73c7d953e55c32981f9174fabc7821b8cd58187bd4ec92b2214113a7923",
       "signatureTag": "happy|unknown|happy-verificationevidence-checklist",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-019",
+      "desc": "cross-host (codex-cli host-B round 3), recorded by the main agent because codex-cli is not a registered dispatch actor: a THIRD inverse-risk instance. The review-run-binding rejection rendered via evaluateReviewVerdict/getGuardFailureReason interpolates a run id, e.g. \"finding F-abc bound reviewRunId B-bf52:RR-001: Not the latest run on the current lane (current: B-bf52:RR-002)\" then \"(current: B-bf52:RR-003)\". The digits are identifier-attached so the number rule preserves them; a host that starts a new reviewer run between attempts at the same blocked transition mints a new counter key every time and maxGateRepeat never reaches 2. NOT refuted by reset semantics: cli-engine.ts:1405 resets only on a SUCCESSFUL story_advance, deliberately scoped so a trivial mutation cannot clear the counter.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T02:02:49.139Z",
+      "reviewRound": "2026-07-24T01:43:51.293Z",
+      "_hash": "63a590c6c1f62ca367016ac4111f08f9206def69d63297a656b9c9fce021bb6e",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
