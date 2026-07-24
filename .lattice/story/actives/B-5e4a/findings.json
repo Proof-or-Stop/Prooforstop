@@ -46,7 +46,7 @@
       "desc": "packages/main/src/tasks/lifecycle-registry-contract.ts:382-393 findEnclosingBraceOpen (used by isEnclosingCallableParameter, F-002 fix) does a naive char-by-char brace-depth scan with no string/comment stripping, contradicting its own doc claim (\"Balanced {...} pairs encountered on the way ... cancel out via the depth counter\"). Repro (isolated harness, verbatim-copied function bodies, not committed): a genuine helper-parameter join site that needs MULTI-HOP ascension past a non-callable block (if/for) — e.g. `someMethod(storyId: string, file: string): void { const s ='x } y'; if (storyId) { const path = join(this.storyDir(storyId), file); } }` — misclassifies as NOT a helper parameter (isEnclosingCallableParameter returns false) because the stray unmatched '}' inside the string literal (or a `//` comment) inflates the depth counter and desyncs the backward scan past the true enclosing method brace. Verified this is single-hop-safe (no bug when the join call sits directly in the method body with no intervening block, matching both real store.ts sites at storyFilePath/writeJson) and confirmed the failure direction stays SAFE (fails toward the named divergence, never toward silently accepting an unrelated coincidentally-named identifier — a constructed dangerous-direction probe returned false as expected, not a false accept). Does not affect current store.ts (both live join sites are single-hop, 49/49 derived, 0 divergences) but is a real latent gap: a future entirely legitimate store.ts change (wrap a real join(this.storyDir(...), file) call in a validation if-block, with any comment or string literal containing an unmatched } somewhere between that block and the method) would make this exact CHK-002 coverage smoke fail with a spurious derivation-blind-spot divergence on genuine helper plumbing, contradicting the just-fixed docstring at lines 452-469 promise that ambiguity always fails toward the named divergence for genuinely unresolved identifiers only — here it misfires on a resolved one.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T02:07:20.026Z",
@@ -57,7 +57,9 @@
         "packages/main/src/tasks/lifecycle-registry-contract.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Round-3 medium, dismissible per decay rules with documented rationale: (1) the defect requires multi-hop brace ascension past an unmatched brace inside a string/comment — a shape that does not exist anywhere in current store.ts (verified: both real helper sites are single-hop, contract runs 49/49 derived, 0 divergences); (2) the failure direction is provably safe — the reviewer own dangerous-direction probe confirmed the walker can only fail toward emitting a spurious named divergence (fail-loud CI signal), never toward silently accepting an unrelated identifier, so the story acceptance claim (no silent registry regression) holds regardless; (3) worst case is a self-announcing contract failure during a hypothetical future store.ts refactor, at which point the walker gets hardened with a string/comment mask. Latent robustness improvement, not a correctness hole.",
+      "dismissedAt": "2026-07-24T02:08:39.397Z"
     }
   ]
 }
