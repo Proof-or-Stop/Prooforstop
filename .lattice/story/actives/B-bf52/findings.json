@@ -637,7 +637,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:594 - the allowlisted prefix `init-` protects the wrong id shape: it is dead for the real story_advance-gated INIT_CHECK rejection and does not protect the id convention that rejection actually uses. The only literal `INIT-${...}` mint site in the repo is handlers/draft-check.ts:81, which feeds `story_create --fromDraft` (handlers/story-create.ts GATE 3 draft_check_blocking_issues, ~line 636), and cli-engine.ts:1508 only calls bumpGateFailureCount `if (cmd === 'story_advance')` - a story_create failure NEVER reaches the breaker, so this mint site can never collide or protect anything. Meanwhile the REAL INIT_CHECK gate reachable via story_advance is core/machine.ts:1036-1039 (`Cannot enter INIT_CHECK: init-check reviewer recorded high/critical issues...` embedding `${issue.id}`), sourced from `init_check_set` issues - and the AUTHORITATIVE schema at cli/command-catalog.ts:2315 documents the convention verbatim: `id: z.string().optional().describe('Reviewer self-assigned ID, for example I-1; optional.')`. Prefix `i-`, not `init-`, and `i-` is absent from SUBSTANTIVE_ID_PREFIXES. Repro with the real machine.ts:1036 banner and the real reviewer agentId `lattice-review-story-init` (the primary INIT reviewer per templates/agents/lattice-review-story-init.md): two GENUINELY DIFFERENT high/critical init-check issues, id=I-1 then id=I-2 (reviewer flags I-1, main agent fixes it, reviewer re-runs and flags a new, different critical problem I-2) digest IDENTICALLY (story_advance/a5649c7798c7 both times) because `i-` normalizes to `i-#`. bumpGateFailureCount confirms maxGateFailureCount=2 after these two calls - the breaker-trip threshold, a false freeze exactly like the fixed BUG-/F-030 case. This also exposes a structural blind spot in the section-7c completeness guard: it can only discover prefixes that appear as LITERAL text in source (template mint `PREFIX-${` or a literal `PREFIX-\\d` inside a rejection-marked string); a reviewer-free-text id that reaches a rejection only via runtime `${issue.id}` interpolation is invisible to it, so `all classified` from that guard does not mean the allowlist is actually complete for this class of producer. Fix direction: replace `init-` with `i-` in SUBSTANTIVE_ID_PREFIXES (with a must-differ I-1/I-2 case), and note in the completeness-guard comment that free-text reviewer-supplied ids are outside its scan.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-24T04:19:07.287Z",
@@ -645,7 +645,11 @@
       "reviewRunId": "B-bf52:RR-021",
       "_hash": "a58230d397dbd23e480b4a894d5deeeb2740d5f39d7f3dc7657c025289b1c2ee",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "init- replaced by i- in SUBSTANTIVE_ID_PREFIXES. Confirmed at source: the only INIT-${...} mint is handlers/draft-check.ts:81, which ids draft-check issues, and core/machine.ts never reads draft-check.json, so no INIT- id can appear in a transition-guard rejection. The INIT_CHECK rejection that does name issue ids is core/machine.ts:1042-1046, rendering init-check.json reviewer issues whose declared shape is I-1 (init_check_set schema, cli/command-catalog.ts). init- is now an EXPLICIT exclusion category (EXCLUDED_SHAPE_CONFUSABLE) rather than a silent omission, because a silent drop is indistinguishable from an oversight. The one-letter prefix was checked for over-match: the whole-token regex requires a leading word boundary and the hyphen, so multi-2, anti-1, wifi-5 and ref-012 have a word character before the letter and do not match — verified by direct probe, all three collapse. Matrix case init-check-issue-ordinal (I-1 vs I-2) is distinct.",
+      "resolvedAt": "2026-07-24T10:14:49.964Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-035",
