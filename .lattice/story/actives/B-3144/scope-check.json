@@ -333,13 +333,12 @@
       "q": "Should the NEW quorum_submit drift-accept guard predicate (CHK-002) independently apply the EMPTY_STORY_FILES_HASH no-signal exclusion, given the floor function it is asked to mirror (eventsWithStoryFilesHashDowngrade, review-escalation.ts:948-969) does NOT itself implement that guard (unlike its three siblings), and fixing the floor is explicitly excluded scope for this story?",
       "evidence": "decisions/story-files-hash-material-drift.md \"Adopted Bindings\" lists \"review escalation host verdicts and degraded fallback records\" as one of three adopted storyFilesHash bindings. decisions/review-run-binding-race.md: \"the storyFilesHash drift-advisory downgrade must treat EMPTY_STORY_FILES_HASH (sha256 of an empty story-owned diff) as no-signal on BOTH the stored and the live side and fall through to strict materialHash, exactly as delivery-check-hash.ts:184-188 already does\" (scoped to \"checkEvidenceFreshnessForGit, all callers\"). Source: packages/main/src/core/evidence-freshness.ts:9-19 defines EMPTY_STORY_FILES_HASH and states \"Callers that key the advisory on storyFilesHash must therefore treat this empty-set value as no-signal\". packages/main/src/core/review-escalation.ts eventsWithStoryFilesHashDowngrade (lines 948-969) only guards `!currentStoryFilesHash` and `!storyFilesHash` (falsy/missing), never `=== EMPTY_STORY_FILES_HASH` (a real, truthy sha256('') digest) -- it is NOT a caller of checkEvidenceFreshnessForGit and was not touched by the review-run-binding-race fix. CHK-002 verification-intent (happy/edge/adversarial) never mentions EMPTY_STORY_FILES_HASH, and plan.md's predicate text (\"same materialDigest OR (stale materialDigest but storyFilesHash equal to the current storyFilesHash)\") has no such exclusion either.",
       "sourcePointers": [
-        "docs/requirements/decisions/story-files-hash-material-drift.md:38-45 (Adopted Bindings)",
-        "docs/requirements/decisions/review-run-binding-race.md:7,13,21 (mandatory EMPTY_STORY_FILES_HASH guard, scope)",
-        "packages/main/src/core/evidence-freshness.ts:9-19 (EMPTY_STORY_FILES_HASH definition + norm)",
-        "packages/main/src/core/review-escalation.ts:948-969 (eventsWithStoryFilesHashDowngrade, no EMPTY guard)",
-        ".lattice/story/actives/B-3144/checklist.json CHK-002 verificationIntent (no EMPTY_STORY_FILES_HASH test)",
-        ".lattice/story/actives/B-3144/plan.md lines 49-65 (CHK-002 predicate text)"
-      ]
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "CHK-002"
+      ],
+      "resolution": "The new quorum_submit guard faithfully mirrors the floor predicate AS IT IS, including its lack of an EMPTY_STORY_FILES_HASH no-signal exclusion. Rationale: the guard exists to refuse exactly the set of resubmissions the floor would drift-accept (docs/requirements/decisions/story-files-hash-material-drift.md lists review escalation host verdicts as an adopted storyFilesHash binding); if the guard unilaterally added the EMPTY_STORY_FILES_HASH exclusion that eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948-969) does not have, an empty-story-diff corner would let a resubmit through while the floor still drift-accepts the old verdicts, recreating the B-bf52 poisoning in that corner. The guard additionally skips legacy events whose storyFilesHash field is absent/blank (no signal, no collision claim). Adding the EMPTY_STORY_FILES_HASH no-signal guard to the FLOOR (per review-run-binding-race.md mandatory-guard guidance) is a floor-semantics change, which is explicitly excluded scope for B-3144; when a future story adds it to the floor, the quorum guard must be updated in lockstep, and the guard comment will say so.",
+      "resolvedAt": "2026-07-24T20:39:48.042Z"
     }
   ]
 }
