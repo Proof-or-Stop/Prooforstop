@@ -14,6 +14,21 @@
       "_hash": "03a6f48a0704dfc00fbf59e8be77afe2fb04201c68d9688d687fe45727b078b6",
       "signatureTag": "missing|unknown|edge-evidence-cites",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-002",
+      "desc": "packages/main/src/core/convergence-breaker.ts:510 — the narrowed digit-rule regex `(?<![\\w-])\\d+(?![\\w-])` only treats a digit run as identifier-attached when preceded/followed by a word char or ASCII hyphen; a `.` does not protect. Verified empirically: normalize(\"requires lattice-cli v0.3.229 or newer\") and normalize(\"requires lattice-cli v0.3.230 or newer\") both reduce to \"requires lattice-cli v0.#.# or newer\" (identical digest). Any rejection reason embedding a dotted version/semver string (a realistic shape given version-bump.ts already formats messages like \"expected X.Y.Z\") collapses two substantively different failures into one gate-failure key -- exactly the C4 over-collapse class this story exists to fix, for a token shape CHK-003/CHK-004 never exercises. gateFailureDigest is exported general-purpose, not scoped to the one current call site.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T00:00:01.921Z",
+      "reviewRound": "2026-07-23T23:22:59.637Z",
+      "reviewRunId": "B-bf52:RR-002",
+      "_hash": "88729c71a08f6229ed4af100b90d97e05aba12c0ae4deef93919d3cdee40b952",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
