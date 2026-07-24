@@ -119,6 +119,23 @@
       "_hash": "a0d80a2aad70547ce20b605bf8d3831448eaa5d1ceecd2870e3b6fa8cb480936",
       "signatureTag": "happy|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-009",
+      "desc": "cross-host (codex-cli host-B) finding, recorded by the main agent because codex-cli is not a registered dispatch actor: packages/main/src/core/convergence-breaker.ts — MAX_REASON_CHARS slices the RAW reason as UTF-16 code units before normalization, so a reason of the form 'x'.repeat(16383) + an astral character leaves a lone high surrogate (0xd83d) as the final unit, which hashes as replacement encoding rather than the original character. Deterministic, so no cross-call instability, but the bound is not Unicode code-point safe. Fix: drop a trailing lone high surrogate after the slice.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T00:06:05.083Z",
+      "reviewRound": "2026-07-23T23:22:59.637Z",
+      "_hash": "cf99986fab43fe5d638761c3ba4c73a19c1185e381893f3b3a826e806a52d68d",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
