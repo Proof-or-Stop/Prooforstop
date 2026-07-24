@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proofs re-derived from scratch against the current case set, none carried forward, covering the id head and tail anchors, the doubled-prefix lookahead, restoring the sentence strip, restoring the balanced peel, restoring the round-12 reduction in full, emptying the allowlist, making the placeholder alphabet decimal, and adding each excluded prefix. Several subsets changed size against the previous round and are recorded as measured, including two honest weakenings: one window case now normalizes identically so no legal window reaches it, and 'review-loop-ordinal' needs three simultaneous mutations to fail rather than one. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
-          "headHash": "45d9d55c99566dbbd52280b008e7342823cad30a",
-          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
-          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
-          "timestamp": "2026-07-24T14:52:37.865Z"
+          "note": "Revert-proofs re-derived from scratch against the current case set with not one row carried forward, and two rows flagged as having an unchanged COUNT but a changed SET, which is precisely the coincidence a carried-forward row would have hidden. Guard decisions were stated rather than defaulted: one dead case was RESTORED as a real single-mutation guard, one was RELABELLED pinned-behaviour-documentation after measuring that reaching it needs three coordinated mutations, and the implementer reported unprompted that the sep- removal has no single-mutation guard and declined to invent a fixture no producer mints. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure comes from a command named here.",
+          "headHash": "1516d2d6d7fc59bd9494156d6f96c1f46b390a56",
+          "materialHash": "6b05d1d4b46c8a7c5f48dfbacd792a42018d5934b460055f9b8d3b5addeac3ef",
+          "storyFilesHash": "4900645b650299878a3cc0b9214456421808927fa96e7f97a450b12becfcbfbc",
+          "timestamp": "2026-07-24T15:33:30.787Z"
         }
       ]
     },
