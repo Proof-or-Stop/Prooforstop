@@ -131,7 +131,7 @@
       "desc": "CHK-005:edge:0 second clause overclaims: intent requires citing two different decision ids across the checklist/binding layers for the same shrinkage to be refused. Neither smoke tests this; the evidence note instead argues single-applier design makes cross-layer id mismatch structurally impossible. Code inspection (handlers/proofstory.ts scope_shrinkage_decision_set + core/proofstory.ts buildScopeShrinkageDecision) shows decisionId is an explicit optional override with no check against the existing stored decisionId: a second scope_shrinkage_decision_set call passing an explicit decisionId different from the one already stamped on an earlier withdrawn checklist item would let a new binding withdrawal cite a different decisionRef than the earlier item, and nothing refuses it. This scenario is untested and the structural-impossibility claim in the note does not hold.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T22:13:17.565Z",
@@ -145,7 +145,11 @@
         "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|edge-second-clause",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ac756995e7: a caller decisionId differing from the stored one is REJECTED (immutable). c865b13ba6 regression asserts the conflicting-decisionId call throws /immutable/i and leaves the record byte-identical.",
+      "resolvedAt": "2026-07-24T22:38:28.843Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1909:F-008",
