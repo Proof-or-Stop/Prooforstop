@@ -806,7 +806,7 @@
       "desc": "convergence-breaker.ts:787-790 (ACCEPTED RESIDUAL F-033 comment, echoed in CHK-001:edge:0 and CHK-004:adversarial:0 evidence notes as mutation M12) states \"Widening the window is not available as a fix: B-cc54's CHK-002:adversarial:1 requires a signal-free tail past the banner to leave the key UNCHANGED, so the signals branch cannot relax this cut without breaking a landed contract.\" Reproduced: widening the signals-branch prefix from 200 to 300 chars (convergence-breaker.ts:794) flips the illustrated must-still-collapse case 'init-check-issue-ordinal-past-window' (which diverges at normalized char 204) to a pass -- and B-cc54's gate-repeat-block-smoke.js still exits 0 unmodified (its CHK-002:adversarial:1 fixture, built on a banner of measured normalized length 592, only diverges at char 592). So any window in roughly [205,591] genuinely fixes the specific residual case demonstrated in this suite WITHOUT breaking B-cc54; only widening past ~592 (or removing the cut, which is what the code comment at line 766 actually measured) breaks B-cc54. The blanket claim \"cannot relax this cut\" therefore overstates what was measured -- it holds for large widenings but not for the modest range that would close the illustrated gap. This does not change the correctness of the shipped code (window stays 200, which is independently justified a few lines earlier at :761-764 by \"byte-identical to B-cc54\" -- a sound, sufficient reason on its own), but the residual's stated justification is not accurate as worded and should be corrected or narrowed (e.g. to \"kept at exactly 200 to stay byte-identical to B-cc54's own keys; a larger window was not explored\") rather than implying no slack exists.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T10:33:22.321Z",
@@ -814,7 +814,11 @@
       "reviewRunId": "B-bf52:RR-022",
       "_hash": "11d134de3ee60c454c2c4ec9c1b68498c557815de08d85ddca106eca64fe34da",
       "signatureTag": "adversarial|unknown|convergence-breaker-accepted",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The absolute is dropped and replaced by the measured bound, in both places that carried it: core/convergence-breaker.ts (the F-033 residual comment above the prefix cut) and the past-window collapse case in tasks/convergence-breaker-smoke.ts. MEASURED on the shipped build: B-cc54 CHK-002:adversarial:1 compares digest(BANNER+\"tail\") with digest(BANNER+\"tail 12345 67890 /x/y/z.ts\"); the first normalizes to exactly 592 characters, so the smallest cut at which the two keys diverge is 593. The past-window residual pair diverges at normalized character 216. Widening the signals-branch window to anything in 216..592 therefore fixes the illustrated case WITHOUT breaking B-cc54 — a 376-character window that exists and is simply not taken. Confirmed by mutation: M12 (200->600) and M12b (200->592) both fail exactly scope-extension-proposal-ordinal-past-window and leave the rest of the suite green, i.e. widening is mechanically available. 200 is kept for the reason already stated a few lines earlier: on the signals branch every key must stay byte-identical to the ones B-cc54 landed, and buying back a bounded residual is not worth rekeying every ProofStory rejection in the system.",
+      "resolvedAt": "2026-07-24T11:13:58.959Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-043",
