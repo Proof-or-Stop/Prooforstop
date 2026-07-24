@@ -24,9 +24,26 @@
     "packages/main/src/handlers/proofstory.ts"
   ],
   "scopeChangeReason": "Re-set to fix path canonicalization: tmp/b5e4a-red now exists at repo root so the red-harness scratch dir canonicalizes to repo-root instead of packages/main/src/tmp. Scope otherwise identical to the previous revision.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Framework-generated PLAN metadata written by acceptance_basis_generate; it classifies out_of_scope only because acceptance-basis.json is missing from LATTICE_LIFECYCLE_ARTIFACT_FILENAMES — the exact defect this story fixes. This acknowledgement is the live reproduction of the bug recorded as red evidence.",
+      "timestamp": "2026-07-24T00:25:13.110Z",
+      "paths": [
+        ".lattice/story/actives/B-5e4a/acceptance-basis.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-5e4a/acceptance-basis.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d8db64c9e4a8728d57218e18f0cd5a13c1ac7d33",
+      "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8"
+    }
+  ],
   "createdAt": "2026-07-24T00:22:11.932Z",
-  "updatedAt": "2026-07-24T00:22:50.075Z",
+  "updatedAt": "2026-07-24T00:25:13.110Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -41,6 +58,7 @@
     "packages/main/src/core/scope-path-classifier.ts": "packages/main/src/core/scope-path-classifier.ts",
     "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
     "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
-    "tmp/b5e4a-red": "tmp/b5e4a-red/"
+    "tmp/b5e4a-red": "tmp/b5e4a-red/",
+    ".lattice/story/actives/B-5e4a/acceptance-basis.json": ".lattice/story/actives/B-5e4a/acceptance-basis.json"
   }
 }
