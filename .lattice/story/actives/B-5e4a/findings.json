@@ -27,13 +27,32 @@
       "desc": "packages/main/src/tasks/lifecycle-registry-contract.ts:375-378 isStoreHelperParameter searches the ENTIRE store.ts source text for `[(,]<ident>: string` rather than scoping to the enclosing method, so it false-positives on identifier-name collisions with unrelated methods. Verified with a bite test: given store.ts already declares `storyFilePath(storyId: string, file: string)`, a hypothetical future method `someNewMethod(storyId: string) { const file = computeDynamicName(); return join(this.storyDir(storyId), file); }` (a genuinely dynamic top-level filename, NOT a generic helper parameter) makes isStoreHelperParameter(source, \"file\") return true purely because an unrelated existing parameter is also named `file: string` — so deriveStoryDirJoinFilenames silently `continue`s past it instead of hitting the fail-loud derivation-blind-spot record() path the code comment at line 380-384 promises (\"never skipped silently\"). This undermines the exact regression class B-5e4a/F-001 was built to close: a new StoryStore top-level artifact write escaping the coverage smoke without a named divergence, specifically when its join-site local identifier happens to share a name with any typed string parameter elsewhere in store.ts (common names like file/path/name are plausible collisions). Does not affect current store.ts (no live write exploits this), but is a real latent gap in the newly-added pass-2 code.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T01:55:35.306Z",
       "reviewRound": "2026-07-24T01:11:20.454Z",
       "reviewRunId": "B-5e4a:RR-005",
       "_hash": "df0079cca90b3849d48272670e03f0f18908b759342316b37f6a585d512a5830",
+      "files": [
+        "packages/main/src/tasks/lifecycle-registry-contract.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-5e4a:F-002@f99744a"
+    },
+    {
+      "id": "B-5e4a:F-003",
+      "desc": "packages/main/src/tasks/lifecycle-registry-contract.ts:382-393 findEnclosingBraceOpen (used by isEnclosingCallableParameter, F-002 fix) does a naive char-by-char brace-depth scan with no string/comment stripping, contradicting its own doc claim (\"Balanced {...} pairs encountered on the way ... cancel out via the depth counter\"). Repro (isolated harness, verbatim-copied function bodies, not committed): a genuine helper-parameter join site that needs MULTI-HOP ascension past a non-callable block (if/for) — e.g. `someMethod(storyId: string, file: string): void { const s ='x } y'; if (storyId) { const path = join(this.storyDir(storyId), file); } }` — misclassifies as NOT a helper parameter (isEnclosingCallableParameter returns false) because the stray unmatched '}' inside the string literal (or a `//` comment) inflates the depth counter and desyncs the backward scan past the true enclosing method brace. Verified this is single-hop-safe (no bug when the join call sits directly in the method body with no intervening block, matching both real store.ts sites at storyFilePath/writeJson) and confirmed the failure direction stays SAFE (fails toward the named divergence, never toward silently accepting an unrelated coincidentally-named identifier — a constructed dangerous-direction probe returned false as expected, not a false accept). Does not affect current store.ts (both live join sites are single-hop, 49/49 derived, 0 divergences) but is a real latent gap: a future entirely legitimate store.ts change (wrap a real join(this.storyDir(...), file) call in a validation if-block, with any comment or string literal containing an unmatched } somewhere between that block and the method) would make this exact CHK-002 coverage smoke fail with a spurious derivation-blind-spot divergence on genuine helper plumbing, contradicting the just-fixed docstring at lines 452-469 promise that ambiguity always fails toward the named divergence for genuinely unresolved identifiers only — here it misfires on a resolved one.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T02:07:20.026Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-006",
+      "_hash": "fecb3f21c54c2bcd5d4b10471aba8de6fdb9e6ede634d757d5a70300341658a5",
       "files": [
         "packages/main/src/tasks/lifecycle-registry-contract.ts"
       ],
