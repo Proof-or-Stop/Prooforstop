@@ -111,6 +111,30 @@
         "scanEscalationReason": null
       },
       "_hash": "599863d19ec6df5308733bff3f5877e2ac85605d42e7c189dad32ef6c9c8fd44"
+    },
+    {
+      "id": "B-1909:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round re-bind (post main-merge convergence). Re-verified git diff main...HEAD for core/proofstory.ts and dashboard.ts against this new head (fb8da03) is unchanged from what I approved in RP-001: buildScopeShrinkageDecision still unions withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs via unionStringRefs and rejects a conflicting decisionId (immutable); dashboard.ts still uses isDeliveredChecklistStatus/isWithdrawnChecklistStatus with a withdrawn bucket and terminal-based progress bar. F-002 and F-005 remain genuinely resolved; no blocking concept-completeness issue this round.",
+      "createdAt": "2026-07-24T23:17:08.238Z",
+      "reviewRound": "2026-07-24T23:16:02.119Z",
+      "reviewRunId": "B-1909:RR-010",
+      "envelopeId": "1dd206bc4aba505a054fa92d1008ab351c00155f089787a46b953fd5ce690a86",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "69c228035d85679e0eae94ce65fcd6a07865b892261f46ff91aad9396565c8f1"
     }
   ]
 }
