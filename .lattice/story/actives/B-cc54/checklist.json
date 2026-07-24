@@ -39,15 +39,16 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
-          "result": "fail",
-          "note": "RED re-captured with the CURRENT 37-intent assertion set, answering F-001. Procedure: surgically revert ONLY the digest basis hunk in convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, run the smoke. Verbatim result -- build emitted no errors; 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exited 1 emitting ZERO 'ok CHK' lines and failing at the first assertion: 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Then restore, rebuild, re-run: exit 0 with all five ok lines. After restore 'git diff packages/main/src/core/convergence-breaker.ts' is EMPTY, proving the RED tree differed from the committed GREEN tree only by that hunk. This is a behavioural failure, not a missing-symbol compile error, because the smoke imports only pre-existing exports.",
-          "headHash": "b24f4df81907842cbdead193142e9a465b6ba412",
+          "result": "pass",
+          "note": "Discharged GREEN, with the RED proven for THIS assertion set (answers F-001). GREEN: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exits 0 with all five ok lines. RED: surgically revert ONLY the digest basis hunk in convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, re-run -- build emits no errors, the smoke exits 1 emitting ZERO 'ok CHK' lines and fails at the first assertion 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Restore, rebuild, re-run: exit 0. After restore 'git diff packages/main/src/core/convergence-breaker.ts' is EMPTY, so the RED tree differed from the committed GREEN tree only by that hunk. Behavioural failure, not a missing-symbol compile error: the smoke imports only pre-existing exports.",
+          "headHash": "7722491e5f7717c26be37b552880f80a81c28caa",
           "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
           "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
-          "timestamp": "2026-07-24T00:28:22.493Z"
+          "timestamp": "2026-07-24T00:29:00.398Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
