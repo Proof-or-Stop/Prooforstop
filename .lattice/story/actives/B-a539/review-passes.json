@@ -73,6 +73,31 @@
         "scanEscalationReason": null
       },
       "_hash": "d1e70ebec00a4418e901f82282902315d75e91482e92b41b50b8cde74e97bec2"
+    },
+    {
+      "id": "B-a539:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "git diff main...HEAD reviewed: only lattice.config.json changed 1 line (deletion of duplicate bare-string validate.commands entry for reviewer-scan-budget-guard-smoke.js; the focus:[fast]-tagged object entry survives unchanged). No concept was deleted or replaced -- this is a config dedup, not a rename/removal of a symbol, type, field, or API. Confirmed exactly one remaining reviewer-scan-budget-guard-smoke.js reference in lattice.config.json, so no repo-wide residue grep is warranted. No blocker.",
+      "createdAt": "2026-07-24T21:10:51.527Z",
+      "reviewRound": "2026-07-24T21:09:44.924Z",
+      "reviewRunId": "B-a539:RR-004",
+      "envelopeId": "a9ef2d573a445c6698efc29ac5bc363cf8f4c3eddb8aebe04d5425e403ba3130",
+      "writerSessionId": "sess-12d4654412aecbb01251458208b2b803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a539/background.md",
+          ".lattice/story/actives/B-a539/checklist.json",
+          ".lattice/story/actives/B-a539/plan.md",
+          "git diff main...HEAD --stat"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "795f9739c691a5bfb319db61f77b04135fc06df61fc11919fd4f2686e3a53bb7"
     }
   ]
 }
