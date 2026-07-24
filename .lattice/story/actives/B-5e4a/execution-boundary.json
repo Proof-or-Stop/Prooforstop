@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5e4a",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node *",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsc *",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/",
+    "packages/main/src/validate.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bug-fix story: registry constant addition + one smoke task file + validate wiring. No runtime behavior change outside scope classification of framework-generated story metadata.",
+  "createdAt": "2026-07-23T23:56:12.795Z",
+  "updatedAt": "2026-07-23T23:56:12.795Z",
+  "_hash": "92124ed019112cf762a37ef598acc27cdded64de2437cfbe1e4a6977256ad7cb"
+}
