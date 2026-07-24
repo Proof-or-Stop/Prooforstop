@@ -2,128 +2,109 @@
 
 ## 1. Problem
 
-`gateFailureDigest` (packages/main/src/core/convergence-breaker.ts) is the key under which
-`bumpGateFailureCount` counts gate rejections. `maxGateFailureCount` feeds `assessBreaker`, which
-trips the convergence breaker at a repeat count of 2 and freezes the story, requiring an interactive
-human TTY acknowledgement to clear. The function's own doc comment states the contract it must
-honor: reasons differing only in *incidental* detail collapse to one key. Four reproduced classes
-violated that contract by collapsing *substantively* different rejections:
+`gateFailureDigest` (packages/main/src/core/convergence-breaker.ts) produces the key under which
+`bumpGateFailureCount` counts gate rejections. `maxGateFailureCount` feeds `assessBreaker`, which trips
+the convergence breaker at a repeat count of 2 and freezes the story until a human acknowledges it.
+The function's doc comment states the contract: reasons differing only in *incidental* detail collapse
+to one key. Four classes were reproduced violating it, by collapsing *substantively* different
+rejections:
 
 | Class | Cause | Observed |
 | --- | --- | --- |
-| C1 | the 200-character cut, applied to the normalized reason | A real DEV-gate rejection's fixed header measures 257 normalized characters (preamble plus the report's six header lines), and 433 by the point the first gap row begins in a two-trigger report, so the cut landed *before* the `Diagnostic gaps` list and every rejection for one story shared one key regardless of which gaps were outstanding |
-| C2 | the path regex `/\/[^\s"']+/g` rewrites ANY slash-bearing token | `DEV/REVIEW` and `DEV/TEST` both become `dev#` |
-| C3 | the digit regex `/\d+/g` runs inside identifier tokens | `CHK-001` and `CHK-002` both become `chk-#` |
-| C4 | the same path regex is greedy from the first slash | `src/core/alpha.ts` and `src/core/beta.ts` both become `src#` |
+| C1 | the 200-character cut | A real DEV-gate rejection's fixed header exceeds the cut, so every rejection for one story shared a key regardless of which gaps were outstanding |
+| C2 | the path regex rewrote ANY slash-bearing token | `DEV/REVIEW` and `DEV/TEST` both became `dev#` |
+| C3 | the digit regex ran inside identifier tokens | `CHK-001` and `CHK-002` both became `chk-#` |
+| C4 | the path regex was greedy from the first slash | `src/core/alpha.ts` and `src/core/beta.ts` both became `src#` |
 
-C1 is what froze B-d877 (2026-07-18) and B-956f (2026-07-23): fixing gap one and then hitting gap
-two read to the breaker as one gate failing twice.
+## 2. What this story ships
 
-## 2. What this story delivers, and what it does not
+**Two behavioural changes against main**, both in `normalizeGateReason` / `gateFailureDigest`:
 
-**C1 is NOT delivered by this story.** While this branch was in review, story B-cc54 landed on main
-(v0.3.231) and fixed the C1 class by a better route: it leaves normalization alone, keeps the
-200-character prefix, and folds structurally-extracted gap-id signals into the hash basis —
-`const basis = signals.length > 0 ? JSON.stringify([prefix, signals]) : prefix` — so distinctness
-comes from STRUCTURE rather than from classifying free-text tokens. Running this story's RED harness
-against main after B-cc54 gives C1a and C1b PASSING. CHK-001's user-visible outcome is therefore
-already true on main; this story is not what made it true, and it does not change the truncation.
+1. **The POSIX path rule matches an absolute path only at a token start** — preceded by string start,
+   whitespace, quote, parenthesis, bracket, colon, equals or comma. A mid-token slash (`DEV/REVIEW`)
+   and a repo-relative path (`src/core/alpha.ts`) are no longer rewritten, while `/Users/...` and
+   `/private/var/...` still collapse. **This delivers C2 and C4.**
+2. **The prefix is signals-conditional** — when `extractGateBlockSignals` returns nothing, the prefix
+   widens, so a signal-less reason that diverges late keeps a distinct key.
 
-**C2, C3 and C4 ARE delivered by this story.** They still fail against current main, and they are
-what this branch now ships:
+Everything else is main's, including `extractGateBlockSignals`, the 200-character prefix and the
+`basis` construction, all of which arrived from sibling story B-cc54.
 
-1. The POSIX path rule is narrowed to a *token start* — preceded by string start, whitespace, quote,
-   parenthesis, bracket, colon, equals or comma. A mid-token slash (`DEV/REVIEW`) and a relative path
-   (`src/core/alpha.ts`) are no longer touched, while `/Users/...` and `/private/var/...` still
-   collapse to one token.
-2. The digit rule is scoped by SEMANTICS rather than syntax: an ordinal that names WHICH lifecycle
-   artifact failed is substantive; every other digit run is noise. A bounded allowlist over this
-   repo's own artifact-id vocabulary preserves those ordinals — as WHOLE TOKENS, so a compound id
-   such as `SEP-<storyId>-<NNN>` keeps its trailing ordinal — and normalizes everything else.
-   Review bookkeeping ids (`rr-`, `rp-`, `rl-`) are deliberately NOT in the allowlist: they are
-   re-minted on retry, so collapsing them is the fail-safe direction for a brake.
+## 3. What this story does NOT ship, and why
 
-## 3. Why the digit rule is semantic and not syntactic
+**C1 is not delivered by this story.** While this branch was in review, B-cc54 landed on main and fixed
+the C1 class by folding structurally-extracted gap-id signals into the hash basis. This branch adopted
+main's version wholesale. CHK-001's outcome is true on main; this story is not what made it true. The
+signals-conditional prefix above is the only part of that item this story contributes.
 
-This is the story's central finding, and it cost four review rounds to establish.
+**C3 is not delivered, and cannot be.** This is the story's main finding, and it is a proof rather than
+an estimate.
 
-Every syntactic narrowing created a case where the breaker silently NEVER TRIPS: unit-suffixed
-durations (`heartbeat 0s` vs `1s`), sentence-final numbers, review-run ids, ppid-derived session ids.
-Every syntactic widening created a case where two SUBSTANTIVELY different failures FALSELY FREEZE a
-story: dotted versions, identifier-attached decimals, and ports/percentages/decimal thresholds in
-real test-evidence output (which reaches a DONE rejection at `packages/main/src/core/machine.ts`).
-The oscillation is not a sequence of implementation mistakes — a bare number in free text is simply
-not syntactically decidable as substantive or volatile. `CHK-002` and `RR-002` share a shape with
-`b-1234`; `attempt 3` shares a shape with `port 3000`.
+`evidence.output` is interpolated verbatim into a `story_advance` DONE rejection at
+`packages/main/src/core/machine.ts:1190`. A third-party TAP or parameterized-test label such as
+`bug-2` is therefore **the same string** as a real artifact ordinal. Any rule that recognises one
+recognises the other. Eight successive recognition rules were built and each was broken by cross-host
+review on a different shape — a word boundary leaked hyphen-joined compounds; a negative lookbehind
+leaked slash-joined names and doubled prefixes; a trailing boundary leaked welded tails; an optional
+qualifier leaked `timeout:bug-2`; an unmatched wrapper reduced `(bug-2` to an id; an unconditional
+sentence-punctuation strip reduced `bug-2:` to an id; a permissive body accepted `bug-fix-2`; and the
+last showed the remainder was undecidable at the text level. Those were eight measurements of one
+impossibility, not eight bugs.
 
-The proof that no syntactic rule can work came from the collision with B-cc54's own landed suite:
-`gate-repeat-block-smoke.ts` asserts that `gate blocked for b-1234` and `b-5678` MUST collapse, which
-is the identical `<word>-<digits>` shape as `CHK-001` and `CHK-002`, which this story requires to stay
-distinct. Measured, not inferred: widening the number rule back to `/\d+/` is the only *syntactic*
-configuration in which B-cc54's suite passes.
+Consistent with every exclusion decision taken on this story — `rr-`, `rp-`, `rl-` and `i-` were all
+excluded on the same reasoning — the tie breaks toward **collapse**, because for a brake, recognising
+too much is the dangerous direction: it mints a fresh key per retry and the brake never fires.
 
-The allowlist resolves it because it does not classify text — it consults the repo's own vocabulary
-of artifact ids, the same kind of structured knowledge B-cc54 uses in `extractGateBlockSignals`.
-`b-` is not an artifact-id prefix, so B-cc54's fixture still collapses; `chk-` is, so C3 is delivered.
-No file of B-cc54's is modified.
+The withdrawal is **machine-checked, not merely described**: `checklist-ordinal` and
+`unfixed-bug-ordinal` are must-still-collapse cases asserting the opposite of what CHK-003 asked,
+beside `embedded-test-output-third-party-label` built from the reported pair. The operator confirmed
+the scope shrinkage; `scope-shrinkage-decision.json` records CHK-003 as removed with this reasoning.
 
-## 4. Designs this story tried and abandoned
+**Consequence for the frozen contract:** CHK-003's `userSees` — "a rejection naming CHK-001 and one
+naming CHK-002 digest differently" — is literally FALSE against the shipped code. The field is frozen
+from DEV and was not edited. The withdrawal, not the wording, is the record of what happened.
 
-Recorded because the review record cites them, and because each was abandoned for a measured reason
-rather than a change of taste.
+**The follow-up that could achieve C3** is named here and in source: the digest would have to consult
+story state to know which ordinals actually exist for this story, instead of guessing from text. That
+makes it store-dependent on a hot path and is a different design.
 
-- **Remove the truncation, keep a 16,384-character sanity bound.** Superseded: main keeps the prefix
-  deliberately and B-cc54's suite depends on it.
-- **Narrow the path and digit rules syntactically** (standalone numbers, token-start paths). The path
-  half survives and ships; the digit half oscillated as described in section 3.
-- **Add a duration/size rule, dot-adjacency lookarounds, identifier-attachment guards on the hex
-  rule.** All were repairs to the syntactic digit rule. With the allowlist they are unnecessary:
-  `45` in `heartbeat 45s` carries no artifact-id prefix and normalizes to `#`, so the F-007 class does
-  not recur.
-- **Delete the general bare-number rule entirely** (review round 4). Its premise was that the shape
-  `(attempt N)` has no real producer in this repo. B-cc54's suite falsifies that premise directly, so
-  the policy is reverted in full. Two findings that this policy had superseded, F-003 (negatives) and
-  F-015 (sentence-final numbers), are correspondingly un-superseded; both concerned bare numbers with
-  no named producer and neither is a defect under the allowlist.
-- **An attached-hash rule keyed on the presence of an a-f letter.** Cross-host review showed it both
-  over-collapses a real ownership change and misses all-decimal digests; removed.
+## 4. Honest residuals
 
-## 5. Honest residuals
+- The prefix window: two rejections whose extracted signal sets are identical and whose only
+  difference falls past the window still collapse, exactly as on main. Measured bound: a cut of 592
+  leaves B-cc54's suite green and 593 breaks it, so 592 is the widest legal value — a measurement, not
+  an assertion. The window stays at main's value for byte-compatibility.
+- Bare ordinals of every kind now collapse, which is main's behaviour and the fail-safe direction.
+- There is no automatic backstop for under-normalization. An earlier revision of this plan claimed the
+  burn-alert system bounded that risk; the claim was false and is retracted — burn scanning is
+  advisory, writes no gate evidence, never changes exit status, and can be disabled. The counter also
+  resets only on a SUCCESSFUL `story_advance`, deliberately.
 
-- The digest still cannot distinguish a substantive from a volatile bare number outside the
-  artifact-id vocabulary. Two different ports or percentages in test output still share a key. This is
-  bounded in practice because the rejections that actually caused false freezes carry gap codes, and
-  B-cc54's signals mechanism distinguishes those structurally.
-- The allowlist is an enumeration and will not cover an artifact-id prefix added later. A prefix added
-  without updating it degrades to the current behaviour, never worse.
-- **There is no automatic backstop for under-normalization.** An earlier revision of this plan claimed
-  the residual runaway risk was bounded by this repo's burn-alert system. That claim was false and is
-  retracted: burn scanning runs only through `doctor` and `usage_sweep`, labels itself advisory,
-  supplies no gate evidence, never changes exit status, cannot stop a session, and is disabled by
-  `LATTICE_BURN_ALERT_RECENT_HOURS=0`. The counter also resets only on a SUCCESSFUL `story_advance`
-  (`packages/main/src/cli-engine.ts`), deliberately, so nothing clears a stuck loop for free.
+## 5. Process failures this story exposed
 
-## 6. Process failure this story exposed
+- **The branch sat 98 commits behind main for four review rounds.** B-cc54 landed the C1 fix during
+  that window, so four rounds were spent refining an approach main had superseded, and one round
+  adopted a policy a landed DONE-gating suite contradicts. Three reviewers and a cross-host run all
+  missed it because they read the same stale tree. Countermeasure: merge main before each review round
+  and re-verify RED against current main, not the pinned baseline.
+- **The differential probe passed three times during live regressions**, each time because its matrix
+  had no row for the shape at issue. Countermeasure, now in its header: every defect that slips past it
+  is added to it, and the running count is recorded.
+- **Evidence notes drifted from the matrix repeatedly**, through hand-written counts, stale case names,
+  a command that did not demonstrate its claim, and a partial re-recording that left sibling notes
+  contradicting each other. Countermeasure: re-record the whole set every time the matrix changes, cite
+  case names and guard tags rather than totals, and let commands carry the numbers.
 
-This branch sat 98 commits behind main through four review rounds and never merged. B-cc54 landed the
-C1 fix during that window. Four rounds and roughly twenty findings were therefore spent refining a
-text-classification approach that main had already superseded, and round 4 adopted a policy that a
-landed, DONE-gating suite on main contradicts. The reconciliation was forced only when a reviewer
-checked this branch against current main rather than against the branch's own merge base.
+## 6. Verification
 
-The countermeasure is not more review depth — three independent reviewers and a real cross-host codex
-run all missed it for three rounds because they were all reading the same stale tree. It is to merge
-main before each review round, and to re-verify the story's RED evidence against current main rather
-than against the pinned baseline whenever a round begins.
-
-## 7. Verification
-
-- `packages/main/tests/red/red-s3-digest-collapse.mjs` asserts the corrected behaviour. C1a and C1b
-  are removed from it because B-cc54 delivers that class.
-- `packages/main/src/tasks/convergence-breaker-smoke.ts` carries the matrix: named cases, explicit
-  `guardedBy` tags, literal printed values, and every case driving the real
-  `bumpGateFailureCount` / `maxGateFailureCount` / `assessBreaker` path so the counter consequence is
-  asserted rather than the hash alone. It includes two cases that reproduce B-cc54's own fixtures, so
-  this story cannot regress what B-cc54 requires from inside its own suite.
-- `packages/main/dist/tasks/gate-repeat-block-smoke.js`, B-cc54's suite, must pass byte-unmodified.
-- Each changed rule, reverted alone, must fail a named subset of the matrix and leave the rest passing.
+- `packages/main/tests/red/red-s3-digest-collapse.mjs` — asserts the delivered behaviour; passes here
+  and fails against a freshly built main on exactly the delivered classes.
+- `packages/main/tests/red/red-s3-differential-probe.mjs` — committed and runnable, compares this build
+  against a comparison build, SKIPs cleanly when none is supplied, and reports cost as a ratio. It
+  carries three bars; the third exists because a two-sided comparison structurally cannot see a
+  regression whose effect is making this build AGREE with the comparison.
+- `packages/main/src/tasks/convergence-breaker-smoke.ts` — the matrix, with named cases, explicit guard
+  tags and printed values, every case driving the real `bumpGateFailureCount` / `maxGateFailureCount` /
+  `assessBreaker` path.
+- `packages/main/dist/tasks/gate-repeat-block-smoke.js` — B-cc54's suite, byte-unmodified, must pass.
+- Each changed rule, reverted alone, must fail a named subset and leave the rest passing.
