@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-f824:F-001",
+      "desc": "type-safety: packages/main/src/tasks/flow-stability-smoke.ts:4849,4876,4885 read the new reviewWindowSuiteExecutions field via `((x ?? {}) as unknown as Record<string, unknown>).reviewWindowSuiteExecutions` instead of the plain typed `x?.reviewWindowSuiteExecutions` used one line above for the sibling unchangedSuiteExecutions field on the exact same object (e.g. line 4844). deriveDonePreparePassConvergence already returns DonePrepareConvergence | null with reviewWindowSuiteExecutions as a required number field (done-prepare.ts:123,205), so no cast is structurally needed; the erase-to-Record<string, unknown> cast just discards compile-time protection against a typo in the new field name in three freshly-added assertions.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T01:06:00.539Z",
+      "reviewRound": "2026-07-24T00:58:56.071Z",
+      "reviewRunId": "B-f824:RR-002",
+      "_hash": "e158b3e0270965ba0e274834caf1866dfbd1f64610173ec7b3f45ff1b8f9323c",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|type-safety-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
