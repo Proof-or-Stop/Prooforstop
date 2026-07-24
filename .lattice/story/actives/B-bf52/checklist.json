@@ -264,11 +264,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Cases 'must-differ checklist-ordinal', 'finding-ordinal', 'unfixed-bug-ordinal' and 'init-check-issue-ordinal' [guard: substantive-id-allowlist] assert that an ordinal naming WHICH lifecycle artifact failed survives normalization, printing both compared values literally. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
-          "headHash": "96c05c40270abc7456fa148e4cd8fa895bece2aa",
-          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
-          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
-          "timestamp": "2026-07-24T10:15:49.148Z"
+          "note": "'must-differ checklist-ordinal', 'finding-ordinal' and 'unfixed-bug-ordinal' [guard: substantive-id-allowlist] assert that an ordinal naming WHICH lifecycle artifact failed survives normalization, printing both compared values literally. 'init-check-issue-ordinal' is deliberately NOT in this group: review showed the init-check issue id is reviewer-self-assigned, overwritten wholesale on every init_check_set and remediated by re-running the reviewer, so it is bookkeeping, and it now sits in must-still-collapse under review-bookkeeping-not-allowlisted. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
+          "headHash": "097255311de4c403687fb4348d2a35859b7f75d0",
+          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
+          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
+          "timestamp": "2026-07-24T11:34:17.839Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
