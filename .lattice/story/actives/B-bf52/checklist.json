@@ -76,11 +76,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-still-collapse init-check-issue-ordinal-past-window [guard: prefix-window-residual]' pins the accepted residual measured in review: when two rejections carry IDENTICAL signal sets and differ only in a substantive ordinal PAST character 200, they still collapse. Verified never worse than main — main collapses that pair too, and within the window this branch is strictly better. Mutation M12 shows widening the window is not available: it breaks B-cc54's suite. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
-          "headHash": "34df7f6e3473a8571c4ae918e79f4f5eddb31778",
-          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
-          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
-          "timestamp": "2026-07-24T10:15:42.505Z"
+          "note": "Case 'must-still-collapse scope-extension-proposal-ordinal-past-window [guard: prefix-window-residual]' pins the accepted residual: when two rejections carry identical signal sets and differ only in a substantive ordinal past the prefix window, they still collapse — verified never worse than main, which collapses that pair too. Mutations M12 (window 200 to 600) and M12b (200 to 592) each fail exactly that case and each leave B-cc54's suite green; the window stays at 200 for byte-compatibility with B-cc54, not because no relaxation exists. An earlier note claimed widening was unavailable; that absolute was measured false and is withdrawn.",
+          "headHash": "87b0b3711c1af87f007e702523adb263f68a9a8b",
+          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
+          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
+          "timestamp": "2026-07-24T11:13:34.842Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
