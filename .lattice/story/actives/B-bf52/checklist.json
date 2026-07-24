@@ -288,11 +288,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a COMPOUND artifact id keeps its trailing ordinal distinct; mutation M6 fails exactly that case. Two cases pin the converse, both guarded review-bookkeeping-not-allowlisted: 'stale-review-run-evidence' and 'review-loop-ordinal', plus 'init-check-issue-ordinal' which MOVED to must-still-collapse after review showed the init-check issue id is reviewer-self-assigned, overwritten wholesale on every init_check_set, and remediated by re-running the reviewer — the same instability that disqualified rr-, rp- and rl-. Case 'must-still-collapse embedded-test-output-hyphen-compounds [guard: substantive-id-token-start]' guards the regression where a hyphen-joined compound such as de-bug-2 survived normalization because a hyphen creates the very word boundary the old guard relied on.",
-          "headHash": "dcd9944ad3b9af2beacb97dae3ad763c7fcbaedb",
+          "note": "'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a compound artifact id keeps its trailing ordinal distinct; mutation M6 fails exactly that case. Three cases pin the converse under review-bookkeeping-not-allowlisted — 'stale-review-run-evidence', 'review-loop-ordinal' and 'init-check-issue-ordinal' — because each of those ids is re-minted or retyped on retry, so collapsing is the fail-safe direction for a brake. 'must-still-collapse embedded-test-output-hyphen-compounds [guard: substantive-id-token-start]' guards the regression where a hyphen-joined compound such as de-bug-2 survived normalization because a hyphen creates the very word boundary the old guard relied on. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
+          "headHash": "5734108a628d13a6fd171790faafc34da8688e9d",
           "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
           "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
-          "timestamp": "2026-07-24T11:13:36.437Z"
+          "timestamp": "2026-07-24T11:34:19.565Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
