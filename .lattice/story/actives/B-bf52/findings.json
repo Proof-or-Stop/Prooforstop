@@ -217,6 +217,21 @@
       "_hash": "26223d132d83117e13697c11f257fa16b4d09b44e6296148f5b9ae1da4eb9519",
       "signatureTag": "edge|unknown|checklist-json-edge",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-013",
+      "desc": "All 19 verificationEvidence entries in checklist.json were recorded 2026-07-24T00:20:24-00:20:43Z (commits 15a8200c52..f1784aecf9), ~70min BEFORE the round-1 fix commit 08bd949d5a (01:30:25Z) that substantially rewrote convergence-breaker-smoke.ts in response to F-001..F-009, and none were refreshed afterward (no verification_evidence_add commits after f1784aecf9). Reproduced concrete stale citations against current code: (1) checklist.json:182 CHK-002:edge:0 and :274 CHK-003:edge:0 cite guard tag [guard: collapse-lane] -- no longer exists (current GuardRule union = truncation-removal|sanity-bound|path-rule|windows-path-rule|duration-rule|digit-rule|hex-rule, smoke.ts:300-307). (2) checklist.json:274-283 CHK-003:edge:0 cites case must-still-collapse timestamp-and-attempt-counter -- no case by that name exists anywhere in MUST_DIFFER/MUST_COLLAPSE (grep confirms zero matches); CHK-003:edge:0s intent (timestamp+counter collapse) has no evidence citing an actually-existing case. (3) checklist.json:98,206,298 (CHK-001/002/003:adversarial:0) report totals (N of 12); current matrix totals 20 cases (8 must-differ+12 must-still-collapse, smoke.ts:827). (4) checklist.json:298 CHK-003:adversarial:0 and :403 CHK-004:adversarial:0 claim restoring the unconditional digit-run rewrite fails exactly digit-rule -> checklist-ordinal, review-round-ordinal, story-id (3 cases). Reproduced this revert against current code (build+run): it now fails FOUR cases -- the three named plus dotted-version-requirement, added since this evidence was recorded to guard F-002s v0.3.229-vs-v0.3.230 fix. The evidence own localization claim is now factually wrong against the code it evidences. (5) checklist.json:356 CHK-004:happy:0 says All 7 must-differ cases -- current count is 8; checklist.json:379 CHK-004:edge:0 says All 5 must-still-collapse cases -- current count is 12. (6) none of the 19 entries cite by name any of lease-non-owner-heartbeat-age, active-lease-takeover-refusal, main-write-lock-contention, validation-lock-contention (the 4 duration-rule production-message cases), windows-absolute-path, delimiter-attached-absolute-path, machine-path-into-repo-relative-segments, hex-id, dotted-version-requirement, or sanity-bound-is-applied -- every case added or materially changed by the fix commit has zero evidence naming it, even though CHK-002:edge:1s intent (normalized once, no partially-rewritten remainder) is only actually proven by machine-path-into-repo-relative-segments/delimiter-attached-absolute-path, neither ever cited.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T00:54:12.684Z",
+      "reviewRound": "2026-07-24T00:33:06.504Z",
+      "reviewRunId": "B-bf52:RR-006",
+      "_hash": "c76c4ef443873a089ea57df4806706609dac39d7de848d153fe2f8e5a7880fbd",
+      "signatureTag": "missing|unknown|verificationevidence-entries-checklist",
+      "signatureTagSource": "auto"
     }
   ]
 }
