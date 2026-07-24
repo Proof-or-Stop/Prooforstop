@@ -89,6 +89,32 @@
         "scanEscalationReason": null
       },
       "_hash": "c7cd4c1a0b83b807f3dbce1e30a6da75763b8bce5390cc2b1789eea9026dce5e"
+    },
+    {
+      "id": "B-f824:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 incremental re-attestation. Since prior pass (RP-003, headHash 36be389), the only material change is commit 931085db (F-001): replaced 3 erase-to-Record<string, unknown> unsafe casts with typed optional-chain access on reviewWindowSuiteExecutions assertions in flow-stability-smoke.ts. Confirmed via review_incremental_context and git show that the diff is exactly these 3 lines, purely a type-safety tightening with no concept deletion/replacement. Verified reviewWindowSuiteExecutions is used consistently across done-prepare.ts, the three downstream smoke files, and the 3 decisions docs, with zero remaining unsafe erase-to-Record casts near it. No blocker.",
+      "createdAt": "2026-07-24T01:44:39.733Z",
+      "reviewRound": "2026-07-24T01:43:23.466Z",
+      "reviewRunId": "B-f824:RR-005",
+      "envelopeId": "39df32291bda666e9801f8a351dddc63cf197e2e969b149d4e43a384fd1d750a",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "904906bbccb15ffbdba6193ea7833d6dc96854bc91ba0e7d6b4fc84fd9669d9e"
     }
   ]
 }
