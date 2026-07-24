@@ -100,7 +100,7 @@
       "desc": "All 37 verificationEvidence entries in .lattice/story/actives/B-cc54/checklist.json (e.g. lines 49,62,75...) are STALE relative to current HEAD: they were captured at commit e749555297 (00:18-00:29Z, materialHash c0a5b0d9...) which predates the F-002/F-003 production fix in commit 8cbb9280c8 (00:38:29Z) that changed the actual extractGateBlockSignals bracket regex and gateFailureDigest basis encoding in packages/main/src/core/convergence-breaker.ts (lines 506,535). No verificationEvidence was recaptured after that fix, even though the story continued PLAN->DEV->REVIEW. Confirmed independently three ways: (1) `lattice evidence_refresh {storyId:B-cc54}` reports all 37 as refresh-only candidates with drift=\"evidence storyFilesHash does not match current story-owned file state\"; (2) `lattice validate --story=B-cc54 --json` returns status=fail, allPass=false, summary=\"verification coverage missing 37 required intent(s)\" because every evidence row status=stale; (3) storyFilesHash literally differs (2afeb068... at capture time vs 35dc3c86... now). Per evidence-stale-hint.ts own documented drift classification, a storyFilesHash change (not just materialHash) is \"story-owned drift that needs re-review/re-quorum\", NOT a mechanical verification_evidence_refresh_stale re-stamp. This is the same class of audit-trail-misrepresents-what-was-run problem as F-004 (red-evidence), now recurring in verificationEvidence: the on-file evidence testifies to a superseded pre-fix build. The underlying code itself is correct (I rebuilt + ran the smoke against current HEAD and all 37 assertions pass), so this is a process/evidence-integrity gap, not a functional regression — fix by re-running the smoke and re-recording verificationEvidence (verification_evidence_add) for all 37 intents against the current commit.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T01:12:26.005Z",
@@ -112,7 +112,11 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "signatureTag": "missing|json|verificationevidence-entries-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted and corrected at the root, not refreshed mechanically. All code changes were landed and committed FIRST, then all 37 verificationEvidence entries were re-captured in REVIEW via verification_evidence_batch_add so they bind the final story-owned file state rather than the pre-F-002 commit. Verified two ways: evidence_refresh now reports zero drift, and 'lattice validate --story=B-cc54' returns status=pass where it previously returned fail with 'verification coverage missing 37 required intent(s)'.",
+      "resolvedAt": "2026-07-24T01:27:34.559Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cc54:F-007",
