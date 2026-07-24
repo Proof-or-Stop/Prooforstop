@@ -240,7 +240,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:538 the pre-existing hex-id rule /\\b[0-9a-f]{7,}\\b/g runs BEFORE the CHK-003 number rule (:581) and has no identifier-attachment protection (only a bare \\b word-boundary, not the [\\w.-] lookbehind/lookahead the number rule uses). Since decimal digits 0-9 are a subset of hex digits 0-9a-f, ANY identifier-attached decimal digit run of 7+ characters is consumed by this earlier rule before the number rule ever sees it, so CHK-003s documented contract (checklist.json CHK-003:edge:1: a story id whose digits are attached to an identifier survives normalization; JSDoc :523-526) silently fails once the digit run reaches 7 characters. Verified against the built module: gateFailureDigest(cmd,gate BLOCKED: session-1234567 failed) === gateFailureDigest(cmd,gate BLOCKED: session-7654321 failed) COLLAPSE, and worker-1721775600 vs worker-1721775601 (epoch-suffixed ids) also COLLAPSE -- while the identical construction with a 6-digit suffix (session-123456 vs session-654321) correctly stays DISTINCT, proving the 7-digit hex-rule threshold is exactly what breaks the promise. This is an over-collapse: two DIFFERENT identifiers (e.g. two different epoch-timestamp-suffixed session/worker ids, or any numeric identifier reaching 7 digits) read as one gate failing twice -- precisely the false-freeze failure mode this story exists to eliminate -- and it is not covered by any MUST_DIFFER matrix case (checklist-ordinal/review-round-ordinal/story-id/dotted-version-requirement all use digit runs under 7 characters, so the matrix never exercises this rule-ordering interaction).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T00:58:24.236Z",
@@ -248,7 +248,8 @@
       "reviewRunId": "B-bf52:RR-009",
       "_hash": "232a07d26d97f25a670b15a6e6423e77225cc6a9a5a5c7c78d001d8b148adde4",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T01:44:09.130Z"
     },
     {
       "id": "B-bf52:F-015",
