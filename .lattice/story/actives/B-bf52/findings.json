@@ -1151,6 +1151,21 @@
       "_hash": "e558ed270180cc7b9bd57e7fadc95a7d9906b3b2567a23b174cf844d317a926f",
       "signatureTag": "happy|unknown|checklist-json-usersees",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-061",
+      "desc": "checklist.json:286-291 CHK-003:edge:1 evidence note cites the WRONG cases to prove its NOT DELIVERED verdict. The intent (checklist.json:286-289) is specifically about STORY ids: \"A story id such as B-bf52, whose digits are attached to an identifier, survives normalization, so rejections naming different stories are not conflated.\" The cited cases -- 'review-loop-ordinal' (convergence-breaker-smoke.ts:846, fixture varies only an RL- suffix, e.g. RL-001 vs RL-002, with the story id B-bf52 held CONSTANT in both a/b) and 'init-check-issue-ordinal' (convergence-breaker-smoke.ts:864, varies only an I- suffix) -- are the smoke suite's own bookkeeping group per the comment at convergence-breaker-smoke.ts:326-333, tagged review-bookkeeping-not-allowlisted, which plan.md explicitly says was ALWAYS intended to collapse: rr-/rp-/rl-/i- were excluded from every allowlist design across all 15 rounds -- an unrelated, uncontested fact. Neither cited case varies a story id at all. The case that actually demonstrates the intent's specific claim, bcc54-story-id-digits at convergence-breaker-smoke.ts:768, fixture varies b-1234 vs b-5678 i.e. two DIFFERENT story ids, exists in the same suite and is not cited anywhere in checklist.json for this item. I independently ran node dist/tasks/convergence-breaker-smoke.js from an immutable detached worktree at HEAD cb442e4c60: bcc54-story-id-digits is a live must-still-collapse case, keys=1, DIGEST IDENTICALLY on b-1234/b-5678, which does confirm the NOT DELIVERED verdict is factually correct -- but the note attached to CHK-003:edge:1 does not cite or reference that case, so the verdict is asserted without proof at the cited location, the same defect class as F-049/F-050 on this story (evidence command/case bound to the wrong artifact).",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T17:34:51.339Z",
+      "reviewRound": "2026-07-24T16:08:34.598Z",
+      "reviewRunId": "B-bf52:RR-034",
+      "_hash": "e80ed4ea737a806e687d6052def6baa731d0a238ae96445cc349754c009c0b7c",
+      "signatureTag": "edge|unknown|checklist-json-edge",
+      "signatureTagSource": "auto"
     }
   ]
 }
