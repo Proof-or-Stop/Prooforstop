@@ -1,0 +1,507 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Spec section: policy-owned assertion envelope with bounded matchers and GREEN definition",
+      "context": "Program plan W2 area 1: bounded matchers, minimum specificity, expected exit class, target-exercised proof; GREEN = exit0 + !timeout + pattern-absent + target-exists.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-23T20:04:42.180Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec §1 defines every assertion-envelope field (bounded matcher set, minimum specificity threshold, expected exit class, target-exercised proof) each with its validation rule, and states the exact GREEN predicate verbatim: GREEN = exit0 AND !timeout AND pattern-absent AND target-exists; a reader can cite each field name and the predicate from the section text.",
+            "type": "docs"
+          },
+          {
+            "desc": "§1 defines the GATE-CONSUMPTION QUERY CONTRACT: the exact read-only question ProofStory gates (W3) ask the subsystem (e.g. does a GREEN-satisfying record exist for acceptanceTargetRef X at freshness-compatible head H) and the exact answer shape returned, drawing the W2/W3 boundary explicitly so W3 enforcement consumes a stable query API rather than reaching into storage; a reader can name the query inputs and outputs.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "§1 specifies the envelope outcome for a matcher that matches ZERO lines (vacuous/under-specific pattern) and for a TARGET FILE DELETED between the RED and GREEN runs (target-exists sub-predicate fails), stating the concrete accept/reject result for each case so a reader can trace both to a rule.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "§1 makes fabrication detectable by construction: a record lacking a target-exercised proof, or carrying an over-broad matcher below the minimum-specificity threshold, is REJECTED by the envelope schema; the rejection rule is quoted so a reviewer can confirm a forged or vacuous RED cannot satisfy the gate.",
+            "type": "docs"
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §1 (assertion envelope, GREEN predicate §1.5, rejection rules §1.6-1.8, query summary §1.9) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §1 (assertion envelope, GREEN predicate §1.5, rejection rules §1.6-1.8, query summary §1.9) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §1 (assertion envelope, GREEN predicate §1.5, rejection rules §1.6-1.8, query summary §1.9) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §1 (assertion envelope, GREEN predicate §1.5, rejection rules §1.6-1.8, query summary §1.9) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Spec section: runner pre/post four-tuple invariance in a disposable workspace",
+      "context": "Program plan W2 area 2: head/material/index/status invariance proof captured by the runner.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-23T20:04:42.927Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec section 2 defines the runner four-tuple invariance (head/material/index/status) captured pre AND post in a disposable workspace, naming each of the four measured quantities and the exact pass rule (all four identical pre and post = workspace-untouched proof); a reader can list the four fields and the comparison performed.",
+            "type": "docs"
+          },
+          {
+            "desc": "Section 2 specifies that the RED command executes inside a DISPOSABLE workspace (created, exercised, discarded) isolated from the real story tree, stating how isolation is established and torn down so the reader can confirm the real working tree is never mutated by a RED/GREEN run.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Section 2 specifies runner behavior when the command leaves a dirty index or an untracked file (post status differs from pre) and when the command TIMES OUT before the post-snapshot, stating the concrete verdict (invariance-violation reject vs timeout handling) for each so a reader can trace both to a rule.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Section 2 makes a tampered runner detectable: a record whose post four-tuple does not equal its pre four-tuple, or that omits either snapshot, is REJECTED; the rule is quoted so a reviewer confirms a runner that silently mutated the tree (or skipped the invariance proof) cannot produce a satisfying record.",
+            "type": "docs"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §2 (four-tuple fields §2.1, invariance rule §2.2, lifecycle §2.3, edge/adversarial rejections §2.4-2.5) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §2 (four-tuple fields §2.1, invariance rule §2.2, lifecycle §2.3, edge/adversarial rejections §2.4-2.5) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §2 (four-tuple fields §2.1, invariance rule §2.2, lifecycle §2.3, edge/adversarial rejections §2.4-2.5) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §2 (four-tuple fields §2.1, invariance rule §2.2, lifecycle §2.3, edge/adversarial rejections §2.4-2.5) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Spec section: supersedes chain integrity plus idempotency key",
+      "context": "Program plan W2 areas 3-4: monotonic seq + prior digest + fork rejection, unique chain head; idempotency key (recordId, materialHash, specDigest, policy/assertion digest, freshness-compatible head).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-23T20:04:43.668Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec section 3 defines the supersedes chain integrity rule (monotonic seq + prior-record digest link + fork rejection, yielding a unique chain head = latest) and the idempotency key composition (recordId, materialHash, specDigest, policy/assertion digest, freshness-compatible head); a reader can enumerate every idempotency-key component and state the chain-head uniqueness invariant.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Section 3 specifies behavior when two records claim the SAME prior digest (a fork attempt) and when a replay arrives with an identical idempotency key (dedup, no new record), stating the concrete outcome for each so a reader can trace fork-rejection and replay-dedup to explicit rules.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Section 3 makes history tampering detectable: a record that silently REPLACES a prior record instead of superseding it (broken/absent prior digest, non-monotonic seq, or a second chain head) is REJECTED; the integrity rule is quoted so a reviewer confirms an auditable append-only supersession cannot be forged.",
+            "type": "docs"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §3 (chain-head uniqueness §3.2, integrity checks §3.3, idempotency key §3.4, fork/replay §3.6-3.7) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §3 (chain-head uniqueness §3.2, integrity checks §3.3, idempotency key §3.4, fork/replay §3.6-3.7) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §3 (chain-head uniqueness §3.2, integrity checks §3.3, idempotency key §3.4, fork/replay §3.6-3.7) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Spec section: quarantine/recover operations and corrected retention claims",
+      "context": "Program plan W2 area 5: owner-gated registered operations creating NEW record IDs linked by recoversRecordId; retention corrected per the per-entry review-round assignment (story.currentReviewRound = now) in packages/main/src/handlers/transition-orchestrator.ts, ~line 773-774 at v0.3.230 (the plan's original :663 citation drifted across the S1/W1 merges).",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-23T20:04:44.400Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec section 4 defines quarantine and recover as OWNER-GATED registered operations that create NEW record IDs linked to the original by recoversRecordId (never mutating or deleting the prior record), and states the corrected retention claim (canonical receipts preserve metadata freshness within a round only; review rounds are per-entry via story.currentReviewRound = now, transition-orchestrator.ts:775); a reader can cite the operation gating, the linkage field, and the corrected retention sentence.",
+            "type": "docs"
+          },
+          {
+            "desc": "Section 4 defines the LEGACY-RECORD POSTURE for existing red-evidence.json records: it states explicitly whether they are grandfathered, migrated, or invalidated, and the rule/criteria used, so in-flight stories know the status of records written before this subsystem lands; a reader can name the chosen posture and its rationale.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Section 4 specifies behavior for recovering an already-recovered record (recover of a recover) and for quarantining the current chain head, stating the concrete resulting record linkage and chain-head outcome so a reader can trace each to a rule.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Section 4 makes quarantine/recover non-destructive by construction: an operation that mutates fields of, or deletes, the referenced prior record is DISALLOWED (immutability preserved; only new linked records may be created); the rule is quoted so a reviewer confirms an owner cannot use quarantine/recover to erase inconvenient RED history, and the legacy posture cannot silently invalidate the records of an in-flight story mid-program without an explicit stated rule.",
+            "type": "docs"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §4 (owner-gated ops+recoversRecordId §4.1, corrected retention §4.3 citing transition-orchestrator.ts:775, posture xref §4.4, immutability §4.6) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §4 (owner-gated ops+recoversRecordId §4.1, corrected retention §4.3 citing transition-orchestrator.ts:775, posture xref §4.4, immutability §4.6) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §4 (owner-gated ops+recoversRecordId §4.1, corrected retention §4.3 citing transition-orchestrator.ts:775, posture xref §4.4, immutability §4.6) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §4 (owner-gated ops+recoversRecordId §4.1, corrected retention §4.3 citing transition-orchestrator.ts:775, posture xref §4.4, immutability §4.6) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Spec section: gate-consumption query contract defining the W2/W3 boundary",
+      "context": "Product-review I-1: the exact read-only query ProofStory gates ask of the RED-evidence subsystem (inputs, answer shape, freshness rules) and the explicit boundary — W2 defines/answers the query, W3 wires gates to consume it.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-7dfa/background.md"
+      ],
+      "userSees": "The spec contains a 'Gate-consumption query contract' section specifying the query name, request fields, response schema, and a boxed W2/W3 boundary statement.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec's query-contract section defines the read-only query (inputs: storyId + acceptance target ref; output: latest chain-head record status + GREEN/RED verdict + freshness binding) precisely enough that a W3 implementer needs no design decisions.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The section specifies the answer for edge states: no records, quarantined head, superseded-but-unreplaced head, and a head whose freshness binding no longer matches the live tree.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The section states the boundary rule that W2 exposes ONLY the read-only query (no gate may write through it) and that any enforcement decision from the answer belongs to W3 — with a MUST NOT list preventing scope creep.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-23T20:04:45.176Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §5 (request/response schema §5.1, zero-design-decision §5.2, edge-state table §5.4, boxed W2/W3 MUST-NOT boundary §5.5) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §5 (request/response schema §5.1, zero-design-decision §5.2, edge-state table §5.4, boxed W2/W3 MUST-NOT boundary §5.5) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §5 (request/response schema §5.1, zero-design-decision §5.2, edge-state table §5.4, boxed W2/W3 MUST-NOT boundary §5.5) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Spec section: legacy red-evidence record posture (grandfather, migrate, or invalidate)",
+      "context": "Product-review I-2: existing .lattice/story/actives/<id>/red-evidence.json records predate the subsystem; the spec must state their status and the compatibility rule so in-flight stories are not stranded.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-7dfa/background.md"
+      ],
+      "userSees": "The spec contains a 'Legacy record posture' section with a single normative decision (grandfathered/migrated/invalidated), its rationale, and the transition rule for in-flight stories.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The section states ONE normative posture for legacy records with the compatibility rule an implementation story can cite verbatim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The section covers the in-flight story case: a story mid-lifecycle with a legacy record at the enforce flip — what the gate answers for it and what (if anything) the owner must do.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The section closes the downgrade loophole: a new record may not be deleted and replaced by a 'legacy' record to escape the envelope rules — legacy status is bound to record creation time relative to the subsystem's adoption point.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-23T20:04:45.928Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §6 (single GRANDFATHERED posture+compat rule §6.1, in-flight enforce-flip answer §6.3, downgrade-loophole closure §6.4) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §6 (single GRANDFATHERED posture+compat rule §6.1, in-flight enforce-flip answer §6.3, downgrade-loophole closure §6.4) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "docs_check",
+          "command": "reading docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "result": "pass",
+          "note": "Spec section §6 (single GRANDFATHERED posture+compat rule §6.1, in-flight enforce-flip answer §6.3, downgrade-loophole closure §6.4) satisfies this lane; author self-audit table verified each lane description TRUE against the 652-line document; 14 src anchors verified (red_evidence_create :948, appendRedEvidence :1312, currentReviewRound :775 etc.).",
+          "headHash": "bdfa261b624c45a4b93aebebea1e5849fc3ed6e3",
+          "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+          "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+          "timestamp": "2026-07-23T21:35:03.075Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-23T19:53:37.088Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope review gap: the gate-consumption query contract is a distinct deliverable feature whose coverage must be title-visible, not buried in CHK-001 intents.",
+      "addedTitle": "Spec section: gate-consumption query contract defining the W2/W3 boundary",
+      "addedContext": "Product-review I-1: the exact read-only query ProofStory gates ask of the RED-evidence subsystem (inputs, answer shape, freshness rules) and the explicit boundary — W2 defines/answers the query, W3 wires gates to consume it."
+    },
+    {
+      "timestamp": "2026-07-23T19:53:37.595Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope review gap: the legacy-record posture is a distinct deliverable feature whose coverage must be title-visible, not buried in CHK-004 intents.",
+      "addedTitle": "Spec section: legacy red-evidence record posture (grandfather, migrate, or invalidate)",
+      "addedContext": "Product-review I-2: existing .lattice/story/actives/<id>/red-evidence.json records predate the subsystem; the spec must state their status and the compatibility rule so in-flight stories are not stranded."
+    }
+  ]
+}

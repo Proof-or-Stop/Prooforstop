@@ -1,0 +1,204 @@
+{
+  "passes": [
+    {
+      "id": "B-cc54:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check: the scope-granted NEW module packages/main/src/core/gate-repeat-block.ts was correctly never created (spike found breaker logic already lives in convergence-breaker.ts). Grep confirms every reference to that filename appears only in story-bookkeeping JSON (scope-contract.json, acceptance-basis.json, execution-boundary.json, scope-boundary.json, checklist.json, understanding.json, plan.md prose) recording unused scope grants -- zero references from actual .ts/.js source. The smoke gate-repeat-block-smoke.ts imports only pre-existing exports from ../core/convergence-breaker.js; no import of a non-existent parallel module. review-convergence.ts, transition-effects.ts, and finding.ts (protected) all show zero diff vs main. machine.ts was allowed-modify scope but untouched (unused grant, not residue). Fix is a single extension of gateFailureDigest (new extractGateBlockSignals composes prefix + structured signal set) -- no parallel/duplicate digest concept introduced. lattice.config.json diff registers only the one new smoke command. No concept-deletion residue found.",
+      "createdAt": "2026-07-24T00:22:32.904Z",
+      "reviewRound": "2026-07-24T00:21:09.115Z",
+      "reviewRunId": "B-cc54:RR-001",
+      "envelopeId": "52ec95f2b71d0c1b7051698a8d4977753f142da29df50a02dd63fd0ec363405a",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1e8e6b88dc61648e7f1f2227d1a7f4477ca0e617a76e85c4714584af7791fae"
+    },
+    {
+      "id": "B-cc54:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Independently re-reproduced both fixes. F-002: reverted only the bracket regex to the old any-word pattern (rebuilt with tsc), ran gate-repeat-block-smoke.js -> clean build, exit 1, fails exactly at the F-002 assertion (4 distinct keys instead of 1 for varying plain bracketed words); restored the underscore-requiring pattern, rebuilt, re-ran -> exit 0, all 5 CHK groups PASS, git diff on convergence-breaker.ts empty after restore. Grepped every bracketed reason code actually emitted in core/machine.ts and handlers/ (missing_scope_boundary, execution_boundary, excluded_keyword, repeat_discarded_direction, scope_freeze_check family, init_check family, delivery_check family, unverified_promise, stale_closeout_review, english_artifact_cjk_authoring, etc.) -- every real reason code is multi-word snake_case, so the underscore requirement excludes none of them while excluding note/info/todo/warn-style annotations. F-003: confirmed the basis branch (JSON.stringify vs plain prefix) is byte-identical to the historical prefix-only key on the no-signal path (same variable, unconditioned by the encoding change). Verified the two new F-003 assertions are non-vacuous (prose containing literal delimiter-like text is itself picked up by the content-based extractGateBlockSignals regex, so it cannot diverge from the bracket form; same signal set under a different prefix still keys differently) -- they correctly demonstrate no working forgery exists under either encoding, matching the resolvedReason's honest no-observable-key-change claim rather than overclaiming a difference. Also ran convergence-breaker-smoke.js (unrelated pre-existing smoke) and confirmed it still PASSes, and verified gate-repeat-block-smoke.js is now wired into lattice.config.json quickValidate. Checked findings.json: F-001 through F-004 all resolved with resolutionType fixed; checklist CHK-001 through CHK-005 all done. No new findings.",
+      "createdAt": "2026-07-24T00:51:17.729Z",
+      "reviewRound": "2026-07-24T00:46:18.241Z",
+      "reviewRunId": "B-cc54:RR-005",
+      "envelopeId": "cc5e364fd1f4a2244997e2c8e830302a16ff946642cb4d0f3f274b8ae5f1e3fe",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/findings.json",
+          ".lattice/story/actives/B-cc54/red-evidence.json",
+          "lattice.config.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1cc66d330cc709bbd9e021ecf7ceee5fb33f8ab8d3be348f77a9cfd867e5940e"
+    },
+    {
+      "id": "B-cc54:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement in this round (targeted regex/extraction fix to extractGateBlockSignals + one comment correction). Independently re-verified F-008/F-009: fresh real gap codes not in the fixture set (milestone_unknown_checklist_ref, acceptance_binding_unknown_milestone, uncovered_required_milestones) key distinctly and a repeated one still accumulates; fed real anti-stall [retry]/[fix]/[discard] text, real dispatch-prompt prose bullets, and renderBreakerFreeze next-step-hint text through extractGateBlockSignals directly -- zero signals captured in all three (no over-capture / no new escape hatch). Grepped core/proofstory.ts and confirmed all 9 gap/trigger codes used across the fixtures are genuinely emitted there. Independently reproduced RED by removing the new structural-bullet loop, rebuilding, and running the smoke: fails at CHK-005 F-008 assertion (1 !== 4), exit 1; restoring gives a byte-identical file (empty diff) and PASS, exit 0. Reran convergence-breaker-smoke.js: still PASS. No remaining contradictory comment: F-005 docstring and both inline comments (F-002 bracket-pattern, F-008 bullet-pattern) now consistently say form-restricted-not-enumerated.",
+      "createdAt": "2026-07-24T01:44:48.578Z",
+      "reviewRound": "2026-07-24T01:39:42.449Z",
+      "reviewRunId": "B-cc54:RR-010",
+      "envelopeId": "321ddbc9b6d8e5d01baa31028f2aabd3b6c0440a88151ba3ebc74347c1f54f91",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/anti-stall.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/findings.json",
+          ".lattice/story/actives/B-cc54/plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "337338ba83f6608eaf28140d234fb1d602d65e61492196eb9029f4c2b39b3d7f"
+    },
+    {
+      "id": "B-cc54:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after F-008/F-009 fix (commit 7db9b3bd1d). Verified: [[:]] char class is a literal bracket/colon set, not a POSIX class; the third regex pass over normalized reasons shows no catastrophic backtracking (linear time up to 50KB adversarial input). Traced real proofstory.ts:1907/1911 rendering shapes and confirmed the new structural anchor (dash+whitespace+snake_case+optional-whitespace+immediate [ or :) matches real gap/trigger codes but not prose bullets, hint lines, slice ids (hyphenated), or hyphenated agentIds elsewhere in machine.ts -- no over-capture path found in story_advance-reachable renderers I traced (proofstory.ts, phase-gates.ts, machine.ts, transition-orchestrator.ts). No-signal fallback verified byte-identical to the historical prefix-only key by direct comparison. Rebuilt (tsc clean, no errors), ran gate-repeat-block-smoke.js (PASS, all 5 CHK groups) and convergence-breaker-smoke.js (PASS) directly, and ran the full npm test suite (all suites, exit 0). No dead code / unused imports / as-any / empty catches in the changed files. Pre-existing open finding F-010 (low, test-coverage lane, mislabeled intentRef) is not in my lane and is not a blocker for code quality.",
+      "createdAt": "2026-07-24T01:59:18.922Z",
+      "reviewRound": "2026-07-24T01:39:42.449Z",
+      "reviewRunId": "B-cc54:RR-011",
+      "envelopeId": "590aaa1f970d0198ddf4b2359055bf383eb9aab60c1e28abeb753ce0dafc1c2b",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/findings.json",
+          "lattice.config.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d758942e94fea34b41137a310a2e536c549a20a48d2bbd8e8f1886c4d0785e05"
+    },
+    {
+      "id": "B-cc54:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at current HEAD (83ebf87) after F-010 landed mid-review (an independent lane relabelled the same CHK-004:happy:0 mislabel I had flagged and was about to note, to CHK-002:happy:2 -- confirmed via git diff, the code now reads CHK-002:happy:2 at both call sites). Coverage: 37/37 verificationIntent entries have valid verificationEvidence, all captured atomically at the F-010 fix commit (7a9c2efa91); git diff from that commit to current HEAD touches only .lattice bookkeeping, zero material files; evidence_refresh reports 0 stale candidates; standalone node packages/main/dist/tasks/gate-repeat-block-smoke.js exits 0 with all 5 ok lines. F-006 freshness holds at the current head, not just at capture time. F-008 fixture honesty re-verified exhaustively: programmatically extracted every gap/trigger code literal from proofstory.ts (gap()+pushTrigger() call sites) and cross-checked every snake_case token in the smoke's fixtures (GAPS_1/2/3, REAL_UNPREFIXED_CODES, BANNER) -- all are real production codes at their cited lines; unmatched tokens were only CLI command names and one code my own regex missed via a ternary (missing_spike_evidence, confirmed real). No sixth fabricated fixture found. extractGateBlockSignals now anchors structurally on proofstory.ts's actual render format (bullet+code+[ or :, proofstory.ts:1904-1917) and the fix is wired into the real gate path (cli-engine.ts:1508), not just unit-tested. Full validate: ran twice outside this tool call in isolation to cross-check an anomaly -- a first full run (contaminated by concurrent activity in this shared worktree) showed an overall dirtied-worktree fail attributed to an unrelated, documented-hermetic command; re-running that exact command alone reproduced clean with zero worktree diff, confirming a transient race unrelated to B-cc54's code. gate-repeat-block-smoke.js itself returned code=0 in every run. HONEST META-JUDGMENT, recorded as requested rather than softened: across this story the same defect CLASS -- evidence or fixture that looks verified but is not -- has now recurred FIVE times, not four: F-001 (assertions authored after the fix), F-004 (stale red-evidence artifact), F-006 (stale verificationEvidence), F-008 (fabricated fixture code), and F-010 (checklist refs picked to make the coverage ledger look complete rather than checked against what each ref actually claims -- and per F-010's own resolvedReason, this exact shortcut was 'copied a second time during the F-008 fix', i.e. it recurred within its own recurrence). Of these five, only F-006 was caught by a genuinely new-to-the-platform automated invariant (the materialHash/storyFilesHash freshness gate in validate/evidence_refresh) -- and that gate is pre-existing platform infrastructure this story merely had to satisfy, not something this story built. F-001, F-004, F-008, and F-010 were each caught exclusively by a reviewer manually re-deriving ground truth (reverting code and re-running, tracing commit timestamps, grepping production source, checking each ref's literal text against assertion content) and were each remediated as a one-off correction of the specific instance found. No new mechanical guard exists that would categorically catch a structurally identical sixth occurrence: nothing in gate-repeat-block-smoke.ts cross-checks its own fixture codes against a canonical export from proofstory.ts; nothing re-validates a red-evidence artifact's liveness against the current tree; nothing proves an assertion's evidence was captured after a genuine revert-rerun rather than asserted from memory; nothing checks a relabelled ref's literal text against the assertion it is attached to. The actual required deliverable (37/37 genuine, fresh, functioning fix, wired into production) is sound and verified today, but the audit trail's protection against a sixth instance of this defect class is exactly as good as the next reviewer's diligence, not structurally better than before this story started. Not blocking DONE on this -- the coverage mandate is satisfied -- but recording it plainly as asked.",
+      "createdAt": "2026-07-24T02:03:04.750Z",
+      "reviewRound": "2026-07-24T02:00:28.057Z",
+      "reviewRunId": "B-cc54:RR-014",
+      "envelopeId": "70110768d974812786b66fc255dbd547ee6dc43498b89dc71961dd3002b87204",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/findings.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/validate-command-timeout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f870d130fe41fbbd019292800bd223b5033ace6a217e17a18141b10952ce76fe"
+    },
+    {
+      "id": "B-cc54:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round re-review confirming F-010 is label-only. Verified via git diff since last-reviewed commit: only two assertion-message strings changed in gate-repeat-block-smoke.ts (CHK-004:happy:0 -> CHK-002:happy:2), no logic change. Both smokes and tsc re-run green. No blockers.",
+      "createdAt": "2026-07-24T02:03:12.493Z",
+      "reviewRound": "2026-07-24T02:00:28.057Z",
+      "reviewRunId": "B-cc54:RR-016",
+      "envelopeId": "955c9c1581c83de9fc0b959089a61bb8390a7ad33762d063311cffec7a678f2e",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/checklist.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/plan.md",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea0520d37da65fcbfd8e71e834dbaee14e758760eeb51d280d742927a8bca617"
+    },
+    {
+      "id": "B-cc54:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round re-review of F-010 only. Diff against my prior pass (RR-010, head 98ce2464) is exactly commit 7a9c2efa91: 2 hunks / 4 lines in packages/main/src/tasks/gate-repeat-block-smoke.ts, relabelling two assertions from CHK-004:happy:0 to CHK-002:happy:2 (F-002 line ~352, F-008 line ~449); every other changed file is .lattice story bookkeeping (checklist/findings/evidence/review-run ledgers). Verified no orphan: CHK-004:happy:0 (a tripped breaker action stays freeze, never proceed) is still asserted at chk004() line 288, unaffected by the relabel. Verified the relabel target is correct: both relabelled assertions bump an identical/collapsed reason to THRESHOLD and assert maxGateFailureCount reaches it, matching CHK-002:happy:2 (identical blocker accumulates and trips), whose canonical instance is separately asserted at lines 174-181 including the assessBreaker trip. Re-ran prior concept-residue checks: gate-repeat-block.ts still appears only in story-bookkeeping JSON/plan.md prose (scope-contract.json, acceptance-basis.json, execution-boundary.json, scope-boundary.json), zero .ts/.js source references; convergence-breaker.ts, review-convergence.ts, transition-effects.ts, finding.ts (protected) all unchanged since RR-010. tsc build clean; node packages/main/dist/tasks/gate-repeat-block-smoke.js prints all 5 CHK ok lines then PASS. No concept deletion/replacement this round; no blocker.",
+      "createdAt": "2026-07-24T02:03:33.108Z",
+      "reviewRound": "2026-07-24T02:00:28.057Z",
+      "reviewRunId": "B-cc54:RR-015",
+      "envelopeId": "dd4ba73d1332b20a9974aad10ce8a2a203293eb4a7af61ce287c14a2409e2e12",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/plan.md",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cc54/acceptance-basis.json",
+          ".lattice/story/actives/B-cc54/execution-boundary.json",
+          ".lattice/story/actives/B-cc54/scope-boundary.json",
+          ".lattice/story/actives/B-cc54/scope-contract.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "54acdc44e0b8ed01f0b03dc4aec6518ab858f81edb3537b6344445087ec74f6e"
+    }
+  ]
+}

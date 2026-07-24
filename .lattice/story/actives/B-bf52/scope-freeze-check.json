@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-bf52",
+  "checkedAt": "2026-07-23T22:52:11.618Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "7b2192a3b118ae0d613b2e580703da398225935ca902c5715ccc6c557a2a6389",
+  "executionBoundaryHash": "6feb62a60de8e318ae9cbb3df6e47f5194bd19f899759783d38e6f272891fa02",
+  "freshnessHash": "56b916caaf3e3c26439cb33db2cf37419e03a7b48bdb9fe3d532bb3659e21911",
+  "effectiveExcludedKeywords": [
+    "Any change to ProofStory gate reason text itself",
+    "Any change to the cli-engine call site at packages/main/src/cli-engine.ts:1508 that bumps the counter",
+    "Authority",
+    "Changing the auto-recovery or story_resume acknowledgement flow",
+    "Changing the breaker threshold, its counters, its assessBreaker logic, or its reset semantics",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Replacing free-text rejection reasons with structured failure codes at the rejection sites"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to ProofStory gate reason text itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to ProofStory gate reason text itself",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to the cli-engine call site at packages/main/src/cli-engine.ts:1508 that bumps the counter",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to the cli-engine call site at packages/main/src/cli-engine.ts:1508 that bumps the counter",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the auto-recovery or story_resume acknowledgement flow",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the auto-recovery or story_resume acknowledgement flow",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the breaker threshold, its counters, its assessBreaker logic, or its reset semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the breaker threshold, its counters, its assessBreaker logic, or its reset semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Replacing free-text rejection reasons with structured failure codes at the rejection sites",
+      "source": "scopeBoundary.excluded",
+      "text": "Replacing free-text rejection reasons with structured failure codes at the rejection sites",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "524231c3ca40748d5d88d7ebc73d5f2da2b4b77f820dc1a9cf7e9cc21b074df0"
+}

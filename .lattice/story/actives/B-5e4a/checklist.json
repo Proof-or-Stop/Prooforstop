@@ -1,0 +1,195 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Register the four missing acceptance-topology artifact filenames in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
+      "context": "packages/main/src/core/lifecycle-registry.ts line ~599. Add acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json with a comment noting their acceptance-topology origin. Registration is provenance-only; no gate evidence semantics change. The unregistered legacy receipt-refs filename is explicitly out of scope (see scope-boundary excludedScope).",
+      "userSees": "node repro: classifyLifecycleArtifact(.lattice/story/actives/B-bf52/acceptance-basis.json) returns kind=lifecycle instead of null; scope classifier output shows category=lifecycle_artifact rule=lifecycle_artifact allowed=true for the same path",
+      "status": "done",
+      "startTime": "2026-07-24T00:26:01.087Z",
+      "endTime": "2026-07-24T00:26:44.821Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "classifyLifecycleArtifact returns kind=lifecycle for .lattice/story/actives/<id>/acceptance-basis.json and the other three topology filenames; classifyScopePath returns category=lifecycle_artifact allowed=true",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An unregistered basename in the same story dir (e.g. random.json) still classifies null / out_of_scope — the closed set stays closed",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The four filenames under a legacy docs/story/<id>/ prefix still classify as legacy-metadata, unchanged",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A crafted path like .lattice/story/actives/../../etc/acceptance-basis.json or a non-canonical storyId does not classify as lifecycle (path traversal / id checks unchanged)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-registry.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1 (post F-001/F-002 fixes): 8/8 assertions hold — classifyLifecycleArtifact returns kind=lifecycle for all four acceptance-topology filenames under .lattice/story/actives/B-5e4a/. Baseline red (4/8, exit 1) recorded as red evidence at d8db64c.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: negative controls hold — random.json and an unregistered basename variant in the same story dir still classify null; the closed set stays closed after registering the four filenames plus review-loops.jsonl (F-001).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: adversarial controls hold — traversal path (.lattice/story/actives/../../../etc/acceptance-basis.json) and non-canonical story id still classify null; path traversal and id checks unchanged.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node -e classifyLifecycleArtifact(docs/story/B-0000/<name>) for all four filenames",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: all four filenames under the legacy docs/story/<id>/ prefix classify as legacy-metadata — legacy behavior unchanged by the registry additions.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a registry-coverage invariant smoke so unregistered story artifacts cannot silently regress",
+      "context": "Extend the lifecycle registry contract or add a smoke under packages/main/src/tasks/ that (1) asserts each of the four newly registered filenames classifies as lifecycle_artifact via classifyLifecycleArtifact, and (2) mechanically derives the set of top-level story artifact filenames StoryStore writes (e.g. scan store.ts writeJson/writeFileSync literals whose relative path has no slash) and asserts every one is present in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES or in a small named exemption list (the excluded legacy receipt-refs filename, with a comment saying why), with a named divergence message listing any missing filename. Wire it into lattice validate the same way sibling smokes are wired.",
+      "userSees": "lattice validate output includes the new smoke passing; temporarily removing a filename from the registry makes the smoke fail with a message naming that filename",
+      "status": "done",
+      "startTime": "2026-07-24T00:33:44.492Z",
+      "endTime": "2026-07-24T00:38:54.347Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice validate runs the new smoke green; smoke asserts all four new filenames classify lifecycle_artifact and the derived StoryStore top-level write set is fully covered",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deliberately removing one filename from the registry (temporary local mutation) makes the smoke fail with a message naming that filename",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The derivation returns at least the known minimum count of writers so an empty/shrunken source scan fails loudly instead of passing vacuously",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The exemption list only admits the named legacy receipt-refs filename; adding any other unregistered write to store.ts fails the smoke",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/validate.ts",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm run test:lifecycle-registry-contract (bite test: remove a registry filename from dist copy)",
+          "result": "pass",
+          "note": "Bite tests at both the pre-F-001 tree (acceptance-basis.json removal → two named divergences, byte-identical restore via cmp, re-run green) and post-F-001 (review-loops.jsonl removal → two named divergences naming it, restore, green). Removal of any registered derived filename fails loudly naming that filename.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: output asserts 49 filenames derived against floor 40; a shrunken/empty derivation fails loudly with a derivation-is-broken message instead of passing vacuously (floor unchanged at 40 after the count moved 48→49 with the F-001 join-site pass).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Exemption list admits exactly authority-receipt-refs.json (dead writeLegacyReceiptRefs path, Authority domain, commented). Any other unregistered top-level write fails: demonstrated by the review-loops.jsonl divergence pre-F-001-fix, the storystore-coverage bite tests, and the F-002 adversarial scratch probe where an unresolvable identifier at a storyDir join site emits the named blind-spot divergence (isEnclosingCallableParameter scoped check, commit f99744a8b7).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: PASS — 49 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl) and registered-or-exempted, 0 divergences. Wired as validate.commands[36] (commit b034a4b686); full lattice validate ran green with it at the CHK-002 wiring step (allPass true, 47/47).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      ]
+    }
+  ]
+}

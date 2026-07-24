@@ -1,0 +1,72 @@
+{
+  "storyId": "B-f824",
+  "checkedAt": "2026-07-24T04:25:58.954Z",
+  "headHash": "77c03662c90efd0c27fbd6745305652b55ebc97c",
+  "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+  "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+  "reviewRound": "2026-07-24T04:05:51.059Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#L734-736",
+      "promise": "unchangedSuiteExecutions (blocking) counts only per-group duplicate executed terminals (commandExecutions>0) timestamped at or after the current TEST entry (>= boundary, same convention as postTestReviewerReattestations), plus every contradictory reused terminal with commandExecutions>0 in any phase",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "packages/main/src/handlers/done-prepare.ts deriveDonePreparePassConvergence: postTestExecuted = executed.filter(event => event.timestamp >= facts.testEntryAt); unchangedSuiteExecutions += Math.max(0, postTestExecuted.length-1) plus reused-with-commandExecutions>0 count. Confirmed by direct Read of the function body in the current worktree."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#L736",
+      "promise": "reviewWindowSuiteExecutions records whole-window per-group duplicate executed terminals as observable, never-blocking telemetry, rendered in the convergence line after unchangedSuiteExecutions",
+      "verifiedBy": "diff/grep + code read + real machine run against fresh dist",
+      "evidence": "done-prepare.ts: reviewWindowSuiteExecutions += Math.max(0, executed.length-1) (whole window, no testEntryAt filter); assertDonePreparePassConvergence never references reviewWindowSuiteExecutions; renderPass emits 'unchangedSuiteExecutions=... reviewWindowSuiteExecutions=... successfulCloseout=...' in that exact order. Independently rebuilt (npm --prefix packages/main run build) and re-ran the story's red_evidence expectedGreenCommand against the fresh dist myself: GREEN with {\"unchangedSuiteExecutions\":0,\"reviewWindowSuiteExecutions\":1,\"successfulCloseout\":1}, exit code 0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#L734",
+      "promise": "post-TEST repeated unchanged-suite execution, and unsuccessful-closeout constraints remain independently blocking (edited sentence adding the post-TEST qualifier to the pre-existing blocking-constraints sentence)",
+      "verifiedBy": "diff/grep + test run",
+      "evidence": "assertDonePreparePassConvergence still throws on nonzero unchangedSuiteExecutions and successfulCloseout!==1. Re-ran npm --prefix packages/main run test:flow-stability-smoke myself -> 'flow stability smoke passed' (Case B: two post-TEST executed duplicates asserts throw; Case D: contradictory reused terminal asserts throw)."
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-registry.ts (runtime:closeout_validation_terminal rationale, B-f824 commit 638ce1ee40)",
+      "promise": "the process-fact registry rationale for runtime:closeout_validation_terminal explicitly registers the phase-anchored split: blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at/after TEST entry plus reused-with-commandExecutions>0 terminals in any phase; reviewWindowSuiteExecutions is whole-window observable, never-blocking telemetry",
+      "verifiedBy": "diff/grep + code read",
+      "evidence": "Read packages/main/src/core/process-fact-registry.ts lines 1393-1400 directly: rationale text matches the promise verbatim (contains 'grouped per commandSetHash, materialHash, and storyFilesHash', 'facts.testEntryAt, B-f824', 'reused terminals with commandExecutions > 0 in any phase', 'reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry'). level stays L4, consumerGate stays 'done_prepare convergence acceptance'."
+    },
+    {
+      "docPath": "scripts/verify-process-fact-contract.mjs (assertCloseoutTrustBoundary, commits 638ce1ee40 + 592304c309)",
+      "promise": "the process-fact contract script mechanically asserts (not just documents) the phase-anchored split: the registry rationale carries the required tokens; deriveDonePreparePassConvergence contains a real `<event>.timestamp >= facts.testEntryAt` AST comparison (not satisfiable by a comment); assertDonePreparePassConvergence has a real if-condition referencing unchangedSuiteExecutions whose then-branch throws (not satisfiable by a dead-code reference); and the blocking assert body never references reviewWindowSuiteExecutions",
+      "verifiedBy": "diff/grep + code read + real machine run",
+      "evidence": "Read the full diffs of commit 638ce1ee40 (adds validationTerminalFact token checks + initial text-based/AST checks) and 592304c309 (F-002/F-003 hardening: replaces the text .includes() check with hasTestEntryAnchoredComparison() walking real ts.BinaryExpression nodes for `>=` comparing .timestamp to facts.testEntryAt, and replaces the bare subtreeReferencesProperty() check on the assert body with hasPropertyGuardedThrowingBranch() requiring an if-condition referencing unchangedSuiteExecutions whose then-branch contains a ThrowStatement). Independently re-ran npm run test:process-fact-contract myself against the current worktree: 'Process fact contract verified', exit 0 -- these new assertions currently pass against the real done-prepare.ts implementation (Read directly: deriveDonePreparePassConvergence contains `event.timestamp >= facts.testEntryAt`; assertDonePreparePassConvergence's `if (... || convergence.unchangedSuiteExecutions !== 0 || ...) { throw ... }` matches the guarded-throw shape; the assert body has no reference to reviewWindowSuiteExecutions)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md (scope boundary, OQ-1)",
+      "promise": "The two sibling B-c163 docs (workflow-convergence-failure-remediation-execution-plan.md, done-prepare-heartbeat-review-assurance-ux-execution-plan.md) remain untouched by this story, including by the two newest commits (638ce1ee40, 592304c309)",
+      "verifiedBy": "git diff",
+      "evidence": "Ran git diff main...HEAD --stat -- docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md myself: zero output (no diff). Both newest commits only touch process-fact-registry.ts, verify-process-fact-contract.mjs, and story metadata -- no docs/ paths outside done-prepare-automation-execution-plan.md."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Re-ran myself: npm --prefix packages/main run build (clean tsc) then npm --prefix packages/main run test:flow-stability-smoke -> '✓ flow stability smoke passed', exit 0. Source-verified (Read) Cases A-D in flow-stability-smoke.ts (~lines 4796-4900): Case A = B-956f window shape (executed X pre-TEST, executed Y pre-TEST, executed X post-TEST, reused X exec=0 post-TEST) -> unchangedSuiteExecutions=0, reviewWindowSuiteExecutions=1, assert.doesNotThrow; Case B = two post-TEST executed X in same group -> unchangedSuiteExecutions=1, assert.throws; boundary sub-case = execution at exactly testEntryAt counts via >=; Case D = contradictory reused terminal with commandExecutions>0 pre-TEST -> assert.throws."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same test:flow-stability-smoke run (re-executed myself, not just read) also exercises deriveDonePreparePassConvergence base-case deepEqual on both counters and backward-tolerant parsing of a pre-split transcript line. Additionally independently re-ran the story's own red_evidence.json expectedGreenCommand against the freshly rebuilt packages/main/dist/handlers/done-prepare.js myself: 'GREEN: reviewer pre-TEST executions no longer poison convergence: {\"metadataRollbacks\":0,\"reviewerReattestations\":0,\"postTestReviewerReattestations\":0,\"humanConfirmations\":0,\"unchangedSuiteExecutions\":0,\"reviewWindowSuiteExecutions\":1,\"successfulCloseout\":1}', exit code 0 -- confirms the RED-20260724000926 record now flips GREEN."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Re-ran myself: npm --prefix packages/main run test:done-prepare-merge-rerun-smoke -> 'done-prepare-merge-rerun smoke passed'; npm --prefix packages/main run test:done-prepare-auto-closeout-smoke -> 'done-prepare-auto-closeout smoke passed'; npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke -> 'done-prepare-closure-heartbeat smoke passed'; npm run test:process-fact-contract -> 'Process fact contract verified' (this run includes the two NEW commits' AST-hardened guards added since the prior delivery-check, exercised end-to-end against the current done-prepare.ts and confirmed passing, not just present in source)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "rg -n \"remain independently blocking\" docs/requirements/decisions/ (re-run myself) returns exactly one match (done-prepare-automation-execution-plan.md:734) with the post-TEST qualifier plus a new adjacent paragraph (line 736) describing the phase-anchored split. git diff main...HEAD --stat on the two sibling B-c163 docs (re-run myself) produced no output, confirming they remain untouched even after the two newest commits. Docs-only change verified by direct grep/diff, appropriate for prose-accuracy claims."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently rebuilt dist and re-ran every named real-machine check myself against the current HEAD (77c03662c9), including the two commits added since the prior stale delivery-check: flow-stability-smoke (Cases A-D), all three downstream smokes, test:process-fact-contract (now including the F-002/F-003 AST-hardened guards), and the story's own red_evidence expectedGreenCommand, which flips GREEN with the documented counter values. All 6 docsPromises (including the new registry-rationale and mechanical-contract-guard promises) verified directly against source. No TODO/FIXME/HACK in the diff. The two sibling B-c163 docs remain untouched by both new commits, confirmed by a fresh git diff."
+  },
+  "_hash": "0d93089b6f84f28649de6c6c5bfeda8c092694b0e832beee5992a21a5a9854b1"
+}

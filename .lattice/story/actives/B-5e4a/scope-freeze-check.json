@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5e4a",
+  "checkedAt": "2026-07-24T00:00:20.101Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2b5852f44288986e908fa6200a256bed43b89218a548086f560b03860f1ae4d8",
+  "executionBoundaryHash": "92124ed019112cf762a37ef598acc27cdded64de2437cfbe1e4a6977256ad7cb",
+  "freshnessHash": "cd5da94cbb69226ba28d0d69381901fc69a9f70b19ecae14892bd14a7e385186",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "No change to classifier trust policy (closed-set narrow trust from B-b9d0 stays)",
+    "No change to gate evidence semantics; registration stays provenance-only",
+    "No change to LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS / capsule subdirectory path coverage (separate concern, not reported broken)",
+    "No registration of authority-receipt-refs.json: dead writeLegacyReceiptRefs path with no live production caller, belongs to the Authority future-capability domain; the coverage smoke exempts it by name with a comment, and the Authority capability work registers it when its write path goes live",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "No registration of authority-receipt-refs.json: dead writeLegacyReceiptRefs path with no live production caller, belongs to the Authority future-capability domain; the coverage smoke exempts it by name with a comment, and the Authority capability work registers it when its write path goes live",
+      "excluded": true
+    },
+    {
+      "keyword": "No change to classifier trust policy (closed-set narrow trust from B-b9d0 stays)",
+      "source": "scopeBoundary.excluded",
+      "text": "No change to classifier trust policy (closed-set narrow trust from B-b9d0 stays)",
+      "excluded": true
+    },
+    {
+      "keyword": "No change to gate evidence semantics; registration stays provenance-only",
+      "source": "scopeBoundary.excluded",
+      "text": "No change to gate evidence semantics; registration stays provenance-only",
+      "excluded": true
+    },
+    {
+      "keyword": "No change to LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS / capsule subdirectory path coverage (separate concern, not reported broken)",
+      "source": "scopeBoundary.excluded",
+      "text": "No change to LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS / capsule subdirectory path coverage (separate concern, not reported broken)",
+      "excluded": true
+    },
+    {
+      "keyword": "No registration of authority-receipt-refs.json: dead writeLegacyReceiptRefs path with no live production caller, belongs to the Authority future-capability domain; the coverage smoke exempts it by name with a comment, and the Authority capability work registers it when its write path goes live",
+      "source": "scopeBoundary.excluded",
+      "text": "No registration of authority-receipt-refs.json: dead writeLegacyReceiptRefs path with no live production caller, belongs to the Authority future-capability domain; the coverage smoke exempts it by name with a comment, and the Authority capability work registers it when its write path goes live",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9e4f48fd5d9a9f7c7701faf6896b6918e2e933506fcaeea061df847c3dd2ebea"
+}

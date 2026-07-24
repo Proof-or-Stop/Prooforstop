@@ -364,7 +364,9 @@ async function assertManifestOnlyAutoCloseout(): Promise<void> {
     })));
 
     assert.match(transcript, /^DONE prepare: PASS/, transcript);
-    assert.match(transcript, /^convergence: metadataRollbacks=0 reviewerReattestations=0 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1$/m);
+    // B-f824: one validate execution per command set in the whole window,
+    // so observable reviewWindowSuiteExecutions is 0 alongside the blocking counter.
+    assert.match(transcript, /^convergence: metadataRollbacks=0 reviewerReattestations=0 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 reviewWindowSuiteExecutions=0 successfulCloseout=1$/m);
     assert.doesNotMatch(transcript, /^autoCloseGeneratedMetadata:/m, 'canonical validation writers converge without nested auto-closeout recursion');
     assert.match(transcript, /lattice story_advance '\{"storyId":"B-done-prepare-auto-closeout","phase":"DONE"\}'/);
     assert.ok(logs.some((line) => line.includes('done_prepare convergence: retained review across trusted validation metadata advance')), 'trusted metadata advance is logged to the side channel');
@@ -1208,7 +1210,8 @@ function assertJsonStdoutClean(): void {
     assert.equal(parsed.storyId, storyId);
     assert.equal(parsed.status, 'pass', `JSON done_prepare should pass:\nstderr:\n${result.stderr}\nstdout:\n${result.stdout}`);
     assert.match(parsed.transcript ?? '', /^DONE prepare: PASS/);
-    assert.match(parsed.transcript ?? '', /^convergence: metadataRollbacks=0 reviewerReattestations=0 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1$/m);
+    // B-f824: single auto-closeout run, no duplicate executions in any phase.
+    assert.match(parsed.transcript ?? '', /^convergence: metadataRollbacks=0 reviewerReattestations=0 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 reviewWindowSuiteExecutions=0 successfulCloseout=1$/m);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bf52",
+  "mode": "correctness_fix",
+  "allowed": [
+    "packages/main/src/core/convergence-breaker.ts: make gateFailureDigest distinguish substantively different gate-rejection reasons (remove the fixed-length truncation; narrow the path rule to machine-specific absolute roots; narrow the numeric rule to standalone numbers)",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts: add the substantive-versus-incidental digest matrix driving bumpGateFailureCount and maxGateFailureCount"
+  ],
+  "excluded": [
+    "Any change to ProofStory gate reason text itself",
+    "Any change to the cli-engine call site at packages/main/src/cli-engine.ts:1508 that bumps the counter",
+    "Changing the auto-recovery or story_resume acknowledgement flow",
+    "Changing the breaker threshold, its counters, its assessBreaker logic, or its reset semantics",
+    "Replacing free-text rejection reasons with structured failure codes at the rejection sites"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directive for the repro-first program: fix the highest-friction known workflow bug (false breaker freezes forcing manual TTY acks) with a deliberately narrow change before driving the remaining program stories through the same gates.",
+  "createdAt": "2026-07-23T22:36:43.866Z",
+  "updatedAt": "2026-07-23T22:36:43.866Z",
+  "_hash": "7b2192a3b118ae0d613b2e580703da398225935ca902c5715ccc6c557a2a6389"
+}

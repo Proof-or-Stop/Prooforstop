@@ -1,0 +1,56 @@
+{
+  "storyId": "B-956f",
+  "changes": "packages/main/src/core/material-code-policy.ts (new): resolveMaterialCodePolicy (strict fail-closed config resolver, named-key diagnostics, ENOENT-only absence) + buildMaterialClassificationSnapshot (immutable, pinned-sha HEAD+materialHash-bound, deep-frozen, policyDigest-verified) + 8-step first-hit-wins precedence chain with a level-1 IMMUTABLE cross-ecosystem manifest set (go.mod/Cargo.toml/pyproject.toml/pom.xml/gradle + JS names) enforced by config-resolve rejection AND a tree-bound filesystem preflight (memoized, prefiltered, wrapper-root-aware). Snapshot threaded to ALL consumers: review-assurance floor (classifies via snapshot.files with rename identity + old-tree exec/shebang hints), repro classification (collectMaterialCodeFiles REQUIRES the snapshot), ProofStory diagnostic input (all 5 production builders populate materialClassification, diagnosticOnly). buildScopeDiffPack emits deduped semantic_analysis_unavailable diagnostics; validate-concept gains a distinct skip-diagnostics channel; wrapper-root path-namespace translation (projectRepoPrefix/repoPathToProjectRelative) engaged at every consumer via a safe default gitCwd; lattice.config.json marks experiments/ non-material. scripts/verify-process-fact-contract.mjs upgraded to TypeScript-AST structural assertions.",
+  "usage": "Automatic: any story's gate evaluation now classifies material code language-neutrally. Verify with: node packages/main/dist/tasks/language-neutral-gates-smoke.js (39 checks) and node tmp/w1-red/red-language-degradation.cjs (11/11). Project config: lattice.config.json materialCode block (excludePaths, addExtensions, removeExtensions; level-1 manifests are immune to every config key).",
+  "expectedOutcome": "An identical type=bug story flips repro-first required=true and classifies material across review-assurance floor + repro classification + ProofStory triggers regardless of source language (.py/.rs/.go/.java/.cpp identical to .ts); go.mod at repo root classifies material even when a config key attempts to strip it; doc/binary formats stay non-material; this repo's experiments/ tree remains non-material via the configured materialCode block; RED harness goes 9-fail to all-pass.",
+  "actualTranscript": "RED tmp/w1-red/red-language-degradation.cjs: 9/11 fail on baseline -> 11/11 GREEN (3x deterministic). language-neutral-gates-smoke: 39/39 (5x deterministic) covering all 12 verificationIntent lanes plus production call shapes, wrapper-root fixtures, fail-closed config/freshness paths, story-aware resolution. lattice validate: 46/46 commands pass, verificationCoverage 12/12. scripts/verify-process-fact-contract.mjs exit 0. 10 cross-host review rounds (genuine codex host-B + 3 claude lanes) converged: R10 all 4 lanes PASS; quorum full-3x2 recorded; 15 findings resolved.",
+  "outcomeDiff": "No difference — every expected assertion is green in the recorded runs; the language-neutral flip, immutable manifests, doc exemptions, and experiments/ exclusion all behave exactly as the plan v4 specified.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Live orchestrator single-resolution at the runStoryTransition entry point and the repro-first ENFORCE flip are planned as program Workstream 3 per the recorded decision OQ-001: this story delivers the classification service, snapshot, and all three consumers on their existing evaluation paths, with ProofStory material triggers diagnosticOnly so enforce outcomes for existing stories stay byte-identical until W3 flips them. Semantic anchors stay TS/JS-only by design (no new language parsers). The process-fact verifier targets realistic regressions, not adversarial-sabotage-proof static analysis.",
+  "pitfalls": "10 review rounds; the recurring failure class was 'function correct, production wiring missing' — codex/claude lanes five separate times found a helper that no production path called (snapshot freshness, preflight, materialClassification population, wrapper-root translation at 2 of 3 consumers, story-review threading). Countermeasure that finally worked: smoke checks must drive the EXACT production call shapes, with revert-proofs demonstrating each check fails when the wiring is removed. Other traps: config fail-closed needed structured gate outcomes at consumer boundaries (uncaught MaterialCodePolicyError crashed DONE-readiness commands); wrapper-root path namespaces (git-relative vs project-relative) silently disable exclusions without explicit translation; a smoke revert-proof claim was itself inaccurate once (R7's safe default rescued the revert) — reviewers verify test claims, not just code. checklist_add in PLAN needs reason+files.create+verificationIntent in one JSON payload.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 754895
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 210680
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 59932591
+    },
+    "DEV": {
+      "count": 12,
+      "durationMs": 68535342
+    },
+    "REVIEW": {
+      "count": 12,
+      "durationMs": 18350014
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 271668293
+    }
+  },
+  "totalDurationMs": 419452897,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-20T15:10:51.337Z",
+  "updatedAt": "2026-07-23T19:13:26.010Z"
+}

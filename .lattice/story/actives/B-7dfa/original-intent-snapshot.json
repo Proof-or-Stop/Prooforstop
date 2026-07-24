@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7dfa",
+  "sourceText": "Repro-first-gate-enforce program plan (docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md), Workstream 2 mandate: the trusted RED evidence subsystem needs its own spec story first. Scope: policy-owned assertion envelope (bounded matchers, minimum specificity, expected exit class, target-exercised proof, GREEN = exit0 + !timeout + pattern-absent + target-exists); runner pre/post four-tuple invariance (head/material/index/status) in a disposable workspace; supersedes chain with closeout-grade integrity (monotonic seq + prior digest + fork rejection, unique chain head); idempotency key (recordId, materialHash, specDigest, policy/assertion digest, freshness-compatible head); quarantine/recover as owner-gated registered operations creating NEW record IDs linked by recoversRecordId; corrected retention claims. Deliverable: a decision spec authored THROUGH a story (PLAN-reviewed), then implementation stories.",
+  "normalizedOutcome": "A PLAN-reviewed, cross-host-audited decision spec exists at docs/requirements/decisions/red-evidence-subsystem-spec.md whose sections are citable acceptance contracts for the W2 implementation stories.",
+  "acceptanceClaim": "docs/requirements/decisions/red-evidence-subsystem-spec.md exists and covers the five program-plan areas (policy-owned assertion envelope with the exact GREEN predicate, runner four-tuple invariance in a disposable workspace, supersedes-chain integrity plus idempotency key, quarantine/recover owner-gated operations, and corrected retention claims) plus the gate-consumption query contract and the legacy-record posture, and passes cross-host audit.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:7ac2334d60af2fb1343c4ee7c42cee7c0a1048c45f5ebb44784ed99cb012512b",
+  "createdAt": "2026-07-23T19:41:27.591Z",
+  "updatedAt": "2026-07-23T19:41:27.591Z"
+}

@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Un-gameable RED: a RED record must prove a real failing run against the real target at a specific tree state, and GREEN must prove the same assertion now passes.",
+    "Spec-before-code: define contracts precisely enough (field schemas, digests, state transitions, gate-consumption rules) that implementation stories are mechanical, deferring all code.",
+    "Append-only auditable history: supersession is explicit and integrity-checked; nothing is silently replaced or deleted.",
+    "Owner-gated non-destructive corrections: quarantine and recover create NEW linked records and never mutate prior records.",
+    "Draw the W2/W3 boundary explicitly: the subsystem exposes a stable query that gates consume; enforcement wiring stays out of scope."
+  ],
+  "drivers": [
+    "The subsystem sits on gate-trust code where a silent design error becomes a forged-evidence hole.",
+    "The program plan sequences a PLAN-reviewed spec story before implementation; this story ships only the decision document.",
+    "In-flight stories already hold red-evidence.json records, so the design must not disrupt them mid-program."
+  ],
+  "options": [
+    {
+      "name": "spec-first decision document",
+      "pros": [
+        "Matches program sequencing (spec story, then implementation stories).",
+        "Cross-host PLAN review catches design holes before any gate-trust code is written.",
+        "Implementation stories cite sections as acceptance contracts, keeping them mechanical.",
+        "Zero runtime risk in this story."
+      ],
+      "cons": [
+        "Adds a story before working value ships.",
+        "Spec precision must be high or implementation stories re-open the design."
+      ]
+    },
+    {
+      "name": "implement-directly",
+      "pros": [
+        "Fewer stories.",
+        "Working code sooner."
+      ],
+      "cons": [
+        "Design errors in gate-trust code become forged-evidence holes with no PLAN review.",
+        "Violates the program sequencing that R2-R4 audits demanded.",
+        "No citable contract for later section-level verification."
+      ]
+    },
+    {
+      "name": "extend-existing-schema-ad-hoc",
+      "pros": [
+        "Smallest immediate diff.",
+        "Reuses the current red_evidence_create handler."
+      ],
+      "cons": [
+        "No coherent envelope/chain/idempotency design, so partial guarantees stay gameable.",
+        "The append-only store keeps its silent-replace hole.",
+        "Accumulates un-audited drift the program explicitly rejected across R2-R4."
+      ]
+    }
+  ],
+  "chosen": "spec-first decision document",
+  "rationale": "The program plan mandates a PLAN-reviewed spec before implementation precisely because this subsystem is gate-trust code; authoring the contracts as a reviewed, cross-host-audited document lets review find design holes before any forged-evidence risk is introduced, and gives the W2 implementation stories citable section-level acceptance contracts.",
+  "preMortem": [
+    {
+      "scenario": "Spec over-constrains the runner so it is unimplementable in the macOS sandbox.",
+      "trigger": "Four-tuple invariance is specified to require an isolation mechanism (container/overlay/root) unavailable to a sandboxed runner.",
+      "consequence": "W2 implementation stories cannot satisfy the spec and re-open the design, stalling the program.",
+      "mitigation": "Spec the disposable workspace as a plain filesystem-level temp copy/worktree with a portable pre/post snapshot, explicitly avoiding container/root requirements, and record macOS-sandbox compatibility as an acceptance constraint."
+    },
+    {
+      "scenario": "Envelope minimum-specificity rule is too strict and rejects every legitimate RED.",
+      "trigger": "The bounded-matcher threshold is set so aggressively that normal failing-assertion patterns fall below it.",
+      "consequence": "Real RED evidence is rejected, blocking honest stories and pressuring users to game the gate.",
+      "mitigation": "Define minimum-specificity as a policy-owned tunable lower bound with a worked accept/reject example set in the spec, using the vacuous zero-line pattern as the canonical reject rather than a hard-coded constant."
+    },
+    {
+      "scenario": "Supersedes-chain integrity check is too weak and a fork goes undetected.",
+      "trigger": "Chain validation checks seq monotonicity but not the prior-record digest link, so a parallel record can splice in.",
+      "consequence": "Two chain heads exist and a fabricated record masquerades as the latest RED, defeating the gate.",
+      "mitigation": "Spec requires ALL of monotonic seq + prior-record digest match + explicit fork rejection yielding a single unique chain head, with an adversarial fork example that MUST be rejected as an acceptance check."
+    },
+    {
+      "scenario": "Legacy posture invalidates the records of in-flight stories mid-program.",
+      "trigger": "The spec declares existing red-evidence.json records invalid on adoption with no migration or grandfather path.",
+      "consequence": "Stories mid-flight lose their RED evidence and are blocked at their next gate, causing a program-wide stall.",
+      "mitigation": "Spec must state an explicit legacy posture (grandfather or migrate) with a compatibility rule that keeps pre-subsystem records gate-satisfying until superseded, and forbids silent invalidation without a stated rule."
+    }
+  ],
+  "timestamp": "2026-07-23T19:40:47.928Z"
+}

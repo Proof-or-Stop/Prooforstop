@@ -1,0 +1,27 @@
+{
+  "findings": [
+    {
+      "id": "B-7dfa:F-001",
+      "desc": "docs/requirements/decisions/red-evidence-subsystem-spec.md:1323-1331 (§5.3 Shared classifier) asserts the material hash file set already derives from resolveMaterialCodePolicy (\"the material set is whatever that function (post-W1 snapshot policy) hashes\", then mandates isMaterialPath be implemented via resolveMaterialCodePolicy and be called by currentMaterialHash). This is false at current HEAD and unsupported by the W1 plan it cites: currentMaterialHash (packages/main/src/core/evidence-freshness.ts:489-508) filters via isMaterialExcludedPath (evidence-freshness.ts:163-165 = isStoryMetadataPath || isMaterialExcludedRuntimeArtifactPath); evidence-freshness.ts never imports resolveMaterialCodePolicy (packages/main/src/core/material-code-policy.ts), which is used only by review-assurance-floor.ts, scope-diff-pack.ts, validate-concept.ts and the language-neutral-gates smoke. The W1 execution plan itself (docs/requirements/decisions/language-neutral-gates-execution-plan.md Change A + §3 Verification: \"Three-consumer RED: py/rs/go story flips to required through floor + repro + ProofStory\") names exactly three resolveMaterialCodePolicy consumers, not evidence-freshness.ts/currentMaterialHash, so \"post-W1 snapshot policy\" is not a fact W1 establishes. This also self-contradicts this same spec doc at line 780 (§2.1.2): \"W2 does not redefine the material hash; it reuses this function verbatim.\" Making currentMaterialHash call the proposed isMaterialPath would change its filtering semantics for every existing caller across the codebase, not just red-evidence freshness -- an out-of-W2-scope global behavior change the spec does not flag. An implementer following §5.3 literally has no accurate premise to build isMaterialPath on, or would silently redefine a shared primitive beyond this spec's stated non-goals (§0.3).",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-23T21:30:48.854Z",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "reviewRunId": "B-7dfa:RR-004",
+      "_hash": "b94ceaeb7602f00723d0b359286f0979f1e3294067be0d3cf4abd4dd612ab4ff",
+      "files": [
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/material-code-policy.ts",
+        "docs/requirements/decisions/language-neutral-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-23T21:45:52.841Z",
+      "resolutionType": "fixed"
+    }
+  ]
+}

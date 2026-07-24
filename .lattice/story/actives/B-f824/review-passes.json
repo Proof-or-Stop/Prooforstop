@@ -1,0 +1,712 @@
+{
+  "passes": [
+    {
+      "id": "B-f824:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Symbols extracted (Step 1): deriveDonePreparePassConvergence, assertDonePreparePassConvergence, donePrepareJsonResult, DonePrepareJsonResult, renderPass (~5 changed export/const symbols in done-prepare.ts). Paragraphs compared (Step 2/3): 1 paragraph in docs/requirements/decisions/done-prepare-automation-execution-plan.md (lines 731-736) referencing these symbols/behavior; rg confirms no other doc under docs/, README.md, or CLAUDE.md mentions unchangedSuiteExecutions, reviewWindowSuiteExecutions, postTestReviewerReattestations, or the derive/assert function names. No blockers found: prose matches code exactly on the >= facts.testEntryAt boundary, per-group max(0, postTestExecuted.length-1), contradictory-reused-in-any-phase blocking, reviewWindowSuiteExecutions observable-only (never asserted), and render-line position after unchangedSuiteExecutions. Sibling docs workflow-convergence-failure-remediation-execution-plan.md and done-prepare-heartbeat-review-assurance-ux-execution-plan.md have zero diff and no now-contradicted suite-execution claims. npm run test:process-fact-contract passes; process-fact-registry.ts runtime:closeout_validation_terminal rationale remains accurate; tsc --noEmit clean.",
+      "createdAt": "2026-07-24T01:02:35.932Z",
+      "reviewRound": "2026-07-24T00:58:56.071Z",
+      "reviewRunId": "B-f824:RR-004",
+      "envelopeId": "31f9c34a540d7f7289a6dd95c9bb71ca465620bb4dfd5690a078744e18a9f02f",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f803778010e231b42de82b5c7e5685d5cf51934473ae97c5f527c37fed9916e7"
+    },
+    {
+      "id": "B-f824:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review PASS: all 15 must verificationIntent entries across CHK-001..CHK-004 have valid, honest verificationEvidence bound to current materialHash/storyFilesHash. Verified evidence claims against reality: flow-stability-smoke Cases A/B/C/D (lines 4835-4902) match evidence notes exactly (blocking vs observable counters, >= testEntryAt boundary, contradictory reused any-phase); ran test:flow-stability-smoke, test:process-fact-contract, test:done-prepare-merge-rerun-smoke, test:done-prepare-auto-closeout-smoke, test:done-prepare-closure-heartbeat-smoke, all green; ran the exact red_evidence_get failingCommand/expectedGreenCommand against compiled dist and confirmed it now prints GREEN with exit 0 (pre-fix it threw per RED record baselineHeadHash d32df3cb0). CHK-004 doc-diff confirmed: only done-prepare-automation-execution-plan.md changed, other two B-c163 docs untouched, single remaining decisions-dir match now carries the post-TEST qualification.",
+      "createdAt": "2026-07-24T01:09:50.994Z",
+      "reviewRound": "2026-07-24T00:58:56.071Z",
+      "reviewRunId": "B-f824:RR-003",
+      "envelopeId": "5f3fee37af0812a55920e1780b5a43bcbfbd1c96974fa57f05196255efde21d9",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "58fb91f628d18054644e26064a73d9d53da5f7419500f707b6f75915159fc8a0"
+    },
+    {
+      "id": "B-f824:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round (unchangedSuiteExecutions field name kept, semantics split not renamed; reviewWindowSuiteExecutions is a net-new observable field). Grepped unchangedSuiteExecutions/reviewWindowSuiteExecutions across entire repo (excl node_modules/dist/.git): only 5 consumers exist and all 5 are updated consistently with the phase-anchored split -- no stale regex/assertion still expects the old unconditional whole-window-blocking line shape. Verified assertDonePreparePassConvergence deliberately excludes reviewWindowSuiteExecutions from its throw condition. Verified >= facts.testEntryAt boundary matches the same convention already used by postTestReviewerIdentityIds. Checked all 3 CHK-004-named decisions docs: only done-prepare-automation-execution-plan.md was touched (correctly, doc-of-record); the other two have zero diff and never actually contained the old unqualified-blocking sentence verbatim on main, so no residual stale claim exists in them. process-fact-registry.ts runtime:closeout_validation_terminal description remains generic and does not assert now-false unconditional-blocking semantics. Ran npm run test:process-fact-contract -> PASS. No residue found; no findings registered.",
+      "createdAt": "2026-07-24T01:14:15.917Z",
+      "reviewRound": "2026-07-24T00:58:56.071Z",
+      "reviewRunId": "B-f824:RR-001",
+      "envelopeId": "2e84a5b100687ac299c427210a7d7773bae47cd5a47aed80b292fdeef641d548",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c7cd4c1a0b83b807f3dbce1e30a6da75763b8bce5390cc2b1789eea9026dce5e"
+    },
+    {
+      "id": "B-f824:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 incremental re-attestation. Since prior pass (RP-003, headHash 36be389), the only material change is commit 931085db (F-001): replaced 3 erase-to-Record<string, unknown> unsafe casts with typed optional-chain access on reviewWindowSuiteExecutions assertions in flow-stability-smoke.ts. Confirmed via review_incremental_context and git show that the diff is exactly these 3 lines, purely a type-safety tightening with no concept deletion/replacement. Verified reviewWindowSuiteExecutions is used consistently across done-prepare.ts, the three downstream smoke files, and the 3 decisions docs, with zero remaining unsafe erase-to-Record casts near it. No blocker.",
+      "createdAt": "2026-07-24T01:44:39.733Z",
+      "reviewRound": "2026-07-24T01:43:23.466Z",
+      "reviewRunId": "B-f824:RR-005",
+      "envelopeId": "39df32291bda666e9801f8a351dddc63cf197e2e969b149d4e43a384fd1d750a",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "904906bbccb15ffbdba6193ea7833d6dc96854bc91ba0e7d6b4fc84fd9669d9e"
+    },
+    {
+      "id": "B-f824:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 incremental re-attestation. Sole material change since RP-001 (commit 931085db) is a 3-line type-access style fix in packages/main/src/tasks/flow-stability-smoke.ts (3 assertion call sites: `((x ?? {}) as unknown as Record<string, unknown>).reviewWindowSuiteExecutions` -> `x?.reviewWindowSuiteExecutions`); no behavior change. Step 1 symbol extraction over git diff main...HEAD yielded 10 symbols (boundaryAtTestEntry, closeoutThrash, contradictoryReused, makeSplitTerminal, postTestExecuted, reviewWindowPoisoning, singlePostTestExecution, splitAnchorAt, splitFacts, splitTestEntryAt), all private local test-helper variables inside flow-stability-smoke.ts. Step 2 grep across README*.md/CLAUDE.md/docs/**/*.md found 0 hits for any -> Fallback 2 applies, no doc reference exists for any of them. Field-level doc coverage (reviewWindowSuiteExecutions/unchangedSuiteExecutions contract prose, done-prepare-automation-execution-plan.md:736) was verified in RP-001 and is unchanged in this round (0 doc files touched by 931085db). 0 paragraphs compared in Step 3 (no anchors, no drift). No doc-code drift, no undelivered doc promises. No blockers.",
+      "createdAt": "2026-07-24T01:45:36.877Z",
+      "reviewRound": "2026-07-24T01:43:23.466Z",
+      "reviewRunId": "B-f824:RR-007",
+      "envelopeId": "bec184bcd7e882cb40c7f46ab076944cd5ddc8a45b9f502daa5a468b5411cea0",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "063242fd1013f51990285a70c741ff6641af71b1930e20984af8390491af9e37"
+    },
+    {
+      "id": "B-f824:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 incremental re-review: sole code change since round 1 is commit 931085db fixing F-001 (removed 3 erase-to-Record casts in flow-stability-smoke.ts, replaced with plain typed optional-chain access on the now-typed reviewWindowSuiteExecutions field). Confirmed via git show, rg scan (zero remaining as-unknown-as-Record in file), done-prepare.ts:207 typed field declaration, clean tsc build, and passing test:flow-stability-smoke. Also reviewed full diffs of the other 5 changed files (done-prepare.ts logic split, 3 downstream smoke regex/type updates, decisions doc prose) for new quality issues: none found, no dead code, no unnecessary any/unknown casts, comments accurate.",
+      "createdAt": "2026-07-24T01:49:33.917Z",
+      "reviewRound": "2026-07-24T01:43:23.466Z",
+      "reviewRunId": "B-f824:RR-006",
+      "envelopeId": "6f7f88bae2451fa665ea6c8482c2032b3dfded1bd61f26c26e5127b876bfe6b0",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7f5b23c65b4a8ee63ea9f0fad95fe46294f268012f0038cdf681bb7b418cd5bd"
+    },
+    {
+      "id": "B-f824:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 incremental re-attestation (stale due to materialHash drift from RP-002). review_incremental_context confirmed the only material change since round-1 pass is commit 931085db, touching exactly packages/main/src/tasks/flow-stability-smoke.ts (impacts CHK-001/CHK-002 intent refs). git show 931085db confirms a pure typed optional-chain refactor of three assertion LHS expressions (reviewWindowSuiteExecutions access), asserted values (1, 1, 0) unchanged, no assertions added/removed. Re-ran npm --prefix packages/main run test:flow-stability-smoke: PASS. checklist_get confirms all 4 checklist items done with full must-intent coverage: CHK-001 4/4 passing, CHK-002 5/5 passing, CHK-003 3/3 passing, CHK-004 3/3 passing, 0 failing, 0 waivers. No coverage gap introduced. No blocker.",
+      "createdAt": "2026-07-24T01:53:13.268Z",
+      "reviewRound": "2026-07-24T01:43:23.466Z",
+      "reviewRunId": "B-f824:RR-008",
+      "envelopeId": "ced7c1c5ce01e0a27bfbfe2d7ce89dc427a793e9d943cf4b130e362867167064",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0cda95346b2179ddf6e789b33a7878685a40b4f393cdbcaa30a5b7201ff84853"
+    },
+    {
+      "id": "B-f824:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-attestation. review_incremental_context: isFirstPass=false, freshnessClassification=KNOWN_UNRELATED_MATERIAL_DRIFT; all 8 changed files since prior pass RP-006 (55c7202) are sibling-story B-cc54 material + lockfile/version bumps, none story-owned. git diff 55c7202..HEAD confirms all B-f824 story-owned files are byte-identical (0 diff lines) to content already reviewed and passed in round 2. No new quality issues; re-affirming round-2 verdict.",
+      "createdAt": "2026-07-24T02:57:52.793Z",
+      "reviewRound": "2026-07-24T02:56:15.005Z",
+      "reviewRunId": "B-f824:RR-009",
+      "envelopeId": "79454b83c0a72da95be2bf2f48d4f3b2a0750d06d500cc6dd6d068f043728953",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/checklist.json",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "61848cc37625882086e79b61373dae9c1c02e208923b334ca52cfa2121c9a0e7"
+    },
+    {
+      "id": "B-f824:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-attestation (post-main-merge). No concept deletion/replacement: reviewWindowSuiteExecutions is a pure new field alongside the retained unchangedSuiteExecutions (its computation is phase-anchored, not renamed); docs/smoke updates add prose/assertions, delete nothing en masse. Merge brought in unrelated B-cc54 convergence-breaker.ts additions (gate-repeat-block signal extraction) confirmed structurally isolated from deriveDonePreparePassConvergence/convergence line (zero grep hits either direction) plus a version bump and new gate-repeat-block-smoke.ts test file, none of which interact with this story concept surface. Concept residue check: clean, no blocker.",
+      "createdAt": "2026-07-24T02:58:08.759Z",
+      "reviewRound": "2026-07-24T02:56:15.005Z",
+      "reviewRunId": "B-f824:RR-010",
+      "envelopeId": "a435b69b7fa2fbbf4945f8e98daf5fae119b485c320d7ed0aeedfccca6632a79",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fcdfb14f534d0b022a8a20f9a6ebfb0caa791ba5f2ae458907de3f1394c44289"
+    },
+    {
+      "id": "B-f824:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round-3 re-attestation (post-main-merge, digests moved but no story-owned file changed). 8 changed files since round-2 pass (RP-005/RR-007) all trace to sibling B-cc54 merge + lifecycle metadata, zero overlap with B-f824 scope. done-prepare-automation-execution-plan.md has zero commits since priorHeadHash (byte-identical to round-2 state). rg for unchangedSuiteExecutions|reviewWindowSuiteExecutions across docs/ still returns exactly one hit in that same file, still describing the phase-anchored two-counter split matching CHK-002/CHK-004. Diffed merged convergence-breaker.ts change (B-cc54 gateFailureDigest/extractGateBlockSignals) and confirmed unrelated to done_prepare convergence counters -- no new or contradicting doc claim. No drift found; no finding registered.",
+      "createdAt": "2026-07-24T02:58:11.900Z",
+      "reviewRound": "2026-07-24T02:56:15.005Z",
+      "reviewRunId": "B-f824:RR-011",
+      "envelopeId": "e5f63a7ca26b176d28cbfce62208144064be43de0b5ce85b1fcc3faf57c0aa53",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "05d115362ae3cc4060652883ce1a387f52b339e75169c8b622bca4b172d3d2f4"
+    },
+    {
+      "id": "B-f824:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 re-attestation after merge from B-cc54 (adds convergence-breaker.ts + gate-repeat-block-smoke.ts + package/lattice.config version bump to 0.3.231). review_incremental_context classified drift KNOWN_UNRELATED_MATERIAL_DRIFT; confirmed git diff RP-007 priorHeadHash 68271a7a..HEAD for packages/main/src/tasks/flow-stability-smoke.ts is EMPTY (byte-identical to the state RP-007 already verified). None of the 8 changed files are inside B-f824 scope.allowedModify. Re-verified on merged tree: npm --prefix packages/main run build clean; npm run test:flow-stability-smoke PASS (Cases A-D for the B-956f pre-TEST/post-TEST convergence boundary still hold post-merge); npm run test:process-fact-contract PASS. checklist_get reconfirms all 4 items done with 15/15 must verificationIntent entries carrying concrete, non-generic passing verificationEvidence (logic_test/manual_transcript/docs_check), 0 failing, 0 waivers. No coverage gap. No blocker.",
+      "createdAt": "2026-07-24T02:59:03.185Z",
+      "reviewRound": "2026-07-24T02:56:15.005Z",
+      "reviewRunId": "B-f824:RR-012",
+      "envelopeId": "e8e2485c02a5a722c9ae484f569962f101ebe06c2392c6a5e847c7329e77365f",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "99fa5468b8bfa5a17c37cb0e0962d85f4fa44ccd550396eebbbdfca276ddd65a"
+    },
+    {
+      "id": "B-f824:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation round 4 (rebind to fresh review basis). Zero material changes since RP-008; only story metadata drifted.",
+      "createdAt": "2026-07-24T03:11:23.278Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-014",
+      "envelopeId": "2ff413fca240bd28617c8da5d8f9fbeab0f5c279a791b15b1a628867ce721fef",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-f824/index.json",
+          ".lattice/story/actives/B-f824/process-events.jsonl",
+          ".lattice/story/actives/B-f824/process-metrics.json",
+          ".lattice/story/actives/B-f824/prompt-envelopes.json",
+          ".lattice/story/actives/B-f824/review-passes.json",
+          ".lattice/story/actives/B-f824/review-runs.json",
+          ".lattice/story/actives/B-f824/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eff88fc84c4cae1787eb6ceb66567fa3ac06c4b9dd4c43fb64811640bfcfc679"
+    },
+    {
+      "id": "B-f824:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 re-attestation for review-assurance floor rebinding. review_incremental_context confirmed isFirstPass=false, scopeChanged=false, freshnessClassification=CURRENT_MATERIAL, changedFiles=(none), impactedFiles=(none) since prior pass RP-010 (priorHeadHash 56d3478d). Independently verified git diff 56d3478d..HEAD --stat: only .lattice/story/actives/B-f824/* metadata files changed (index.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json, test-evidence.json, closeout-write-receipts.jsonl); zero diff confirmed on the two fully-read RP-010 files (done-prepare-automation-execution-plan.md, convergence-breaker.ts). Doc-code consistency verdict from RP-010 remains valid; no new symbols or doc paragraphs to compare; no finding registered.",
+      "createdAt": "2026-07-24T03:11:41.376Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-016",
+      "envelopeId": "67c7e41932f73240790bd4e16aefe3880045b8f5a92dd45ee0b903a4c68271b9",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6fbb0fc5f614f3422c5a88795af229dd0a49e57d6ab4f3304913440f116862e5"
+    },
+    {
+      "id": "B-f824:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 re-attestation for review-assurance floor rebinding. review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=(none), freshnessClassification=CURRENT_MATERIAL, reasonCodes=ELIGIBLE_NO_MATERIAL_CHANGE+ELIGIBLE_TRUSTED_PRIOR_BINDINGS relative to prior PASS B-f824:RP-009 (head 56d3478d). git log 56d3478d..HEAD shows only lattice story-metadata commits (review_pass_set/quorum/validate/test-transition/REVIEW records), no source diff change. Prior concept-residue verdict (no concept deletion/replacement in scope; clean, no residue) still holds; re-attesting PASS bound to fresh review run/basis without re-scanning unchanged source.",
+      "createdAt": "2026-07-24T03:11:58.511Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-013",
+      "envelopeId": "f58b459cfffdb482d67ca63481b779c9e798c76e53af05dc5c5c4eb9c7f9aff8",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/review-runs.json",
+          ".lattice/story/actives/B-f824/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "142b493c20b076b9017283a6964fe50e3e5339218addce3ee26f3a8ae562266f"
+    },
+    {
+      "id": "B-f824:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 re-attestation for review-assurance floor rebinding. No material change since RP-011 (round 3 full re-verification): review_incremental_context confirms freshnessClassification=CURRENT_MATERIAL, scopeChanged=false, changedFiles=none. Re-verified checklist_get: 4/4 items done, verificationIntent/Evidence coverage unchanged (0 failing, 0 waivers across all items). Re-ran test:flow-stability-smoke as sanity check: passed unchanged. No blocker.",
+      "createdAt": "2026-07-24T03:11:59.623Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-015",
+      "envelopeId": "a2e4170b54f2750dd12aa1e2b7583ee382d5eb1aad36e8527fce049b71116f80",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f647cde036e6dbb483bc8d0a6794cb6d8de11ee5b20baedcee5cdb28f7e02f40"
+    },
+    {
+      "id": "B-f824:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 re-attestation. main...HEAD diff content-identical to what passed round 4 (RP-012): review_incremental_context confirms zero material changes to any B-f824-owned file since RP-012 bound head. Post-RP-012 diff is only an auto-merge of sibling story B-5e4a (lifecycle-registry.ts, lattice-brand.ts one-liner, lockfiles, config, version bump) plus B-f824 lifecycle metadata. git diff <priorHead> HEAD for done-prepare.ts and flow-stability-smoke.ts is empty. No dead code / type-safety / I/O-isolation / proof-metadata-dual-surface concerns re-surface. No blocking quality issues.",
+      "createdAt": "2026-07-24T03:40:06.793Z",
+      "reviewRound": "2026-07-24T03:38:21.644Z",
+      "reviewRunId": "B-f824:RR-020",
+      "envelopeId": "24dd68b0ca9b1f40c2b9c3dde88e8fa3ef2d4fb99c4d540b860b75017150f7a8",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1fa1454ff5e7b3f46b18b4495b068b0c815f234d262629d157a3fc4f8c24f785"
+    },
+    {
+      "id": "B-f824:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 re-attestation. Diff unchanged from round-4 pass (RP-014): additive-only reviewWindowSuiteExecutions field in deriveDonePreparePassConvergence/donePrepareJsonResult/renderPass, matching regex/fixture updates in the three downstream smoke files plus flow-stability-smoke.ts, and additive doc prose. No concept deleted/renamed, so no residue grep applicable. Confirmed via review_incremental_context the only files changed since RR-013/RP-014 are the B-5e4a merge (lattice-brand.ts, lifecycle-registry.ts, lifecycle-registry-contract.ts, verify-process-fact-contract.mjs, package.json/lock, lifecycle-artifact-scope.md) plus B-f824 lifecycle metadata; storyFilesHash unchanged. rg across merge-touched files for convergence/unchangedSuiteExecutions/reviewWindowSuiteExecutions found only unrelated matches (separate convergence_check concept for build symlinks; name-only registry-entry-exists assertion for runtime:closeout_validation_terminal). Zero interaction. No blocker.",
+      "createdAt": "2026-07-24T03:40:35.849Z",
+      "reviewRound": "2026-07-24T03:38:21.644Z",
+      "reviewRunId": "B-f824:RR-017",
+      "envelopeId": "db1612061a3a652ddb9fad6dbee74d58d5dcbf40f1b29bad51aa2112bec0f241",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c6691144c831cf3cc2c1f732feaa5696e0189ff77fad41cabc860c2cfb0335f8"
+    },
+    {
+      "id": "B-f824:RP-018",
+      "agent": "lattice-review-docs",
+      "note": "Round 5 re-attestation. review_incremental_context: isFirstPass=false, priorPassRef=RP-013, freshnessClassification=KNOWN_UNRELATED_MATERIAL_DRIFT. Verified git diff main...HEAD unchanged since RP-013 on the doc-of-record and all owned code files. The 12 flagged files are unrelated whole-tree drift from sibling B-5e4a merged into main (identical between main and HEAD). Re-verified doc-of-record prose still matches deriveDonePreparePassConvergence/assertDonePreparePassConvergence/renderPass, and the other two B-c163 docs remain untouched. No doc-code drift, no undelivered promises. 0 findings.",
+      "createdAt": "2026-07-24T03:41:09.399Z",
+      "reviewRound": "2026-07-24T03:38:21.644Z",
+      "reviewRunId": "B-f824:RR-019",
+      "envelopeId": "9bd49e81240d6fd2ad5074fb42015d7205b05fee1e3b3b75c5f2639f02196abb",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "91f22d85276efdb776062e05814f29d55ec4abe5ba57d8ea0d7a97ade69895d9"
+    },
+    {
+      "id": "B-f824:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 re-attestation. review_incremental_context confirms freshnessClassification=KNOWN_UNRELATED_MATERIAL_DRIFT: storyFilesHash unchanged from prior pass RP-015 (a79a946f7e1f049bd1705cf4e63d2389f934b8b7433671bfb9fe82961428df60 both rounds); only materialHash moved due to auto-merge of main (e4fc4c4852, sibling B-5e4a). Diffed the one changed file that overlaps this story's declared scope, scripts/verify-process-fact-contract.mjs (allowedTest): the added delta is solely assertAcceptanceTopologyLifecycleFilenameContract (B-5e4a acceptance-topology filename registration), unrelated to this story's unchangedSuiteExecutions/reviewWindowSuiteExecutions convergence split; CHK-003 target file process-fact-registry.ts is untouched by the merge. All 15 must verificationIntent entries across CHK-001..CHK-004 retain the same valid verificationEvidence verified in RP-015 (no evidence file in this story's scope changed). Re-ran packages/main test:flow-stability-smoke (PASS, includes Cases A-D convergence assertions) and npm run test:process-fact-contract (PASS) on the merged tree as fresh confirmation. No blocker.",
+      "createdAt": "2026-07-24T03:41:30.942Z",
+      "reviewRound": "2026-07-24T03:38:21.644Z",
+      "reviewRunId": "B-f824:RR-018",
+      "envelopeId": "8b20000edb488ab4d582d70220746f71fabd85d1b049c4d2255faca49b1ce7e8",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "06a5ee03c4269714fed5ed77ed6d17b4810ca72885d0b4b0daa34b8f7aec3b40"
+    },
+    {
+      "id": "B-f824:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 incremental review of commit 638ce1ee40 (only story-owned change since RP-017): rewrites runtime:closeout_validation_terminal registry rationale in process-fact-registry.ts and adds AST-scoped mechanical assertions in verify-process-fact-contract.mjs binding it to done-prepare.ts. No concept deletion/replacement occurred. Verified derive/registry/contract all agree on grouping, TEST-entry boundary, reused-terminal clause, and never-blocking telemetry framing; AST-scoped negative check correctly excludes comment-only mentions. grep confirms zero stale references to old single-counter shape. No blocker.",
+      "createdAt": "2026-07-24T03:58:41.909Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-024",
+      "envelopeId": "ece7eb3d96993774be06919f21ac2dbc6a10c0a0ba8427023063fa502171f678",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "91a270636a464b96d457f1a34f70199a1eb408d2b292eb047df49f63438cb061"
+    },
+    {
+      "id": "B-f824:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 incremental (isFirstPass=false, scopeChanged=true, changedFiles=[packages/main/src/core/process-fact-registry.ts, scripts/verify-process-fact-contract.mjs], no docs/ files changed since RP-018). Diff-symbol extraction on the two changed files yields only script-local identifiers with 0 README/CLAUDE.md/docs hits (expected: internal verify-script vars, not documented API). Directly diffed 3 surfaces per dispatch: registry rationale (process-fact-registry.ts:1399), doc-of-record (done-prepare-automation-execution-plan.md:736, unchanged this round), and implementation (done-prepare.ts deriveDonePreparePassConvergence/assertDonePreparePassConvergence/renderPass). All agree on TEST-entry boundary (>= facts.testEntryAt), contradictory-reused-any-phase blocking, reviewWindowSuiteExecutions framed identically as observable/never-blocking telemetry, and render position (reviewWindowSuiteExecutions renders immediately after unchangedSuiteExecutions). npm run test:process-fact-contract run live: PASS. No doc-code-drift, no doc-promise-undelivered. No blocker.",
+      "createdAt": "2026-07-24T03:59:10.942Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-023",
+      "envelopeId": "dcf56aee3e0e28a425b534b0261b4b1156a63bcd31bcea924970f54d3431a567",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f5173ad48749792471db7b2d8be4acb5e5fc463afb0ce8b873e930d1d0b7e7c"
+    },
+    {
+      "id": "B-f824:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 6 incremental: verified the two new AST-scoped negative assertions in scripts/verify-process-fact-contract.mjs (commit 638ce1ee40) are non-vacuous against synthetic violation/comment-decoy sources, confirmed event.timestamp >= facts.testEntryAt is a real functional predicate in done-prepare.ts (not just prose), confirmed assertDonePreparePassConvergence body references unchangedSuiteExecutions but not reviewWindowSuiteExecutions matching the negative check, ran npm run test:process-fact-contract and packages/main test:flow-stability-smoke both green, and confirmed CHK-003 verificationIntent/Evidence still all-pass. No blocker.",
+      "createdAt": "2026-07-24T04:00:52.125Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-022",
+      "envelopeId": "0d2d3df8c44f66d43b23d745c1004fd66ada4228c65ece134ad2f5bf7fc9afc8",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8b6d4266b486b40a698147502c5f0a57773360e9e3d32bdcd85fe7801870cd50"
+    },
+    {
+      "id": "B-f824:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Round 7 (final, lane force-mounted, fast). Only story-owned change since RP-021 is scripts/verify-process-fact-contract.mjs guard hardening (F-002/F-003, resolved) - zero touches to docs/**/*.md or done-prepare.ts. Full diff main...HEAD extracted 18 symbols; the 3 new-since-RP-021 (hasTestEntryAnchoredComparison, subtreeThrows, hasPropertyGuardedThrowingBranch) are local script helpers with 0 README/CLAUDE.md/docs hits and no scripts/README.md exists (Fallback 2, no finding required). 1 doc paragraph re-checked: done-prepare-automation-execution-plan.md:736 still accurately states the phase-anchored unchangedSuiteExecutions/reviewWindowSuiteExecutions split, unchanged since RP-021 pass. No doc-code drift, no undelivered promises. No blocker.",
+      "createdAt": "2026-07-24T04:07:36.502Z",
+      "reviewRound": "2026-07-24T04:05:51.059Z",
+      "reviewRunId": "B-f824:RR-028",
+      "envelopeId": "644a11937f15b70b11f8b519bba7744127a9f7c2e7a62a79a1e58cf065857b76",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cfea84b7c8ff53aa65372c886cd3ac5dabfae306a30502b2af0c0b5f5c01198c"
+    },
+    {
+      "id": "B-f824:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 (final). Incremental context confirms the only story-owned change since RP-020 is scripts/verify-process-fact-contract.mjs (592304c309), fixing F-002/F-003. Verified via git show: no concept was deleted or replaced (existing checks were tightened to AST-scoped equivalents, old naive .includes check fully removed not left dead), so no residue scan applies. Cross-checked the two new helpers against their implementation targets in done-prepare.ts: hasTestEntryAnchoredComparison matches the real BinaryExpression event.timestamp >= facts.testEntryAt inside deriveDonePreparePassConvergence; hasPropertyGuardedThrowingBranch matches the IfStatement in assertDonePreparePassConvergence whose condition references unchangedSuiteExecutions and whose then-branch throws. Both helpers defined once, used exactly once at intended call sites. npm run test:process-fact-contract passes. finding_list shows F-001/F-002/F-003 all resolved, zero open blockers. No blocker.",
+      "createdAt": "2026-07-24T04:07:51.769Z",
+      "reviewRound": "2026-07-24T04:05:51.059Z",
+      "reviewRunId": "B-f824:RR-026",
+      "envelopeId": "6dee09f93251af266639745965b98b25c5b8212c89776e0621d4ea7f62bcc43a",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "41938feb3b285ed5904eb14f1b3bb9e456cd9a895a33c120608270a3ebb5e95e"
+    },
+    {
+      "id": "B-f824:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 7, final): incremental scope since RP-022 is exactly one file, scripts/verify-process-fact-contract.mjs, hardening the F-002/F-003 guard checks to AST-scoped hasTestEntryAnchoredComparison + hasPropertyGuardedThrowingBranch. Maps to CHK-003 must-intents only, all cli-type, re-verified fresh: npm run test:process-fact-contract and flow-stability-smoke both pass. All 4 checklist items (15/15 must intents) have concrete non-generic verificationEvidence, 0 failing, 0 gaps. No test-coverage gap found.",
+      "createdAt": "2026-07-24T04:08:16.909Z",
+      "reviewRound": "2026-07-24T04:05:51.059Z",
+      "reviewRunId": "B-f824:RR-027",
+      "envelopeId": "f136b8f5e7dcb3298c22520698353fb764f604e7cde06b0cd273fea684c5bdeb",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37a8cb0af28c686975237dfb552204a9e033e39f75209665d1996445c7ceca3f"
+    },
+    {
+      "id": "B-f824:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 re-verification of F-002/F-003 fix (commit 592304c309): both new AST checks confirmed sound against fresh defeat constructions, isolated and end-to-end; npm run test:process-fact-contract green on real code.",
+      "createdAt": "2026-07-24T04:08:35.199Z",
+      "reviewRound": "2026-07-24T04:05:51.059Z",
+      "reviewRunId": "B-f824:RR-025",
+      "envelopeId": "bdb606b6b6aa8a3eb9c3e11ba63e13192c4ca14da3e26f3e48f2734997ea0e2d",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f276f2c00667281f6e0b60caf8ece7a79888a72fd5c2bc8fbd612a819b18304e"
+    }
+  ]
+}

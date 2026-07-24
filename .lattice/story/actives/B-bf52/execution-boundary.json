@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bf52",
+  "allowedCommands": [
+    "node bin/lattice.js <lifecycle commands>",
+    "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+    "node tmp/s3-red/red-s3-digest-collapse.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "agy-cli",
+    "codex-cli",
+    "lattice-implementer",
+    "lattice-review-behavior",
+    "lattice-review-concept",
+    "lattice-review-docs",
+    "lattice-review-quality",
+    "lattice-review-test-coverage"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-bf52/",
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts"
+  ],
+  "excludedCommands": [
+    "any command that mutates another story worktree",
+    "git push",
+    "git reset"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "lattice.config.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/proofstory.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "convergence-breaker-smoke is already wired into the root full test suite as the npm script test:convergence-breaker (package.json:116, last entry of the npm test chain at package.json:15), which is a doneRequiredCommand in lattice.config.json. No lattice.config.json edit is therefore needed and that file stays blocked. The RED harness under tmp/ is gitignored and is used only to record red evidence.",
+  "createdAt": "2026-07-23T22:37:17.074Z",
+  "updatedAt": "2026-07-23T22:37:17.074Z",
+  "_hash": "6feb62a60de8e318ae9cbb3df6e47f5194bd19f899759783d38e6f272891fa02"
+}

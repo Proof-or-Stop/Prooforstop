@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-cc54",
+  "records": [
+    {
+      "id": "RED-20260723234230",
+      "trigger": "Unattended orchestration retries a remedy that cannot clear the gate that blocked it, looping until killed (B-4043: 61 identical refusals vs 54 re-review rounds over 3.4 days).",
+      "acceptanceTargetRef": "sha256:5418bbeaf04fcd5f3e11c90f9823f903402dbf3ad35760dba177a1e9a929056e",
+      "baselineHeadHash": "00bba7d1b381d60f26f2ca453f7ab6c77b80c8ae",
+      "baselineMaterialHash": "db0f91a524f524748160d541c157d897639ba79f8ed767b1e51d2353bc8c750c",
+      "observedFailure": "evaluateScopeAntiExpansionGate refuses the same story 3 consecutive times with a byte-identical reason ('Cannot enter INIT_CHECK: scope-boundary.json is missing or invalid ... [missing_scope_boundary]'). No refusal ever carries a repeat-block marker, so nothing bounds the retry loop. gate-repeat-block-smoke exits 1 with AssertionError: 'after 3 identical refusals the breaker must trip and name the unmet precondition'.",
+      "failingCommand": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:5418bbeaf04fcd5f3e11c90f9823f903402dbf3ad35760dba177a1e9a929056e",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js"
+      },
+      "note": "Baseline is commit 00bba7d1b3, which contains the RED smoke only; no breaker implementation exists yet.",
+      "createdAt": "2026-07-23T23:42:30.800Z"
+    },
+    {
+      "id": "RED-20260724003921",
+      "trigger": "F-004: the on-file red-evidence record described an abandoned first-draft fixture (evaluateScopeAntiExpansionGate / TRIP_CODE marker), not the digest-collision bug this story actually fixes. This record binds the RED that is reproducible today.",
+      "acceptanceTargetRef": "sha256:5418bbeaf04fcd5f3e11c90f9823f903402dbf3ad35760dba177a1e9a929056e",
+      "baselineHeadHash": "8cbb9280c87c7fb0b09126c3437be7ec86b45071",
+      "baselineMaterialHash": "96153a9605553769d98089081909040478f2977e810e0ec99b5a1e6914f50fc6",
+      "observedFailure": "Revert ONLY the digest basis hunk in packages/main/src/core/convergence-breaker.ts (basis = normalized.slice(0,200), no signal extraction), rebuild, and run the current 37-intent smoke: clean build, exit 1, ZERO 'ok CHK' lines, failing at the first assertion 'AssertionError [ERR_ASSERTION]: CHK-001:happy:0 distinct blockers must not share a key'. Independently reproduced by lattice-review-test-coverage in review round RR-004, word for word. A second, narrower RED also holds: reverting only the bracket pattern to the F-002-vulnerable form fails 'F-002: ordinary bracketed words must not widen the key' at exit 1.",
+      "failingCommand": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:5418bbeaf04fcd5f3e11c90f9823f903402dbf3ad35760dba177a1e9a929056e",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js"
+      },
+      "note": "Supersedes RED-20260723234230, which bound the abandoned evaluateScopeAntiExpansionGate/TRIP_CODE fixture. After each revert-and-restore cycle git diff on convergence-breaker.ts is empty, so the RED tree differed from the committed GREEN tree only by the reverted hunk. Behavioural failure, not a missing-symbol compile error: the smoke imports only pre-existing exports.",
+      "createdAt": "2026-07-24T00:39:21.131Z"
+    }
+  ],
+  "createdAt": "2026-07-23T23:42:30.800Z",
+  "updatedAt": "2026-07-24T00:39:21.131Z"
+}

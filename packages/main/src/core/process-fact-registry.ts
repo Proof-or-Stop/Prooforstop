@@ -1421,7 +1421,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     level: 'L4',
     producer: 'handlers/verifier',
     consumerGate: 'done_prepare convergence acceptance',
-    rationale: 'Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash for duplicate-suite accounting.',
+    rationale: 'Routine validation terminals bind attempt, command-set identity, disposition, commandExecutions, materialHash, and storyFilesHash, grouped per commandSetHash, materialHash, and storyFilesHash for duplicate-suite accounting. Blocking unchangedSuiteExecutions counts only per-group duplicate executed terminals at or after TEST entry (facts.testEntryAt, B-f824) plus reused terminals with commandExecutions > 0 in any phase; reviewWindowSuiteExecutions records whole-window per-group duplicates as observable, never-blocking telemetry.',
   },
 ] as const satisfies readonly ProcessFactRegistryEntry[];
 

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f824",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "node *",
+    "node bin/lattice.js *",
+    "node bin/lattice.js validate*",
+    "npm --prefix packages/main run build",
+    "npm run test:process-fact-contract",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-f824",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/handlers/verifier.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "createdAt": "2026-07-24T00:00:29.967Z",
+  "updatedAt": "2026-07-24T00:00:29.967Z",
+  "_hash": "24ce18b2d48ef455960f359b26b18b5e00574f61fa81270044998a8f07e08c3d"
+}

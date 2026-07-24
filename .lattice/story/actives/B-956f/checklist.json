@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Config-resolved material-code policy service threaded via a hash-bound snapshot",
       "context": "Add resolveMaterialCodePolicy(projectRoot) and a HEAD+materialHash-bound classification snapshot passed into all three consumers: review-assurance floor, repro classification (collectMaterialCodeFiles gains the snapshot; fixes the dropped-projectRoot call), and the ProofStory diagnostic input. Pure evaluators stay pure.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-07-19T15:46:51.803Z",
+      "endTime": "2026-07-19T16:14:22.990Z",
       "userSees": "An identical bug story flips required=true across floor + repro + ProofStory triggers, all driven by one classification snapshot; project materialCode config reaches all three consumers.",
       "files": {
         "modify": [
@@ -20,7 +20,65 @@
         "test": [
           "packages/main/src/tasks/language-neutral-gates-smoke.ts"
         ]
-      }
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A type=bug story whose only changed file is src/core/auth.py flips repro-first required=true identically to the same story with auth.ts: rebuild dist and run `node tmp/w1-red/red-language-degradation.cjs` from the repo root — all 11 assertions pass (exit 0), including .py/.rs/.go/.java/.cpp sources classified material.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All three consumers (review-assurance floor, collectMaterialCodeFiles repro classification, ProofStoryDiagnosticInput.materialClassification) receive the SAME HEAD+materialHash-bound snapshot object within one evaluation; a snapshot whose embedded HEAD or materialHash differs from the live tree at decision time is re-resolved, never silently consumed stale.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The repro classification path cannot regress to the config-blind call (repro-evidence-binding-gate.ts:83): invoking collectMaterialCodeFiles without the classification snapshot fails closed (compile-time signature or explicit error), and no consumer re-derives its own classification from raw paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node tmp/w1-red/red-language-degradation.cjs",
+          "result": "pass",
+          "note": "RED harness 9/11 fail on baseline -> 11/11 pass (exit 0) against the fixed worktree dist: .py/.rs/.go/.java/.cpp sources AND go.mod/Cargo.toml/pyproject.toml/pom.xml all classify material; doc exemptions still hold.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "language-neutral-gates-smoke check 2: floor, repro classification, and ProofStory trigger input consume the SAME HEAD+materialHash-bound snapshot object in one evaluation; a stale-hash snapshot is re-resolved, not consumed.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 3: collectMaterialCodeFiles REQUIRES the snapshot (config-blind signature removed at compile level); no consumer re-derives classification from raw paths.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -40,9 +98,67 @@
           "packages/main/src/tasks/language-neutral-gates-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-19T16:14:23.866Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "go.mod at repo root classifies material with no path-prefix match and no code extension; same for Cargo.toml, pyproject.toml, pom.xml (level-1 immutable cross-ecosystem manifest set, first hit wins).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Precedence pairs hold: src/design.pptx stays non-material (docs step beats path prefix); README under scripts/ stays non-material while an extensionless shebang script under bin/ is material; src-old/x.py does NOT match a `src/` path entry (segment-aware matching); a story-metadata file under the resolved storyDir is excluded without hardcoding .lattice.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A config excludePaths entry naming go.mod — or a directory entry like backend/ that covers a real backend/go.mod in the actual tree — is rejected (config-resolve rejection plus filesystem-aware transition preflight); a malformed materialCode block (bad extension entry, non-string path) fails CLOSED with a diagnostic naming the offending key instead of silently degrading to the TS-only whitelist.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 4: go.mod/Cargo.toml/pyproject.toml/pom.xml at repo root classify material with no prefix/extension help (level-1 immutable manifest set, first hit wins).",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 5: precedence pairs hold — src/design.pptx non-material (docs beats prefix); README under scripts/ non-material while extensionless shebang script under bin/ material; src-old/x.py does not match src/ (segment-aware); storyDir metadata excluded without hardcoding .lattice.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 6: excludePaths naming go.mod or a backend/ entry covering a real backend/go.mod is rejected at BOTH layers (config-resolve + filesystem preflight); malformed materialCode fails CLOSED with the offending key named.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -62,9 +178,159 @@
           "packages/main/src/tasks/language-neutral-gates-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-19T16:14:24.616Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A no-scope-contract story with exactly one material .go file surfaces exactly one deduped semantic_analysis_unavailable process event during validate (the no-contract early-return path scope-contract.ts:459-466 no longer bypasses diagnostics).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildScopeDiffPack produces normalized `semantic_analysis_unavailable: <ext>` entries: multiple non-TS files of the same extension dedupe to one entry per extension; TS/JS files produce none (semantic anchors stay TS/JS-only, no new parsers).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diagnostic production and event emission stay separated: buildScopeDiffPack (pure) only returns diagnostics and a read-only gate check emits no process event — only the mutating validation caller writes the deduped union-typed event, so repeated read-only checks cannot spam or suppress degradation events.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 7: a no-scope-contract story with exactly one material .go file yields exactly one deduped semantic_analysis_unavailable process event during the mutating validation path.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 8: buildScopeDiffPack normalizes semantic_analysis_unavailable per extension (same-ext dedupe to one entry); TS/JS files produce none.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 9: pure builder returns diagnostics only; read-only gate checks emit NO process event; only the mutating caller writes the deduped union-typed event (no spam, no suppression).",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "validate-concept skip diagnostic for non-TS/py files stays distinct and language-neutral",
+      "context": "Spec Change D: concept-analysis (validate-concept.ts:383) emits its OWN separate diagnostic for skipped files, distinct from buildScopeDiffPack semantic_analysis_unavailable; keep it correct and non-conflicting for non-TS/py files.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-956f/background.md"
+      ],
+      "userSees": "lattice validate on a story touching only non-TS/py code files reports the concept-analysis skip diagnostic naming those files, alongside (not conflated with) the scope-diff semantic_analysis_unavailable events.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A story whose diff is only .go/.rs files: validate concept-analysis emits its own skip diagnostic naming those files (not silently absent).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mixed diff (.ts + .go): TS files get real concept analysis, non-TS files appear only in the skip diagnostic; neither list leaks into the other.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The skip diagnostic and buildScopeDiffPack semantic_analysis_unavailable events remain DISTINCT channels: suppressing one does not suppress the other, and neither double-reports the same file as both analyzed and skipped.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-19T16:14:25.413Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 10: a .go/.rs-only story emits the validate-concept skip diagnostic naming those files (not silently absent).",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 11: mixed .ts+.go diff — TS files get real concept analysis, non-TS appear only in the skip diagnostic; no leakage either way.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "result": "pass",
+          "note": "smoke check 12: the concept skip diagnostic and the scope-diff semantic_analysis_unavailable events are DISTINCT channels — suppressing one does not suppress the other; no file double-reports as analyzed and skipped.",
+          "headHash": "040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc",
+          "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+          "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+          "timestamp": "2026-07-23T18:13:31.752Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-19T15:34:27.666Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope review gap: spec Change D names the validate-concept skip diagnostic as a second, distinct degradation mechanism not covered by any CHK title; adding explicit coverage instead of amending the frozen CHK-003 title.",
+      "addedTitle": "validate-concept skip diagnostic for non-TS/py files stays distinct and language-neutral",
+      "addedContext": "Spec Change D: concept-analysis (validate-concept.ts:383) emits its OWN separate diagnostic for skipped files, distinct from buildScopeDiffPack semantic_analysis_unavailable; keep it correct and non-conflicting for non-TS/py files."
     }
   ]
 }

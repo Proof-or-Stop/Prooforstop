@@ -1,0 +1,66 @@
+{
+  "storyId": "B-5e4a",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/lifecycle-registry-contract.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/src/validate.ts",
+    "packages/main/package.json",
+    "package.json",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "tmp/b5e4a-red"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lifecycle-registry-contract.ts",
+    "tmp/b5e4a-red"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts"
+  ],
+  "scopeChangeReason": "DEV discovery: lattice validate is wired via lattice.config.json validate.commands (sibling contract smokes are node dist/tasks/<name>.js entries there), not via package.json scripts. CHK-002 userSees requires the new invariant to run inside lattice validate, so lattice.config.json joins allowedModify for that one wiring line. Everything else unchanged.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Framework-generated PLAN metadata written by acceptance_basis_generate; it classifies out_of_scope only because acceptance-basis.json is missing from LATTICE_LIFECYCLE_ARTIFACT_FILENAMES — the exact defect this story fixes. This acknowledgement is the live reproduction of the bug recorded as red evidence.",
+      "timestamp": "2026-07-24T00:25:13.110Z",
+      "paths": [
+        ".lattice/story/actives/B-5e4a/acceptance-basis.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-5e4a/acceptance-basis.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d8db64c9e4a8728d57218e18f0cd5a13c1ac7d33",
+      "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8"
+    }
+  ],
+  "createdAt": "2026-07-24T00:22:11.932Z",
+  "updatedAt": "2026-07-24T00:55:34.734Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/lifecycle-registry-contract.ts": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/src/validate.ts": "packages/main/src/validate.ts",
+    "packages/main/package.json": "packages/main/package.json",
+    "package.json": "package.json",
+    "packages/main/src/tmp/b5e4a-red": "tmp/b5e4a-red/",
+    "packages/main/src/core/scope-path-classifier.ts": "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "tmp/b5e4a-red": "tmp/b5e4a-red/",
+    ".lattice/story/actives/B-5e4a/acceptance-basis.json": ".lattice/story/actives/B-5e4a/acceptance-basis.json",
+    "lattice.config.json": "lattice.config.json"
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "passes": [
+    {
+      "id": "B-7dfa:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: validate --story=B-7dfa --json PASS with 21/21 verificationIntent lanes covered by fresh docs_check evidence (headHash/materialHash bound to current HEAD). Independently re-verified all 21 CHK-001..006 happy/edge/adversarial lane descriptions against the actual 1598-line red-evidence-subsystem-spec.md text (not just the evidence notes): each lanes claimed section/subsection, quoted rule, or table was located and confirmed true (GREEN predicate verbatim in §1.5, R1-1/R1-2 rejection rules in §1.6, four-tuple + INVARIANCE in §2.1-2.2, disposable-workspace protocol in §2.3, dirty-index/timeout edges in §2.4, R2-1/R2-2 in §2.5, chain-head + 3-check integrity in §3.2-3.3, idempotency key tuple in §3.4, fork/replay edges in §3.6, R3 in §3.7, owner-gated quarantine/recover + recoversRecordId + corrected retention in §4.1/§4.3, legacy-posture link in §4.4, recover-of-recover/quarantine-of-head edges in §4.5, R4 in §4.6, query contract request/response + zero-design-decisions in §5.1-5.2, 4-row edge-state table in §5.4, boxed MUST-NOT boundary in §5.5, verbatim POSTURE block in §6.1, in-flight rule in §6.3, downgrade-loophole closure in §6.4). Spot-checked source anchors cited by the spec (transition-orchestrator.ts:775, proofstory.ts handler:948, proofstory.ts core:1312/:78, types.ts:2617, ownership-gate.ts:235, agent-dispatch-registry.ts:504) all resolve correctly against current source. No blocker found.",
+      "createdAt": "2026-07-23T21:27:36.284Z",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "reviewRunId": "B-7dfa:RR-001",
+      "envelopeId": "f194519d6868f9bb7c65a0a7e6f66556d3af604b20b8f57a2f34b554887b9a6a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8dce5ef7c149d8e063b082f53f8b908d80ef194a6aad7f1749a485d2f49406c2"
+    },
+    {
+      "id": "B-7dfa:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane desk-check of the docs-only B-7dfa deliverable (spec has no code diff; git diff main...HEAD confirms only story metadata + docs/requirements/decisions/red-evidence-subsystem-spec.md). Desk-checked the 3 most load-bearing normative algorithms end-to-end (happy + edge case each): (1) SS5.6 total gate-consumption query algorithm -- walked GREEN happy case (red-assert->green-confirm chain head, step6 verdict derivation) and superseded-but-unreplaced edge case (red-assert->green-confirm->red-assert2); every referenced term is defined earlier in the doc, recover/quarantine loop provably terminates, error taxonomy is closed and total. (2) SS3.4-3.5 operationKey/idempotency-key + dedupe -- walked a fresh red-assert append (operationKey computable purely from caller inputs + resolved policy before any run executes) and a replay-with-identical-key edge case (dedupe search matches stored operationKey field before head resolution/run); confirmed no chicken-egg between operationKey/recordId/seq. (3) SS2.3 disposable-workspace runner CLEAN/PRE/POST protocol -- walked the SS1.7 valid-envelope example through steps 0->1/1b->2->3->3b->4->5->6, and the timeout-before-POST edge case (SIGTERM->grace->SIGKILL->POST attempted->admissible only if expectedExitClass==timeout-is-failure AND POST captured AND invariance holds); no undefined variable or design-decision gap found. Cross-checked every source-code citation in the spec (sed -n <line>p) against the actual repo: proofstory.ts:78/91/870/883/1135/1312, handlers/proofstory.ts:948/969, types.ts:2617/2621/2628/2639, transition-orchestrator.ts:775/777/873 (confirms the previously-drifted retention citation now correctly reads story.currentReviewRound = now at line 775), ownership-gate.ts:235/282, agent-dispatch-registry.ts:504, currentMaterialHash(gitCwd, ref=HEAD, metadataRoot=gitCwd) signature at evidence-freshness.ts:489 -- all exact matches, no drift. Verified plan.md CHK-001..006 acceptance criteria are each satisfied: CHK-001 by SS1 (4 envelope fields+rules, verbatim GREEN predicate SS1.5, query summary SS1.9, rejection rules SS1.6, edge cases SS1.8); CHK-002 by SS2 (four-tuple SS2.1, disposable-workspace lifecycle SS2.3, macOS-sandbox-compatible constraint, edge cases SS2.4, rejection rule SS2.5); CHK-003 by SS3 (three-check chain integrity SS3.3, idempotency-key enumeration SS3.4, fork+replay edge cases SS3.6, rejection rule SS3.7); CHK-004 by SS4 (owner-gated ops+recoversRecordId SS4.1, corrected retention SS4.3 citing :775, legacy-posture link SS4.4, edge cases SS4.5, immutability rejection rule SS4.6); CHK-005 by SS5 (redEvidenceGateQuery request/response SS5.1, zero-design-decision determinacy SS5.2, all 4 edge-state answers in SS5.4 table, boxed W2/W3 MUST-NOT boundary SS5.5); CHK-006 by SS6 (single GRANDFATHERED posture+rationale SS6.1, manifest mechanics SS6.2, in-flight transition rule SS6.3, downgrade-loophole closure SS6.4). No blocking implementability gaps, undefined variables, unreachable references, or missing-tier design decisions found; not re-litigating the settled architecture (literal-only matchers, SS0.6 assurance tier) per instruction. Clean pass, no findings.",
+      "createdAt": "2026-07-23T21:31:46.687Z",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "reviewRunId": "B-7dfa:RR-002",
+      "envelopeId": "37ec9a59a60a23e3d4d3567f3079de07e0825e060a9e366a7549d3ec858716f1",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bcb5a53e4d86c3f7512d19cd6e34ff3d17db0ba498a67a2a1bcfa03e6b23ce64"
+    },
+    {
+      "id": "B-7dfa:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement in this diff: main...HEAD adds one new file (docs/requirements/decisions/red-evidence-subsystem-spec.md, 1598 lines, zero removed lines vs main) plus Lattice story-metadata bookkeeping; nothing existing is deleted or replaced. Repo-wide grep for the document own intra-revision concept removals (anchored-regex matcher language removed in favor of literal-line/class-only; merged-pipe stream capture removed in favor of streamFrames) found zero residue outside their explicit historical/rationale notes (line 176 deferral note, lines 730-731 section 1.11.3 rationale). Supplementary due diligence: independently verified all cited existing-code anchors (red_evidence_create proofstory.ts:948, appendRedEvidence core/proofstory.ts:1312, RED_EVIDENCE_SCHEMA_VERSION :78, RedEvidenceRecord/RedEvidenceData types.ts:2617/2621/2628/2639, redEvidenceRecordSatisfied :870 + lines 877/878-879, redEvidenceSatisfied :883, missing_red_evidence :1135, VALID_GREEN_RELATIONS :91, currentMaterialHash signature + call sites proofstory.ts:969/transition-orchestrator.ts:873, enforceStoryOwnerLeaseGate ownership-gate.ts:235/282, resolveAgentMutationAuthority agent-dispatch-registry.ts:504, story.currentReviewRound=now transition-orchestrator.ts:775 + mkdir-claim comment :777-789, resolveMaterialCodePolicy + Change A/B/C in language-neutral-gates-execution-plan.md) against src at HEAD (v0.3.230) -- all accurate. Terminology (operationKey vs idempotency-key tuple vs recordDigest, CLEAN/PRE/POST snapshots, legacy-manifest/grandfathering, R1-1..R1-6/R2-1..R2-4/R3/R4 rejection-rule IDs, errorKind taxonomy, status/verdict/provenance enums) used consistently throughout with no orphaned definitions.",
+      "createdAt": "2026-07-23T21:32:19.697Z",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "reviewRunId": "B-7dfa:RR-003",
+      "envelopeId": "6457e0979e3de5aed896cf16b679128ee3f578b3a0fc1db3c772d881368674c5",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1dbfd737471588b1d5b26572f70d7b120eaa7191c08f5142be1be06584f177db"
+    },
+    {
+      "id": "B-7dfa:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "R2 re-verify of F-001 fix (commit bdfa261b): delta is confined to §5.3 (lines 1308-1369) plus process bookkeeping — confirmed via git show bdfa261b and section-heading map. §5.3 now binds the dirty filter to isMaterialExcludedPath (evidence-freshness.ts:163-165, applied at :502 — line numbers verified against source) instead of the false resolveMaterialCodePolicy-derivation claim. Repo-wide grep for isMaterialPath returns zero live references (only the historical F-001 finding text in findings.json, which is an audit record, not a residue). resolveMaterialCodePolicy consumer list in the new text (review floor / scope-diff / concept validation) verified against actual importers (review-assurance-floor.ts, scope-diff-pack.ts, validate-concept.ts, plus material-code-policy.ts itself and the smoke test) — accurate. New text is consistent with §2.1.2 (verbatim reuse of currentMaterialHash) and does not reintroduce any contradiction. R1 pass (RP-003) conclusions hold; no concept deletion/replacement introduced this round beyond the already-verified isMaterialPath→isMaterialExcludedPath correction, which has zero residue. No blocker.",
+      "createdAt": "2026-07-23T21:48:11.722Z",
+      "reviewRound": "2026-07-23T21:45:49.984Z",
+      "reviewRunId": "B-7dfa:RR-005",
+      "envelopeId": "9f4d8c67876ef675db196d41efe5d8b4d1ed82aa4da8e16d5c0af7748e27a021",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/findings.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a3a7e882af8bf0fcf8b0b7e735b18d974d126366c83d2729f37255b91a7f9b2e"
+    },
+    {
+      "id": "B-7dfa:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 fix-verification desk-check, scoped to the F-001 delta only (git show bdfa261b: docs/requirements/decisions/red-evidence-subsystem-spec.md §5.3 Shared classifier + Algorithm step 3, 1598->1607 lines). Verified the new binding is TRUE against current source: isMaterialExcludedPath defined at evidence-freshness.ts:163-165 (isStoryMetadataPath || isMaterialExcludedRuntimeArtifactPath) and applied inside currentMaterialHash at evidence-freshness.ts:502 (if (isMaterialExcludedPath(filePath, metadataRoot)) continue;) -- both citations exact-match, confirming F-001s premise (currentMaterialHash never imports/derives from resolveMaterialCodePolicy) is now correctly stated. Desk-walked SS5.3 step 3 with the new predicate: dirty := any porcelain-v1 -z entry (parsed per SS2.1 item 4s NUL-delimited/R-C-two-path-field rule, unchanged by this diff) names a path with isMaterialExcludedPath(path, metadataRoot)==false -- computable end-to-end: the function name is exact and citation-verified, the porcelain parse it consumes is defined earlier and untouched, and metadataRoot is the same parameter name/convention already established at SS2.1 item 2 (currentMaterialHash(gitCwd, ref=HEAD, metadataRoot=gitCwd)) and reused verbatim elsewhere (line 1109) -- no new undefined variable introduced. Confirmed the self-contradiction the finding raised against SS2.1.2 (\"W2 does not redefine the material hash; it reuses this function verbatim\") is resolved: the rewritten text now states reuse verbatim explicitly and defers any future isMaterialExcludedPath/resolveMaterialCodePolicy unification to a separate reviewed change, removing the prior mandate that would have silently changed a shared primitives global behavior. Checked SS5.4 (edge-state answer table) and SS5.6 (total query algorithm, step 6 \"Run FRESH (SS5.3) on verdictRecords binding\") -- both consume only the abstract freshness/liveMatch/reason output of FRESH(), never referencing isMaterialPath/isMaterialExcludedPath by name, so their consumption of the freshness result is unaffected by the rename. Repo-wide grep confirms zero remaining isMaterialPath references in the spec (clean rename, no orphaned mentions) and zero other sections referencing the shared classifier by name. No blocker.",
+      "createdAt": "2026-07-23T21:48:41.636Z",
+      "reviewRound": "2026-07-23T21:45:49.984Z",
+      "reviewRunId": "B-7dfa:RR-008",
+      "envelopeId": "4bd341216cd0765d2fc677dda468f7ffb2cb987f971abb8efcebdc6fbb3d267e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/findings.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "22d3feff2fb01ffc6dc2bfe2422d066a080dd46a5f6671f0b056ea3e13975de8"
+    },
+    {
+      "id": "B-7dfa:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "R2 fix-verification of my own R1 F-001: confirmed docs/requirements/decisions/red-evidence-subsystem-spec.md SS5.3 Shared classifier paragraph now binds the dirty filter to EXACTLY isMaterialExcludedPath (evidence-freshness.ts:163-165, applied at :502 inside currentMaterialHash) with accurate line citations verified against src; the removed resolveMaterialCodePolicy derivation claim is gone (grep confirms exactly one remaining mention, the honest separate-change note); SS5.3 is self-consistent with SS2.1 item 2 (both state W2 reuses currentMaterialHash verbatim, no redefinition); Algorithm step 3 uses the same predicate isMaterialExcludedPath(...)==false; diff scoped to two hunks inside SS5.3 only (confirmed via git show), no other section touched; adjacent unchanged citations (proofstory.ts:969, transition-orchestrator.ts:873) also verified accurate. No other doc-code inconsistency found in the touched region.",
+      "createdAt": "2026-07-23T21:49:52.688Z",
+      "reviewRound": "2026-07-23T21:45:49.984Z",
+      "reviewRunId": "B-7dfa:RR-007",
+      "envelopeId": "8d8bc77fe86353ff7862e788e4c78dc02d90e50ed3aab184c84b6aed04ecfc79",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f12644dec91d9066a08b24d2bced25bf70110e961443d6cca7a41069c29cd4f3"
+    },
+    {
+      "id": "B-7dfa:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 delta re-verify of F-001 fix (spec §5.3 rewrite, ~9 lines): all 21 checklist verificationIntent lanes remain TRUE per lattice validate --json (allPass:true, 0 fail); CHK-005 happy/edge/adversarial and CHK-001:edge:0 re-checked against revised §5.3 text; isMaterialExcludedPath binding verified byte-accurate against evidence-freshness.ts:163/:502, proofstory.ts:948, core/proofstory.ts:1312, transition-orchestrator.ts:775; resolveMaterialCodePolicy consumer set confirmed to exclude evidence-freshness.ts; evidence-note section maps for CHK-001..006 accurate against actual §0-§7 headers. No blocker.",
+      "createdAt": "2026-07-23T21:59:10.268Z",
+      "reviewRound": "2026-07-23T21:45:49.984Z",
+      "reviewRunId": "B-7dfa:RR-006",
+      "envelopeId": "0a4330a86bfb65501f1d2368cd11837dab22d95cbe634331cd343021b06ae88b",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 5,
+          "tokenCount": 12700
+        },
+        "digest": "74b54144ca4ac03b9bae3c899c9db685dd0a0ca0e146af430de3a1e0012b6457"
+      },
+      "readDiagnostics": [],
+      "_hash": "2cd92b69356d5ed139c7e18d0fe738f9e667c9d9bd6a6d8178cb1a13c2d9e177"
+    }
+  ]
+}

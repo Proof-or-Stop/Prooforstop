@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-7dfa",
+  "id": "IC-20260723194207",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "This story delivers ONLY a decision document (docs/requirements/decisions/red-evidence-subsystem-spec.md) specifying the trusted RED-evidence subsystem contracts: the policy-owned assertion envelope with the exact GREEN predicate, the runner four-tuple invariance in a disposable workspace, the supersedes-chain integrity plus idempotency key, the quarantine/recover owner-gated operations with corrected retention claims, plus the gate-consumption query contract (W2/W3 boundary) and the legacy-record posture. No subsystem code, runner, or gate wiring is implemented in this story; those belong to the separate W2 implementation and W3 enforcement stories per the program plan sequencing.",
+  "acceptedInterpretationHash": "sha256:e7f2a054431138bd9712cc5da069f744b042148bf124ed99ae021753e2ea0be3",
+  "notes": "High-assurance gate-trust spec story; single interpretation confirmed as spec-authoring only, with all code deferred to the W2 implementation stories per the program plan.",
+  "createdAt": "2026-07-23T19:42:07.901Z",
+  "updatedAt": "2026-07-23T19:42:07.901Z"
+}

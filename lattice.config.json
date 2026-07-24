@@ -27,6 +27,9 @@
     "queryGroupBudget": 10,
     "rawHitsPerGroup": 50
   },
+  "materialCode": {
+    "excludePaths": ["experiments/"]
+  },
   "proofStory": {
     "devGateMode": "enforce",
     "reviewGateMode": "enforce",
@@ -79,6 +82,7 @@
       { "command": "node", "args": ["packages/main/dist/tasks/quorum-submit-smoke.js"], "timeoutMs": 600000 },
       "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
       "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
+      "node packages/main/dist/tasks/lifecycle-registry-contract.js",
       "node packages/main/dist/tasks/product-capability-release-smoke.js",
       "node packages/main/dist/tasks/product-capability-release-red-smoke.js",
       "node packages/main/dist/tasks/playbook-capability-lineage-smoke.js",
@@ -89,6 +93,7 @@
       "node packages/main/dist/tasks/capability-candidate-promotion-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"], "focus": ["fast"] },
       { "command": "node", "args": ["packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"], "timeoutMs": 180000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/gate-repeat-block-smoke.js"], "timeoutMs": 120000 },
       { "command": "node", "args": ["packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js", "--issuer-mutations"], "timeoutMs": 180000 }
     ]
   },

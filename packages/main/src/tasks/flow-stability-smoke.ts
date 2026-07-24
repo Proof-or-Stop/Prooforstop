@@ -4689,6 +4689,9 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
+      // B-f824: the transcript above uses the pre-split (old) line shape; the
+      // backward-tolerant parser must default the missing field to 0.
+      reviewWindowSuiteExecutions: 0,
       successfulCloseout: 1,
     });
     const baseFacts = {
@@ -4744,6 +4747,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
+      // B-f824: derive now always emits the observable telemetry field.
+      reviewWindowSuiteExecutions: 0,
       successfulCloseout: 1,
     });
     const duplicateExecution = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, {
@@ -4787,6 +4792,114 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     assert.match(handlerSource, /runDonePrepare\(ctx,[\s\S]{0,500}validate: false/, 'auto-closeout recursion must disable nested validation');
     assert.match(handlerSource, /deriveDonePreparePassConvergence/, 'PASS counters must be derived from steps and runbook facts');
     assert.doesNotMatch(handlerSource, /convergence: metadataRollbacks=0 reviewerReattestations=0/, 'PASS must not print cosmetic hard-coded zero counters');
+
+    // B-f824: phase-anchored suite-execution split (B-956f review-window poisoning repro)
+    // Post-fix semantics (CHK-002): blocking unchangedSuiteExecutions counts only
+    // per-group duplicate executed terminals at or after facts.testEntryAt (>=
+    // comparison, same convention as postTestReviewerIdentityIds) plus contradictory
+    // reused terminals with commandExecutions>0 in any phase; observable
+    // reviewWindowSuiteExecutions keeps the whole-window per-group duplicate count
+    // as non-blocking telemetry.
+    const splitAnchorAt = '2026-01-01T10:00:00.000Z';
+    const splitTestEntryAt = '2026-01-01T10:30:00.000Z';
+    const makeSplitTerminal = (
+      timestamp: string,
+      commandSetHash: string,
+      disposition: 'executed' | 'reused',
+      commandExecutions: number,
+    ) => ({
+      type: 'validation_terminal',
+      timestamp,
+      commandSetHash,
+      materialHash: 'material-split',
+      storyFilesHash: 'story-split',
+      disposition,
+      commandExecutions,
+    });
+    const splitFacts = (validationTerminals: unknown[]) => ({
+      anchor: {
+        timestamp: splitAnchorAt,
+        attemptId: 'round-split',
+        materialHash: 'material-split',
+        storyFilesHash: 'story-split',
+        reviewRound: 'round-split',
+      },
+      testEntryAt: splitTestEntryAt,
+      phaseTransitions: [],
+      humanConfirmations: [],
+      validationTerminals,
+      reviewerIdentityIds: [],
+      postTestReviewerIdentityIds: [],
+      closeoutWriterSequence: ['validate:test-evidence.json'],
+    }) as any;
+    // Case A — B-956f window shape: two reviewer-driven executed terminals during
+    // REVIEW (cmdSet X, then cmdSet Y evicting the single-slot receipt), one forced
+    // closeout re-execution of cmdSet X at/after TEST entry, one reused post-TEST.
+    const reviewWindowPoisoning = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, splitFacts([
+      makeSplitTerminal('2026-01-01T10:05:00.000Z', 'cmdset-x', 'executed', 46),
+      makeSplitTerminal('2026-01-01T10:10:00.000Z', 'cmdset-y', 'executed', 46),
+      makeSplitTerminal('2026-01-01T10:35:00.000Z', 'cmdset-x', 'executed', 46),
+      makeSplitTerminal('2026-01-01T10:40:00.000Z', 'cmdset-x', 'reused', 0),
+    ]));
+    assert.equal(
+      reviewWindowPoisoning?.unchangedSuiteExecutions, 0,
+      'pre-TEST reviewer executions plus one post-TEST closeout execution per group must not block PASS convergence',
+    );
+    assert.equal(
+      reviewWindowPoisoning?.reviewWindowSuiteExecutions, 1,
+      'whole-window duplicate executions must stay observable as reviewWindowSuiteExecutions telemetry',
+    );
+    assert.doesNotThrow(
+      () => assertDonePreparePassConvergence(reviewWindowPoisoning!),
+      'the B-956f review-window shape must not fail PASS convergence after the phase-anchored split',
+    );
+    // Case B — closeout thrash: two executed terminals in the SAME identity group
+    // both at or after TEST entry must stay blocking.
+    const closeoutThrash = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, splitFacts([
+      makeSplitTerminal('2026-01-01T10:31:00.000Z', 'cmdset-x', 'executed', 46),
+      makeSplitTerminal('2026-01-01T10:45:00.000Z', 'cmdset-x', 'executed', 46),
+    ]));
+    assert.equal(closeoutThrash?.unchangedSuiteExecutions, 1, 'duplicate post-TEST executions of one command set must stay blocking');
+    assert.throws(
+      () => assertDonePreparePassConvergence(closeoutThrash!),
+      /done_prepare convergence invariant failed/,
+      'closeout-path duplicate execution must still fail PASS convergence',
+    );
+    // Case C — boundary: an executed terminal at exactly testEntryAt is post-TEST
+    // (>= comparison); one pre-TEST baseline plus one post-TEST execution is allowed.
+    const boundaryAtTestEntry = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, splitFacts([
+      makeSplitTerminal('2026-01-01T10:05:00.000Z', 'cmdset-x', 'executed', 46),
+      makeSplitTerminal(splitTestEntryAt, 'cmdset-x', 'executed', 46),
+    ]));
+    assert.equal(boundaryAtTestEntry?.unchangedSuiteExecutions, 0, 'one pre-TEST baseline plus one execution at exactly testEntryAt must not block');
+    assert.equal(
+      boundaryAtTestEntry?.reviewWindowSuiteExecutions, 1,
+      'the boundary duplicate must still be counted in whole-window telemetry',
+    );
+    assert.doesNotThrow(() => assertDonePreparePassConvergence(boundaryAtTestEntry!));
+    const singlePostTestExecution = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, splitFacts([
+      makeSplitTerminal('2026-01-01T10:35:00.000Z', 'cmdset-x', 'executed', 46),
+    ]));
+    assert.equal(singlePostTestExecution?.unchangedSuiteExecutions, 0, 'a single post-TEST execution must not block');
+    assert.equal(
+      singlePostTestExecution?.reviewWindowSuiteExecutions, 0,
+      'a single execution must not register whole-window duplicate telemetry',
+    );
+    assert.doesNotThrow(() => assertDonePreparePassConvergence(singlePostTestExecution!));
+    // Case D — contradictory reused terminal (commandExecutions>0) pre-TEST must
+    // stay blocking in any phase.
+    const contradictoryReused = deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, splitFacts([
+      makeSplitTerminal('2026-01-01T10:05:00.000Z', 'cmdset-x', 'reused', 46),
+    ]));
+    assert.ok(
+      (contradictoryReused?.unchangedSuiteExecutions ?? 0) >= 1,
+      'a reused terminal claiming commandExecutions>0 must stay blocking regardless of phase',
+    );
+    assert.throws(
+      () => assertDonePreparePassConvergence(contradictoryReused!),
+      /done_prepare convergence invariant failed/,
+      'contradictory reused terminals must still fail PASS convergence',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();

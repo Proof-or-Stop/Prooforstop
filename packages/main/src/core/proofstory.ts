@@ -66,6 +66,7 @@ import {
   evidenceIsStaleCovering,
   type MilestoneStatusCurrentEvidenceBinding,
 } from './milestone-status.js';
+import type { MaterialClassificationSnapshot } from './material-code-policy.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
@@ -134,6 +135,14 @@ export interface ProofStoryDiagnosticInput {
    * (backward-compatible: base coverage semantics are unchanged).
    */
   currentEvidenceBinding?: MilestoneStatusCurrentEvidenceBinding | null;
+  /**
+   * B-956f: shared, hash-bound material-code classification snapshot (the SAME
+   * object the review-assurance floor and repro gate consume). The trigger
+   * predicate reads it so that a language-neutral material-code diff (e.g. a
+   * pure .go/.py/.rs story) is a behavior-change / red-evidence signal exactly
+   * like a .ts diff. Absent = backward-compatible text-only classification.
+   */
+  materialClassification?: MaterialClassificationSnapshot | null;
 }
 
 export interface BuildProofStoryContractArgs {
@@ -630,6 +639,18 @@ function countStructuralRows(text: string): number {
     .length;
 }
 
+/**
+ * B-956f: true when the shared classification snapshot reports at least one
+ * material-code file in the diff. A language-neutral material-code change is a
+ * behavior-change / red-evidence signal for the ProofStory trigger predicate,
+ * independent of the request text's language.
+ */
+export function materialClassificationHasMaterialCode(
+  snapshot: MaterialClassificationSnapshot | null | undefined,
+): boolean {
+  return (snapshot?.files ?? []).some((file) => file.materialCode);
+}
+
 function hasBehaviorChangeSignal(input: ProofStoryDiagnosticInput, text: string): boolean {
   const explicitBehaviorChange = /\b(?:behavior change|behaviour change|behavior-changing|behaviour-changing)\b/i.test(text)
     || /\b(?:change(?:s|d|ing)?|alter(?:s|ed|ing)?)\b[^\n.]{0,80}\bbehaviou?r\b/i.test(text);
@@ -650,9 +671,10 @@ function pushTrigger(
   code: string,
   message: string,
   requires?: ProofStoryTriggerReason['requires'],
+  diagnosticOnly?: boolean,
 ): void {
   if (triggers.some((trigger) => trigger.code === code)) return;
-  triggers.push({ code, message, requires });
+  triggers.push({ code, message, requires, ...(diagnosticOnly ? { diagnosticOnly: true } : {}) });
 }
 
 function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: ProofStoryHardeningLevel; triggerReasons: ProofStoryTriggerReason[] } {
@@ -693,19 +715,34 @@ function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: P
 
   const ambiguity = /\b(?:ambiguous|ambiguity|unclear|unknown|maybe|or\b|choose|decision|scope|multi-path|interpretation)\b/i.test(text);
   const userImpact = /\b(?:user|ui|browser|cli|command|observable|behavior|behaviour|workflow|product)\b/i.test(text);
-  const behaviorChange = hasBehaviorChangeSignal(input, text);
-  if (ambiguity || userImpact || behaviorChange || hasMultiDeliverable) {
+  const materialCodePresent = materialClassificationHasMaterialCode(input.materialClassification);
+  const textBehaviorChange = hasBehaviorChangeSignal(input, text);
+  // B-956f FIX G: the production materialClassification snapshot flips these
+  // triggers language-neutrally, but DIAGNOSTIC-ONLY — the trigger surfaces in
+  // reports while gap creation (and thus every enforce outcome) stays driven by
+  // the text/type signals until the program's enforce flip (Workstream 3).
+  if (ambiguity || userImpact || textBehaviorChange || hasMultiDeliverable) {
     pushTrigger(
       triggers,
       'collision_required_standard',
       'Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.',
       'intent-collision',
     );
+  } else if (materialCodePresent) {
+    pushTrigger(
+      triggers,
+      'collision_required_standard',
+      'The shared classification snapshot reports material-code change(s) in the diff; intent collision is diagnostically required.',
+      'intent-collision',
+      true,
+    );
   }
-  const redEvidenceRisk = behaviorChange
+  const textRedEvidenceRisk = textBehaviorChange
     || /\b(?:auth|authentication|authorization|session|security|credential|token|password|benchmark|performance claim)\b/i.test(text);
-  if (redEvidenceRisk) {
+  if (textRedEvidenceRisk) {
     pushTrigger(triggers, 'red_evidence_required', 'Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.', 'red-evidence');
+  } else if (materialCodePresent) {
+    pushTrigger(triggers, 'red_evidence_required', 'The shared classification snapshot reports material-code change(s) in the diff; red evidence is diagnostically required.', 'red-evidence', true);
   }
 
   const codePathUnclear = /\b(?:code path (?:is )?unclear|root cause (?:is )?unclear|unknown code path|spike|investigate|explore|prototype)\b/i.test(text);
@@ -718,9 +755,12 @@ function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: P
     pushTrigger(triggers, 'scope_ambiguity', 'Broad or absolute scope wording should have scope clarification before future enforcement.', 'scope-clarification');
   }
 
+  // FIX G: diagnostic-only triggers do not raise the hardening level either —
+  // ledger sizing thresholds derive from it, so a level change could alter an
+  // enforce outcome.
   const hardeningLevel: ProofStoryHardeningLevel = highRisk
     ? 'high_assurance'
-    : triggers.length > 0
+    : triggers.some((trigger) => !trigger.diagnosticOnly)
       ? 'standard'
       : 'intent_mvp';
   return { hardeningLevel, triggerReasons: triggers };
@@ -944,11 +984,16 @@ export function evaluateProofStoryDiagnostics(
 ): ProofStoryDiagnosticReport {
   const mode = normalizeGateMode(modeValue);
   const { hardeningLevel, triggerReasons } = classifyTriggers(input);
-  const milestoneTriggers = triggerCodes(triggerReasons, 'milestone-ledger');
-  const collisionTriggers = triggerCodes(triggerReasons, 'intent-collision');
-  const redTriggers = triggerCodes(triggerReasons, 'red-evidence');
-  const spikeTriggers = triggerCodes(triggerReasons, 'spike-evidence');
-  const scopeTriggers = triggerCodes(triggerReasons, 'scope-clarification');
+  // B-956f FIX G: gap creation consumes only ENFORCEABLE (non-diagnostic-only)
+  // triggers. Populating materialClassification in the production builders
+  // therefore never creates or expands an enforce-blocking gap — the
+  // material-driven triggers still render in the report/triggerReasons.
+  const enforceableTriggers = triggerReasons.filter((trigger) => !trigger.diagnosticOnly);
+  const milestoneTriggers = triggerCodes(enforceableTriggers, 'milestone-ledger');
+  const collisionTriggers = triggerCodes(enforceableTriggers, 'intent-collision');
+  const redTriggers = triggerCodes(enforceableTriggers, 'red-evidence');
+  const spikeTriggers = triggerCodes(enforceableTriggers, 'spike-evidence');
+  const scopeTriggers = triggerCodes(enforceableTriggers, 'scope-clarification');
   const ledgerSizing = buildLedgerSizing(hardeningLevel, input.milestoneLedger, input.slicePlan);
 
   const missingMvpArtifacts: ProofStoryDiagnosticGap[] = [];

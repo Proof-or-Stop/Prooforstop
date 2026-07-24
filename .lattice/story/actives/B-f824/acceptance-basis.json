@@ -1,0 +1,375 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-f824",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:42c237f49144fbbaddf5cee447705601f664565d72a3cd00ce00bddea9046465",
+          "source-file:packages/main/src/handlers/done-prepare.ts:sha256:eeabf06acfbf6faf76950a5c1732bfeb8b9958ed07f1c17dc322163202f8e2ea",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+          "source-file:packages/main/src/registry.ts:sha256:3a8ebab41083110c69933459e78611e444e91b65ae9b03191e9b5ee5019e70fb"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+            "scope:file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+            "scope:file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/handlers/done-prepare.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+            "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:b79d0d2229f4131f0809ee7785d04c1434f9b326a8127bed901a44462b6e6516"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
+          "source-file:packages/main/src/registry.ts:sha256:3a8ebab41083110c69933459e78611e444e91b65ae9b03191e9b5ee5019e70fb",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:c91d6b068be54af5ff736c25d678d8975a83cd6e8333e081934b6c1cb7f0d165"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+            "scope:file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+            "scope:file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/handlers/done-prepare.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+            "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:e44fdaa7268b745fbd6a6e2924693dd29defa46ce0c8fe03e2c6c74a4a2d3bc1"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+          "runtime-trace:story:B-f824:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+            "scope:file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+            "scope:file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/handlers/done-prepare.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+            "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:85b15dac557c1ea7573092c0ff16e7e7e2c5314196bbe8617d0722a9b55e8dfe"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
+          "scope:checklist:CHK-004",
+          "scope:file:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "scope:file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "scope:file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "scope:file:packages/main/src/core/process-fact-registry.ts",
+          "scope:file:packages/main/src/handlers/done-prepare.ts",
+          "scope:file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "scope:file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "scope:file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
+          "scope:file:scripts/verify-process-fact-contract.mjs",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+            "scope:file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+            "scope:file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/handlers/done-prepare.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+            "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:1843238cd15501abba0287eb6b872abb4c7f1c26653115cd7d83ac4c380862c6"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:docs/requirements/decisions/done-prepare-automation-execution-plan.md:sha256:150e3199c37e8d541af60cb25f114f8bd4592f63669ae238b5e174c90042d2f6",
+          "source-file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md:sha256:8c2fe741ed0c8bcafd9fd4522b9d42f6497c34dc9bb08fdda9531cfd5db60081",
+          "source-file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md:sha256:07941103ec80c6710a9ce74118fd43f69b4fd29c1126be9f8fdd28b94e510a2e",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/core/process-fact-registry.ts:sha256:5db107f2100d9242894e6a4bb9f77b59f94b34b34ec3c63b7ce118856f505d52",
+          "source-file:packages/main/src/handlers/done-prepare.ts:sha256:eeabf06acfbf6faf76950a5c1732bfeb8b9958ed07f1c17dc322163202f8e2ea",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
+          "source-file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts:sha256:0d1d692314e22a802f705fa52f2565098099f7e6a971d90ccc4d49b61eb022d2",
+          "source-file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts:sha256:93c1aff057906f792518d5a5a44c3aadfd4a55defca6bf0e28618e8741c5720c",
+          "source-file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts:sha256:346063ae5da6655f04502a3c22a45e45cf8276860c4ed6217c862ced146f7477",
+          "source-file:packages/main/src/tasks/flow-stability-smoke.ts:sha256:7c54b603f9267c21c5fd0d22d36aaa1c30a9de4f73d544c2836afc2e66637f1e",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:c91d6b068be54af5ff736c25d678d8975a83cd6e8333e081934b6c1cb7f0d165"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+            "scope:file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+            "scope:file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/handlers/done-prepare.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+            "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:0e0686604550d3cb29e1f3ca0f37737a1c52e4c911f692d156a30be7f35d53a0"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:file:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "scope:file:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "scope:file:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "scope:file:packages/main/src/core/process-fact-registry.ts",
+      "scope:file:packages/main/src/handlers/done-prepare.ts",
+      "scope:file:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+      "scope:file:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+      "scope:file:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+      "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
+      "scope:file:scripts/verify-process-fact-contract.mjs"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "source-file:closure:docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "source-file:closure:docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/core/process-fact-registry.ts",
+      "source-file:closure:packages/main/src/handlers/done-prepare.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+      "source-file:closure:packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+      "source-file:closure:packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+      "source-file:closure:packages/main/src/tasks/flow-stability-smoke.ts",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:lattice.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:5ea3347acfb4da97611fc4a9060f7865553b901d0e8b224cfa673a7b5bf6aed3",
+      "inventoryDirectoryCount": 20,
+      "sourceSnapshotDigest": "sha256:e72b8d68fe6a59305e339d0adccf2b7698eedfb041654b681e741ba7e3675abc",
+      "sourceSnapshotCount": 753,
+      "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        }
+      ],
+      "sealDigest": "sha256:510ea21de30055e56d29dc6b7445bf1f6c287725f2d73f7fffddb90ac74dc372"
+    },
+    "binding": {
+      "headHash": "5122d46b60bc9feada7f210e17dfe323333c1247",
+      "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+      "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scopeCheckDigest": "sha256:92b74bdfa30af6572e88d6b23902bbc87cdf9b6c5762931fc630ac67d40c146f",
+      "scopeContractDigest": "sha256:f66f336c34b3658d2f590a42dc2f4498601280f48b67f1392f2f50eec7314df7",
+      "closureFilesHash": "sha256:225abf01ddf58d19f4ae8e376d813c251d44d9bda1075dbbc04562fc2def5b44"
+    },
+    "receiptRef": "receipt:coverage-basis:B-f824:plan:0bc660dd6c44630f",
+    "basisDigest": "sha256:3fd0ea84fbb85f746c1447943d23975bbea3e299ce10d19bd641ce9676192bd4"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-f824:plan:0bc660dd6c44630f",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-f824",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:3fd0ea84fbb85f746c1447943d23975bbea3e299ce10d19bd641ce9676192bd4",
+    "topologyDigest": "sha256:691aeff0b52a9e097a33c86c90992a47ff9720a837f77664ae86be8b81b6f959",
+    "scopeCheckDigest": "sha256:92b74bdfa30af6572e88d6b23902bbc87cdf9b6c5762931fc630ac67d40c146f",
+    "scopeContractDigest": "sha256:f66f336c34b3658d2f590a42dc2f4498601280f48b67f1392f2f50eec7314df7",
+    "headHash": "5122d46b60bc9feada7f210e17dfe323333c1247",
+    "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+    "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "closureFilesHash": "sha256:225abf01ddf58d19f4ae8e376d813c251d44d9bda1075dbbc04562fc2def5b44",
+    "sealDigest": "sha256:510ea21de30055e56d29dc6b7445bf1f6c287725f2d73f7fffddb90ac74dc372",
+    "workspaceIdentityDigest": "sha256:1cf212909a957a8c5a48bdffb753fbe62f6fb77af8fd9667b4e27987fce64373",
+    "signature": "QVNjXTXL8zdZZtRvPRNDDfJM8K7lvCmxo3lUCSC6P6dJ1IqQ568Oa/RExIgAPoLQ61PSlp/qDsD/mMx7S7fVAw=="
+  }
+}

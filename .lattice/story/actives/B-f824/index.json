@@ -1,0 +1,280 @@
+{
+  "storyId": "B-f824",
+  "name": "convergence-review-window-suite-split",
+  "title": "Stop reviewer independent validates from poisoning done_prepare convergence",
+  "description": "The done_prepare convergence invariant (deriveDonePreparePassConvergence in packages/main/src/handlers/done-prepare.ts) counts every executed validation_terminal event in the [last REVIEW entry, now] window grouped by (commandSetHash, materialHash, storyFilesHash) and hard-fails DONE when any group has more than one executed terminal. Reviewer lanes legitimately execute the suite during REVIEW because independent verification is the review policy, and the single-slot PASS receipt in test-evidence.json is evicted whenever a different validation identity persists its receipt, forcing the closeout validate to re-execute an already-executed identity. Observed on B-956f closing 2026-07-23: reviewer lane executed cmdSet 34090591 during REVIEW, a second lane with identity 15aa0ab1 evicted the receipt, then the TEST-phase closeout validate re-executed 34090591, producing unchangedSuiteExecutions=1 and permanently poisoning the window; the only recovery was a ceremony DEV to REVIEW bounce that contradicts the reviewer independent-verification mandate. Fix: mirror the existing reviewerReattestations versus postTestReviewerReattestations split inside the same derivation - the blocking counter must count only per-group duplicate executed terminals at or after the current TEST entry plus contradictory reused terminals reporting commandExecutions greater than zero, while pre-TEST review-window duplicate executions become observable non-blocking telemetry in a new field. This changes DONE gate behavior for the closeout convergence check.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-07-23T23:55:02.364Z",
+  "startedAt": "2026-07-23T23:55:02.364Z",
+  "endedAt": "2026-07-24T04:35:14.740Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-23T23:55:02.929Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dc7f37f4c89f50aae144a05cd173fcee",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-24T00:00:50.661Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dc7f37f4c89f50aae144a05cd173fcee",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-24T00:02:14.624Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T00:23:30.847Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T00:58:56.071Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-24T00:59:42.538Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T01:41:24.285Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T01:43:23.466Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T02:04:23.340Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T02:56:09.047Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T02:56:15.005Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-24T02:56:32.903Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T02:59:58.530Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:10:07.785Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:10:13.213Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-24T03:10:28.540Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:12:51.500Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:38:16.822Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:38:21.644Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-24T03:38:24.742Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:42:30.596Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:52:01.293Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T03:56:43.801Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-24T03:56:46.734Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T04:02:23.752Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T04:05:51.059Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-24T04:05:54.051Z",
+      "reviewer": "docs",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T04:21:55.184Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-24T04:35:14.740Z",
+      "branch": "story/B-f824",
+      "user": "Harmonygo",
+      "sessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-24T04:05:51.059Z"
+}

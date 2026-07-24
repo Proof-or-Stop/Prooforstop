@@ -1,0 +1,917 @@
+{
+  "passes": [
+    {
+      "id": "B-956f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-cleanup residue check: old TS-only material-code classifier (classifyReviewAssuranceFloorPath whitelist at former review-assurance-floor.ts:518, hardcoded proofbound-layout prefixes at former :506-511, and helper fns fileName/hasExtension/isPackageOrRuntimeConfigPath) fully removed and replaced by delegation to material-code-policy.ts (resolveMaterialCodePolicy/classifyMaterialCodePath). collectMaterialCodeFiles in repro-evidence-binding-gate.ts now REQUIRES the shared MaterialClassificationSnapshot (compile-time fail-closed; old config-blind 1-arg call site removed, npm build clean with no stray references). classifyReproFirstRequirement call sites (story-create.ts, repro-evidence-binding-gate.ts, smoke tasks) all updated to the 3-arg snapshot signature. proofstory.ts trigger predicate now reads materialClassification instead of remaining text/type-only, with no independent extension list of its own. Grepped repo-wide for residual TS/JS extension-array whitelists and packages/main/src|scripts/|bin/ prefix checks outside material-code-policy.ts: found only in unrelated, untouched, pre-existing concepts (artifact-release.ts isArtifactReleasePathV1 = release-artifact eligibility; done-effects.ts isDoneMainRuntimeBuildInput = npm-build-trigger detection; extract.ts/validate-lint.ts = doc-extraction/lint tooling inherently TS/JS-specific) — none contradict the single material-code-classification policy and none were touched by this diff. isMaterialExcludedPath/isStoryMetadataPath (evidence-freshness.ts) is a distinct, still-valid concept (workflow-metadata exclusion for hash computation) that material-code-policy.ts correctly reuses rather than duplicating. Remaining textual references to old TS-centric behavior exist only in historical problem-statement docs (background.md, plan.md, language-neutral-gates-execution-plan.md) and a defensive comment describing what NOT to regress to — not code residue. New MaterialCodeConfig config field is actually consumed via loadConfig(...).materialCode in resolveMaterialCodePolicy (no doc-promise-undelivered). tsc build passes clean. No blocker.",
+      "createdAt": "2026-07-19T16:20:14.586Z",
+      "reviewRound": "2026-07-19T16:16:39.695Z",
+      "reviewRunId": "B-956f:RR-002",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/artifact-release.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/validate-lint.ts",
+          "packages/main/src/tasks/extract.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c92a83ae815c0cffdcaaa6d554e5d748e3cfcf05216231c3f6673875c5ab043b"
+    },
+    {
+      "id": "B-956f:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 12/12 must-priority verificationIntent lanes covered by valid non-tautological manual_transcript evidence (RED harness + language-neutral-gates-smoke); confirmed load-bearing via isolated-worktree mutation testing (4 lane-families broken/restored, 12/12 restored, 5x deterministic); no blocker.",
+      "createdAt": "2026-07-19T16:32:56.269Z",
+      "reviewRound": "2026-07-19T16:16:39.695Z",
+      "reviewRunId": "B-956f:RR-003",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c0a80302e1d1041bb9a9f85aefebd3315ffe2adbf41c2fb9d5436edb32feff9c"
+    },
+    {
+      "id": "B-956f:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept-residue check on fix commit 1292c240fb. No new concept deletion/replacement introduced. (a) All consumers (review-assurance-floor.ts classifyReviewAssuranceFloorPath, repro-evidence-binding-gate.ts collectMaterialCodeFiles/classifyReproFirstRequirement, proofstory.ts trigger predicate via materialClassification, scope-diff-pack.ts collectSemanticAnalysisUnavailable, validate-concept.ts analyzeDeletedSymbols) delegate solely to resolveMaterialCodePolicy/classifyMaterialCodePath in material-code-policy.ts; grepped for duplicate extension-list constants (MATERIAL_CODE_EXTENSIONS/CODE_EXTENSIONS/DEFAULT_CODE_EXTENSIONS) and found only the single canonical DEFAULT_CODE_EXTENSIONS in material-code-policy.ts; no builder re-grew its own list. (b) diagnosticOnly design is documented consistently everywhere it appears: ProofStoryTriggerReason.diagnosticOnly field comment in types.ts, the pushTrigger call sites plus the enforceableTriggers filter and hardeningLevel computation in proofstory.ts classifyTriggers/evaluateProofStoryDiagnostics, and the FIX-G comments at all 5 diagnostic-input builders (machine.ts, phase-gates.ts, handlers/proofstory.ts, handlers/story-review.ts x2); no comment claims an enforce effect the code does not have; smoke check FIX-G explicitly asserts enforce outcomes stay byte-identical. (c) grepped for hintless/config-blind/TS-only residue: remaining hits describe current, still-true design constraints (the hintless pure classifier still exists and is correctly documented; config-blind is described only as removed history in comments/plan/background, and collectMaterialCodeFiles's snapshot parameter is compile-time required with no exported config-blind overload any caller could regress to). Also rebuilt dist (tsc clean), ran language-neutral-gates-smoke.js (18/18 pass), concept-gate-scope-smoke.js (pass), and tmp/w1-red/red-language-degradation.cjs (11/11 pass) to confirm the claimed evidence holds. readManifest covers everything read for this round.",
+      "createdAt": "2026-07-19T17:25:15.292Z",
+      "reviewRound": "2026-07-19T17:18:25.831Z",
+      "reviewRunId": "B-956f:RR-005",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "188b0930fbbfad6fa3c27ec7ddf31ff5378d7b90cc7b5f2e40cbb07969a49f44"
+    },
+    {
+      "id": "B-956f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (R2 fix round): validate --story=B-956f --json shows 12/12 must-intents covered, all fresh (headSha e99b252); evidence_inspect freshness=fresh, staleRefs=0. Verified the FIX-ROUND smoke growth (12->18 checks) is load-bearing and integration-true: in an isolated git worktree add --detach copy, (1) removed the FIX-E preflight call from resolveMaterialCodePolicy -> CHK-002/adversarial correctly FAILED; (2) removed materialClassification population from the production proofStoryDiagnosticInput builder in handlers/phase-gates.ts -> FIX-G correctly FAILED; (3) skipped the OLD-tree mode read in oldTreeScriptSignal -> FIX-B correctly FAILED. Restored each mutation via git checkout, rebuilt, confirmed 18/18 GREEN each time. Smoke ran 5x deterministic and RED harness ran 3x GREEN. Confirmed R1 findings F-001/F-002 are genuinely fixed by these same production entry points. No test-coverage gaps found.",
+      "createdAt": "2026-07-19T17:40:23.968Z",
+      "reviewRound": "2026-07-19T17:18:25.831Z",
+      "reviewRunId": "B-956f:RR-006",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "663e91e5927c07efed6908bc3e25dca232aa7f79e79662dd173e07e55baa403b"
+    },
+    {
+      "id": "B-956f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue audit for R2 fix round (floor-through-snapshot rewiring). (a) Removed floor --name-only enumeration + hintless classifyReviewAssuranceFloorPath: grepped listChangedFiles/isPackageOrRuntimeConfigPath/hasExtension/fileName/isMaterialExcludedPath in review-assurance-floor.ts, zero references; only other listChangedFiles hit is an unrelated pre-existing function in verification-context-pack.ts. classifyReviewAssuranceFloorPath now delegates to material-code-policy.ts and keeps its old exported signature for callers/tests. tsc build compiles clean, confirming no dangling imports. (b) isStructurallyNonMaterialArtifactPath composes isStructuralArtifactPath + isMaterialExcludedRuntimeArtifactPath; classifyMaterialCodePath step 0 calls the SAME two primitives directly (distinct per-branch reason strings), preflightMaterialCodeExclusions calls the composed predicate; one source list (STRUCTURAL_ARTIFACT_DIR_SEGMENTS) and one runtime-artifact registry, no duplicated/drifting directory lists found elsewhere in the repo. (c) Diffs in review-assurance-floor.ts, repro-evidence-binding-gate.ts, proofstory.ts, scope-diff-pack.ts, scope-contract.ts, phase-gates.ts, machine.ts, config.ts, validate-concept.ts, types.ts, story-create.ts, story-review.ts, handlers/proofstory.ts accurately describe fail-closed MaterialCodePolicyError handling and structured floor outcomes replacing the old crash path, plus the diagnostic-only ProofStory trigger design (FIX G). No stale claims of old crash/silent-degrade behavior found. No prior concept findings in RR-002/RR-005, consistent with R1/R2 passes.",
+      "createdAt": "2026-07-19T18:23:35.045Z",
+      "reviewRound": "2026-07-19T18:18:25.942Z",
+      "reviewRunId": "B-956f:RR-007",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d6ff2d59520eb59abde75a1081ff9a00ff00d5f68371a705c33612e9881922be"
+    },
+    {
+      "id": "B-956f:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "R3 test-coverage review: all 12 verificationIntent lanes across CHK-001..CHK-004 remain covered by valid, concrete verificationEvidence (validate --json: status=pass, allPass=true, verificationCoverage 12/12 covered, 0 missingRequired; evidence_inspect: freshness=fresh, materialHash b7bb20e3...79954 matches evidence). Re-verified the R3 fix-round smoke growth 18->23 (FIX-1 floor-through-snapshot, FIX-2 nonexistent-gitCwd freshness throw, FIX-3(a) EISDIR fail-closed, FIX-3(b) structured floor ok:false on broken JSON, FIX-4 dist/ preflight precedence) is load-bearing, not tautological: in an ISOLATED `git worktree add --detach` copy (built+tested independently, then removed), reverting review-assurance-floor.ts's snapshot.files-through classification made ONLY the FIX-1 check fail (18/23 passed then stopped); reverting material-code-policy.ts's ENOENT-only readMaterialCodeConfig catch (any read error -> defaults) made ONLY the FIX-3(a) EISDIR check fail (20/23 passed then stopped); reverting the isStructurallyNonMaterialArtifactPath step-0 skip inside preflightMaterialCodeExclusions made ONLY the FIX-4 dist/ check fail with the exact backend/go.mod-style MaterialCodePolicyError (21/23 passed then stopped). Restored all three reverts (git checkout) and confirmed 23/23 across 5 consecutive runs plus RED harness (tmp/w1-red/red-language-degradation.cjs, copied into the isolated worktree since tmp/ is gitignored) GREEN 11/11 x3. Read production wiring for the R2 finding fixes (F-001 preflightMaterialCodeExclusions now called inside resolveMaterialCodePolicy at material-code-policy.ts:438; F-002 materialClassification now populated at all 5 named production call sites: machine.ts:169, phase-gates.ts:153, handlers/proofstory.ts:132, handlers/story-review.ts:251+756) confirming the checklist verificationEvidence notes are not vague/tautological but bound to real production code paths. NOTE (informational, not my finding): B-956f:F-005 (open, HIGH, lattice-review-quality, reviewRunId RR-008, this same round) reports that the R2 fix's fail-closed MaterialCodePolicyError conversion protects only evaluateReviewAssuranceFloor and leaves repro-evidence-binding-gate.ts / story-create.ts / machine.ts getGuardFailureReason (PLAN/DEV paths) throwing uncaught for a malformed lattice.config.json -- this is a genuine code-correctness/adversarial-completeness gap, not a verificationIntent<->verificationEvidence mismatch (no checklist verificationIntent claims universal consumer-side catch coverage; CHK-002's fail-closed claim is scoped to the resolver itself, which the smoke correctly and narrowly verifies). No test-coverage gap found; my lane's pass does not resolve or supersede F-005.",
+      "createdAt": "2026-07-19T18:36:50.601Z",
+      "reviewRound": "2026-07-19T18:18:25.942Z",
+      "reviewRunId": "B-956f:RR-009",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-review.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "54002033db00b03029d1671ba0d0de146bfb76c567a61e25505386b8546a2767"
+    },
+    {
+      "id": "B-956f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "R3 fix-round concept-residue sweep clean. (a) Pinned-ref snapshot: buildMaterialClassificationSnapshot now captures ONE currentGitHead(gitCwd) sha, threads headRef through buildMaterialClassificationSnapshotAtRef/listMainToHeadDiffEntries/diffBaseRef/extensionlessScriptSignal, and post-validates live HEAD with bounded retries (fail-closed materialClassification.freshness on instability) - no leftover literal main...HEAD/live-HEAD read remains inside the atomic build path; grep confirmed zero residual dual-enumeration callers. The only remaining live-HEAD reads (preflightMaterialCodeExclusions default ref=HEAD in resolveMaterialCodePolicy, workingTreeScriptSignal/extensionlessScriptSignal fallback inside classifyDeclaredPaths) are a pre-existing, distinct concept (tree-immutability preflight and query-time declared-path classification outside the diff scan) unchanged by this round, not the replaced dual-path. materialClassificationSnapshotStale/ensureFreshMaterialClassificationSnapshot legitimately keep literal HEAD since that is the separate consumption-time staleness check, not the build. (b) Verifier tokens genuinely describe current code: grep + node scripts/verify-process-fact-contract.mjs exits 0; new L4 rationale tokens (language-neutral, material-code policy, snapshot freshness, diff enumeration, repro-evidence-binding) and new evaluatorText tokens (buildMaterialClassificationSnapshot, classifyReviewAssuranceFloorPath, diffEnumerationError) all match live review-assurance-floor.ts source; old literal markdown-documentation whitelist-branch assertion fully removed from process-fact-levels.ts and the source, with no orphaned reference (only a script comment explaining the removal). (c) New repro_first_material_policy_error reason code + Cannot-enter/[reason_code] rendering, and the isFreshness-vs-config remediation branch, are consistent and duplicated correctly across all three catch sites (review-assurance-floor.ts, repro-evidence-binding-gate.ts, story-create.ts) with no contradictory wording; ran npm run build + language-neutral-gates-smoke.js (27/27 incl. all 4 new R3 checks) + repro-evidence-binding-dev-gate-smoke.js (37/37) to confirm live behavior matches the comments. No concept deletion/replacement residue found; no blocker.",
+      "createdAt": "2026-07-19T19:12:38.228Z",
+      "reviewRound": "2026-07-19T19:06:37.284Z",
+      "reviewRunId": "B-956f:RR-010",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9da71da9189dca3525d65a07867139da10e7bdbec7633bfa816f0fe923c579f5"
+    },
+    {
+      "id": "B-956f:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "R3 verification round (fixes R3 F-005): reviewed full git diff main...HEAD (38 files). Confirmed the F-005 fix: the narrow MaterialCodePolicyError->structured-outcome conversion now covers evaluateStoryEvidenceBindingGate (repro-evidence-binding-gate.ts:412-423 catches MaterialCodePolicyError around buildMaterialClassificationSnapshot+classifyReproFirstRequirement, returns materialPolicyErrorResult with new always-blocking reasonCode repro_first_material_policy_error; formatStoryEvidenceBindingGateFailure:537-543 keeps the Cannot-enter-PHASE / reason_code conventions) and story-create.ts:125-152 preflight (same catch pattern, enforce throws / warn returns advisory). machine.ts getGuardFailureReason PLAN(:1054)/DEV(:1102) sections call evaluateStoryEvidenceBindingGate directly so they inherit the fix with no code change needed there. Independently reproduced (own isolated git fixtures, not story-owned smoke): (1) getGuardFailureReason(id,store,PLAN-or-DEV,root) against a fixture repo whose ONLY lattice.config.json defect is a trailing-comma JSON syntax error returns the structured Cannot-enter-PLAN/DEV message naming lattice.config.json with the repro_first_material_policy_error reason code, no raw throw, for BOTH PLAN and DEV; (2) same call graph with a healthy config but a checklist shape lacking .items still lets a TypeError (unrelated to MaterialCodePolicyError) propagate UNCAUGHT out of evaluateStoryEvidenceBindingGate, confirming only MaterialCodePolicyError is narrowed; (3) a healthy TS-only config with no material files (chore story) and with a real material .ts bug-story change both classify normally (reasonCode null / missing_story_evidence_binding respectively) -- the new always-blocking reason code never fires for healthy configs. Also verified codex R3 production fixes: pinned-sha snapshot build (material-code-policy.ts buildMaterialClassificationSnapshot captures ONE currentGitHead(gitCwd) sha, threads headRef through buildMaterialClassificationSnapshotAtRef/listMainToHeadDiffEntries/diffBaseRef/extensionlessScriptSignal, post-validates live HEAD with bounded retries and fails closed with materialClassification.freshness on instability -- no live-HEAD read inside the pinned build path); per-resolution filesystem preflight re-fire (resolveMaterialCodePolicy re-runs preflightMaterialCodeExclusions on every call regardless of config-signature cache hit, confirmed via code read plus smoke R3-c warm-cache test); freshness-vs-config remediation branch (isFreshness equals offendingKey===materialClassification.freshness correctly separates workspace/git remediation from lattice.config.json remediation across all 3 catch sites: review-assurance-floor.ts, repro-evidence-binding-gate.ts, story-create.ts); scripts/verify-process-fact-contract.mjs exits 0 (ran myself) with new tokens (language-neutral, material-code policy, snapshot freshness, diff enumeration, repro-evidence-binding, buildMaterialClassificationSnapshot, classifyReviewAssuranceFloorPath, diffEnumerationError) all verified present in live review-assurance-floor.ts source, not just prose. Ran RED harness myself: tmp/w1-red/red-language-degradation.cjs 11/11 PASS. Ran language-neutral-gates-smoke.js myself: 27/27 PASS (12 verificationIntent + 6 fix-round + 5 R2 + 4 R3 production-boundary checks). Ran full npm test myself: exit code 0, all suites passed including review-assurance-floor-smoke (18), proofstory-intent-hardening-smoke, closeout-trust-smoke, process-fact-contract, flow-stability-smoke, experience-arm-gate/isolation-e2e, convergence-breaker-smoke, and all others in the chain. Sanity-checked (not re-litigated, already independently passed by lattice-review-concept RR-010 and lattice-review-test-coverage RR-009 this round) the remaining R2-era wiring this round depends on: F-002 materialClassification production wiring (machine.ts:169, phase-gates.ts:153, handlers/proofstory.ts:132, handlers/story-review.ts:251+756, all diagnostic-only via evaluateProofStoryDiagnostics enforceableTriggers filter at proofstory.ts:983 so enforce outcomes stay byte-identical for TS projects even where non-observe mode now populates materialClassification e.g. phase-gates.ts runReviewToTestPreflightGate); F-004 scope-diff-pack dedup (runScopeGateAndDiffPack shares one diffPack between the scope gate and emitSemanticDegradationEvent). No dead code, no unsafe as-any, no empty catch swallowing real errors introduced by this round (all catches are narrow instanceof MaterialCodePolicyError with typed re-throw, or documented fail-soft diagnostic-only paths). No I/O shell isolation applicability (no bridge.ts pattern in this project). No proof/receipt/job/run metadata dual-surface concern (this story does not touch job.metadata/run.metadata). No new findings. No blockers.",
+      "createdAt": "2026-07-19T19:18:43.090Z",
+      "reviewRound": "2026-07-19T19:06:37.284Z",
+      "reviewRunId": "B-956f:RR-011",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c705cae20a92a642077110fbdb7cb1d615acf02ac0f2ab876485d45be38cceb9"
+    },
+    {
+      "id": "B-956f:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "R4 verification round: validate+evidence_inspect fresh with 12/12 must-intent coverage, verify-process-fact-contract.mjs exits 0, R3-a/b/c/d isolated-copy destructive revert/restore confirms all 4 load-bearing (27/27 restored), smoke 5x deterministic + RED 3x GREEN. No blocker.",
+      "createdAt": "2026-07-19T19:28:59.048Z",
+      "reviewRound": "2026-07-19T19:06:37.284Z",
+      "reviewRunId": "B-956f:RR-013",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "512419bb550ed642e9ab04aec56e4b44662350a7c8b7c50e916cd975b6a4c78e"
+    },
+    {
+      "id": "B-956f:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "R4 diff reviewed for concept residue: split naming/doc comments verified accurate (config-only fn is unexported, only 2 in-module callers), removed vacuous includes()-tokens have zero orphaned references (replaced by structural AST checks covering same concepts), test-only seam __afterHeadCaptureForTest used only in smoke test and clearly documented. NUL-byte cacheKey separator investigated and confirmed pre-existing codebase idiom (3 prior occurrences on main), not a new defect. tsc build clean, RED 11/11, smoke 29/29, verifier exit 0, repro-gate smoke 37/37. No concept residue or contradiction found this round; no blocker.",
+      "createdAt": "2026-07-19T20:12:58.503Z",
+      "reviewRound": "2026-07-19T20:03:47.320Z",
+      "reviewRunId": "B-956f:RR-014",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fbe260e17077a16d9bdcbf954912672e504277481805e5a5741ec350b1ac5305"
+    },
+    {
+      "id": "B-956f:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "R5 fix-round (9c136a9a9b) concept-residue check on head f29573b. (a) doc comments on the unconditional tree-bound assert (material-code-policy.ts:679-698) and the digest-recompute reject-before-cache-lookup (695-717) accurately describe the NEW behavior only; remaining if(headRef) phrasing at lines 693/1020 and in language-neutral-gates-smoke.ts:1000 is explicitly past-tense contrast (removes its if(headRef) gate / NOT gated on / old builder gated), not a stale current-state claim. (b) grepped whole repo for __afterHeadCaptureForTest (the removed public option): zero references in code/docs; only surviving hit is the immutable historical R4 review-passes.json note (audit trail, correctly past-tense). tsc --noEmit clean and dist build succeeds, confirming no dangling type reference. (c) the new module-private hook (_afterHeadCaptureHookForTest) + test-only setter (__setAfterHeadCaptureHookForTest, material-code-policy.ts:803-814) is documented TEST-ONLY with a MUST-reset instruction; its only callers repo-wide are language-neutral-gates-smoke.ts (which resets it in a finally block) and the module itself — no production consumer (review-assurance-floor.ts, repro-evidence-binding-gate.ts, story-create.ts) references it. Also independently confirmed the claimed stray-NUL-byte fix: located the literal x00 byte in the pre-fix cacheKey template (via git log -p binary-diff detection on the old blob) and confirmed the current file has zero NUL bytes. Ran the actual artifacts: npx tsc -p packages/main/tsconfig.json --noEmit clean, node dist/tasks/language-neutral-gates-smoke.js 32/32 including R5-a/b/c, node scripts/verify-process-fact-contract.mjs exits 0 (Process fact contract verified). Read background.md, plan.md, checklist.json (4/4 done, 3 verificationEvidence each passing), findings.json (F-001..F-007 all resolved — historical descriptions of the pre-fix if(headRef) fail-open bug are appropriately past-tense/resolved, not current documentation). No concept deletion/replacement introduces residue; no blocker.",
+      "createdAt": "2026-07-20T10:18:32.365Z",
+      "reviewRound": "2026-07-20T10:07:35.335Z",
+      "reviewRunId": "B-956f:RR-017",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/review-passes.json",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5b56f37664cd24133d53fcebf1abfbc0a384c1101d1022548c3b248adc2ce45a"
+    },
+    {
+      "id": "B-956f:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "R5 fix verified live: non-git+excludePaths repro (exact F-006/H3/F-007 scenario) now throws MaterialCodePolicyError from buildMaterialClassificationSnapshot (material-code-policy.ts:1029 unconditional assertMaterialCodeExclusionsAgainstTree, no longer gated on if(headRef)); evaluateStoryEvidenceBindingGate returns structured ok:false/blocking:true/reasonCode=repro_first_material_policy_error. Non-git no-exclusions still builds (no over-blocking). Digest-recompute (FIX 3) confirmed by byte diff: prior cacheKey template had a literal embedded NUL byte, now a plain space-separated recomputed-digest key; forged-digest cache-poison rejected before lookup (R5-c). Private test-hook: __afterHeadCaptureForTest removed from public options, replaced by module-private slot + exported __setAfterHeadCaptureHookForTest; only caller is the smoke, reset in a finally block, check() exits on first failure so no leak path; zero production callers. Reproduced all three codex verifier defeats (dead-branch if(false), same-named nested-function shadow, materialClassification:null with dangling helper token) against an isolated scratch copy (symlinked node_modules, source patched+reverted there, real worktree left clean) -- all three now exit 1 under the new ts.Program/TypeChecker verifier; baseline unmodified scratch exits 0. Ran mandated verification myself: npm run build clean, RED harness 11/11, language-neutral-gates-smoke 32/32, verify-process-fact-contract.mjs exit 0, review-assurance-floor-smoke 18/18, proofstory-intent-hardening-smoke pass. No new dead code, no new any-casts, no new empty catches in the R5 diff. No unconditional-assert perf concern: computePolicyDigest is a cheap sha256 over small sorted arrays; only the tree-walk is memoized (recomputed-digest+sha cache key); no-exclusion policies short-circuit before any git access.",
+      "createdAt": "2026-07-20T10:26:29.575Z",
+      "reviewRound": "2026-07-20T10:07:35.335Z",
+      "reviewRunId": "B-956f:RR-018",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/index.json",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          ".lattice/story/actives/B-956f/process-metrics.json",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1522cdc33bfe4f2421db528baac0c247c739c03c7a2e220dac0d7ce5feb948f6"
+    },
+    {
+      "id": "B-956f:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "R6 verification round: my R5 F-007 (test-coverage gap tied to quality F-006, non-git-root fail-open on buildMaterialClassificationSnapshot) is genuinely fixed. Verified: (1) assertMaterialCodeExclusionsAgainstTree(policy, gitCwd, headRef) is now called UNCONDITIONALLY in the retry loop (material-code-policy.ts:1029, no if(headRef) gate) so a non-git root with excludePaths fails closed through the same enumeration-throw path as resolveMaterialCodePolicy, and the tree-bound digest check (:711-719) recomputes policyDigest from the supplied policy fields before any cache lookup, rejecting a forged embedded digest. (2) Smoke grew 29->32 checks (R5-a/b/c): R5-a proves buildMaterialClassificationSnapshot fails closed on a non-git root with a covered exclusion AND that evaluateStoryEvidenceBindingGate surfaces a structured blocking outcome (reasonCode=repro_first_material_policy_error) rather than a raw throw or silent pass; R5-b proves a no-exclusions policy on a non-git root still builds (no over-blocking regression); R5-c proves a hand-built policy with a forged policyDigest is rejected before cache lookup (no cache-poison aliasing). (3) Confirmed load-bearing via an ISOLATED filesystem copy (outside the worktree, node_modules symlinked, tsconfig typeRoots patched only in the copy): reverting the unconditional assert back to if(headRef)-gated made R5-a FAIL (exit 1); reverting the digest recompute to trust policy.policyDigest verbatim made R5-c FAIL (exit 1); restoring both (byte-identical diff against the worktree file confirmed via git diff) restored 32/32 green. (4) Smoke ran 5x deterministic green in the real worktree (dist build clean); RED harness (tmp/w1-red/red-language-degradation.cjs) ran 3x GREEN (11/11, exit 0). (5) `lattice validate --story=B-956f --json` genuinely passed end-to-end (allPass:true, exit 0, all 46 configured commands code=0) once run without concurrent system contention (two earlier attempts hit the global 900s validate watchdog purely from unrelated concurrent host load, not a code failure — confirmed by re-running the one flagged command, milestone-status.test.mjs, standalone with exit 0; a stray orphaned quorum-submit-smoke.js child from an aborted prior attempt was killed before the clean run). Evidence freshness confirmed via `lattice evidence_manifest`: freshness=fresh, staleRefs=0, materialHash f0c69e34... matches all 12 checklist verificationEvidence entries; headHash 9c136a9a... (recorded in checklist evidence) verified as a genuine ancestor of current HEAD df2a7099c2 via git merge-base --is-ancestor, with `git diff 9c136a9a..HEAD -- material-code-policy.ts language-neutral-gates-smoke.ts` empty (zero diff) — the 8 intervening commits are lattice metadata-only (review_pass_set/finding_resolve/validate bookkeeping), so the CHK-001/CHK-002 adversarial verificationEvidence claims (rejected at BOTH layers; config-blind regression impossible) are now accurate when the cited command (node packages/main/dist/tasks/language-neutral-gates-smoke.js) is re-run today. F-006 (quality) and F-007 (mine) both show status=resolved/resolutionType=fixed in findings.json, consistent with what I verified live. No new gaps found this round. Out of my checklist scope but noted: scripts/verify-process-fact-contract.mjs (338-line diff, not declared on any CHK item) also passed (`node scripts/verify-process-fact-contract.mjs` exit 0) — a quality/scope-boundary concern for another lane, not a test-coverage gap.",
+      "createdAt": "2026-07-20T11:09:24.965Z",
+      "reviewRound": "2026-07-20T10:07:35.335Z",
+      "reviewRunId": "B-956f:RR-019",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/review-passes.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3e9d0680d55d7bca6803390367c4761f65a04566529c855d30b25ccf7f9077d"
+    },
+    {
+      "id": "B-956f:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "R8 delta verification of R7 fix commit d6707048ad (F-008/F-009/F-010/F-012). Concept-deletion check: calleeName/calleeResolvesToModule removed from scripts/verify-process-fact-contract.mjs, grep confirms zero code residue repo-wide (only a historical mention inside findings.json, the finding record itself). No other concept word was renamed/replaced this round -- the change is a safe-default addition (buildMaterialClassificationSnapshot gitCwd now defaults via resolveProjectGitCwd) plus explicit resolveGitCwd/resolveProjectGitCwd threading at repro-evidence-binding-gate.ts, story-create.ts STORY_INTAKE preflight, and story-review.ts (now aligned with its 3 siblings machine.ts/handlers/proofstory.ts/handlers/phase-gates.ts, all confirmed consistent via grep). Independently re-ran the F-008 repro against compiled dist with a fresh wrapper-root git fixture at both exact production call shapes (evaluateStoryEvidenceBindingGate with no gitCwd option, and renderReproFirstStoryCreatePreflight): both now correctly translate bin/newtool to material=true (previously misclassified as project/bin/newtool non-material). Ran packages/main build (clean), node dist/tasks/language-neutral-gates-smoke.js (38/38 pass including R7-a..R7-d production-call-shape checks), and scripts/verify-process-fact-contract.mjs (verified, confirming the calleeName/calleeResolvesToModule removal did not break the verifier). No concept residue found; no blocker.",
+      "createdAt": "2026-07-20T13:17:20.446Z",
+      "reviewRound": "2026-07-20T13:10:32.059Z",
+      "reviewRunId": "B-956f:RR-026",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/findings.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6a611cee309a20d7e30f6473be04c6e28eb0bfa587e296ba7cb95bbf2fb1e638"
+    },
+    {
+      "id": "B-956f:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: R7-a/R7-b independently confirmed load-bearing in an isolated worktree copy (revert of resolveGitCwd/resolveProjectGitCwd threading in repro-evidence-binding-gate.ts + story-create.ts AND the buildMaterialClassificationSnapshot safe default in material-code-policy.ts -> R7-a and R7-b each independently FAIL non-vacuously; restore -> 38/38). CHK-001 edge/adversarial evidence is now accurate for all three named consumers (floor review-assurance-floor.ts:774, repro classification repro-evidence-binding-gate.ts:426-434, ProofStory machine.ts:136-145/handlers/proofstory.ts:97-110) which all thread resolveGitCwd/resolveProjectGitCwd; story-create.ts STORY_INTAKE preflight (R7-b) also fixed. lattice validate end-to-end: allPass=true, 46/46 commands passed, verificationCoverage 12/12 covered/required, 0 missingRequired, 0 warnings. Smoke (packages/main/dist/tasks/language-neutral-gates-smoke.js) run 5x consecutively: 38/38 deterministic every time. RED harness (tmp/w1-red/red-language-degradation.cjs) run 3x: 11/11 GREEN every time. Noted for main agent: B-956f:F-014 (lattice-review-quality, medium, RR-025) remains OPEN this round -- missing regression coverage for story-review.ts createStoryReviewHandlers wrapper-root wiring; outside my verificationIntent-coverage mandate (not one of CHK-001s three named consumers) so not duplicated here, but the round is not fully clean until it resolves.",
+      "createdAt": "2026-07-20T13:28:01.102Z",
+      "reviewRound": "2026-07-20T13:10:32.059Z",
+      "reviewRunId": "B-956f:RR-027",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/index.json",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8840ce66210cb5d1fae99cc320b06b745d7ce43ea67947dad409673d96d7514"
+    },
+    {
+      "id": "B-956f:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "R9 delta (F-014 coverage fix, commit e410889012): checked the extraction of the inline story_review gitCwd-resolution/material-classification wiring into the named export buildStoryReviewMaterialClassification. No concept was deleted or replaced this round (behavior-preserving refactor: inline logic -> named export, one production call site). Verified: (1) exactly one definition of buildStoryReviewMaterialClassification and exactly one production call site (story-review.ts:161), via repo-wide grep; (2) no leftover duplicate inline copy of the resolveGitCwd+tryBuildMaterialClassificationSnapshotForDiagnostics block at the original handler site -- it now just calls the extracted function; (3) the new export doc comment claim of being identical in shape to the three sibling diagnostics sites (machine.ts, phase-gates.ts, proofstory.ts) verified true by direct comparison; (4) smoke R8-a compiled/ran green as part of language-neutral-gates-smoke.ts (39/39 checks). No stale/dangling references found. No blocker.",
+      "createdAt": "2026-07-20T13:54:06.855Z",
+      "reviewRound": "2026-07-20T13:51:09.589Z",
+      "reviewRunId": "B-956f:RR-028",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/material-code-policy.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "706e988460ebac2871e26bd3fc6064ae2a8c6ecfb1b2998dd6b8b795c803ef2a"
+    },
+    {
+      "id": "B-956f:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "R9 final delta (F-014 fix) reviewed: extraction of the R7 gitCwd-resolution wiring into named export buildStoryReviewMaterialClassification is behavior-preserving (diffed against the inline R8 block: storyId maps to args.storyId, metadataRoot maps to ctx.root, same resolveGitCwd/try-catch/tryBuildMaterialClassificationSnapshotForDiagnostics call shape as the three sibling sites machine.ts line 140, phase-gates.ts lines 102-125, proofstory.ts). Confirmed R8-a is load-bearing: patched an isolated scratchpad copy to the pre-R7 root-as-gitCwd form (materialGitCwd equals metadataRoot directly, no resolveGitCwd call) and reran the compiled smoke; R8-a fails at its first assertion (gitCwd mismatch: wrapper git toplevel vs bare projectRoot), matching the commit message claim exactly. Ran smoke myself: 39 of 39 pass both via direct node invocation and via the official npm run test:all --select language-neutral runner. Ran RED harness myself: tmp/w1-red/red-language-degradation.cjs GREEN 11 of 11. No dead imports or code in the delta (resolveGitCwd and MaterialClassificationSnapshot both used exactly once each in the new function; buildStoryReviewMaterialClassification imported and used exactly once in the smoke file). No unsafe as-any beyond the pre-existing R7-a-pattern minimal store fixture. No doc-promise-undelivered: the new JSDoc claims (identical behavior to 3 sibling sites, fail-safe undefined on resolver throw, pre-R7 form left untranslated project paths) all verified against code and test output. Story metadata diffs (index.json, process-events.jsonl, process-metrics.json) are standard DEV to REVIEW lifecycle events, not hand-edited. Clean pass, no findings.",
+      "createdAt": "2026-07-20T14:00:07.626Z",
+      "reviewRound": "2026-07-20T13:51:09.589Z",
+      "reviewRunId": "B-956f:RR-029",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts (R7/R8 wrapper-root section lines 1166-1306; full-file grep for other buildStoryReviewMaterialClassification/as-any references)"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/index.json",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          ".lattice/story/actives/B-956f/process-metrics.json",
+          "package.json (test wiring / run-all-smokes auto-discovery confirmation)",
+          "packages/main/src/core/machine.ts (sibling call-site grep)",
+          "packages/main/src/core/material-code-policy.ts (interface + tryBuildMaterialClassificationSnapshotForDiagnostics excerpt)",
+          "packages/main/src/core/proofstory.ts (sibling call-site grep)",
+          "packages/main/src/core/story-signed-workspace-resolution.ts (resolveGitCwd excerpt)",
+          "packages/main/src/handlers/phase-gates.ts (sibling call-site grep)",
+          "packages/main/src/tasks/run-all-smokes.ts (auto-discovery mechanism)"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "061068930f8b4c3db1a32b418e458f364982e4f06264af1af63e901a931785ae"
+    },
+    {
+      "id": "B-956f:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "R10 concept-residue check on the F-015 delta only (commit 4e1112afec: story-review.ts JSDoc correction + language-neutral-gates-smoke.ts R8-a rewritten story-aware, no production behavior change). No concept was deleted/replaced this round in the concept-cleanup sense; this is a correction of an inaccurate test/doc CLAIM (old R8-a wrapper-root-only revert-proof claim -> new story-aware two-repo fixture with baked-in negative control), so I additionally verified the claim itself and swept for dangling old wording. Checks: (1) grepped repo for the old inaccurate R8-a wording (WRAPPER git toplevel resolution claim, deleted bin/tool / excludePaths assertions tied to the old fixture) -- zero hits outside historical append-only review-passes.json (expected, audit trail not doc). (2) grepped for R8-a/F-014/F-015 mentions repo-wide -- all consistent with the corrected story-aware framing, no stale duplicate description. (3) confirmed makeR7WrapperFixture (still used by R7-a/R7-b) and the new makeR8StoryAwareFixture are both intact, no orphaned helper. (4) built packages/main via tsc and ran language-neutral-gates-smoke.js directly: 39/39 pass, count string matches. (5) independently reproduced the load-bearing/revert-proof claim myself: patched buildStoryReviewMaterialClassification to the bare pre-R7 one-arg form (tryBuildMaterialClassificationSnapshotForDiagnostics(metadataRoot) only), rebuilt, reran smoke -- R8-a fails at exactly the claimed gitCwd assertion (expected repoB got repoA) while R7-d and all other 37 checks still pass, confirming genuine non-duplicative revert-proof coverage (this directly refutes the prior F-015 finding). Restored story-review.ts to original and rebuilt clean; confirmed 39/39 green again and git status shows only the pre-existing process-events.jsonl lifecycle diff. No residue, no dangling references, no blocker.",
+      "createdAt": "2026-07-20T14:39:48.623Z",
+      "reviewRound": "2026-07-20T14:34:02.622Z",
+      "reviewRunId": "B-956f:RR-031",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "86dfbff12eab340801603cbee3836158aece1437f19e81d8217edc68880347c1"
+    },
+    {
+      "id": "B-956f:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "R10 final delta (commit 4e1112afec, F-015 coverage fix) reviewed clean. Verified via git show that the delta touches ONLY story-review.ts (JSDoc-only, no functional-line change) and language-neutral-gates-smoke.ts (R8-a rewritten on a two-repo fixture). Confirmed statically resolveGitCwd resolves story.worktree.path first while the safe default is project-root based, matching 3 sibling call sites. New fixture: proper tempRoots cleanup on success (verified zero leaked temp dirs after 3 consecutive runs), no reliance on git init.defaultBranch config, precondition assert guards vacuous-fixture risk. Ran build + smoke 3x: 39/39 pass consistently (matches source check-count). Verified RED harness logic (11 assertions) against worktree dist via scratch copy (main dist unmerged, as expected): 11/11 GREEN. All 15 findings F-001..F-015 resolved/verified. No new issues in the reviewed delta.",
+      "createdAt": "2026-07-20T14:45:59.015Z",
+      "reviewRound": "2026-07-20T14:34:02.622Z",
+      "reviewRunId": "B-956f:RR-032",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ad010bcb8ceb61555e44035d2b88b074fc922fb3b0c8e8d090e4ef43ff80e15"
+    },
+    {
+      "id": "B-956f:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "R10 final delta: re-verified R8-a (F-015 fix) via an isolated out-of-tree copy — bare one-arg buildStoryReviewMaterialClassification revert makes R8-a fail (repoA gitCwd, not repoB) while R7-d still passes (38/39, exit 1); restoring the resolveGitCwd-threaded form returns 39/39. makeR8StoryAwareFixture genuinely uses two separate git repos (initRepo/makeGitRepo each mkdtemp+git init), story.worktree.path=repoB matches resolveStorySignedWorkspace/resolveGitCwd first branch; JSDoc at story-review.ts:109-135 accurately describes the story-aware divergence. checklist verificationCoverage 12/12 must-intents covered, all evidence bound to headHash 4e1112afec/materialHash c8dfed3a.../storyFilesHash 40ecc3b2..., matching current HEAD (validated: file content identical to git show HEAD, no working-tree drift). Recorded validate run (test-evidence.json, 2026-07-20T14:33:47Z) shows 46/46 commands PASS bound to the same materialHash. Ran language-neutral-gates-smoke.js 5x fresh in the real worktree: 5/5 deterministic pass. Noting one non-blocking observation in my written report: an early single anomalous smoke-test failure I hit was traced to a dist/ build race between my own manual build and a concurrently-running validate process in this shared worktree, not a defect in committed code (confirmed via git show HEAD md5-identical content and clean git diff). F-015 is genuinely closed; no new test-coverage gaps found this round.",
+      "createdAt": "2026-07-20T15:08:38.314Z",
+      "reviewRound": "2026-07-20T14:34:02.622Z",
+      "reviewRunId": "B-956f:RR-033",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          ".lattice/story/actives/B-956f/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3a6dbccc241a00bdf4f8427a9b387088e7086e1da8181a4e07aa2f3c01e7559"
+    },
+    {
+      "id": "B-956f:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "R11 merged-state verification (post main-merge). Confirmed zero W1 functional-code delta since R10 pass (RP-020, headHash 4e1112afec): git diff 4e1112afec7c..HEAD across all 9 story-owned files (material-code-policy.ts, review-assurance-floor.ts, repro-evidence-binding-gate.ts, proofstory.ts, config.ts, scope-diff-pack.ts, validate-concept.ts, language-neutral-gates-smoke.ts, concept-gate-scope-smoke.ts) shows changes ONLY in config.ts (unrelated acceptanceTopologyGateMode/promptEnvelope-roles additions + duplicate-key guard), proofstory.ts (unrelated isAcceptanceMatrixDerivedEvidence import/guard), and scope-diff-pack.ts (unrelated GIT_TREE_OUTPUT_MAX_BUFFER maxBuffer addition) -- all from the B-4ec1 acceptance-topology merge, confirmed by inspecting the merge commit 1a101dca7b diff --cc hunks (pure import-union, no logic touching material classification). material-code-policy.ts, review-assurance-floor.ts, repro-evidence-binding-gate.ts, validate-concept.ts, language-neutral-gates-smoke.ts, concept-gate-scope-smoke.ts: 0 diff lines. acceptance-basis.json is CLI-generated infrastructure metadata from the unrelated acceptance-topology gate, not W1 evidence. verification_evidence_refresh_stale legitimately cleared 12/12 stale refs (materialHash unchanged at 6dad08df5685..., only headHash moved via metadata commits -- evidence_inspect confirms freshness:fresh, staleRefs:0 post-refresh). Ran `lattice validate --story=B-956f --json` end-to-end: exit 0, allPass:true, 46/46 configured commands passed (verified via 46 checkmark headers, 0 fail markers in details[]), including the two most W1-relevant commands: quorum-submit-smoke.js (pass) and repro-evidence-binding-dev-gate-smoke.js (pass). Independently re-ran node packages/main/dist/tasks/language-neutral-gates-smoke.js 3x fresh (post validate build): 39/39 deterministic PASS all 3 runs, byte-identical output. Independently re-ran node tmp/w1-red/red-language-degradation.cjs 3x: 11/11 GREEN exit 0 all 3 runs. All 12 checklist verificationEvidence rows show result:pass bound to current materialHash. No test-coverage gaps found this round; R10s verificationIntent-to-evidence coverage findings remain valid since the underlying code is byte-identical. Non-blocking environment observation (not a code finding): a leftover background process from an earlier/different session in this shared worktree (pid 3948, `lattice validate {storyId:B-956f}` without --json) was observed running concurrently near the end of this review; it did not affect the results recorded here (materialHash/evidence/git log all consistent at time of this pass).",
+      "createdAt": "2026-07-23T18:28:39.589Z",
+      "reviewRound": "2026-07-23T18:10:20.313Z",
+      "reviewRunId": "B-956f:RR-035",
+      "envelopeId": "01925b913c2d3fc371f4963827ff2fea62f64386a3541815127b6a6c7e63dc7f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/review-passes.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ee3c2be7bddd7babb41c00d21c68bedcadd4724b8b39f7aa3017819228a1d705"
+    },
+    {
+      "id": "B-956f:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "R11 merged-state verification. No concept deletion/replacement this round (purely additive: material-code-policy service, MaterialClassificationSnapshot type, diagnosticOnly trigger flag) -- concept residue grep not applicable. Verified: (1) the two merge-conflict files (core/proofstory.ts, core/scope-diff-pack.ts) contain a clean IMPORT-UNION resolution -- W1 MaterialClassificationSnapshot import/materialClassificationHasMaterialCode usage AND the topology story isAcceptanceMatrixDerivedEvidence/GIT_TREE_OUTPUT_MAX_BUFFER imports/usages both present, zero conflict markers repo-wide (grep -rl for the three marker forms across packages/main/src, scripts, .lattice/story/actives/B-956f: no matches), diff since R10 head (b769c2f3) limited to exactly the additive topology-story hunks in both files. (2) All other W1-touched core/handler files (review-assurance-floor.ts, repro-evidence-binding-gate.ts, material-code-policy.ts, validate-concept.ts, language-neutral-gates-smoke.ts, concept-gate-scope-smoke.ts, repro-evidence-binding-dev-gate-smoke.ts, machine.ts, phase-gates.ts, scope-contract.ts, story-review.ts) are byte-identical blobs R10-head vs HEAD (git rev-parse blob compare). Files that DID differ (config.ts, process-fact-levels.ts, types.ts, handlers/proofstory.ts, handlers/story-create.ts, scripts/verify-process-fact-contract.mjs, lattice.config.json) were verified via local git merge-file 3-way simulation (base=690e85dad1, ours=R10-head, theirs=main-tip 401143115b): merge-file output byte-matches actual HEAD content exactly (rc=0, no conflicts) for all of them -- confirming standard clean non-overlapping auto-merge, nothing lost, no manual edits beyond git's own algorithm. Also confirmed the same base/ours/theirs triple genuinely conflicts (rc=1) for proofstory.ts/scope-diff-pack.ts, matching the merge commit's stated conflict list. (3) Rebuilt dist (tsc clean) and ran node packages/main/dist/tasks/language-neutral-gates-smoke.js on the merged tree: 39/39 passed exactly as claimed. Also ran concept-gate-scope-smoke.js and repro-evidence-binding-dev-gate-smoke.js (both pass), and the full root npm test suite (doneRequiredCommands root full test suite) to completion: exit code 0, no failures. Also confirmed the merged-in acceptance-basis gate is a real CLI-verifier receipt (schemaVersion proofstory.acceptance_coverage_basis.v1, status partial/no gaps, PLAN-phase basis) with a genuine human_confirmation ack (receipt 39b3c010f5454b70) in process-events.jsonl -- unrelated to W1, out of this reviewer's scope, not a blocker. No findings; clean merged state.",
+      "createdAt": "2026-07-23T18:34:41.195Z",
+      "reviewRound": "2026-07-23T18:10:20.313Z",
+      "reviewRunId": "B-956f:RR-036",
+      "envelopeId": "2af400ebdad7405ce4254470afd30f3bf2ea42f0d40bfd1282d7ec74066a9d77",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/done-required-evidence.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          ".lattice/story/actives/B-956f/test-evidence.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dfd76fd80d521873677f9b66420d68843750ad9450af963e7e99af7e02bb52b7"
+    },
+    {
+      "id": "B-956f:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "R11 merged-state verification (post main-merge, topology story B-4ec1). Confirmed ZERO W1 functional-code delta since R10 pass (4e1112afec): git diff 4e1112afec..HEAD shows all 9 story-owned files with zero diff bytes (material-code-policy.ts, review-assurance-floor.ts, repro-evidence-binding-gate.ts, validate-concept.ts, language-neutral-gates-smoke.ts, repro-evidence-binding-dev-gate-smoke.ts, machine.ts, phase-gates.ts, scope-contract.ts, story-review.ts). Only proofstory.ts, scope-diff-pack.ts and config.ts changed, and I diffed W1-pre-merge (83e9464a6e) against the merge result (1a101dca7b) directly: proofstory.ts gained only an isAcceptanceMatrixDerivedEvidence import + a rowCoversIntent guard (ProofStory intent-coverage evidence rows, unrelated to materialClassification/trigger-predicate code at lines 640-730 which is untouched); scope-diff-pack.ts gained only a GIT_TREE_OUTPUT_MAX_BUFFER import + maxBuffer option on the readUnifiedDiff execFileSync call (unrelated to the semantic_analysis_unavailable diagnostic-production logic at parseUnifiedDiff/buildScopeDiffPack lines 265-315, which is byte-identical). config.ts, process-fact-levels.ts, types.ts, handlers/proofstory.ts, handlers/story-create.ts differ only via topology-story additions entirely outside W1 scope (acceptanceTopologyGateMode, promptEnvelope role union, DEFAULT_PHASE_TOOLS acceptance_* entries, duplicate-key JSON guard) and do not touch MaterialCodeConfig/materialClassification/semantic_analysis_unavailable identifiers in their diffs. lattice.config.json has single (non-duplicated) materialCode and promptEnvelope keys. No merge-conflict markers anywhere in packages/main/src. Ran both builds fresh (packages/utils tsc, packages/main tsc): 0 errors. Ran language-neutral-gates-smoke.js 3x fresh: 39/39 deterministic PASS all 3 runs. Ran tmp/w1-red/red-language-degradation.cjs 3x: 11/11 GREEN, exit 0, all 3 runs. Ran the full verifier (lattice validate --story=B-956f) end-to-end on the merged tree (after waiting out a lock held by a concurrent reviewer's own validate run, pid 4077, in this shared worktree): exit 0, disposition=executed commandExecutions=46, all 46 configured commands showed a checkmark header with 0 fail markers in output, 12/12 verificationIntent lanes covered, materialHash 6dad08df5685... and storyFilesHash 89fae40835... bound in test-evidence.json match the review_run_start context exactly. No dead code, unsafe any-casts, or empty catches introduced by the merge delta. No interference between W1's snapshot-threading and the topology story's changes; the topology code does not re-introduce a config-blind classification path and does not bypass or suppress W1's semantic_analysis_unavailable / repro-classification diagnostics channels. No blocker.",
+      "createdAt": "2026-07-23T18:37:49.295Z",
+      "reviewRound": "2026-07-23T18:10:20.313Z",
+      "reviewRunId": "B-956f:RR-034",
+      "envelopeId": "700e80ef64edc4a0e03c6743a413f67e2e49f55a381db228c200a6b55df196c3",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/scope-diff-pack.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/test-evidence.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a0b9fdfb3c427d881e13dc750a7109fb5c2ffa7cb893c01c1e0e3dbeb04f3a72"
+    },
+    {
+      "id": "B-956f:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "R12 workflow-mechanics round (ZERO code delta since R11). Verified: git log 12402c828..HEAD (R11 head -> current HEAD) shows only 10 lattice-metadata commits (validate/review_pass_set/quorum/test-transition/delivery_check_set/done_required_validate/REVIEW-phase-transition receipts); git diff 12402c828..HEAD restricted to packages/main/src and scripts is EMPTY (confirmed twice, zero output). review_run_start itself independently confirmed this: incremental basis reReviewReasonCodes=[ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS] against priorPassRef B-956f:RP-022 (my R11 pass). Direct smoke run (no suite/validate invocation): node packages/main/dist/tasks/language-neutral-gates-smoke.js -> 39/39 pass (12 verificationIntent lanes + 27 fix-round/production-wiring/wrapper-root checks), matching R11 evidence exactly (headHash 040b2f8/materialHash 6dad08d unchanged across the checklist verificationEvidence). Re-ran the concept-residue grep sweep against current tree (not cached from memory): classifyReviewAssuranceFloorPath has exactly one definition (review-assurance-floor.ts:492) plus its own smoke-test call sites, no duplicate/orphaned old-signature call sites; isPackageOrRuntimeConfigPath and hasExtension( (old TS-only whitelist helpers named in RP-001) return zero matches repo-wide; materialCode config field is consumed in config.ts confirming no doc-promise-undelivered regression. Full diff vs main (18 files, +3852/-128 in src+scripts) is unchanged from prior rounds -- no new concept deletion/replacement introduced this round since there is no diff delta at all. No blocker.",
+      "createdAt": "2026-07-23T19:08:12.890Z",
+      "reviewRound": "2026-07-23T19:05:42.584Z",
+      "reviewRunId": "B-956f:RR-037",
+      "envelopeId": "8811ba349d803e67f175a8e5e7a5d045bd2c6daf146834008d216ca468571dae",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Zero code delta since R11 pass (B-956f:RP-022) confirmed via git diff on prior head; full-diff-vs-main file list re-triaged by name (grep-scanned, not fully re-read) rather than fully re-read, since content is byte-identical to the R11-reviewed tree."
+      },
+      "_hash": "d3e40263f799776a23a8fa18657969f93c5dc1784cf76b50a927534929a7994f"
+    },
+    {
+      "id": "B-956f:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "R12 workflow-mechanics round, zero code delta since my R11 pass (RP-023, reviewed at merge head 1a101dca7b). Verified: git diff 1a101dca7b..HEAD -- packages/main/src scripts is byte-empty (0 lines); every file touched by the 16 commits since then lives under .lattice/story/actives/B-956f/ (checklist.json evidence-timestamp refresh, review-passes.json/review-runs.json/process-events.jsonl/prompt-envelopes.json bookkeeping growth, acceptance-basis.json + scope-contract.json acknowledged-expansion entry for the NEW acceptance_basis_generate lifecycle gate merged in from topology story B-4ec1 mid-flight, delivery-check.json/done-required-evidence.json/test-evidence.json re-serialization) -- no packages/main/src or scripts/ file changed. git diff main...HEAD --name-only -- packages/main/src scripts still lists exactly the same 18 story-owned files RP-023 already reviewed line-by-line. The machine-computed Incremental Review Basis for this run independently confirms this: reReviewReasonCodes=[ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS], changedFiles=[], impactedFiles=[], unresolvedFindings=[] against priorPassRef RP-023/priorReviewRunId RR-034. Ran both required checks directly (no validate/build invoked per instruction, avoiding re-poisoning the convergence window): node packages/main/dist/tasks/language-neutral-gates-smoke.js -> 39/39 PASS; node tmp/w1-red/red-language-degradation.cjs -> 11/11 GREEN, exit 0. All 15 findings (F-001..F-015) in findings.json show status=resolved, none reopened. checklist.json: all 4 CHK items status=done, 12/12 verificationIntent lanes covered with evidence dated 2026-07-23T18:13:31.752Z re-binding to the same head/material/story hashes RP-023 already validated. No quality issues (dead code / type-safety / I/O-isolation / doc-promise-undelivered) to raise -- no source line changed for this reviewer lane to inspect. No blocker.",
+      "createdAt": "2026-07-23T19:09:08.108Z",
+      "reviewRound": "2026-07-23T19:05:42.584Z",
+      "reviewRunId": "B-956f:RR-038",
+      "envelopeId": "7eaf0e5638a4d3174da14ab9cdfc69c9628c7addf3ccd2311e2c936889c84fad",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/index.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/delivery-check.json",
+          ".lattice/story/actives/B-956f/done-required-evidence.json",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          ".lattice/story/actives/B-956f/scope-contract.json",
+          ".lattice/story/actives/B-956f/test-evidence.json",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44ed6361d0afd55dcfac351280bc486049057aa7790d76190eec0a3c0246a4d8"
+    },
+    {
+      "id": "B-956f:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "R12 workflow-mechanics round, ZERO code delta since R11 pass (RP-021/RR-035, headHash 040b2f8c). Per explicit round instructions, did NOT run lattice validate or done_required_validate (suite-execution ban to protect done_prepare unchangedSuiteExecutions invariant). Verified coverage without the suite: (a) evidence_inspect --storyId=B-956f: freshness=fresh, staleRefs=0, materialHash=6dad08df5685...b252e373 unchanged from RR-035 -> no refresh_stale needed; checklist.json confirms all 12 must-intents (CHK-001..004 x happy/edge/adversarial) carry result:pass verificationEvidence bound to that same materialHash. (b) Ran node packages/main/dist/tasks/language-neutral-gates-smoke.js directly: 39/39 PASS, exit 0. Ran node tmp/w1-red/red-language-degradation.cjs directly: 11/11 PASS, exit 0. (c) git diff 040b2f8cc9d8b35e838d4353b8c3afb347dfb7dc..HEAD restricted to packages/main/src, tmp/w1-red, scripts, bin, lattice.config.json: zero lines -- confirmed by git log (14 intervening commits, all \"lattice: record ... metadata\") and by git diff --stat overall (only .lattice/story/actives/B-956f/*.json/.jsonl metadata files touched: checklist.json, delivery-check.json, done-required-evidence.json, index.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json, test-evidence.json, closeout-write-receipts.jsonl). No test-coverage gaps found this round; R10/R11 verificationIntent-to-evidence coverage remains valid since underlying code is byte-identical.",
+      "createdAt": "2026-07-23T19:09:50.438Z",
+      "reviewRound": "2026-07-23T19:05:42.584Z",
+      "reviewRunId": "B-956f:RR-039",
+      "envelopeId": "6bbfc837fe1bf8c1b4c2aa3a4a407134e1d28ac4534b98a76640c46a980045bc",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/index.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          "packages/main/dist/tasks/language-neutral-gates-smoke.js",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e5215a5b486dca5d3b06c663e3d66654651ebbfd97796c5a98de76087122922e"
+    }
+  ]
+}

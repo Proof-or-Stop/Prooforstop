@@ -1,0 +1,35 @@
+{
+  "task": "Material-code classification in the advanced gates is TS-centric, so identical bug work in py/rs/go/java/cpp and cross-ecosystem build manifests silently escape repro-first RED requirements and review-assurance-floor classification.",
+  "outcome": "An identical type=bug story flips repro-first required=true and classifies material across review-assurance floor + repro classification + ProofStory triggers regardless of source language, all driven by ONE config-resolved, HEAD+materialHash-bound classification snapshot; go.mod at repo root classifies material; doc/binary formats stay non-material; this repo's experiments/ stays excluded (agreed 2506-file delta); RED harness tmp/w1-red/red-language-degradation.cjs goes 9-fail to 0-fail.",
+  "facts": [
+    "classifyReviewAssuranceFloorPath (packages/main/src/core/review-assurance-floor.ts:518) whitelists only the TS/JS extension family, and :506-511 hardcodes proofbound-layout material prefixes (packages/main/src, scripts/, bin/) — everything else, including go.mod/Cargo.toml/pyproject.toml/pom.xml, falls through to non-material.",
+    "collectMaterialCodeFiles (packages/main/src/core/repro-evidence-binding-gate.ts:83) calls the classifier WITHOUT projectRoot, so project materialCode config can never reach repro classification.",
+    "The ProofStory trigger predicate (packages/main/src/core/proofstory.ts:626,698) is text/type-only and never calls the classifier at all.",
+    "RED harness tmp/w1-red/red-language-degradation.cjs (probe rp-mrqybe17-8biryq) fails 9/9 material assertions on baseline: .py/.rs/.go/.java/.cpp sources and go.mod/Cargo.toml/pyproject.toml/pom.xml all classify non-material; the 2 doc-exemption assertions pass.",
+    "Plan v4 (docs/requirements/decisions/language-neutral-gates-execution-plan.md) survived three cross-host audit rounds and reached APPROVE-WITH-CHANGES from both codex and agy.",
+    "loadConfig today swallows parse errors (config.ts:580-590), so malformed config silently degrades — the strict resolver must fail closed instead."
+  ],
+  "constraints": [
+    "Whitelist direction preserved: unknown and doc formats stay non-material forever; no new language parsers (semantic anchors stay TS/JS-only).",
+    "Pure evaluators stay pure: policy and the main...HEAD diff classification are resolved ONCE at the transition boundary; no config reads inside evaluators; all three consumers receive the same hash-bound snapshot object.",
+    "Level-1 immutable manifest set (JS set + go.mod/Cargo.toml/pyproject.toml/pom.xml/gradle/etc.) cannot be excluded by ANY config key — two-layer enforcement: config-resolve rejection plus filesystem-aware transition preflight.",
+    "Strict config resolver: normalized extensions (leading dot, lowercase), segment-aware path matching (src/ never matches src-old/), fail-closed on malformed entries with named-key diagnostics.",
+    "Repo regression at execution time: the classification delta for this repo must be exactly the experiments/ exclusion set; all manifest/lock/config files provably still material.",
+    "Ordering binding: this lands before or with the repro-first enforce flip."
+  ],
+  "unknowns": [
+    "Exact orchestrator call-site shape for resolving the snapshot once per transition (which machine/transition-orchestrator function owns resolution and threads it to all three consumers).",
+    "Whether extensionless deleted/renamed script files need additional git-blob plumbing beyond the plan's CX3-10 rule (read shebang/exec-bit from the OLD tree blob) in the current diff-collection code path."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/repro-evidence-binding-gate.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/material-code-policy.ts (new)",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+  ],
+  "timestamp": "2026-07-19T15:23:54.023Z"
+}
