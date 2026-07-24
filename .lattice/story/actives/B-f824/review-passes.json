@@ -535,6 +535,32 @@
         "scanEscalationReason": null
       },
       "_hash": "06a5ee03c4269714fed5ed77ed6d17b4810ca72885d0b4b0daa34b8f7aec3b40"
+    },
+    {
+      "id": "B-f824:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 incremental review of commit 638ce1ee40 (only story-owned change since RP-017): rewrites runtime:closeout_validation_terminal registry rationale in process-fact-registry.ts and adds AST-scoped mechanical assertions in verify-process-fact-contract.mjs binding it to done-prepare.ts. No concept deletion/replacement occurred. Verified derive/registry/contract all agree on grouping, TEST-entry boundary, reused-terminal clause, and never-blocking telemetry framing; AST-scoped negative check correctly excludes comment-only mentions. grep confirms zero stale references to old single-counter shape. No blocker.",
+      "createdAt": "2026-07-24T03:58:41.909Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-024",
+      "envelopeId": "ece7eb3d96993774be06919f21ac2dbc6a10c0a0ba8427023063fa502171f678",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "91a270636a464b96d457f1a34f70199a1eb408d2b292eb047df49f63438cb061"
     }
   ]
 }
