@@ -146,6 +146,26 @@
       "resolvedAt": "2026-07-24T14:31:39.810Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4043:F-008",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:153-167 F-006 post-checkout hook-regression assertion (runIssuerMutationSmoke, only reachable via --issuer-mutations) is not bound as verificationEvidence to any of the 15 checklist intentRefs: none of CHK-001..005 evidence command fields literally include --issuer-mutations (all use verify-process-fact-contract.mjs / pre-review-check-smoke --proof-scenarios / run-proofstory-acceptance-rollout-cohort.mjs / the default-mode acceptance-rollout-smoke.js). All 15 evidence note fields mention the hook regression only in prose, which the test-coverage rule of concrete correspondence does not accept as a substitute for a bound command. I independently confirmed the assertion genuinely bites: in an isolated clone at the same head, zeroing GIT_UNTRUSTED_REPO_ARGS makes 'node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations' fail on exactly 'issuer replay must not execute hooks from the caller-supplied evidence repository' (exit 1), and restoring the file returns PASS with 7 assertions; the invocation is also a real fail-closed gate via lattice.config.json validate.commands line 97 (independent of the story checklist), so the underlying security property is mechanically enforced. The gap is purely in this story's own coverage ledger: this is the same defect class previously flagged as F-010 on a prior story (an orphan assertion invisible to intent coverage). Given verificationIntent is frozen from DEV, the fix does not require a new intent id: CHK-004:adversarial:fail-closed-mutations (the closest fit for evidence-repo tampering defenses) could be amended or given an added verificationEvidence entry whose command literally runs --issuer-mutations, giving this specific regression a traceable home.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T15:14:18.088Z",
+      "reviewRound": "2026-07-24T14:57:57.391Z",
+      "reviewRunId": "B-4043:RR-017",
+      "_hash": "828386cc7399011be5ab66182903b084dd21f47d8894381184fe9a96825486d9",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "lattice.config.json",
+        ".lattice/story/actives/B-4043/checklist.json"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
