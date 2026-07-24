@@ -519,7 +519,7 @@
       "desc": "recorded by the main agent on behalf of the test-coverage lane, whose prompt envelope was invalidated mid-review by the concurrent main merge: CHK-004:adversarial:0 evidence claims fourteen revert-proofs across TEN guard groups. The fourteen is correct and the lane reproduced every one exactly, but the group count is wrong: thirteen distinct guardedBy tags are actually used across the 30 cases, and the smoke file own comment block clusters them into seven named categories, so no grouping yields ten. Same defect class as F-013 item 4 and F-017: a specific checkable numeric claim in verificationEvidence that does not hold. Note this evidence note is being rewritten anyway by the B-cc54 reconciliation, which replaces the matrix.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T02:56:41.265Z",
@@ -529,7 +529,9 @@
         ".lattice/story/actives/B-bf52/checklist.json"
       ],
       "signatureTag": "missing|json|recorded-main-agent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T03:30:18.738Z",
+      "resolutionType": "fixed"
     }
   ]
 }
