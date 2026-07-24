@@ -26,9 +26,28 @@
   ],
   "explicitExcludes": [],
   "scopeChangeReason": "command-policy.ts is protected: proofstory_contract_set stays PLAN-frozen (allowedPhases unchanged); scope_shrinkage_decision_set already allows PLAN/DEV/REVIEW/TEST. New args are registered in command-catalog.ts, not command-policy.ts.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Both are in-scope for B-1909 but were not enumerated in the PLAN scope_contract: verification.ts is a done-consumer that CHK-002 routes through the shared checklist-status predicate (skip withdrawn intents); the floor smoke is the CHK-006 write-time-floor test. Neither expands scope.",
+      "timestamp": "2026-07-24T21:59:12.138Z",
+      "paths": [
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "77d5514bf10510b00ba722ae90420cbb91248310",
+      "materialHash": "3b1e2e33de4abe2774c699f4f2f182ba180566799dd65e134077a601a933ad00"
+    }
+  ],
   "createdAt": "2026-07-24T20:08:57.221Z",
-  "updatedAt": "2026-07-24T20:08:57.221Z",
+  "updatedAt": "2026-07-24T21:59:12.138Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -45,6 +64,8 @@
     "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/validate.ts": "packages/main/src/validate.ts",
     "packages/main/src/tasks/withdrawn-disposition-smoke.ts": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
-    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts"
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/verification.ts": "packages/main/src/core/verification.ts",
+    "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
   }
 }
