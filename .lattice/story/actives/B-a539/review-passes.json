@@ -123,6 +123,32 @@
         "scanEscalationReason": null
       },
       "_hash": "a557000e8e90d35cb3221daadac457b858672da8d3c5d32035ba096eba0fdcc7"
+    },
+    {
+      "id": "B-a539:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed post-merge round 2: all 7 must intents across CHK-001/CHK-002 have concrete, non-vague verificationEvidence (result=pass) with matching intentRef. Cross-checked exactly-once claim for CHK-002:happy:0 against three independent sources: (1) direct read of current lattice.config.json shows exactly one entry referencing reviewer-scan-budget-guard-smoke.js and zero full-identity/execution-identity duplicate groups across all 47 entries; (2) the mechanically-persisted test-evidence.json (real validate --json run, materialHash matching all verificationEvidence entries) independently shows commands[11]=reviewer-scan-budget-guard-smoke.js code:0, appearing exactly once among 47 commands; (3) that artifacts embedded verificationCoverage block reports total=7/required=7/covered=7/missingRequired=0, computed by the framework itself. The materialHash difference between verificationEvidence and current review-round context is materialHash-only drift with storyFilesHash unchanged, i.e. unrelated audit-trail drift per CLAUDE.md policy, confirmed by re-deriving exactly-once and zero-duplicate facts directly against current HEAD myself. No gaps, no vague evidence, no missing must-intent coverage found.",
+      "createdAt": "2026-07-24T21:13:50.562Z",
+      "reviewRound": "2026-07-24T21:09:44.924Z",
+      "reviewRunId": "B-a539:RR-006",
+      "envelopeId": "85f685e99f35f1589ff70f768643c2106a5876ebd074b6236e803284a429020a",
+      "writerSessionId": "sess-12d4654412aecbb01251458208b2b803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a539/checklist.json",
+          ".lattice/story/actives/B-a539/test-evidence.json",
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a539/background.md",
+          ".lattice/story/actives/B-a539/plan.md",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e7462da149c558acfea32111dd2d4eeac2a9f94990d871876f8958e06c9a670"
     }
   ]
 }
