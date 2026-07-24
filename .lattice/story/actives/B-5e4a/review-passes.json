@@ -223,6 +223,40 @@
         "scanEscalationReason": null
       },
       "_hash": "f71345ed44066d0fbae649cbdfeefcd5219acb079aa9742ee9fd1102d97e7418"
+    },
+    {
+      "id": "B-5e4a:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Fresh current-round receipt rebinding prior RP-004 verdict. review_incremental_context: isFirstPass=false, priorPassRef=B-5e4a:RP-004, freshnessClassification=RELATED_STORY_MATERIAL_DRIFT. Confirmed the drift is a main merge, not story rework: git diff main...HEAD --name-only shows only the story-owned set (lifecycle-registry.ts, lifecycle-registry-contract.ts, lattice.config.json, lifecycle-artifact-scope.md, verify-process-fact-contract.mjs, plus .lattice/story metadata) -- none of the 8 files review_incremental_context flagged as changed-since-RP-004 (convergence-breaker.ts, lattice-brand.ts, gate-repeat-block-smoke.ts, package.json/-lock.json x2) appear in it, i.e. those came in via the 92-commit merge of main and are already reflected in current main, not story-owned edits. Direct git diff <RP-004 priorHeadHash 23525f4a>..<current headHash 333cb13> on the four story-owned code/doc files shows zero content change; lattice.config.json diff is exactly one added line (a sibling stories gate-repeat-block-smoke.js registration), consistent with a clean merge picking up sibling config lines, not a rewrite of the storys own validate-line addition (git diff main...HEAD on lattice.config.json still shows only this storys single lifecycle-registry-contract.js line). Re-ran sanity: npm --prefix packages/main run test:lifecycle-registry-contract PASSes, 49 StoryStore filenames derived (floor 40), 0 divergences -- identical to RP-004s recorded result. No new dead-code, type-safety, or I/O-isolation issues; RP-004s F-001/F-002 verification and F-003 dismissal reasoning still hold against unchanged code. No blocker.",
+      "createdAt": "2026-07-24T03:06:44.546Z",
+      "reviewRound": "2026-07-24T03:04:59.168Z",
+      "reviewRunId": "B-5e4a:RR-012",
+      "envelopeId": "ed2a9155a6e9fc78c69b41c553cb98dbc4e9ce4ed587132979977ce97d78ee19",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "lattice.config.json",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5e4a/checklist.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "03f9f66b9e0f2076aebcb56706529a379efa95459060d428055eaea90924fd2e"
     }
   ]
 }
