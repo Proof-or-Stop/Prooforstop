@@ -81,6 +81,26 @@
       "_hash": "b639f998ce65fb25ba6e7a374e3cf7a40487fc12cb926a383bb03c28bab430ef",
       "signatureTag": "missing|unknown|concept-incompleteness-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1909:F-006",
+      "desc": "CHK-002:adversarial:0 evidence overclaims: intent names 4 renderers (checklist_get, story_get, session_brief, exports) that must never print withdrawn as DONE. Cited evidence only asserts checklist_get renders status withdrawn/notEqual done (withdrawn-disposition-smoke.ts lines ~160-163). story_get (story-query.ts), session_brief (session.ts) and any export path are never exercised for this claim in either smoke; grep withdrawn across src confirms zero test touches those renderers. Note textually narrows to just checklist_get while the intent it is bound to names 4 surfaces.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T22:13:06.868Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-006",
+      "_hash": "c8bbcff566251a08734c57cfe1bbc87dab5a6e3fd82678e9dcfcc8f6ad1af633",
+      "files": [
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-evidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
