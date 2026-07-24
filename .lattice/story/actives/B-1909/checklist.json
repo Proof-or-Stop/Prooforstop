@@ -130,7 +130,30 @@
       "context": "Refuse status withdrawn with no decisionRef, or with a decisionRef naming a decision that does not exist, is not confirmed/userConfirmed, or does not list that item in withdrawnChecklistItemRefs. Refuse a binding withdrawal that is not authorized by the same kind of decision, and refuse the two layers citing different decision ids for the same shrinkage. Per CLAUDE.md Handler coding convention, enforce at Zod, at handler entry, and at every consuming gate, and test the internal-call path that bypasses Zod. Withdrawal authority follows the scope-shrinkage decision's existing approval, so a DEV agent cannot unilaterally withdraw a binding.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Withdrawing CHK-nnn and AB-mmm under one confirmed+userConfirmed decision stamps both layers with the same decisionId",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A decision that does not cite the item/binding is refused, and citing two different decision ids across the two layers for the same shrinkage is refused",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The internal-call path bypassing Zod is still rejected because handler and consuming gate re-validate; a DEV agent without userConfirmed:true cannot produce a withdrawal",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
