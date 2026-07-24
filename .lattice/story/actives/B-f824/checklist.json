@@ -4,25 +4,383 @@
       "id": "CHK-001",
       "title": "Add smoke repro of review-window execution poisoning and the new pass/fail boundary",
       "context": "Replay the B-956f shape in flow-stability-smoke: pre-TEST reviewer executed terminal plus one post-TEST closeout executed terminal in the same identity group must PASS convergence after the fix but fails before it; two post-TEST executed terminals in the same group must still FAIL; a reused terminal with commandExecutions greater than zero must still FAIL in any phase. Real-world telemetry evidence: .lattice/story/actives/B-956f/process-events.jsonl round 18:10:20 window events at 18:25:19 executed 34090591, 18:36:10 executed 15aa0ab1, 19:02:20 executed 34090591 TEST phase.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:28:22.138Z",
+      "userSees": "Running the new flow-stability-smoke convergence case prints a passing assertion for the B-956f-shaped window (pre-TEST reviewer executed + one post-TEST closeout executed in the same group does NOT throw) and failing assertions still throw done_prepare convergence invariant failed for two post-TEST duplicates and for contradictory reused terminals",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "B-956f-shaped window (two pre-TEST executed groups + one post-TEST executed duplicate of a pre-TEST group + reused exec=0) passes assertDonePreparePassConvergence with blocking counter 0 and observable counter 1",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Window with two post-TEST executed terminals in the same identity group yields blocking counter 1 and assert throws",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Group whose only executed terminal is post-TEST (no pre-TEST baseline) yields blocking 0 and observable 0",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reused terminal reporting commandExecutions greater than zero keeps failing convergence regardless of phase (pre-TEST or post-TEST)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case A in the B-f824 block replays the B-956f window shape (two pre-TEST executed groups, one post-TEST executed duplicate, reused exec=0) and asserts blocking 0 / observable 1 / assert.doesNotThrow; failed pre-fix (1 !== 0), passes on commit 50bf7d1b2f.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case B asserts two post-TEST executed terminals in the same identity group yield blocking 1 and assert.throws(/done_prepare convergence invariant failed/).",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case C covers a group whose only executed terminal is post-TEST: blocking 0 and observable 0.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case D asserts a reused terminal with commandExecutions=46 timestamped pre-TEST still fails convergence (contradictory reused blocks in any phase).",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Split convergence counting into blocking post-TEST duplicates and observable review-window telemetry",
       "context": "In deriveDonePreparePassConvergence: keep field unchangedSuiteExecutions as the blocking counter but compute it as per-group max(0, postTestExecutedCount - 1) using facts.testEntryAt as the boundary, plus contradictory reused terminals with commandExecutions greater than zero in any phase; add a new observable field reviewWindowSuiteExecutions = per-group max(0, totalExecutedCount - 1) counted across the whole window so redundancy stays visible without blocking. Update DonePrepareConvergence type at done-prepare.ts:205, the transcript regex parser at :1077-:1097, the render line at :1666, and assertDonePreparePassConvergence which must keep asserting only on the blocking fields.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:37:01.414Z",
+      "userSees": "done_prepare PASS transcript renders the convergence line as convergence: metadataRollbacks=0 reviewerReattestations=N postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 reviewWindowSuiteExecutions=M successfulCloseout=1 and a B-956f-shaped closing reaches DONE prepare: PASS instead of convergence invariant failed",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "deriveDonePreparePassConvergence returns both counters: blocking unchangedSuiteExecutions counts only per-group post-TEST duplicate executed terminals plus contradictory reused terminals; observable reviewWindowSuiteExecutions counts whole-window per-group duplicates",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "donePrepareJsonResult parses the new convergence render line including reviewWindowSuiteExecutions into the JSON convergence block",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Terminal timestamped exactly at facts.testEntryAt counts as post-TEST (>= comparison, same convention as postTestReviewerIdentityIds)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Transcript without a convergence line (older shape) does not crash donePrepareJsonResult and yields no convergence block",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "assertDonePreparePassConvergence still throws when unchangedSuiteExecutions is nonzero and never consults the observable field, so demoting blocking data into the observable field cannot pass the gate",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/done-prepare.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "deriveDonePreparePassConvergence returns both counters per the phase-anchored split (commit 50bf7d1b2f); B-f824 Cases A-D plus the updated base-case deepEqual assert both fields.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "donePrepareJsonResult transcript-parse deepEqual (~:4686) updated to the new line shape including reviewWindowSuiteExecutions and passes.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case C boundary sub-case places an executed terminal exactly at facts.testEntryAt and asserts it counts post-TEST (>= convention, matching postTestReviewerIdentityIds).",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Parser uses optional group (?: reviewWindowSuiteExecutions=(\\d+))? defaulting 0; the pre-existing old-shape transcript fixture at flow-stability-smoke:4684 doubles as the backward-tolerance test and passes.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/done-prepare.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDonePreparePassConvergence still throws on nonzero unchangedSuiteExecutions (Cases B and D) and its body never reads reviewWindowSuiteExecutions, so demoting blocking data into the observable field cannot pass the gate.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Update downstream smoke assertions and process-fact documentation to the split semantics",
       "context": "Strict convergence-line regexes exist in done-prepare-merge-rerun-smoke.ts:333 and :496, done-prepare-auto-closeout-smoke.ts:367 and :1211, done-prepare-closure-heartbeat-smoke.ts:672 and :687, plus flow-stability-smoke convergence cases around :4593 and :4666. Verify scripts/verify-process-fact-contract.mjs and the runtime:closeout_validation_terminal entry in packages/main/src/core/process-fact-registry.ts still describe reality; run npm run test:process-fact-contract and lattice validate.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:57:31.619Z",
+      "userSees": "npm run test:process-fact-contract prints PASS and node bin/lattice.js validate --json reports allPass true with the done-prepare merge-rerun, auto-closeout, closure-heartbeat and flow-stability smokes all green against the new convergence line shape",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All strict convergence-line regexes in done-prepare-merge-rerun-smoke, done-prepare-auto-closeout-smoke, done-prepare-closure-heartbeat-smoke match the new render shape and their suites pass under lattice validate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg over packages/main/src for convergence: metadataRollbacks= finds no leftover matcher expecting the old line shape",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "npm run test:process-fact-contract confirms the runtime:closeout_validation_terminal registry entry still matches emitted event fields after the semantics change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke && npm --prefix packages/main run test:done-prepare-auto-closeout-smoke && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "All five matcher sites updated to the split shape (merge-rerun :333/:496, auto-closeout :367/:1211, closure-heartbeat type+deepEqual); each smoke passed standalone on commit be017fb645, and node bin/lattice.js validate --json reported allPass=true.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"convergence: metadataRollbacks=\" packages/main/src scripts",
+          "result": "pass",
+          "note": "Repo-wide sweep found no other strict matchers; flow-stability-smoke:4684 is the deliberate old-shape backward-compat fixture and :4794 is a source-scan doesNotMatch unaffected by the shape change.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract verified after the semantics change; runtime:closeout_validation_terminal registry rationale describes event-field bindings and stays accurate under the split, so it was left unchanged.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update the B-c163 convergence contract prose in the three decisions docs to the phase-anchored split",
+      "context": "Scope reviewer gap (PLAN round 2): the sentence repeated unchanged-suite execution ... constraints remain independently blocking is duplicated verbatim in docs/requirements/decisions/done-prepare-automation-execution-plan.md, workflow-convergence-failure-remediation-execution-plan.md, and done-prepare-heartbeat-review-assurance-ux-execution-plan.md, and after this story it would describe stale unconditionally-blocking behavior. Rewrite that contract prose in all three files so it states: unchangedSuiteExecutions blocks only on per-group duplicate executed terminals at or after the current TEST entry plus contradictory reused terminals with commandExecutions greater than zero, while reviewWindowSuiteExecutions records whole-window per-group duplicates as observable non-blocking telemetry. The done-prepare-automation doc is the doc-of-record that already documents the sibling reviewerReattestations/postTestReviewerReattestations split this story mirrors.",
+      "relatedDocs": [
+        "requirements/decisions/done-prepare-automation-execution-plan.md",
+        "requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "userSees": "rg -n \"remain independently blocking\" docs/requirements/decisions/ returns only prose consistent with the phase-anchored split, done-prepare-automation-execution-plan.md names reviewWindowSuiteExecutions as observable telemetry, and git diff shows the other two B-c163 docs untouched",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done-prepare-automation-execution-plan.md describes the phase-anchored split for unchangedSuiteExecutions and names reviewWindowSuiteExecutions as observable telemetry, consistent with its reviewerReattestations split prose",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg across docs/requirements/decisions finds no remaining claim that repeated unchanged-suite execution blocks unconditionally, and the two other B-c163 docs remain untouched by git diff (no injected suite-counting prose)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs-drift preflight and story_review scope re-check accept the updated prose without introducing contradictions with the reviewerReattestations split documentation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T00:39:39.474Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Commit 6cb0771072 rewrites the B-c163 contract prose: line 734 now carries the post-TEST qualification and a sibling bullet documents the phase-anchored two-counter split (B-f824, B-956f incident, >= TEST-entry boundary, contradictory reused blocking, reviewWindowSuiteExecutions observable telemetry) consistent with the reviewerReattestations split prose.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"remain independently blocking\" docs/requirements/decisions/ && rg -ln \"reviewWindowSuiteExecutions\" docs/requirements/decisions/",
+          "result": "pass",
+          "note": "Single remaining match carries the post-TEST qualification; only done-prepare-automation-execution-plan.md names the new field; git diff confirmed the two verify-only B-c163 docs are untouched.",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js validate --json",
+          "result": "pass",
+          "note": "Full routine validate allPass=true on the branch containing the docs change; docs-drift preflight runs again mechanically at REVIEW to TEST and story_review scope re-check accepted the narrowed CHK-004 interpretation (OQ-1 resolution).",
+          "headHash": "586ad9bf26e14cdb557db16f0285938edda436ff",
+          "materialHash": "3ffa35be5764a392efb99cfd76122c5e6a635d736dbc9f7a1aee1f00c33a9c5e",
+          "storyFilesHash": "f8999dd83666892f108592976b78aece6a7d6a139bc038b9fd96f0770193867a",
+          "timestamp": "2026-07-24T04:21:24.387Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-24T00:13:57.544Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer found the canonical decisions prose would go stale after the counting split; docs-of-record must track the implemented contract",
+      "addedTitle": "Update the B-c163 convergence contract prose in the three decisions docs to the phase-anchored split",
+      "addedContext": "Scope reviewer gap (PLAN round 2): the sentence repeated unchanged-suite execution ... constraints remain independently blocking is duplicated verbatim in docs/requirements/decisions/done-prepare-automation-execution-plan.md, workflow-convergence-failure-remediation-execution-plan.md, and done-prepare-heartbeat-review-assurance-ux-execution-plan.md, and after this story it would describe stale unconditionally-blocking behavior. Rewrite that contract prose in all three files so it states: unchangedSuiteExecutions blocks only on per-group duplicate executed terminals at or after the current TEST entry plus contradictory reused terminals with commandExecutions greater than zero, while reviewWindowSuiteExecutions records whole-window per-group duplicates as observable non-blocking telemetry. The done-prepare-automation doc is the doc-of-record that already documents the sibling reviewerReattestations/postTestReviewerReattestations split this story mirrors."
     }
   ]
 }

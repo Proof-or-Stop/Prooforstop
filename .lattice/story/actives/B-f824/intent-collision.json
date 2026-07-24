@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-f824",
+  "id": "IC-20260724000721",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fix the done_prepare convergence invariant by phase-anchored counting inside deriveDonePreparePassConvergence: the blocking counter (unchangedSuiteExecutions, still asserted to zero) counts only per-identity-group duplicate executed validation terminals timestamped at or after facts.testEntryAt plus contradictory reused terminals with commandExecutions greater than zero in any phase; whole-window per-group duplicates move to a new observable field reviewWindowSuiteExecutions rendered in the convergence line and parsed into JSON. This is the mechanically-verifiable variant of user option (a): attribution derives from the framework-written TEST-entry boundary rather than forgeable writer identity (EXP-001). Option (b) reviewer reuse-preference already exists mechanically and its failure mode (single-slot receipt eviction) is explicitly deferred to a follow-up story; option (c) N-per-lane is rejected because lane identity is not recorded on terminals.",
+  "acceptedInterpretationHash": "sha256:1337281236da9e9700fa5d47c37b052bc9627f1b4f7c91028e82f74acb053343",
+  "notes": "Checked sourceText against checklist CHK-001/002/003, understanding.json, decision.json (options A-D, chosen A-phase-anchored-split), and plan.md: the user offered options a/b/c as non-exhaustive examples (e.g.) and confirmed proceed-to-DONE after the phase-anchored variant of (a) was presented as the recommended direction in conversation on 2026-07-24. Competing interpretations: literal writer-attribution fields (rejected: EXP-001 unverifiable caller identity), N-per-lane allowance (rejected: no lane identity on events), multi-slot receipt store (deferred follow-up: wide blast radius across test-evidence.json consumers). No interpretation collision remains: repro-first mandate is CHK-001, invariant preservation for closeout duplicates is explicit in the acceptance claim.",
+  "createdAt": "2026-07-24T00:07:21.479Z",
+  "updatedAt": "2026-07-24T00:07:21.479Z"
+}

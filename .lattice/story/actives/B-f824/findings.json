@@ -1,0 +1,64 @@
+{
+  "findings": [
+    {
+      "id": "B-f824:F-001",
+      "desc": "type-safety: packages/main/src/tasks/flow-stability-smoke.ts:4849,4876,4885 read the new reviewWindowSuiteExecutions field via `((x ?? {}) as unknown as Record<string, unknown>).reviewWindowSuiteExecutions` instead of the plain typed `x?.reviewWindowSuiteExecutions` used one line above for the sibling unchangedSuiteExecutions field on the exact same object (e.g. line 4844). deriveDonePreparePassConvergence already returns DonePrepareConvergence | null with reviewWindowSuiteExecutions as a required number field (done-prepare.ts:123,205), so no cast is structurally needed; the erase-to-Record<string, unknown> cast just discards compile-time protection against a typo in the new field name in three freshly-added assertions.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T01:06:00.539Z",
+      "reviewRound": "2026-07-24T00:58:56.071Z",
+      "reviewRunId": "B-f824:RR-002",
+      "_hash": "e158b3e0270965ba0e274834caf1866dfbd1f64610173ec7b3f45ff1b8f9323c",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|type-safety-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the three erase-to-Record casts at flow-stability-smoke.ts:4849/4876/4885 with plain typed optional-chain access matching the sibling unchangedSuiteExecutions style (commit 931085db0bee); npm --prefix packages/main run build clean proves compile-time field-name checking restored; test:flow-stability-smoke green.",
+      "resolvedAt": "2026-07-24T01:43:27.920Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f824:F-002",
+      "desc": "quality: scripts/verify-process-fact-contract.mjs:2142 checks donePrepareHandlerText.includes(\"event.timestamp >= facts.testEntryAt\") as a raw whole-file substring, not AST-scoped to deriveDonePreparePassConvergence, even though the two adjacent checks below it (2143-2147) parse the same file via parseSourceFile/findFunctionDeclaration for exactly this reason. Verified by construction: a source string containing only a COMMENT with the literal text (e.g. `// anchor: event.timestamp >= facts.testEntryAt`) while the actual filter uses `facts.reviewEntryAt` instead still satisfies .includes(). This is precisely the defeat class this file's own header (lines 615-621) says AST-anchoring was introduced to close (codex HIGH: token-in-comment/unused-wrapper passes the check). The preceding comment block (2135-2140) claims \"the negative check is AST-scoped\" but the positive testEntryAt anchor check right above it is not.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T03:59:55.790Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-021",
+      "_hash": "711eeadb8f86e0f4a80d6c380c0d3d53e334984a752ed7de8019b428469c4f3b",
+      "signatureTag": "adversarial|unknown|quality-scripts-verify",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the whole-file substring anchor with hasTestEntryAnchoredComparison: an AST walk over deriveDonePreparePassConvergence requiring a real BinaryExpression x.timestamp >= facts.testEntryAt (comments are not AST nodes). Falsifiability probe: comment-decoy source with a facts.reviewEntryAt filter now FAILS the contract with the F-002 message; real source passes. Commit 592304c309.",
+      "resolvedAt": "2026-07-24T04:05:54.525Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f824:F-003",
+      "desc": "quality: scripts/verify-process-fact-contract.mjs:2146 asserts subtreeReferencesProperty(convergenceAssertFn.body, \"unchangedSuiteExecutions\") true, but this only checks the property is referenced ANYWHERE inside assertDonePreparePassConvergence, not that it appears inside the throwing if-condition specifically. Verified by construction (ran the exact helper against a mutated body): adding an inert `const _dead = convergence.unchangedSuiteExecutions;` statement while REMOVING `unchangedSuiteExecutions` from the actual `if (...) throw` blocking condition still makes subtreeReferencesProperty return true, so this check would pass even if the invariant it claims to guard (unchangedSuiteExecutions stays fail-closed, per the assert message at done-prepare.ts:1655) were silently defeated. Contrast with the file's own pre-existing stronger idiom at scripts/verify-process-fact-contract.mjs:685-699 (hasDiffEnumerationBlockingBranch), which specifically requires the property to appear inside an IfStatement whose branch returns/throws, not merely somewhere in the function body. The new check at 2146 (and its sibling negative check at 2147, which is fine since absence-anywhere is a legitimately stronger claim than presence-anywhere) should use the same if-condition-scoped idiom for the positive case to actually bind the blocking semantics rather than mere reference presence.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T04:00:05.457Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-021",
+      "_hash": "755c3152f32cdb77b586303e2163cba277d825c2ac757373b0ed60a2df660d5b",
+      "signatureTag": "adversarial|unknown|quality-scripts-verify",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the body-wide subtreeReferencesProperty positive check with hasPropertyGuardedThrowingBranch adapted from the hasDiffEnumerationBlockingBranch idiom: requires an IfStatement in assertDonePreparePassConvergence whose condition references unchangedSuiteExecutions and whose then-branch throws; dead-code-only references now FAIL the contract (probe verified). Negative reviewWindowSuiteExecutions check unchanged. Commit 592304c309.",
+      "resolvedAt": "2026-07-24T04:05:55.218Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
