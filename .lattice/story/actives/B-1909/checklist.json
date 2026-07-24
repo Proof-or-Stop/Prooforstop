@@ -426,9 +426,9 @@
       "id": "CHK-006",
       "title": "Guard against empty-scope success when core bindings are withdrawn",
       "context": "The highest-value test in the request: a story must not obtain a formal PASS by withdrawing every requirement that proved hard. Define the minimum delivery floor (at least one non-withdrawn acceptance binding with real evidence) and where it is evaluated relative to the existing DONE intent-equivalence path in core/proofstory.ts:1514 and 1864, which already skip confirmed-shrinkage milestone ids. Full withdrawal must require explicit re-approval rather than passing silently.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T21:44:57.527Z",
       "verificationIntent": {
         "happy": [
           {
