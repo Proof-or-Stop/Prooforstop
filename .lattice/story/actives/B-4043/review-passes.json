@@ -244,6 +244,31 @@
         "scanEscalationReason": null
       },
       "_hash": "cef4ef456acaf7ee69cb5475073b4ffbdf94067208bca5474907a7faf5f06f87"
+    },
+    {
+      "id": "B-4043:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Re-check after F-006/F-007 fixes and 2 report regenerations. Verified current signed acceptance-rollout-report.json (materialHash/headHash/storyFilesHash all current) has matchedPairCount=6, 3/3 seeds, omission 100%, falseBlock 0, waiverDelta 0 - unchanged from RP-005 despite regeneration, and doc Wave4 table quotes exactly these numbers. Confirmed exactly 2 does-not-claim occurrences matching amended F-005 resolution text. No stale NOT IMPLEMENTED markers. No overclaim of Wave3A/authority found. F-006/F-007 code fixes are internal only, no doc claim depends on them. No inaccuracies found in other resolution texts. No blocker.",
+      "createdAt": "2026-07-24T15:01:28.290Z",
+      "reviewRound": "2026-07-24T14:57:57.391Z",
+      "reviewRunId": "B-4043:RR-018",
+      "envelopeId": "178504938a4f09c943736352b695066f131ca03ade0287a536f7f654d92c04cf",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bd7313757c0a4d25a40fdb1fbc8d8e8d8b130f059e759f0a6a80fb95fe7f7d0a"
     }
   ]
 }
