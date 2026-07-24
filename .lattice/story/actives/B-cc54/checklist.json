@@ -435,9 +435,9 @@
       "id": "CHK-004",
       "title": "Keep the breaker fail-closed and non-forging",
       "context": "Prove by test that tripping the breaker never marks the gate satisfied, never rewrites finding attribution, and never advances the phase. The breaker only stops and reports; review independence must remain intact.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T00:18:53.884Z",
       "verificationIntent": {
         "happy": [
           {
@@ -474,7 +474,100 @@
           }
         ]
       },
-      "userSees": "Running the smoke prints '  ok 4 free text does not widen the key (no reset-forever hole)'."
+      "userSees": "Running the smoke prints '  ok 4 free text does not widen the key (no reset-forever hole)'.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
+          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:54.119Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
+          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:54.347Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
+          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:54.572Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
+          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:55.014Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
+          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:55.376Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
+          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:55.755Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk004() group: a tripped breaker never returns proceed, a tampered counter or cleared state cannot suppress a fresh trip, and finding.ts stays protected/untouched.",
+          "headHash": "e5c1ca4538a889f5f945146fd3f2a33f950e88c6",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:56.096Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
