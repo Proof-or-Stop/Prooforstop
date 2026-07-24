@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3144",
+  "allowedCommands": [
+    "node bin/lattice.js <lifecycle commands>",
+    "node packages/main/dist/tasks/quorum-submit-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "agy-cli",
+    "codex-cli",
+    "lattice-implementer",
+    "lattice-review-behavior",
+    "lattice-review-concept",
+    "lattice-review-docs",
+    "lattice-review-quality",
+    "lattice-review-test-coverage",
+    "test-case-reviewer",
+    "test-intent"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-3144/",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/handlers/quorum-prune.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "excludedCommands": [
+    "any command that mutates another story worktree",
+    "git push",
+    "git reset"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-24T20:10:02.173Z",
+  "updatedAt": "2026-07-24T20:10:02.173Z",
+  "_hash": "2c5deabf305449e4b047565a8c36db85cf638ef06f3900931baac85d048152fd"
+}
