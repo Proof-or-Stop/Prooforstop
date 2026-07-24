@@ -4,41 +4,775 @@
       "id": "CHK-001",
       "title": "RED: reproduce an unbounded repeat-block loop against a phase gate",
       "context": "Write a failing test that drives the same gate to refuse N times with an identical block reason (findings attributed to main agent, artifact=test-evidence.json) and asserts that some breaker stops it. It must fail today, proving no repeat-block detection exists. Model the reason on the B-4043 transcript evidence: 61 identical refusals against 54 re-review rounds.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:18:45.559Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gateFailureDigest(cmd, reasonA) vs gateFailureDigest(cmd, reasonB) where both reasons share identical first 200 normalized chars but differ at char 250 (e.g. different Diagnostic gaps list) -> both return the same digest key today (RED: proves .slice(0,200) truncation discards distinguishing content); WHY: reproduces the exact B-cc54 root cause at the unit level",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount called sequentially with 3 distinct ProofStory-style blockers (missing intent snapshot / missing acceptance binding / missing verificationIntentRefs) all sharing the invariant 200-char header -> maxGateFailureCount returns 3 on a single collapsed key instead of 1 per distinct key (RED: proves false counter inflation from digest collision); WHY: end-to-end consequence of the digest bug on the counter subsystem",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gateFailureDigest with reason exactly 200 chars after normalization -> digest is stable; appending one distinguishing char at position 201 still produces the SAME digest (RED: boundary proof that .slice(0,200) discards char 201); WHY: boundary condition at the exact truncation point",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two reasons where raw text looks very different (mixed case, real /paths/to/files, real timestamps 2026-07-23T12:00:00Z, hex IDs a1b2c3d4e5f6) but normalization (lowercase + digits-># + paths-># + hex->#) makes first 200 chars identical while tails genuinely differ -> same digest despite semantically unrelated blockers; WHY: normalization amplifies the collision surface beyond naive identical-prefix construction",
+            "type": "cli"
+          },
+          {
+            "desc": "Three sequential bumpGateFailureCount with distinct real ProofStory blockers sharing the invariant header -> assessBreaker sees maxGateRepeat>=2 (threshold), first trip auto-recovers, counter rebuilds to >=2 again on fresh window -> freeze; isInteractiveAckAllowed returns false without TTY -> unattended run permanently stuck on a genuinely progressing story; WHY: proves the full end-to-end user-facing impact (token burn + permanent freeze) of the digest collision",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Running the smoke against the unfixed tree prints 'AssertionError [ERR_ASSERTION]: different unmet preconditions must not share a repeat-block key' and exits 1.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        }
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
       "title": "Record consecutive identical gate blocks per story",
       "context": "Add a repeat-block ledger keyed on (storyId, gate, digest of the block reason). Increment on an identical consecutive block; reset when the gate passes or the block reason changes, so a genuinely progressing review is never penalised.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:18:47.673Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After fix, gateFailureDigest(cmd, reasonA) vs gateFailureDigest(cmd, reasonB) where both share the 200-char invariant ProofStory header but have different Diagnostic gaps tails -> produces two distinct digest keys; WHY: core fix verification -- different blockers must not collide",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount called with blocker-A twice then blocker-B once (all with shared header, different tails) -> maxGateFailureCount returns 2 (blocker-A count), not 3; WHY: counter correctly tracks per-distinct-key after digest fix",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount with genuinely identical reason 3 times -> maxGateFailureCount returns 3 and assessBreaker trips with gate-repeat; WHY: fix must not break detection of real infinite loops -- desirable collisions preserved",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gateFailureDigest with reason >10KB containing many volatile tokens (absolute paths, ISO timestamps, hex IDs, bare numbers) -> normalization produces a stable deterministic key; same 10KB reason called twice returns identical digest; WHY: large-input stress + normalization idempotency",
+            "type": "cli"
+          },
+          {
+            "desc": "gateFailureDigest with empty reason string -> returns a valid non-empty digest key without throwing; WHY: null/empty input safety boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "gateFailureDigest with two reasons that differ only by whitespace variation (multiple spaces vs single space, trailing newlines) -> same digest because normalization collapses whitespace; WHY: whitespace-only differences are not semantically distinct blockers",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two reasons whose first 200 chars are identical and whose tails differ by a single trailing space character -> must produce distinct keys after fix; WHY: minimal distinguishing delta ensures the fix does not use a too-coarse comparison window that still truncates",
+            "type": "cli"
+          },
+          {
+            "desc": "Reason crafted so normalization collapses the tail entirely to # sequences (all content beyond char 200 is digits and absolute paths) -> still distinguishable from a reason whose tail has a different count of # tokens; WHY: normalization must not destroy ALL distinguishing information in the tail",
+            "type": "cli"
+          },
+          {
+            "desc": "Two reasons that differ only in digits within the first 200 chars (e.g. b-1234 vs b-5678, both normalized to b-#) -> SHOULD still collide (same semantic blocker, only volatile tokens differ); WHY: fix must not over-discriminate by removing normalization -- desirable collisions must be preserved",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Running the smoke prints '  ok 1 different unmet preconditions get different repeat-block keys'.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.892Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        }
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
       "title": "Hard-stop after the threshold and name the unmet precondition",
       "context": "When the counter reaches the threshold (default 3), stop the loop and emit a diagnostic that states the actual unmet precondition rather than a generic refusal, e.g. that findings lack agent attribution and that re-review cannot clear it because attribution is fixed at finding_add time.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:18:50.496Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assessBreaker({maxGateRepeat:2}, thresholds={maxGateRepeat:2}, priorState={autoRecoveriesSpent:1}) -> action=freeze, reasons array includes string matching gate-repeat; WHY: confirms hard-stop fires when threshold met and recovery budget exhausted",
+            "type": "cli"
+          },
+          {
+            "desc": "enforceConvergenceBreakerGate on command=story_advance when gate-failure counter >= threshold -> throws Error whose message includes storyId and tripped counter description (gate-repeat N>=T); WHY: diagnostic must name the specific tripped signal so an unattended agent can self-correct, not a generic refused-to-advance",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "assessBreaker with maxGateRepeat=1 and threshold=2 -> tripped=false, action=proceed; WHY: boundary just below threshold must not trip",
+            "type": "cli"
+          },
+          {
+            "desc": "assessBreaker with maxGateRepeat=2 and default threshold=2 -> tripped=true because comparison is >= (inclusive at threshold per user stated discipline: same reason twice = livelock); WHY: >= boundary correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_CONVERGENCE_MAX_GATE_REPEAT env set to 0 -> envNumber rejects 0 (allowZero not set for maxGateRepeat), falls back to default 2; WHY: env misconfiguration setting threshold to 0 must not disable the breaker",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "assessBreaker with maxGateRepeat=threshold but priorState.autoRecoveriesSpent=0 -> action=auto-recover (NOT freeze), advance PROCEEDS; attacker gets threshold more attempts in the fresh window before actual freeze; WHY: auto-recovery effectively doubles the runway -- a real loop needs 2 x threshold identical repetitions before hard-stop",
+            "type": "cli"
+          },
+          {
+            "desc": "LATTICE_CONVERGENCE_MAX_GATE_REPEAT set to 100000 (at CONVERGENCE_ENV_MAX sanity ceiling) -> accepted by envNumber as valid, breaker effectively disabled requiring 100K repeats before trip; WHY: sanity ceiling is permissive enough to let a determined operator neutralize the safety brake via env alone",
+            "type": "cli"
+          },
+          {
+            "desc": "Malformed priorState JSON with frozen set to string yes (not boolean true), autoRecoveriesSpent=NaN -> normalizeState coerces frozen to false (=== true fails for string) and recoveries to 0 via num(); WHY: type coercion in persisted state means an attacker who writes frozen as a truthy-but-non-boolean value bypasses the freeze check",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Running the smoke prints '  ok 2 an identical blocker still accumulates to the trip threshold'.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        }
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
       "title": "Keep the breaker fail-closed and non-forging",
       "context": "Prove by test that tripping the breaker never marks the gate satisfied, never rewrites finding attribution, and never advances the phase. The breaker only stops and reports; review independence must remain intact.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:18:53.884Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call gate evaluation THRESHOLD+2 times with same blocker reason -> result.ok is false on EVERY call including after breaker trips on the final ones; WHY: tripping the breaker must never auto-satisfy the gate -- it only stops, never clears",
+            "type": "cli"
+          },
+          {
+            "desc": "After breaker trips, read story phase from store -> still INIT (never advanced to DEV or REVIEW); no finding.agent field was rewritten in any recorded finding; WHY: breaker only stops and reports, never forges progress or rewrites review attribution",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Breaker trips on gate-repeat signal, then a DIFFERENT gate (different command name) independently refuses -> second gate result.ok=false is preserved with its own independent reason, uncontaminated by the prior breaker trip; WHY: breaker trip must not leak state into unrelated gate evaluations",
+            "type": "cli"
+          },
+          {
+            "desc": "resetGateFailureCounts on a story dir with no gate-failure-counts.json file -> no file created, no error thrown (F-005 guard); WHY: empty-state reset must not create stray untracked files that dirty the git tree",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Manually overwrite gate-failure-counts.json setting count=0 for the active key (simulating an attacker resetting the counter via direct file write) -> next bumpGateFailureCount increments from 0, attacker gets threshold more free attempts before re-trip; WHY: file-based counter has no integrity protection -- any co-located process can reset it",
+            "type": "cli"
+          },
+          {
+            "desc": "Manually write breaker-state.json with frozen=false and autoRecoveriesSpent=0 (simulating attacker clearing a freeze via direct file write) -> next assessBreaker re-assesses from scratch, grants a fresh auto-recovery plus threshold more attempts; WHY: persisted state file is the entire trust boundary and has no tamper detection or signing",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount called with command as empty string and reason as empty string -> produces a valid digest key and increments the counter normally without throwing; WHY: empty inputs must not bypass counting or crash the bookkeeping path",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Running the smoke prints '  ok 4 free text does not widen the key (no reset-forever hole)'.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        }
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
       "title": "Smoke coverage for fire, no-fire and reset",
       "context": "Cover three cases: breaker fires at the threshold on identical repeated blocks; breaker does NOT fire when the block reason changes between attempts; counter resets after the gate passes. Register the smoke in the validate command set.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-24T00:18:57.275Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Three identical gate failures (same command, same reason string) -> maxGateFailureCount=3, assessBreaker with maxGateRepeat=3 trips with gate-repeat in reasons array; WHY: fire-on-identical baseline -- breaker detects a real livelock",
+            "type": "cli"
+          },
+          {
+            "desc": "Three gate failures each with a DIFFERENT reason (each occurs exactly once) -> maxGateFailureCount=1, assessBreaker does not trip; WHY: no-fire-on-progress baseline -- genuinely progressing story is never penalised",
+            "type": "cli"
+          },
+          {
+            "desc": "Two identical failures, then resetGateFailureCounts (simulating a gate pass / successful transition), then one more identical failure -> maxGateFailureCount=1 (counter was reset by progress); WHY: reset-on-progress baseline -- counter does not accumulate across successful transitions",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reason changes on attempt threshold-1 (e.g. threshold=2: one failure with reason-A, then switch to reason-B) -> reason-A at count 1, reason-B at count 1, neither reaches threshold, no trip; WHY: boundary -- reason change just before threshold prevents trip",
+            "type": "cli"
+          },
+          {
+            "desc": "Two distinct reasons that each independently accumulate to threshold (A x2 then B x2, threshold=2) -> maxGateFailureCount=2 for both keys; assessBreaker trips once reporting the MAX; WHY: multiple independent counters reaching threshold simultaneously",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two reasons with first 200 normalized chars identical but tails genuinely differ (the exact B-cc54 digest collision scenario: ProofStory invariant header + different Diagnostic gaps) -> after fix these are distinct keys each at count=1, breaker does NOT trip; before fix they collapse to count=2 and breaker trips incorrectly on a progressing story; WHY: regression guard for the root cause -- the single most important smoke case for B-cc54",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker calls resetGateFailureCounts between every bumpGateFailureCount (reset-after-every-bump) -> counter never reaches threshold, genuine repeat loop runs forever without tripping the breaker; WHY: reset must only be called on actual gate-pass progress and not be invocable arbitrarily by any co-located process",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount with reason containing the breaker own freeze message text (renderBreakerFreeze output fed back as a new gate failure reason) -> treated as an ordinary reason string producing its own digest key, no recursive special behavior or amplification; WHY: breaker output fed back as input must not cause feedback loops or bypass counting",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "Running 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' prints all four ok lines then 'gate-repeat-block-smoke: PASS' and exits 0.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Re-captured after the F-010 relabel commit (F-006 discipline: code committed first, evidence bound after). GREEN: the smoke exits 0 with all five ok lines. RED proven twice for this assertion set: removing the structural gap-id loop fails \"real production gap codes must each key distinctly\" (exit 1), and reverting the digest basis hunk fails \"CHK-001:happy:0 distinct blockers must not share a key\" (exit 1); both restore to exit 0, independently reproduced by the concept and test-coverage lanes. Every fixture gap code is grep-verified against core/proofstory.ts.",
+          "headHash": "7a9c2efa915b3bb6f1c5467b0cc8aa66110efc6d",
+          "materialHash": "fd29cc93cee517451c1270d245e22d05ba258a5ec2f9cd297c8d35c89c058cd9",
+          "storyFilesHash": "802a2d953bc5f4a1188ee0e7890401431034b6a6a3918886c00ddbd24ef8643d",
+          "timestamp": "2026-07-24T02:01:16.893Z"
+        }
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ]
+      }
     }
   ]
 }

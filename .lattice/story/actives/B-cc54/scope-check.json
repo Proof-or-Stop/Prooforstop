@@ -1,0 +1,140 @@
+{
+  "storyId": "B-cc54",
+  "checkedAt": "2026-07-24T00:45:19.246Z",
+  "features": [
+    {
+      "feature": "RED test reproduces an unbounded repeat-block loop against a phase gate driven with an identical block reason, proving no repeat-block detection exists today",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Repeat-block ledger keyed on (storyId, gate, digest of block reason); increments on identical consecutive block, resets when the gate passes or the reason changes",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Digest key is widened via structured signal extraction (bracketed reason codes + diagnostic gap ids) so genuinely different blockers sharing an invariant prefix get different keys",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Bracketed reason-code signal must contain at least one underscore, so ordinary bracketed annotations ([note]/[info]/[todo]) do not count as signals and cannot mint a fresh key per attempt (F-002 fix)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Digest basis structurally encodes prefix+signals (JSON) instead of a literal \" signals:\" string delimiter, making the key boundary structural/key-neutral (F-003 fix)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Breaker hard-stops once the counter reaches the trip threshold on a genuinely repeated blocker",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "On trip, the diagnostic names the actual unmet precondition rather than emitting a generic refusal",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Tripping the breaker never marks the gate satisfied",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Tripping the breaker never rewrites finding/review attribution",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Tripping the breaker never advances the story phase",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reasons carrying no structured signal keep their historical prefix-only key (back-compat; no regression to the existing convergence-breaker-smoke)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covers fire: breaker trips at threshold on identical repeated blocks",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covers no-fire: breaker does not trip when the block reason changes between attempts",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke covers reset: counter resets after the gate passes",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "The smoke is registered in the validate command set (lattice.config.json)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 15,
+    "covered": 15,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-07-24T00:21:09.115Z",
+  "_hash": "8c432a32fe3f93b9e14cb0bf4710ce61dc457bffdb2619632b9f59bcdc560adb",
+  "openQuestions": []
+}
