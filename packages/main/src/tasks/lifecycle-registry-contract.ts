@@ -23,6 +23,9 @@
  *   - [CHK-002] Add lifecycle registry consistency contract
  *   - [B-5e4a CHK-002] Add acceptance-topology artifact classification check +
  *     StoryStore top-level artifact filename coverage invariant
+ *   - [B-5e4a F-002] Scope the helper-parameter classification of unresolved
+ *     storyDir join-site identifiers to the enclosing callable's parameter
+ *     list (whole-source parameter search silently skipped coincidental names)
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -365,23 +368,127 @@ function resolveImportedLiteral(storeSource: string, storeDir: string, ident: st
   return null;
 }
 
+/** Keywords whose `(...)` group before a `{` is a control clause, not a callable's parameter list. */
+const NON_CALLABLE_PAREN_KEYWORDS = new Set([
+  'if', 'for', 'while', 'switch', 'catch', 'return', 'else', 'do', 'typeof', 'await',
+]);
+
 /**
- * True when the join-site identifier is declared as a typed string PARAMETER
- * of a store.ts method (e.g. `storyFilePath(storyId: string, file: string)`).
- * Such sites are generic helper plumbing — the concrete filenames flow in from
- * call sites, which pass 1 covers for the readJson/writeJson helpers — not a
- * per-artifact derivation blind spot.
+ * Backward-scans from `fromIndex` (exclusive) for the nearest UNMATCHED `{` —
+ * i.e. the opener of the block that lexically encloses `fromIndex`. Balanced
+ * `{...}` pairs encountered on the way (earlier sibling blocks, object/template
+ * interpolations) cancel out via the depth counter. Returns -1 at top level.
  */
-function isStoreHelperParameter(source: string, ident: string): boolean {
-  const re = new RegExp(String.raw`[(,]\s*${escapeIdentForRegExp(ident)}\s*:\s*string\b`);
-  return re.test(source);
+function findEnclosingBraceOpen(source: string, fromIndex: number): number {
+  let depth = 0;
+  for (let i = fromIndex - 1; i >= 0; i--) {
+    const ch = source[i];
+    if (ch === '}') depth++;
+    else if (ch === '{') {
+      if (depth === 0) return i;
+      depth--;
+    }
+  }
+  return -1;
+}
+
+/** Backward-scans from the `)` at `closeIndex` to its balanced matching `(`, or -1. */
+function findMatchingParenOpen(source: string, closeIndex: number): number {
+  let depth = 0;
+  for (let i = closeIndex; i >= 0; i--) {
+    const ch = source[i];
+    if (ch === ')') depth++;
+    else if (ch === '(') {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/**
+ * If the `{` at `braceIndex` opens a CALLABLE body (method / function / arrow),
+ * returns the raw text of that callable's parameter list (the content between
+ * its parens); otherwise null. A callable body opener is `(<params>)` followed
+ * only by an optional return-type annotation and/or `=>` before the `{`, where
+ * the token before `(` is a method/function name (optionally generic, e.g.
+ * `readJson<T>(...)`) — control clauses (`if (...) {` etc.) are rejected so the
+ * enclosing-scope walker keeps ascending past them.
+ */
+function callableParamListForBodyOpen(source: string, braceIndex: number): string | null {
+  const before = source.slice(0, braceIndex);
+  const headerMatch = before.match(/\)\s*(?::\s*[\w$.<>[\]|&\s]*)?(?:=>\s*)?$/);
+  if (!headerMatch || headerMatch.index === undefined) return null;
+  const closeParen = headerMatch.index;
+  const openParen = findMatchingParenOpen(source, closeParen);
+  if (openParen === -1) return null;
+  // Token before `(`: skip an optional generic group (`<T>`), then read the
+  // identifier. Bare arrow param lists (`(x) => {`) have no leading identifier
+  // and are accepted as callables.
+  let cursor = openParen - 1;
+  while (cursor >= 0 && /\s/.test(source[cursor])) cursor--;
+  if (source[cursor] === '>') {
+    let angleDepth = 0;
+    while (cursor >= 0) {
+      if (source[cursor] === '>') angleDepth++;
+      else if (source[cursor] === '<') {
+        angleDepth--;
+        if (angleDepth === 0) {
+          cursor--;
+          break;
+        }
+      }
+      cursor--;
+    }
+    while (cursor >= 0 && /\s/.test(source[cursor])) cursor--;
+  }
+  let nameEnd = cursor + 1;
+  while (cursor >= 0 && /[\w$]/.test(source[cursor])) cursor--;
+  const name = source.slice(cursor + 1, nameEnd);
+  if (name && NON_CALLABLE_PAREN_KEYWORDS.has(name)) return null;
+  return source.slice(openParen + 1, closeParen);
+}
+
+/**
+ * True when the join-site identifier is declared as a typed string PARAMETER of
+ * the callable (method/function) that lexically ENCLOSES that join site — e.g.
+ * `file` inside `storyFilePath(storyId: string, file: string)`. Such sites are
+ * generic helper plumbing — the concrete filenames flow in from call sites,
+ * which pass 1 covers for the readJson/writeJson helpers — not a per-artifact
+ * derivation blind spot.
+ *
+ * SCOPED rule (B-5e4a F-002): the classification walks up the enclosing blocks
+ * from the join site itself and inspects ONLY the parameter lists of callables
+ * that lexically enclose that site (innermost method plus any outer callables,
+ * for sites inside nested callbacks — those parameters are in scope via
+ * closure). A whole-source search would silently skip a local variable whose
+ * name merely coincides with a typed parameter declared elsewhere in store.ts
+ * (e.g. a `const file = someCall()` join site) — exactly the derivation blind
+ * spot this pass exists to fail loudly on. Any ambiguity (no enclosing
+ * callable found, lexical walker confused) classifies as NOT a helper
+ * parameter, so the fail direction is always the named divergence.
+ */
+function isEnclosingCallableParameter(source: string, ident: string, siteIndex: number): boolean {
+  const paramRe = new RegExp(String.raw`[(,]\s*${escapeIdentForRegExp(ident)}\s*:\s*string\b`);
+  let cursor = siteIndex;
+  while (true) {
+    const braceOpen = findEnclosingBraceOpen(source, cursor);
+    if (braceOpen === -1) return false;
+    const paramList = callableParamListForBodyOpen(source, braceOpen);
+    if (paramList !== null && paramRe.test(`(${paramList}`)) return true;
+    // Non-callable block (if/for/try/object literal) or a callable that does
+    // not declare `ident`: keep ascending — an outer enclosing callable may.
+    cursor = braceOpen;
+  }
 }
 
 /**
  * Pass 2 derivation: resolves every `join(this.storyDir(...), <X>)` site to a
- * filename. An identifier that resolves to no string literal AND is not a
- * typed helper parameter is a derivation blind spot and fails loudly with a
- * named divergence — never skipped silently (B-5e4a F-001).
+ * filename. Resolution order: inline literal → store.ts const literal →
+ * imported const literal → typed string parameter of the callable enclosing
+ * THAT site (scoped, B-5e4a F-002). An identifier that resolves to none of
+ * these is a derivation blind spot and fails loudly with a named divergence —
+ * never skipped silently (B-5e4a F-001).
  */
 function deriveStoryDirJoinFilenames(source: string, storeDir: string): Set<string> {
   const derived = new Set<string>();
@@ -394,12 +501,12 @@ function deriveStoryDirJoinFilenames(source: string, storeDir: string): Set<stri
     } else {
       resolved = resolveConstLiteral(source, ident) ?? resolveImportedLiteral(source, storeDir, ident);
       if (resolved === null) {
-        if (isStoreHelperParameter(source, ident)) continue;
+        if (isEnclosingCallableParameter(source, ident, match.index ?? 0)) continue;
         record(
           'storystore-coverage',
           `join(this.storyDir(...), ${ident}) site in store.ts: identifier ${ident} cannot be resolved to a ` +
           `string literal (not a store.ts const, not a const behind a resolvable relative import, not a typed ` +
-          `helper parameter) — derivation blind spot; coverage was NOT verified for this site`,
+          `string parameter of the enclosing method) — derivation blind spot; coverage was NOT verified for this site`,
         );
         continue;
       }
