@@ -247,7 +247,21 @@
         "test": [
           "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "scope_shrinkage_decision_set appends {bindingId,disposition:withdrawn,decisionRef} and proofstory_contract_get shows it, run with story phase DEV and phase REVIEW (no PLAN return).",
+          "headHash": "df7e567c41baa47364bf4d4622351ccf5a08da44",
+          "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
+          "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
+          "timestamp": "2026-07-24T21:37:51.252Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
