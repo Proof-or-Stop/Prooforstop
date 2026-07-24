@@ -618,7 +618,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:673 — the signals-conditional 200-char prefix cut is NOT relaxed when two rejections have an IDENTICAL, non-empty signal set but differ only in an embedded allowlisted ordinal past char 200. extractGateBlockSignals only captures the gap CODE (e.g. milestone_source_requirement_unbound, acceptance_binding_unknown_checklist_ref), never the specific object the gap names, so two genuinely different ProofStory DEV-gate rejections collapse. Repro with 100% real production code (core/proofstory.ts renderProofStoryDiagnosticReport + the exact machine.ts:179 banner + bumpGateFailureCount): a milestone-ledger gap naming sourceRequirementId REQ-001 vs the SAME gap code naming REQ-002 on a different milestone digest IDENTICALLY (story_advance/b5117552c0ff both times) even though REQ- is allowlisted and the strings genuinely diverge at char 450 (past the 200-char cut). Same mechanism reproduced with acceptance_binding_unknown_checklist_ref naming CHK-005 vs CHK-006 (also identical digest, story_advance/011867525d4e both times) — so this is a GENERAL flaw affecting any/all of the 7 allowlisted prefixes when they appear inside a ProofStory diagnostic-gap message, not one specific prefix. Confirmed end-to-end: two bumpGateFailureCount calls with these real REQ-001/REQ-002 renders leave maxGateFailureCount=2, the exact breaker-trip threshold — a false freeze on a story making incremental progress (fix REQ-001, then get correctly blocked by the separate, later-discovered REQ-002 gap), which is precisely the class of bug CHK-001 exists to close. tasks/convergence-breaker-smoke.ts signals-fold/proofstory-gap-signal-set case only tests DIFFERENT gap codes (assert.notDeepEqual(sigA, sigB) at line ~412) and never tests the SAME gap code recurring with a different embedded ordinal, so this gap is untested. Fix direction: extractGateBlockSignals must also capture the substantive ordinal(s) embedded inside each gap message (not just the code), or the signals-branch prefix must not be capped at 200 when the message contains an allowlisted-prefix ordinal beyond that cut.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-24T04:18:32.483Z",
@@ -626,7 +626,11 @@
       "reviewRunId": "B-bf52:RR-021",
       "_hash": "9f5bb0f1ccddb056377b45a48d28f1f35cbc8a229d875119b63f7b8780787a6c",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted as a documented residual rather than fixed, and the acceptance is measured rather than argued. When two rejections extract an IDENTICAL signal set and differ only in a substantive ordinal past character 200 of the normalized reason, they still share one key. This is NEVER WORSE THAN MAIN: main truncates at 200 unconditionally AND rewrites every ordinal to #, so main collapses that same pair and also collapses the within-window pair this branch keeps apart. The improvement is therefore bounded, not regressive. Widening the window is not available: B-cc54 CHK-002:adversarial:1 requires a signal-free tail past the banner to leave the key UNCHANGED, and mutation M12 (200 -> 4000) fails that suite with exit 1. Recorded at the prefix line in core/convergence-breaker.ts and pinned in BOTH directions by one real producer with two real reviewer names: init-check-issue-ordinal (product-reviewer, diverges at normalized char 195, must DIFFER) and init-check-issue-ordinal-past-window (lattice-review-story-init, char 204, must COLLAPSE), with a fixture precondition asserting the 195/204 measurement so it cannot silently rot.",
+      "resolvedAt": "2026-07-24T10:14:49.245Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-034",
