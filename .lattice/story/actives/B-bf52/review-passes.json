@@ -1,0 +1,37 @@
+{
+  "passes": [
+    {
+      "id": "B-bf52:RP-001",
+      "agent": "lattice-review-behavior",
+      "note": "Round-8 confirmation audit: attempted to falsify the strictly-better-than-main claim for the F-043/F-044 fixes at commit 87b0b3711c and could not. (1) Built a fresh, independent copy of main (git worktree at HEAD e436eb5447, source-tree-diff-verified identical to the live main checkout) and ran a differential digest sweep (gateFailureDigest) with 18 self-constructed pairs from real producers (machine.ts Cannot-enter-* reasons, story-owner-lease formatNonOwnerError, main-write-lock contention, mkdir-lock heldMessage, scope-gate/ProofStory-gate renders): 12 retry-class pairs (same underlying failure, only volatile detail differs) all collapse identically on both branch and main; 6 distinct-class pairs (genuinely different failures) show branch never collapsing anything main still distinguishes; 0 regressions in either direction. Also ran the story's own convergence-breaker-smoke matrix (8 must-differ plus 15 must-still-collapse plus completeness guard) in an isolated build; all pass. (2) Re-probed the F-043 hyphen-compound shape against the two allowlisted stems not covered by the existing fixture (chk-, sep-), plus uppercase-cased and repeated-stem variants; all correctly collapse (protected only when not hyphen-preceded). Audited the remaining 5 allowlisted prefixes for i-class instability (wholesale renumbering forced by the retry itself): chk- and f- are system-minted sequential plus append-only (checklist.ts:420, finding.ts:552); sep- is system-minted sequential plus append-only, decisions patch-in-place by id (scope-anti-expansion.ts); req- is immutable after first set (types.ts) and, per the story's own completeness guard, measured inert at its only render site (always past the 200-char prefix window) so it cannot currently cause a regression either way; bug- is caller-supplied but duplicate-id-guarded and append-only, with the fix path being bug_update (status mutate) not a re-report, so nothing forces renumbering on a mechanical retry, structurally unlike init_check_set's wholesale overwrite. None share the i- defect. (3) Confirmed tasks/gate-repeat-block-smoke.ts is byte-identical to main (diff exit 0) and its compiled suite exits 0. (4) Reproduced both mutations in isolated, throwaway git-worktree copies: M15 (leading guard weakened back to a bare word boundary) fails exactly 1 of 23 cases, embedded-test-output-hyphen-compounds; M14 (i- re-added to the allowlist) fails exactly 1 of 23 cases, init-check-issue-ordinal. Both matrix cases localize precisely to their guarded rule, no collateral failures. Methodology note: the shared worktree is being actively used by other concurrent reviewer lanes in this same REVIEW round (currentReviewRound matches this round's timestamp; new findings F-045 through F-047 were filed by other lanes mid-session, and the live convergence-breaker.ts source was twice observed transiently mutated to other exact prior-regression shapes, almost certainly other reviewers' own mutation-testing in flight); all decisive measurements above were therefore taken from throwaway git-worktree-add-detach copies at HEAD, immune to that live churn, not from the shared path. Tree left clean (git checkout plus npm run build) and re-verified clean immediately before this call.",
+      "createdAt": "2026-07-24T11:36:47.876Z",
+      "reviewRound": "2026-07-24T11:13:41.302Z",
+      "reviewRunId": "B-bf52:RR-024",
+      "envelopeId": "300239a6bf1f6d3705e68a85cc6b7d961b6afe38a47045c32c023cbe16b03be2",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-anti-expansion.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "95a9704119c2fca4dd1c25f2c811c0c0053cf971fb798c24a15100f99261cdf7"
+    }
+  ]
+}
