@@ -180,6 +180,39 @@
         "scanEscalationReason": null
       },
       "_hash": "24ef795f85c2227a71c7d6f37296200e76301e9c4f7ca63a2c5d3d1af050adec"
+    },
+    {
+      "id": "B-4043:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept/residue check after takeover merge (484 commits, 1 conflict in lattice.config.json). No conflict markers anywhere (anchored grep). lattice.config.json validate.commands merge kept BOTH entries intentionally (gate-repeat-block-smoke from main + proofstory-acceptance-rollout-smoke --issuer-mutations from this story, added pre-merge in b8e28971d0 F-004); the one duplicate found (reviewer-scan-budget-guard-smoke.js) pre-dates this story on both merge parents, unrelated. scope_contract_acknowledge was the correct mechanism for lattice.config.json + smoke-manifest.json (allowedModify/allowedCreate untouched, only acknowledgements grew); stated reason matches the actual additive 3+4 line diff. git history of acceptance-rollout.ts shows no commit ever weakens assertCallerReportMatches; all 4 call sites present at HEAD with no disable/bypass; re-ran verify-process-fact-contract.mjs and proofstory-acceptance-rollout-smoke.js --issuer-mutations live at 485fe96, both PASS genuinely. Rollout report/receipt materialHash matches this run's materialHash, acceptance_rollout_check reports receipt=current (not stale); Wave-4 doc table numbers reconcile with the regenerated report metrics. The bin/ symlink is created at runtime inside the smoke's temp fixture dir, not a persistent repo-tracked symlink. No blocker found.",
+      "createdAt": "2026-07-24T12:56:36.382Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-014",
+      "envelopeId": "187970fe6ef33ccc48da9f498b0bef61eea2f98b992c7dad7ac4511f224da75c",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-basis.json",
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc0f28151347fa69022803e3f7a10fe4ce5271136d99267ab063679b47204a0c"
     }
   ]
 }
