@@ -145,7 +145,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:504-517 extractGateBlockSignals only captures diagnostic-gap ids that literally START with one of 5 whitelisted prefixes (missing|invalid|stale|unreadable|tampered) via the unbracketed regex, plus any bracketed underscore-token. Most REAL gap codes emitted by proofstory.ts are neither bracketed nor prefix-whitelisted -- e.g. milestone_missing_verification_intent_refs (proofstory.ts:1050), acceptance_binding_missing_verification_intent_refs (proofstory.ts:1093), scope_ambiguity, milestone_source_requirement_unbound, uncovered_required_milestones, review_completeness_missing_evidence, and every trigger-reason code (high_assurance_risk, collision_required_standard, ...). Verified by direct execution of the actual gateFailureDigest/extractGateBlockSignals source against the two REAL codes above with the same invariant banner used in production (machine.ts:179 renderProofStoryDiagnosticReport format): they collapse onto the IDENTICAL digest key -- reproducing the exact B-cc54 root-cause bug (different unmet preconditions sharing a repeat-block key) that this story exists to eliminate. The smoke test never catches this because gate-repeat-block-smoke.ts:67 GAPS_3 uses a FABRICATED gap code missing_verification_intent_refs that does not exist anywhere in production code (grep confirms) and only happens to satisfy the whitelist by starting with missing_ -- masking that the two real production codes for this exact precondition are uncovered and still collide. CHK-002:happy:0 (different Diagnostic gaps tails -> distinct keys) is therefore false for the majority of real gap/trigger codes.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-24T01:34:47.968Z",
@@ -153,7 +153,11 @@
       "reviewRunId": "B-cc54:RR-009",
       "_hash": "14c4c26ff9f84f9bea4811dbfef5d722c9d2e99a4137dd0a27abc57c283b0b9e",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted in full and reproduced before fixing: three real production gap codes (acceptance_binding_missing_verification_intent_refs, milestone_source_requirement_unbound, review_completeness_missing_evidence) extracted ZERO signals and produced an identical digest, so the headline bug was not fixed on the real path. Root cause was chasing a prefix whitelist; extraction now anchors on the structure proofstory.ts:1911 actually renders ('  - <code> [<severity>; <artifact>]: …' and '  - <code>: …'), so gap ids and trigger reasons are captured regardless of prefix, while prose bullets and anti-stall [retry] labels are not. The masking fixture is gone: GAPS_3 used a fabricated code that exists nowhere in production and passed only because it started with 'missing_'; all fixture codes are now grep-verified against core/proofstory.ts, plus a dedicated case over four real unprefixed codes. RED proven: removing the structural loop fails that new assertion at exit 1; restoring returns exit 0.",
+      "resolvedAt": "2026-07-24T01:40:09.324Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cc54:F-009",
