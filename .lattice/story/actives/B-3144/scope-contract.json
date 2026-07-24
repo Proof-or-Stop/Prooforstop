@@ -1,0 +1,32 @@
+{
+  "storyId": "B-3144",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/quorum-prune.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-24T20:12:00.926Z",
+  "updatedAt": "2026-07-24T20:12:00.926Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/quorum-submit.ts": "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/lattice-cli.ts": "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/quorum-prune.ts": "packages/main/src/handlers/quorum-prune.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts"
+  }
+}
