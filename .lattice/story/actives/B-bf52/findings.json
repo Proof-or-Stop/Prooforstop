@@ -354,7 +354,7 @@
       "desc": "cross-host (codex-cli host-B round 3), recorded by the main agent: removing the dot from the protection classes made the general bare-number rule collapse SUBSTANTIVELY different values in a REAL reachable message. test-evidence output is interpolated verbatim into a story_advance DONE rejection at machine.ts:1190, so \"test FAIL: connection to localhost:3000 refused\" and the same with :4000 digest identically, as do coverage 24% versus 25% and ratio 0.75 versus 0.80. Two DIFFERENT validation failures therefore read as one gate failing twice and falsely freeze the story: the exact defect class this story exists to remove, reintroduced by its own fix.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T02:02:49.913Z",
@@ -365,7 +365,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "edge|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by deleting the general free-standing-number rule outright rather than by adding another lookaround. This finding is what decided the round-4 policy: rounds 1-3 oscillated because a bare number is not syntactically decidable as substantive or volatile, so every narrowing produced a never-trips case and every widening produced a false-freeze case. The tie was broken on producers — (attempt N), the shape the number rule existed to absorb, has no producer anywhere in this repo outside the smokes own fixture, while this findings shapes are real and reachable through the verbatim test-evidence interpolation at machine.ts. All three reported pairs now keep separate keys and are guarded as must-differ cases test-output-port, test-output-percentage and test-output-decimal-threshold, built from the real Cannot enter DONE: test FAIL: <output> rendering and tagged number-rule-removal. Revert-proved: reintroducing the number rule in EITHER the narrow round-1..3 form or the unconditional pre-story form fails all three.",
+      "resolvedAt": "2026-07-24T02:32:27.422Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-021",
