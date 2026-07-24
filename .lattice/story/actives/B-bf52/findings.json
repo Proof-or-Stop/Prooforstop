@@ -74,6 +74,21 @@
       "_hash": "bc495c9e375cbe6d9186fb4f032c28b8e04425138bb733cd1e3c2c5fe8390de4",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-006",
+      "desc": "packages/main/src/core/convergence-breaker.ts:502 — the path-rule regex `(?:^|(?<=[\\s\"'(\\[]))\\/[^\\s\"')\\]]*` only recognizes POSIX-style absolute paths (leading `/`). A Windows-style absolute path such as `C:\\Users\\jek\\file1.ts` vs `C:\\Users\\other\\file2.ts` is left completely untouched by every normalization rule (no leading slash, and digits inside `file1`/`file2` are word-attached so the digit-rule also leaves them alone) and so the two machine-specific paths do NOT collapse to one digest -- verified empirically. The design comment at :500-501 explicitly claims the rule \"behaves identically on macOS and Linux\" (i.e. Windows was consciously out of scope), so this may be an accepted gap rather than an oversight, but it reproduces the same host-varying-path-does-not-collapse failure mode this story exists to fix if this CLI is ever run from a Windows host.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T00:00:24.202Z",
+      "reviewRound": "2026-07-23T23:22:59.637Z",
+      "reviewRunId": "B-bf52:RR-002",
+      "_hash": "41a40c0cc0da23511cc91562931673dcbf70ff1a7e0d3b1a8127009814e9c0b3",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
