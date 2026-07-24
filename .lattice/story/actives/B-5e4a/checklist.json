@@ -44,7 +44,35 @@
       "userSees": "lattice validate output includes the new smoke passing; temporarily removing a filename from the registry makes the smoke fail with a message naming that filename",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice validate runs the new smoke green; smoke asserts all four new filenames classify lifecycle_artifact and the derived StoryStore top-level write set is fully covered",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deliberately removing one filename from the registry (temporary local mutation) makes the smoke fail with a message naming that filename",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The derivation returns at least the known minimum count of writers so an empty/shrunken source scan fails loudly instead of passing vacuously",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The exemption list only admits the named legacy receipt-refs filename; adding any other unregistered write to store.ts fails the smoke",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
