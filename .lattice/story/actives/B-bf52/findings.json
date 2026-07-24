@@ -796,6 +796,21 @@
       "_hash": "de657595e8304c0ab9e0ec4a025b0e904cb848703fa99bfec200f4202b2d9275",
       "signatureTag": "adversarial|unknown|adversarial-evidence-note",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-042",
+      "desc": "convergence-breaker.ts:787-790 (ACCEPTED RESIDUAL F-033 comment, echoed in CHK-001:edge:0 and CHK-004:adversarial:0 evidence notes as mutation M12) states \"Widening the window is not available as a fix: B-cc54's CHK-002:adversarial:1 requires a signal-free tail past the banner to leave the key UNCHANGED, so the signals branch cannot relax this cut without breaking a landed contract.\" Reproduced: widening the signals-branch prefix from 200 to 300 chars (convergence-breaker.ts:794) flips the illustrated must-still-collapse case 'init-check-issue-ordinal-past-window' (which diverges at normalized char 204) to a pass -- and B-cc54's gate-repeat-block-smoke.js still exits 0 unmodified (its CHK-002:adversarial:1 fixture, built on a banner of measured normalized length 592, only diverges at char 592). So any window in roughly [205,591] genuinely fixes the specific residual case demonstrated in this suite WITHOUT breaking B-cc54; only widening past ~592 (or removing the cut, which is what the code comment at line 766 actually measured) breaks B-cc54. The blanket claim \"cannot relax this cut\" therefore overstates what was measured -- it holds for large widenings but not for the modest range that would close the illustrated gap. This does not change the correctness of the shipped code (window stays 200, which is independently justified a few lines earlier at :761-764 by \"byte-identical to B-cc54\" -- a sound, sufficient reason on its own), but the residual's stated justification is not accurate as worded and should be corrected or narrowed (e.g. to \"kept at exactly 200 to stay byte-identical to B-cc54's own keys; a larger window was not explored\") rather than implying no slack exists.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T10:33:22.321Z",
+      "reviewRound": "2026-07-24T10:14:30.812Z",
+      "reviewRunId": "B-bf52:RR-022",
+      "_hash": "11d134de3ee60c454c2c4ec9c1b68498c557815de08d85ddca106eca64fe34da",
+      "signatureTag": "adversarial|unknown|convergence-breaker-accepted",
+      "signatureTagSource": "auto"
     }
   ]
 }
