@@ -44,7 +44,57 @@
         "test": [
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case A in the B-f824 block replays the B-956f window shape (two pre-TEST executed groups, one post-TEST executed duplicate, reused exec=0) and asserts blocking 0 / observable 1 / assert.doesNotThrow; failed pre-fix (1 !== 0), passes on commit 50bf7d1b2f.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case B asserts two post-TEST executed terminals in the same identity group yield blocking 1 and assert.throws(/done_prepare convergence invariant failed/).",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case C covers a group whose only executed terminal is post-TEST: blocking 0 and observable 0.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case D asserts a reused terminal with commandExecutions=46 timestamped pre-TEST still fails convergence (contradictory reused blocks in any phase).",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -95,7 +145,69 @@
         "test": [
           "packages/main/src/tasks/flow-stability-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/done-prepare.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "deriveDonePreparePassConvergence returns both counters per the phase-anchored split (commit 50bf7d1b2f); B-f824 Cases A-D plus the updated base-case deepEqual assert both fields.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "donePrepareJsonResult transcript-parse deepEqual (~:4686) updated to the new line shape including reviewWindowSuiteExecutions and passes.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Case C boundary sub-case places an executed terminal exactly at facts.testEntryAt and asserts it counts post-TEST (>= convention, matching postTestReviewerIdentityIds).",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Parser uses optional group (?: reviewWindowSuiteExecutions=(\\d+))? defaulting 0; the pre-existing old-shape transcript fixture at flow-stability-smoke:4684 doubles as the backward-tolerance test and passes.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/done-prepare.ts",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "assertDonePreparePassConvergence still throws on nonzero unchangedSuiteExecutions (Cases B and D) and its body never reads reviewWindowSuiteExecutions, so demoting blocking data into the observable field cannot pass the gate.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -139,7 +251,44 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "command": "npm --prefix packages/main run test:done-prepare-merge-rerun-smoke && npm --prefix packages/main run test:done-prepare-auto-closeout-smoke && npm --prefix packages/main run test:done-prepare-closure-heartbeat-smoke",
+          "result": "pass",
+          "note": "All five matcher sites updated to the split shape (merge-rerun :333/:496, auto-closeout :367/:1211, closure-heartbeat type+deepEqual); each smoke passed standalone on commit be017fb645, and node bin/lattice.js validate --json reported allPass=true.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"convergence: metadataRollbacks=\" packages/main/src scripts",
+          "result": "pass",
+          "note": "Repo-wide sweep found no other strict matchers; flow-stability-smoke:4684 is the deliberate old-shape backward-compat fixture and :4794 is a source-scan doesNotMatch unaffected by the shape change.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Process fact contract verified after the semantics change; runtime:closeout_validation_terminal registry rationale describes event-field bindings and stays accurate under the split, so it was left unchanged.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -183,7 +332,42 @@
       },
       "status": "done",
       "startTime": null,
-      "endTime": "2026-07-24T00:39:39.474Z"
+      "endTime": "2026-07-24T00:39:39.474Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Commit 6cb0771072 rewrites the B-c163 contract prose: line 734 now carries the post-TEST qualification and a sibling bullet documents the phase-anchored two-counter split (B-f824, B-956f incident, >= TEST-entry boundary, contradictory reused blocking, reviewWindowSuiteExecutions observable telemetry) consistent with the reviewerReattestations split prose.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"remain independently blocking\" docs/requirements/decisions/ && rg -ln \"reviewWindowSuiteExecutions\" docs/requirements/decisions/",
+          "result": "pass",
+          "note": "Single remaining match carries the post-TEST qualification; only done-prepare-automation-execution-plan.md names the new field; git diff confirmed the two verify-only B-c163 docs are untouched.",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js validate --json",
+          "result": "pass",
+          "note": "Full routine validate allPass=true on the branch containing the docs change; docs-drift preflight runs again mechanically at REVIEW to TEST and story_review scope re-check accepted the narrowed CHK-004 interpretation (OQ-1 resolution).",
+          "headHash": "479fb0aaf832df352fa1de1ea70f5df495f5813b",
+          "materialHash": "0ee11f5520bc8e8f237ef17c487fc579c962fe2121e9e52b414610c283560821",
+          "storyFilesHash": "30348cfb3780bdeef9495bf0c7d99311a6594d853b164a803e230c1ad3e9146b",
+          "timestamp": "2026-07-24T00:58:40.833Z"
+        }
+      ]
     }
   ],
   "auditLog": [
