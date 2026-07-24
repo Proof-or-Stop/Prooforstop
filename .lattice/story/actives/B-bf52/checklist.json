@@ -100,11 +100,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proof re-derived against the round-3 matrix: restoring the pre-story 200-character cut fails exactly {dev-gate-one-gap-differs, dev-gate-gap-count-differs} (guard truncation-removal) and leaves the other 22 cases passing, so these checks are bound to this change. Independently reproduced by the test-coverage lane.",
-          "headHash": "a2b6f4e5a7c638efb6db6f7edb0b8241533dc051",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:23.728Z"
+          "note": "Revert-proof re-derived against the round-4 matrix: restoring the pre-story 200-character cut fails exactly {dev-gate-one-gap-differs, dev-gate-gap-count-differs} (guard truncation-removal) and leaves the other 28 passing.",
+          "headHash": "bcead36a5d9040fa55ecc223933f074fe1ffbdf3",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:13.960Z"
         }
       ]
     },
