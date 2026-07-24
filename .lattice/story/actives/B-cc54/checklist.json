@@ -449,7 +449,17 @@
           "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
           "timestamp": "2026-07-24T00:18:52.791Z"
         }
-      ]
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
