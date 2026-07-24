@@ -599,6 +599,36 @@
         "scanEscalationReason": null
       },
       "_hash": "e9d31a91a244ee8dac13b151586f8c3000834a09b222533a816cd7da5c196863"
+    },
+    {
+      "id": "B-4043:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Fresh-round re-review: only change since RP-013 is CHK-001 relatedDocs anchor 'AGENTS.md#(CJK heading)' -> 'AGENTS.md (two-layer process-fact contract section)', to clear the english-artifacts REVIEW->TEST preflight gate. Verified: (1) AGENTS.md line 55 heading (the two-layer process-fact contract heading) exists and its content (prompt+CLI/handler/gate two-layer enforcement for process facts) matches the new English description accurately, not just approximately; losing the deep-link anchor is an acceptable/necessary cost since a markdown anchor built from a CJK heading is itself CJK text inside the checklist.json relatedDocs string that the english-artifacts gate scans, and CJK-heading slugs are unreliable across renderers anyway, so a plain-English locator phrase is the correct fix -- no better single-file alternative exists without renaming the canonical AGENTS.md heading itself, which is a shared cross-story doc and out of this story's scope. (2) Directly re-scanned the english-artifacts gate's exact scope per packages/main/src/handlers/english-artifact-gate.ts (AUTHOR_METADATA_BASENAMES in .lattice/story/actives/B-4043/ plus git log main..HEAD commit subjects/bodies): zero CJK matches in background.md/index.json/checklist.json/decision.json/understanding.json/plan.md and zero CJK across all 170 branch commit messages; ran npm run test:english-only-guards (7/7 pass) as corroboration. (3) Confirmed via git log that docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md (last touched 2026-07-23, commit 0518de72d7) and .lattice/story/actives/B-4043/acceptance-rollout-report.json (last touched 2026-07-24T15:49:05Z) both predate RP-013 (2026-07-24T16:05:51Z) with zero diff since; only lattice metadata files changed (checklist.json relatedDocs line, index.json, process-events.jsonl, prompt-envelopes.json, review-runs.json/review-passes.json from this and other reviewer lanes' REVIEW-round bookkeeping). (4) Cross-checked the Wave 4 measured-results table in the execution plan section 17 (matchedPairCount 6 = 3 seeded pairs + 3 false-block control pairs, 3/3 seed detection, 0 false-pass, 1/1 omission detection, 0 false-block, 0 mislabeled-3x1, 0 waiver delta, 0 inventory shrinkage) against acceptance-rollout-report.json metrics object field-by-field: exact match. docs/CLI.md Wave 4 section describes thresholds generically (no specific numeric result table) and is consistent, not in conflict, with the report. Step 1 symbol extraction from git diff main...HEAD yielded 0 new symbols (this round changed only a relatedDocs string, not code); fallback 1 full-text scan applied to the touched doc paragraph only per the narrowed-input rule. No blocker.",
+      "createdAt": "2026-07-24T16:44:27.772Z",
+      "reviewRound": "2026-07-24T16:39:55.171Z",
+      "reviewRunId": "B-4043:RR-031",
+      "envelopeId": "66f4d840492dd8d585951507a30641d58a50255fc9999e66398e09540dd32f14",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/decision.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed3aa912487320e4c06a48bc39a137fbd1b92677bd0927a806045dedf8db7ed3"
     }
   ]
 }
