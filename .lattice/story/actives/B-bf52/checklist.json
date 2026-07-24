@@ -381,11 +381,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "All 15 must-still-collapse cases print 'keys=1 counter=2 breaker=trips', proving the breaker still catches a genuine repeat under the narrowed policy. They cover the four real lease/lock contention messages, sentence-final durations, a decimal duration straddling the hash threshold, a real ppid-derived session id, ISO timestamps alone, three machine-path shapes, Windows paths, free-standing hashes and both sanity-bound cases.",
-          "headHash": "317453273138021a2228e17956b96f95de07e4f9",
-          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
-          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
-          "timestamp": "2026-07-24T02:31:28.615Z"
+          "note": "All 10 must-still-collapse cases print keys=1 counter=2 breaker=trips, proving the breaker still catches a genuine repeat. They cover three machine-path shapes, both of B-cc54's own fixtures, a bare attempt ordinal, a lease heartbeat age, lane counts, hex ids and an ISO timestamp.",
+          "headHash": "d4f4e25f06a5ca3049c9725e0f1f46fc62354e73",
+          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
+          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
+          "timestamp": "2026-07-24T03:29:56.348Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
