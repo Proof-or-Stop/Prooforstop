@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Re-derived revert-proofs: widening the number rule back to /\\d+/g fails exactly the four digit-rule-overreach cases plus identifier-attached-long-decimal, while every digit-rule-collapse case keeps passing; restoring the round-1 form fails {dotted-version-requirement, negative-counter}; widening the hex rule back to \\b boundaries fails only {identifier-attached-long-decimal}. Both directions are therefore independently bound.",
-          "headHash": "8eca92c965f0674745f8728d9a073b7d55da86fb",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:33.182Z"
+          "note": "Re-derived revert-proofs: reintroducing the narrow number rule fails exactly the six number-rule-removal cases; reintroducing the unconditional digit rewrite fails those plus the four digit-rule-overreach cases plus identifier-attached-long-decimal; widening the attached-hash rule fails only {identifier-attached-long-decimal}; deleting it fails only {ppid-derived-session-id}. Both directions are independently bound.",
+          "headHash": "5b3336ad3201af1f7e7ceeddb6c4a5a98e8fce5c",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:24.870Z"
         }
       ]
     },
