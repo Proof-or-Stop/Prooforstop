@@ -358,11 +358,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Every must-differ case prints keys=2 counter=1 breaker=proceed, each driving the real bumpGateFailureCount twice and reading back maxGateFailureCount and assessBreaker. The closing banner derives its inventory from the case arrays, so a printed count cannot drift from the matrix. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
-          "headHash": "eab60f0f17afefa88d49bd32bd19b197893ad15c",
-          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
-          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
-          "timestamp": "2026-07-24T14:52:38.895Z"
+          "note": "Every must-differ case prints keys=2 counter=1 breaker=proceed, each driving the real bumpGateFailureCount twice and reading back maxGateFailureCount and assessBreaker. The closing banner derives its inventory from the case arrays, so a printed count cannot drift from the matrix. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure comes from a command named here.",
+          "headHash": "f04e9ad9f769591a9bce73d64925a497bcf279df",
+          "materialHash": "6b05d1d4b46c8a7c5f48dfbacd792a42018d5934b460055f9b8d3b5addeac3ef",
+          "storyFilesHash": "4900645b650299878a3cc0b9214456421808927fa96e7f97a450b12becfcbfbc",
+          "timestamp": "2026-07-24T15:33:32.188Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
