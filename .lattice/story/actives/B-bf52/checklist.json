@@ -288,11 +288,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a COMPOUND artifact id keeps its trailing ordinal distinct; mutation M6 (whole-token protection reduced to prefix-before-digits) fails exactly that case. The converse is pinned by 'must-still-collapse stale-review-run-evidence' and 'review-loop-ordinal' [guard: review-bookkeeping-not-allowlisted]: review bookkeeping ids are re-minted on retry, so collapsing them is the fail-safe direction for a brake. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
-          "headHash": "7a675723120c2aff283423839d05506e3fe7f9d6",
-          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
-          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
-          "timestamp": "2026-07-24T10:15:50.770Z"
+          "note": "Case 'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a COMPOUND artifact id keeps its trailing ordinal distinct; mutation M6 fails exactly that case. Two cases pin the converse, both guarded review-bookkeeping-not-allowlisted: 'stale-review-run-evidence' and 'review-loop-ordinal', plus 'init-check-issue-ordinal' which MOVED to must-still-collapse after review showed the init-check issue id is reviewer-self-assigned, overwritten wholesale on every init_check_set, and remediated by re-running the reviewer — the same instability that disqualified rr-, rp- and rl-. Case 'must-still-collapse embedded-test-output-hyphen-compounds [guard: substantive-id-token-start]' guards the regression where a hyphen-joined compound such as de-bug-2 survived normalization because a hyphen creates the very word boundary the old guard relied on.",
+          "headHash": "dcd9944ad3b9af2beacb97dae3ad763c7fcbaedb",
+          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
+          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
+          "timestamp": "2026-07-24T11:13:36.437Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
