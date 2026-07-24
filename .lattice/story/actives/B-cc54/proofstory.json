@@ -46,29 +46,51 @@
         "CHK-004",
         "CHK-005"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:happy:2",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:edge:2",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2",
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:edge:2",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2",
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1",
+        "CHK-004:adversarial:2",
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:happy:2",
+        "CHK-005:edge:0",
+        "CHK-005:edge:1",
+        "CHK-005:adversarial:0",
+        "CHK-005:adversarial:1",
+        "CHK-005:adversarial:2"
+      ],
       "milestoneIds": [],
-      "note": "The acceptance claim decomposes into: CHK-001 proves the unbounded loop exists (RED); CHK-002 records consecutive identical blocks; CHK-003 hard-stops at threshold and names the unmet precondition; CHK-004 proves fail-closed and non-forging; CHK-005 covers fire / no-fire / reset."
+      "note": "Acceptance decomposes into: CHK-001 RED proof; CHK-002 blocker-identity key; CHK-003 hard-stop naming the unmet precondition; CHK-004 fail-closed and non-forging; CHK-005 fire / no-fire / reset coverage."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-001 has no verificationIntentRefs."
-    },
-    {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
-    }
-  ],
-  "note": "Single acceptance claim from the original intent snapshot, bound to all five checklist items.",
+  "diagnosticGaps": [],
+  "note": "Single acceptance claim bound to all five checklist items and their 37 verification intents.",
   "createdAt": "2026-07-23T23:43:36.905Z",
-  "updatedAt": "2026-07-23T23:43:36.905Z"
+  "updatedAt": "2026-07-24T00:07:33.351Z"
 }
