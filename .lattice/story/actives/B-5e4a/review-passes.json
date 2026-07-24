@@ -123,6 +123,32 @@
         "scanEscalationReason": null
       },
       "_hash": "c365120f2e5d53026afbe362e3263175fbdd49fcec5e02b52dacf83ec3d42b5c"
+    },
+    {
+      "id": "B-5e4a:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Incremental re-review after F-001/F-002 fix commits e3b2af8743+f99744a8b7 (packages/main/src/core/lifecycle-registry.ts + packages/main/src/tasks/lifecycle-registry-contract.ts). Renamed symbols ACCEPTANCE_TOPOLOGY_ARTIFACT_FILENAMES->CLASSIFICATION_CROSS_CHECK_FILENAMES and isStoreHelperParameter->isEnclosingCallableParameter grepped repo-wide (excl node_modules/dist/.git): zero live code/doc/config residue; only hit is isStoreHelperParameter inside findings.json historical audit text (not live code). checkStoryStoreTopLevelArtifactCoverage return type change (number -> StoryStoreCoverageResult) has a consistent call site. No blocker.",
+      "createdAt": "2026-07-24T02:12:08.442Z",
+      "reviewRound": "2026-07-24T02:10:02.005Z",
+      "reviewRunId": "B-5e4a:RR-007",
+      "envelopeId": "1b76935590acd51b8f1163bf43188faa5cda6d543ca6a6267a21b504c4aa21fe",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5e4a/findings.json",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "lattice.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "00afb28256836eb70610b88fa19cf7d96c588946b78a0b14f831522252f45474"
     }
   ]
 }
