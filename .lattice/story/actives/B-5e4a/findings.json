@@ -66,7 +66,7 @@
       "desc": "lattice verification_evidence_refresh_stale --dryRun (B-5e4a) reports all 8 verificationEvidence entries on CHK-001 (happy:0, edge:0, edge:1, adversarial:0) and CHK-002 (happy:0, edge:0, edge:1, adversarial:0) as STALE relative to current HEAD. Confirmed mechanically: git diff <evidence.headHash> HEAD -- packages/main/src/core/lifecycle-registry.ts packages/main/src/tasks/lifecycle-registry-contract.ts shows both files changed by the two post-round-1 fix commits (e3b2af8743 Resolves F-001, f99744a8b7 Resolves F-002) after the evidence was recorded, which is why buildVerificationCoverage classifies these must-priority entries (all but CHK-001:edge:1, which is should) as status=stale/not-covered -- surfacing as missingRequired>0 on lattice validate --story=B-5e4a. I independently re-ran both cited commands (npm --prefix packages/main run test:lifecycle-registry-contract; node tmp/b5e4a-red/red-registry-coverage.mjs) and confirmed the underlying claims still hold in substance: contract now PASSes with 49 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl), 0 divergences; red harness PASSes 8/8. So this is a freshness/hash-binding gap, not a functional regression -- but a bare hash-touch refresh via verification_evidence_refresh_stale (which preserves the note field verbatim, per checklist.ts) would silence the staleness flag while leaving two notes with a now-inaccurate literal count: CHK-002:edge:1 note says the derivation floor check demonstrates 48 filenames derived (floor 40) and CHK-002:happy:0 note says 48/47 commands ... 48 StoryStore top-level artifact filenames derived -- the smoke now reports 49 (floor unchanged) after the F-001 fix registered review-loops.jsonl via the new storyDir join-site pass. Recommend recording fresh verificationEvidence (not a bare hash touch) for CHK-001/CHK-002 bound to current HEAD with notes updated to the current 49-count / pass-2-inclusive smoke output before TEST->DONE. Separately: F-001/F-002 fixes themselves carry adequate self-documented verification -- bite tests and adversarial scratch probes are recorded in the finding desc/dismiss text (F-001: live classifyLifecycleArtifact repro; F-002: constructed parameter-collision bite test; F-003: dismissed with a documented dangerous-direction probe showing fail-safe direction) and I reproduced the current green state independently, so no separate finding is filed on that point.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T02:20:19.624Z",
@@ -79,7 +79,11 @@
         ".lattice/story/actives/B-5e4a/checklist.json"
       ],
       "signatureTag": "missing|ts|lattice-verification-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Recorded 8 fresh verificationEvidence entries (verification_evidence_batch_add) bound to current HEAD 27103e76b1, re-running every cited command rather than hash-touching: red harness 8/8, contract task PASS with the corrected 49-derived count (notes updated from the stale 48 to 49 including the storyDir join-site pass for review-loops.jsonl), legacy-prefix transcript re-run, bite-test notes extended to cover both the pre- and post-F-001 trees and the F-002 adversarial probe. No bare refresh_stale hash touch was used, per the finding recommendation.",
+      "resolvedAt": "2026-07-24T02:21:43.040Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
