@@ -313,24 +313,29 @@ function chk004(): void {
   // bracketed word must keep ONE key. An earlier draft accepted any bracketed
   // lowercase word, so [note]/[info]/[todo] minted a fresh key per attempt and
   // the loop escaped the brake entirely.
+  // F-007: these regression assertions are instances of intents that already
+  // exist, so they are labelled with the ref they discharge rather than being
+  // invisible to the coverage ledger. Ordinary bracketed words are just another
+  // token class of CHK-002:adversarial:2 ("desirable collisions must be
+  // preserved / the fix must not over-discriminate").
   const plain = ['[note]', '[info]', '[todo]', '[warn]'].map(w => `${BANNER}tail ${w}`);
   const plainKeys = new Set(plain.map(digest));
   assert.equal(
     plainKeys.size, 1,
-    'F-002: ordinary bracketed words must not widen the key, or a real loop escapes the brake',
+    'CHK-002:adversarial:2 (F-002) ordinary bracketed words must not widen the key, or a real loop escapes the brake',
   );
   withDir((dir) => {
     for (const r of plain) bumpGateFailureCount(dir, CMD, r);
     assert.ok(
       maxGateFailureCount(readGateFailureCounts(dir)) >= THRESHOLD,
-      'F-002: such a loop must still reach the trip threshold',
+      'CHK-004:happy:0 (F-002) such a loop must still reach the trip threshold',
     );
   });
   // ...while real multi-word reason codes stay distinguishable.
   assert.notEqual(
     digest(`${BANNER}tail [missing_scope_boundary]`),
     digest(`${BANNER}tail [missing_execution_boundary]`),
-    'F-002: genuine reason codes must remain distinguishable',
+    'CHK-002:happy:0 (F-002) genuine reason codes must remain distinguishable',
   );
 
   // F-003: why a reason body cannot impersonate a signal list. Extraction is
@@ -343,7 +348,7 @@ function chk004(): void {
   assert.equal(
     digest(`${BANNER}tail signals:missing_scope_boundary`),
     digest(`${BANNER}tail [missing_scope_boundary]`),
-    'F-003: prose mentioning a signal token carries that signal, so it cannot forge a different set',
+    'CHK-002:adversarial:2 (F-003) prose mentioning a signal token carries that signal, so it cannot forge a different set',
   );
   // The encoding must still separate a changed prefix from a changed signal set.
   // The prefix delta has to land inside the first 200 chars to be observable,
@@ -351,7 +356,7 @@ function chk004(): void {
   assert.notEqual(
     digest('alpha gate refused [missing_scope_boundary]'),
     digest('bravo gate refused [missing_scope_boundary]'),
-    'F-003: the same signal set under a different prefix must key differently',
+    'CHK-002:happy:0 (F-003) the same signal set under a different prefix must key differently',
   );
 }
 

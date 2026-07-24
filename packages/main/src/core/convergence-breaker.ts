@@ -487,9 +487,19 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
  *
  * The key therefore also carries the blocker's structured identity: bracketed
  * reason codes ([missing_scope_boundary]) and diagnostic gap ids
- * (- missing_spike_evidence [warn; spike.json]). Both come from a bounded
- * vocabulary, so a genuinely stuck loop keeps emitting the SAME set and still
- * trips. This widens the key; it never resets the counter on free text.
+ * (- missing_spike_evidence [warn; spike.json]).
+ *
+ * F-005: be precise about what "bounded" means here, because an earlier draft of
+ * this comment claimed a bounded VOCABULARY that the code did not enforce — and
+ * that gap between claim and code is exactly what F-002 turned out to be. What is
+ * bounded is the FORM, not an enumerable set: a token counts only if it is
+ * multi-word snake_case. Any freshly invented multi-word snake_case token would
+ * still register as a signal. That is acceptable because such tokens are emitted
+ * by gate code, not by free text, and the alternative (accepting any bracketed
+ * word) demonstrably let ordinary annotations mint a new key per attempt. What
+ * the form restriction buys is that a genuinely stuck loop keeps emitting the
+ * SAME set and still trips: this widens the key, it never resets the counter on
+ * free text.
  */
 export function extractGateBlockSignals(normalizedReason: string): string[] {
   const signals = new Set<string>();
