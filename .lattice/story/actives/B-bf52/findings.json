@@ -608,6 +608,21 @@
       ],
       "signatureTag": "edge|ts|cross-host-codex",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-033",
+      "desc": "packages/main/src/core/convergence-breaker.ts:673 — the signals-conditional 200-char prefix cut is NOT relaxed when two rejections have an IDENTICAL, non-empty signal set but differ only in an embedded allowlisted ordinal past char 200. extractGateBlockSignals only captures the gap CODE (e.g. milestone_source_requirement_unbound, acceptance_binding_unknown_checklist_ref), never the specific object the gap names, so two genuinely different ProofStory DEV-gate rejections collapse. Repro with 100% real production code (core/proofstory.ts renderProofStoryDiagnosticReport + the exact machine.ts:179 banner + bumpGateFailureCount): a milestone-ledger gap naming sourceRequirementId REQ-001 vs the SAME gap code naming REQ-002 on a different milestone digest IDENTICALLY (story_advance/b5117552c0ff both times) even though REQ- is allowlisted and the strings genuinely diverge at char 450 (past the 200-char cut). Same mechanism reproduced with acceptance_binding_unknown_checklist_ref naming CHK-005 vs CHK-006 (also identical digest, story_advance/011867525d4e both times) — so this is a GENERAL flaw affecting any/all of the 7 allowlisted prefixes when they appear inside a ProofStory diagnostic-gap message, not one specific prefix. Confirmed end-to-end: two bumpGateFailureCount calls with these real REQ-001/REQ-002 renders leave maxGateFailureCount=2, the exact breaker-trip threshold — a false freeze on a story making incremental progress (fix REQ-001, then get correctly blocked by the separate, later-discovered REQ-002 gap), which is precisely the class of bug CHK-001 exists to close. tasks/convergence-breaker-smoke.ts signals-fold/proofstory-gap-signal-set case only tests DIFFERENT gap codes (assert.notDeepEqual(sigA, sigB) at line ~412) and never tests the SAME gap code recurring with a different embedded ordinal, so this gap is untested. Fix direction: extractGateBlockSignals must also capture the substantive ordinal(s) embedded inside each gap message (not just the code), or the signals-branch prefix must not be capped at 200 when the message contains an allowlisted-prefix ordinal beyond that cut.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-24T04:18:32.483Z",
+      "reviewRound": "2026-07-24T04:03:11.191Z",
+      "reviewRunId": "B-bf52:RR-021",
+      "_hash": "9f5bb0f1ccddb056377b45a48d28f1f35cbc8a229d875119b63f7b8780787a6c",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
