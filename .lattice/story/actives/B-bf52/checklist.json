@@ -381,11 +381,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "All 5 must-still-collapse cases print 'keys=1 counter=2 breaker=trips', proving the breaker still catches a genuine repeat after the normalizer was narrowed — the guard on the inverse risk.",
-          "headHash": "ed3157120b59ae02b461868f3ae284a99be8736b",
-          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
-          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
-          "timestamp": "2026-07-23T23:20:40.903Z"
+          "note": "All 15 must-still-collapse cases print 'keys=1 counter=2 breaker=trips', proving the breaker still catches a genuine repeat after the normalizer was narrowed — the guard on the inverse risk. They now include the four real lease/lock contention messages, sentence-final durations and counters, negatives, three machine-path shapes, Windows paths, hex ids and both sanity-bound cases. Count re-recorded after F-013 (was 5 before round 2).",
+          "headHash": "e69ea51bdb5e0dff093aa9720b0d7250b655a475",
+          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
+          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
+          "timestamp": "2026-07-24T01:43:36.177Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
