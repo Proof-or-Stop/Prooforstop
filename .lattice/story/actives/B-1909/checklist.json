@@ -249,9 +249,9 @@
       "id": "CHK-004",
       "title": "Add an append-only acceptance-binding withdrawal readable from DEV and REVIEW without returning to PLAN",
       "context": "proofstory_contract_set keeps allowedPhases ['PLAN'] (core/command-policy.ts:420). Add a separate writer that appends a binding-level withdrawal record {bindingId, disposition: 'withdrawn', decisionRef} beside the frozen acceptanceBindings in .lattice/story/actives/<id>/proofstory.json. The original binding object must be preserved byte-for-byte; proofstory_contract_get renders original plus disposition, and the effective-binding projection excludes withdrawn bindings from acceptance evaluation.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T21:44:51.169Z",
       "verificationIntent": {
         "happy": [
           {
