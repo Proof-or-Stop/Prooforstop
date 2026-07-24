@@ -744,7 +744,7 @@
       "desc": "checklist.json CHK-004 verificationEvidence notes undercount the matrix this checklist item exists to verify, both re-recorded this round (timestamps 2026-07-24T03:29:54-56Z). (1) CHK-004:happy:0 says 'All 5 must-differ cases print keys=2 counter=1 breaker=proceed'; the current matrix has 7 must-differ cases (phase-pair, in-repo-file-path, checklist-ordinal, finding-ordinal, unfixed-bug-ordinal, signal-less-long-rejection, proofstory-gap-signal-set), confirmed both by grep count over convergence-breaker-smoke.ts's MUST_DIFFER array and by the smoke's own PASS summary line ('7 must-differ counter=1'). (2) CHK-004:edge:0 says 'All 10 must-still-collapse cases print keys=1 counter=2 breaker=trips' and enumerates 'three machine-path shapes, both of B-cc54's own fixtures, a bare attempt ordinal, a lease heartbeat age, lane counts, hex ids and an ISO timestamp' (10 items); the current MUST_COLLAPSE array has 11 cases and the smoke's own summary says '11 must-still-collapse counter=2 breaker-trips' -- the enumeration entirely omits 'stale-review-run-evidence', the F-030 case this exact round's headline allowlist change (rr-/rp- removal) added. Both notes were re-recorded this round without being re-verified against the matrix they describe -- the same stale/miscounted-evidence defect class as F-001/F-012/F-013/F-017/F-018/F-028 and last round's bcc54-cross-vendor-noise claim.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T04:20:57.103Z",
@@ -756,7 +756,9 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|json|checklist-json-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T10:16:12.025Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-040",
