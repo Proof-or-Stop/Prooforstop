@@ -43,7 +43,7 @@
       "desc": "handlers/proofstory.ts:75-88 normalizeScopeRefArray duplicates core/proofstory.ts:258-267 optionalStringArray (same non-empty-string-array-with-dedup logic, comment even says it mirrors the core helper) instead of exporting and reusing it. Low-severity DRY nit: if the core validation rule ever changes, the handler copy can silently drift out of sync since nothing enforces they stay identical.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T22:12:50.355Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-1909:RR-005",
       "_hash": "6fa7dce18598f2f1686f2fc18c52735cdd2b01a77b76a1ab6d4e34772b25d9fb",
       "signatureTag": "missing|unknown|handlers-proofstory-normalizescoperefarray",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ac756995e7: exported optionalStringArray from core/proofstory.ts, reused it in the handler, deleted the duplicate normalizeScopeRefArray.",
+      "resolvedAt": "2026-07-24T22:38:21.301Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1909:F-004",
