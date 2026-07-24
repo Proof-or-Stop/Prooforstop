@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5e4a",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a registry-coverage invariant smoke under packages/main/src/tasks/ asserting the new filenames classify as lifecycle_artifact and that every top-level story artifact filename StoryStore writes is registered or explicitly exempted",
+    "Add the four missing acceptance-topology StoryStore top-level artifact filenames (acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json) to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in packages/main/src/core/lifecycle-registry.ts",
+    "Wire the new smoke into lattice validate like sibling smokes"
+  ],
+  "excluded": [
+    "No change to classifier trust policy (closed-set narrow trust from B-b9d0 stays)",
+    "No change to gate evidence semantics; registration stays provenance-only",
+    "No change to LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS / capsule subdirectory path coverage (separate concern, not reported broken)",
+    "No registration of authority-receipt-refs.json: dead writeLegacyReceiptRefs path with no live production caller, belongs to the Authority future-capability domain; the coverage smoke exempts it by name with a comment, and the Authority capability work registers it when its write path goes live"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User report 2026-07-24: acceptance-basis.json missing from lifecycle-artifact filename registry causes blocking OUT_OF_SCOPE on every acceptance_basis_generate run; fix by adding to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, check for other unregistered acceptance-topology filenames, add smoke asserting classification and full registry coverage.",
+  "createdAt": "2026-07-24T00:00:19.494Z",
+  "updatedAt": "2026-07-24T00:00:19.494Z",
+  "_hash": "2b5852f44288986e908fa6200a256bed43b89218a548086f560b03860f1ae4d8"
+}

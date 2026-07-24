@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f824",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add flow-stability-smoke coverage replaying the B-956f poisoning shape plus the new pass/fail boundary cases",
+    "Add reviewWindowSuiteExecutions observable field to the DonePrepareConvergence type, the rendered convergence line, and the transcript JSON parser in done-prepare.ts",
+    "Rework deriveDonePreparePassConvergence counting in packages/main/src/handlers/done-prepare.ts into a phase-anchored split: blocking counter = per-group duplicate executed terminals at or after facts.testEntryAt plus contradictory reused terminals with commandExecutions greater than zero; observable counter = whole-window per-group duplicates",
+    "Update runtime:closeout_validation_terminal prose in process-fact-registry.ts only if it describes the old counting",
+    "Update strict convergence-line regexes in done-prepare-merge-rerun-smoke.ts, done-prepare-auto-closeout-smoke.ts, done-prepare-closure-heartbeat-smoke.ts"
+  ],
+  "excluded": [
+    "Changes to reviewerReattestations, postTestReviewerReattestations, metadataRollbacks, or humanConfirmations semantics",
+    "Convergence breaker signals, burn-alert integration, or usage sweep behavior",
+    "Multi-slot PASS receipt store in test-evidence.json (root-cause eviction fix) - deferred follow-up story",
+    "Reviewer prompt or review policy changes",
+    "Writer-attribution or lane-identity fields on validation_terminal events (EXP-001: caller identity unverifiable)"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Operator request 2026-07-24: design a fix as a proper Lattice story so reviewer independent validates stop permanently poisoning done_prepare convergence (options a/b/c offered, phase-anchored variant of a chosen); reproduce first with flow-stability-smoke patterns; drive the story to DONE.",
+  "createdAt": "2026-07-24T00:00:13.498Z",
+  "updatedAt": "2026-07-24T00:00:13.498Z",
+  "_hash": "0c3788621dc864631438c65e8432277367f3f76ac19a50a90d2d48a4631f73ae"
+}

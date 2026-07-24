@@ -1,0 +1,25 @@
+{
+  "storyId": "B-f824",
+  "checkedAt": "2026-07-23T23:59:10.517Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-23T23:56:49.117Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Checklist items lack userSees fields; the user-observable outcome (operator sees DONE prepare PASS instead of convergence invariant failed when reviewer validates occurred during REVIEW) is inferrable from context but not explicitly stated on any item"
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-23T23:59:10.517Z",
+      "issues": []
+    }
+  ],
+  "_hash": "be2a5d92a32a9356fde5f7d42cba351462073c7e9ac87c9e0cbef9c3784041e0"
+}
