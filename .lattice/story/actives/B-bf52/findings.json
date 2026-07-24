@@ -897,7 +897,7 @@
       "desc": ".lattice/story/actives/B-bf52/checklist.json:408 CHK-004:adversarial:0 evidence note was NOT updated in this round and still carries the exact overstated absolute that F-042 found false and that this round's own CHK-001:edge:0 note explicitly withdraws. CHK-004:adversarial:0 says: M12 window widening (which also breaks B-cc54, proving widening is unavailable). CHK-001:edge:0 (re-recorded this round) says the opposite: Mutations M12 (window 200 to 600) and M12b (200 to 592) each fail exactly that case and each leave B-cc54's suite green ... An earlier note claimed widening was unavailable; that absolute was measured false and is withdrawn. Reproduced directly: mutating convergence-breaker.ts:850 slice(0,200)->slice(0,600) DOES break gate-repeat-block-smoke.js (CHK-002:adversarial:1 fails, uncaught AssertionError) but slice(0,200)->slice(0,592) leaves it green (exit 0) while still failing scope-extension-proposal-ordinal-past-window in the story's own matrix -- exactly matching the source code's own F-042 comment (convergence-breaker.ts:834-849, cuts of 593+ break B-cc54, 216-592 do not). So a relaxation IS available (the parenthetical proving widening is unavailable is false), CHK-004:adversarial:0 just never picked M12=600 specifically to test; leaving the retracted absolute standing in CHK-004 while CHK-001 retracts it is an internal contradiction within the same 19-note evidence set, i.e. the same overstated-evidence defect class as F-042, unresolved outside the 4 notes this round touched.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T11:31:39.158Z",
@@ -905,7 +905,9 @@
       "reviewRunId": "B-bf52:RR-025",
       "_hash": "00e5112693a9b6149d5bdf7cd69480b482b42b60e6af625ed5bb52dec2b5e5dd",
       "signatureTag": "adversarial|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T11:34:40.014Z",
+      "resolutionType": "fixed"
     }
   ]
 }
