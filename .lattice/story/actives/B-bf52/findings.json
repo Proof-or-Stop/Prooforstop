@@ -567,6 +567,23 @@
       ],
       "signatureTag": "edge|ts|cross-host-codex",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-031",
+      "desc": "cross-host (codex-cli host-B round 5), recorded by the main agent: CHK-001 carries status done with result pass while its evidence states NOT DELIVERED BY THIS STORY. That is internally contradictory, and if B-cc54 structural-signal mechanism regressed this story would contain no independent implementation satisfying the item. Main agent follow-up: removing the truncation outright does break B-cc54 suite (measured, exit 1), but a signals-conditional prefix does not, and delivers the item honestly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T03:36:31.137Z",
+      "reviewRound": "2026-07-24T02:32:11.264Z",
+      "_hash": "1dcab463f3c306120c1a360a51456b7d4b05b330f41e42f347bdb094417a141c",
+      "files": [
+        ".lattice/story/actives/B-bf52/checklist.json"
+      ],
+      "signatureTag": "missing|json|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
