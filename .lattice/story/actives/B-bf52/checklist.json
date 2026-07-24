@@ -405,11 +405,11 @@
           "file": "packages/main/tests/red/red-s3-differential-probe.mjs",
           "command": "node packages/main/tests/red/red-s3-differential-probe.mjs \"$COMPARE_DIST\"",
           "result": "pass",
-          "note": "The comparison-against-main claim is a COMMITTED, RUNNABLE artifact: this command digests every pair on the branch and on a comparison build and exits non-zero if the branch collapses what the comparison distinguishes or distinguishes an ordinal that is not retry-stable; with no comparison build it SKIPs that lane cleanly and still reports cost. It is verified red-on-defect for the class it previously could not express: restoring the deleted punctuation reduction in an isolated copy makes it exit non-zero on exactly the manufactured-by-reduction rows and move nothing else. The probe header records that it passed TWICE during live regressions and that each miss added the missing vector, because a guard that cannot express the defect is not a guard. Cost is reported as a RATIO with the probe's own warning that machine-dependent milliseconds should not be quoted. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
-          "headHash": "f67a1c53b749fad3431634729e73df169349d909",
-          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
-          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
-          "timestamp": "2026-07-24T14:52:43.125Z"
+          "note": "The comparison-against-main claim is a COMMITTED, RUNNABLE artifact: this command digests every pair on the branch and on a comparison build and exits non-zero if the branch collapses what the comparison distinguishes or distinguishes an ordinal that is not retry-stable; with no comparison build it SKIPs that lane and still reports cost. Red-on-defect was re-verified in three parts this round, one of which REPRODUCES the probe's own third miss: the previous matrix against the defective build exits zero while the current matrix against that same build exits non-zero on exactly the permissive-body and retired-prefix rows. The header records the running count of misses, because a guard that cannot express the defect is not a guard and the count is the evidence. Cost is reported as a RATIO with the probe's own warning against quoting machine-dependent milliseconds. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure comes from a command named here.",
+          "headHash": "80c47355dbc79b3ad46b5d459710324ed217020b",
+          "materialHash": "6b05d1d4b46c8a7c5f48dfbacd792a42018d5934b460055f9b8d3b5addeac3ef",
+          "storyFilesHash": "4900645b650299878a3cc0b9214456421808927fa96e7f97a450b12becfcbfbc",
+          "timestamp": "2026-07-24T15:33:38.077Z"
         }
       ]
     }
