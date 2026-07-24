@@ -1,0 +1,51 @@
+{
+  "storyId": "B-5e4a",
+  "changes": "packages/main/src/core/lifecycle-registry.ts: five filenames added to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (four acceptance-topology + review-loops.jsonl). packages/main/src/tasks/lifecycle-registry-contract.ts: classification cross-check for the registered filenames plus two-pass StoryStore top-level write derivation (helper-literal pass, storyDir join-site pass with scoped identifier resolution via isEnclosingCallableParameter), floor 40, named divergences, named exemption constant. scripts/verify-process-fact-contract.mjs: source-level assertion that the four filenames stay in the registry initializer. lattice.config.json: contract task wired as a validate command. docs/requirements/decisions/lifecycle-artifact-scope.md: one Verification-inventory bullet. tmp/b5e4a-red/red-registry-coverage.mjs: red/green harness with closed-set adversarial controls.",
+  "usage": "No operator action needed: acceptance_basis_generate and the other topology steps now classify their own artifacts as lifecycle_artifact and pass the scope gate without manual scope_contract_acknowledge. When adding a new StoryStore top-level artifact, register its filename in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES; lattice validate fails with a named divergence if you forget.",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The coverage derivation reads store.ts source text; writes to story dirs from other modules (e.g. background.md from handlers/story-create.ts) are outside its stated derivation domain, though such filenames are already registered. The brace-depth walker does not mask string/comment content when ascending multiple block levels; its failure direction is a loud spurious divergence, never silent acceptance (F-003 dismissal rationale).",
+  "pitfalls": "When adding a new StoryStore top-level artifact write, register the filename in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in the same commit or the lifecycle-registry consistency contract fails validate with a named divergence. The single exemption authority-receipt-refs.json must be removed from STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS when the Authority capability work makes its write path live.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 683603
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 66199
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1216270
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2785164
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 4305738
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 928374
+    }
+  },
+  "totalDurationMs": 9986081,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-24T02:38:39.326Z",
+  "updatedAt": "2026-07-24T02:38:39.326Z"
+}
