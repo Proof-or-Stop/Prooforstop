@@ -393,11 +393,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "The smoke's PASS line still enumerates every pre-existing assertion alongside the matrix, including 'gate-repeat digest/reset', 'no-spurious-reset', 'thresholds', 'autopilot refusal' and 'F-003 takeover re-baseline', so nothing was displaced across three fix rounds.",
-          "headHash": "3fe98f0ce12ed93715b4359af9b9d35423182e91",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:37.154Z"
+          "note": "The smoke's PASS line still enumerates every pre-existing assertion alongside the matrix across four fix rounds, including gate-repeat digest/reset, no-spurious-reset, thresholds, autopilot refusal and F-003 takeover re-baseline.",
+          "headHash": "1307fa50b2e800829076142eaf829468cde27872",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:30.294Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
