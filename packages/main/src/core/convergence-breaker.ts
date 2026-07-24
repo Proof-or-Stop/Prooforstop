@@ -559,9 +559,6 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  *   sep-  scope-extension proposal — core/machine.ts:269 `Cannot enter INIT_CHECK: N
  *         scope extension proposal(s) are still pending: SEP-<storyId>-001`, minted by
  *         handlers/scope-anti-expansion.ts:120
- *   i-    INIT_CHECK reviewer issue — core/machine.ts:1036-1044 renders the blocking
- *         issue ids, whose shape is `I-1` per the init_check_set schema in
- *         cli/command-catalog.ts
  *   req-  requirement id — core/proofstory.ts:1026 `<milestone> references
  *         sourceRequirementId REQ-001, which is not in original intent
  *         keyRequirementIds`, surfaced by the ProofStory DEV gate
@@ -578,13 +575,33 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  *                  evidenced than it was.
  *   `init-`        WRONG SHAPE (F-034). The only `INIT-${…}` mint is
  *                  handlers/draft-check.ts:81, which ids draft-check issues; that
- *                  artifact is never rendered by a story_advance guard. The real
- *                  INIT_CHECK reviewer-issue ids are `I-1` style, so `i-` replaces
- *                  it. `init-` is now an explicit EXCLUSION in the completeness
- *                  guard, not a silent omission.
+ *                  artifact is never rendered by a story_advance guard. `init-` is
+ *                  now an explicit EXCLUSION in the completeness guard, not a
+ *                  silent omission.
+ *   `i-`           UNSTABLE ORDINAL (F-044, review round 8). F-034 replaced
+ *                  `init-` with `i-` on the strength of the RENDER site being real
+ *                  — core/machine.ts:1044 does interpolate `${issue.id}` — but the
+ *                  render site was never the criterion. The criterion is stability
+ *                  across a retry, and `i-` fails it exactly as `rr-`/`rp-`/`rl-`
+ *                  do: cli/command-catalog.ts:2315 declares `issue.id` OPTIONAL and
+ *                  reviewer-self-assigned free text, handlers/init-check.ts:139-142
+ *                  drops the calling agent's previous record and rewrites its issues
+ *                  wholesale on every init_check_set, and the remediation the
+ *                  rejection itself prints (core/machine.ts:1036-1044, "re-run the
+ *                  corresponding reviewer") is precisely the action that re-mints
+ *                  those ids from scratch. So a reviewer re-run that reports the
+ *                  SAME unfixed problem can renumber it, mint a fresh digest key,
+ *                  and the brake never trips — the unbounded-retry hole. Removing
+ *                  `i-` does NOT undo F-034: `init-` is dead config either way and
+ *                  stays excluded. `i-` moves to the review-bookkeeping exclusion
+ *                  category in tasks/convergence-breaker-smoke.ts, and the
+ *                  must-still-collapse `init-check-issue-ordinal` case there is the
+ *                  standing guard against re-adding it.
  *
- * WHAT IS DELIBERATELY NOT HERE, AND WHY (F-030, cross-host codex round 5). The
- * criterion above is "names WHICH artifact must be FIXED". Review BOOKKEEPING
+ * WHAT IS DELIBERATELY NOT HERE, AND WHY (F-030, cross-host codex round 5; F-044,
+ * round 8). The criterion above is "names WHICH artifact must be FIXED", and the
+ * test of that is whether the ordinal SURVIVES the retry the rejection asks for.
+ * Review BOOKKEEPING
  * ids — `RR-` (review run) and `RP-` (review pass) — fail it: they name the
  * bookkeeping record that changes on retry, not the artifact at fault. An
  * earlier draft of this story listed them, which reintroduced the inverse-risk
@@ -597,7 +614,11 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * `rr-`/`rp-` are excluded and the `stale-review-run-evidence` collapse case in
  * tasks/convergence-breaker-smoke.ts is the standing guard against re-adding
  * them. `rl-` (review loop) is excluded on the SAME ground — see the exclusion
- * category in that file for its honest justification.
+ * category in that file for its honest justification. `i-` (INIT_CHECK reviewer
+ * issue) is excluded on that same ground too: the id is caller-written, optional,
+ * and rewritten wholesale by the next init_check_set, so "re-run the reviewer" —
+ * the remediation the rejection prints — renumbers it, and the
+ * `init-check-issue-ordinal` collapse case is its standing guard.
  *
  * ACCEPTED RESIDUAL — THIS ENUMERATION IS NOT PROVABLY COMPLETE. It is a
  * hand-written vocabulary, and no mechanism here can invent a prefix that no
@@ -617,7 +638,7 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * `bcc54-story-id-digits` case in tasks/convergence-breaker-smoke.ts is the
  * standing guard that `b-` never joins it.
  */
-const SUBSTANTIVE_ID_PREFIXES = new Set(['bug-', 'chk-', 'f-', 'i-', 'req-', 'sep-']);
+const SUBSTANTIVE_ID_PREFIXES = new Set(['bug-', 'chk-', 'f-', 'req-', 'sep-']);
 
 /**
  * The allowlist, exported READ-ONLY so the completeness guard in
@@ -639,18 +660,42 @@ export function listSubstantiveIdPrefixes(): string[] {
  * whole-token match protects the id entire: an allowlisted prefix, then the rest
  * of the id, ending in a digit.
  *
- * Built FROM the set so the two cannot drift apart. The leading `\b` and the
- * mandatory hyphen are what keep the one-letter members (`i-`, `f-`) from
- * matching inside ordinary words: `multi-2`, `anti-3`, `ref-012` and `wifi-5`
- * have a word character before the letter, so no boundary exists there.
+ * Built FROM the set so the two cannot drift apart.
+ *
+ * THE LEADING GUARD IS `(?<![\w-])`, NOT `\b` (F-043, review round 8). A word
+ * boundary keeps the short members (`f-`, `req-`) from matching inside ordinary
+ * words — `ref-012` and `wifi-5` have a word character before the stem, so no
+ * boundary exists there — but it does NOT protect HYPHEN-JOINED compounds,
+ * because a hyphen is itself a non-word character and therefore CREATES the very
+ * boundary `\b` is looking for. Under `\b`, `scenario-f-2` / `scenario-f-5`,
+ * `de-bug-2` / `de-bug-7` and `over-req-3` / `over-req-9` each kept an
+ * ALLOWLISTED-looking tail and stayed distinct, which is strictly worse than
+ * main: main rewrites every ordinal to `#` and collapses all three. The reachable
+ * path is core/machine.ts:1190, `Cannot enter DONE: test ${evidence.result}:
+ * ${evidence.output}`, which embeds raw test output — so a repeated test failure
+ * whose only difference was such an embedded ordinal (a numbered test-case name,
+ * a debug label) minted a fresh key on every retry and the brake never tripped.
+ * Requiring that the stem be preceded by neither a word character NOR a hyphen
+ * means only a token that STARTS with an allowlisted prefix is protected, which
+ * is what "whole token" was supposed to mean all along.
+ *
+ * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, the alternation
+ * body is the empty string and `(?:)` matches EVERYWHERE, so the pattern degrades
+ * to "any hyphen followed by a digit run" — it would protect arbitrary text
+ * rather than nothing, and (measured) it threw the whole suite off at an earlier
+ * assertion instead of failing the named cases the matrix exists to localize to.
+ * An empty allowlist must mean "protect NOTHING", so it yields a regex that
+ * cannot match at all and the substantive-id matrix cases then fail BY NAME.
  */
-const SUBSTANTIVE_ID_TOKEN_RE = new RegExp(
-  `\\b(?:${[...SUBSTANTIVE_ID_PREFIXES]
+function buildSubstantiveIdTokenRe(prefixes: Iterable<string>): RegExp {
+  const stems = [...prefixes]
     .map((p) => p.slice(0, -1))
-    .sort((a, b) => b.length - a.length || a.localeCompare(b))
-    .join('|')})-[a-z0-9-]*\\d\\b`,
-  'g',
-);
+    .filter((s) => s.length > 0)
+    .sort((a, b) => b.length - a.length || a.localeCompare(b));
+  if (stems.length === 0) return /(?!)/g;
+  return new RegExp(`(?<![\\w-])(?:${stems.join('|')})-[a-z0-9-]*\\d\\b`, 'g');
+}
+const SUBSTANTIVE_ID_TOKEN_RE = buildSubstantiveIdTokenRe(SUBSTANTIVE_ID_PREFIXES);
 
 /**
  * Placeholder encoding for a protected token.
@@ -784,13 +829,24 @@ export function gateFailureDigest(command: string, reason: string): string {
   // same pair — and collapses the within-200 pair too. Within the 200-character
   // window this branch is strictly better (the ordinal survives and the pair
   // keys apart); past it, the two branches are equal. The improvement is
-  // therefore BOUNDED, not regressive. Widening the window is not free: B-cc54's
-  // CHK-002:adversarial:1 requires a signal-free tail past the banner to leave
-  // the key UNCHANGED, so the signals branch cannot relax this cut without
-  // breaking a landed contract. The `past-200-substantive-ordinal` collapse case
-  // and its `within-200-substantive-ordinal` twin in
-  // tasks/convergence-breaker-smoke.ts pin BOTH directions of this residual, so
-  // it stays a known, tested boundary rather than a surprise.
+  // therefore BOUNDED, not regressive.
+  //
+  // WHY 200 IS KEPT, stated accurately (F-042). An earlier revision of this
+  // comment said widening the window "is not available"; that overstated the
+  // constraint and measurement contradicts it. B-cc54's CHK-002:adversarial:1
+  // requires a signal-free tail past its banner to leave the key UNCHANGED, and
+  // that banner fixture normalizes to exactly 592 characters — so cuts of 593 and
+  // above break B-cc54's suite, while every cut from 216 (the divergence point of
+  // the residual pair below) through 592 would fix that pair and leave B-cc54
+  // green. A 376-character window exists; it is simply NOT TAKEN, and the reason
+  // is the one already given above: on the signals branch this story keeps
+  // B-cc54's 200-character prefix EXACTLY, so every key it produces is
+  // byte-identical to before this change. Widening would rekey every ProofStory
+  // gate rejection in the system to buy back a residual that is already never
+  // worse than main. The `scope-extension-proposal-ordinal-past-window` collapse
+  // case and its within-window twin `scope-extension-proposal-ordinal` in
+  // tasks/convergence-breaker-smoke.ts pin BOTH directions of this residual, so it
+  // stays a known, tested boundary rather than a surprise.
   const prefix = signals.length > 0 ? normalized.slice(0, 200) : normalized.slice(0, 16_384);
   // F-003: encode the parts unambiguously instead of concatenating them with a
   // literal " signals:" delimiter. Concatenation only resisted forgery by accident

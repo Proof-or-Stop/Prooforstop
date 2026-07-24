@@ -296,21 +296,41 @@ const HEALTHY: BreakerCounters = {
 //                            revert of `substantive-id-allowlist` on the same
 //                            rule.
 //
-// MEASURED OVERLAPS. A tag names the revert a case is HERE to catch, not the only
-// revert that can fail it, and pretending otherwise is how the false ISO claim
-// below got written. What mutation testing actually shows: deleting the bare-digit
-// rule fails the whole collapse lane's digit group AND `bcc54-story-id-digits`
-// (allowlist-boundedness) AND both review-bookkeeping cases, because with no digit
-// rule every ordinal survives; deleting the hex rule fails `hex-id` and
-// `bcc54-cross-vendor-noise`; reverting the path rule to main's wide form fails
-// both `path-rule-overreach` cases, `signal-less-long-rejection`, and also
-// `init-check-issue-ordinal-past-window` — that last one because the wide rule
-// SHORTENS the normalized text enough to pull a past-window ordinal back inside
-// the 200-character cut, which is a neat demonstration that the F-033 residual is
-// a character-position accident rather than a property of the id. Localization
-// therefore works by GROUP, which is what the grouped failure report prints: a
-// single group means that rule regressed, and a case failing alone means the rule
-// its tag names.
+// MEASURED OVERLAPS, re-derived in round 8 against the current case set. A tag
+// names the revert a case is HERE to catch, not the only revert that can fail it,
+// and pretending otherwise is how the false ISO claim below got written. What
+// mutation testing actually shows, case-for-case:
+//
+//   digit rule DELETED        fails NINE cases — the whole collapse lane's digit
+//                             group, `bcc54-story-id-digits`, both review-
+//                             bookkeeping cases, `init-check-issue-ordinal` and
+//                             `embedded-test-output-hyphen-compounds`, because
+//                             with no digit rule EVERY ordinal survives;
+//   hex rule DELETED          fails `hex-id` and `bcc54-cross-vendor-noise`;
+//   path rule DELETED         fails the three `path-rule-collapse` cases and
+//                             `bcc54-cross-vendor-noise`;
+//   path rule WIDENED to
+//   main's slash-anywhere     fails exactly the two `path-rule-overreach` cases
+//                             and `signal-less-long-rejection`;
+//   ISO rule deleted ALONE    fails NOTHING (it is redundant with the digit rule
+//                             for a pure-digit timestamp — see `iso-timestamp-only`);
+//   allowlist EMPTIED         fails the four substantive-id must-differ cases
+//                             (`checklist-ordinal`, `finding-ordinal`,
+//                             `unfixed-bug-ordinal`,
+//                             `scope-extension-proposal-ordinal`) and nothing else.
+//
+// That last row is a CORRECTION, and the reason the empty-allowlist branch in
+// core/convergence-breaker.ts exists at all (F-041). Before it, emptying the set
+// built the pattern `\b(?:)-[a-z0-9-]*\d\b`, whose empty alternation matched at
+// every hyphen — so an ISO timestamp's own `-07-14…` became a "protected id", the
+// section-7 timestamp assertion above blew up BEFORE this matrix ran, and the
+// mutation named ZERO cases while the evidence claimed it "fails the
+// substantive-id cases". Localization is a promise this suite makes, and a
+// mutation that kills the run before the matrix is a promise broken.
+//
+// Localization therefore works by GROUP, which is what the grouped failure report
+// prints: a single group means that rule regressed, and a case failing alone means
+// the rule its tag names.
 //
 // The closing banner's inventory is DERIVED from these arrays, never hand-typed:
 // a hand-written count is the first thing to go stale when a case is added, and a
@@ -395,6 +415,48 @@ let digestMatrixSummary = '';
   const scopeExtensionPending = (ids: string[]): string =>
     `Cannot enter INIT_CHECK: ${ids.length} scope extension proposal(s) are still pending: ${ids.join(', ')}. [scope_extension_proposal_pending]\n` +
     `→ Run scope_extension_decide for each proposal, then rerun scope_freeze_check.`;
+
+  // The SAME producer, twice, with the ONE realistic parameter it actually has:
+  // HOW MANY proposals are still pending. core/machine.ts:269 renders the whole
+  // pending list with no slice, so the position of the differing ordinal is a
+  // function of the backlog length — one pending proposal puts it inside the
+  // 200-character prefix window, a longer backlog pushes it past. That is what
+  // builds the two halves of the F-033 residual out of one real message instead of
+  // a contrived pad, and the fixture precondition after the matrix asserts the two
+  // character positions rather than assuming them.
+  const SEP_BACKLOG = [
+    'SEP-B-bf52-001', 'SEP-B-bf52-002', 'SEP-B-bf52-003', 'SEP-B-bf52-004',
+    'SEP-B-bf52-005', 'SEP-B-bf52-006', 'SEP-B-bf52-007', 'SEP-B-bf52-008',
+  ];
+  const SEP_WITHIN_A = ['SEP-B-bf52-001'];
+  const SEP_WITHIN_B = ['SEP-B-bf52-002'];
+  const SEP_PAST_A = [...SEP_BACKLOG, 'SEP-B-bf52-011'];
+  const SEP_PAST_B = [...SEP_BACKLOG, 'SEP-B-bf52-012'];
+
+  // ── The real DONE test-evidence rejection (F-043) ──────────────────────────
+  // core/machine.ts:1190 returns `Cannot enter DONE: test ${evidence.result}:
+  // ${evidence.output}` — it embeds the RAW test output, so arbitrary third-party
+  // text reaches the digest. That is the path on which the `\b` leading guard was
+  // measurably WORSE than main: a hyphen is a non-word character, so `\b` matched
+  // at the seam of every HYPHEN-JOINED compound and `de-bug-2` kept an
+  // allowlisted-looking, protected tail. Two runs of the same failing suite whose
+  // only difference was such an embedded ordinal then minted two keys and the
+  // repeat never accumulated, while main (which rewrites every ordinal to `#`)
+  // collapsed them correctly.
+  //
+  // The three compound shapes below are the measured ones, one per allowlisted
+  // stem that a test name can plausibly end on: `-f-N`, `-bug-N`, `-req-N`. None
+  // of them is an artifact id — they are ordinary hyphenated test-case names — so
+  // all three must normalize away.
+  const doneTestFailure = (fOrd: string, bugOrd: string, reqOrd: string): string => [
+    'Cannot enter DONE: test FAIL: # tests 3',
+    '# pass 0',
+    '# fail 3',
+    `not ok 1 - scenario-${fOrd} rejects an unsigned receipt`,
+    `not ok 2 - de-${bugOrd} reproducer still red`,
+    `not ok 3 - over-${reqOrd} milestone binding`,
+    `  at: tests/red/scenario-${fOrd}.test.ts:41:7`,
+  ].join('\n');
 
   // ── The real INIT_CHECK reviewer-issue rejection (F-034, and the F-033 pair) ─
   // core/machine.ts:1042-1046, composed as it renders. `${issue.id}` is the
@@ -505,6 +567,14 @@ let digestMatrixSummary = '';
     // though `sep-` is allowlisted. The simple-id cases above do NOT fail under
     // that revert, which is why this tag is separate from the allowlist tag.
     | 'substantive-id-whole-token'
+    // F-043: fails if the leading guard on SUBSTANTIVE_ID_TOKEN_RE is reverted
+    // from `(?<![\w-])` to `\b` — the revert under which a HYPHEN-JOINED compound
+    // such as `de-bug-2` keeps a protected-looking tail, because the hyphen is
+    // itself a non-word character and so CREATES the boundary `\b` asks for. It
+    // is the one direction in which this story was measurably WORSE than main
+    // (main collapses those compounds), and it is separate from the whole-token
+    // tag: prefix-before-digits and `\b`-vs-`(?<![\w-])` are different reverts.
+    | 'substantive-id-token-start'
     | 'allowlist-boundedness'
     // F-033, the ACCEPTED residual: fails if the 200-character prefix cut on the
     // signals branch is WIDENED. It is the direction B-cc54's
@@ -525,9 +595,11 @@ let digestMatrixSummary = '';
     // `prefix` alone — the ONLY case that genuinely exercises B-cc54's C1
     // mechanism from inside this suite (the noise pair does not).
     | 'signals-fold'
-    // F-030: fails if `rr-`/`rp-` are added to SUBSTANTIVE_ID_PREFIXES — the
-    // inverse-risk direction, in which the stale-evidence retry stops collapsing
-    // and the breaker never trips on an unbounded review_run_start loop.
+    // F-030 / F-036 / F-044: fails if `rr-`, `rp-`, `rl-` or `i-` are added to
+    // SUBSTANTIVE_ID_PREFIXES — the inverse-risk direction, in which a retry that
+    // RE-MINTS the id stops collapsing and the breaker never trips on an unbounded
+    // loop (review_run_start for `rr-`, "re-run the corresponding reviewer" for
+    // `i-`).
     | 'review-bookkeeping-not-allowlisted';
   interface DigestCase { name: string; a: string; b: string; guardedBy: GuardRule }
 
@@ -593,28 +665,17 @@ let digestMatrixSummary = '';
       // This case is the ONLY one that fails when whole-token matching is reverted
       // to prefix-before-digits while the allowlist itself is left intact, which is
       // what makes it a single-rule guard on that mechanism.
+      //
+      // It is ALSO the WITHIN-window half of the F-033 residual: one pending
+      // proposal puts the differing ordinal well inside the 200-character prefix
+      // cut, so the pair keys apart. Its past-window twin
+      // (`scope-extension-proposal-ordinal-past-window`, same producer with a
+      // longer pending list) is where that stops being true; the fixture
+      // precondition after the matrix asserts both measurements.
       name: 'scope-extension-proposal-ordinal',
       guardedBy: 'substantive-id-whole-token',
-      a: scopeExtensionPending(['SEP-B-bf52-001']),
-      b: scopeExtensionPending(['SEP-B-bf52-002']),
-    },
-    {
-      // F-034. Two different INIT_CHECK reviewer issues. `i-`, not `init-`, is the
-      // prefix that can reach a transition guard: this rejection interpolates the
-      // reviewer's self-assigned `I-N`, while the `INIT-001` shape belongs to
-      // draft-check.json, which core/machine.ts never reads.
-      //
-      // Localization caveat, measured: this pair diverges at normalized character
-      // 195, five characters inside the 200-character window, so it ALSO fails if
-      // that window is narrowed. It is tagged for the allowlist because that is the
-      // revert it is here to catch; the window's own two directions are pinned by
-      // `init-check-issue-ordinal-past-window` in the collapse lane and by the
-      // prefix-window fixture precondition above, which asserts the 195 measurement
-      // rather than assuming it.
-      name: 'init-check-issue-ordinal',
-      guardedBy: 'substantive-id-allowlist',
-      a: initCheckBlockingIssues('product-reviewer', ['I-1']),
-      b: initCheckBlockingIssues('product-reviewer', ['I-2']),
+      a: scopeExtensionPending(SEP_WITHIN_A),
+      b: scopeExtensionPending(SEP_WITHIN_B),
     },
     {
       // F-031 / CHK-001: a SIGNAL-LESS rejection that is byte-identical for its
@@ -749,26 +810,87 @@ let digestMatrixSummary = '';
       b: openReviewLoop('RL-002'),
     },
     {
+      // F-044, the inverse-risk guard on `i-`, and the SAME class as `rr-`/`rp-`/
+      // `rl-` above. Two INIT_CHECK reviewer issues whose ids differ.
+      //
+      // An earlier round of this story had this pair in the MUST-DIFFER lane, on
+      // the strength of the render site being real — core/machine.ts:1044 does
+      // interpolate `${issue.id}`. But a real render site was never the criterion;
+      // SURVIVING THE RETRY is. `I-N` fails that on all three counts at once:
+      // cli/command-catalog.ts:2315 declares `issue.id` OPTIONAL and reviewer-self-
+      // assigned free text, handlers/init-check.ts:139-142 drops the calling agent's
+      // previous record and rewrites its issues wholesale on every init_check_set,
+      // and the remediation this very rejection prints — "re-run the corresponding
+      // reviewer" — is the action that renumbers them. A reviewer re-run that
+      // reports the SAME unfixed problem as `I-2` instead of `I-1` would therefore
+      // mint a fresh key on every attempt, which is the unbounded retry loop this
+      // module exists to stop. `i-` was removed from the allowlist and this pair
+      // must now COLLAPSE; it fails the moment `i-` is re-added.
+      //
+      // Bookkeeping, not a durable artifact id: the thing the operator must FIX is
+      // the story boundary described in the issue text, which is what still
+      // separates two genuinely different init-check blockers.
+      name: 'init-check-issue-ordinal',
+      guardedBy: 'review-bookkeeping-not-allowlisted',
+      a: initCheckBlockingIssues('product-reviewer', ['I-1']),
+      b: initCheckBlockingIssues('product-reviewer', ['I-2']),
+    },
+    {
+      // F-043, the direction in which this story was WORSE THAN MAIN, pinned so it
+      // cannot come back. Real producer: core/machine.ts:1190 embeds the raw test
+      // output in `Cannot enter DONE: test FAIL: …`, so ordinary hyphenated
+      // test-case names reach the digest. `scenario-f-2`, `de-bug-2` and
+      // `over-req-3` are NOT artifact ids, but under a `\b` leading guard each one
+      // matched from its interior seam (a hyphen is a non-word character, so it
+      // MAKES the boundary `\b` wants) and was protected as though it were.
+      //
+      // Two runs of the same red suite then keyed apart on nothing but the embedded
+      // ordinals, the repeat never accumulated, and the brake never fired — while
+      // main, whose `/\d+/g` rewrites every ordinal, collapsed them correctly. This
+      // pair fails the moment `(?<![\w-])` is weakened back to `\b`.
+      name: 'embedded-test-output-hyphen-compounds',
+      guardedBy: 'substantive-id-token-start',
+      a: doneTestFailure('f-2', 'bug-2', 'req-3'),
+      b: doneTestFailure('f-5', 'bug-7', 'req-9'),
+    },
+    {
       // F-033, the ACCEPTED residual, pinned in its own direction.
       //
-      // Same producer and same reviewer-issue ordinals as the must-differ
-      // `init-check-issue-ordinal` case; the ONLY change is a longer reviewer name
-      // in front of the id, which pushes the ordinal from normalized character 195
-      // to 204 — past the 200-character prefix cut. Both sides extract the
-      // IDENTICAL signal set, so nothing else can tell them apart and they collapse.
+      // Same producer and same proposal ordinals as the must-differ
+      // `scope-extension-proposal-ordinal` case; the ONLY change is a longer
+      // pending backlog in front of the differing id, which pushes that ordinal
+      // past the 200-character prefix cut. Both sides extract the IDENTICAL signal
+      // set (`scope_extension_proposal_pending`), so nothing else can tell them
+      // apart and they collapse.
       //
       // This is asserted as COLLAPSE because that is what the code does, and saying
       // so here is the point: it marks exactly where the improvement stops. main
       // collapses this pair too — main truncates at 200 unconditionally AND rewrites
       // every ordinal to `#` — and main additionally collapses the within-window
       // pair that this branch keeps apart. So the change is strictly better inside
-      // the window and equal outside it: bounded, never regressive. Widening the
-      // window is not available as a fix: B-cc54's CHK-002:adversarial:1 requires a
-      // signal-free tail past the banner to leave the key UNCHANGED.
-      name: 'init-check-issue-ordinal-past-window',
+      // the window and equal outside it: bounded, never regressive.
+      //
+      // Widening the window is not IMPOSSIBLE, and an earlier revision of this
+      // comment overstated it as unavailable (F-042). MEASURED, both bounds:
+      // B-cc54's CHK-002:adversarial:1 requires a signal-free tail past its banner
+      // to leave the key UNCHANGED, and that banner fixture normalizes to exactly
+      // 592 characters — so a cut of 593 or more admits the noise tail and breaks
+      // B-cc54's suite, while any cut from 216 (this pair's divergence point) up to
+      // 592 would fix the case illustrated HERE without breaking B-cc54 at all.
+      // The honest statement is therefore "a 376-character window exists and is not
+      // taken", not "widening is unavailable".
+      //
+      // 200 is kept anyway, for the reason already stated in
+      // core/convergence-breaker.ts a few lines above the cut: on the signals branch
+      // every key must stay BYTE-IDENTICAL to the ones B-cc54 landed, and this
+      // story's one-line claim is that it never changes a signals-branch key. Buying
+      // a bounded residual back at the cost of rekeying every ProofStory rejection
+      // in the system is not a trade this story gets to make for a residual it has
+      // already shown is never worse than main.
+      name: 'scope-extension-proposal-ordinal-past-window',
       guardedBy: 'prefix-window-residual',
-      a: initCheckBlockingIssues('lattice-review-story-init', ['I-1']),
-      b: initCheckBlockingIssues('lattice-review-story-init', ['I-2']),
+      a: scopeExtensionPending(SEP_PAST_A),
+      b: scopeExtensionPending(SEP_PAST_B),
     },
     {
       // A bare ordinal carries no artifact prefix, so it is noise. This is the
@@ -969,27 +1091,29 @@ let digestMatrixSummary = '';
   // Fixture precondition for the F-033 pair, deliberately placed AFTER the matrix
   // rather than with the other preconditions above.
   //
-  // It asserts a tight character-index boundary (195 vs 204 around a 200-char cut),
-  // and measurement showed that several UNRELATED reverts — main's slash-anywhere
-  // path rule, an emptied allowlist, a corrupted placeholder encoding — move the
-  // normalized text enough to break that boundary. Run before the matrix, it threw
-  // first and aborted the whole run, so an operator reverting the path rule saw a
-  // character-index message instead of the three cases that name the path rule.
+  // It asserts a tight character-index boundary (87 vs 215 around a 200-char cut),
+  // and measurement showed that several UNRELATED reverts — an emptied allowlist,
+  // a corrupted placeholder encoding, a whole-token protection reduced to
+  // prefix-before-digits — stop protecting the `SEP-…` ordinal entirely, which
+  // makes both sides normalize identically and pushes the "divergence index" to
+  // the end of the string. Run BEFORE the matrix, this block threw first and
+  // aborted the whole run, so an operator who emptied the allowlist saw a
+  // character-index message instead of the four cases that name the allowlist.
   // Placed here, a rule regression localizes to its own cases exactly as this
   // section promises, and the measurement is still pinned on every green run.
   {
-    // F-033 residual, MEASURED. One real producer, two reviewer names, and the
-    // 200-character prefix window falls between them: with `product-reviewer` the
-    // `I-N` ordinal lands inside the window and the pair keys apart, with
-    // `lattice-review-story-init` it lands outside and the pair collapses. Both
-    // pairs carry the SAME non-empty signal set, so B-cc54's mechanism supplies no
+    // F-033 residual, MEASURED. One real producer, two pending-backlog lengths,
+    // and the 200-character prefix window falls between them: with a single
+    // pending proposal the differing `SEP-…-NNN` ordinal lands inside the window
+    // and the pair keys apart, with a nine-proposal backlog it lands outside and
+    // the pair collapses. Both pairs carry the SAME non-empty signal set
+    // (`scope_extension_proposal_pending`), so B-cc54's mechanism supplies no
     // distinctness in either case and the window alone decides.
     //
-    // These assertions pin the measurement itself. The margin is small on purpose
-    // — 195 vs 204 is the real gap between two real reviewer names — so any later
-    // edit to this fixture's wording that moves either side across the boundary
-    // fails HERE, naming the character index, instead of silently turning one of
-    // the two matrix cases into a copy of the other.
+    // These assertions pin the measurement itself, so any later edit to this
+    // fixture's wording or backlog length that moves either side across the
+    // boundary fails HERE, naming the character index, instead of silently turning
+    // one of the two matrix cases into a copy of the other.
     const divergeAt = (a: string, b: string): number => {
       const na = normalizeGateReason(a);
       const nb = normalizeGateReason(b);
@@ -997,10 +1121,10 @@ let digestMatrixSummary = '';
       while (i < Math.min(na.length, nb.length) && na[i] === nb[i]) i += 1;
       return i;
     };
-    const withinA = initCheckBlockingIssues('product-reviewer', ['I-1']);
-    const withinB = initCheckBlockingIssues('product-reviewer', ['I-2']);
-    const pastA = initCheckBlockingIssues('lattice-review-story-init', ['I-1']);
-    const pastB = initCheckBlockingIssues('lattice-review-story-init', ['I-2']);
+    const withinA = scopeExtensionPending(SEP_WITHIN_A);
+    const withinB = scopeExtensionPending(SEP_WITHIN_B);
+    const pastA = scopeExtensionPending(SEP_PAST_A);
+    const pastB = scopeExtensionPending(SEP_PAST_B);
     for (const [label, x, y] of [['within', withinA, withinB], ['past', pastA, pastB]] as const) {
       const sx = extractGateBlockSignals(normalizeGateReason(x));
       const sy = extractGateBlockSignals(normalizeGateReason(y));
@@ -1012,7 +1136,8 @@ let digestMatrixSummary = '';
     assert.ok(withinAt < 200, `prefix-window fixture: the within-window pair must diverge BEFORE character 200 (diverged at ${withinAt})`);
     assert.ok(pastAt > 200, `prefix-window fixture: the past-window pair must diverge AFTER character 200 (diverged at ${pastAt})`);
     console.log(
-      `  fixture-precondition prefix-window: same producer, identical signal sets, ordinal diverges at char ${withinAt} (within) vs ${pastAt} (past) around the 200-char cut`,
+      `  fixture-precondition prefix-window: same producer (${SEP_WITHIN_A.length} vs ${SEP_PAST_A.length} pending proposals), ` +
+      `identical signal sets, ordinal diverges at char ${withinAt} (within) vs ${pastAt} (past) around the 200-char cut`,
     );
   }
 
@@ -1078,12 +1203,27 @@ let digestMatrixSummary = '';
 
   // Explicit, commented exclusion categories. The reason lives with the category.
   //
-  // (a) F-030 / F-036: review BOOKKEEPING ids. `rr-` (review run), `rp-` (review
-  // pass) and `rl-` (review loop) all name a record that is RE-MINTED on retry
+  // (a) F-030 / F-036 / F-044: review BOOKKEEPING ids. `rr-` (review run), `rp-`
+  // (review pass), `rl-` (review loop) and `i-` (INIT_CHECK reviewer issue) all
+  // name a record that is RE-MINTED on retry
   // rather than the artifact that must be fixed, so allowlisting them lets a host
   // mint a fresh digest key on every attempt and the breaker never trips on an
   // unbounded retry loop. Guarded, in the inverse direction, by the must-collapse
-  // `stale-review-run-evidence` and `review-loop-ordinal` cases above.
+  // `stale-review-run-evidence`, `review-loop-ordinal` and
+  // `init-check-issue-ordinal` cases above.
+  //
+  // `i-` joined this category in round 8, reversing the F-034 over-correction.
+  // F-034's real content — that `init-` is DEAD CONFIG, since the only `INIT-${…}`
+  // mint (handlers/draft-check.ts:81) ids draft-check issues that no transition
+  // guard reads — stands, and `init-` remains excluded below. What F-034 got wrong
+  // was the replacement: it allowlisted `i-` because the RENDER site is real, but
+  // the criterion is whether the ordinal survives the retry the rejection demands.
+  // It does not. cli/command-catalog.ts:2315 makes `issue.id` OPTIONAL and
+  // reviewer-self-assigned free text; handlers/init-check.ts:139-142 drops the
+  // calling agent's previous record and rewrites its issues wholesale on every
+  // init_check_set; and core/machine.ts:1036-1044 prints "re-run the corresponding
+  // reviewer" as the fix — which is exactly the call that renumbers the ids. Same
+  // class as `rr-`/`rp-`/`rl-`, therefore same treatment.
   //
   // `rl-` is here on that ground and ONLY that ground. Its earlier justification
   // — that no story_advance rejection can contain a review-loop id — was false:
@@ -1094,7 +1234,7 @@ let digestMatrixSummary = '';
   // triggers share one key; that cost is taken because it makes the breaker fire
   // EARLY, which is the fail-safe direction for a breaker, while the opposite
   // error makes it never fire at all.
-  const EXCLUDED_REVIEW_BOOKKEEPING = new Set(['rl-', 'rp-', 'rr-']);
+  const EXCLUDED_REVIEW_BOOKKEEPING = new Set(['i-', 'rl-', 'rp-', 'rr-']);
   // (b) The story-id prefix itself is not an artifact ordinal; it must normalize
   // like any other bare id (guarded by the must-collapse `bcc54-story-id-digits`).
   const EXCLUDED_STORY_ID = new Set(['b-']);
@@ -1103,9 +1243,11 @@ let digestMatrixSummary = '';
   // draft-check issues, and core/machine.ts never reads draft-check.json, so no
   // `INIT-…` id can appear in a transition-guard rejection. The INIT_CHECK
   // rejection that DOES name issue ids (core/machine.ts:1042-1046) renders
-  // init-check.json reviewer issues, whose declared shape is `I-1` — so `i-` is
-  // the allowlisted prefix and `init-` is excluded here rather than silently
-  // dropped, because a silent drop is indistinguishable from an oversight.
+  // init-check.json reviewer issues, whose declared shape is `I-1`. `init-` is
+  // excluded here rather than silently dropped, because a silent drop is
+  // indistinguishable from an oversight. (`i-` is excluded too, but on the
+  // DIFFERENT ground recorded in category (a): its shape is gate-reachable, its
+  // ordinal simply does not survive the retry.)
   const EXCLUDED_SHAPE_CONFUSABLE = new Set(['init-']);
   // (d) Ids minted by subsystems whose records are NEVER emitted by a
   // story_advance transition-guard rejection: playbook / learning / capability /
@@ -1150,7 +1292,10 @@ let digestMatrixSummary = '';
       shapeNeedle: 'Reviewer self-assigned ID, for example I-1',
       renderFile: 'src/core/machine.ts',
       renderNeedle: 'Cannot enter INIT_CHECK: init-check reviewer recorded high/critical issues',
-      note: 'guarded by the must-differ init-check-issue-ordinal case',
+      note:
+        'EXCLUDED, not substantive (F-044). The citation is kept because the shape and the render site are both ' +
+        'real — this is the entry proving the guard can tell "gate-reachable" from "substantive", which are not ' +
+        'the same test. Guarded in the collapse direction by the must-still-collapse init-check-issue-ordinal case.',
     },
     {
       prefix: 'req-',
