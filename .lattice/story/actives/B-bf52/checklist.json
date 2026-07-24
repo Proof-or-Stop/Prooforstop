@@ -64,11 +64,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "The same case drives the real bumpGateFailureCount for both rejections and reports counter=1 breaker=proceed, so the operator-visible consequence (no freeze) is asserted, not just the hash. 'must-differ dev-gate-gap-count-differs' proves the same for rejections whose gap COUNTS differ. Re-recorded after F-013.",
-          "headHash": "1b69f6dc7b558bc4ec1a69baa6d5e826f476d690",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:19.843Z"
+          "note": "The same case drives the real bumpGateFailureCount for both rejections and reports counter=1 breaker=proceed, so the operator-visible consequence (no freeze) is asserted, not just the hash. 'dev-gate-gap-count-differs' proves the same where gap COUNTS differ.",
+          "headHash": "fdaf362019a5f552983a8a66564a4819a01b5c04",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:10.500Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
