@@ -1,0 +1,34 @@
+{
+  "storyId": "B-a539",
+  "checkedAt": "2026-07-24T22:45:36.476Z",
+  "headHash": "6e54492aac8c04689d8a925578915187955a46d9",
+  "materialHash": "d6b977f825f75441a1f4d0c0eeca75922280a701f1d7ab20788c99dfba7c2de4",
+  "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+  "reviewRound": "2026-07-24T21:09:44.924Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#规则",
+      "promise": "代码验证统一用 lattice validate (no new claim introduced by this story; this change makes no CLAUDE.md/README/docs edit)",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only shows the only non-story-metadata source file changed is lattice.config.json (1 deletion), plus .lattice/story/actives/B-a539/plan.md which is Lattice story metadata, not a project-facing doc. No CLAUDE.md, package framework doc, or docs/*.md file is touched, so no new or changed doc promise is introduced by this story. The pre-existing convention (verification via lattice validate) is independently upheld: node bin/lattice.js validate --json produced a real invocation record (commandCount 47, status PASS, requiredFailureCount 0, optionalFailureCount 0) persisted in test-evidence.json bound to headHash 35858fbf35b111d4f235c5b03df1fb2b2628ec52 / materialHash d6b977f825f75441a1f4d0c0eeca75922280a701f1d7ab20788c99dfba7c2de4, which matches the current working tree state at time of this review."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently re-verified against the current material (not the stale prior binding): git diff main...HEAD -- lattice.config.json shows exactly one deletion, the bare-string entry node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js, on line 53 of the old file; the focus:[fast] object entry is untouched. Independently parsed the current lattice.config.json with node -e JSON.parse: validate.commands has exactly 47 entries (was 48), and exactly one entry (JSON.stringify-matched) references reviewer-scan-budget-guard-smoke.js, the object {command:node, args:[.../reviewer-scan-budget-guard-smoke.js], focus:[fast]}, with no shell/cwd/env/timeoutMs/optional fields. This matches CHK-001 DoneWhen exactly and matches the checklist.json verificationEvidence for CHK-001."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently re-verified against the current material: test-evidence.json (headHash 35858fbf35b111d4f235c5b03df1fb2b2628ec52, materialHash d6b977f825f75441a1f4d0c0eeca75922280a701f1d7ab20788c99dfba7c2de4, storyFilesHash 4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a) records commandExecution status PASS, complete true, commandCount 47, requiredFailureCount 0, optionalFailureCount 0, with overall result PASS at 2026-07-24T22:26:16.074Z. commandCount 47 matches the current lattice.config.json length, consistent with exactly one execution of the smoke inside a fully green run (no duplicate execution, no failures masking the count). storyFilesHash is identical to the checklist.json CHK-002 evidence storyFilesHash (4255e027...), confirming the story-owned material is unchanged since the original attestation and only unrelated main-merge drift (materialHash) occurred, per the prior stale delivery-check materialHash mismatch (recorded a9294a0e45e8, current d6b977f825f7) reported by lattice status."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-bound to current material after unrelated main merges (quorum-submit-smoke budget change plus sibling story metadata and CHANGELOG). Single-line dedup in lattice.config.json independently reverified: 47 validate.commands entries, exactly one reviewer-scan-budget-guard-smoke.js reference (the focus:[fast] object), and a fresh fully-green validate --json run (47/47 commands, 0 required/0 optional failures) persisted as test-evidence.json bound to the current headHash/materialHash. No doc file (CLAUDE.md/README/docs) is touched by this diff, so no doc promise changes. No unresolved TODO/FIXME/HACK found in the diff."
+  },
+  "_hash": "ce08dcea3ad582431a603e883bbb9b34954f991dc7b4ce13a229fcae3e047ba6"
+}

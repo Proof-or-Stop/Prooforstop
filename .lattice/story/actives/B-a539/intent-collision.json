@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-a539",
+  "id": "IC-20260724173845",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Remove exactly one of the two duplicate validate.commands entries for reviewer-scan-budget-guard-smoke.js, keeping the focus-tagged object because it is the strict superset, and prove from the validate --json invocation record that the smoke then runs exactly once. This is a config-only deduplication; the smoke script, the validate runner implementation, and every other configured command stay untouched.",
+  "acceptedInterpretationHash": "sha256:b7ed143b3cd9c789e514d7df94c7af2b10c29d0c3a3444092df964b5a1bbc216",
+  "notes": "The only candidate ambiguity was which of the two entries to keep. Resolved by the requester instruction to keep the entry with the more complete options and by the loader semantics: focus is a selection tag, unfocused runs execute all configured commands, so the focus-tagged object covers both the full run and validate --focus=fast while the bare string covers only the full run. No other interpretation of the request competes.",
+  "createdAt": "2026-07-24T17:38:45.084Z",
+  "updatedAt": "2026-07-24T17:38:45.084Z"
+}

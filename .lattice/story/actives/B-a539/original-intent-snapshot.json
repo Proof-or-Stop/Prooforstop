@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-a539",
+  "sourceText": "In /Users/jek/Documents/Work/proofbound, lattice.config.json registers packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js TWICE in validate.commands. Found during the B-4043 review (lattice-review-concept lane, 2026-07-24). The duplication pre-dates B-4043: both merge parents (b8e28971d0^ and e436eb5447) already contain it, so it is not caused by that story merge. Effect: the smoke runs twice on every lattice validate, wasting time on every phase gate that validates. Task: confirm the duplication in lattice.config.json validate.commands, remove one of the two entries (keep whichever carries the more complete options, e.g. timeoutMs/focus, if they differ), and check the rest of the list for any other duplicate command+args pairs while you are there. Verify lattice validate still runs that smoke exactly once afterwards. Follow the normal Lattice story workflow for the change. Follow-up refinement: compare duplicates by full execution identity rather than script path alone, and prove exactly-once from an invocation record rather than only a passing validate. Core acceptance: lattice validate must invoke reviewer-scan-budget-guard-smoke.js exactly once, while preserving the intended arguments, timeout, execution context, and fail-closed validation behaviour. Other commands with the same script but meaningfully different execution parameters must not be removed.",
+  "normalizedOutcome": "lattice.config.json validate.commands contains exactly one entry for reviewer-scan-budget-guard-smoke.js (the focus-tagged object), an unfocused lattice validate run invokes that smoke exactly once and it passes, validate --focus=fast still selects it, and no other configured command is added, removed, reordered or altered.",
+  "acceptanceClaim": "The lattice validate --json invocation record contains exactly one command result referencing reviewer-scan-budget-guard-smoke.js, and that result passes, while the surviving entry keeps its original command, args, absence of shell/cwd/env/timeoutMs/optional, and its focus:[fast] tag.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:54487f4277979b982c163835965764cfc3b75e96c1514d82c9f72a757562dc22",
+  "createdAt": "2026-07-24T17:38:37.790Z",
+  "updatedAt": "2026-07-24T17:38:37.790Z"
+}
