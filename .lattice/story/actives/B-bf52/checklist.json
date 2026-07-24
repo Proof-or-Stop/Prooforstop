@@ -405,11 +405,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "The three DEV revert-proofs produced disjoint named subsets (truncation-removal 2 cases, path-rule 2 cases, digit-rule 3 cases) with the remaining cases still reported passing, so a regression localizes to the rule that caused it instead of failing as one opaque block. The implementer restructured the matrix mid-item precisely to make this possible: bare per-case asserts aborted at the first failure and could not show which subset regressed.",
-          "headHash": "b32dce9e77a3d97f9a4fecccf8b32f16dfcd9523",
-          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
-          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
-          "timestamp": "2026-07-23T23:20:42.948Z"
+          "note": "Nine re-derived revert-proofs over six rule groups, each leaving all other cases passing: sanity-bound delete (2 cases), 200-char cut restore (2), POSIX path delete (3), path rule widen (2), Windows delete (1), hex delete (1), hex widen (1), duration delete (5), number widen (5). Guard tags were split into overreach/collapse pairs for path, digit and hex precisely because a single tag mis-localized — cross-host codex caught the path conflation, and the implementer caught two more (hex-id mis-tagged as digit-rule; two lock fixtures varying pid as well as age, now holding pid constant as the real contention shape).",
+          "headHash": "d130c3b50b7d8d60a170242c32450d6214924039",
+          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
+          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
+          "timestamp": "2026-07-24T01:43:38.085Z"
         }
       ]
     }
