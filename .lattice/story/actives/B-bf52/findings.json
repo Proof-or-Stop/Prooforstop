@@ -781,6 +781,21 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T10:16:12.734Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-bf52:F-041",
+      "desc": "CHK-003:adversarial:0 evidence note (checklist.json) claims mutation M7 (\"allowlist emptied\", i.e. SUBSTANTIVE_ID_PREFIXES -> empty Set) \"fails the substantive-id cases\". Reproduced: emptying SUBSTANTIVE_ID_PREFIXES makes SUBSTANTIVE_ID_TOKEN_RE (convergence-breaker.ts:647-653) build from an empty alternation, `\\\\b(?:)-[a-z0-9-]*\\\\d\\\\b`, which over-matches and corrupts normalizeGateReason output for UNRELATED fixtures. Running node packages/main/dist/tasks/convergence-breaker-smoke.js under this mutation crashes at the pre-existing section-7 assertion `digest collapses volatile ISO timestamps to the same key` (smoke.ts:176) BEFORE the section-7b digest matrix ever runs -- zero must-differ/must-still-collapse lines print, so none of the named substantive-id cases (checklist-ordinal, finding-ordinal, unfixed-bug-ordinal, init-check-issue-ordinal, scope-extension-proposal-ordinal) are ever evaluated pass or fail. The suite does still exit non-zero (the regression is caught), but the claim that M7 \"fails the substantive-id cases\" is false as literally reproduced -- it fails via an unrelated, unlocalized ISO-timestamp assertion, which directly undercuts this story's own stated design goal (smoke.ts:279-284,299-313; CHK-004 adversarial intent) that a reverted rule localizes to a named subset of cases rather than failing as one opaque/confusing block. Same pattern as the F-037/F-038/F-039/F-040 vacuous-evidence findings from round 6.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T10:33:08.913Z",
+      "reviewRound": "2026-07-24T10:14:30.812Z",
+      "reviewRunId": "B-bf52:RR-022",
+      "_hash": "de657595e8304c0ab9e0ec4a025b0e904cb848703fa99bfec200f4202b2d9275",
+      "signatureTag": "adversarial|unknown|adversarial-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
