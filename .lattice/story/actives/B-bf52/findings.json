@@ -880,7 +880,7 @@
       "desc": ".lattice/story/actives/B-bf52/checklist.json:~262 CHK-003:happy:0 evidence note was NOT updated in this round and now directly contradicts CHK-003:edge:1 (re-recorded this round) within the SAME checklist item. CHK-003:happy:0 groups 'init-check-issue-ordinal' together with checklist-ordinal, finding-ordinal, unfixed-bug-ordinal as a must-differ case guarded by substantive-id-allowlist. But per convergence-breaker-smoke.ts:833 (confirmed by reading the current MUST_COLLAPSE array) init-check-issue-ordinal is a must-still-collapse case guarded by review-bookkeeping-not-allowlisted -- the opposite direction, following F-044 (the i- prefix was removed from SUBSTANTIVE_ID_PREFIXES because it names an unstable, reviewer-self-assigned, retry-renumbered id, same class as rr-/rp-/rl-). CHK-003:edge:1 correctly states this: init-check-issue-ordinal MOVED to must-still-collapse. CHK-003:happy:0 still asserts the pre-move state as current fact, so CHK-003's own evidence set self-contradicts on which direction a must intent requires.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T11:31:25.468Z",
@@ -888,7 +888,9 @@
       "reviewRunId": "B-bf52:RR-025",
       "_hash": "247fd3c001e3799409d02c9c48d552f7e391446d30b95e920d3a1a3a6b052e8a",
       "signatureTag": "happy|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T11:34:39.243Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-047",
