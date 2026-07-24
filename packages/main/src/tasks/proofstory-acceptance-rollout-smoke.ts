@@ -149,6 +149,22 @@ function runIssuerMutationSmoke(): void {
     forgedRestoration.restorationCommitSha = forgedRestoration.mutationCommitSha;
     assert.throws(() => issue(forgedRestoration), /restoration commit must be later than mutation commit/);
     assertions += 1;
+
+    // F-006 regression: the preserved evidence repository is caller-supplied, so
+    // replaying it must never execute repository-local code. Plant a real
+    // post-checkout hook and prove the issuer's checkouts do not fire it. Without
+    // the GIT_UNTRUSTED_REPO_ARGS overrides this hook runs inside the verifier
+    // process and can tamper the files being replayed.
+    const evidenceGitDir = git(evidence.evidenceGitCwd, ['rev-parse', '--absolute-git-dir']);
+    const hookMarker = join(evidence.evidenceGitCwd, 'post-checkout-hook-fired.txt');
+    mkdirSync(join(evidenceGitDir, 'hooks'), { recursive: true });
+    writeFileSync(
+      join(evidenceGitDir, 'hooks', 'post-checkout'),
+      `#!/bin/sh\necho fired > ${JSON.stringify(hookMarker)}\n`,
+      { encoding: 'utf8', mode: 0o755 },
+    );
+    issue(evidence);
+    ok(!existsSync(hookMarker), 'issuer replay must not execute hooks from the caller-supplied evidence repository');
   } finally {
     rmSync(evidence.evidenceGitCwd, { recursive: true, force: true });
   }

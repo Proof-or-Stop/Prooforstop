@@ -88,7 +88,7 @@ function unsignedReceipt(receipt: AcceptanceRolloutReceiptV1): Omit<AcceptanceRo
 }
 
 function gitCommonDir(gitCwd: string): string {
-  const raw = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
+  const raw = execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
   return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
 }
 
@@ -162,15 +162,43 @@ export type ProductionRolloutCaseEvidence = {
   reviewPasses: Array<Record<string, unknown>>;
 };
 
+/**
+ * F-006: every git invocation in this module may target the PRESERVED EVIDENCE
+ * REPOSITORY, whose contents and `.git/config` are supplied by the same caller
+ * whose reports we are replaying to check. Git will execute repository-local
+ * code during an ordinary checkout, so running one unhardened lets that repo run
+ * code inside the verifier process and tamper the very files being replayed —
+ * which would reopen the self-sealed-evidence hole even though the CLI itself is
+ * the verifier's own. Reproduced with a throwaway repo: the exact production
+ * invocation `git checkout --quiet --force -B <branch> <sha>` fires
+ * `.git/hooks/post-checkout`; the same invocation prefixed with these overrides
+ * does not.
+ *
+ * Command-line `-c` beats repository config, so these neutralise the generic
+ * execution vectors: hooks, the fsmonitor hook, and an external diff driver.
+ *
+ * RESIDUAL, stated rather than glossed: a `.gitattributes` clean/smudge filter
+ * bound to an arbitrary filter name can still run on checkout, and there is no
+ * generic switch that disables all named filters. Fully removing that would mean
+ * not checking the tree out at all (extracting blobs via `git cat-file`), which
+ * is a larger redesign than this story owns. Treat the evidence repository as
+ * untrusted input.
+ */
+const GIT_UNTRUSTED_REPO_ARGS = [
+  '-c', 'core.hooksPath=/dev/null',
+  '-c', 'core.fsmonitor=false',
+  '-c', 'diff.external=',
+];
+
 function gitOutput(cwd: string, args: string[]): string {
-  return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  return execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, ...args], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 function assertCommitExists(cwd: string, commitSha: string, label: string): void {
   if (!/^[a-f0-9]{40}$/.test(commitSha)) {
     throw new Error(`acceptance rollout observation: ${label} commit is missing or malformed`);
   }
-  execFileSync('git', ['cat-file', '-e', `${commitSha}^{commit}`], {
+  execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'cat-file', '-e', `${commitSha}^{commit}`], {
     cwd,
     stdio: ['ignore', 'ignore', 'pipe'],
   });
@@ -178,7 +206,7 @@ function assertCommitExists(cwd: string, commitSha: string, label: string): void
 
 function assertAncestor(cwd: string, ancestor: string, descendant: string, label: string): void {
   try {
-    execFileSync('git', ['merge-base', '--is-ancestor', ancestor, descendant], {
+    execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'merge-base', '--is-ancestor', ancestor, descendant], {
       cwd,
       stdio: ['ignore', 'ignore', 'pipe'],
     });
@@ -193,7 +221,7 @@ function replayProductionGateState(args: {
   storyId: string;
   commitSha: string;
 }): { topologyReport: Record<string, unknown>; preReviewReport: Record<string, unknown> } {
-  execFileSync('git', ['checkout', '--quiet', '--force', '-B', `story/${args.storyId}`, args.commitSha], {
+  execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'checkout', '--quiet', '--force', '-B', `story/${args.storyId}`, args.commitSha], {
     cwd: args.evidenceGitCwd,
     stdio: ['ignore', 'ignore', 'pipe'],
   });
@@ -308,7 +336,7 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
       commitSha: evidence.restorationCommitSha,
     });
   } finally {
-    execFileSync('git', ['checkout', '--quiet', '--force', '-B', originalBranch, originalHead], {
+    execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'checkout', '--quiet', '--force', '-B', originalBranch, originalHead], {
       cwd: args.evidenceGitCwd,
       stdio: ['ignore', 'ignore', 'pipe'],
     });
@@ -321,7 +349,7 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     throw new Error('acceptance rollout observation: restored control did not rerun PASS');
   }
   const storyPath = `.lattice/story/actives/${args.storyId}/process-events.jsonl`;
-  const committedEvents = execFileSync('git', ['show', `${quorum.metadataCommitSha}:${storyPath}`], {
+  const committedEvents = execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'show', `${quorum.metadataCommitSha}:${storyPath}`], {
     cwd: args.evidenceGitCwd,
     encoding: 'utf8',
   }).trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
