@@ -577,7 +577,7 @@
       "desc": "cross-host (codex-cli host-B round 5), recorded by the main agent: CHK-001 carries status done with result pass while its evidence states NOT DELIVERED BY THIS STORY. That is internally contradictory, and if B-cc54 structural-signal mechanism regressed this story would contain no independent implementation satisfying the item. Main agent follow-up: removing the truncation outright does break B-cc54 suite (measured, exit 1), but a signals-conditional prefix does not, and delivers the item honestly.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T03:36:31.137Z",
@@ -587,7 +587,9 @@
         ".lattice/story/actives/B-bf52/checklist.json"
       ],
       "signatureTag": "missing|json|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CHK-001 delivered: gateFailureDigest prefix cut is now signals-conditional (signals present -> slice(0,200), B-cc54 preserved exactly; signal-less -> slice(0,16384) sanity bound) so a late-diverging signal-less scope-gate rejection keeps a distinct key. Removing the truncation outright breaks B-cc54 (measured exit 1); the conditional does not. Added must-differ signal-less-long-rejection (guard signals-conditional-prefix) and red-s3 C1c, plus the test-coverage-lane signals-fold case proofstory-gap-signal-set (guard signals-fold) that genuinely exercises B-cc54 C1. Verified: gate-repeat-block-smoke exit 0 with zero diff vs main, convergence-breaker-smoke exit 0, red-s3 9/9; revert-proofs isolate each case (1/18).",
+      "resolvedAt": "2026-07-24T04:03:53.868Z"
     }
   ]
 }
