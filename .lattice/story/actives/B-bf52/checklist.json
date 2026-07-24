@@ -52,11 +52,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ dev-gate-one-gap-differs [guard: truncation-removal]' reconstructs the real DEV-gate render (machine.ts:179 preamble plus renderProofStoryDiagnosticReport) twice, identical for the first 244 normalized characters and differing only in the outstanding gap, and reports keys=2. Re-recorded against the round-3 matrix (24 cases) after F-013.",
-          "headHash": "ba2ac008e59ca2c2ea295fe0e7ef23ae7d38f98e",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:18.219Z"
+          "note": "Case 'must-differ dev-gate-one-gap-differs [guard: truncation-removal]' reconstructs the real DEV-gate render twice, identical through its header and differing only in the outstanding gap, and reports keys=2. Header length re-measured after F-018: the machine.ts:179 preamble plus the report's six header lines normalize to 257 characters, reaching 433 by the first gap row in a two-trigger report; the earlier figure 244 was wrong because the fixture abbreviated the ledger thresholdState as (within) instead of the real within_threshold (types.ts:2529), exactly 10 characters short. Re-recorded against the round-4 matrix (30 cases).",
+          "headHash": "8e06bc84c06044a94c547aa5b14389947db2a8b5",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:09.059Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
