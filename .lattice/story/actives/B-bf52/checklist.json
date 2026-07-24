@@ -52,11 +52,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "NOT DELIVERED BY THIS STORY, and recorded as such rather than claimed. The C1 class this intent targets was fixed on main by story B-cc54 (v0.3.231), which keeps the 200-character prefix and folds structurally-extracted gap-id signals into the hash basis. This branch adopted main's version wholesale at merge commit 2d12079855 and changed neither the truncation nor the basis. Verified: the RED harness run against main's own build reports C1a and C1b PASSING, so the user-visible outcome is true on main today.",
-          "headHash": "50b98f71d4880f2e760302d1fb49c0a24a441020",
-          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
-          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
-          "timestamp": "2026-07-24T03:29:43.963Z"
+          "note": "NOT DELIVERED AS ORIGINALLY WRITTEN, and recorded as such. The C1 class was fixed on main by story B-cc54, which keeps the 200-character prefix and folds structurally-extracted gap-id signals into the hash basis; this branch adopted main's version wholesale and does not change the truncation. What this story DOES deliver of the item is bounded: case 'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' — when a rejection yields NO signals, the prefix widens so a late-diverging reason keeps a distinct key. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
+          "headHash": "b50489fb0f7d9782eb421861220d2d289bfddd9b",
+          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
+          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
+          "timestamp": "2026-07-24T10:15:40.835Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
