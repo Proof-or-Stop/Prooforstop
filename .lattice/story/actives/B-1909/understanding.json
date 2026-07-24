@@ -24,9 +24,7 @@
     "Existing scope-shrinkage decisions without the new fields must keep loading (B-bf52 decision.json is the compatibility fixture).",
     "Change is TypeScript-only inside packages/main; no network, no destructive git."
   ],
-  "unknowns": [
-    "Whether the operator should also be able to mark withdrawn incrementally via checklist_update, or whether the scope-shrinkage decision writer is the sole applier — resolved in decision_set (sole-writer chosen for unforgeable authority and consistency)."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/types.ts",
     "packages/main/src/core/proofstory.ts",
@@ -43,5 +41,5 @@
     "packages/main/src/tasks/",
     "packages/main/src/validate.ts"
   ],
-  "timestamp": "2026-07-24T19:46:08.433Z"
+  "timestamp": "2026-07-24T19:50:02.332Z"
 }
