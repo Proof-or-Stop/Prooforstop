@@ -68,7 +68,30 @@
       "context": "core/proofstory.ts:162-169 BuildScopeShrinkageDecisionArgs and 1285-1310 buildScopeShrinkageDecision currently carry only removedMilestoneIds, reason, approvedBy, userConfirmed. Add a stable decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs (for example the finding id that proved undeliverability). Existing decisions without these fields must keep loading; B-bf52's own decision.json is the compatibility fixture.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildScopeShrinkageDecision persists decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs and scope_shrinkage_decision_get returns them",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A legacy decision.json without the new fields (B-bf52 fixture) loads with safe empty defaults and does not throw",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A confirmed decision that names no withdrawnChecklistItemRefs, no withdrawnAcceptanceBindingRefs and no removedMilestoneIds is rejected (nothing to withdraw)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
