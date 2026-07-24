@@ -88,11 +88,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Superseded with the rest of CHK-001, for the same reason as edge:0.",
-          "headHash": "b440b10086ce59b712a5b91c94b76f8a74ea6d63",
-          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
-          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
-          "timestamp": "2026-07-24T03:29:46.351Z"
+          "note": "Same residual, opposite direction: the within-window pair is asserted DISTINCT by 'must-differ init-check-issue-ordinal [guard: substantive-id-allowlist]', so the bound is pinned from both sides rather than described. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
+          "headHash": "9f64e8a5afa8f6491e03850b227a06e0bc2ccd39",
+          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
+          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
+          "timestamp": "2026-07-24T10:15:43.332Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
