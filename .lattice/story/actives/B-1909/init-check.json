@@ -1,0 +1,42 @@
+{
+  "storyId": "B-1909",
+  "checkedAt": "2026-07-24T19:40:17.539Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Trigger Event paragraph (line 2) uses the identifier \"AB-003\" (confirmed to be a real acceptance-binding id in B-bf52 proofstory.json) with no definition of what the \"AB\" prefix means anywhere in background.md itself. A fresh reader with only background.md text has no way to resolve this reference at first appearance: the phrase \"acceptance binding\" is only introduced afterward (Key Insights / Solution Tradeoffs), and even then the text never explicitly states that AB-nnn is an acceptance-binding id (this ID-prefix convention is also undocumented in CLAUDE.md, only discoverable by reading proofstory.ts or B-bf52 artifacts). Non-blocking: later context (acceptance contract layer discussion) lets a reader retroactively infer the meaning."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "index.json priority=high, but title+description literal text contains zero occurrences of any riskSignals keyword (checked all of auth/password/token/migration/destructive/\"state machine\"/guard/gate/reset/production/incident/hotfix/PII/GDPR/\"breaking change\"; the one \"auth\" hit is inside \"authorizing\", a false positive). The recorded riskSignals ({category:\"State Machine/Gate\", matched:\"machine.ts\"}) appears to have been picked up from checklist item context (CHK-002 mentions \"core/machine.ts:355 ... gate\") rather than from title/description. This is advisory only: the elevation is substantively justified (verified core/machine.ts:355 checklistAllDoneGuard is a real DEV-to-REVIEW every-item-done gate consuming the very status field this story extends) and priority was user-set directly (no priorityElevatedFrom marker), so there is no false-elevation risk — just a minor gap in restating the risk explicitly in the description text itself."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-24T19:36:09.914Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-24T19:40:17.539Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Trigger Event paragraph (line 2) uses the identifier \"AB-003\" (confirmed to be a real acceptance-binding id in B-bf52 proofstory.json) with no definition of what the \"AB\" prefix means anywhere in background.md itself. A fresh reader with only background.md text has no way to resolve this reference at first appearance: the phrase \"acceptance binding\" is only introduced afterward (Key Insights / Solution Tradeoffs), and even then the text never explicitly states that AB-nnn is an acceptance-binding id (this ID-prefix convention is also undocumented in CLAUDE.md, only discoverable by reading proofstory.ts or B-bf52 artifacts). Non-blocking: later context (acceptance contract layer discussion) lets a reader retroactively infer the meaning."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "index.json priority=high, but title+description literal text contains zero occurrences of any riskSignals keyword (checked all of auth/password/token/migration/destructive/\"state machine\"/guard/gate/reset/production/incident/hotfix/PII/GDPR/\"breaking change\"; the one \"auth\" hit is inside \"authorizing\", a false positive). The recorded riskSignals ({category:\"State Machine/Gate\", matched:\"machine.ts\"}) appears to have been picked up from checklist item context (CHK-002 mentions \"core/machine.ts:355 ... gate\") rather than from title/description. This is advisory only: the elevation is substantively justified (verified core/machine.ts:355 checklistAllDoneGuard is a real DEV-to-REVIEW every-item-done gate consuming the very status field this story extends) and priority was user-set directly (no priorityElevatedFrom marker), so there is no false-elevation risk — just a minor gap in restating the risk explicitly in the description text itself."
+        }
+      ]
+    }
+  ],
+  "_hash": "68a69fdb1334728c3bc937ec1e0607ccbb100ec4d197e9f5c7a81e66ce331c40"
+}

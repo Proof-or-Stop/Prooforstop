@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1909",
+  "mode": "feature",
+  "allowed": [
+    "Add a minimum-delivery-scope guard so a story cannot pass by withdrawing all core bindings",
+    "Add a smoke under packages/main/src/tasks and register it in validate.commands",
+    "Add a terminal withdrawn checklist status plus decisionRef to ChecklistItem (types.ts), checklist_update handler, and the CLI status enum",
+    "Add an append-only acceptance-binding withdrawal record readable via proofstory_contract_get from DEV/REVIEW, preserving the original frozen binding",
+    "Add authority + cross-layer consistency validation (both directions) at Zod, handler, and consuming gates",
+    "Extend the scope-shrinkage decision with decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs, evidenceRefs (core/proofstory.ts)",
+    "Update the ~24 status===done consumers so withdrawn is terminal-but-not-delivered and renders as WITHDRAWN"
+  ],
+  "excluded": [
+    "Any change to the semantics of done meaning genuinely delivered",
+    "Relaxing proofstory_contract_set allowedPhases away from PLAN (the freeze stays)",
+    "Retroactively migrating B-bf52 or any existing story data",
+    "Rewriting or deleting any original acceptance binding (withdrawal is append-only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-24: two linked layers (checklist disposition + append-only acceptance-binding withdrawal) joined by one scope-shrinkage decision id; last guarantee (no empty-scope PASS) matters most. Recorded in B-bf52 F-062.",
+  "createdAt": "2026-07-24T19:41:11.291Z",
+  "updatedAt": "2026-07-24T19:41:11.291Z",
+  "_hash": "2c9360e756e4de550a9ab1ee7f3326fc72a8766921c5f413a403de488708c4c3"
+}
