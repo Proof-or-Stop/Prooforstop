@@ -109,6 +109,24 @@
       ],
       "signatureTag": "missing|json|verificationevidence-entries-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc54:F-007",
+      "desc": "packages/main/src/tasks/gate-repeat-block-smoke.ts lines 312-355: the four F-002/F-003 regression assertions added inside chk004() (\"F-002: ordinary bracketed words must not widen the key\", \"F-002: such a loop must still reach the trip threshold\", \"F-002: genuine reason codes must remain distinguishable\", \"F-003: prose mentioning a signal token carries that signal...\", \"F-003: the same signal set under a different prefix must key differently\") carry no CHK-xxx:lane:n intentRef and have no corresponding entry in any checklist item verificationIntent (grepped checklist.json for F-002/F-003/underscore/bracket: zero hits). I independently verified both are meaningful, non-tautological regression guards -- reverting the bracket regex to accept any lowercase bracketed word reproduces exactly the F-002 assertion failure (4 !== 1), and the F-003 assertions correctly exercise the bare-word signal-extraction path vs the bracket path and the prefix/signal encoding boundary. But because they are orphan assertions with no verificationIntent backing, this review lane (and any future one) cannot track or protect them from silent deletion, and they are invisible to the intent/evidence coverage ledger entirely. Recommend adding a short intent ref (e.g. under CHK-002 or a new CHK-006) so F-002/F-003 stay in the coverage ledger.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T01:12:39.121Z",
+      "reviewRound": "2026-07-24T00:46:18.241Z",
+      "reviewRunId": "B-cc54:RR-006",
+      "_hash": "c94945d643ab513913c064555102f5e64aa74f20182634956dbff2aad16bc95f",
+      "files": [
+        "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
