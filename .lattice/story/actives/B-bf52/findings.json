@@ -52,9 +52,9 @@
       "_hash": "ce7d515dfd0b73191bf71a43ac6a5a28d48b07612425b3775d38a418d2627097",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto",
-      "resolvedReason": "The sign is now consumed by the match (-?\\d+(?:\\.\\d+)?) instead of being excluded by a lookbehind that could not distinguish a minus sign from an identifier hyphen, so 'retry budget -5 remaining' and 'retry budget -19 remaining' collapse to one key again. Guarded by must-still-collapse case 'negative-counter' (guard: digit-rule) asserting keys=1 counter=2 and that assessBreaker trips with gate-repeat 2>=2. Revert-proof: restoring the round-1 form fails this case together with dotted-version-requirement and leaves the other 18 passing.",
-      "resolvedAt": "2026-07-24T00:33:30.084Z",
-      "resolutionType": "fixed",
+      "resolvedReason": "Re-decided in round 4 and recorded as superseded rather than silently reverted. This finding asked the digest to collapse -5 and -19 by treating a leading minus as a sign rather than an identifier hyphen. Honouring it requires the general free-standing-number rule, and that rule is exactly what collapsed the F-020 shapes — it cannot distinguish retry budget -5 from got -0.61 in real test output. No producer in this tree emits a bare countdown into a gate rejection, so the finding asked the digest to collapse an ambiguous bare number with nothing on the volatile side of the scale. The fixture is NOT deleted: it is converted to must-differ case negative-counter-now-distinct, tagged number-rule-removal, so the change of decision is visible in the matrix output. Rationale and residual recorded in plan.md section 4.2 and 4.3.",
+      "resolvedAt": "2026-07-24T02:32:31.011Z",
+      "resolutionType": "superseded",
       "resolveEvidenceStrength": "strong"
     },
     {
