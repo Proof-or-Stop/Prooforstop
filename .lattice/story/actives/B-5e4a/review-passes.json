@@ -257,6 +257,35 @@
         "scanEscalationReason": null
       },
       "_hash": "03f9f66b9e0f2076aebcb56706529a379efa95459060d428055eaea90924fd2e"
+    },
+    {
+      "id": "B-5e4a:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Rebind re-review after F-004 resolution + main merge (92 sibling commits, storyFilesHash moved via lattice.config.json). All 8 must-priority verificationIntent entries (CHK-001 x4, CHK-002 x4) have current verificationEvidence bound to headHash ef5b9a9/storyFilesHash 1c29d00 with corrected 49-derived notes. verification_evidence_refresh_stale --dryRun reports no stale evidence. Re-ran both cited commands myself: red-registry-coverage.mjs 8/8 pass; test:lifecycle-registry-contract PASS with 49 filenames derived, 0 divergences (dist newer than source, genuine rebuild). All findings F-001..F-004 resolved/dismissed, none open/unresolved. No coverage gaps found.",
+      "createdAt": "2026-07-24T03:07:19.646Z",
+      "reviewRound": "2026-07-24T03:04:59.168Z",
+      "reviewRunId": "B-5e4a:RR-014",
+      "envelopeId": "f29238b091ce2df5a451dcc3476257c9fab29485719b04aaaf667c611f029e0c",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5e4a/background.md",
+          ".lattice/story/actives/B-5e4a/checklist.json",
+          ".lattice/story/actives/B-5e4a/plan.md",
+          "tmp/b5e4a-red/red-registry-coverage.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5e4a/findings.json",
+          ".lattice/story/actives/B-5e4a/review-runs.json",
+          "lattice.config.json",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fabbe1cc74e781848b75571d4eb4c751dcc0d369cdc44bd77dc6cdc799a9b626"
     }
   ]
 }
