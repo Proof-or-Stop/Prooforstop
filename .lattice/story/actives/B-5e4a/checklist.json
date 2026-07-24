@@ -42,7 +42,45 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Red harness (recorded as red evidence, exit 1 with 4/8 at baseline d8db64c) now exits 0 with 8/8 after commit 14e7a69e0d: classifyLifecycleArtifact returns kind=lifecycle for all four registered filenames under .lattice/story/actives/B-5e4a/.",
+          "headHash": "90167c49759a122cc43843fdc43b710010a39bad",
+          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
+          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
+          "timestamp": "2026-07-24T00:27:24.855Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Negative controls in the same harness: random.json and an unregistered basename variant in the same story dir still classify null — the closed set stays closed after the fix.",
+          "headHash": "90167c49759a122cc43843fdc43b710010a39bad",
+          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
+          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
+          "timestamp": "2026-07-24T00:27:24.855Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Adversarial controls in the same harness: a traversal path (.lattice/story/actives/../../../etc/acceptance-basis.json) and a non-canonical story id both still classify null — path traversal and id checks unchanged.",
+          "headHash": "90167c49759a122cc43843fdc43b710010a39bad",
+          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
+          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
+          "timestamp": "2026-07-24T00:27:24.855Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
