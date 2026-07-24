@@ -8,6 +8,7 @@ import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHas
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentType, VerificationLane } from '../core/types.js';
 import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
@@ -76,12 +77,16 @@ export function summarizeChecklist(cl: ChecklistData): {
   done: number;
   inProgress: number;
   pending: number;
+  withdrawn: number;
 } {
   return {
     total: cl.items.length,
-    done: cl.items.filter(item => item.status === 'done').length,
+    // B-1909 CHK-002: `done` stays DELIVERED-only (never counts withdrawn); a
+    // withdrawn item is terminal-but-not-delivered and gets its own count.
+    done: cl.items.filter(item => isDeliveredChecklistStatus(item.status)).length,
     inProgress: cl.items.filter(item => item.status === 'in_progress').length,
     pending: cl.items.filter(item => item.status === 'pending').length,
+    withdrawn: cl.items.filter(item => isWithdrawnChecklistStatus(item.status)).length,
   };
 }
 
@@ -508,8 +513,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (idx === -1) throw new Error(`Checklist item ${args.itemId} not found`);
 
       const item = cl.items[idx];
-      if (item.status === 'done') {
-        throw new Error(`Cannot remove ${args.itemId}: already done. Re-open first if needed.`);
+      // B-1909 CHK-002: withdrawn is terminal like done — a withdrawn item is a
+      // durable audit record of a scope-shrinkage decision and must not be
+      // silently deleted. (Removal is INIT-only anyway, where withdrawn cannot
+      // yet exist, so this is defense-in-depth.)
+      if (isTerminalChecklistStatus(item.status)) {
+        const label = isWithdrawnChecklistStatus(item.status) ? 'withdrawn' : 'done';
+        throw new Error(`Cannot remove ${args.itemId}: already ${label}. Re-open first if needed.`);
       }
 
       // Only the INIT phase allows removal. From INIT_CHECK onward, title/context is frozen;

@@ -15,6 +15,7 @@ import { evaluateAttestationEvidence, type AttestationIssue } from './attestatio
 import { evaluateActorTrustEvidence, type ActorTrustIssue, type ActorTrustOptions } from './actor-trust.js';
 import { evaluateFactProvenanceEvidence, type FactProvenanceIssue, type FactProvenanceOptions } from './fact-provenance.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
+import { isWithdrawnChecklistStatus } from './checklist-status.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -110,6 +111,10 @@ export function buildVerificationCoverage(
   const actorTrustIssues: ActorTrustIssue[] = [];
   const factProvenanceIssues: FactProvenanceIssue[] = [];
   for (const item of cl.items) {
+    // B-1909 CHK-002: a withdrawn item is recorded-undeliverable; its verification
+    // intents are no longer part of the story's required coverage, so they never
+    // appear as required/blocking entries. (Terminal but not delivered.)
+    if (isWithdrawnChecklistStatus(item.status)) continue;
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
       const evidence = pickEvidence(item, collected.ref);

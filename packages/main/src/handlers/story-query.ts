@@ -27,6 +27,7 @@ import {
   scanAuxiliaryWorktreeResidues,
 } from '../core/auxiliary-worktree-cleanup.js';
 import { summarizeChecklist } from './checklist.js';
+import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 
 // B-7c05 CHK-004: phases treated as terminal for the brief story_list default.
@@ -565,7 +566,11 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const bugs = sourceStore.readBugs(id);
         const evidence = sourceStore.readTestEvidence(id);
 
-        const clDone = cl.items.filter(i => i.status === 'done').length;
+        // B-1909 CHK-002: clDone counts DELIVERED (done) items only; withdrawn
+        // items are terminal-but-not-delivered and surfaced separately so the row
+        // never renders a withdrawn item as done nor looks permanently stuck.
+        const clDone = cl.items.filter(i => isDeliveredChecklistStatus(i.status)).length;
+        const clWithdrawn = cl.items.filter(i => isWithdrawnChecklistStatus(i.status)).length;
         const clTotal = cl.items.length;
         const bugsOpen = bugs.bugs.filter(b => b.status === 'open').length;
         const bugsFixed = bugs.bugs.filter(b => b.status === 'fixed').length;
@@ -590,7 +595,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           priority: story.priority,
           type: story.type,
           ...(mainPhase ? { mainPhase } : {}),
-          checklist: clTotal > 0 ? `${clDone}/${clTotal}` : '-',
+          checklist: clTotal > 0 ? `${clDone}/${clTotal}${clWithdrawn > 0 ? ` +${clWithdrawn}w` : ''}` : '-',
           bugs: bugsOpen > 0 ? `${bugsOpen} open, ${bugsFixed} fixed` : (bugsFixed > 0 ? `${bugsFixed} fixed` : 'none'),
           tests: evidence && evidence.result ? evidence.result.toLowerCase() : 'none',
           ...(metricsField ? { metrics: metricsField } : {}),

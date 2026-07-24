@@ -21,6 +21,7 @@ import {
 } from './evidence-freshness.js';
 import { collectVerificationIntents } from './verification.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
+import { isTerminalChecklistStatus, isWithdrawnChecklistStatus } from './checklist-status.js';
 
 export const MILESTONE_STATUS_SCHEMA_VERSION = 'proofbound.milestone_status.v1';
 export const MILESTONE_CLOSEOUT_SCHEMA_VERSION = 'proofbound.milestone_closeout.v1';
@@ -453,7 +454,9 @@ function buildMilestoneRow(
       continue;
     }
 
-    const itemRisks = item.status === 'done' ? [] : [`Checklist item ${item.id} is ${item.status}.`];
+    // B-1909 CHK-002: a withdrawn item is terminal (recorded-undeliverable), so
+    // it raises no "still ${status}" incompleteness risk and needs no next action.
+    const itemRisks = isTerminalChecklistStatus(item.status) ? [] : [`Checklist item ${item.id} is ${item.status}.`];
     if (itemRisks.length > 0) {
       risks.push(...itemRisks);
       nextActionCandidates.push(`Complete checklist item ${item.id}: ${item.title}`);
@@ -557,7 +560,8 @@ function buildMilestoneRow(
     risks.push(...requiredRisks);
   }
 
-  const checklistRefsComplete = checklistRefs.length > 0 && checklistRefs.every((ref) => checklistById.get(ref)?.status === 'done');
+  // B-1909 CHK-002: withdrawn refs count as terminal toward completeness.
+  const checklistRefsComplete = checklistRefs.length > 0 && checklistRefs.every((ref) => isTerminalChecklistStatus(checklistById.get(ref)?.status));
   const checklistRefsValid = checklistRefs.length > 0 && checklistRefs.every((ref) => checklistById.has(ref));
   const verificationRefsValid = verificationIntentRefs.every((ref) => {
     const entries = intentByRef.get(ref) ?? [];
@@ -1299,27 +1303,35 @@ export function renderChecklistDerivedLedger(
   opts: { brief?: boolean } = {},
 ): string {
   const items = checklist.items ?? [];
-  const groups: Record<'done' | 'in_progress' | 'pending', ChecklistItem[]> = {
+  const groups: Record<'done' | 'in_progress' | 'pending' | 'withdrawn', ChecklistItem[]> = {
     done: [],
     in_progress: [],
     pending: [],
+    withdrawn: [],
   };
   for (const item of items) {
-    // B-1909: index type-safely now that ChecklistStatus includes 'withdrawn'.
-    // Behavior is unchanged (unknown/withdrawn falls through to the pending
-    // bucket exactly as the previous `?? groups.pending` fallback did); the full
-    // WITHDRAWN-aware rendering is CHK-002's consumer sweep.
+    // B-1909 CHK-002: withdrawn is a terminal (recorded-undeliverable)
+    // disposition rendered in its own WITHDRAWN group — never merged into done
+    // (it is not delivered) nor pending (it is not outstanding).
     const bucket = item.status === 'done'
       ? groups.done
       : item.status === 'in_progress'
         ? groups.in_progress
-        : groups.pending;
+        : isWithdrawnChecklistStatus(item.status)
+          ? groups.withdrawn
+          : groups.pending;
     bucket.push(item);
   }
+  const progressParts = [
+    `${groups.done.length} done`,
+    `${groups.in_progress.length} in progress`,
+    `${groups.pending.length} not started`,
+    ...(groups.withdrawn.length > 0 ? [`${groups.withdrawn.length} withdrawn`] : []),
+  ];
   const lines = [
     `${CHECKLIST_DERIVED_HEADER} - ${storyId}`,
     `Phase: ${phase}`,
-    `Progress: ${groups.done.length} done / ${groups.in_progress.length} in progress / ${groups.pending.length} not started (${items.length} total)`,
+    `Progress: ${progressParts.join(' / ')} (${items.length} total)`,
     '',
   ];
   const renderGroup = (label: string, marker: string, groupItems: ChecklistItem[]): void => {
@@ -1348,6 +1360,7 @@ export function renderChecklistDerivedLedger(
   renderGroup('Done', '✅', groups.done);
   renderGroup('In progress', '⏳', groups.in_progress);
   renderGroup('Not started', '⬜', groups.pending);
+  renderGroup('Withdrawn', '🚫', groups.withdrawn);
   if (items.length === 0) {
     lines.push('(no checklist items)', '');
   }
