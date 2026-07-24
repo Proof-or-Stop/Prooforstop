@@ -79,6 +79,17 @@
           "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
           "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
           "timestamp": "2026-07-24T00:27:24.855Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node -e \"import('./packages/main/dist/core/lifecycle-registry.js').then(m => ... classifyLifecycleArtifact('docs/story/B-0000/<name>'))\"",
+          "result": "pass",
+          "note": "All four filenames under the legacy docs/story/<id>/ prefix classify as legacy-metadata after the fix (transcript: acceptance-basis.json -> legacy-metadata, pre-review-check.json -> legacy-metadata, topology-critic-receipt.json -> legacy-metadata, topology-exclusion-approvals.json -> legacy-metadata), unchanged legacy behavior.",
+          "headHash": "d6530d2e9384e68ec4795debfa83914b3fd8ae66",
+          "materialHash": "3946694dea94783cb011bcb2f898f39f8e2e2eb0806010451018dda453b54aa6",
+          "storyFilesHash": "39d7e68bc16fdcd1ad600822e768cbe18da09a82b738893da44ff2cefa2eed41",
+          "timestamp": "2026-07-24T00:27:47.166Z"
         }
       ]
     },
