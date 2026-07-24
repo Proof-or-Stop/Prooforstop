@@ -98,6 +98,31 @@
         "scanEscalationReason": null
       },
       "_hash": "795f9739c691a5bfb319db61f77b04135fc06df61fc11919fd4f2686e3a53bb7"
+    },
+    {
+      "id": "B-a539:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality review round 2: only code diff vs main is a single-line deletion in lattice.config.json removing the duplicate reviewer-scan-budget-guard-smoke.js bare-string entry, keeping the focus:[fast] object. Verified smoke registered exactly once post-merge, no full-identity duplicates in validate.commands, no positional-index dependency on this entry elsewhere in code. Pure JSON config deletion, no source files touched: no dead code / type-safety / I/O-isolation / doc-promise-undelivered issues. No blockers.",
+      "createdAt": "2026-07-24T21:11:38.555Z",
+      "reviewRound": "2026-07-24T21:09:44.924Z",
+      "reviewRunId": "B-a539:RR-005",
+      "envelopeId": "85eb3016902c0b69925d07f4fc516071f856e18a688e6bfa75e6a04055437d98",
+      "writerSessionId": "sess-12d4654412aecbb01251458208b2b803",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a539/checklist.json",
+          ".lattice/story/actives/B-a539/decision.json",
+          ".lattice/story/actives/B-a539/plan.md",
+          ".lattice/story/actives/B-a539/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a557000e8e90d35cb3221daadac457b858672da8d3c5d32035ba096eba0fdcc7"
     }
   ]
 }
