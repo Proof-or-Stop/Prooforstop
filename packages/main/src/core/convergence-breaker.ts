@@ -540,27 +540,187 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
   return [...signals].sort();
 }
 
-export function gateFailureDigest(command: string, reason: string): string {
-  const normalized = String(reason ?? '')
+/**
+ * B-bf52 F-058: WHY THERE IS NO ARTIFACT-ID ALLOWLIST HERE, and why re-adding one
+ * is not a matter of getting the pattern right.
+ *
+ * This story set out to deliver three classes. C2 (different phase targets) and C4
+ * (different in-repo file paths) are delivered by the narrowed POSIX path rule
+ * below. C3 — "`CHK-001` and `CHK-002` are two different gate failures, so they
+ * must not share one counter key" — IS NOT DELIVERED, and what follows is a proof
+ * that it cannot be, from message text alone. It is not a preference, a deferral or
+ * a budget decision.
+ *
+ * THE PROOF (cross-host codex, review round 15). core/machine.ts:1190 renders
+ * `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`, i.e. it
+ * interpolates RAW third-party test output into the very text this function keys
+ * on. In that channel a bare token like `bug-2` — an ordinary TAP subtest name or a
+ * parameterized-test label — is TEXTUALLY IDENTICAL to a bare artifact ordinal:
+ *
+ *   not ok 1 - bug-2 reproducer still red        third-party label
+ *   Cannot enter DONE: 1 unfixed bug(s): BUG-002 artifact ordinal
+ *
+ * Lower-cased and whitespace-delimited, the token under decision is the same string
+ * in both. There is no property OF THE MESSAGE TEXT that separates them, because
+ * there is no difference in the message text to find. Any rule that recognises
+ * `BUG-002` therefore recognises `bug-2` as well, and any rule that refuses `bug-2`
+ * refuses `BUG-002` too. The two outcomes are the only two available.
+ *
+ * That is why this guard leaked EIGHT times. Rounds 7-14 each closed the shape they
+ * had been shown — a wider lookbehind, a token-start anchor, a balanced-wrapper
+ * rule, a deleted punctuation strip, a pure-ordinal body — and each time the next
+ * round found another shape, because every one of those fixes was an attempt to
+ * separate two strings that are equal. The eight leaks were not eight oversights;
+ * they were eight measurements of one impossibility.
+ *
+ * WHICH WAY THE TIE BREAKS, and why that removes the allowlist rather than shrinking
+ * it. For a circuit breaker OVER-RECOGNISING is the dangerous direction: a key that
+ * is too fine lets a stuck agent mint a fresh key on every retry, so the brake never
+ * fires — the unbounded loop this module exists to stop. A key that is too coarse
+ * makes the brake fire EARLY: a false freeze, which costs one human acknowledgement.
+ * Every exclusion this story made applied that principle — `rr-`, `rp-`, `rl-` and
+ * `i-` were all excluded because a retry re-mints them — and applied consistently it
+ * removes the allowlist itself. So it is removed: every digit run collapses to `#`,
+ * byte for byte as main does it, and the accepted cost is that a story which clears
+ * CHK-001 and then trips on CHK-002 still reads as one gate failing twice.
+ *
+ * WHAT WOULD ACTUALLY DELIVER C3, named so this is a follow-up and not a silence.
+ * Recognising an artifact ordinal is possible, but not from the message: the digest
+ * would have to CONSULT STORY STATE — ask the store whether `CHK-002` is a checklist
+ * item OF THIS STORY, whether `BUG-002` is one of its open bug reports — so that the
+ * decision is made against the story's own artifact inventory instead of against a
+ * string shape. A third-party label that happens to look like an id is then refused
+ * because the story has no such artifact, which is the distinction the text does not
+ * carry. That is a different design with different costs — `gateFailureDigest` stops
+ * being a pure function of `(command, reason)` and becomes store-dependent on a hot
+ * path that must stay cheap, and the inventory itself changes between attempts — and
+ * it is out of scope here.
+ *
+ * The must-still-collapse `embedded-test-output-third-party-label` case in
+ * tasks/convergence-breaker-smoke.ts is the permanent record of this decision: it
+ * uses codex's exact `bug-2`/`bug-5` pair and it fails the moment anything in this
+ * file starts recognising that shape again.
+ */
+
+/**
+ * The volatile-token normalization applied to a gate reason before it is keyed.
+ *
+ * Exported — main keeps this chain inline inside `gateFailureDigest` — so a test can
+ * assert a fixture's PRECONDITION ("these two reasons share their first 200
+ * normalized characters and only then diverge") against the REAL rule chain. The
+ * alternative, a hand-mirrored copy of the chain inside a smoke (which
+ * tasks/gate-repeat-block-smoke.ts carries as `normalizePrefix`), can drift out of
+ * sync with production silently and then attest to a precondition that no longer
+ * holds.
+ *
+ * Every rule here is main's, byte for byte, EXCEPT the POSIX path rule, which is
+ * narrowed to token start. See the F-058 note above for why the digit rule is main's
+ * bare `/\d+/g` and why nothing is lifted out in front of it.
+ */
+export function normalizeGateReason(reason: string): string {
+  return String(reason ?? '')
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
-    .replace(/\/[^\s"']+/g, '#')                 // absolute paths
-    .replace(/\d+/g, '#')                        // bare numbers
+    // Machine-absolute POSIX paths, anchored at TOKEN START (B-bf52 C2/C4). The
+    // former `\/[^\s"']+` rewrote from ANY slash anywhere in a token, so it ate the
+    // tail of every slash-bearing identifier — `DEV/REVIEW` and `DEV/TEST` both
+    // became `dev#`, and `src/core/alpha.ts` and `src/core/beta.ts` both became
+    // `src#`, so a story that fixed one phase target or one file and then tripped on
+    // another read as one gate failing twice. Anchoring to a token start (or to a
+    // delimiter that really does introduce a path: quote, paren, bracket, colon,
+    // equals, comma) keeps per-machine roots collapsing while leaving relative
+    // in-repo paths and slash-joined identifiers intact.
+    //
+    // THIS RULE HAS THE AMBIGUITY THE ID RULE DID NOT, WHICH IS WHY IT SURVIVES
+    // (F-058). A token-start absolute path is STRUCTURALLY distinguishable from a
+    // slash-bearing identifier — the leading `/` is at the token boundary, and no
+    // identifier this tree renders begins with one — so recognising the first does
+    // not force recognising the second. That is exactly the property `bug-2` versus
+    // `BUG-002` lacks, and it is why C2/C4 never leaked while C3 leaked eight times.
+    .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')
+    // Bare digit runs, byte-for-byte main's rule. A bare `attempt 3`, a welded `45s`
+    // heartbeat age, `0/4 lanes`, the story-id ordinal in `b-1234` AND every
+    // lifecycle-artifact ordinal (`chk-001`, `bug-002`) all become `#`. The last of
+    // those is C3's accepted cost; see F-058 above.
+    .replace(/\d+/g, '#')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+export function gateFailureDigest(command: string, reason: string): string {
+  const normalized = normalizeGateReason(reason);
   // B-cc54: scan the WHOLE normalized reason for structured blocker identity,
   // then key on prefix + that identity. A reason carrying no structured signal
-  // keeps the historical prefix-only key, so existing behaviour is unchanged.
+  // keeps the prefix-only key shape (see the signals-conditional cut below for
+  // the one thing B-bf52 changed about it).
   const signals = extractGateBlockSignals(normalized);
-  const prefix = normalized.slice(0, 200);
+  // B-bf52 CHK-001 (F-031): the truncation is SIGNALS-CONDITIONAL.
+  //
+  // The 200-character cut only causes harm when there is NO structured signal to
+  // carry distinctness: two signal-less rejections that are byte-identical for
+  // their first 200 characters and then diverge — a real shape, e.g. a scope-gate
+  // refusal whose invariant advice precedes the offending path — collapse onto
+  // one key, so fixing one and tripping on the next reads as one repeated
+  // failure. Where signals DO exist, B-cc54's mechanism already supplies
+  // distinctness from the whole reason, so B-cc54's 200-character prefix is
+  // preserved EXACTLY in that case and every key it produces is byte-identical
+  // to before this change.
+  //
+  // Removing the truncation outright is NOT the fix, measured: with
+  // `prefix = normalized` (both branches) tasks/gate-repeat-block-smoke.ts exits
+  // 1 on CHK-002:adversarial:1, which appends a noise tail past the banner and
+  // requires the key to be UNCHANGED. That reason carries signals, so it is the
+  // signals branch that must keep the cut; only the signal-less branch may relax
+  // it. The 16,384-character bound is a sanity ceiling on that branch alone, so a
+  // pathological embedded transcript is still cheap to hash.
+  //
+  // ACCEPTED RESIDUAL (F-033), measured, not assumed. The 200-character window on
+  // the signals branch is a real blind spot: when two rejections extract the
+  // IDENTICAL signal set and their ONLY difference is a token this normalizer
+  // PRESERVES — after F-058 that means an in-repo path, since every ordinal
+  // collapses — sitting PAST character 200 of the normalized reason, both the
+  // prefix and the signal list are equal, so the two still collapse onto one key
+  // and clearing one then tripping on the next reads as one repeated failure.
+  //
+  // This is accepted rather than fixed because it is NEVER WORSE THAN MAIN, and
+  // that comparison was measured rather than argued: main truncates at 200
+  // unconditionally AND rewrites every slash-bearing token from its first slash,
+  // so main collapses that same pair — and collapses the within-200 pair too.
+  // Within the 200-character window this branch is strictly better (the path
+  // survives and the pair keys apart); past it, the two branches are equal. The
+  // improvement is therefore BOUNDED, not regressive.
+  //
+  // WHY 200 IS KEPT, stated accurately (F-042). An earlier revision of this
+  // comment said widening the window "is not available"; that overstated the
+  // constraint and measurement contradicts it. B-cc54's CHK-002:adversarial:1
+  // requires a signal-free tail past its banner to leave the key UNCHANGED, and
+  // that banner fixture normalizes to exactly 592 characters — so cuts of 593 and
+  // above break B-cc54's suite, while every cut from 275 (the divergence point of
+  // the residual pair below) through 592 would fix that pair and leave B-cc54
+  // green. A 318-character window exists; it is simply NOT TAKEN, and the reason
+  // is the one already given above: on the signals branch this story keeps
+  // B-cc54's 200-character prefix EXACTLY, so every key it produces is
+  // byte-identical to before this change. Widening would rekey every ProofStory
+  // gate rejection in the system to buy back a residual that is already never
+  // worse than main. The `blocking-finding-cited-path-past-window` collapse case
+  // and its within-window twin `blocking-finding-cited-path-within-window` in
+  // tasks/convergence-breaker-smoke.ts pin BOTH directions of this residual, so it
+  // stays a known, tested boundary rather than a surprise. (That pair is measured
+  // on a cited in-repo PATH, and in round 15 that stopped being a detail: the
+  // round-14 pair varied a checklist ORDINAL, which after F-058 collapses on the
+  // digit rule at every window, so it could no longer measure this cut at all —
+  // the same defect that had already retired the `SEP-…` pair before it.)
+  const prefix = signals.length > 0 ? normalized.slice(0, 200) : normalized.slice(0, 16_384);
   // F-003: encode the parts unambiguously instead of concatenating them with a
   // literal " signals:" delimiter. Concatenation only resisted forgery by accident
   // (a reason containing the delimiter text also fed its own extraction); a JSON
   // encoding makes the boundary structural, so no reason body can impersonate a
-  // signal list. A reason with no signals still hashes the bare prefix, keeping
-  // the historical key byte-identical.
+  // signal list. A reason with no signals still hashes the BARE prefix (no JSON
+  // envelope), so the two branches remain structurally distinguishable; what the
+  // signal-less branch changed above is only HOW MUCH of the reason that bare
+  // prefix covers.
   const basis = signals.length > 0 ? JSON.stringify([prefix, signals]) : prefix;
   const h = createHash('sha1').update(`${command}\n${basis}`).digest('hex').slice(0, 12);
   return `${command}/${h}`;

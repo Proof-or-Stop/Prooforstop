@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "The digest must honor the contract its own doc comment states: collapse incidental differences, preserve substantive ones.",
+    "Narrow each over-broad normalization rule rather than deleting it, so the breaker keeps catching genuine repeats.",
+    "Prove both directions in the same test matrix, because a one-directional fix can silently disable the breaker.",
+    "Change nothing outside the digest function: threshold, counters, assessBreaker, reset semantics and the recovery flow stay exactly as they are.",
+    "Assert the counter consequence, not just the hash, because the operator-visible failure is a frozen story rather than a string mismatch."
+  ],
+  "drivers": [
+    "A false freeze costs an interactive human TTY acknowledgement, which is the most expensive recovery this workflow has.",
+    "Loosening the digest too far would let a runaway agent regain an unbounded retry loop, so the fix must not simply make every reason unique.",
+    "The remaining stories of this program must pass the same gates that trigger the false freeze, so the fix has to land before them."
+  ],
+  "options": [
+    {
+      "name": "Narrow the normalizer and drop the truncation",
+      "pros": [
+        "Fixes all four reproduced collapse classes in one function.",
+        "Keeps every incidental-token rule that makes the breaker useful, only scoping each to what it was meant to match.",
+        "Testable in both directions from one smoke matrix with per-rule revert proofs.",
+        "No call site, no artifact schema and no stored counter format changes."
+      ],
+      "cons": [
+        "The normalizer stays a set of text rules, so a future rejection message with an unanticipated volatile token could still over-distinguish.",
+        "Removing the truncation means the hash input is unbounded unless a sanity bound is retained."
+      ]
+    },
+    {
+      "name": "Digest a structured failure code instead of the message text",
+      "pros": [
+        "Immune to message wording entirely; two failures are the same exactly when their codes match.",
+        "Would also make the counter file human-readable."
+      ],
+      "cons": [
+        "Requires every rejection site across the CLI to emit a structured code first, which is a far larger change than the defect warrants.",
+        "The bump call site at cli-engine.ts:1508 receives only an Error message, so the plumbing would have to change too.",
+        "Leaves the defect live for as long as that migration takes, blocking the remaining program stories."
+      ]
+    },
+    {
+      "name": "Raise the truncation bound only",
+      "pros": [
+        "Smallest possible diff.",
+        "Fixes the dominant class, since the DEV-gate header collapse is caused by the bound."
+      ],
+      "cons": [
+        "Leaves the phase-pair, checklist-ordinal and file-path collapses untouched, so false freezes continue from those.",
+        "Picks a new magic number with no principled value, inviting the same defect at a larger size."
+      ]
+    }
+  ],
+  "chosen": "Narrow the normalizer and drop the truncation",
+  "rationale": "The reproduced defect has four causes and only this option addresses all of them while leaving the breaker's protective behavior intact. The structured-code option is the better long-term shape but is disproportionate to a defect isolated in one pure function, and it would block the remaining program stories behind a cross-cutting migration. Raising the bound alone is rejected because three of the four reproduced collapse classes are caused by the token rules, not the bound.",
+  "preMortem": [
+    {
+      "scenario": "The narrowed normalizer distinguishes so much that the breaker never fires again.",
+      "trigger": "A retried command emits a reason carrying a volatile token that no remaining rule normalizes, for example an elapsed-time figure or a pid.",
+      "consequence": "A genuinely stuck agent retries indefinitely and the convergence breaker, the mechanism meant to stop exactly that, silently never trips.",
+      "mitigation": "CHK-004 requires must-still-collapse cases that drive bumpGateFailureCount twice and assert maxGateFailureCount reaches 2 and assessBreaker trips, so the protective direction is proven, not assumed. The rules that absorb timestamps, hex ids, machine paths and free-standing counters are all retained."
+    },
+    {
+      "scenario": "The truncation is removed and an enormous reason string makes digest computation pathological.",
+      "trigger": "A gate failure carries an entire validation transcript or a stack trace as its message.",
+      "consequence": "Every failed command pays an unbounded hashing cost, degrading an already slow lifecycle command.",
+      "mitigation": "Retain a large sanity bound far above any realistic rejection message instead of removing the bound outright, and cover it with an explicit edge-lane check so the bound's existence is proven rather than assumed."
+    },
+    {
+      "scenario": "The fix passes its own smoke but the real gate rejection still collapses.",
+      "trigger": "The smoke uses short synthetic fixtures, exactly the weakness of the existing guard at convergence-breaker-smoke.ts:180-182, so it never reproduces the real message shape.",
+      "consequence": "The story lands, the operator hits the same false freeze on the next story, and the defect is now believed fixed.",
+      "mitigation": "The matrix reconstructs the real DEV-gate rejection render from machine.ts:179 and renderProofStoryDiagnosticReport with gap texts quoted from proofstory.ts, and the standing RED harness reproduces the same digests independently before and after the change."
+    },
+    {
+      "scenario": "Existing stories carry accumulated counter entries keyed by the old digest.",
+      "trigger": "A story that already has gate-failure-counts.json entries hits a new failure after the change, and the new key does not match the stored one.",
+      "consequence": "Previously accumulated counts appear to reset, so a story that was one failure away from tripping starts over.",
+      "mitigation": "Accept this deliberately: the stored counts are per-story ephemeral progress signals that resetGateFailureCounts already clears on every successful mutation, and a reset that loses a stale count is strictly safer than a false freeze. Record it as a known effect rather than adding a migration."
+    }
+  ],
+  "timestamp": "2026-07-23T22:54:56.272Z"
+}

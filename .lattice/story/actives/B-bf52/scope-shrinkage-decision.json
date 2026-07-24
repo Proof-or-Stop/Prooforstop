@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-bf52",
+  "decision": "confirmed",
+  "userConfirmed": true,
+  "removedMilestoneIds": [
+    "CHK-003"
+  ],
+  "reason": "Operator confirmed in chat after being shown the measured basis. CHK-003, distinguishing a lifecycle artifact ordinal from a volatile one, is not achievable from message text alone and this is proven rather than estimated: embedded evidence.output is interpolated verbatim into a story_advance DONE rejection at core/machine.ts:1190, so a third-party TAP or parameterized-test label such as bug-2 is the SAME STRING as a real artifact ordinal, and any rule that recognises one recognises the other. Eight successive recognition rules were each broken by cross-host review on a different shape before the eighth showed they were eight measurements of one impossibility. Consistent with every exclusion decision on this story, the tie breaks toward collapse because over-recognising is the dangerous direction for a brake. CHK-001 is partially delivered: the C1 class was fixed on main by sibling story B-cc54 and this story delivers only the bounded signals-conditional prefix. CHK-002 and CHK-004 are delivered in full. The shipped behavioural difference against main is the token-start absolute-path rule plus the signals-conditional prefix, which fixes two real false-freeze classes that are structurally decidable and never leaked: phase pairs such as DEV/REVIEW versus DEV/TEST, and repo-relative file paths such as src/core/alpha.ts versus beta.ts. The withdrawn item is pinned in the test suite as must-still-collapse cases asserting the opposite of what it asked, so the non-delivery is machine-checked rather than only described. The follow-up that could achieve CHK-003 is named in source: the digest would have to consult story state to know which ordinals exist, making it store-dependent on a hot path.",
+  "approvedBy": "jek",
+  "createdAt": "2026-07-24T17:23:16.696Z",
+  "updatedAt": "2026-07-24T17:23:16.696Z"
+}

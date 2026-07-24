@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement RFC 8785 CANON with UTF-16 code-unit key order, preserved JSON null, and sha256 prefix rendering",
+      "context": "packages/main/src/core/red-evidence/canon.ts exports the canonicalizer (recursive UTF-16 code-unit key order, minimal number/string encoding, JSON null preserved), the digest helper rendering sha256:<64-hex>, the §0.4 nullability/omission helpers, the digest-with-field-omitted helper, and first12hex over the 64-hex body excluding the sha256: prefix.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove differentially that no existing canonicalizer can serve as CANON and record why each was rejected",
+      "context": "The smoke asserts digestCanonicalJson (core/digest.ts:40, localeCompare sort at :27) yields a different digest for {\"B\":1,\"a\":2} plus null plus 1e21 plus -0, and that canonicalJsonForSigning (core/authority-signing.ts:79, null->undefined at :65) drops a priorRecordDigest: null field — a mechanical un-gameable proof recorded so no later reviewer re-litigates it and no implementer wires digest.ts in.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Resolve the exhaustive fourteen-key policySnapshot with canonical defaults and unknown-key fail-closed rejection",
+      "context": "The resolver returns exactly the §1.2 key set with the spec's enumerated defaults including the full 1..255 exit-code array and the two default adapters and one default profile verbatim; its policyDigest equals a frozen sha256:<64-hex> constant; an unknown key inside the block rejects fail-closed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Fail closed on absent or relative pinnedPath with the exact red_evidence_policy_missing diagnostic",
+      "context": "A redEvidence block without pinnedPath rejects with exactly red_evidence_policy_missing: pinnedPath and no default is substituted; a relative pinnedPath entry rejects.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Clamp-REJECT every hard safety floor with one distinct named diagnostic per violated floor",
+      "context": "minMatcherLen below 4, minMatcherEntropyBits below 12, maxMatchers above 32, maxMatcherLen above 4096, and runTimeoutMs out of range each reject at the §1.12 floor with a distinct named diagnostic and are never silently clamped.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Reject forbidden environment keys, bare catch-all invariance globs, and unresolvable argv placeholders at config resolution",
+      "context": "An allowedEnvKeys naming PATH, NODE_OPTIONS, LD_PRELOAD or any DYLD_ key rejects; an invarianceExcludePaths entry of bare ** or a non-tracked-material path rejects; an argvTemplate ${missing} naming a capture its pattern lacks rejects at config resolution.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Add the optional redEvidence policy block to LatticeConfig without changing any existing config default",
+      "context": "core/config.ts declares the block beside proofStory (core/config.ts:195); with the block absent its state in every representation is byte-identical to before this story, proven by a smoke assertion.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Wire a non-gating red-evidence policy health check into createDoctorHandlers and prove doctor exit code is unchanged",
+      "context": "createDoctorHandlers (handlers/doctor.ts:67) reports the resolved policyDigest or the fail-closed diagnostic alongside the existing scans; the smoke proves doctor's exit code is unchanged, no gate evidence is written, and proofstory_gate_check output is byte-identical — doctor is not a gate and its stdout is deliberately not frozen.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Fence every new red-evidence string to the assurance tier declared in the spec threat model",
+      "context": "No help text, command-policy reason, process-fact rationale, doctor line or commit message added by this story claims tamper-resistance beyond the §0.6 assurance tier (practical threat model, not a hostile local agent).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "Register red-evidence-policy-canon-smoke in lattice.config.json validate.commands and pin the uncommitted-policy rule",
+      "context": "The smoke is listed in validate.commands and passes under the full suite; lattice.config.json contains no redEvidence block, and a smoke assertion pins that committing one is out of scope because pinnedPath is host-specific.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
