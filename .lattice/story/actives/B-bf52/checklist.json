@@ -276,11 +276,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "HONEST DIVERGENCE FROM THE FROZEN userSees. This intent asks that two attempts differing only in a free-standing counter still collapse. Round 4 re-decided that direction: case 'must-differ attempt-counter-now-distinct [guard: number-rule-removal]' now asserts the OPPOSITE, and 'must-still-collapse iso-timestamp-only [guard: iso-timestamp-rule]' carries the surviving half (the timestamp still collapses with the ordinal held constant). Reason, recorded in plan.md: a bare number in free text is not syntactically decidable as substantive or volatile,  has no real producer anywhere in this repo, and the general rule was collapsing REAL substantive values -- test-evidence output is interpolated into a DONE rejection at machine.ts:1190, so  and  shared one key and two different validation failures would falsely freeze the story.",
-          "headHash": "37a4dcaef17539b98e4e8bc3d1b8b9096525b8bb",
+          "note": "HONEST DIVERGENCE FROM THE FROZEN userSees. This intent asks that two attempts differing only in a free-standing counter still collapse. Round 4 re-decided that direction: case 'must-differ attempt-counter-now-distinct [guard: number-rule-removal]' now asserts the OPPOSITE, and 'must-still-collapse iso-timestamp-only [guard: iso-timestamp-rule]' carries the surviving half (the timestamp still collapses with the ordinal held constant). Reason, recorded in plan.md: a bare number in free text is not syntactically decidable as substantive or volatile; the fixture shape \"(attempt N)\" has NO real producer anywhere in this repo, existing only as the smoke's own invented string; and the general rule was collapsing REAL substantive values, because test-evidence output is interpolated verbatim into a story_advance DONE rejection at machine.ts:1190, so \"connection to localhost:3000 refused\" and the same with port 4000 shared one counter key and two DIFFERENT validation failures would falsely freeze the story. Failing toward distinct fails toward never falsely freezing, which is this story's purpose; runaway retries are separately covered by the burn-alert system.",
+          "headHash": "dcc30bbdbdaea714d66a7ff65de23525ac1c03d8",
           "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
           "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
-          "timestamp": "2026-07-24T02:31:22.633Z"
+          "timestamp": "2026-07-24T02:31:55.734Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
