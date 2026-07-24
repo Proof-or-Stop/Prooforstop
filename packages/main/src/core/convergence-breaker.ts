@@ -651,87 +651,117 @@ export function listSubstantiveIdPrefixes(): string[] {
 }
 
 /**
- * A substantive artifact id, matched as a WHOLE TOKEN (F-032).
+ * A substantive artifact id is the ENTIRE whitespace-delimited token (F-051).
  *
- * The earlier mechanism inspected only the single prefix immediately before a
- * digit run, which silently failed on COMPOUND ids: `SEP-B-bf52-001` has `sep-`
- * at its head but `-001` is preceded by `bf52-`, so allowlisting `sep-` did not
- * protect the trailing ordinal at all and the two proposals still collapsed. A
- * whole-token match protects the id entire: an allowlisted prefix, then the rest
- * of the id, ending in a digit.
+ * WHY THIS IS A SHAPE, NOT ANOTHER BOUNDARY. Four successive revisions of this
+ * guard stated the rule as a boundary ASSERTION around the id — "the stem must
+ * not be preceded by X", "the ordinal must be followed by Y" — and every one of
+ * them was defeated by a punctuation character its author had not enumerated.
+ * The reachable channel is core/machine.ts:1190, `Cannot enter DONE: test
+ * ${evidence.result}: ${evidence.output}`, which embeds RAW third-party test
+ * output in the digest, so the enumeration was being tested against arbitrary
+ * text rather than against this repo's own renders. The measured history:
  *
- * Built FROM the set so the two cannot drift apart.
+ *   `\b` (round 7)          a hyphen is a NON-word character, so it CREATES the
+ *                           boundary `\b` asks for: `de-bug-2` / `de-bug-7`,
+ *                           `scenario-f-2` and `over-req-3` each kept a
+ *                           protected-looking tail (F-043).
+ *   `(?<![\w-])` (round 8)  closed exactly those two characters. A SLASH is
+ *                           neither, so `scenario/bug-2` walked through; and the
+ *                           match began at the FIRST allowlisted stem it found, so
+ *                           the doubled prefix `BUG-BUG-2` did too (F-048).
+ *   positive token-START +
+ *   trailing `\b` (round 9) closed the head. The TAIL was still an assertion, and
+ *                           `\b` succeeds between a digit and a slash, a dot, a
+ *                           hyphen or a non-ascii letter — so `bug-2/x`,
+ *                           `bug-2.x`, `bug-2-x` and `bug-2é` all had the
+ *                           SUBSTRING `bug-2` protected inside a larger token
+ *                           (F-051). Cross-host codex measured all four as WORSE
+ *                           THAN MAIN, which rewrites every ordinal to `#` and
+ *                           collapses them.
  *
- * THE LEADING GUARD IS A POSITIVE TOKEN-START ASSERTION, NOT `\b` AND NOT
- * `(?<![\w-])` (F-043 round 8, then F-048 round 9). Both earlier guards were
- * NEGATIVE — they named characters that must NOT precede the stem — and a
- * negative guard is only ever as good as the enumeration behind it, so each
- * revision left a different set of characters silently admitting a non-id.
+ * Every one of those leaks has the same structure: an id WELDED into a larger
+ * token was protected as though the token were the id. So the rule is stated as
+ * the property that is actually wanted, and it is not an assertion at all — it is
+ * a WHOLE-TOKEN TEST. `normalizeGateReason` splits the reason on whitespace,
+ * strips a run of wrapping punctuation off each token, and protects the token
+ * only if EVERYTHING THAT REMAINS is an artifact id. A token that merely CONTAINS
+ * an id is not an id, and no embedded punctuation can change that, because the
+ * decision is made per token instead of per position.
  *
- * `\b` was the first: a word boundary keeps the short members (`f-`, `req-`) out
- * of ordinary words — `ref-012` and `wifi-5` have a word character before the
- * stem, so no boundary exists there — but it does NOT protect HYPHEN-JOINED
- * compounds, because a hyphen is itself a non-word character and therefore
- * CREATES the very boundary `\b` is looking for. Under `\b`, `scenario-f-2` /
- * `scenario-f-5`, `de-bug-2` / `de-bug-7` and `over-req-3` / `over-req-9` each
- * kept an ALLOWLISTED-looking tail and stayed distinct.
+ * The pattern, applied to one stripped token and anchored at both ends:
  *
- * `(?<![\w-])` closed those two characters and no more. A SLASH is neither a word
- * character nor a hyphen, so `scenario/bug-2` and `scenario/bug-5` walked
- * straight through it and stayed distinct; and because the whole-token match
- * begins at the FIRST allowlisted prefix it finds, `BUG-BUG-2` and `BUG-BUG-5`
- * did too, the doubled prefix satisfying the lookbehind at the head of the token.
+ *   ^(?:[a-z0-9-]+:)?(?:<stems>)-(?!(?:<stems>)-)[a-z0-9-]*\d$
+ *    └── qualifier ──┘└── stem ──┘└─ no doubled ─┘└─ body ──┘
  *
- * Both leaks are strictly WORSE THAN MAIN, which rewrites every ordinal to `#`
- * and collapses all of these. The reachable path is core/machine.ts, `Cannot
- * enter DONE: test ${evidence.result}: ${evidence.output}`, which embeds raw test
- * output — and slash-separated test names are routine in failed-test output, so
- * the same underlying failure minted a fresh key on every retry and evaded the
- * brake entirely.
+ *   qualifier   ONE optional `<label>:` segment. It is what keeps the REAL
+ *               composite render protected: handlers/finding.ts:552 mints a
+ *               finding id as `${storyId}:F-${NNN}` and core/machine.ts:756
+ *               renders it verbatim, so `B-bf52:F-012` arrives as a single token
+ *               with the story id welded on. Without the qualifier those ids lose
+ *               protection and two genuinely different blocking findings collapse
+ *               onto one key — merely TYING with main instead of beating it.
+ *               It is deliberately NOT repeatable: `a:b:bug-2` is not a render
+ *               this repo emits, and `(?:[a-z0-9-]+:)*` would re-open the welding
+ *               hole from the head end.
+ *   no doubled  `(?!(?:<stems>)-)` keeps `BUG-BUG-2` out (F-048 (b)). It is
+ *               retained from the previous revision because it is a statement
+ *               about the id's own shape, not about its surroundings.
+ *   body        `[a-z0-9-]*\d` is what makes a COMPOUND id work (F-032):
+ *               `SEP-B-bf52-001` has `sep-` at its head but its ordinal is
+ *               preceded by `bf52-`, so a rule matching only the prefix
+ *               immediately before the digits left it unprotected.
  *
- * The guard is therefore stated POSITIVELY, which is what the enumeration should
- * have been all along: a genuine artifact id appears at the START of the reason,
- * or after WHITESPACE, or after an OPENING DELIMITER (quote, paren, bracket,
- * comma, colon) — it is never welded into a path segment or into another label —
- * and it never IMMEDIATELY REPEATS another artifact prefix, which is what the
- * `(?!(?:<stems>)-)` lookahead rejects. Anything else is prose or third-party
- * text and must normalize away like any other ordinal.
+ * Built FROM the allowlist so the two cannot drift apart.
  *
- * The residual runs in the SAFE direction: a real id introduced by some
- * character outside that delimiter set (`id=CHK-001`, say) is not protected and
- * its ordinal collapses, which makes the breaker fire EARLIER — never later, and
- * never worse than main, which collapses it too.
+ * THE RESIDUAL, and its direction. A real id introduced by a character outside
+ * the wrapping-punctuation classes below — `itemId=CHK-001` is the standing
+ * example — is not the whole token, so it is NOT protected and its ordinal
+ * collapses. That makes the breaker fire EARLIER, which is the fail-safe
+ * direction for a circuit breaker, and it is never worse than main, which
+ * collapses that shape too. The opposite error — protecting a non-id — is the one
+ * that hands a stuck agent back an unbounded retry loop, and it is the one this
+ * shape structurally cannot make.
  *
- * The TRAILING `\b` is kept, and deliberately: it is what stops a digits-then-
- * letter tail such as `bug-2x` / `bug-5x` from being protected as though the
- * whole thing were an id — the same worse-than-main direction as above, reached
- * from the other end of the token. That claim was UNBACKED when first written
- * (removing the trailing `\b` failed nothing in the suite), so the
- * `embedded-test-output-digit-letter-tail` case in
- * tasks/convergence-breaker-smoke.ts was added to back it and is now the standing
- * guard on this half.
- *
- * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, the alternation
- * body is the empty string and `(?:)` matches EVERYWHERE, so the pattern degrades
- * to "any hyphen followed by a digit run" — it would protect arbitrary text
- * rather than nothing, and (measured) it threw the whole suite off at an earlier
+ * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, an alternation over
+ * zero stems is the empty string and `(?:)` matches EVERYWHERE, so the pattern
+ * would degrade to "protect nearly everything" rather than to "protect nothing" —
+ * and (measured, on the previous revision) that threw the suite off at an earlier
  * assertion instead of failing the named cases the matrix exists to localize to.
  * An empty allowlist must mean "protect NOTHING", so it yields a regex that
  * cannot match at all and the substantive-id matrix cases then fail BY NAME.
  */
-function buildSubstantiveIdTokenRe(prefixes: Iterable<string>): RegExp {
+function buildSubstantiveIdRe(prefixes: Iterable<string>): RegExp {
   const stems = [...prefixes]
     .map((p) => p.slice(0, -1))
     .filter((s) => s.length > 0)
     .sort((a, b) => b.length - a.length || a.localeCompare(b));
-  if (stems.length === 0) return /(?!)/g;
+  if (stems.length === 0) return /(?!)/;
   const alt = stems.join('|');
-  // Token START, stated positively: string start, whitespace, or an opening
-  // delimiter — then an allowlisted prefix that does NOT immediately repeat
-  // another allowlisted prefix.
-  return new RegExp(`(?:^|(?<=[\\s"'(\\[,:]))(?:${alt})-(?!(?:${alt})-)[a-z0-9-]*\\d\\b`, 'g');
+  const QUALIFIER = '(?:[a-z0-9-]+:)?';
+  return new RegExp(`^${QUALIFIER}(?:${alt})-(?!(?:${alt})-)[a-z0-9-]*\\d$`);
 }
-const SUBSTANTIVE_ID_TOKEN_RE = buildSubstantiveIdTokenRe(SUBSTANTIVE_ID_PREFIXES);
+const SUBSTANTIVE_ID_RE = buildSubstantiveIdRe(SUBSTANTIVE_ID_PREFIXES);
+
+/**
+ * Punctuation that WRAPS a token without being part of it.
+ *
+ * A rendered rejection puts real ids inside real punctuation:
+ * core/machine.ts:204 renders `... appears in <source> (CHK-001). [excluded_keyword]`,
+ * core/machine.ts:269 ends its pending list with `SEP-B-bf52-001.`, and
+ * core/machine.ts:1169 renders `CHK-001, CHK-002`. Stripping a LEADING run of
+ * opening punctuation and a TRAILING run of closing punctuation before the
+ * whole-token test is what lets those ids stay protected while
+ * `bug-2/x` — whose extra characters are NOT wrapping punctuation — does not.
+ *
+ * The two classes are deliberately asymmetric and deliberately SMALL. `-`, `/`,
+ * `_`, `=` and `.` in a token's INTERIOR are the welding characters every earlier
+ * leak used, so none of them appears in either class; `.` is a CLOSING character
+ * only, where it is a sentence terminator after the id, and even there it cannot
+ * re-open the hole because stripping happens only at the token's END.
+ */
+const TOKEN_LEAD_PUNCT_RE = /^[("'[{<]+/;
+const TOKEN_TRAIL_PUNCT_RE = /[)"'\]}>,;:.!?]+$/;
 
 /**
  * Placeholder encoding for a protected token.
@@ -766,6 +796,47 @@ function decodeTokenIndex(encoded: string): number {
 }
 
 /**
+ * The whole-token walk that lifts substantive artifact ids out of a reason
+ * (F-051).
+ *
+ * A TOKEN WALK, not one mega-regex, and that is the point: the decision is made
+ * once per whitespace-delimited token, so an id welded into a larger token is
+ * simply not a candidate. Every previous revision made the decision per POSITION
+ * inside the string and then tried to fence the position off with boundary
+ * assertions, which is what leaked four times.
+ *
+ * Whitespace separators are preserved verbatim (`split` with a capturing group),
+ * as is any wrapping punctuation that was stripped for the test, so the only
+ * bytes this step rewrites are the id itself.
+ */
+function protectSubstantiveIds(
+  lowered: string,
+  kept: string[],
+  keptIndex: Map<string, number>,
+): string {
+  const parts = lowered.split(/(\s+)/);
+  for (let i = 0; i < parts.length; i += 1) {
+    const token = parts[i];
+    // Odd positions are the captured whitespace separators; the empty strings
+    // `split` produces at a leading/trailing separator are skipped here too.
+    if (!token || i % 2 === 1) continue;
+    const lead = TOKEN_LEAD_PUNCT_RE.exec(token)?.[0] ?? '';
+    const rest = lead ? token.slice(lead.length) : token;
+    const trail = TOKEN_TRAIL_PUNCT_RE.exec(rest)?.[0] ?? '';
+    const core = trail ? rest.slice(0, rest.length - trail.length) : rest;
+    if (!core || !SUBSTANTIVE_ID_RE.test(core)) continue;
+    let index = keptIndex.get(core);
+    if (index === undefined) {
+      index = kept.length;
+      kept.push(core);
+      keptIndex.set(core, index);
+    }
+    parts[i] = `${lead}${encodeTokenIndex(index)}${trail}`;
+  }
+  return parts.join('');
+}
+
+/**
  * The volatile-token normalization applied to a gate reason before it is keyed.
  *
  * Extracted (same rule order as main's) so a test can assert a fixture's
@@ -777,30 +848,25 @@ function decodeTokenIndex(encoded: string): number {
  * longer holds.
  *
  * Structure: extract-protect, normalize, restore. Substantive artifact ids are
- * lifted out first, the volatile-token rules then run EXACTLY as main runs them
- * (the digit rule is main's bare `/\d+/g` — the allowlist is applied by the
- * extraction step, not by a special-cased digit rule), and the ids are put back
- * before the whitespace fold. A protected token that ends up inside a machine
- * path is simply eaten by the path rule along with the path, exactly as it was
- * before this change.
+ * lifted out first by the whole-token walk above, the volatile-token rules then
+ * run EXACTLY as main runs them (the digit rule is main's bare `/\d+/g` — the
+ * allowlist is applied by the extraction step, not by a special-cased digit
+ * rule), and the ids are put back before the whitespace fold.
+ *
+ * A machine path is never protected under the whole-token rule — a path token is
+ * not an id, whatever it contains — so the path rule sees exactly the text it saw
+ * before this story, and the two rules no longer interact at all.
  */
 export function normalizeGateReason(reason: string): string {
   const kept: string[] = [];
   const keptIndex = new Map<string, number>();
-  const protectedText = String(reason ?? '')
+  const protectedText = protectSubstantiveIds(
     // U+0001 never appears in a rendered gate reason; stripping it means no
     // caller-supplied text can forge a placeholder and impersonate a protected id.
-    .replace(TOKEN_SENTINEL_RE, '')
-    .toLowerCase()
-    .replace(SUBSTANTIVE_ID_TOKEN_RE, (token: string) => {
-      let i = keptIndex.get(token);
-      if (i === undefined) {
-        i = kept.length;
-        kept.push(token);
-        keptIndex.set(token, i);
-      }
-      return encodeTokenIndex(i);
-    });
+    String(reason ?? '').replace(TOKEN_SENTINEL_RE, '').toLowerCase(),
+    kept,
+    keptIndex,
+  );
   return protectedText
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
