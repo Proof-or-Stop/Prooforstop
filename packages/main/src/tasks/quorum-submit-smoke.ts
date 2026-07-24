@@ -21,6 +21,8 @@ import {
   HOST_VERDICT_VALIDATION_DIGEST_SCHEMA,
 } from '../core/host-verdict-bindings.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
+import { evaluateHostVerdictRounds } from '../core/host-independence.js';
+import { eventsWithStoryFilesHashDowngrade } from '../core/review-escalation.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetSessionIdForTest, resolveSessionIdentity } from '../core/owner-session.js';
 import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
@@ -394,6 +396,20 @@ function commitMaterialChange(root: string): void {
   // committed too, leaving a clean working tree for the next review_run_start preflight.
   git(root, ['add', '-A']);
   git(root, [...COMMIT_ENV, 'commit', '-m', `material change ${materialChangeCounter}`]);
+}
+
+let mainDriftCounter = 0;
+function commitMainDrift(root: string): void {
+  // Reproduce the B-bf52 incident precondition: a commit that moves the whole-tree
+  // materialHash but leaves the story-owned diff (and therefore storyFilesHash) untouched —
+  // the normal effect of merging main into a story branch.
+  mainDriftCounter += 1;
+  git(root, ['checkout', 'main']);
+  write(root, 'packages/main/src/main-drift.ts', `export const drift = ${mainDriftCounter};\n`);
+  git(root, ['add', '-A']);
+  git(root, [...COMMIT_ENV, 'commit', '-m', `main drift ${mainDriftCounter}`]);
+  git(root, ['checkout', `story/${STORY_ID}`]);
+  git(root, [...COMMIT_ENV, 'merge', '--no-edit', 'main']);
 }
 
 let passed = 0;
@@ -1535,6 +1551,59 @@ try {
     assert.equal(customResult.authorityDone, false);
     assert.equal(customResult.fullAuthorityDone, false);
     assert.equal(customResult.productionDone, false);
+  });
+
+  check('refuses a redundant re-submit when the standing quorum drift-accepts', () => {
+    // B-3144 RED: after a merge that moves materialHash but NOT storyFilesHash, the floor
+    // still accepts the standing quorum (eventsWithStoryFilesHashDowngrade rewrites its
+    // verdicts to the current material), so a redundant re-submit must be REFUSED. Pre-fix,
+    // the guard compares only raw materialDigest, accepts the re-submit, and every round then
+    // collapses as "duplicate host/session/key identity" — the B-bf52 poisoning.
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const handler = fixture.registry.get('quorum_submit')!;
+      const first: any = handler(quorumArgs());
+      assert.equal(first.emittedCount, 6, 'baseline quorum emits 3 rounds x 2 hosts');
+      const storyHashBefore = currentStoryFilesHash(fixture.root, 'HEAD', fixture.root);
+      commitMainDrift(fixture.root);
+      const storyHashAfter = currentStoryFilesHash(fixture.root, 'HEAD', fixture.root);
+      assert.equal(storyHashAfter, storyHashBefore, 'incident precondition: main drift must not move storyFilesHash');
+      const materialAfter = currentMaterialHash(fixture.root, 'HEAD', fixture.root);
+      assert.ok(materialAfter && materialAfter !== first.materialDigest, 'incident precondition: main drift must move materialHash');
+      recordReviewerPasses(fixture.registry);
+      const beforeEvents = hostVerdictEventCount(fixture.store);
+      const beforeVerdicts = verdictFileCount(fixture.root);
+      let refusal: unknown = null;
+      try {
+        handler(quorumArgs());
+      } catch (error) {
+        refusal = error;
+      }
+      if (refusal === null) {
+        // Pre-fix path: prove the poisoning consequence so the repro is un-gameable, then
+        // fail with the forensic detail the fix must prevent.
+        const advisories: string[] = [];
+        const effective = eventsWithStoryFilesHashDowngrade(
+          fixture.store.readProcessEvents(STORY_ID),
+          materialAfter!,
+          storyHashAfter ?? null,
+          advisories,
+        );
+        const rounds = evaluateHostVerdictRounds(effective, materialAfter!, 2);
+        const reasons = rounds.invalidRounds.map(round => `${round.runId}: ${round.reasons.join('; ')}`);
+        assert.fail(
+          'redundant re-submit was accepted and poisoned the standing quorum: '
+          + `validRounds=${rounds.validRounds.length} invalidRounds=${rounds.invalidRounds.length} (${reasons.join(' | ')})`,
+        );
+      }
+      assert.match(
+        String((refusal as Error).message),
+        /quorum_submit refuses: .*drift-accept/i,
+        'refusal names the standing drift-accepted quorum',
+      );
+      assert.equal(hostVerdictEventCount(fixture.store), beforeEvents, 'refusal writes no host_verdict events');
+      assert.equal(verdictFileCount(fixture.root), beforeVerdicts, 'refusal writes no verdict files');
+    });
   });
 
   check('refuses pre-existing user dirt before writing any verdict', () => {
