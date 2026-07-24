@@ -288,11 +288,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "The guard is a WHOLE-TOKEN test, not a boundary assertion, because boundary assertions and interior enumerations leaked six times to six different shapes. Cases guarded substantive-id-token-head-exact and substantive-id-token-tail-exact pin the welded head and tail shapes; substantive-id-doubled-prefix pins the repeated-label shape; substantive-id-balanced-wrapper-strip pins the unmatched-wrapper shapes that the previous strip reduced to an id; substantive-id-colon-composite-cost pins the accepted, symmetric cost that every colon-joined composite ties with main. Three review-bookkeeping ids stay collapsed under review-bookkeeping-not-allowlisted, and the tag comment records honestly that adding rr-, rp- or rl- alone now fails nothing because their render sites weld the id behind a colon, so those exclusions are pinned assertions rather than behaviourally proven ones. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
-          "headHash": "deef96a302f77f8b4517fd411b88ebeba755511f",
-          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
-          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
-          "timestamp": "2026-07-24T14:14:51.272Z"
+          "note": "The guard reached a FIXED POINT this round: it performs NO reduction on a token before testing it. Seven measured leaks were all in the reduction step — a word boundary, a negative lookbehind, a trailing boundary, an optional qualifier, an unmatched wrapper, and finally an unconditional sentence-punctuation strip that turned the TAP subtest name bug-2: into an id. Enumerating safer punctuation cannot close that, because raw test output can place any punctuation against any name, so the reduction was deleted outright. The class is now closed BY CONSTRUCTION rather than by enumeration. Cases guarded substantive-id-no-reduction pin every manufacture vector measured on this story, including the trailing colon, comma and period names and the wrapper shapes; the same tag also pins the COST, because a parenthesised, comma-listed or sentence-final id now ties with main instead of beating it. Only BARE ids beat main. Cases guarded substantive-id-token-head-exact, substantive-id-token-tail-exact and substantive-id-doubled-prefix pin the welded shapes, and substantive-id-colon-composite-cost pins the symmetric composite cost. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
+          "headHash": "645cdd36668c6338dd514dbe387bbadad2486930",
+          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
+          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
+          "timestamp": "2026-07-24T14:52:36.911Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
