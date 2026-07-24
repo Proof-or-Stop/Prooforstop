@@ -675,7 +675,7 @@
       "desc": "packages/main/src/tasks/convergence-breaker-smoke.ts:868-873 (EXCLUDED_NON_GATE_SUBSYSTEM) excludes rl- with the comment at :861-867 claiming review-loop ids are NEVER emitted by a story_advance transition-guard rejection. That is false: core/machine.ts:640-661 (evaluateReviewVerdict, called from canPassReviewGuard/canFinishGuard) builds message = 'active review loop(s): loopId=${loopId}, ...' and machine.ts:1180-1181/1232-1244 wraps it as 'Cannot enter TEST/DONE: ${verdict.message} [${verdict.code}]' -- a real story_advance-reachable rejection. loopId is minted at handlers/review-loop.ts:141 as `${storyId}:RL-${String(next).padStart(3,'0')}`. Because rl- is excluded (not in SUBSTANTIVE_ID_PREFIXES), two OPEN LOOPS with different underlying triggers (loop 1 opened for finding F-001, loop 2 opened later for a different finding F-002 after loop 1 closes) normalize to identical text once the RL- ordinal is stripped, so gateFailureDigest returns the SAME key -- reproducing exactly the C3 false-freeze class this story exists to fix, specifically for review-loop rejections. Empirically confirmed against the built dist: gateFailureDigest('story_advance', 'Cannot enter TEST: active review loop(s): loopId=B-bf52:RL-001, decision=revise [open_review_loop]') === gateFailureDigest('story_advance', 'Cannot enter TEST: active review loop(s): loopId=B-bf52:RL-002, decision=revise [open_review_loop]') -> true (both digest to story_advance/1aaa61f4ed25). No matrix case in convergence-breaker-smoke.ts exercises loopId distinctness (grep for review-loop/RL-/loopId finds only the exclusion-category comment, zero test cases). Either rl- must move to SUBSTANTIVE_ID_PREFIXES with a must-differ case, or the exclusion comment's factual claim must be corrected and a must-differ regression case added to guard it.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T04:20:03.561Z",
@@ -689,7 +689,11 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "rl- stays excluded and its justification is rewritten to be true. The old claim (no gate-reachable producer) is false: core/machine.ts:640-661 renders 'active review loop(s): loopId=${loopId}' and core/machine.ts:1192 wraps it as a Cannot enter TEST rejection, while handlers/review-loop.ts:141 mints ${storyId}:RL-${NNN}. rl- is therefore moved into EXCLUDED_REVIEW_BOOKKEEPING alongside rr-/rp- with the honest reason: a review loop is re-minted on retry exactly as a review run is (F-030), so collapsing is the FAIL-SAFE direction for a breaker. The cost is stated rather than hidden — two loops opened for genuinely different triggers share one key — and accepted because the opposite error lets a retry loop mint a fresh key forever and the breaker never fires. Guarded in the inverse direction by the new must-collapse case review-loop-ordinal; mutation M9 (re-adding rr-/rp-/rl- to the allowlist) fails exactly stale-review-run-evidence and review-loop-ordinal.",
+      "resolvedAt": "2026-07-24T10:14:51.425Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-037",
