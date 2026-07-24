@@ -107,7 +107,7 @@
       "desc": "CHK-002:adversarial:0 evidence overclaims: intent names 4 renderers (checklist_get, story_get, session_brief, exports) that must never print withdrawn as DONE. Cited evidence only asserts checklist_get renders status withdrawn/notEqual done (withdrawn-disposition-smoke.ts lines ~160-163). story_get (story-query.ts), session_brief (session.ts) and any export path are never exercised for this claim in either smoke; grep withdrawn across src confirms zero test touches those renderers. Note textually narrows to just checklist_get while the intent it is bound to names 4 surfaces.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T22:13:06.868Z",
@@ -120,7 +120,11 @@
         "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|adversarial-evidence-overclaims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "c865b13ba6: smoke now asserts story_get renders withdrawn (never done) and session_brief (real git-backed root) shows the withdrawn block and never 2/2 done — the additional renderers are covered.",
+      "resolvedAt": "2026-07-24T22:38:26.766Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1909:F-007",
