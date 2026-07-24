@@ -288,11 +288,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "NOT DELIVERED. This is recorded as a failure to deliver, not as a redefinition of the item. The converse direction this intent asked for is likewise not delivered, for the same proof. 'must-still-collapse review-loop-ordinal' and 'init-check-issue-ordinal' [guard: digit-rule-collapse] pin that review-bookkeeping ids collapse, which was always the intended direction and is now simply the behaviour for all ordinals.",
-          "headHash": "1a3a69241a24d5c88bbae11cad52d18d8cab8145",
+          "note": "NOT DELIVERED, cited against the case that actually tests it. This intent asked that a story id such as B-bf52, whose digits attach to an identifier, survive normalization so rejections naming different stories are not conflated. The case that tests exactly that is 'must-still-collapse bcc54-story-id-digits [guard: digit-rule-collapse]', which digests b-1234 and b-5678 to one key and so asserts the OPPOSITE of the intent — confirming the not-delivered verdict directly. An earlier version of this note cited 'review-loop-ordinal' and 'init-check-issue-ordinal' instead; those hold the story id CONSTANT and vary only a bookkeeping suffix, so they proved nothing about this intent. The verdict was right and the citation was wrong, which is the same defect class as F-049 and F-050 on this story. The underlying reason is the one recorded for CHK-003 throughout: a bare ordinal in a rejection is textually identical to a third-party label, so recognising story ids is not achievable from message text alone, and for a brake the tie breaks toward collapse.",
+          "headHash": "ac95142660513f06b60c55100eb1327a3546c031",
           "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
           "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
-          "timestamp": "2026-07-24T16:09:41.115Z"
+          "timestamp": "2026-07-24T17:36:21.286Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
