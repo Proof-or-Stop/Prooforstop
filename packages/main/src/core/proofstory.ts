@@ -40,6 +40,7 @@ import type {
   ProofStoryParentLedgerRollupData,
   ProofStoryParentLedgerRollupChild,
   ProofStoryAcceptanceBinding,
+  ProofStoryBindingDisposition,
   ProofStoryContractData,
   ProofStoryDiagnosticGap,
   ProofStoryDiagnosticReport,
@@ -118,7 +119,7 @@ export interface ProofStoryDiagnosticInput {
   milestoneLedger: MilestoneLedgerData | null;
   slicePlan: ProofStorySlicePlanData | null;
   parentLedgerRollup: ProofStoryParentLedgerRollupData | null;
-  proofStoryContract: Pick<ProofStoryContractData, 'acceptanceBindings'> | null;
+  proofStoryContract: Pick<ProofStoryContractData, 'acceptanceBindings' | 'bindingDispositions'> | null;
   intentCollision: IntentCollisionData | null;
   scopeContract: ScopeContractData | null;
   scopeShrinkageDecision: ScopeShrinkageDecisionData | null;
@@ -166,6 +167,20 @@ export interface BuildScopeShrinkageDecisionArgs {
   removedMilestoneIds?: string[];
   reason: string;
   approvedBy: string;
+  /** B-1909: stable decision id both withdrawal layers cite; generated when omitted. */
+  decisionId?: string;
+  /** B-1909: checklist item ids withdrawn by this confirmed decision. */
+  withdrawnChecklistItemRefs?: string[];
+  /** B-1909: acceptance-binding ids withdrawn by this confirmed decision. */
+  withdrawnAcceptanceBindingRefs?: string[];
+  /** B-1909: optional audit references backing the withdrawal. */
+  evidenceRefs?: string[];
+  /** B-1909: explicit operator re-approval required to empty the effective binding set. */
+  fullWithdrawalReapproval?: {
+    approvedBy: string;
+    reason: string;
+    at: string;
+  };
 }
 
 export interface AppendRedEvidenceArgs {
@@ -1243,6 +1258,11 @@ export function buildProofStoryContract(
     originalIntentRequestHash: input.originalIntentSnapshot?.requestHash,
     confirmedMilestoneLedgerHash: input.milestoneLedger?.state === 'confirmed' ? input.milestoneLedger.ledgerHash : undefined,
     acceptanceBindings,
+    // B-1909: bindingDispositions are written ONLY by the scope-shrinkage
+    // applier (post-PLAN). proofstory_contract_set (PLAN-frozen) has no arg to
+    // set them and must never drop them — carry the existing append-only list
+    // forward verbatim so contract_set can neither add nor mutate a disposition.
+    ...(existing?.bindingDispositions ? { bindingDispositions: existing.bindingDispositions } : {}),
     diagnosticGaps: report.gaps,
     note: args.note?.trim() || existing?.note,
     createdAt: existing?.createdAt ?? now,
@@ -1282,6 +1302,20 @@ export function buildIntentCollision(
   };
 }
 
+function normalizeFullWithdrawalReapproval(
+  value: BuildScopeShrinkageDecisionArgs['fullWithdrawalReapproval'],
+): ScopeShrinkageDecisionData['fullWithdrawalReapproval'] | undefined {
+  if (value == null) return undefined;
+  if (typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('fullWithdrawalReapproval must be an object with approvedBy, reason, and at');
+  }
+  return {
+    approvedBy: requireNonEmptyString(value.approvedBy, 'fullWithdrawalReapproval.approvedBy'),
+    reason: requireNonEmptyString(value.reason, 'fullWithdrawalReapproval.reason'),
+    at: requireNonEmptyString(value.at, 'fullWithdrawalReapproval.at'),
+  };
+}
+
 export function buildScopeShrinkageDecision(
   args: BuildScopeShrinkageDecisionArgs,
   existing?: ScopeShrinkageDecisionData | null,
@@ -1289,13 +1323,36 @@ export function buildScopeShrinkageDecision(
   const decision = args.decision;
   if (decision !== 'confirmed' && decision !== 'rejected') throw new Error('decision must be confirmed or rejected');
   const removedMilestoneIds = optionalStringArray(args.removedMilestoneIds, 'removedMilestoneIds');
-  if (decision === 'confirmed' && removedMilestoneIds.length === 0) {
-    throw new Error('removedMilestoneIds is required when decision is confirmed');
+  const withdrawnChecklistItemRefs = optionalStringArray(args.withdrawnChecklistItemRefs, 'withdrawnChecklistItemRefs');
+  const withdrawnAcceptanceBindingRefs = optionalStringArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
+  const evidenceRefs = optionalStringArray(args.evidenceRefs, 'evidenceRefs');
+  // B-1909 CHK-003: a confirmed decision must remove SOMETHING — milestones,
+  // checklist items, or acceptance bindings. Reject "nothing to withdraw"
+  // (previously this only checked removedMilestoneIds, which blocked the new
+  // checklist-only / binding-only shrinkage shapes).
+  if (
+    decision === 'confirmed'
+    && removedMilestoneIds.length === 0
+    && withdrawnChecklistItemRefs.length === 0
+    && withdrawnAcceptanceBindingRefs.length === 0
+  ) {
+    throw new Error(
+      'a confirmed scope-shrinkage decision must withdraw at least one of removedMilestoneIds, withdrawnChecklistItemRefs, or withdrawnAcceptanceBindingRefs',
+    );
   }
   if (decision === 'confirmed' && args.userConfirmed !== true) {
     throw new Error('userConfirmed:true is required when decision is confirmed');
   }
   const now = new Date().toISOString();
+  const createdAt = existing?.createdAt ?? now;
+  const fullWithdrawalReapproval = normalizeFullWithdrawalReapproval(args.fullWithdrawalReapproval)
+    ?? existing?.fullWithdrawalReapproval;
+  // Stable id: explicit caller value wins, else preserve the existing decision's
+  // id (updates stay stable), else derive a deterministic short id from the
+  // immutable createdAt so re-derivation on later updates is identical.
+  const decisionId = optionalNonEmptyString(args.decisionId, 'decisionId')
+    ?? existing?.decisionId
+    ?? `SD-${createHash('sha256').update(`${args.storyId}:${createdAt}`).digest('hex').slice(0, 8)}`;
   return {
     schemaVersion: SCOPE_SHRINKAGE_DECISION_SCHEMA_VERSION,
     storyId: args.storyId,
@@ -1304,7 +1361,12 @@ export function buildScopeShrinkageDecision(
     removedMilestoneIds,
     reason: requireNonEmptyString(args.reason, 'reason'),
     approvedBy: requireNonEmptyString(args.approvedBy, 'approvedBy'),
-    createdAt: existing?.createdAt ?? now,
+    decisionId,
+    withdrawnChecklistItemRefs,
+    withdrawnAcceptanceBindingRefs,
+    evidenceRefs,
+    ...(fullWithdrawalReapproval ? { fullWithdrawalReapproval } : {}),
+    createdAt,
     updatedAt: now,
   };
 }
@@ -1423,6 +1485,51 @@ export function setSpikeStatus(
 
 function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set<string> {
   return new Set(decision?.decision === 'confirmed' && decision.userConfirmed === true ? decision.removedMilestoneIds : []);
+}
+
+/**
+ * B-1909: authoritative test for a decision that may carry withdrawals — only a
+ * confirmed + userConfirmed decision authorizes any withdrawal, matching the
+ * confirmedShrinkageIds gate above.
+ */
+function decisionAuthorizesWithdrawal(decision: ScopeShrinkageDecisionData | null | undefined): boolean {
+  return decision?.decision === 'confirmed' && decision.userConfirmed === true;
+}
+
+/**
+ * B-1909: checklist item ids the decision withdraws (empty unless confirmed +
+ * userConfirmed). Exported for the sole applier, the smoke, and other workers.
+ */
+export function withdrawnChecklistItemIdsFrom(decision: ScopeShrinkageDecisionData | null | undefined): Set<string> {
+  return new Set(decisionAuthorizesWithdrawal(decision) ? decision!.withdrawnChecklistItemRefs ?? [] : []);
+}
+
+/**
+ * B-1909: acceptance-binding ids the decision withdraws (empty unless confirmed
+ * + userConfirmed). Exported for the sole applier, the smoke, and other workers.
+ */
+export function withdrawnBindingIdsFrom(decision: ScopeShrinkageDecisionData | null | undefined): Set<string> {
+  return new Set(decisionAuthorizesWithdrawal(decision) ? decision!.withdrawnAcceptanceBindingRefs ?? [] : []);
+}
+
+/**
+ * B-1909: the acceptance bindings still in force = original acceptanceBindings
+ * minus any binding whose id appears in an append-only withdrawn
+ * bindingDisposition OR in the confirmed decision's withdrawnAcceptanceBindingRefs.
+ * The original acceptanceBindings array is never mutated. Contract may be null
+ * (no bindings) and either input side may be absent (legacy compatibility).
+ */
+export function effectiveAcceptanceBindings(
+  contract: Pick<ProofStoryContractData, 'acceptanceBindings' | 'bindingDispositions'> | null | undefined,
+  decision: ScopeShrinkageDecisionData | null | undefined,
+): ProofStoryAcceptanceBinding[] {
+  const bindings = contract?.acceptanceBindings ?? [];
+  const withdrawn = new Set<string>();
+  for (const disposition of contract?.bindingDispositions ?? []) {
+    if (disposition.disposition === 'withdrawn') withdrawn.add(disposition.bindingId);
+  }
+  for (const id of withdrawnBindingIdsFrom(decision)) withdrawn.add(id);
+  return bindings.filter((binding) => !withdrawn.has(binding.id));
 }
 
 // B-2c03: `-`, `/`, and `.` are \b word boundaries, so shrinkage trigger words
@@ -1807,6 +1914,25 @@ export function evaluateDoneIntentEquivalence(
       'warn',
     ));
   }
+  // B-1909 CHK-006 (defense-in-depth): if the contract originally carried at
+  // least one acceptance binding but every binding is now withdrawn, the
+  // effective acceptance scope is empty. Surface a diagnostic gap (visible under
+  // observe, blocking under enforce). The PRIMARY guarantee is the write-time
+  // floor in scope_shrinkage_decision_set, which refuses to empty the scope
+  // without explicit full-withdrawal re-approval regardless of doneGateMode.
+  const originalBindingCount = input.proofStoryContract?.acceptanceBindings?.length ?? 0;
+  if (
+    originalBindingCount > 0
+    && effectiveAcceptanceBindings(input.proofStoryContract, input.scopeShrinkageDecision).length === 0
+  ) {
+    gaps.push(gap(
+      'empty_scope_after_withdrawal',
+      'proofstory.json',
+      'All acceptance bindings have been withdrawn, leaving an empty effective scope. A formal DONE pass over zero remaining acceptance requires explicit full-withdrawal re-approval.',
+      undefined,
+      'fail',
+    ));
+  }
   const rollupState = parentRollupCoversSlicePlan(input.parentLedgerRollup, input.milestoneLedger, input.slicePlan);
   if (hasMilestonePath && !rollupState.ok) {
     gaps.push(gap(
@@ -1857,9 +1983,25 @@ export function evaluateReviewCompleteness(
       ...diagnostics.oversizedLedger,
     );
   }
+  // B-1909 CHK-006 (defense-in-depth): the required verification-intent set is
+  // driven from the EFFECTIVE (non-withdrawn) acceptance bindings, so a binding
+  // withdrawn by a confirmed decision no longer requires its intents. The
+  // primary empty-scope guarantee is the write-time floor in the sole applier;
+  // this gap is only visible-under-observe / blocking-under-enforce.
+  const originalBindings = input.proofStoryContract?.acceptanceBindings ?? [];
+  const effectiveBindings = effectiveAcceptanceBindings(input.proofStoryContract, input.scopeShrinkageDecision);
   const refs = new Set<string>();
-  for (const binding of input.proofStoryContract?.acceptanceBindings ?? []) {
+  for (const binding of effectiveBindings) {
     binding.verificationIntentRefs.forEach((ref) => refs.add(ref));
+  }
+  if (originalBindings.length > 0 && effectiveBindings.length === 0) {
+    gaps.push(gap(
+      'empty_scope_after_withdrawal',
+      'proofstory.json',
+      'All acceptance bindings have been withdrawn, leaving an empty effective scope. A formal review pass over zero remaining acceptance requires explicit full-withdrawal re-approval.',
+      undefined,
+      'fail',
+    ));
   }
   const shrinkageIds = confirmedShrinkageIds(input.scopeShrinkageDecision);
   for (const milestone of input.milestoneLedger?.milestones ?? []) {

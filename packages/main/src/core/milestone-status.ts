@@ -1305,7 +1305,16 @@ export function renderChecklistDerivedLedger(
     pending: [],
   };
   for (const item of items) {
-    (groups[item.status] ?? groups.pending).push(item);
+    // B-1909: index type-safely now that ChecklistStatus includes 'withdrawn'.
+    // Behavior is unchanged (unknown/withdrawn falls through to the pending
+    // bucket exactly as the previous `?? groups.pending` fallback did); the full
+    // WITHDRAWN-aware rendering is CHK-002's consumer sweep.
+    const bucket = item.status === 'done'
+      ? groups.done
+      : item.status === 'in_progress'
+        ? groups.in_progress
+        : groups.pending;
+    bucket.push(item);
   }
   const lines = [
     `${CHECKLIST_DERIVED_HEADER} - ${storyId}`,

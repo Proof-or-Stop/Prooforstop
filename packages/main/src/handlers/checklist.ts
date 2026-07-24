@@ -561,7 +561,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     checklist_update(args: {
       storyId: string;
       itemId: string;
-      status?: 'pending' | 'in_progress' | 'done';
+      status?: ChecklistStatus;
       title?: string;
       context?: string;
       relatedDocs?: string[];
@@ -577,6 +577,20 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     }): string {
       if (!args.status && args.title === undefined && args.context === undefined && args.relatedDocs === undefined && args.userSees === undefined && args.excludes === undefined && args.files === undefined && args.verificationIntent === undefined && args.verificationEvidence === undefined) {
         throw new Error('At least one of status/title/context/relatedDocs/userSees/excludes/files/verificationIntent/verificationEvidence must be provided');
+      }
+
+      // B-1909 CHK-001/CHK-005: 'withdrawn' is a terminal disposition that can
+      // only originate from a confirmed + userConfirmed scope-shrinkage decision.
+      // The sole applier (scope_shrinkage_decision_set) writes the checklist
+      // directly, never through checklist_update — so a direct withdrawn write
+      // here is always unauthorized. Refused on BOTH the Zod and internal-fn path.
+      if (args.status === 'withdrawn') {
+        throw new Error(
+          `checklist_update refused: status='withdrawn' cannot be set directly. ` +
+          `A withdrawal must be recorded by scope_shrinkage_decision_set (the sole authorized applier), ` +
+          `which stamps the item with a confirmed decision's decisionRef. ` +
+          `Run lattice scope_shrinkage_decision_set with withdrawnChecklistItemRefs including ${args.itemId}. [withdrawn_requires_scope_shrinkage_decision]`,
+        );
       }
 
       // USER is retained below for human audit attribution, but it is not a
