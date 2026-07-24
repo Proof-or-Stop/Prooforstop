@@ -208,11 +208,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Two re-derived revert-proofs, one per direction: widening the path rule back to any-slash fails exactly {phase-pair, in-repo-file-path} (path-rule-overreach), and deleting the POSIX path rule fails exactly {machine-absolute-path, machine-path-into-repo-relative-segments, delimiter-attached-absolute-path} (path-rule-collapse). Deleting the Windows rule fails only {windows-absolute-path}. Each leaves every other case passing.",
-          "headHash": "adbe501a647eadfb2df4b22e2667b11aac5ee641",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:29.382Z"
+          "note": "Two re-derived revert-proofs, one per direction: widening the path rule back to any-slash fails exactly {phase-pair, in-repo-file-path}; deleting the POSIX rule fails exactly the three path-rule-collapse cases; deleting the Windows rule fails only {windows-absolute-path}. Each leaves every other case passing.",
+          "headHash": "2da2c9934cc7b58a695bf48e66b58b6e32119540",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:20.391Z"
         }
       ]
     },
