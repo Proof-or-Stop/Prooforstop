@@ -10,12 +10,30 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "test",
+            "desc": "gateFailureDigest(cmd, reasonA) vs gateFailureDigest(cmd, reasonB) where both reasons share identical first 200 normalized chars but differ at char 250 (e.g. different Diagnostic gaps list) -> both return the same digest key today (RED: proves .slice(0,200) truncation discards distinguishing content); WHY: reproduces the exact B-cc54 root cause at the unit level",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount called sequentially with 3 distinct ProofStory-style blockers (missing intent snapshot / missing acceptance binding / missing verificationIntentRefs) all sharing the invariant 200-char header -> maxGateFailureCount returns 3 on a single collapsed key instead of 1 per distinct key (RED: proves false counter inflation from digest collision); WHY: end-to-end consequence of the digest bug on the counter subsystem",
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "gateFailureDigest with reason exactly 200 chars after normalization -> digest is stable; appending one distinguishing char at position 201 still produces the SAME digest (RED: boundary proof that .slice(0,200) discards char 201); WHY: boundary condition at the exact truncation point",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two reasons where raw text looks very different (mixed case, real /paths/to/files, real timestamps 2026-07-23T12:00:00Z, hex IDs a1b2c3d4e5f6) but normalization (lowercase + digits-># + paths-># + hex->#) makes first 200 chars identical while tails genuinely differ -> same digest despite semantically unrelated blockers; WHY: normalization amplifies the collision surface beyond naive identical-prefix construction",
+            "type": "cli"
+          },
+          {
+            "desc": "Three sequential bumpGateFailureCount with distinct real ProofStory blockers sharing the invariant header -> assessBreaker sees maxGateRepeat>=2 (threshold), first trip auto-recovers, counter rebuilds to >=2 again on fresh window -> freeze; isInteractiveAckAllowed returns false without TTY -> unattended run permanently stuck on a genuinely progressing story; WHY: proves the full end-to-end user-facing impact (token burn + permanent freeze) of the digest collision",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
