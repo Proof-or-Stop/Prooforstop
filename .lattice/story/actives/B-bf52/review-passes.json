@@ -110,6 +110,41 @@
         "scanEscalationReason": null
       },
       "_hash": "cb3877d44a6e66b263f734f2eec87868f8c6772002aac95e90607cc197c3fda7"
+    },
+    {
+      "id": "B-bf52:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Audited the partially_mitigated resolution of F-062 and the corrected CHK-003 notes (my own F-061 fix). Verified live: command-policy.ts:420 proofstory_contract_set has allowedPhases:[PLAN] and this is a real enforced hard block (empirically reproduced the REVIEW-phase rejection via cli-engine.ts isCommandAllowed; no rollback-to-PLAN lifecycle path exists), so partially_mitigated is honest, not an avoided fix. Confirmed ChecklistStatus has no withdrawn value (types.ts:186) and success is only an ephemeral process-event field, never persisted on the checklist item (handlers/checklist.ts) -- matching the notes claims exactly. Confirmed proofstory.json AB-003 still asserts identifier-embedded-ordinals-stay-distinct (stale as claimed) and scope-shrinkage-decision.json is present with userConfirmed:true, decision:confirmed, CHK-003 in removedMilestoneIds (resolving codexs timing-artifact read). Cross-referenced all 19 verificationEvidence notes against the 21 named cases/guardedBy tags actually in convergence-breaker-smoke.ts: every citation (checklist-ordinal, unfixed-bug-ordinal, embedded-test-output-third-party-label, bcc54-story-id-digits for CHK-003:edge:1 confirming the F-061 fix landed, bare-attempt-ordinal, machine-absolute-path/delimiter-attached-absolute-path, phase-pair, in-repo-file-path, signal-less-long-rejection, proofstory-gap-signal-set, blocking-finding-cited-path-within/past-window) matches an existing case asserting exactly what its note claims; no F-049/F-050-class command/claim mismatch found. From an immutable `git worktree add --detach` copy at HEAD (only story-record files differ from source commit 280a5440b4): rebuilt and ran both suites -- convergence-breaker-smoke.js PASS exit 0 (5 must-differ + 16 must-still-collapse, all matching notes) and gate-repeat-block-smoke.js PASS exit 0, byte-identical to main (0-line diff) -- and both committed probes -- red-s3-digest-collapse.mjs 10/10 PASS exit 0, red-s3-differential-probe.mjs PASS exit 0 standalone and against a fresh main comparison build. In a second immutable detached worktree, reverted the path rule to the pre-fix greedy form and confirmed both the smoke suite and the differential probe (BAR 3, 4/4 violations) correctly FAIL exit 1, proving CHK-002:adversarial:0 is a genuine revert-proof. In a third immutable detached worktree, mutated out only the digit rule and reproduced CHK-004:adversarial:0s exact claim: 10 of 21 cases fail (not 11), iso-timestamp-only stays green. Confirmed the bidirectional completeness guard and its allowlist are genuinely deleted (no orphaned functions/constants). All measurement worktrees I created (review-detached-worktree, probe-main, widened-path-rule, mutation-digit-rule) were removed after use; nothing pre-existing was touched or deleted. No blocker found.",
+      "createdAt": "2026-07-24T18:16:55.347Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-036",
+      "envelopeId": "b56fb895d206251a0658b3ebd31006706568f0ef05a4c537a9597a2bc09abae8",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/proofstory.json",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c2198de4f9d6fb9b284dd64d68bf661ee8df68d5383e37cd703efe8f729160ed"
     }
   ]
 }
