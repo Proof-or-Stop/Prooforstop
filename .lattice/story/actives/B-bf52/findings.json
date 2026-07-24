@@ -656,7 +656,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:594 - two of the seven allowlisted prefixes, `ab-` (acceptance basis) and `oq-` (open question), are dead config: no producer in packages/main/src mints or embeds either shape into any story_advance-reachable rejection, so widening the allowlist to include them buys nothing and was never evidence-backed the way the file's own comment (line 587: 'Keep this set SMALL and evidence-backed') requires. AB-: grep for `AB-` across packages/main/src finds zero occurrences outside this file's own doc comment (line 557) - AcceptanceBinding.id (core/types.ts:2508, consumed at core/acceptance-coverage-basis.ts / core/acceptance-topology.ts) is a free-form string with real examples like 'parent-roadmap-sample' and 'b-43de-m4-m12-closure', never 'AB-NNN'; there is no AB- id anywhere in this codebase, real or reviewer-supplied. OQ-: the only story_advance-reachable rejection touching open questions is core/machine.ts:1134, `Latest story_review round has ${blockerCount} unresolved blocker(s)` - a bare count with NO oq.id embedded. The actual `${oq.id}` interpolation (documented at core/types.ts:2061 as 'OQ-1'/'OQ-2', reviewer-assigned) only appears in handlers/story-review.ts:649 (the story_review command's own advisory output) and handlers/scope-question-resolve.ts (a distinct command) - neither of which is `story_advance`, so per cli-engine.ts:1508 (`if (cmd === 'story_advance')`) it never reaches bumpGateFailureCount. Consequence: this is lower-severity than F-033/F-034 (nothing collapses that shouldn't, since nothing real ever mints these shapes into a digested reason), but it means the section-7c completeness guard's 'all classified' pass gives false confidence: MINT_RE/LITERAL_ORDINAL_RE never discover ab-/oq- as producers at all (there is nothing to discover), so the guard's own design (documented as reconciling the allowlist against real producers) cannot and does not verify these two entries were ever needed. Recommend removing `ab-` and `oq-` from SUBSTANTIVE_ID_PREFIXES (mirroring the F-030 removal of rr-/rp-), or if kept, documenting the specific future producer they anticipate the same way bug- documents F-029's evidence.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-24T04:19:29.187Z",
@@ -664,7 +664,11 @@
       "reviewRunId": "B-bf52:RR-021",
       "_hash": "75101df4710d21bd0a0232c9b8d384bdb78f297ea837b867113abb446b36568a",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ab- and oq- removed from SUBSTANTIVE_ID_PREFIXES. Confirmed dead: AB- has zero occurrences anywhere in packages/main/src, and OQ- appears only in comments and the open_question_resolve schema description, with no story_advance transition guard rendering an open-question id. More importantly the CLASS is now self-detecting: the completeness guard is BIDIRECTIONAL, so a classified prefix with no scanned producer fails and names the offending prefix plus the set and file that declare it. Mutation G2 re-adds ab-/oq- and the guard fails with 'NO PRODUCER (2): ab- (declared in SUBSTANTIVE_ID_PREFIXES, src/core/convergence-breaker.ts) ;; oq- (...)', which is the report that would have caught this finding six rounds ago. req- is KEPT with a verified citation and is reported to the main agent as measured-inert, not deleted, because its render site (core/proofstory.ts:1026) is real.",
+      "resolvedAt": "2026-07-24T10:14:50.710Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-036",
