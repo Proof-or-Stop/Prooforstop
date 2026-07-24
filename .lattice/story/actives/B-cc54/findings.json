@@ -183,7 +183,7 @@
       "desc": "packages/main/src/tasks/gate-repeat-block-smoke.ts:352 and :449 label two regression assertions (\"such a loop must still reach the trip threshold\" / \"a repeated real gap code must still reach the threshold\", both asserting maxGateFailureCount(...) >= THRESHOLD) with intentRef CHK-004:happy:0. But CHK-004:happy:0 specifically claims \"result.ok is false on EVERY call including after breaker trips\" / \"tripping the breaker must never auto-satisfy the gate -- it only stops, never clears\" -- a claim about the gate ok-status never auto-clearing, already genuinely discharged elsewhere in the file by the assertion at line ~288 (assessBreaker(...).action === freeze). The two mislabeled assertions instead test the raw failure counter reaching THRESHOLD, which is what CHK-002:happy:2 and CHK-003:happy:0 actually describe. This mismatch was introduced by the F-007 fix (commit 24d420d19b, which needed an existing ref for a previously-orphan assertion and picked CHK-004:happy:0 by convenience rather than by matching claim) and has since been repeated verbatim a second time in the F-008 fix commit (7db9b3bd1d), showing it is becoming a pattern rather than a one-off slip. It does not change the 37/37 coverage count (CHK-004:happy:0 already has a correctly-matching assertion), but the verificationEvidence note for CHK-004:happy:0 now implies two independent regression proofs of the never-auto-clears guarantee that do not actually exist.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T01:50:44.130Z",
@@ -194,7 +194,11 @@
         "packages/main/src/tasks/gate-repeat-block-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted. Both assertions test that the counter REACHES the threshold, which is CHK-002:happy:2 (identical reason repeated accumulates and trips), not CHK-004:happy:0 (gate.ok stays false after a trip) — a property already asserted separately in the same file. Both are relabelled to CHK-002:happy:2. The reviewer's framing is recorded deliberately: the refs had been picked to make the coverage ledger look complete rather than by checking what each ref actually claims, and the shortcut was copied a second time during the F-008 fix, so it was a hardening habit rather than a one-off slip.",
+      "resolvedAt": "2026-07-24T02:01:20.375Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
