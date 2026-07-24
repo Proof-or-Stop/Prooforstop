@@ -6,7 +6,36 @@
       "context": "Replay the B-956f shape in flow-stability-smoke: pre-TEST reviewer executed terminal plus one post-TEST closeout executed terminal in the same identity group must PASS convergence after the fix but fails before it; two post-TEST executed terminals in the same group must still FAIL; a reused terminal with commandExecutions greater than zero must still FAIL in any phase. Real-world telemetry evidence: .lattice/story/actives/B-956f/process-events.jsonl round 18:10:20 window events at 18:25:19 executed 34090591, 18:36:10 executed 15aa0ab1, 19:02:20 executed 34090591 TEST phase.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running the new flow-stability-smoke convergence case prints a passing assertion for the B-956f-shaped window (pre-TEST reviewer executed + one post-TEST closeout executed in the same group does NOT throw) and failing assertions still throw done_prepare convergence invariant failed for two post-TEST duplicates and for contradictory reused terminals",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "B-956f-shaped window (two pre-TEST executed groups + one post-TEST executed duplicate of a pre-TEST group + reused exec=0) passes assertDonePreparePassConvergence with blocking counter 0 and observable counter 1",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Window with two post-TEST executed terminals in the same identity group yields blocking counter 1 and assert throws",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Group whose only executed terminal is post-TEST (no pre-TEST baseline) yields blocking 0 and observable 0",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reused terminal reporting commandExecutions greater than zero keeps failing convergence regardless of phase (pre-TEST or post-TEST)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
