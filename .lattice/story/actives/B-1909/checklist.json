@@ -310,6 +310,18 @@
           "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
           "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
           "timestamp": "2026-07-24T21:37:54.982Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "COMMAND_POLICIES.proofstory_contract_set.allowedPhases deepEquals ['PLAN'] (freeze intact); scope_shrinkage_decision_set reaches DEV/REVIEW/TEST — the correction path, not proofstory_contract_set, does the withdrawal.",
+          "headHash": "5dce9807db39a2efa1e40744f5de3678840591f3",
+          "materialHash": "3b1e2e33de4abe2774c699f4f2f182ba180566799dd65e134077a601a933ad00",
+          "storyFilesHash": "16e3080294b64e2d2a12a2d7917836c634a1f373cb777a1df66fc201a52ca337",
+          "timestamp": "2026-07-24T21:41:44.761Z"
         }
       ]
     },
