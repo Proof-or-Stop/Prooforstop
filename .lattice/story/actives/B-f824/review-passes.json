@@ -446,6 +446,37 @@
         "scanEscalationReason": null
       },
       "_hash": "1fa1454ff5e7b3f46b18b4495b068b0c815f234d262629d157a3fc4f8c24f785"
+    },
+    {
+      "id": "B-f824:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 re-attestation. Diff unchanged from round-4 pass (RP-014): additive-only reviewWindowSuiteExecutions field in deriveDonePreparePassConvergence/donePrepareJsonResult/renderPass, matching regex/fixture updates in the three downstream smoke files plus flow-stability-smoke.ts, and additive doc prose. No concept deleted/renamed, so no residue grep applicable. Confirmed via review_incremental_context the only files changed since RR-013/RP-014 are the B-5e4a merge (lattice-brand.ts, lifecycle-registry.ts, lifecycle-registry-contract.ts, verify-process-fact-contract.mjs, package.json/lock, lifecycle-artifact-scope.md) plus B-f824 lifecycle metadata; storyFilesHash unchanged. rg across merge-touched files for convergence/unchangedSuiteExecutions/reviewWindowSuiteExecutions found only unrelated matches (separate convergence_check concept for build symlinks; name-only registry-entry-exists assertion for runtime:closeout_validation_terminal). Zero interaction. No blocker.",
+      "createdAt": "2026-07-24T03:40:35.849Z",
+      "reviewRound": "2026-07-24T03:38:21.644Z",
+      "reviewRunId": "B-f824:RR-017",
+      "envelopeId": "db1612061a3a652ddb9fad6dbee74d58d5dcbf40f1b29bad51aa2112bec0f241",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c6691144c831cf3cc2c1f732feaa5696e0189ff77fad41cabc860c2cfb0335f8"
     }
   ]
 }
