@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "RED repro locks the poisoning scenario before any fix",
+      "context": "Un-gameable failing test: submit a quorum at material M1; land a commit that changes materialHash but NOT storyFilesHash; run quorum_submit again. Today the second submit is accepted and the escalation floor then reports every planned round invalid with 'duplicate host/session/key identity'. The RED assertion is that the second submit must be REFUSED while the standing quorum still evaluates ok.",
+      "userSees": "A smoke/unit test that fails on current main by demonstrating the accepted redundant resubmit and the resulting all-rounds-invalid floor collapse.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Align the quorum_submit duplicate guard with the floor's drift-accept predicate",
+      "context": "In handlers/quorum-submit.ts, the guard must treat a committed verdict on a planned runId as colliding when it would be accepted by the floor at evaluation time: same materialDigest OR (stale materialDigest but storyFilesHash equal to the current storyFilesHash). The refusal message must state that the existing quorum still drift-accepts and nothing needs resubmitting.",
+      "userSees": "quorum_submit refuses the redundant resubmit after a materialHash-only drift with a message naming the standing valid quorum; a genuinely new quorum (storyFilesHash changed) is still allowed.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Official recovery command for poisoned quorum rounds",
+      "context": "New command (quorum_prune) that, for a story, identifies host_verdict duplicate events on the same runId + host/session/key identity in the committed process-events.jsonl, and removes the losing set (default: the set whose materialDigest no longer resolves; explicit selector otherwise). Must support --dryRun, write a backup of the jsonl before editing, and commit the metadata change. Formalizes the manual B-bf52 surgery (commit 255eefd289).",
+      "userSees": "lattice quorum_prune --storyId=... --dryRun lists the duplicate verdict events and which set would be removed; without --dryRun it backs up, removes them, commits, and the escalation floor returns to the pre-poisoning assurance level.",
+      "excludes": [
+        "material-scoped runId scheme migration (<storyId>-q-<digest>-rN)",
+        "process-events.jsonl integrity hash chain",
+        "any change to floor/escalation acceptance semantics"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
