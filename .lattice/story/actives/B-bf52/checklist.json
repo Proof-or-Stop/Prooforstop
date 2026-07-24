@@ -100,11 +100,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ proofstory-gap-signal-set [guard: signals-fold]' guards against regressing B-cc54's mechanism: two rejections with identical 200-character prefixes but different non-empty signal sets must digest differently. Mutation M11 (basis collapsed to prefix alone) fails exactly that case. The earlier claim that 'bcc54-cross-vendor-noise' served this purpose was false and is retracted — it passes under M11 because its fixtures extract no signals. Command rebound after F-049: this claim is demonstrated by THIS suite, not by B-cc54's; B-cc54's own suite is cited separately under CHK-004:edge:1.",
-          "headHash": "fead3394078dfc23bad146ac906d5b6d19630652",
-          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
-          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
-          "timestamp": "2026-07-24T12:35:40.621Z"
+          "note": "'must-differ proofstory-gap-signal-set [guard: signals-fold]' guards against regressing B-cc54's mechanism: identical 200-character prefixes with different non-empty signal sets must digest differently; collapsing basis to prefix alone fails exactly that case. The earlier claim that 'bcc54-cross-vendor-noise' served this purpose was false and is retracted. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
+          "headHash": "56fdedfc93021127c7098b8f529eecdc212a4eca",
+          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
+          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
+          "timestamp": "2026-07-24T13:12:31.521Z"
         }
       ]
     },
