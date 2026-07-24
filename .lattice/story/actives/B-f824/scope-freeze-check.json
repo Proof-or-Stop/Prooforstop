@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f824",
+  "checkedAt": "2026-07-24T00:00:30.644Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "0c3788621dc864631438c65e8432277367f3f76ac19a50a90d2d48a4631f73ae",
+  "executionBoundaryHash": "24ce18b2d48ef455960f359b26b18b5e00574f61fa81270044998a8f07e08c3d",
+  "freshnessHash": "aaaa67d38b1a10a7d4e1a996ba6c53eeb22c652b05bf496437754e1e6383cdc8",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changes to reviewerReattestations, postTestReviewerReattestations, metadataRollbacks, or humanConfirmations semantics",
+    "Convergence breaker signals, burn-alert integration, or usage sweep behavior",
+    "customerKeyRef",
+    "Layer4",
+    "Multi-slot PASS receipt store in test-evidence.json (root-cause eviction fix) - deferred follow-up story",
+    "repair UX",
+    "Reviewer prompt or review policy changes",
+    "Writer-attribution or lane-identity fields on validation_terminal events (EXP-001: caller identity unverifiable)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changes to reviewerReattestations, postTestReviewerReattestations, metadataRollbacks, or humanConfirmations semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to reviewerReattestations, postTestReviewerReattestations, metadataRollbacks, or humanConfirmations semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Convergence breaker signals, burn-alert integration, or usage sweep behavior",
+      "source": "scopeBoundary.excluded",
+      "text": "Convergence breaker signals, burn-alert integration, or usage sweep behavior",
+      "excluded": true
+    },
+    {
+      "keyword": "Multi-slot PASS receipt store in test-evidence.json (root-cause eviction fix) - deferred follow-up story",
+      "source": "scopeBoundary.excluded",
+      "text": "Multi-slot PASS receipt store in test-evidence.json (root-cause eviction fix) - deferred follow-up story",
+      "excluded": true
+    },
+    {
+      "keyword": "Reviewer prompt or review policy changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Reviewer prompt or review policy changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Writer-attribution or lane-identity fields on validation_terminal events (EXP-001: caller identity unverifiable)",
+      "source": "scopeBoundary.excluded",
+      "text": "Writer-attribution or lane-identity fields on validation_terminal events (EXP-001: caller identity unverifiable)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ea65448eb8eb53b977e0f517449ee7630f1a267ea25bb86dcb19057356ca5958"
+}
