@@ -32,12 +32,8 @@ import {
   readTakeoverCount,
   collectBreakerCounters,
   enforceConvergenceBreakerGate,
-  MAX_REASON_CHARS,
   type BreakerCounters,
 } from '../core/convergence-breaker.js';
-// B-bf52 F-022: the real ppid-derived session-id producer, called rather than
-// imitated, so the digest-collapse fixture cannot drift from what ships.
-import { deriveLocalSessionId } from '../core/owner-session.js';
 import {
   findRuntimeArtifactEntry,
   isMaterialExcludedRuntimeArtifactPath,
@@ -166,14 +162,11 @@ const HEALTHY: BreakerCounters = {
   const dir = mkdtempSync(join(tmpdir(), 'cbreaker-'));
   try {
     // Same command + reason that differs only in a volatile TIMESTAMP => same
-    // digest. B-bf52 round-4 policy: the retry ordinal is held CONSTANT here.
-    // This pair formerly varied `(attempt 3)` / `(attempt 41)` too and relied on
-    // the general free-standing-number rule, which is now DELETED — a bare
-    // number is no longer treated as incidental, so varying the ordinal would
-    // (correctly, under the new policy) produce two keys and this assertion
-    // would be asserting the opposite of the contract. The timestamp still
-    // collapses via the ISO rule, which is what this fixture now guards; the
-    // printed counterpart is matrix case `iso-timestamp-only` in section 7b.
+    // digest. The retry ordinal is held CONSTANT here so this assertion isolates
+    // the ISO rule; the ordinal's own collapse is asserted separately as matrix
+    // case `bare-attempt-ordinal` in section 7b, which is the shape B-cc54's
+    // CHK-001:adversarial:0 requires. The printed counterpart of THIS pair is
+    // matrix case `iso-timestamp-only`.
     const d1 = gateFailureDigest('story_advance', 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)');
     const d2 = gateFailureDigest('story_advance', 'gate BLOCKED for B-bbaf at 2026-07-14T09:59:59Z (attempt 3)');
     assert.equal(d1, d2, 'digest collapses volatile ISO timestamps to the same key');
@@ -242,88 +235,68 @@ const HEALTHY: BreakerCounters = {
 // and `in-repo-file-path` depend on that rule being NARROW, not on it existing,
 // and keep passing):
 //
-//   *-collapse / sanity-bound / windows-path-rule / duration-rule /
-//   iso-timestamp-rule
+//   *-collapse / windows-path-rule / duration-rule / iso-timestamp-rule
 //                       the case fails if the rule is DELETED or narrowed;
-//   *-overreach / truncation-removal / hex-dot-adjacency /
-//   number-rule-removal
-//                       the case fails if the rule is WIDENED back to (or
-//                       re-introduced as) the form this story replaced — the
-//                       200-char cut, the slash-anchored path rule, the `\b` hex
-//                       rule, a letter-blind attached-hash rule, or ANY general
-//                       free-standing-number rule.
+//   *-overreach / hex-dot-adjacency
+//                       the case fails if the rule is WIDENED back to the form
+//                       this story replaced — the slash-anchored path rule, the
+//                       `\b` hex rule, or the unconditional `/\d+/g`.
 //
-// Every tag below was re-derived from scratch against the round-4 rule chain;
+// SCOPE OF THIS MATRIX AFTER THE B-cc54 RECONCILIATION. This story originally
+// also targeted the 200-character truncation (its C1a/C1b classes: every
+// ProofStory DEV-gate rejection for one story collapsed onto one key because the
+// invariant banner alone exceeds the cut). B-cc54 landed on main first and fixed
+// that class by a BETTER route — it leaves the truncation and the normalization
+// rules alone and folds structurally-extracted gap-id signals into the hash
+// basis, so distinctness comes from STRUCTURE rather than from classifying
+// free-text tokens. Those cases therefore moved out of this matrix and are owned
+// by tasks/gate-repeat-block-smoke.ts (B-cc54's suite, registered as a
+// doneRequiredCommand); duplicating them here would assert the same contract
+// twice while pinning it to a mechanism this story no longer supplies.
+//
+// This story's remaining, non-overlapping contribution is the three normalizer
+// OVERREACH classes B-cc54 does not touch, all of which still collapsed against
+// main before this change:
+//
+//   C2  `DEV/REVIEW` vs `DEV/TEST`      — the path rule rewrote from ANY slash
+//   C3  `CHK-001` vs `CHK-002`          — `\d+` ran inside identifier tokens
+//   C4  `src/core/alpha.ts` vs `beta.ts`— the path rule was greedy from slash 1
+//
+// A round-4 draft of this story went further and DELETED the general bare-number
+// rule outright, on the premise that the shape `(attempt N)` had no real
+// producer. That premise is false and the draft is REVERTED: B-cc54's own
+// CHK-001:adversarial:0 requires `attempt 7` and `attempt 91` to digest
+// identically. The number rule is therefore NARROWED (standalone numbers only),
+// not removed, and the `bare-attempt-ordinal` / `bcc54-cross-vendor-noise`
+// collapse cases below exist specifically so that deletion can never be
+// re-attempted without failing here first. The round-4 attached-hash rule is
+// likewise gone for good (cross-host codex proved it both over-collapses a real
+// ownership change and misses all-decimal digests).
+//
+// Every tag below was re-derived from scratch against the reconciled rule chain;
 // none was carried over on the assumption that it still held. The rule groups:
 //
-//   sanity bound     `truncation-removal` (the old 200-char cut must stay gone)
-//                    and `sanity-bound` (the 16,384 one must stay applied);
 //   path rules       `path-rule-overreach` / `path-rule-collapse`, plus
 //                    `windows-path-rule`;
-//   attached hashes  `attached-hash-collapse` (rule 2 must exist) and
-//                    `attached-hash-overreach` (rule 2 must keep its a-f LETTER
-//                    requirement, which is what protects decimal ids);
-//   free hashes      `hex-rule-collapse` (rule 3 must exist) and
-//                    `hex-dot-adjacency` (rule 3 must keep `(?!\.\d)`);
+//   hex ids          `hex-rule-collapse` (the rule must exist),
+//                    `hex-rule-overreach` (it must keep its `(?<![\w-])`
+//                    identifier-attachment guard — F-014, which is what stops a
+//                    7+-DIGIT identifier suffix being eaten, decimal digits
+//                    being a subset of hex digits) and `hex-dot-adjacency` (it
+//                    must keep `(?!\.\d)` — F-016);
 //   ISO timestamps   `iso-timestamp-rule`;
 //   durations        `duration-rule`;
-//   NO number rule   `number-rule-removal` — the case fails if ANY general bare
-//                    number rule returns, narrow or unconditional; and
-//                    `digit-rule-overreach` — a strictly WEAKER guard that fails
-//                    only under the unconditional `/\d+/g`, because the narrow
-//                    round-1..3 form already protected identifier-attached
-//                    digits. The two nest deliberately: reverting to the narrow
-//                    number rule fails only the `number-rule-removal` subset,
-//                    reverting to `/\d+/g` fails both subsets.
+//   numbers          `number-rule-collapse` (a STANDALONE number must still
+//                    normalize, or B-cc54's noise-collapse contract breaks and a
+//                    real livelock stops accumulating) and
+//                    `number-rule-overreach` (the rule must stay standalone-only,
+//                    or C3 and the identifier/version cases collapse again). The
+//                    two are opposite-direction reverts of the SAME rule, which
+//                    is why they are tagged separately: deleting the rule fails
+//                    only the collapse subset, widening it to `/\d+/g` fails only
+//                    the overreach subset.
 {
   const CMD = 'story_advance';
-
-  // The REAL DEV-gate rejection render, not a synthetic padded string: the
-  // sentence from core/machine.ts's proofStoryDevGateFailure followed by
-  // renderProofStoryDiagnosticReport (core/proofstory.ts).
-  //
-  // B-bf52 F-018: the header length is MEASURED, not asserted. The preamble plus
-  // the report's six header lines normalize to 257 characters, and 433 by the
-  // point the first gap row begins in this two-trigger report. (An earlier "244"
-  // was wrong twice over: it was never measured, and it was derived from a
-  // fixture that rendered the ledger `thresholdState` as `(within)`. The real
-  // union at core/types.ts is `within_threshold | too_broad | slice_required`,
-  // so the fixture below now renders `(within_threshold)` — the abbreviated form
-  // is not a value this code can emit, and it happened to be exactly the 10
-  // characters by which the old figure was short.) The substantive claim is
-  // unchanged and holds with room to spare: the former 200-character truncation
-  // cut inside the fixed header, BEFORE any gap row, so every gap set for a
-  // story collapsed to one key.
-  const DEV_GATE_PREAMBLE =
-    'Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.\n';
-  const devGateRejection = (storyId: string, gaps: string[]): string =>
-    DEV_GATE_PREAMBLE +
-    [
-      `ProofStory diagnostics for ${storyId}`,
-      'Mode: enforce',
-      'Status: fail',
-      'Blocking: yes',
-      'Hardening level: standard',
-      'Ledger: candidate, 4/8 milestone threshold (within_threshold)',
-      'Trigger reasons (2):',
-      '  - material_code_change: story changes material code under packages/main/src',
-      '  - gate_surface_touched: story touches a gate-bearing file',
-      `Diagnostic gaps (${gaps.length}):`,
-      ...gaps.map((g) => `  - ${g}`),
-    ].join('\n');
-  // Gap texts quoted from the real gap definitions in core/proofstory.ts.
-  const GAP_SNAPSHOT =
-    'missing_original_intent_snapshot [blocker; original-intent-snapshot.json]: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim.';
-  const GAP_COLLISION =
-    'missing_intent_collision [blocker; intent-collision.json]: Intent collision is triggered but no pass decision with acceptedInterpretation is present.';
-  const GAP_RED =
-    'missing_red_evidence [blocker; red-evidence.json]: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.';
-
-  // Two reasons sharing their first 16,384 characters and differing only past
-  // that point. They can collapse ONLY if the sanity bound is actually applied,
-  // so this case proves the bound is present rather than silently absent, and
-  // states its accepted residual behavior.
-  const BOUND_PREFIX = 'gate BLOCKED for B-bbaf: '.padEnd(MAX_REASON_CHARS, 'x');
 
   // A reason far larger than any realistic gate message (an embedded transcript).
   const TRANSCRIPT = `gate BLOCKED for B-bbaf:\n${'  at frame /Users/jek/Documents/Work/proofbound/packages/main/dist/core/machine.js:179:11\n'.repeat(5_000)}`;
@@ -361,71 +334,32 @@ const HEALTHY: BreakerCounters = {
     `(pid ${pid} on Mac-Studio.local), heartbeat ${age} ago. ` +
     `Retry after the active validation finishes; this protects story-scoped validation evidence from concurrent writes.`;
 
-  // ── F-022: the REAL ppid-derived session id ────────────────────────────────
-  // deriveLocalSessionId (core/owner-session.ts) is called, not imitated, so the
-  // fixture cannot drift from the producer. The volatile input is the PPID: a
-  // host that re-execs between retries mints a different id on the same machine
-  // in the same worktree, which is why the ownership rejection that names it
-  // needs to collapse. Everything else in the two messages — the heartbeat age,
-  // the owner cwd, the command, the current session — is held CONSTANT, so this
-  // case localizes to the attached-hash rule alone.
-  const SESSION_A = deriveLocalSessionId('Mac-Studio.local', '/Users/jek/Documents/Work/proofbound', 48213);
-  const SESSION_B = deriveLocalSessionId('Mac-Studio.local', '/Users/jek/Documents/Work/proofbound', 48214);
-  // The attached-hash rule fires only on a run containing an a-f LETTER (that
-  // requirement is what keeps decimal ids distinct — F-014). A sha256 prefix is
-  // letter-free with probability (10/16)^16, so assert rather than assume:
-  // without this, the fixture could silently degenerate into a case that passes
-  // for the wrong reason.
-  assert.match(SESSION_A, /^sess-[0-9a-f]{16}$/, 'F-022 fixture A has the real deriveLocalSessionId shape');
-  assert.match(SESSION_B, /^sess-[0-9a-f]{16}$/, 'F-022 fixture B has the real deriveLocalSessionId shape');
-  assert.ok(/[a-f]/.test(SESSION_A.slice(5)) && /[a-f]/.test(SESSION_B.slice(5)),
-    'F-022 fixture digests contain an a-f letter, so the attached-hash rule is genuinely exercised');
-  assert.notEqual(SESSION_A, SESSION_B, 'F-022 fixture ids genuinely differ');
-  const nonOwnerBySession = (sessionId: string): string => // core/story-owner-lease.ts:616-640
-    `B-bf52 is owned by Proofbound session ${sessionId}, heartbeat 45s ago ` +
-    `(owner cwd: /Users/jek/Documents/Work/proofbound/.worktrees/B-bf52). "story_advance" is an owner-gated storyScopedMutating command, ` +
-    `so this session (sess-0000000000000000) cannot run it. The owner lease is still ACTIVE. ` +
-    `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;
-
-  // ── F-020: the REAL test-evidence interpolation ────────────────────────────
-  // core/machine.ts's DONE branch renders `Cannot enter DONE: test ${result}:
-  // ${output}` — the validation harness's own stdout, VERBATIM, into the reason
-  // this digest keys on. Every bare number a test harness prints therefore
-  // reached the deleted number rule, which is why deleting it is load-bearing
-  // rather than a simplification: under that rule the pairs below each collapsed
-  // to ONE key, so two different validation failures counted as one gate failing
-  // twice and froze the story.
-  const doneTestFailure = (output: string): string => `Cannot enter DONE: test FAIL: ${output}`;
+  // ── B-cc54's own noise-collapse fixture, quoted VERBATIM ───────────────────
+  // These two strings are CHK-001:adversarial:0 of tasks/gate-repeat-block-smoke.ts
+  // (B-cc54's suite, a registered doneRequiredCommand). They are duplicated here
+  // deliberately rather than imported: this story's round 4 proposed deleting the
+  // general bare-number rule on the premise that `(attempt N)` had no real
+  // producer, and this pair is the standing counter-example — it REQUIRES
+  // `attempt 7` and `attempt 91` to digest identically. Carrying it inside this
+  // story's own matrix means the deletion cannot be re-attempted without failing
+  // in the file that proposes it, instead of only in a neighbouring suite.
+  const CC54_NOISE_A = 'GATE blocked at /Users/jek/x/y.ts 2026-07-23T12:00:00Z id a1b2c3d4e5f6 attempt 7';
+  const CC54_NOISE_B = 'gate BLOCKED at /var/tmp/other.ts 2026-01-02T03:04:05Z id f6e5d4c3b2a1 attempt 91';
 
   type GuardRule =
-    | 'truncation-removal'
-    | 'sanity-bound'
     | 'path-rule-overreach'
     | 'path-rule-collapse'
     | 'windows-path-rule'
     | 'duration-rule'
     | 'iso-timestamp-rule'
-    | 'number-rule-removal'
-    | 'digit-rule-overreach'
-    | 'attached-hash-collapse'
-    | 'attached-hash-overreach'
+    | 'number-rule-collapse'
+    | 'number-rule-overreach'
     | 'hex-dot-adjacency'
-    | 'hex-rule-collapse';
+    | 'hex-rule-collapse'
+    | 'hex-rule-overreach';
   interface DigestCase { name: string; a: string; b: string; guardedBy: GuardRule }
 
   const MUST_DIFFER: DigestCase[] = [
-    {
-      name: 'dev-gate-one-gap-differs',
-      guardedBy: 'truncation-removal',
-      a: devGateRejection('B-d877', [GAP_SNAPSHOT, GAP_COLLISION]),
-      b: devGateRejection('B-d877', [GAP_SNAPSHOT, GAP_RED]),
-    },
-    {
-      name: 'dev-gate-gap-count-differs',
-      guardedBy: 'truncation-removal',
-      a: devGateRejection('B-d877', [GAP_SNAPSHOT, GAP_COLLISION]),
-      b: devGateRejection('B-d877', [GAP_RED]),
-    },
     {
       // Depends on the path rule being NARROW (token-start anchored), not on it
       // existing: deleting the rule leaves this pair passing.
@@ -441,127 +375,56 @@ const HEALTHY: BreakerCounters = {
       b: 'scope violation: story touched src/core/beta.ts outside its contract',
     },
     {
-      // The four cases below survive a revert to the NARROW round-1..3 number
-      // rule (it already protected identifier-attached and dotted digits) and
-      // fail only under the unconditional `/\d+/g`, so they carry the weaker
-      // `digit-rule-overreach` tag rather than `number-rule-removal`.
+      // C3, the headline overreach class: the former unconditional `/\d+/g` ran
+      // INSIDE identifier tokens, so two different unmet checklist items counted
+      // as one gate failing twice. This and the three cases below fail only if
+      // the number rule is WIDENED back to `/\d+/g`; deleting the rule outright
+      // leaves them passing, which is why they carry the `-overreach` tag and the
+      // collapse lane carries the opposite-direction `number-rule-collapse` one.
       name: 'checklist-ordinal',
-      guardedBy: 'digit-rule-overreach',
+      guardedBy: 'number-rule-overreach',
       a: 'verification gap: missing evidence coverage for CHK-001',
       b: 'verification gap: missing evidence coverage for CHK-002',
     },
     {
       name: 'review-round-ordinal',
-      guardedBy: 'digit-rule-overreach',
+      guardedBy: 'number-rule-overreach',
       a: 'review run binding is stale: it was recorded against round-1',
       b: 'review run binding is stale: it was recorded against round-2',
     },
     {
       name: 'story-id',
-      guardedBy: 'digit-rule-overreach',
+      guardedBy: 'number-rule-overreach',
       a: 'gate BLOCKED: story B-bf52 has no current red evidence record',
       b: 'gate BLOCKED: story B-bf53 has no current red evidence record',
     },
     {
-      // F-002: two different version REQUIREMENTS. Under the round-1..3 rule
-      // these survived only because a dot BETWEEN digits was made protective by
-      // a pair of targeted lookarounds; with no number rule at all they are
-      // distinct outright, and the case now guards against reintroducing the
-      // unconditional form that made both `v#.#.#`.
+      // F-002: two different version REQUIREMENTS. These survive only because a
+      // dot BETWEEN digits is made protective by the `(?<!\d\.)` / `(?!\.\d)`
+      // lookarounds; under the unconditional rule both became `v#.#.#`.
       name: 'dotted-version-requirement',
-      guardedBy: 'digit-rule-overreach',
+      guardedBy: 'number-rule-overreach',
       a: 'gate BLOCKED: this workspace requires lattice-cli v0.3.229 or newer',
       b: 'gate BLOCKED: this workspace requires lattice-cli v0.3.230 or newer',
     },
-    // ── F-020: real `test-evidence` output, interpolated verbatim into the DONE
-    // rejection at core/machine.ts. These three are the cases that DECIDED the
-    // round-4 policy: each pair is two substantively different validation
-    // failures, and the deleted number rule collapsed all three into one key,
-    // freezing the story on its second distinct failure. They fail under ANY
-    // general bare-number rule, narrow or unconditional, which is what
-    // distinguishes `number-rule-removal` from `digit-rule-overreach` above.
-    {
-      name: 'test-output-port',
-      guardedBy: 'number-rule-removal',
-      a: doneTestFailure('connection to localhost:3000 refused'),
-      b: doneTestFailure('connection to localhost:4000 refused'),
-    },
-    {
-      name: 'test-output-percentage',
-      guardedBy: 'number-rule-removal',
-      a: doneTestFailure('coverage check failed: statements 82% below the required minimum'),
-      b: doneTestFailure('coverage check failed: statements 91% below the required minimum'),
-    },
-    {
-      name: 'test-output-decimal-threshold',
-      guardedBy: 'number-rule-removal',
-      a: doneTestFailure('assertion failed: expected ratio >= 0.95, got 0.72'),
-      b: doneTestFailure('assertion failed: expected ratio >= 0.95, got 0.61'),
-    },
-    // ── Two cases RE-DECIDED in round 4. Both were must-still-collapse cases
-    // under the deleted number rule; they are converted rather than removed so
-    // the change of decision is visible in the matrix instead of erased.
-    {
-      // F-003 (accepted in round 1: "a countdown's leading minus is a SIGN, not
-      // an identifier hyphen, so `-5` and `-19` must collapse"). SUPERSEDED: no
-      // producer in this tree emits a bare countdown into a gate rejection, and
-      // the rule that collapsed it is the same rule that collapsed the F-020
-      // pairs above. Under the policy a bare number is left alone, so these are
-      // now two distinct failures.
-      name: 'negative-counter-now-distinct',
-      guardedBy: 'number-rule-removal',
-      a: 'gate BLOCKED: retry budget -5 remaining before the gate refuses',
-      b: 'gate BLOCKED: retry budget -19 remaining before the gate refuses',
-    },
-    {
-      // F-015's number half (accepted in round 2: a sentence-final full stop is
-      // punctuation, not a protective character, so `exceeded 5.` and
-      // `exceeded 19.` must collapse). SUPERSEDED for the same reason. F-015's
-      // DURATION half is NOT superseded and still collapses — see
-      // `sentence-final-duration` in the collapse lane, which is the half with a
-      // real producer (formatLeaseAge).
-      name: 'sentence-final-counter-now-distinct',
-      guardedBy: 'number-rule-removal',
-      a: 'gate BLOCKED: retry count exceeded 5.',
-      b: 'gate BLOCKED: retry count exceeded 19.',
-    },
-    {
-      // F-010/F-019, the retry-ordinal half of the former
-      // `timestamp-and-attempt-counter` case. The timestamp is held CONSTANT so
-      // this isolates the ordinal. `(attempt N)` was the shape the general
-      // number rule existed to absorb, and it has NO producer in this repo
-      // outside the smoke's own former fixture — which is the evidence that
-      // decided the policy. Its collapsing half lives on as `iso-timestamp-only`
-      // in the other lane.
-      name: 'attempt-counter-now-distinct',
-      guardedBy: 'number-rule-removal',
-      a: 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)',
-      b: 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 41)',
-    },
     {
       // F-014: decimal digits are a SUBSET of hex digits, so a 7+-digit
-      // identifier suffix is eaten by the (earlier) hex rule before the number
-      // rule can protect it. These are two different workers — an epoch-suffixed
-      // id is the common real shape, and `session-1234567` vs `session-7654321`
-      // behaves identically — so collapsing them reads two distinct failures as
-      // one gate failing twice, i.e. the false freeze this story exists to kill.
-      // The 7 is the hex rules' own threshold: the same pair with a 6-digit
-      // suffix was already correct, which is why no earlier case caught this.
+      // identifier suffix is eaten by the hex rule before the number rule's own
+      // identifier protection can matter. These are two different workers — an
+      // epoch-suffixed id is the common real shape, and `session-1234567` vs
+      // `session-7654321` behaves identically — so collapsing them reads two
+      // distinct failures as one gate failing twice, i.e. the false freeze this
+      // story exists to kill. The 7 is the hex rule's own threshold: the same
+      // pair with a 6-digit suffix was already correct, which is why no earlier
+      // case caught this.
       //
-      // F-021 asked whether this case also depended on the number rule, since it
-      // was tagged `hex-rule-overreach` while the narrow number rule was still
-      // present. VERIFIED in round 4: with the number rule DELETED it still
-      // passes, so the dependence was never load-bearing and the question is
-      // resolved by the policy itself. Retagged to `attached-hash-overreach`,
-      // which is now the tightest name for it: dropping the attached-hash rule's
-      // a-f LETTER requirement collapses `worker-1721775600` and fails THIS CASE
-      // AND NOTHING ELSE, because no other fixture carries a hyphen-attached
-      // 7+-digit decimal run. It fails equally if the free-standing rule's
-      // `(?<![\w-])` anchor is dropped — a same-direction overlap between the
-      // two hash rules, not the opposite-direction conflation the split tags
-      // exist to prevent.
+      // This is the ONLY case that fails when the hex rule's `(?<![\w-])`
+      // identifier-attachment guard is dropped, because no other fixture carries
+      // a hyphen-attached 7+-digit decimal run. It is the sole guard on that half
+      // of rule 2, so it is retained under the reconciled chain even though the
+      // round-4 attached-hash rule it was last tagged against is gone.
       name: 'identifier-attached-long-decimal',
-      guardedBy: 'attached-hash-overreach',
+      guardedBy: 'hex-rule-overreach',
       a: 'gate BLOCKED: story lease is held by worker-1721775600, heartbeat is live',
       b: 'gate BLOCKED: story lease is held by worker-1721775601, heartbeat is live',
     },
@@ -590,11 +453,6 @@ const HEALTHY: BreakerCounters = {
       // which made the case depend on the number rule as well and so over-claimed
       // the `duration-rule` tag.)
       //
-      // Round-4 note, recorded rather than hidden: a pid is a bare number, and
-      // with the number rule deleted a pid that CHANGES between retries now
-      // mints a new key. That is an accepted residual of the policy (plan.md §4),
-      // not an oversight — see `test-output-port` for why bare numbers can no
-      // longer be assumed volatile.
       name: 'main-write-lock-contention',
       guardedBy: 'duration-rule',
       a: mainWriteLockHeld('8m', 48213),
@@ -633,24 +491,57 @@ const HEALTHY: BreakerCounters = {
       a: 'story_advance refused: heartbeat 123456.5ms ago',
       b: 'story_advance refused: heartbeat 1234567.5ms ago',
     },
+    // ── The number rule, in the COLLAPSE direction. These four are the cases
+    // this story's round 4 got wrong: it deleted the general bare-number rule
+    // outright, on the premise that a bare `(attempt N)` ordinal had no real
+    // producer. B-cc54's suite is the standing counter-example — its
+    // CHK-001:adversarial:0 REQUIRES `attempt 7` and `attempt 91` to digest
+    // identically — so the rule is NARROWED to standalone numbers instead, and
+    // these cases exist so the deletion cannot be re-attempted without failing
+    // here. They fail if the number rule is DELETED; they keep passing if it is
+    // widened back to `/\d+/g`, which is the opposite revert from the
+    // `number-rule-overreach` subset in the must-differ lane.
     {
-      // F-022: the real ownership rejection naming a real ppid-derived session
-      // id. The PPID is the only varying input; without the attached-hash rule
-      // each re-exec minted a fresh digest key, the repeat count never reached
-      // 2, and the breaker never fired for a host stuck retrying against a lease
-      // it does not hold.
-      name: 'ppid-derived-session-id',
-      guardedBy: 'attached-hash-collapse',
-      a: nonOwnerBySession(SESSION_A),
-      b: nonOwnerBySession(SESSION_B),
+      name: 'bare-attempt-ordinal',
+      guardedBy: 'number-rule-collapse',
+      a: 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)',
+      b: 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 41)',
     },
     {
-      // The collapsing half of the former `timestamp-and-attempt-counter` case.
+      // B-cc54's own fixture, quoted verbatim. It additionally depends on the
+      // path, ISO and hex rules, each of which has its own single-rule case
+      // below; a failure HERE that is not accompanied by a failure in those
+      // therefore still localizes to the number rule.
+      name: 'bcc54-cross-vendor-noise',
+      guardedBy: 'number-rule-collapse',
+      a: CC54_NOISE_A,
+      b: CC54_NOISE_B,
+    },
+    {
+      // F-003: a countdown's leading minus is a SIGN, not an identifier hyphen,
+      // so the rule's `-?` must take it with the number or `-5` and `-19` split.
+      name: 'negative-counter',
+      guardedBy: 'number-rule-collapse',
+      a: 'gate BLOCKED: retry budget -5 remaining before the gate refuses',
+      b: 'gate BLOCKED: retry budget -19 remaining before the gate refuses',
+    },
+    {
+      // F-015's number half: a sentence-final full stop is punctuation, not a
+      // protective character. The `(?!\.\d)` lookahead is deliberately narrower
+      // than a bare `(?!\.)` for exactly this reason — it protects a dotted
+      // VERSION component without also protecting the end of an English
+      // sentence, which would leave `exceeded 5.` and `exceeded 19.` distinct
+      // and stop a real retry loop ever accumulating.
+      name: 'sentence-final-counter',
+      guardedBy: 'number-rule-collapse',
+      a: 'gate BLOCKED: retry count exceeded 5.',
+      b: 'gate BLOCKED: retry count exceeded 19.',
+    },
+    {
       // The retry ordinal is held CONSTANT and only the ISO timestamp varies, so
-      // this is now the matrix's only guard on the ISO rule — previously that
-      // rule had NO case naming it, because the old fixture varied the ordinal
-      // as well and passed through the number rule instead. Section 7 above
-      // asserts the same pair silently; this case PRINTS both literal values.
+      // this is the matrix's only single-rule guard on the ISO rule. Section 7
+      // above asserts the same pair silently; this case PRINTS both literal
+      // values.
       //
       // Localization caveat, measured not assumed: deleting the ISO rule makes
       // section 7's bare `assert.equal` throw FIRST, so the run aborts before
@@ -695,33 +586,15 @@ const HEALTHY: BreakerCounters = {
       b: 'ENOENT reading "C:\\Users\\other\\proofbound\\packages\\main\\src\\core\\machine.ts"',
     },
     {
-      // Guarded by the FREE-STANDING 7+-hex-char rule existing. These ids are
-      // attached to nothing, so the attached-hash rule cannot reach them and
-      // deleting it leaves this case passing — which is what separates this tag
-      // from `attached-hash-collapse` (`ppid-derived-session-id`).
+      // Guarded by the 7+-hex-char rule existing at all. These ids stand alone,
+      // so they are reached even with the rule's identifier-attachment guard in
+      // place — which is what separates this tag from `hex-rule-overreach`
+      // (`identifier-attached-long-decimal`), the case that requires that same
+      // guard to be PRESENT.
       name: 'hex-id',
       guardedBy: 'hex-rule-collapse',
       a: 'material digest mismatch a1b2c3d4e5f6789',
       b: 'material digest mismatch f6e5d4c3b2a1987',
-    },
-    {
-      name: 'beyond-sanity-bound',
-      guardedBy: 'sanity-bound',
-      a: `${BOUND_PREFIX}TAIL-ALPHA-BRANCH`,
-      b: `${BOUND_PREFIX}TAIL-BETA-BRANCH`,
-    },
-    {
-      // F-001: the load-bearing proof that the sanity bound is APPLIED, not
-      // merely declared. An oversize reason must digest EXACTLY as its own
-      // bounded prefix does; remove the `.slice(0, MAX_REASON_CHARS)` and the
-      // full transcript normalizes to ~5,000 frames while the prefix normalizes
-      // to ~190, so the two keys diverge and this case fails. (The former
-      // assertion here only checked the digest was well-formed, which held
-      // whether or not the bound existed.)
-      name: 'sanity-bound-is-applied',
-      guardedBy: 'sanity-bound',
-      a: TRANSCRIPT,
-      b: TRANSCRIPT.slice(0, MAX_REASON_CHARS),
     },
   ];
 
@@ -861,20 +734,19 @@ const HEALTHY: BreakerCounters = {
     );
   }
 
-  // B-bf52 F-001: the load-bearing proof that the sanity bound is APPLIED now
-  // lives in the matrix above as `sanity-bound-is-applied` (digest(oversize) ===
-  // digest(oversize bounded to MAX_REASON_CHARS)), which FAILS if the
-  // `.slice(0, MAX_REASON_CHARS)` is removed. What remains here is the weaker
-  // but still worthwhile no-throw / well-formed-shape check, kept explicitly as
-  // a shape check rather than presented as evidence that the bound exists.
+  // A pathological oversize reason must not throw and must still key. This is a
+  // SHAPE check only, and is deliberately not presented as evidence about any
+  // length bound: main's design keeps the 200-character normalized prefix (a
+  // round-4 draft of this story replaced it with a 16,384-character sanity bound,
+  // which is reverted — B-cc54's suite depends on the prefix, and the signals
+  // folded into the hash basis are what supply distinctness past it).
   assert.match(
     gateFailureDigest(CMD, TRANSCRIPT), /^story_advance\/[0-9a-f]{12}$/,
     'a pathological oversize reason still produces a well-formed digest and does not throw',
   );
   console.log(
-    `  sanity-bound        oversize reason of ${TRANSCRIPT.length} chars digests to ` +
-    `${gateFailureDigest(CMD, TRANSCRIPT)}, identical to its first ${MAX_REASON_CHARS} chars ` +
-    `(proved as matrix case sanity-bound-is-applied)`,
+    `  oversize-reason     ${TRANSCRIPT.length}-char reason digests to ` +
+    `${gateFailureDigest(CMD, TRANSCRIPT)} without throwing`,
   );
 }
 
@@ -1091,4 +963,4 @@ const HEALTHY: BreakerCounters = {
   }
 }
 
-console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, B-bf52 digest matrix under the round-4 normalize-only-provably-volatile-shapes policy (15 must-differ counter=1 + 15 must-still-collapse counter=2 breaker-trips, incl. real test-evidence ports/percentages/decimal thresholds, identifier-attached long decimals, the re-decided bare counters, the real ppid-derived session id, a decimal duration straddling the hash threshold, the four real lease/lock heartbeat-age messages, sentence-final durations, windows + delimiter-attached paths and the applied sanity bound), thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');
+console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, B-bf52 digest matrix reconciled with B-cc54 (7 must-differ counter=1 + 16 must-still-collapse counter=2 breaker-trips: the C2/C3/C4 normalizer-overreach classes this story owns — slash-bearing phase pairs, in-repo relative file paths, checklist/round/story ordinals and dotted versions — against machine-absolute POSIX + windows + delimiter-attached paths, free-standing hex ids, ISO timestamps, the four real lease/lock heartbeat-age durations, a decimal duration straddling the hash threshold, an identifier-attached long decimal, and the standalone-number collapse cases incl. B-cc54\'s own cross-vendor noise fixture and its bare attempt ordinal), thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');

@@ -544,10 +544,47 @@ export function gateFailureDigest(command: string, reason: string): string {
   const normalized = String(reason ?? '')
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
-    .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
+    // Hex ids / hashes, with an identifier-attachment guard and a dot-adjacency
+    // guard. B-bf52 F-014: `\b` treats `-` as a boundary, so the 7+-hex rule bit
+    // the suffix out of an identifier like `worker-1721775600` (decimal digits are
+    // a SUBSET of hex digits), collapsing two different workers onto one key.
+    // F-016: `(?!\.\d)` stops the rule eating the integer part of a decimal
+    // duration whose integer part happens to be 7+ digits (`1234567.5ms`), which
+    // otherwise split one duration rendering across two keys at an arbitrary
+    // length threshold.
+    .replace(/(?<![\w-])(?<!\d\.)[0-9a-f]{7,}(?![\w-])(?!\.\d)/g, '#')
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
-    .replace(/\/[^\s"']+/g, '#')                 // absolute paths
-    .replace(/\d+/g, '#')                        // bare numbers
+    // B-bf52 F-006: the Windows drive-letter form carries no forward slash, so it
+    // needs its own rule or a per-user root never collapses on a Windows host.
+    .replace(/(?:^|(?<=[\s"'(\[:=,]))[a-z]:\\[^\s"')\]]*/g, '#')
+    // Machine-absolute POSIX paths, anchored at TOKEN START. B-bf52 C2/C4: the
+    // former `\/[^\s"']+` rewrote from ANY slash anywhere in a token, so it ate
+    // the tail of every slash-bearing identifier — `DEV/REVIEW` and `DEV/TEST`
+    // both became `dev#`, and `src/core/alpha.ts` and `src/core/beta.ts` both
+    // became `src#`. Anchoring to a token start (or a delimiter that really does
+    // introduce a path: quote, paren, bracket, colon, equals, comma — F-006/F-009)
+    // keeps machine-specific roots collapsing while leaving relative in-repo paths
+    // and slash-joined identifiers intact.
+    .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')
+    // B-bf52 F-007: durations and sizes, BEFORE the number rule. formatLeaseAge /
+    // formatLockAge render a heartbeat age as a digit run WELDED to a unit letter
+    // (`45s`, `8m`, `2h`), which the standalone-number rule below cannot see — its
+    // `(?![\w-])` lookahead is exactly what the unit letter trips. Without this
+    // rule, narrowing the number rule would stop the real lease/lock contention
+    // messages from ever accumulating, so a genuine livelock would never fire the
+    // breaker.
+    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?:ms|s|m|h|d|kb|mb|gb|b)(?![\w-])(?!\.\d)/g, '#')
+    // Standalone numbers. B-bf52 C3: the former unconditional `\d+` ran INSIDE
+    // identifier tokens, so `CHK-001` and `CHK-002` both became `chk-#` and two
+    // different unmet checklist items counted as one gate failing twice. The
+    // lookarounds restrict the rule to a number that stands alone as its own
+    // token: `(?<![\w-])`/`(?![\w-])` protect identifier-attached digits
+    // (`chk-001`, `round-2`, `b-bf52`), and `(?<!\d\.)`/`(?!\.\d)` protect dotted
+    // version components (F-002, `v0.3.229`). The leading `-?` keeps a countdown's
+    // SIGN with the number so `-5` and `-19` still collapse (F-003), and the
+    // absent trailing-dot protection keeps a sentence-final `exceeded 5.` and
+    // `exceeded 19.` collapsing (F-015).
+    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?![\w-])(?!\.\d)/g, '#')
     .replace(/\s+/g, ' ')
     .trim();
   // B-cc54: scan the WHOLE normalized reason for structured blocker identity,
