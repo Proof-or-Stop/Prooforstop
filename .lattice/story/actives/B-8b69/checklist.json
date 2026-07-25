@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add a gated PLAN->INIT reopen transition to the story state machine",
       "context": "New backward edge PLAN->INIT guarded by canReopenToInit (owner-gated, requires a reason, allowed only pre-REVIEW from PLAN). Wire it into BOTH the xstate machine states and canSendStoryEventWithoutSnapshotCan so story_advance --phase=INIT from PLAN lands at INIT, the only phase where title/context is editable.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T12:00:41.136Z",
       "userSees": "Running lattice story_advance {storyId:B-x,phase:INIT,reason:...} from a PLAN worktree prints: Story B-x advanced to INIT. Omitting reason prints a clear refusal; reopening from any non-PLAN phase is refused.",
       "files": {
         "modify": [
