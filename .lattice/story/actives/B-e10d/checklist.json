@@ -44,9 +44,9 @@
       "id": "CHK-002",
       "title": "Compute targetBindingDigest over the createdAt-stripped three-field subobject only",
       "context": "The recorded targetBindingDigest is CANON (W2a canon.ts) over exactly the three binding-identity fields with createdAt STRIPPED; a stored entry carries createdAt, so CANON over the STORED entry must NOT equal the digest while CANON over the stripped three-field subobject MUST. This createdAt-strip direction is the behavioral RED trap a naive implementation gets wrong.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:34.767Z",
       "verificationIntent": {
         "happy": [
           {
