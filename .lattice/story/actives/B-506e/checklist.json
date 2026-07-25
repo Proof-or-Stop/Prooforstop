@@ -180,15 +180,15 @@
         },
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/core/types.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/store.ts",
+          "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "result": "pass",
-          "note": "chain-smoke section 2 writes a v1-only store (writeRecords [v1], line 219), captures the diagnostic (before, line 220), then adds a v2 record and re-reads: after===before (line 238) proves v1 records are untouched and still drive the verdict; the file schemaVersion stays proofstory.red_evidence.v1 (RED_EVIDENCE_FILE_SCHEMA_VERSION) with no migration.",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "No-migration guarantee re-proven after wiring the load-time classifier into store.readRedEvidence: a v1 record has NO per-record schemaVersion, so it classifies as v1 and loads unchanged; the file-level schemaVersion stays proofstory.red_evidence.v1. red-w2c-schema-failclosed.mjs step 5 round-trips a v1-only store after the change and asserts the diagnostic equals the v1-only baseline, and the differential run against the pre-fix baseline dist is byte-identical (sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc across 5 v1 scenarios). Only an UNSUPPORTED version is rejected. Commit b4fa4bbfad.",
+          "headHash": "4ebf123ba2b330eac566d4fa53d6548f505fa87c",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:04:15.380Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
