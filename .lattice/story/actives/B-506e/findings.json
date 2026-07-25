@@ -5,7 +5,7 @@
       "desc": "CHK-011:adversarial:1 evidence mismatch: intent is \"Remove the chain-smoke from validate.commands -> lattice validate no longer runs it; the regression must be caught by a committed test or the validate output audit\" (i.e. detect de-registration of red-evidence-chain-smoke.js from lattice.config.json validate.commands). The bound evidence is packages/main/tests/red/red-w2c-wiring-detectability.mjs, which tests a DIFFERENT scenario entirely: stripping the compiled command-policy.js registration entry for red_evidence_quarantine/red_evidence_recover and asserting command-ownership-contract/lifecycle-registry-contract fail. It never touches lattice.config.json validate.commands nor red-evidence-chain-smoke.js at all. No committed test in the repo scans validate.commands for completeness against packages/main/src/tasks/*.ts, so removing the chain-smoke registration line from lattice.config.json today would go undetected by any committed mechanism. Note this same wiring-detectability test IS a strong match for CHK-011:adversarial:0's intent (\"delete the command-catalog entry for red_evidence_quarantine\"), suggesting the evidence binder cross-assigned it to the wrong intentRef and left adversarial:1 genuinely uncovered.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T12:18:23.675Z",
@@ -17,7 +17,11 @@
         ".lattice/story/actives/B-506e/checklist.json"
       ],
       "signatureTag": "missing|mjs|adversarial-evidence-mismatch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4fa4bbfad: new committed test red-w2c-validate-registration.mjs asserts red-evidence-chain-smoke.js is registered in lattice.config.json validate.commands (plus non-vacuity and dangling-source checks); CHK-011:adversarial:1 re-bound to it and CHK-011:adversarial:0 re-bound to red-w2c-wiring-detectability.mjs. RED verified by deleting the config entry.",
+      "resolvedAt": "2026-07-25T22:34:18.125Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-002",
