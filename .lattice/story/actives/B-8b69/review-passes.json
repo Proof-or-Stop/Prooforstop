@@ -1,0 +1,30 @@
+{
+  "passes": [
+    {
+      "id": "B-8b69:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Re-reviewed F-005 fix (concept lane): grep-confirmed no residual concept issues; verified REOPEN reset logic in transition-orchestrator.ts (commit 7dee7d7f89) resets done/in_progress checklist items to pending+clears startTime/endTime, scoped only to the PLAN->INIT gated REOPEN event (traced in machine.ts/lifecycle-registry.ts, no other transition triggers it); rebuilt CLI from source cleanly and independently ran plan-init-reopen-roundtrip-smoke.js which passed, asserting seeded done CHK-001 becomes pending after reopen; doc-promise decision.json scope-freeze invariant is now genuinely delivered. No blocker.",
+      "createdAt": "2026-07-25T15:09:18.354Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-006",
+      "envelopeId": "a1315c546a8b523e9c069f710ec0ffc1368229df7d436d7d832672e36c6fb487",
+      "writerSessionId": "claude-code-8f6ba6c5-plan-init-reopen",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8b69/decision.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "33fa745dde3115bc7b45cb4dfb3895e8f7ea0290d300009914dbb67ad2b12b7f"
+    }
+  ]
+}
