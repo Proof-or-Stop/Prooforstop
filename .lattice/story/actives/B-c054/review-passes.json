@@ -291,6 +291,36 @@
         "scanEscalationReason": null
       },
       "_hash": "be7703d18e484350f422fe58d6d87817b3c448693e406015906dceff42bd41be"
+    },
+    {
+      "id": "B-c054:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fourth-round code-quality re-audit scoped to the single code change since round 3: commit 3b05d13219 (B-c054 R4-1), which rewrote patternCaptureNames() in packages/main/src/core/red-evidence/policy.ts:236-268 from a textual RegExp.source scan (/\\(\\?<([A-Za-z_][A-Za-z0-9_]*)>/g) to a deterministic character-by-character tokenizer that tracks escape (backslash+next skip) and character-class ([...]) spans and only recognizes (?<name> as a real named capture outside both. Read background.md, plan.md, checklist.json (via review_run_start task context), and the full policy.ts + registries.ts + canon.ts + the two red/*.mjs test files + the tokenizer commit diff directly (git show 3b05d13219). npx tsc --noEmit (packages/main) is clean. grep confirms zero any usage in policy.ts. Purity confirmed by import grep: canon.ts imports ONLY node:crypto; policy.ts imports only canonDigest from canon.js and named exports from registries.js; registries.ts has zero imports; no fs/process/child_process anywhere in packages/main/src/core/red-evidence/. Built dist (npm run build) clean; ran node dist/tasks/red-evidence-policy-canon-smoke.js (OK), node tests/red/red-w2a-canon-differential.mjs (PASS), node tests/red/red-w2a-policy-failclosed.mjs (PASS, including the 4 new R4-1 RED assertions: class-embedded fake capture rejects no-capture, ${fake} against a class-embedded fake rejects unresolved-placeholder, backslash-escaped opener rejects no-capture, and the genuine-capture regression control still passes both literal and placeholder forms); full node bin/lattice.js validate ran all 48 configured commands green ending 验证全绿 (includes validate.commands[47] red-evidence-policy-canon-smoke: OK). The tokenizer itself: minimal, single-purpose, no dead code, no over-engineering (does not attempt to handle unrelated regex features like quantifiers/alternation-counting since capture-name enumeration does not need them); doc comment accurately describes the prior bug and the fix. I independently re-implemented the tokenizer in a scratch script and cross-checked it against real new RegExp(pattern,u) semantics on 10 adversarial patterns beyond the committed RED tests: empty class [] immediately closing (JS-correct, not POSIX-literal-close-bracket), nested-looking open-bracket inside a class (literal, ignored), an escaped closing bracket inside a class correctly does not prematurely close, a real capture immediately following a class, a lookbehind (?<=...) correctly excluded (its = is not a name-start char) while a real named capture beside it is still found, a negative lookbehind (?<!...) correctly excluded, escaped literal brackets around a real capture, an escaped backslash followed by a real capture, a unicode-property escape not confusing the scanner, and duplicate named-group names across alternation (rejected upstream by new RegExp itself in Node 22, so the tokenizer never sees it, fail-closed via the null-return path, unchanged from before). Also verified that switching the scan target from compiled.source (old) to the raw input pattern string (new) cannot change capture detection: RegExp.prototype.source only re-escapes forward-slash and raw line-terminator characters relative to the input pattern, and never touches the parenthesis/question-mark/angle-bracket/name characters, so the two are structurally equivalent for this specific scan. No regressions found; no findings raised.",
+      "createdAt": "2026-07-25T06:06:14.797Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-017",
+      "envelopeId": "6d8492864373c71415f02b445452969b9e8689d03b5f488c2cad21e950c32a70",
+      "writerSessionId": "review-quality-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/checklist.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3fc6411377b8d94c617b3d805520ad26077a46ef2bdb102479e7f6f089a05a6"
     }
   ]
 }
