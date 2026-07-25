@@ -59,6 +59,21 @@
       "_hash": "5de77b9bc4e016f7d75443e620496d4da7bd543814d47ae4457e226bcc661da7",
       "signatureTag": "edge|unknown|edge-adversarial-both",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8b69:F-005",
+      "desc": "doc-promise-undelivered: decision.json states the chosen design 'Preserves the INIT_CHECK scope-freeze invariant untouched' and preMortem #3 ('PLAN->INIT reopen is abused to escape a legitimately failing PLAN->DEV gate') concludes 'nothing downstream is bypassed' because 'the return trip re-enters the full INIT->INIT_CHECK gate (scope-freeze + INIT review)'. This promise is not delivered for a story that has already been through DEV: canReopenToInitGuard (packages/main/src/core/machine.ts:603-609) only checks story.phase==='PLAN' -- it never checks whether any checklist item.status is already 'done'. DEV->PLAN (REPLAN, lifecycle-registry.ts DEV->PLAN edge, effects:[]) is an existing, unguarded edge that does not reset checklist status. Chaining the pre-existing REPLAN with the new REOPEN therefore lets a maintainer land back at INIT -- the only phase where checklist_update permits title/context edits -- on a story whose checklist items are already 'done' (i.e. already implemented and, per checklist.ts's own comment, protected 'so the executor must not tamper with requirement definition during execution'). Verified live against the built CLI (packages/main/dist/cli.js): created a story, advanced to PLAN, force-set CHK-001.status='done' (simulating completed DEV work), ran story_advance phase=INIT with a valid reason (succeeded, no complaint about the done item), then checklist_update the title to an unrelated string (succeeded). Final state: CHK-001 status stayed 'done' while its title became completely disconnected from what was actually implemented/verified, with zero warning, no status reset, and no forced re-verification. None of the story's 3 documented preMortem scenarios, nor the new plan-init-reopen-roundtrip-smoke.ts, exercise a story with any 'done' checklist item, so this gap is untested and undocumented as an accepted risk. Suggested fix: canReopenToInitGuard (or the transition-orchestrator reopen branch) should refuse -- or require an explicit extra confirmation for -- a reopen when any checklist item.status is 'done', or checklist_update should reset a done item's status/verificationEvidence when its title/context changes at INIT.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-25T12:41:44.556Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-003",
+      "_hash": "fdef91453f01939b400a62b4fd929c39367c8117e9051be68210faaa67a84f99",
+      "signatureTag": "doc-promise-undelivered|unknown|promise-undelivered-decision",
+      "signatureTagSource": "auto"
     }
   ]
 }
