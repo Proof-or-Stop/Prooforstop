@@ -25,6 +25,32 @@
         "scanEscalationReason": null
       },
       "_hash": "33fa745dde3115bc7b45cb4dfb3895e8f7ea0290d300009914dbb67ad2b12b7f"
+    },
+    {
+      "id": "B-8b69:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-reviewed test coverage after F-003/F-004/F-005 fixes: plan-init-reopen-roundtrip-smoke.ts now asserts (a) reopen from a non-PLAN phase (INIT_CHECK) is refused and does not move the phase (CHK-001:adversarial:0 non-PLAN half), and (b) a seeded done CHK-001 is reset to pending after reopen (F-005, backed by a real transition-orchestrator.ts REOPEN-effect change). CHK-002 should-priority edges are covered by sibling smokes (init-check-atomicity-smoke.ts dev_start-from-main-root reuse + stuck-INIT_CHECK-no-worktree re-bootstrap). Verified via git show of fix commit 7dee7d7f89 and direct read of the smoke source; no blocking gap remains.",
+      "createdAt": "2026-07-25T15:09:45.696Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-007",
+      "envelopeId": "56c114dc7767fed0c36e354182811d03367d2bdbaf98038ccbcd5437e13fa228",
+      "writerSessionId": "claude-code-8f6ba6c5-plan-init-reopen",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8b69/checklist.json",
+          "packages/main/src/tasks/init-check-atomicity-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d35c2624001e3b7db902f6a4adbed22cd83cd42b0cde5ce7661d570c1b3e37df"
     }
   ]
 }
