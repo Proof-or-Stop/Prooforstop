@@ -140,9 +140,9 @@
       "id": "CHK-003",
       "title": "Resolve the exhaustive fourteen-key policySnapshot with canonical defaults and unknown-key fail-closed rejection",
       "context": "The resolver returns exactly the §1.2 key set with the spec's enumerated defaults including the full 1..255 exit-code array and the two default adapters and one default profile verbatim; its policyDigest equals a frozen sha256:<64-hex> constant; an unknown key inside the block rejects fail-closed.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T01:20:59.269Z",
       "verificationIntent": {
         "happy": [
           {
