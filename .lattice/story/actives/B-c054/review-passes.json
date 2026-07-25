@@ -201,6 +201,36 @@
         "scanEscalationReason": null
       },
       "_hash": "4a662b8cc5f58a424b04c7ad97b49fda10b3ef31ef1f012c6bd270af364e6036"
+    },
+    {
+      "id": "B-c054:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Third-round code-quality re-audit focused on the r3 fix (da3fc395a9 + 70cbc59220), which added the full section-1.2 registry-schema DEPTH validators to policy.ts: partialPlaceholderTokens, isRepoRelativePath, isSha256Hex, plus per-field domain checks (adapter/profile cwd repo-relative, testCaseRefPattern requires at least 1 named capture, prepCommands non-empty argv, matcherClass exit-code-in integer/0-255/unique domain, toolchain sha256 64-hex-lowercase shape). npx tsc --noEmit (packages/main) is clean. grep confirms zero any-type usage in canon.ts/policy.ts/registries.ts; every new helper narrows unknown with explicit type guards or as-number/as-string-array casts, no any-leakage. canon.ts imports ONLY node:crypto (grep-confirmed); policy.ts imports only canonDigest from canon.js and named exports from registries.js; registries.ts has zero imports; grep for fs/process/child_process across packages/main/src/core/red-evidence/ returns zero hits -- policy.ts stays a pure structural resolver, the toolchain sha256/absolutePath checks are shape-only (never resolve or read a file), matching the module header stated fence to W2e. All 6 new diagnostic codes from the r3 fix (red_evidence_policy_argv_partial_placeholder, red_evidence_policy_runner_adapter_cwd_not_repo_relative, red_evidence_policy_test_case_ref_pattern_no_capture, red_evidence_policy_runner_profile_prep_command_empty, red_evidence_policy_runner_profile_cwd_not_repo_relative, red_evidence_policy_runner_profile_toolchain_sha256) are distinct from every pre-existing code (full code inventory via grep, no collisions). No new validator is over-broad: each only fires when the field is already the correct type (e.g. the cwd repo-relative check runs only when typeof entry.cwd is string, so it never double-reports against the pre-existing schema-presence diagnostic), and the three registries (matcherClass/runnerAdapter/runnerProfile) have genuinely different required fields, so the parallel per-registry validation blocks are not gratuitous duplication (confirmed each helper -- isRepoRelativePath, isSha256Hex, partialPlaceholderTokens, argvPlaceholders, forbiddenEnvKeyViolations -- is defined once and reused across call sites, zero dead code). No console.log/TODO/FIXME/commented-out code in the new or touched files. Test coverage for the r3 fix is thorough in both packages/main/tests/red/red-w2a-policy-failclosed.mjs and the smoke inlined section-6c block (partial-placeholder, cwd traversal/absolute/empty, captureless/unnamed-capture pattern, empty prepCommands, float/string/negative exit-code param, non-string array elements, short/uppercase/non-hex/wrong-length sha256) with both REJECT and matching KEEP/PASS control cases, and the frozen default policyDigest is re-asserted unchanged after the new DEPTH pass. CHK-009 assurance-tier fence still holds: grep for tamper-proof/unforgeable/guarantees/etc across all new and touched files returns only the smoke own OVERCLAIM detector regex, zero actual overclaims. Verified full build and test chain live: npm run build (packages/main) clean; node dist/tasks/red-evidence-policy-canon-smoke.js OK; node tests/red/red-w2a-canon-differential.mjs PASS; node tests/red/red-w2a-policy-failclosed.mjs PASS; full node bin/lattice.js validate ran all 48 configured commands green including validate.commands[47] red-evidence-policy-canon-smoke (exit 0). No blocking findings this round.",
+      "createdAt": "2026-07-25T05:35:05.994Z",
+      "reviewRound": "2026-07-25T05:20:58.540Z",
+      "reviewRunId": "B-c054:RR-013",
+      "envelopeId": "92a57329e3ed78ca93fe87987bbd82c9726aede0eb7d788a0d8d0080544658ca",
+      "writerSessionId": "review-quality-b-c054-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2346e38d9cb2afd11ce4c5e0147eeb99a1ec0fe22d0b3275ad7b77e989328761"
     }
   ]
 }
