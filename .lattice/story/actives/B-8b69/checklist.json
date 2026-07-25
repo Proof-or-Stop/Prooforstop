@@ -76,7 +76,13 @@
             "priority": "should"
           }
         ],
-        "adversarial": []
+        "adversarial": [
+          {
+            "desc": "when the worktree directory was deleted, dev_start re-bootstraps cleanly without the .worktrees-prefixed branch-content false-fail",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
       }
     },
     {
