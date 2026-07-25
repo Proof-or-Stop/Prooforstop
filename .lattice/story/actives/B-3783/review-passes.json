@@ -1,0 +1,34 @@
+{
+  "passes": [
+    {
+      "id": "B-3783:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept check: replaced full-registry loop (assert every AGENT_DISPATCH_REGISTRY entry schema/runtime-valid) with bidirectional AGENT_DISPATCH_ACCEPTED_TYPES-branched loop. No stale registered-must-be-schema-valid phrasing remains outside historical original-intent-snapshot.json; other files touching AGENT_DISPATCH_REGISTRY (agent-dispatch-registry-smoke.ts, prompt-contract-measurement-smoke.ts, review-run.ts, agent-dispatch-registry.ts) already special-case lattice-review-channel consistently, no conflicting concept; validate.commands has exactly one non-duplicated command-catalog-smoke.js entry with no focus:[fast]; built dist and ran the smoke directly -> exit 0. No residual/dead concept found; no finding filed.",
+      "createdAt": "2026-07-25T22:09:33.519Z",
+      "reviewRound": "2026-07-25T22:07:02.769Z",
+      "reviewRunId": "B-3783:RR-001",
+      "envelopeId": "de21701abeccdf53882d71e2d4859d381814ee815f45da4939da0829787d3faa",
+      "writerSessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3783/background.md",
+          ".lattice/story/actives/B-3783/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-channel.md",
+          ".lattice/story/actives/B-3783/plan.md",
+          "CLAUDE.md",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6340717acf5aa3fd6d1fb11daace41de9c699b1b43dc07173b12f8af17a0406a"
+    }
+  ]
+}
