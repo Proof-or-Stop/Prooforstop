@@ -19,7 +19,7 @@
     {
       "id": "CHK-003",
       "title": "Export expectedRedTargets as one shared resolver and gate binding writes on target membership",
-      "context": "The currently module-private expectedRedTargets (packages/main/src/core/proofstory.ts:855) is extracted as a shared exported resolver WITHOUT changing its computed set (proven by a same-set assertion). red_evidence_binding_set rejects at write time (§3.3) any acceptanceTargetRef not in expectedRedTargets.",
+      "context": "The currently module-private expectedRedTargets (packages/main/src/core/proofstory.ts:887) is extracted as a shared exported resolver WITHOUT changing its computed set (proven by a same-set assertion). red_evidence_binding_set rejects at write time (§3.3) any acceptanceTargetRef not in expectedRedTargets.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -35,7 +35,7 @@
     {
       "id": "CHK-005",
       "title": "Register red-target-bindings.json in the lifecycle artifact set and the ProofStory artifact path list",
-      "context": "Add the filename to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (core/lifecycle-registry.ts:599) so the scope classifier (rejects unknown top-level story artifacts at :836) accepts it as lifecycle metadata, and to the ProofStory artifact path list. This closes RED signal A (a story touching the file can now reach DONE).",
+      "context": "Add the filename to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (core/lifecycle-registry.ts:599) so the scope classifier (rejects unknown top-level story artifacts at :849) accepts it as lifecycle metadata, and to the ProofStory artifact path list. This closes RED signal A (a story touching the file can now reach DONE).",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -59,7 +59,7 @@
     {
       "id": "CHK-008",
       "title": "Update the four hard-coded ProofStory command enumerations and the frozen catalog order assertion",
-      "context": "Update the FOUR hard-coded ProofStory command enumerations in scripts/verify-process-fact-contract.mjs (:160, :987, :1187, :1224) and the frozen trailing-order assertion at packages/main/src/tasks/command-catalog-smoke.ts:102-109 so the new command's catalog position is asserted; verify-process-fact-contract.mjs passes only when all four enumerations include the command.",
+      "context": "Update the FOUR hard-coded ProofStory command enumerations in scripts/verify-process-fact-contract.mjs (the process-fact-levels map near :160 plus the three MAIN_TOOLS command-name enumeration arrays near :1013, :1229, :1265) and the frozen trailing-order assertion at packages/main/src/tasks/command-catalog-smoke.ts:102-109 so the new command's catalog position is asserted; verify-process-fact-contract.mjs passes only when all four enumerations include the command.",
       "status": "pending",
       "startTime": null,
       "endTime": null
