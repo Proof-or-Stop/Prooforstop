@@ -1,6 +1,6 @@
 {
   "storyId": "B-c054",
-  "checkedAt": "2026-07-25T00:24:10.085Z",
+  "checkedAt": "2026-07-25T00:42:01.629Z",
   "features": [
     {
       "feature": "CANON: RFC 8785 canonicalizer with UTF-16 code-unit key order, minimal number/string encoding, JSON null preserved, sha256:<64-hex> digest rendering (§0.4)",
@@ -17,7 +17,7 @@
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "Differential proof that core/digest.ts (localeCompare key order) and core/authority-signing.ts (null→undefined) cannot serve as CANON, with the specific defect recorded (§0.4 grounding / decision.json rationale)",
+      "feature": "Differential proof that core/digest.ts (localeCompare key order) and core/authority-signing.ts (null→undefined) cannot serve as CANON, with the specific defect recorded (§0.4 grounding)",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
@@ -73,7 +73,7 @@
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "§1.2/§1.12 forbidden environment keys (PATH, LD_PRELOAD, LD_LIBRARY_PATH, DYLD_*, NODE_OPTIONS, NODE_PATH, PYTHONPATH, ... ) rejected when named in an allowedEnvKeys list at config resolution",
+      "feature": "§1.2/§1.12 forbidden environment keys (PATH, LD_PRELOAD, LD_LIBRARY_PATH, DYLD_*, NODE_OPTIONS, NODE_PATH, PYTHONPATH, ...) rejected when named in an allowedEnvKeys list at config resolution",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
@@ -290,20 +290,6 @@
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "163ab7de8c791f8d296af2ead099ca39937da59b8293aa56ad6eedb64aeaf880",
-  "openQuestions": [
-    {
-      "id": "OQ-B-c054-forbiddenCatchAlls-8th-entry",
-      "q": "§1.2's forbiddenCatchAlls default set's 8th entry (line 299) is rendered as a code span containing two double-quote characters: `\"\"`. Does this literal mean (a) the 2-character string consisting of two double-quote characters, or (b) the empty string, written in this document's own JSON-value-quoting convention?",
-      "evidence": "Line 299 raw source: '| `policy.forbiddenCatchAlls` | rejected catch-all patterns (blocklist layer of §1.3) | `.*`, `.+`, `.`, `^$`, `^.*$`, `^.+$`, `\\s*`, `\"\"` |' — entries 1-7 are bare, unquoted regex/literal text in code spans (e.g. `.*` = the 2 chars dot-star); by that same convention entry 8's code-span content, read literally, is the 2-char sequence quote-quote, NOT an empty span. This favors the plan's interpretation. HOWEVER lines 74 and 76 of the SAME document establish a different, contradicting convention: 'priorRecordDigest and supersedes carry JSON null (not `\"\"`, not omitted)' and 'Every OTHER optional field is OMITTED entirely when absent — never written as `null` or `\"\"`.' In both of those sentences `\"\"` unambiguously denotes 'the JSON empty string value' (as distinct from null/omission), using JSON-literal quoting to describe a field's possible serialized state. If the table cell at line 299 follows THAT convention instead, entry 8 means the empty string. IMPACT: The frozen policyDigest literal pinned by CHK-003 (independently computed from the spec's exact defaults) depends on which 8th forbiddenCatchAlls entry value is used. The plan resolves this by choosing the 2-character double-quote-literal interpretation, reasoning that an empty-string entry would be logically inert because §1.3 rule 1 already independently requires every matcher value to be non-empty (so an empty string could never reach the forbiddenCatchAlls membership check as a distinguishing rejection reason). That inertness argument is real and does weigh toward the plan's reading, but it is not dispositive — spec authors do sometimes include a logically-redundant belt-and-suspenders default entry for explicitness, and this document's own lines 74/76 convention for this exact notation contradicts the plan's choice. Verdict: NOT independently confirmable from the text alone; genuine ambiguity found on both sides. Recommend the main agent obtain explicit spec-owner clarification (or amend line 299 to spell out 'the empty string' vs the literal `\\\"\\\"` unambiguously) before the frozen digest literal is treated as final acceptance evidence.",
-      "sourcePointers": [
-        "docs/requirements/decisions/red-evidence-subsystem-spec.md:74",
-        "docs/requirements/decisions/red-evidence-subsystem-spec.md:76",
-        "docs/requirements/decisions/red-evidence-subsystem-spec.md:299",
-        "docs/requirements/decisions/red-evidence-subsystem-spec.md:401"
-      ],
-      "resolution": "Resolved as the EMPTY STRING. The decision spec establishes its own in-document convention that a code-span of two double-quote characters denotes the JSON empty string: §0.4 line 74 ('priorRecordDigest and supersedes carry JSON null (not \"\", not omitted)') and line 76 ('never written as null or \"\"') both use \"\" to mean the empty string, contrasted with null/omission. Absent any contrary definition, the same notation in the §1.2 default forbiddenCatchAlls set (line 299) means the empty string. The redundancy with §1.3 rule 1 (line 401, matcher value must already be non-empty) is harmless defensive belt-and-suspenders consistent with a hygiene blocklist, and does NOT outweigh the author's explicit in-document \"\"=empty-string convention. The frozen default policyDigest literal is therefore pinned to forbiddenCatchAlls[7]='' (empty string).",
-      "resolvedAt": "2026-07-25T00:29:21.547Z"
-    }
-  ]
+  "_hash": "b9b8e9239b4bac3abb2cba234ec470311b9d78d970d769138446552bcdf28980",
+  "openQuestions": []
 }
