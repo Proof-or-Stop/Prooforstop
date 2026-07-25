@@ -158,7 +158,31 @@
       "context": "Add the filename to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (core/lifecycle-registry.ts:599) so the scope classifier (rejects unknown top-level story artifacts at :849) accepts it as lifecycle metadata, and to the ProofStory artifact path list. This closes RED signal A (a story touching the file can now reach DONE).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call the scope classifier with filename red-target-bindings.json -> returns lifecycle metadata object (not null); WHY: proves the filename is recognized as a lifecycle artifact, closing RED signal A",
+            "type": "cli"
+          },
+          {
+            "desc": "Grep LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in core/lifecycle-registry.ts -> array includes the string red-target-bindings.json; WHY: proves the filename is literally present in the registration constant",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A story that creates/modifies red-target-bindings.json as its only story-directory artifact -> scope classifier does not reject it as an unknown top-level artifact; WHY: proves the story can reach DONE with this file present",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A filename like red-target-bindings-extra.json (not registered) -> scope classifier still returns null for it; WHY: proves the registration is exact-match, not prefix-match or substring-match",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
