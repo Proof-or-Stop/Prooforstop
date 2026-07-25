@@ -41,7 +41,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The round-trip smoke asserts story_advance phase=INIT with a reason from a PLAN worktree lands the story at INIT (phaseOf===INIT).",
+          "headHash": "11cd8d6be857ac8e9b241f32d79fad1ae39f3b0b",
+          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
+          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
+          "timestamp": "2026-07-25T12:00:17.659Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
