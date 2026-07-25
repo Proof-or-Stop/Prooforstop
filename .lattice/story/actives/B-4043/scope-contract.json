@@ -178,10 +178,26 @@
       "phase": "REVIEW",
       "headHash": "72936e22c5f86c689def1c8eef064f35c9964a53",
       "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-4043 adds acceptance-rollout source files (core/acceptance-rollout.ts, scripts/run-proofstory-acceptance-rollout-cohort.mjs); the flow-stability smoke basis-discovery fixture must stub those same files or the smoke fails. This two-line fixture addition is required infrastructure for B-4043 feature, same class as the already-acknowledged pre-review-check/lifecycle-registry paths.",
+      "timestamp": "2026-07-25T10:49:16.929Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3aa3179f93db179fd964835bbe46df4b0efffec2",
+      "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a"
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-24T19:19:28.491Z",
+  "updatedAt": "2026-07-25T10:49:16.929Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -229,6 +245,7 @@
     "lattice.config.json": "lattice.config.json",
     "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json",
     "package.json": "package.json",
-    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts"
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
   }
 }
