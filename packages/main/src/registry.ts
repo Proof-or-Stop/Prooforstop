@@ -124,6 +124,7 @@ import { createUsageSweepHandlers } from './handlers/usage-sweep.js';
 import { createCandidateSpecRoutingHandlers } from './handlers/candidate-spec-routing.js';
 import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
+import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -403,6 +404,11 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createLatticeEvidenceHandlers(ctx));
   registry.registerBatch(createLatticeParallelWaveHandlers(ctx));
   registry.registerBatchMissing(createLatticeBaselineHandlers(ctx));
+
+  // W2b (B-e10d): red_evidence_binding_set — the trusted RED-evidence
+  // subsystem's first mutating command. Owner-lease + mutation-authority gated;
+  // registers the per-story target binding (§1.1.3) before a RED run.
+  registry.registerBatch(createRedEvidenceHandlers(ctx));
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));

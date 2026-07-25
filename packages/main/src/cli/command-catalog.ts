@@ -3194,5 +3194,13 @@ Behavior:
     derivedChecklistRefs: z.array(z.string()).optional().describe('Derived checklist item refs.'),
     derivedVerificationIntentRefs: z.array(z.string()).optional().describe('Derived verification intent refs.'),
   }},
+  { name: 'red_evidence_binding_set', description: 'W2b: register the per-story target binding {acceptanceTargetRef, adapterId, testCaseRef} that authorizes a RED run (§1.1.3). Owner-lease + mutation-authority gated; exactly one binding per acceptanceTargetRef (duplicate rejects), rejects an out-of-expectedRedTargets ref, records targetBindingDigest = CANON over the createdAt-stripped 3-field subobject.', schema: {
+    storyId: z.string().describe('Story ID'),
+    acceptanceTargetRef: z.string().min(1).describe('The acceptance target this binding authorizes; must be in the story\'s expectedRedTargets (§3.3).'),
+    adapterId: z.string().min(1).describe('The adapter id that owns the RED run for this target.'),
+    testCaseRef: z.string().min(1).describe('The test-case reference the adapter runs for this target.'),
+    agent: z.string().optional().describe('Actor.'),
+    actor: z.string().optional().describe('Actor alias.'),
+  }},
 
 ];
