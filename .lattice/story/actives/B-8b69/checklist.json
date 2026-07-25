@@ -54,6 +54,23 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "re-advance INIT->INIT_CHECK from inside the existing worktree reuses it and does not emit the does-not-contain .worktrees false-fail",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dev_start invoked from the main repo root still resolves and reuses the worktree byte-identically",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": []
       }
     },
     {
