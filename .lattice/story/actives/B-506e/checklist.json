@@ -10,12 +10,38 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "test",
+            "desc": "Construct a red-assert v2 record with all §1.10 fields; verify recordDigest = CANON(record minus recordDigest field) and specDigest = CANON({acceptanceTargetRef, greenRelation:{targetRef, relation}}); WHY: confirms digest derivation matches spec exactly",
+            "type": "cli"
+          },
+          {
+            "desc": "Construct a quarantine v2 record; verify it carries ONLY the quarantine/recover field set (chain fields, storyId, acceptanceTargetRef, recoversRecordId, referencedRecordDigest, linkKind=quarantines, reason, approvedBy, operationKey, createdAt, recordDigest) and OMITS assertion/policySnapshot/runReceipt/baselineHeadHash/specDigest; WHY: §0.4 omission rules — field not listed is OMITTED not null",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify chain fields seq/priorRecordDigest/supersedes are ALWAYS present on every v2 record type; at seq==1 both priorRecordDigest and supersedes carry JSON null (not omitted, not empty string); WHY: §0.4 nullability rule for chain-founding records",
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "Construct a green-confirm record; verify it has confirmsRecordId/confirmsRecordDigest/confirmsAssertionDigest but NO assertion/policySnapshot of its own; redBaselineHeadHash/redBaselineMaterialHash present; WHY: green-confirm reuses the governing red-assert assertion via confirmsAssertionDigest",
+            "type": "cli"
+          },
+          {
+            "desc": "Construct a recover record; verify its field set is identical to quarantine (same control-record shape) except linkKind=recovers; verify no specDigest, no greenRelation; WHY: quarantine/recover are chain-control records with the same idempotency preimage shape",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt to include a field that belongs to a different operation (e.g. runReceipt on a quarantine record, or trigger on a recover) — type system or runtime validator rejects; WHY: exhaustive per-operation field sets are a closed contract, extra fields = spec violation",
+            "type": "cli"
+          },
+          {
+            "desc": "Set priorRecordDigest to empty string (not null) at seq==1; recompute recordDigest — verify it differs from the canonical null form; WHY: empty-string-vs-null divergence would fork digests across hosts",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
