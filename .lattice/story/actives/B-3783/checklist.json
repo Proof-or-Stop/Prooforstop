@@ -6,7 +6,60 @@
       "context": "In packages/main/src/tasks/command-catalog-smoke.ts, replace the full-registry loop (currently ~lines 152-166) so it branches on whether entry.canonicalName is in AGENT_DISPATCH_ACCEPTED_TYPES. Dispatchable entries: every example field schema-valid AND validateAgentDispatchRequest returns the entry. Retired entries (e.g. lattice-review-channel): dispatch agentType schema rejects the canonicalName AND validateAgentDispatchRequest throws. Verify: node packages/main/dist/tasks/command-catalog-smoke.js exits 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node packages/main/dist/tasks/command-catalog-smoke.js -> exits 0 with stdout matching /command catalog smoke passed: \\d+ commands/; WHY: proves the bidirectional consistency guard passes on clean main after the fix",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect source: for every AGENT_DISPATCH_REGISTRY entry whose canonicalName IS in AGENT_DISPATCH_ACCEPTED_TYPES, the loop asserts schemaAccepts(dispatch, agentType, entry.canonicalName) === true AND validateAgentDispatchRequest({...example, phase}) returns the entry; WHY: forward direction — dispatchable entries pass schema + runtime contract",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect source: for every AGENT_DISPATCH_REGISTRY entry whose canonicalName is NOT in AGENT_DISPATCH_ACCEPTED_TYPES, the loop asserts schemaAccepts(dispatch, agentType, entry.canonicalName) === false AND validateAgentDispatchRequest throws with message matching /retired|unknown/; WHY: reverse direction — retired entries (lattice-review-channel) actively rejected by both schema and runtime",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The branch condition uses AGENT_DISPATCH_ACCEPTED_TYPES.includes(entry.canonicalName) (or equivalent Set lookup), not a hardcoded name like lattice-review-channel; WHY: any future retired entry automatically covered by the guard without code changes",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The existing dispatchable-entry assertions (schema-valid example fields + validateAgentDispatchRequest returns entry) are structurally preserved from the original loop, not weakened; WHY: forward-direction coverage must not regress while adding reverse direction",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The success message still reports MAIN_TOOLS.length (command count), not AGENT_DISPATCH_REGISTRY.length; WHY: existing output contract preserved — the smoke tests the catalog, count reflects commands not registry entries",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation test: if AGENT_DISPATCH_ACCEPTED_TYPES were changed to include lattice-review-channel (removing the filter on line 314 of agent-dispatch-registry.ts), the smoke must fail because the retired-branch assertions (schema rejects + throws /retired|unknown/) would fire on an entry that now passes schema validation; WHY: the guard is un-gameable — widening the accepted set triggers the reverse assertion",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Mutation test: if the retired-entry assertion block were deleted entirely (keeping only dispatchable-entry assertions), the smoke would silently skip retired entries without verifying rejection; the fix must actively assert rejection, not just omit retired entries from the positive-path loop; WHY: bidirectional contract requires both directions — skip is not proof of rejection",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "validateAgentDispatchRequest must throw (not return a falsy/null value) for retired types, and the smoke must use assert.throws with a regex matching /retired|unknown/ on the error message; WHY: fail-closed contract — a silent null return would let a retired agent pass the guard without detection",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

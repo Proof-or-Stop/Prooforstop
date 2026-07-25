@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-3783",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:229a2702e9686643009bf750bee896c0aa741ab906f1def7396036b679343e1d",
+  "acceptanceBindings": [
+    {
+      "id": "AB-catalog-smoke-consistency",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "milestoneIds": [],
+      "acceptanceClaim": "Running node packages/main/dist/tasks/command-catalog-smoke.js exits 0; the smoke fails if a retired agent (lattice-review-channel) is accepted by the dispatch agentType schema, or a dispatchable agent is rejected.",
+      "note": "CHK-001 proves the smoke exits 0 and asserts bidirectional consistency; CHK-002 wires the smoke into validate.commands so the guard actually runs."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "acceptance_binding_missing_verification_intent_refs",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "AB-catalog-smoke-consistency has no verificationIntentRefs."
+    }
+  ],
+  "note": "Single acceptance binding covering both deliverables of the bidirectional-consistency smoke fix.",
+  "createdAt": "2026-07-25T21:42:19.560Z",
+  "updatedAt": "2026-07-25T21:42:19.560Z"
+}

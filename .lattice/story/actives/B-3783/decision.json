@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Fix the guard, not the correct code: the failing assertion reflects a defect in the smoke, not the command catalog.",
+    "Single source of truth: the dispatch enum already derives from AGENT_DISPATCH_ACCEPTED_TYPES; the smoke must respect that same source rather than the raw registry.",
+    "Guard both directions: coverage must catch a stale non-dispatchable agent leaking into the enum AND a retired lane being wrongly accepted.",
+    "No new build cost and no silent regressions: reuse validate's existing build step and wire the smoke so future divergence fails loudly."
+  ],
+  "drivers": [
+    "The retirement of lattice-review-channel is deliberate (ACCEPTED_TYPES filter + resolveAgentDispatchType) and must not be undone.",
+    "The smoke is currently absent from validate.commands, so this regression class is unguarded.",
+    "The smoke spawns real CLI subprocesses, so it belongs on the normal validate tier, not the fast focus set."
+  ],
+  "options": [
+    {
+      "name": "Add lattice-review-channel to the dispatch enum (originally proposed)",
+      "pros": [
+        "One-line change targeting the failing assertion at line 159"
+      ],
+      "cons": [
+        "Un-retires a deliberately-retired agent, contradicting the ACCEPTED_TYPES filter and resolveAgentDispatchType",
+        "Does not even make the smoke pass: line 161 validateAgentDispatchRequest still throws retired for channel",
+        "Violates bidirectional consistency: a stale non-dispatchable agent would be silently accepted"
+      ]
+    },
+    {
+      "name": "Skip the retired entry in the smoke loop",
+      "pros": [
+        "Minimal change; smoke exits 0",
+        "Respects the retirement"
+      ],
+      "cons": [
+        "Adds no reverse guard; a future stale non-dispatchable agent leaking into the enum would pass unnoticed"
+      ]
+    },
+    {
+      "name": "Bidirectional-consistency guard",
+      "pros": [
+        "Smoke exits 0 while respecting the retirement",
+        "Actively asserts retired entries are rejected by BOTH the dispatch schema and the runtime contract, pinning the retirement",
+        "Covers future additions/retirements without editing the smoke (predicate derived from ACCEPTED_TYPES membership)"
+      ],
+      "cons": [
+        "Slightly more code than a bare skip",
+        "Reverse branch currently exercises only lattice-review-channel"
+      ]
+    }
+  ],
+  "chosen": "Bidirectional-consistency guard",
+  "rationale": "The catalog is already correct and channel's retirement is deliberate, so the fix belongs in the smoke. A bare skip leaves the reverse direction unguarded; the bidirectional guard makes the smoke pass, pins the retirement, and catches future enum/registry divergence, matching the user's stated acceptance criteria. Wiring it into validate.commands (normal tier, timeoutMs 180000 like sibling CLI-subprocess smokes) closes the silent-failure gap without a new build dependency.",
+  "preMortem": [
+    {
+      "scenario": "The reverse assertion silently stops testing anything",
+      "trigger": "A future refactor makes every registry entry dispatchable, so the retired else-branch becomes dead",
+      "consequence": "The retired-consistency guard no longer exercises any entry",
+      "mitigation": "Derive both branches from ACCEPTED_TYPES membership so a dead else-branch means channel was un-retired, which is itself a reviewable authority change."
+    },
+    {
+      "scenario": "Adding the smoke to validate.commands slows or flakes validate",
+      "trigger": "The smoke spawns several CLI subprocesses and compares help output",
+      "consequence": "validate becomes slow or nondeterministic",
+      "mitigation": "Place it on the normal (non-fast) tier with timeoutMs=180000 matching siblings; the smoke uses fixed inputs and self-cleans its tmp dir."
+    },
+    {
+      "scenario": "The fix accidentally edits command-catalog.ts or the registry",
+      "trigger": "Temptation to make the enum accept channel to satisfy an assertion",
+      "consequence": "A deliberately-retired agent becomes dispatchable, an authority regression",
+      "mitigation": "Scope boundary excludes those files; the DEV diff must touch only command-catalog-smoke.ts and lattice.config.json."
+    }
+  ],
+  "timestamp": "2026-07-25T21:38:09.119Z"
+}
