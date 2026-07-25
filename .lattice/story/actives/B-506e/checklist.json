@@ -1356,15 +1356,15 @@
         },
         {
           "intentRef": "CHK-010:happy:4",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/handlers/red-evidence.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "command": "node packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
           "result": "pass",
-          "note": "chain-smoke section 8 (line 490) calls red_evidence_binding_set on a target with no chain records and it succeeds — the initial binding before any run must be allowed.",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "Fixes F-007: 'binding on an empty chain is ALLOWED' must not be reachable via a CORRUPT chain. resolveChainHead returns null both for an empty chain and for a malformed non-empty chain, and the old check (if head && head.operation !== quarantine) read the latter as 'empty, therefore settable'. binding_set now mirrors the append.ts guard: chain.length > 0 && head === null => corrupt-chain rejection. The test seeds two founding heads (both seq=1, priorRecordDigest=null) on M1, asserts the precondition (chain non-empty AND resolveChainHead === null), then asserts binding_set throws /corrupt-chain|no unique head/ and the bindings file is byte-unchanged. The genuine empty-chain ALLOW path stays proven by chain-smoke section 8. Commit b4fa4bbfad.",
+          "headHash": "e5eb83964161b5a408513994b24e9f9f8e9b73ef",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:03:51.338Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
