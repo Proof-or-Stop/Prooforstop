@@ -141,6 +141,37 @@
         "scanEscalationReason": null
       },
       "_hash": "1bc6502b044a374f741fedfecb799c3b009a281518c4d323a2afbb5c961174f2"
+    },
+    {
+      "id": "B-c054:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 re-verify after fix commits da3fc395a9 (W2a r2 registry-schema structural validation) and 70cbc59220 (r3 config-load DEPTH validation: cwd/argv/pattern/prep/sha256). No concept deletion/replacement this round (diff is purely additive under packages/main/src/core/red-evidence/ plus one interface field in config.ts, one non-gating scan in doctor.ts, one validate.commands registration in lattice.config.json; the single deleted diff line is a JSON comma-append artifact, not a concept removal), so per role rule I record a pass rather than a padding finding. Re-checked the three requested fences on current material: (1) canon.ts (canon/canonDigest/canonDigestOmitting/omitUndefinedDeep/first12hex) remains the single canonicalizer -- grepped policy.ts/registries.ts/config.ts/doctor.ts for stray canonicalize defs, found none; policy.ts imports canonDigest from canon.ts and its isRepoRelativePath is a boolean shape-validator (not a duplicate canonicalizer), whose docstring only references the pre-existing scope-path-classifier.ts canonicalizer as a pattern mirror. (2) scope fence intact -- git diff main...HEAD --stat has zero hits for runner.ts/envelope.ts anywhere in the repo; grepped the 6 story-touched files for child_process/spawn/execFile/resolveExecutable and found none added (all execFileSync/readFileSync hits in doctor.ts/config.ts are pre-existing lines outside the diff, confirmed via git diff plus-filter); the only sha256 code is canon.ts hashing in-memory CANON bytes (not a file read) and policy.ts's isSha256Hex, a pure 64-hex regex format check whose comment explicitly defers real toolchain-file resolution and verification to W2e; lattice.config.json diff only appends the new smoke to validate.commands, no redEvidence block committed. (3) assurance-tier fence -- grepped all added lines (git diff main...HEAD, excluding .lattice/ metadata JSON which only contains checklist prose describing what to grep for) for overclaim tokens and found zero occurrences in actual code/comments (the one hit outside .lattice/ is the smoke test's own OVERCLAIM negative-assertion regex, not an overclaim statement); grepped both fix-commit messages (da3fc395a9859fed27a24f3469e9ac5fff3a6f1d, 70cbc5922015b264202bd7f16d1103f7a722dff5) directly and found zero matches. Live-verified rather than trusting grep alone: rebuilt dist (tsc) and ran node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js (OK, exit 0 -- includes its own live OVERCLAIM-regex assertion against canon.ts/policy.ts/registries.ts and doctor red-evidence lines, plus the validate.commands registration check), and both packages/main/tests/red/red-w2a-canon-differential.mjs and red-w2a-policy-failclosed.mjs directly (PASS, exit 0). All 10 checklist items (CHK-001..CHK-010) read done. No blocker found this round; all three properties hold on current material.",
+      "createdAt": "2026-07-25T05:28:43.060Z",
+      "reviewRound": "2026-07-25T05:20:58.540Z",
+      "reviewRunId": "B-c054:RR-012",
+      "envelopeId": "a448f3e18def60ae12407ff0c124f002050e54c147fca900c1614cd4b9901430",
+      "writerSessionId": "review-concept-b-c054-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43ea4c5eec13fd00130ce62db53aec266cc5687a00d8771df47012376c48bac6"
     }
   ]
 }
