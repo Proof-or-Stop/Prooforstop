@@ -24,7 +24,7 @@
       "desc": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts (whole file) + core/machine.ts canReopenToInitGuard/PLAN.on.REOPEN: checklist CHK-001 declares a must-priority adversarial verification intent (id CHK-001:adversarial:0) that reopen is \"refused ... from any non-PLAN phase such as DEV or REVIEW\", but no test in the diff (the new smoke only exercises reopen-refused-without-reason from PLAN and reopen-succeeds-from-PLAN) or elsewhere in packages/main/src/tasks exercises story_advance phase=INIT from DEV/REVIEW/TEST. Manual probing (story_advance phase=INIT from an INIT-phase story) only exercises the pre-existing generic self-transition guard, not the REOPEN remap path in transition-orchestrator.ts (which requires story.phase===PLAN to even engage). The guard is structurally correct on inspection (REOPEN is absent from the DEV/REVIEW/TEST xstate on-blocks and from the non-PLAN cases of canSendStoryEventWithoutSnapshotCan), so this is a coverage gap rather than a known defect -- but a declared must-priority adversarial item should have a concrete automated assertion rather than relying on code inspection alone.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-25T12:35:53.185Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-8b69:RR-001",
       "_hash": "a9dca901d894b2d33abc5dfdba3225bb90ccc83d2f69aa2614452661d2557e4e",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same fix as F-003: the round-trip smoke now exercises reopen-refusal from a non-PLAN phase (INIT_CHECK). commit 7dee7d7f89.",
+      "resolvedAt": "2026-07-25T12:50:15.904Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8b69:F-003",
