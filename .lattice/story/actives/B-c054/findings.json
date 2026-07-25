@@ -71,7 +71,7 @@
       "desc": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:'smoke:NN' file:line citations inside verificationEvidence notes are stale across ~40+ entries (CHK-001:edge:0/1, CHK-003:happy:0-4/edge:0, CHK-004:happy:0-1/edge:0-3/adversarial:0-2, CHK-007/008/009/010 nearly all). Example: CHK-010:happy:2/3 and CHK-007:happy:0/edge:0/adversarial:1 cite 'smoke:217' for the redEvidence===undefined config-parse assertion, but that code is now at smoke.ts:345-347 (line 217 is a **/*.ts glob-exclude test, unrelated). CHK-009 cites smoke:227-235 for the OVERCLAIM regex check; real location is smoke.ts:356-365. CHK-003:happy:0 cites smoke:101-103 for the 14-key snapshot check; real location is smoke.ts:118-119. CHK-001:edge:0/1 cite smoke:84-87 for canon(undefined)/NaN/Infinity throws; those lines now hold lone-surrogate assertions (real location smoke.ts:100-103). Root cause: three revision waves (F-CX1/F-002 fixes, r2 registry-schema validation, r3 depth validation) inserted ~230 new lines mid-file, shifting downstream content by 16 to 130+ lines, and the two verification_evidence_refresh_stale passes re-stamped headHash/materialHash/timestamp on every entry without re-deriving the cited line numbers, so notes now assert false structural claims about where in the file the tested behavior lives. Functionally the tests still pass (verified: npm --prefix packages/main run build && node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js exits 0/OK, and every described assertion genuinely exists somewhere in the file) and the pass/fail verdict is driven by the whole-file command exit code, not the cited line -- so this is not a coverage gap, but the notes as written misrepresent the codebase and would mislead a reviewer who trusts a cited line without re-deriving it. Contrast: the companion packages/main/tests/red/red-w2a-policy-failclosed.mjs 'failclosed:NN' citations remain accurate (only a harmless +/-1 off-by-one on the packed floorCases array lines 72-79), and packages/main/tests/red/red-w2a-canon-differential.mjs 'differential:NN' citations are accurate for CHK-001 happy/adversarial:1/2 but also drifted by ~22 lines for CHK-001:edge:0/1 and CHK-002:happy:0/1 (e.g. CHK-002:happy:0 cites differential:90-95 for the digest.ts localeCompare differential; real location is differential.mjs:112-118) after the F-CX1/F-002 insertions.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T05:33:03.777Z",
@@ -83,7 +83,11 @@
         "packages/main/tests/red/red-w2a-canon-differential.mjs"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: 93 verificationEvidence notes re-bound with stable content-based descriptions (dropping brittle raw file:line citations that had drifted 16-130 lines across revision waves). Functional evidence unchanged (assertions exist + pass); notes no longer misrepresent code location and will not re-stale on future edits.",
+      "resolvedAt": "2026-07-25T05:53:35.632Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
