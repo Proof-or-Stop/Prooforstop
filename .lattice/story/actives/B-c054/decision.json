@@ -1,0 +1,85 @@
+{
+  "principles": [
+    "Single trust root: the whole subsystem digests through ONE canonicalizer, so CANON is a leaf module importing only node:crypto.",
+    "Fail closed at config load: an unsafe or under-specified policy refuses to resolve rather than silently clamping to a safe-looking value.",
+    "Prove, don't assert: 'no existing canonicalizer can serve' is demonstrated by a committed differential test, not by prose a later reviewer must trust.",
+    "Diagnostic-only: this story reports (doctor line) but never gates; enforcement and runtime execution are other stories.",
+    "Honest scope: no string claims tamper-resistance beyond the §0.6 assurance tier."
+  ],
+  "drivers": [
+    "CANON correctness is load-bearing: a wrong key order or dropped null forks digests across hosts and silently corrupts every downstream W2 record.",
+    "The 14-key policySnapshot digest must be reproducible bit-for-bit by two implementations, so defaults are pinned to a frozen literal and unknown keys reject.",
+    "pinnedPath is host-specific and required-with-no-default, so the config must NOT ship a redEvidence block yet the doctor consumer must still render a live line."
+  ],
+  "options": [
+    {
+      "name": "New RFC 8785 leaf (canon.ts)",
+      "pros": [
+        "Correct UTF-16 code-unit key order, preserved JSON null, minimal number encoding (= JSON.stringify) verified equivalent",
+        "Single import (node:crypto), reusable by every W2 story",
+        "Differentially provable against the two existing helpers"
+      ],
+      "cons": [
+        "New code to maintain",
+        "Must pin frozen digest vectors and prove the differential once"
+      ]
+    },
+    {
+      "name": "Reuse core/digest.ts digestCanonicalJson",
+      "pros": [
+        "Zero new canonicalizer code"
+      ],
+      "cons": [
+        "Sorts keys by a.localeCompare(b) (locale-dependent) not UTF-16 code unit, giving host/locale-forking order for keys like {B,a}",
+        "Array undefined-coalescing differs from RFC 8785",
+        "Silently corrupts every downstream digest"
+      ]
+    },
+    {
+      "name": "Reuse core/authority-signing.ts canonicalJsonForSigning",
+      "pros": [
+        "Closer: sorts by code POINT"
+      ],
+      "cons": [
+        "Maps JSON null to undefined and DROPS it, so a chain-founding priorRecordDigest:null field vanishes and forks the record digest",
+        "code-POINT not code-UNIT order (differs for astral chars)",
+        "String() fallback for unknown types, not RFC 8785"
+      ]
+    }
+  ],
+  "chosen": "New RFC 8785 leaf (canon.ts)",
+  "rationale": "CANON is the subsystem's single digest trust root; both existing helpers are provably wrong for it (digest.ts uses localeCompare key order, authority-signing drops JSON null), and either reuse would silently fork digests across hosts. A ~20-line leaf whose RFC 8785 output equals code-unit-sorted rebuild + preserved null + JSON.stringify (empirically verified: number/escape encoding and default .sort() already match RFC 8785) is both correct and cheap, and the committed differential test freezes that correctness so no later reviewer re-litigates it.",
+  "preMortem": [
+    {
+      "scenario": "Fudged policy default returns a plausible-but-wrong snapshot",
+      "trigger": "Implementer abbreviates the 1..255 exit-code array or mis-transcribes a default cwd/adapter",
+      "consequence": "The resolver silently yields a non-spec policySnapshot that later stories digest and trust",
+      "mitigation": "Smoke asserts policyDigest equals an independently-pinned frozen sha256 literal built from the spec's exact defaults, so any deviation flips the digest and fails RED-then-GREEN"
+    },
+    {
+      "scenario": "Doctor health line accidentally gates",
+      "trigger": "The health check throws or returns non-zero when the policy is missing/invalid",
+      "consequence": "lattice doctor changes exit code and a diagnostic-only feature becomes a gate",
+      "mitigation": "CHK-008 proves doctor's exit code and proofstory_gate_check output stay byte-identical; the line is pure report"
+    },
+    {
+      "scenario": "invarianceExcludePaths validator implemented inverted",
+      "trigger": "Developer reads the rule backward (rejects non-tracked, permits tracked-material globs)",
+      "consequence": "Legitimate excludes like node_modules/** are blocked while a glob hiding tracked material code is allowed",
+      "mitigation": "Fail-closed matrix asserts node_modules/** is KEPT while a glob matching a tracked material path and a bare ** are REJECTED"
+    },
+    {
+      "scenario": "A §1.12 floor is silently clamped instead of rejected",
+      "trigger": "minMatcherLen 3 quietly raised to 4 rather than failing config load",
+      "consequence": "An anti-fabrication floor is bypassed and the snapshot merely records the bypass",
+      "mitigation": "Matrix asserts the exact named diagnostic is emitted and NO clamped snapshot is produced"
+    },
+    {
+      "scenario": "CANON number/string edge cases diverge from RFC 8785",
+      "trigger": "-0, 1e21, control chars, or astral-plane keys encoded differently than RFC 8785",
+      "consequence": "Digests fork between conformant implementations",
+      "mitigation": "Frozen CANON vectors cover each edge case; verified up front that JSON.stringify already emits RFC-8785 minimal forms and default .sort() gives code-unit order"
+    }
+  ],
+  "timestamp": "2026-07-25T00:06:40.843Z"
+}

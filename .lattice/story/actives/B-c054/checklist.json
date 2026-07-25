@@ -6,7 +6,75 @@
       "context": "packages/main/src/core/red-evidence/canon.ts exports the canonicalizer (recursive UTF-16 code-unit key order, minimal number/string encoding, JSON null preserved), the digest helper rendering sha256:<64-hex>, the §0.4 nullability/omission helpers, the digest-with-field-omitted helper, and first12hex over the 64-hex body excluding the sha256: prefix.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "canon({\"B\":1,\"a\":2}) returns keys in UTF-16 code-unit order (a before B because 0x0061 < 0x0042 is FALSE, so B < a in code-unit order) → frozen expected canonical JSON string; WHY: proves code-unit key sort is correct vs localeCompare",
+            "type": "cli"
+          },
+          {
+            "desc": "canonDigest({\"B\":1,\"a\":2}) returns sha256:<64-hex> matching a frozen expected digest literal → proves sha256 prefix rendering and end-to-end correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "canon({x:null}) preserves the null field in output (JSON contains \"x\":null not omitted) → frozen expected string; WHY: §0.4 nullability rule - JSON null MUST be preserved",
+            "type": "cli"
+          },
+          {
+            "desc": "canon({v:-0}) renders as {\"v\":0} (RFC 8785 -0 → 0); canon({v:1e21}) renders 1e+21 not 10000...0; canon({v:1e-7}) renders 1e-7 correctly → each equals a frozen expected string; WHY: RFC 8785 minimal number encoding",
+            "type": "cli"
+          },
+          {
+            "desc": "canon with control-char key (\\u0001) and astral-plane key (emoji 𝕳) sorts correctly by UTF-16 code-unit → frozen expected string; WHY: code-unit order diverges from code-point order for astral chars",
+            "type": "cli"
+          },
+          {
+            "desc": "canonDigestOmitting({a:1,b:2,recordDigest:\"sha256:abc\"}, \"recordDigest\") equals canonDigest({a:1,b:2}) → proves §0.4 self-omitting recordDigest helper",
+            "type": "cli"
+          },
+          {
+            "desc": "first12hex(\"sha256:abcdef0123456789...\") returns first 12 hex chars of the 64-hex body (excluding sha256: prefix) → frozen expected substring; WHY: proves prefix exclusion",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "canon(undefined) or canon(function(){}) → throws (programming error for CANON inputs per spec); WHY: §0.4 - undefined/function/symbol are programming errors",
+            "type": "cli"
+          },
+          {
+            "desc": "canon({v:NaN}) and canon({v:Infinity}) each throw → proves RFC 8785 NaN/Infinity rejection",
+            "type": "cli"
+          },
+          {
+            "desc": "canon with deeply nested object (5+ levels) preserves null at every level and sorts keys at every level → frozen expected string; WHY: recursive correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "canon([1,null,3]) preserves array null and order → frozen expected string; WHY: array null preservation distinct from object null",
+            "type": "cli"
+          },
+          {
+            "desc": "canonDigest of empty object {} returns a stable frozen digest → proves determinism on degenerate input",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "canon({\"\\ud800\":1}) with a lone surrogate key → either throws or produces a deterministic output (must not silently corrupt); WHY: lone surrogates are invalid UTF-16 and a real adversarial edge",
+            "type": "cli"
+          },
+          {
+            "desc": "canon called twice on same input returns identical bytes (idempotency) → byte-equal comparison; WHY: non-idempotent canon would fork digests",
+            "type": "cli"
+          },
+          {
+            "desc": "canonDigestOmitting with a field name that does not exist in the object → produces same digest as canonDigest(original) (no-op omission); WHY: implementer might throw on missing field",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

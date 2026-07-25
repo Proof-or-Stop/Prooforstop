@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-c054",
+  "sourceText": "Operator standing directive: complete Workstream 2 of the repro-first / language-neutral gates program by implementing the DONE trusted RED-evidence subsystem spec (docs/requirements/decisions/red-evidence-subsystem-spec.md) section by section. W2a is the foundation leaf: land a single RFC 8785 CANON canonicalizer that the whole subsystem digests through, plus the fail-closed policy resolver that owns the §1.2 policy table/registries and the §1.12 hard safety floors, surfaced non-gating in lattice doctor. Diagnostic-only; the enforcement flip is reserved for W3.",
+  "normalizedOutcome": "After this story lands, running `lattice doctor` prints one new red-evidence policy line — showing `red_evidence_policy_missing: pinnedPath` while no redEvidence block is configured on the host — and the red-evidence-policy-canon-smoke passes in the full validate suite, mechanically proving CANON is a distinct RFC 8785 leaf (it disagrees with core/digest.ts and authority-signing on frozen vectors) and that the 14-key policy resolver fails closed on every §1.12 floor, forbidden env key, relative/missing pinnedPath, unknown key, invariance catch-all, and unresolvable argv placeholder.",
+  "acceptanceClaim": "The red-evidence-policy-canon-smoke passes: CANON differs from digestCanonicalJson and canonicalJsonForSigning on the frozen key-order/null/number vectors, the default policySnapshot digests to a frozen sha256 literal, every §1.12 floor and forbidden-key/pinnedPath/unknown-key/catch-all/placeholder violation rejects with its distinct named diagnostic, and `lattice doctor` emits the policy line while its exit code and proofstory_gate_check output stay byte-identical.",
+  "keyRequirementIds": [
+    "REQ-W2A-CANON",
+    "REQ-W2A-DOCTOR",
+    "REQ-W2A-POLICY"
+  ],
+  "requestHash": "sha256:b46144e58bd8a311ec75cfc218a6b4d1e4a7e5b4e9567eb328fe858292b91a6a",
+  "createdAt": "2026-07-25T00:03:47.390Z",
+  "updatedAt": "2026-07-25T00:03:47.390Z"
+}
