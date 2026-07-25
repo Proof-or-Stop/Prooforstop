@@ -4,7 +4,7 @@
   "title": "Add gated PLAN->INIT reopen so a scope-flagged frozen title on a worktree story can be fixed",
   "description": "Bounce recovery for worktree stories is broken two ways: dev_start false-fails from inside the worktree (storyRel/reuse-check resolve against the main repo root while the metadata root is the worktree, yielding a .worktrees/<id>/-prefixed branch path), and the state machine has no backward edge out of PLAN toward INIT_CHECK/INIT. Add a gated PLAN->INIT reopen transition (title/context are editable only at INIT), fix the dev_start worktree-reuse path so re-advance INIT->INIT_CHECK reuses the existing worktree, correct the contradictory checklist guidance, and add a round-trip smoke that reopens->edits a title->re-reviews->re-advances entirely from inside the worktree with no manual git surgery.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -56,6 +56,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-25T12:17:45.685Z",
+      "branch": "story/B-8b69",
+      "user": "Harmonygo",
+      "sessionId": "claude-code-8f6ba6c5-plan-init-reopen",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-25T16:31:43.436Z",
       "branch": "story/B-8b69",
       "user": "Harmonygo",
       "sessionId": "claude-code-8f6ba6c5-plan-init-reopen",
