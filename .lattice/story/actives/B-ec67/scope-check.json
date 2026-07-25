@@ -302,7 +302,9 @@
       "sourcePointers": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#L520-L521",
         "packages/main/src/core/acceptance-topology.ts#L82"
-      ]
+      ],
+      "resolution": "Investigated: self_report_to_receipt / prohibitedPromotions / acceptedIssuerKinds appear ONLY in the acceptance-topology decision doc's JSON schema example (docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md lines 520-521); a full-repo code search (rg over packages/**/*.ts) finds NO implementation of self_report_to_receipt or a prohibitedPromotions enforcement path. acceptance-topology.ts only has an AUTHORITY_KEYS name set (:82) that lists 'evidenceAuthority' as a recognized key, with no logic that rejects a manual/docs attestation standing in for an executed receipt. Therefore B-ec67's CHK-004 demotion is NOT redundant with an already-implemented topology guard; it is the actual, and currently the ONLY, mechanism closing the manual->receipt escape hatch, and it lives at the correct place: buildVerificationCoverage (verification.ts), which is the evidence-coverage gate the DEV/REVIEW/DONE transitions actually consume. B-ec67 stays scoped to the coverage gate and does NOT touch acceptance-topology; wiring the topology system's prohibitedPromotions is that system's own future work, not this story. Resolution recorded so a later reviewer/reader does not treat the doc-only schema example as an existing implemented guard.",
+      "resolvedAt": "2026-07-25T23:53:22.383Z"
     }
   ]
 }
