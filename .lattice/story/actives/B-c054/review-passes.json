@@ -352,6 +352,25 @@
         "scanEscalationReason": null
       },
       "_hash": "533d7a76521149cc1b819b031ca157b9a5b6c7f97e29258a6591fb22d4b3c3de"
+    },
+    {
+      "id": "B-c054:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "Re-record post-merge (b6b2c85417). Verified story source byte-identical (git diff ea1238b33d..4d7b88b17c for red-evidence/, tests/red/, doctor.ts, config.ts empty). lattice.config.json diff confirms merge only added 2 unrelated smokes from main via union resolution (scope-shrinkage-withdrawal-floor-smoke.js, withdrawn-disposition-smoke.js) alongside this story own red-evidence-policy-canon-smoke.js entry. Rebuilt clean (tsc). red-evidence-policy-canon-smoke.js OK exit0; red-w2a-canon-differential.mjs PASS exit0; red-w2a-policy-failclosed.mjs PASS exit0. Frozen digest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767 present unchanged in both files. lattice doctor exit0, exactly one red-evidence line (advisory red_evidence_policy_missing: pinnedPath, no gate evidence written, no redEvidence block in lattice.config.json). No behavior regression from the merge; original CHK-001..CHK-010 review conclusions stand unchanged.",
+      "createdAt": "2026-07-25T06:39:58.390Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-019",
+      "envelopeId": "7c761997be0de1203506dbabbd1e1c4d6a08e3d227fd2301e28aeebcaf35142e",
+      "writerSessionId": "review-behavior-b-c054-rr",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0f86c9e36557b527f9c085deb72248361dfbd3baf5fbc01e78fbdb1de80625cd"
     }
   ]
 }
