@@ -280,7 +280,7 @@
       "desc": "doc-promise-undelivered: CLAUDE.md (Agent prompt 资产：host-neutral 单一源, B-097f) states no host directory materializes body text; every host is a thin adapter, body is fetched fresh via lattice agent_prompt. CHK-001 files.modify list only touches .claude/agents/*.md and .lattice-codex/agents/*.md, never packages/main/templates/agents/*.md (the documented single source read by readPromptTemplate/lattice agent_prompt). The diff appends a hand-written Wave 4 boundary paragraph directly into all 16 host shim files (8 roles x 2 hosts), immediately below the line that literally states this bootstrap intentionally contains no role body (see .claude/agents/lattice-review-docs.md:9-11 vs buildReviewerRunBootstrapBody in packages/main/src/core/prompt-registry.ts:367-372, the canonical 3-line body which contains none of this text). Verified live: node bin/lattice.js agent_prompt --role=lattice-review-docs and the actual review_run_start assembled Role Prompt for this review round do NOT contain the Wave 4 guidance text, so CHK-001 userSees (Role guidance contract: PASS ... both codex and claude rows name the canonical topology, pre-review, rollout-report, full-3x2, and rollback boundaries) is not delivered through the documented single-source path; guidance only exists in files the framework itself documents as inert thin pointers, and would be silently wiped by lattice init --upgrade regeneration of exactly these 16 managed basenames. scripts/verify-process-fact-contract.mjs (rolloutPromptPairs/rolloutPromptTokens, ~line 1187-1274) now bakes a hard gate requiring this violation to persist by reading the two host directories directly instead of packages/main/templates/agents/*.md, so the architecture drift is enforced rather than accidental.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-25T10:55:40.239Z",
@@ -303,7 +303,11 @@
         "CLAUDE.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Moved Wave4 role guidance from generated shims into canonical templates packages/main/templates/agents/*.md (commit 8e4e36cbad); regenerated frozen approval digests (LEGACY_*, APPROVED_PROMPT_POLICY_MANIFEST, APPROVED_ROLE_BODY_ROLLOUT_MANIFEST, baselines); repointed verify-process-fact-contract + pre-review-check to the template source. Post-commit verified: templates contain guidance, reviewer shims stripped, process-fact-contract PASS, pre-review-check --proof-scenarios PASS (role-guidance mirror+authority mutations bite). init --upgrade regenerates shims FROM templates so cannot wipe it.",
+      "resolvedAt": "2026-07-25T22:06:26.706Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4043:F-015",
