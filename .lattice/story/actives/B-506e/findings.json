@@ -70,7 +70,7 @@
       "desc": "packages/main/src/core/red-evidence/record-v2.ts:177-188 classifyRedRecordSchema (the CHK-002 adversarial fail-closed-on-unknown-schemaVersion guarantee) is declared and unit-tested in isolation but is NEVER CALLED from any real read path: store.ts:852 readRedEvidence does plain JSON.parse with zero validation, and proofstory.ts:944 redEvidenceRecordSatisfied only skips records whose schemaVersion is the LITERAL string proofstory.red_evidence.v2 (via isRedEvidenceV2) -- any OTHER/unknown schemaVersion (e.g. proofstory.red_evidence.v3, or a typo/corrupted value) falls through to the v1 branch and crashes at record.observedFailure.trim() (proofstory.ts:945) because such a record has no observedFailure field. Live-reproduced against the built dist: a red-evidence.json record {schemaVersion:proofstory.red_evidence.v3, id:RED-v3-1, operation:quarantine, ...} (no observedFailure) is silently accepted into records[] and then throws TypeError: Cannot read properties of undefined (reading trim) inside evaluateProofStoryDiagnostics -> redEvidenceSatisfied -> .some(redEvidenceRecordSatisfied), i.e. it crashes the LIVE dev/review/done enforce gate (devGateMode/reviewGateMode/doneGateMode all enforce). This directly contradicts CHK-002 adversarial:0 (a record with an unknown schemaVersion is rejected at parse/load time with a diagnostic, not silently accepted into the array) and reopens, for any non-v2 schema drift, the EXACT crash class (record.observedFailure.trim() on a fieldless control record) that CHK-003/RED-signal-A in this same story was built to close for v2 specifically. The only test exercising classifyRedRecordSchema (red-evidence-chain-smoke.ts:200-203) calls it directly as a standalone function, never through store.readRedEvidence or the actual gate pipeline, so the gap is untested end-to-end.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-25T12:22:44.305Z",
@@ -78,7 +78,11 @@
       "reviewRunId": "B-506e:RR-006",
       "_hash": "e3c53d848a6f835436bc81c60f4416a8d00187a9f33caa98a6f097dc760288b5",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4fa4bbfad (one defect with F-003/F-005): classifyRedRecordSchema is now called from production - store.readRedEvidence classifies every record and fails closed on an unsupported schemaVersion; the gate predicate independently skips non-v1 records as defense in depth.",
+      "resolvedAt": "2026-07-25T22:34:22.705Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-005",
