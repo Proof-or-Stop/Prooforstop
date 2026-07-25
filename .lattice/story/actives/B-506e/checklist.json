@@ -6,7 +6,17 @@
       "context": "packages/main/src/core/red-evidence/record-v2.ts declares the proofstory.red_evidence.v2 union with the exhaustive per-operation field sets of §1.10 (lines 591-721); the §0.4 chain fields seq/priorRecordDigest/supersedes are ALWAYS present and carry JSON null at seq==1; recordDigest = W2a CANON over the record with recordDigest omitted; specDigest per §1.10.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-002",
