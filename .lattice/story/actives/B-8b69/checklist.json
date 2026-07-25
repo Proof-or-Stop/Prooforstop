@@ -111,8 +111,20 @@
             "priority": "must"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "the refusal text no longer instructs the user to go back to INIT_CHECK",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "title/context edits remain rejected at INIT_CHECK so the scope-freeze invariant is preserved",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
