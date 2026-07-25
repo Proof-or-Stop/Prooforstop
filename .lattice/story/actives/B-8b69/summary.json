@@ -1,0 +1,55 @@
+{
+  "storyId": "B-8b69",
+  "changes": "Added a gated PLAN->INIT reopen so a maintainer can fix a frozen checklist title that a PLAN scope review flagged. (1) machine.ts + lifecycle-registry.ts: a new REOPEN event and PLAN->INIT backward edge guarded by canReopenToInitGuard (PLAN-only), wired into both the xstate machine and the parallel canSendStoryEventWithoutSnapshotCan switch. (2) transition-orchestrator.ts: maps story_advance phase=INIT from PLAN to REOPEN, requires a >=10-char reason, cwd-gates the reopen to the worktree, and — atomically inside the mkdir persist-claim, co-located with the phase write — resets any done/in_progress checklist item to pending so a reopened requirement cannot stay done with a retitled, code-decoupled definition. (3) worktree.ts: resolveWorktreePath resolves the always-main-relative story.worktree.path against the main repo root (git --git-common-dir) instead of --show-toplevel, so dev_start reuses an existing worktree when run from inside it; plus a storyRel prefix-strip defense and a targeted stale-worktree-registration prune before git worktree add so a deleted-but-registered worktree re-bootstraps cleanly. (4) checklist.ts: corrected the self-contradictory title-freeze refusal message to name the reopen-to-INIT path. (5) a new round-trip smoke plus a dev_start from-main reuse / deleted-worktree re-bootstrap suite.",
+  "usage": "From inside the story worktree at PLAN: lattice story_advance '{\"storyId\":\"B-x\",\"phase\":\"INIT\",\"reason\":\"<why the frozen title must change>\"}'. Then edit the title with checklist_update (editable only at INIT), re-run INIT review, and re-advance INIT_CHECK -> PLAN. Omitting the reason, or reopening from a non-PLAN phase, is refused.",
+  "expectedOutcome": "A maintainer whose PLAN scope review flagged a frozen checklist title can reopen to INIT, fix the title, re-review, and re-advance entirely from inside the worktree, with no git surgery and no hand-edited checklist.json.",
+  "actualTranscript": "$ lattice story_advance '{\"storyId\":\"B-x\",\"phase\":\"INIT\",\"reason\":\"scope review flagged the frozen title\"}'\nStory B-x advanced to INIT\n$ lattice checklist_update '{\"storyId\":\"B-x\",\"itemId\":\"CHK-001\",\"title\":\"<corrected deliverable-naming title>\"}'\n(title updated)\n$ lattice story_advance '{\"storyId\":\"B-x\",\"phase\":\"INIT_CHECK\"}'\nStory B-x advanced to INIT_CHECK   (reuses the existing worktree; no 'does not contain .worktrees/...' error)",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The reopen reason is required and validated (>=10 chars) but not yet persisted to a durable audit record, so 'auditable' is aspirational until a follow-up records it (spawned as a follow-up task). The checklist-reset atomicity is concurrency-atomic (mkdir persist-claim + synchronous writes), not crash-transactional. The deleted-worktree prune uses git worktree prune --expire now, which also clears unrelated already-missing registrations (it cannot prune live sibling worktrees). Reopen is PLAN-only; from DEV a maintainer must first roll back to PLAN (REPLAN).",
+  "pitfalls": "Reopening resets non-pending checklist items to pending on purpose — a changed requirement must re-pass DEV/REVIEW; do not treat that as data loss. dev_start must be run from the worktree's own built CLI (the stale-global-runtime guard blocks the main-checkout CLI from a worktree). The from-main dev_start reuse is byte-identical to before; only the from-inside-the-worktree path changed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 456601
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 104818
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1291345
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 3856204
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 15237751
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 772351
+    }
+  },
+  "totalDurationMs": 21719945,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-25T16:44:35.787Z",
+  "updatedAt": "2026-07-25T16:44:35.787Z"
+}
