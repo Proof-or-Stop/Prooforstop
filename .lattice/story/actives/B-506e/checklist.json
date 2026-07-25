@@ -234,7 +234,51 @@
       "context": "packages/main/src/core/red-evidence/operation-key.ts derives the three §3.4 (1000-1050) operation-key preimages and normalizedReason, and the deterministic record id `<OP>-first12hex(operationKey)-<seq>`; first12hex reuses the W2a helper over the 64-hex body excluding the sha256: prefix.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red-assert operationKey = CANON({operation, storyId, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, specDigest, assertionDigest, policyDigest}); recordId = RED-first12hex(operationKey)-seq; verify against hand-computed CANON; WHY: the 8-field preimage is the normative key derivation",
+            "type": "cli"
+          },
+          {
+            "desc": "green-confirm operationKey = CANON({operation, storyId, acceptanceTargetRef, greenHeadHash, greenMaterialHash, confirmsRecordDigest, confirmsAssertionDigest, specDigest}); recordId = GRN-first12hex(operationKey)-seq; WHY: green-confirm has its own 8-field preimage",
+            "type": "cli"
+          },
+          {
+            "desc": "quarantine/recover operationKey = CANON({operation, storyId, acceptanceTargetRef, recoversRecordId, referencedRecordDigest, normalizedReason}); recordId = QUA/REC-first12hex(operationKey)-seq; WHY: control key is the 6-field preimage",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "normalizedReason: input reason with leading/trailing whitespace and internal multiple-space runs → normalizedReason trims and collapses to single spaces; two calls with cosmetically different whitespace produce the SAME operationKey; WHY: whitespace normalization is the dedupe-safety rule",
+            "type": "cli"
+          },
+          {
+            "desc": "first12hex extracts characters 7..18 (0-indexed) from the sha256:xxxx...xxx string, i.e., the first 12 hex characters AFTER the sha256: prefix; reuses the W2a canon helper; WHY: off-by-one in prefix stripping would silently fork ids",
+            "type": "cli"
+          },
+          {
+            "desc": "Same logical operation at different seq values (e.g. retry after chain moved): operationKey is identical (seq is NOT in the key); recordId differs only in the trailing -seq suffix; WHY: §3.4 deliberately excludes chain placement from the key",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "approvedBy is deliberately EXCLUDED from quarantine/recover key: two calls with different sessionId (different approvedBy) but identical other fields produce the SAME operationKey; WHY: cross-session retry must dedupe correctly per §3.4 audit round 5",
+            "type": "cli"
+          },
+          {
+            "desc": "priorRecordDigest is NOT in any operation key: two calls with different priorRecordDigest but identical logical fields produce the SAME operationKey; WHY: §3.4 audit round 4 — retries after a successful append must not derive a new key",
+            "type": "cli"
+          },
+          {
+            "desc": "Two calls with identical preimage fields but different non-key fields (createdAt, note) produce the SAME operationKey; verify the key is stable; WHY: non-key metadata must never influence deduplication",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
