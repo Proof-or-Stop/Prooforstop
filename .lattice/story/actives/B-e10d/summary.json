@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e10d",
+  "changes": "Landed the RED-evidence subsystem's target-binding STORE and its first mutating CLI command (spec §1.1.3/§3.3/§4.1): (1) packages/main/src/core/red-evidence/target-bindings.ts — the proofstory.red_target_bindings.v1 store with exactly one binding per acceptanceTargetRef (duplicate rejects), targetBindingDigest = W2a canonDigest over the createdAt-STRIPPED 3-field identity {acceptanceTargetRef,adapterId,testCaseRef}, and a committed-tree reader that resolves a binding via git show from a commit ref (fail-closed on a bad ref, never the live directory); (2) core/store.ts StoryStore read/write; (3) core/proofstory.ts exports resolveExpectedRedTargets (a byte-for-byte relocation of the previously-private function, identical computed set); (4) handlers/red-evidence.ts red_evidence_binding_set with the §3.3 membership gate; (5) the command registered at all 13 wiring points (registry, command-catalog, command-policy, config, process-fact-levels, process-fact-registry, the closed AgentDispatchMutationCommand union, permittedMutations, lifecycle-registry artifact filename) and owner-lease/mutation-authority gated via cli-engine.ts:1372; (6) a registered smoke + two committed RED tests.",
+  "usage": "Run `lattice red_evidence_binding_set '{\"storyId\":\"B-xxxx\",\"acceptanceTargetRef\":\"AB-001\",\"adapterId\":\"npm-script@1\",\"testCaseRef\":\"npm-script:test\"}'` — it records one target binding (targetBindingDigest sha256:<64-hex>), rejects a duplicate target / an out-of-expectedRedTargets ref / a foreign-owner-lease caller (recoverable with --takeover on a stale lease). The store and command are the shared substrate the four later high-semantics red-evidence commands reuse.",
+  "expectedOutcome": "$ lattice red_evidence_binding_set '{...AB-001...}'\\n  Target binding recorded (targetBindingDigest sha256:...)\\n$ lattice red_evidence_binding_set '{...same AB-001...}'\\n  rejected: duplicate target binding\\n$ node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/red-evidence-target-binding-smoke.js\\n  Process fact contract verified; red-evidence-target-binding-smoke: OK",
+  "actualTranscript": "The registered handler records exactly one binding per target with the createdAt-stripped targetBindingDigest, rejects duplicate/out-of-set/foreign-lease writes (recovers a stale lease with --takeover), and the committed-tree reader returns the committed binding over a live edit. All three existing registration contracts (lifecycle-registry-contract, command-ownership-contract, verify-process-fact-contract) exit 0 with red_evidence_binding_set fully wired; red-evidence-target-binding-smoke passes; both committed RED tests (red-w2b-binding-store.mjs, red-w2b-wiring-contract.mjs) pass; missingRedEvidence is byte-identical before and after a binding write.",
+  "outcomeDiff": "No difference — the command, the store invariants, the 13-point registration (all 3 contracts green), and the byte-identical missingRedEvidence match the expected outcome. All 9 checklist items delivered and verified.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — W2b fully delivers its defined scope (the target-binding store, the createdAt-stripped digest, the committed-tree reader, the expectedRedTargets shared export, red_evidence_binding_set with the complete 13-point wiring, and the owner-lease/membership gates). The binding-freeze rule needs chain-head semantics and belongs to the chain story (W2c); run-time adapter/testCaseRef validation belongs to the runner story; the chain record append/read and any gate rewiring are separate later modules — each a clean module boundary in the spec's decomposition, not a reduction. red_evidence_binding_set is correctly classified DEV-phase / L3 / non-gate-consuming, so it is registered in exactly the two verify-process-fact enumerations that fit that class and correctly absent from the PLAN-only and L4 arrays.",
+  "pitfalls": "The three existing bidirectional registration contracts (lifecycle-registry-contract, command-ownership-contract, verify-process-fact-contract) make the 13-point wiring un-gameable: they fail with a named divergence for any missing point, so the implementer landed all 13 in one pass and cross-host codex confirmed completeness on the first review round. Two PLAN-time line-number citations were stale (proofstory.ts expectedRedTargets is at :887 not :855; the lifecycle rejection is at :849 not :836) and were corrected at INIT. The implementer correctly REFUSED a handoff instruction to register the command in the verify-process-fact PLAN-only and L4-gate-consumed arrays — doing so would have made a false PLAN-only/L4 claim, so it registered only in the two enumerations that fit its DEV/L3 class (grep -c = 2). Round-1 review filed no code fail-open defects; the five findings were evidence-quality (an unused import; adversarial intents bound to non-runnable inline probes rather than committed regressions) and were fixed by adding two committed regression tests (a stale-lease-takeover test and a remove-one-registration-point named-divergence test) and re-binding the evidence to runnable commands. A codex r2 re-confirmation hit a transient codex backend 503 outage; the codex r1 PASS applies because the production source was byte-identical since r1 (only test files changed), verified by all four Claude review lanes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1001651
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 36894
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1046358
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 3662513
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2290416
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 44969
+    }
+  },
+  "totalDurationMs": 8083278,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-25T09:29:33.250Z",
+  "updatedAt": "2026-07-25T09:29:33.250Z"
+}
