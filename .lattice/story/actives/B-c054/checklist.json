@@ -264,6 +264,16 @@
           {
             "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],prepTimeoutMs:3600001}) → rejects with a diagnostic containing \"prepTimeoutMs\"; WHY: above one-hour ceiling",
             "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with a forbiddenCatchAlls that OMITS a default entry (e.g. drops '.*') rejects with a named diagnostic — §1.12 requires forbiddenCatchAlls superset of the §1.2 default set (policy may extend, never remove a default entry); no shrunken set is returned",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with a matcherClassRegistry entry whose predicateKind is OUTSIDE the closed §1.2 enum (e.g. 'regex-match') rejects with a named diagnostic — §1.12: no free-form predicates, ever",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "edge": [
@@ -288,7 +298,7 @@
             "type": "cli"
           },
           {
-            "desc": "Each of the 6 floor violations produces a DISTINCT named diagnostic (no two share the same diagnostic string) → all 6 diagnostics collected and asserted unique; WHY: spec says one distinct named diagnostic per violated floor",
+            "desc": "Each distinct floor/registry violation produces a DISTINCT named diagnostic (no two violations share the same diagnostic string)",
             "type": "cli"
           }
         ],
