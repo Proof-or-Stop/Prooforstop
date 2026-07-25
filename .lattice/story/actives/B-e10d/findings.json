@@ -5,7 +5,7 @@
       "desc": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts:31,291-293 imports execFileSync from node:child_process but never calls it for any purpose; it is silenced with a no-op `void execFileSync;` statement (comment: \"Keep execFileSync import meaningful for future direct-CLI probes\") instead of being removed. This is a dead/unused import kept alive artificially rather than deleted — remove the import (and the void statement) until a real call site exists, or add the actual direct-CLI probe now.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-25T08:38:37.431Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-e10d:RR-004",
       "_hash": "03d772141e7f418490d98801838de12277d4ba0c9b8bb919a31b4bc997111c6f",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed commit b801541e47: removed the unused execFileSync import + void no-op from red-evidence-target-binding-smoke.ts; smoke still builds + passes.",
+      "resolvedAt": "2026-07-25T09:06:51.141Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e10d:F-002",
