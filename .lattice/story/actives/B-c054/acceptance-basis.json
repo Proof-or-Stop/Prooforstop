@@ -1,0 +1,508 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-c054",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
+          "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:42c237f49144fbbaddf5cee447705601f664565d72a3cd00ce00bddea9046465",
+          "source-file:packages/main/src/handlers/doctor.ts:sha256:4629cd9bbd1d3e6465f1be1e5e1d2ac6bc2dd1145a8ee38f29d51d5738f1e7b9",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+          "source-file:packages/main/src/registry.ts:sha256:3a8ebab41083110c69933459e78611e444e91b65ae9b03191e9b5ee5019e70fb"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/red-evidence/canon.ts",
+            "scope:file:packages/main/src/core/red-evidence/policy.ts",
+            "scope:file:packages/main/src/core/red-evidence/registries.ts",
+            "scope:file:packages/main/src/handlers/doctor.ts",
+            "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+            "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+            "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+          ]
+        },
+        "resultDigest": "sha256:d2b0ae38e95cb534f3a04a23562a6e9364e083f5e775b1fd4feca1d0dcc4962b"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
+          "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
+          "source-file:packages/main/src/registry.ts:sha256:3a8ebab41083110c69933459e78611e444e91b65ae9b03191e9b5ee5019e70fb",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:b4b392bd96e033d496c8d5ae932a9fbf907f1b8b8c4754b1d1d7cef4ae29c994"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/red-evidence/canon.ts",
+            "scope:file:packages/main/src/core/red-evidence/policy.ts",
+            "scope:file:packages/main/src/core/red-evidence/registries.ts",
+            "scope:file:packages/main/src/handlers/doctor.ts",
+            "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+            "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+            "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+          ]
+        },
+        "resultDigest": "sha256:6454e13b541720856c36b6b64b6d552d6dcdb8f0f41e03713a9429a7c1c2ebfd"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+          "runtime-trace:story:B-c054:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/red-evidence/canon.ts",
+            "scope:file:packages/main/src/core/red-evidence/policy.ts",
+            "scope:file:packages/main/src/core/red-evidence/registries.ts",
+            "scope:file:packages/main/src/handlers/doctor.ts",
+            "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+            "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+            "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+          ]
+        },
+        "resultDigest": "sha256:281707c5ce3b26fdce9ee7414d16bccec9211dab750467ef19c9a59eebacc7cb"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
+          "scope:checklist:CHK-004",
+          "scope:checklist:CHK-005",
+          "scope:checklist:CHK-006",
+          "scope:checklist:CHK-007",
+          "scope:checklist:CHK-008",
+          "scope:checklist:CHK-009",
+          "scope:checklist:CHK-010",
+          "scope:file:lattice.config.json",
+          "scope:file:packages/main/src/core/config.ts",
+          "scope:file:packages/main/src/core/red-evidence/canon.ts",
+          "scope:file:packages/main/src/core/red-evidence/policy.ts",
+          "scope:file:packages/main/src/core/red-evidence/registries.ts",
+          "scope:file:packages/main/src/handlers/doctor.ts",
+          "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/red-evidence/canon.ts",
+            "scope:file:packages/main/src/core/red-evidence/policy.ts",
+            "scope:file:packages/main/src/core/red-evidence/registries.ts",
+            "scope:file:packages/main/src/handlers/doctor.ts",
+            "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+            "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+            "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+          ]
+        },
+        "resultDigest": "sha256:a2392e99492b89f61602f56c9709ae7fd1cd00083e2995981cbfdf2357d504ee"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "partial",
+        "blindSpots": [
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
+          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
+          "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/core/config.ts:sha256:86a20788e6f2c78418750e9ab83b97554c32481b17b2e118c774e5bcc1edeca8",
+          "source-file:packages/main/src/core/red-evidence/canon.ts:uninspectable",
+          "source-file:packages/main/src/core/red-evidence/policy.ts:uninspectable",
+          "source-file:packages/main/src/core/red-evidence/registries.ts:uninspectable",
+          "source-file:packages/main/src/handlers/doctor.ts:sha256:4629cd9bbd1d3e6465f1be1e5e1d2ac6bc2dd1145a8ee38f29d51d5738f1e7b9",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
+          "source-file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:uninspectable",
+          "source-file:packages/main/tests/red/red-w2a-canon-differential.mjs:uninspectable",
+          "source-file:packages/main/tests/red/red-w2a-policy-failclosed.mjs:uninspectable",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:b4b392bd96e033d496c8d5ae932a9fbf907f1b8b8c4754b1d1d7cef4ae29c994"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/red-evidence/canon.ts",
+            "scope:file:packages/main/src/core/red-evidence/policy.ts",
+            "scope:file:packages/main/src/core/red-evidence/registries.ts",
+            "scope:file:packages/main/src/handlers/doctor.ts",
+            "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+            "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+            "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+          ]
+        },
+        "resultDigest": "sha256:b07e61e2425a07d00a2ee476e7476ebdf9b7d85ef114bb7d408f24473af0403b"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:checklist:CHK-005",
+      "scope:checklist:CHK-006",
+      "scope:checklist:CHK-007",
+      "scope:checklist:CHK-008",
+      "scope:checklist:CHK-009",
+      "scope:checklist:CHK-010",
+      "scope:file:lattice.config.json",
+      "scope:file:packages/main/src/core/config.ts",
+      "scope:file:packages/main/src/core/red-evidence/canon.ts",
+      "scope:file:packages/main/src/core/red-evidence/policy.ts",
+      "scope:file:packages/main/src/core/red-evidence/registries.ts",
+      "scope:file:packages/main/src/handlers/doctor.ts",
+      "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+      "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+      "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:lattice.config.json",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/core/config.ts",
+      "source-file:closure:packages/main/src/core/red-evidence/canon.ts",
+      "source-file:closure:packages/main/src/core/red-evidence/policy.ts",
+      "source-file:closure:packages/main/src/core/red-evidence/registries.ts",
+      "source-file:closure:packages/main/src/handlers/doctor.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+      "source-file:closure:packages/main/tests/red/red-w2a-canon-differential.mjs",
+      "source-file:closure:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:lattice.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/red-evidence/canon.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/red-evidence/policy.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/red-evidence/registries.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/red-w2a-canon-differential.mjs",
+      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/red-evidence/canon.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/red-evidence/policy.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/red-evidence/registries.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+      "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
+      "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
+      "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+      "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
+      "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:3b2f6d2d58e82812280173632699ec417b062199e69e2c1a74200b96757e41f7",
+      "inventoryDirectoryCount": 20,
+      "sourceSnapshotDigest": "sha256:c3889bd38318d17fd6a82e1c331cd766214d963dc724b9cf9972db53ea9d228c",
+      "sourceSnapshotCount": 751,
+      "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/red-evidence/canon.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/red-evidence/policy.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/core/red-evidence/registries.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "inventory",
+          "canonicalRef": "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/red-evidence/canon.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/red-evidence/policy.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/core/red-evidence/registries.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "source_file",
+          "canonicalRef": "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        }
+      ],
+      "sealDigest": "sha256:15bdc52815bcdc70363f30dc88393eb10b996d961b7f54e2240feba7dec100e9"
+    },
+    "binding": {
+      "headHash": "75ed2c6589d83dcba7b8f411a1c4e78c1fbd8bfa",
+      "materialHash": "3664037617a9ade131b3ccd422edcd950ae01960eb747a2982fc9370aede4427",
+      "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scopeCheckDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "scopeContractDigest": "sha256:550ae58d1ddda52c6902a253dd9920d78025403bd97ba8fd975f1f78a3a7f101",
+      "closureFilesHash": "sha256:4c565ead5cc61e3422b018707fb248873e35738359fcd9840843dd98fb125775"
+    },
+    "receiptRef": "receipt:coverage-basis:B-c054:plan:0fcfc0adc901dcde",
+    "basisDigest": "sha256:247899950cb1d7d592012c77038754a3f220c5a6376c7e278d71ac3aeb15e23e"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-c054:plan:0fcfc0adc901dcde",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-c054",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:247899950cb1d7d592012c77038754a3f220c5a6376c7e278d71ac3aeb15e23e",
+    "topologyDigest": "sha256:cd112eec29e9e48d6cfa98d10e80b1676304d6e9b2074c65c9d4967f9585ef25",
+    "scopeCheckDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "scopeContractDigest": "sha256:550ae58d1ddda52c6902a253dd9920d78025403bd97ba8fd975f1f78a3a7f101",
+    "headHash": "75ed2c6589d83dcba7b8f411a1c4e78c1fbd8bfa",
+    "materialHash": "3664037617a9ade131b3ccd422edcd950ae01960eb747a2982fc9370aede4427",
+    "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "closureFilesHash": "sha256:4c565ead5cc61e3422b018707fb248873e35738359fcd9840843dd98fb125775",
+    "sealDigest": "sha256:15bdc52815bcdc70363f30dc88393eb10b996d961b7f54e2240feba7dec100e9",
+    "workspaceIdentityDigest": "sha256:7ee8bae0651d047ed323bf40d60f2f0369b1f225719796d6d4f292595b5d2436",
+    "signature": "144Zi1bKUy/mQcjce7pdhilY2emnMnX9XuITDIHjvMi8gL/1HIE5oz4Pw1vwWyTyC4V9BWzm1G5wiRSVnzOLDw=="
+  }
+}
