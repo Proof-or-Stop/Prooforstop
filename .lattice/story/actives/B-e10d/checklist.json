@@ -300,9 +300,9 @@
       "id": "CHK-009",
       "title": "Register red-evidence-target-binding-smoke in lattice.config.json validate.commands and prove no gate verdict changes",
       "context": "Create packages/main/src/tasks/red-evidence-target-binding-smoke.ts covering the store uniqueness, the createdAt-strip digest both directions, the expectedRedTargets same-set + membership gate, the committed-tree reader, the owner-lease/foreign-lease rejection, and the full registration surface; register it in lattice.config.json validate.commands. Prove NO existing gate verdict changes: redEvidenceSatisfied / missingRedEvidence and all existing gates are untouched (this story adds a store + command, rewires no gate).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:39.324Z",
       "verificationIntent": {
         "happy": [
           {
