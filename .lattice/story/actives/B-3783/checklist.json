@@ -269,11 +269,11 @@
           "verdict": "success",
           "command": "node packages/main/dist/cli.js validate --story=B-3783",
           "result": "pass",
-          "note": "Full lattice validate (exit 0, 52/52 commands) executed command-catalog-smoke.js as configured validate.commands[5] (command 6/52) with code=0 in 5852ms, proving the smoke is reached and passes under validate; the whole suite stayed green.",
-          "headHash": "596a0ec2a2adfdec5fbefcdcd4e428596f80609a",
+          "note": "lattice validate (process exit 0) executed command-catalog-smoke.js as configured validate.commands[5] (command 6/52) with code=0 in 5852ms; the command-execution summary recorded commandCount=52, requiredFailureCount=0, status=PASS, so the smoke is genuinely reached and passes under validate (not silently skipped). Precision note: that same run's validate coverage verdict read fail at that instant only because it was the run closing the last missing verificationIntent (this very intent) - a self-referential artifact; process exitCode for validate is governed solely by structuredDoneFailure (hardwired false for validate), confirming genuine exit 0.",
+          "headHash": "5065ff67a32b7cd104097c60820752dcc0482309",
           "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
           "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
-          "timestamp": "2026-07-25T22:06:12.815Z"
+          "timestamp": "2026-07-25T22:15:57.595Z"
         }
       ]
     }
