@@ -11,7 +11,7 @@
     {
       "id": "CHK-002",
       "title": "Make verification_evidence_add execute the pinned command for automated intents and refuse on mismatch",
-      "context": "packages/main/src/handlers/checklist.ts:888 verification_evidence_add. For type logic|cli|integration, stop trusting caller command+result; run the pinned command via packages/main/src/core/validation-executor.ts executeValidationPlan (spawn:394) and refuse when (a) exit!=0 but pass claimed, (b) selector absent from output, (c) intentRef does not resolve to an intent on the item (today silently accepted), (d) pinned command != command to run (use the receipt-command-mismatch: expected X, got Y convention from done-required-validation.ts:701).",
+      "context": "packages/main/src/handlers/checklist.ts:888 verification_evidence_add AND :947 verification_evidence_batch_add (parallel entry point with the same defect — BOTH must reach the same enforcement boundary). VerificationIntentType is logic|cli|browser|manual|docs; the command-executable set is logic|cli|browser. For those, stop trusting caller command+result; run the pinned command via packages/main/src/core/validation-executor.ts executeValidationPlan (spawn:394) and refuse when (a) exit!=0 but pass claimed, (b) selector absent from output, (c) intentRef does not resolve to an intent on the item (today silently accepted), (d) pinned command != command to run (receipt-command-mismatch: expected X, got Y from done-required-validation.ts:701).",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -43,7 +43,7 @@
     {
       "id": "CHK-006",
       "title": "Add a RED-first smoke proving the mechanism and register it in validate",
-      "context": "RED first: an evidence row whose selector is absent from output must be REFUSED after the fix and (demonstrably) was accepted before it. Cover: selector-absent refused; intentRef-not-resolving refused; pinned-command-mismatch refused; exit!=0-but-pass refused; happy path (selector present, exit 0) writes a receipt with real exitCode/outputDigest/outputTail; pin immutability (second write changing command/selector refused); manual intent stays attestation-only and is not scored as a receipt. Register under packages/main/src/tasks and lattice.config.json validate.commands + package.json.",
+      "context": "RED first: an evidence row whose selector is absent from output must be REFUSED after the fix and (demonstrably) was accepted before. Cover BOTH verification_evidence_add and verification_evidence_batch_add: selector-absent refused; intentRef-not-resolving refused; pinned-command-mismatch refused; exit!=0-but-pass refused; happy path (selector present, exit 0) writes a receipt with real exitCode/outputDigest/outputTail; pin immutability (second write changing command/selector refused); manual intent stays attestation-only and is not scored as a receipt. Register under packages/main/src/tasks and lattice.config.json validate.commands + package.json.",
       "status": "pending",
       "startTime": null,
       "endTime": null
