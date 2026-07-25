@@ -600,11 +600,11 @@
           "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
           "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
           "result": "pass",
-          "note": "red-w2b-wiring-contract.mjs:97-105 runs all three contracts. RED commit 57cf021413 proves contracts FAILED when command was absent (target-bindings.ts did not exist at that commit). GREEN state proves they pass with all points present. The contracts are bidirectional enumerators checking every registration point independently. Single-point removal cannot be demonstrated without destructive code modification, but RED-to-GREEN transition proves the guards are real.",
-          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
-          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
-          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
-          "timestamp": "2026-07-25T08:32:00.200Z"
+          "note": "Committed regression (commit 04acdca376): removing the ONE command-policy.ts registration point (non-destructive overlay) makes each of the three contracts exit non-zero with a divergence NAMING red_evidence_binding_set (command-ownership: 'no CommandPolicy entry'; lifecycle-registry: 'has no command-policy entry'; verify-process-fact: 'MAIN_TOOLS command missing lifecycle policy'). Proves the specific remove-ONE-point claim, not just whole-module-absent.",
+          "headHash": "daa63b1a60bad09f8cf701370ddbfa6fee970c01",
+          "materialHash": "7e93fc6b3a4ed4b8237803437b817af88643e5bcc63a7a45756486982ba1aa62",
+          "storyFilesHash": "6ff90289823e1d310c3abe7bc378ed6dac65cf4afe02352eeeb2b4d18bd8997c",
+          "timestamp": "2026-07-25T09:05:40.693Z"
         },
         {
           "intentRef": "CHK-006:adversarial:1",
