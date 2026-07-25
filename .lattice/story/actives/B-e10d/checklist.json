@@ -264,9 +264,9 @@
       "id": "CHK-008",
       "title": "Update the four hard-coded ProofStory command enumerations and the frozen catalog order assertion",
       "context": "Update the FOUR hard-coded ProofStory command enumerations in scripts/verify-process-fact-contract.mjs (the process-fact-levels map near :160 plus the three MAIN_TOOLS command-name enumeration arrays near :1013, :1229, :1265) and the frozen trailing-order assertion at packages/main/src/tasks/command-catalog-smoke.ts:102-109 so the new command's catalog position is asserted; verify-process-fact-contract.mjs passes only when all four enumerations include the command.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:38.664Z",
       "verificationIntent": {
         "happy": [
           {
