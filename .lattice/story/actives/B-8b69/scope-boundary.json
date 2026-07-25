@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8b69",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a gated PLAN->INIT reopen backward transition in machine.ts (new edge + canReopenToInit guard + canSendStoryEventWithoutSnapshotCan)",
+    "Add a permanent round-trip reopen smoke and register it",
+    "Correct the contradictory title-freeze guidance text in checklist.ts",
+    "Fix dev_start worktree-reuse and storyRel in worktree.ts to resolve against the main repo root (git --git-common-dir)",
+    "Minimal command wiring for story_advance --phase=INIT reopen (command-policy/registry/routing)"
+  ],
+  "excluded": [
+    "Any broader state-machine refactor beyond the PLAN->INIT edge",
+    "Changes to DEV/REVIEW/TEST/DONE gates",
+    "Removing INIT_CHECK from titleContextProtectedPhases or weakening the INIT_CHECK scope-freeze invariant",
+    "Reworking the repro-first intake or evidence store"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Scope confirmed by the operator; the reopen-to-INIT design was chosen by the user via an explicit decision prompt.",
+  "createdAt": "2026-07-25T10:45:24.038Z",
+  "updatedAt": "2026-07-25T10:45:24.038Z",
+  "_hash": "b1a816a259dcb896e226779eed0c8b3bd325ee4884e9f35cf86cbd92efeb822e"
+}

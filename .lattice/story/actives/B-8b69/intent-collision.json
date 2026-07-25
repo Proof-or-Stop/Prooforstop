@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-8b69",
+  "id": "IC-20260725110418",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Reopen to INIT (not INIT_CHECK) via a gated PLAN->INIT transition; INIT is the only phase where title/context is editable, so this restores the scope-flagged-title recovery without weakening the INIT_CHECK scope-freeze invariant.",
+  "acceptedInterpretationHash": "sha256:4f5fbd7cbf5b9eee018b5ecba688529f10d0f22e2090c0895f41979cef607fe3",
+  "notes": "No competing interpretation survives: reopening to INIT_CHECK cannot unfreeze the title and would require weakening an invariant.",
+  "createdAt": "2026-07-25T11:04:18.978Z",
+  "updatedAt": "2026-07-25T11:04:18.978Z"
+}

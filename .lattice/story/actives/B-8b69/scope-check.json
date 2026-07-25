@@ -1,0 +1,100 @@
+{
+  "storyId": "B-8b69",
+  "checkedAt": "2026-07-25T11:12:20.360Z",
+  "features": [
+    {
+      "feature": "Add gated PLAN->INIT reopen transition (new REOPEN event + canReopenToInit guard, PLAN-only, owner-lease gated) wired into the xstate machine, canSendStoryEventWithoutSnapshotCan, transition-orchestrator mapping, and the story_advance CLI reason schema",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/plan-init-reopen.md"
+    },
+    {
+      "feature": "Reopen requires a non-empty reason enforced by the transition orchestrator; refused when reason is missing",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-8b69/checklist.json"
+    },
+    {
+      "feature": "Reopen is refused from any non-PLAN phase (e.g. DEV, REVIEW) -- pre-REVIEW-only gating",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-8b69/checklist.json"
+    },
+    {
+      "feature": "Fix dev_start/resolveWorktreePath so story.worktree.path and storyRel resolve against the main repo root, so re-advance INIT->INIT_CHECK from inside the existing worktree reuses it instead of false-failing with the .worktrees-prefixed branch-content guard error",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/plan-init-reopen.md"
+    },
+    {
+      "feature": "dev_start invoked from the main repo root stays byte-identical (no regression to the from-main bootstrap path)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-8b69/decision.json"
+    },
+    {
+      "feature": "Correct the contradictory checklist.ts title-freeze refusal guidance to name reopen-to-INIT instead of the non-functional 'back to INIT_CHECK'",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/plan-init-reopen.md"
+    },
+    {
+      "feature": "Preserve the INIT_CHECK scope-freeze invariant: title/context edits remain rejected at INIT_CHECK (INIT_CHECK stays in titleContextProtectedPhases)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-8b69/decision.json"
+    },
+    {
+      "feature": "Add a permanent round-trip smoke (story -> INIT_CHECK -> PLAN -> reopen INIT -> edit title -> re-review -> re-advance INIT->INIT_CHECK->PLAN) run entirely from inside the worktree with no git surgery or hand-edited checklist.json",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/plan-init-reopen.md"
+    },
+    {
+      "feature": "The round-trip smoke must fail RED against pre-fix code on both the missing PLAN->INIT edge and the dev_start path bug, then pass GREEN after the fix",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-8b69/checklist.json"
+    },
+    {
+      "feature": "Rejected alternative: reopen to INIT_CHECK and remove INIT_CHECK from titleContextProtectedPhases",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User-confirmed design decision (decision.json chosen alternative) explicitly rejects this path because it would weaken the INIT_CHECK scope-freeze invariant for no real simplification; not implemented.",
+      "source": ".lattice/story/actives/B-8b69/decision.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-8b69/background.md",
+      ".lattice/story/actives/B-8b69/checklist.json",
+      ".lattice/story/actives/B-8b69/decision.json",
+      ".lattice/story/actives/B-8b69/index.json",
+      ".lattice/story/actives/B-8b69/plan.md",
+      ".lattice/story/actives/B-8b69/understanding.json",
+      "docs/requirements/decisions/plan-init-reopen.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 10,
+    "covered": 9,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "128f63994e37fc953db3e7bdced5f589546eadafddc4d9b5ea010908bfcce1c5",
+  "openQuestions": []
+}

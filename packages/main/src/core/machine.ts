@@ -592,6 +592,22 @@ export function canEnterPlanGuard(context: StoryMachineContext): boolean {
   }
 }
 
+/**
+ * B-8b69: gated PLAN->INIT reopen guard. Structurally, the reopen is legal only
+ * from PLAN (the xstate PLAN state is the sole owner of the REOPEN edge, and the
+ * non-xstate parallel table below restricts it to the PLAN case). This guard
+ * fails closed on a missing/unreadable story. The REQUIRED, audited reason is NOT
+ * checked here — the pure machine guard has no access to the command args; the
+ * transition orchestrator enforces the reason before sending the REOPEN event.
+ */
+export function canReopenToInitGuard(context: StoryMachineContext): boolean {
+  try {
+    return context.store.readStory(context.storyId).phase === 'PLAN';
+  } catch {
+    return false;
+  }
+}
+
 export function canSkipPlanGuard(context: StoryMachineContext): boolean {
   // Express channel: WorkflowPolicy decides whether skipping PLAN is allowed
   try {
@@ -857,7 +873,10 @@ export function canSendStoryEventWithoutSnapshotCan(
     case 'INIT_CHECK':
       return eventType === 'PLAN' || (eventType === 'START' && canSkipPlanGuard(context));
     case 'PLAN':
-      return eventType === 'START' && canStartDevGuard(context);
+      // B-8b69: START advances to DEV; REOPEN is the gated backward edge to INIT
+      // (unfreeze a scope-flagged title). Keep this in sync with the xstate PLAN state.
+      return (eventType === 'START' && canStartDevGuard(context))
+        || (eventType === 'REOPEN' && canReopenToInitGuard(context));
     case 'DEV':
       return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && checklistAllDoneGuard(context));
     case 'REVIEW':
@@ -881,6 +900,7 @@ export const storyMachine = setup({
       | { type: 'PLAN' }
       | { type: 'START' }
       | { type: 'REPLAN' }
+      | { type: 'REOPEN' }
       | { type: 'CODE_REVIEW' }
       | { type: 'REVIEW_PASS' }
       | { type: 'FINISH' },
@@ -894,6 +914,10 @@ export const storyMachine = setup({
     // _hash mismatch → false; pass → true. The failure reason is rendered as a human-readable message by getGuardFailureReason.
     canEnterInitCheck: ({ context }) => canEnterInitCheckGuard(context),
     canEnterPlan: ({ context }) => canEnterPlanGuard(context),
+    // B-8b69: gated PLAN->INIT reopen. The guard only certifies the transition is
+    // structurally legal (story is at PLAN); the required, audited reason is
+    // enforced by the transition orchestrator, which owns the command args.
+    canReopenToInit: ({ context }) => canReopenToInitGuard(context),
     canStartDev: ({ context }) => canStartDevGuard(context),
     canSkipPlan: ({ context }) => canSkipPlanGuard(context),
     // F-006: REVIEW→DEV and TEST→DEV rollbacks are also doors into DEV — enforce the parallel block.
@@ -928,6 +952,10 @@ export const storyMachine = setup({
     PLAN: {
       on: {
         START: { target: 'DEV', guard: 'canStartDev' },
+        // B-8b69: gated backward edge to INIT so a PLAN scope review that flags a
+        // frozen checklist title can be honored (INIT is the only phase where
+        // title/context is editable). Reason enforcement lives in the orchestrator.
+        REOPEN: { target: 'INIT', guard: 'canReopenToInit' },
       },
     },
     DEV: {

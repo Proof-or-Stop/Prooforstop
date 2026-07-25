@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3783",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Fix packages/main/src/tasks/command-catalog-smoke.ts registry-iteration loop to assert bidirectional dispatch/registry consistency: dispatchable entries (canonicalName in AGENT_DISPATCH_ACCEPTED_TYPES) must be schema-accepted and runtime-valid; retired entries (e.g. lattice-review-channel) must be schema-rejected and runtime-rejected",
+    "Register node packages/main/dist/tasks/command-catalog-smoke.js in lattice.config.json validate.commands on the normal (non-fast) tier"
+  ],
+  "excluded": [
+    "Adding new agent types or refactoring registry-to-enum derivation",
+    "Modifying command-catalog.ts dispatch.agentType enum or its derivation from AGENT_DISPATCH_ACCEPTED_TYPES (catalog is already correct)",
+    "Rewriting unrelated portions of command-catalog-smoke.ts beyond the retired-consistency loop",
+    "Un-retiring lattice-review-channel in agent-dispatch-registry.ts (ACCEPTED_TYPES filter / resolveAgentDispatchType retired rejection must stay)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose bidirectional-consistency smoke fix + Lattice story routing (2026-07-25). Fix the guard, not the catalog.",
+  "createdAt": "2026-07-25T21:34:52.444Z",
+  "updatedAt": "2026-07-25T21:34:52.444Z",
+  "_hash": "387e15fba3f85ecb8de29744cdf8240d9fecb4bea6fd051b79b5691a3707f16e"
+}

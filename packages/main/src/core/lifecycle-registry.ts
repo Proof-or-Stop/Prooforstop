@@ -22,6 +22,10 @@ export type LifecycleEventType =
   | 'PLAN'
   | 'START'
   | 'REPLAN'
+  // B-8b69: gated PLAN->INIT reopen — the only backward edge out of PLAN, used to
+  // unfreeze a checklist title/context that a PLAN scope review legitimately flags
+  // (INIT is the only phase where title/context is editable).
+  | 'REOPEN'
   | 'CODE_REVIEW'
   | 'REVIEW_PASS'
   | 'FINISH';
@@ -170,6 +174,21 @@ export const LIFECYCLE_TRANSITIONS = [
     effects: [],
     oracleRows: ['plan-review', 'scope-check'],
     rendererRow: 'PLAN->DEV gate',
+  },
+  {
+    // B-8b69: gated PLAN->INIT reopen. INIT is the only phase where a checklist
+    // title/context is editable, so a PLAN scope review that flags a frozen title
+    // can be honored by reopening to INIT, editing, re-running INIT review, and
+    // re-advancing. A non-empty reason is required and enforced in the transition
+    // orchestrator; cwd-worktree keeps the phase write on the story worktree branch.
+    from: 'PLAN',
+    to: 'INIT',
+    event: 'REOPEN',
+    kind: 'rollback',
+    gates: ['cwd-worktree'],
+    effects: [],
+    oracleRows: [],
+    rendererRow: 'PLAN reopen to INIT',
   },
   {
     from: 'DEV',

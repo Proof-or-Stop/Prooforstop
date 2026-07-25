@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3b88",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node packages/main/dist/tasks/",
+    "npm run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+    "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Step 1 touches the verification_evidence_add contradiction check and refresh_stale honesty, both in handlers/checklist.ts (helper may live in core/verification.ts), plus two compiled smoke tasks. Build via npm run build, run smokes via node packages/main/dist/tasks/*.",
+  "createdAt": "2026-07-25T22:16:44.053Z",
+  "updatedAt": "2026-07-25T22:16:44.053Z",
+  "_hash": "78ae94860e3124e6eff0157994269c6b7fb0c82652b57c614548aa973e478dc6"
+}
