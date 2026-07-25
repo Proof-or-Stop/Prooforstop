@@ -371,6 +371,68 @@
         "scanEscalationReason": null
       },
       "_hash": "0f86c9e36557b527f9c085deb72248361dfbd3baf5fbc01e78fbdb1de80625cd"
+    },
+    {
+      "id": "B-c054:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Re-record after git merge main (b6b2c85417). Confirmed merge only unions 2 unrelated smoke entries into lattice.config.json validate.commands; red-evidence source (canon.ts/policy.ts/registries.ts/config.ts/doctor.ts/smoke.ts/mjs tests) byte-identical across the merge (git diff ea1238b33d..b6b2c85417 shows only lattice.config.json +2 lines). Verified: npx tsc --noEmit clean; npm run build clean; red-evidence-policy-canon-smoke.js, red-w2a-canon-differential.mjs, red-w2a-policy-failclosed.mjs all pass directly; lattice.config.json parses as valid JSON with 50 validate.commands entries, all unique (no duplicate/malformed union entry); no redEvidence key committed to lattice.config.json (CHK-010 pin honored). No new findings beyond prior rounds; no blockers.",
+      "createdAt": "2026-07-25T06:40:04.891Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-021",
+      "envelopeId": "45532c786836e6d1dec67e4efa36cff65eb07b05196505a7419a1d8f9cd7fd2d",
+      "writerSessionId": "review-quality-b-c054-rr",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f0a49763555f750f9085b903b779bce2b80686d3df8d3122d1372cfa69b16b1"
+    },
+    {
+      "id": "B-c054:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Re-record after git merge main (b6b2c854): git diff ea1238b33d..4d7b88b confirms code byte-identical for red-evidence/, config.ts, doctor.ts, canon-smoke.ts, red tests. lattice.config.json diff = 2-line unrelated-smoke union from main + this stories own canon-smoke registration only, no redEvidence config block. canon.ts remains sole canonicalizer (policy.ts imports canonDigest, does not reimplement). No runner.ts/envelope.ts in red-evidence/ (scope fence intact). Zero child_process/spawn/fs-read matches in red-evidence/ or the canon-smoke task. doctor wiring is try/catch-wrapped, one advisory line, exit code untouched. Differential red test proves digest.ts/authority-signing.ts cannot serve as CANON. Smoke task self-fences an OVERCLAIM regex. No promise-undelivered doc tokens (only doc delta is plan.md). All 10 checklist items done. No blocker.",
+      "createdAt": "2026-07-25T06:40:56.904Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-023",
+      "envelopeId": "610b8e25b7d55943cf963400b398194659ac1c3e8bb39b9cc5d7cf0c1d633ad5",
+      "writerSessionId": "sess-a70eeb2c180c96135bfaf1140208eedc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27839908e783434e3b3d453345adc7a1ccb64cd730a1d8d339e413a7315d12e5"
     }
   ]
 }
