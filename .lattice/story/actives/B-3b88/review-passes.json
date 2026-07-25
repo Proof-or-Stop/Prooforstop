@@ -25,6 +25,32 @@
         "scanEscalationReason": null
       },
       "_hash": "f3d23b6f05dee148392e8f32514f7e59b58a8dfc6f257f1f32c8eab92701fba4"
+    },
+    {
+      "id": "B-3b88:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 12 CHK-001 and all 11 CHK-002 verificationIntent entries have exactly one matching, non-padded verificationEvidence row bound to the two smoke tests. Independently re-ran both built smoke tests; both PASS with genuine per-scenario assertions matching the implementation. No blocker.",
+      "createdAt": "2026-07-25T23:32:13.363Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-006",
+      "envelopeId": "05ca5de215fd24c472b4f52abbf916a834858cfbff59ca5cce65c24df43b3c47",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d9ab6288e3a38307c7cc88ff49aec6864fe1d2e268ec14a5c63e4c76df273687"
     }
   ]
 }
