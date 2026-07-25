@@ -156,7 +156,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "refresh-stale-honesty-smoke passes: refresh_stale leaves the command-backed result:pass row stale and still refreshes the command-less attestation row.",
+          "headHash": "1813f1a68685271ada3d451b916331d25251b11a",
+          "materialHash": "49ceb1d9e52e95c6b60fecf0cede8e29aa1de774dc577378cb421948ab13dc04",
+          "storyFilesHash": "e800d9cc70a931830d481d6b40236994104fa93fe3fa25d905b106a16ee49da1",
+          "timestamp": "2026-07-25T23:07:58.470Z"
+        }
+      ]
     }
   ]
 }
