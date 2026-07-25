@@ -77,10 +77,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-001:edge:mirror-mode",
@@ -90,10 +90,10 @@
           "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-001:adversarial:prompt-authority",
@@ -103,10 +103,10 @@
           "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         }
       ]
     },
@@ -204,10 +204,10 @@
           "command": "node scripts/run-proofstory-acceptance-rollout-cohort.mjs > /tmp/b4043-cohort-r4-final.json",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-002:edge:false-block-controls",
@@ -217,10 +217,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-002:adversarial:seeded-defects",
@@ -230,10 +230,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         }
       ]
     },
@@ -298,10 +298,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-003:edge:inconclusive-boundary",
@@ -311,10 +311,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-003:adversarial:threshold-bypass",
@@ -324,10 +324,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         }
       ]
     },
@@ -394,10 +394,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
@@ -407,10 +407,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-004:adversarial:fail-closed-mutations",
@@ -420,10 +420,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-004:hardening:issuance-replay-integrity",
@@ -503,10 +503,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-005:edge:authority-and-exclusions",
@@ -516,10 +516,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         },
         {
           "intentRef": "CHK-005:adversarial:no-status-overclaim",
@@ -529,10 +529,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "d008447f4105c557b180944435d88c15205faf44",
-          "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a",
-          "storyFilesHash": "83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c",
-          "timestamp": "2026-07-25T10:47:26.327Z"
+          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
+          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
+          "timestamp": "2026-07-25T22:02:59.126Z"
         }
       ]
     }
