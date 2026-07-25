@@ -117,11 +117,11 @@
           "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
-          "note": "The smoke asserts the re-advance INIT->INIT_CHECK from inside the worktree succeeds and does NOT emit the does-not-contain .worktrees false-fail, proving dev_start reuses the existing worktree.",
-          "headHash": "8f11dca69b2813b1f2c500c469ba43990c7b3574",
-          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
-          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
-          "timestamp": "2026-07-25T12:00:19.559Z"
+          "note": "Re-bound to current material: the round-trip smoke re-advances INIT->INIT_CHECK from inside the existing worktree and asserts no does-not-contain .worktrees false-fail. GREEN at current HEAD.",
+          "headHash": "51771b2d212af126f0130fbf611efd231736a368",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:27:25.294Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
