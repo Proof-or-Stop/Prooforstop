@@ -170,7 +170,40 @@
       "context": "Do not hard-break in-flight stories that already have prose-only evidence without a pinned (command,selector). Provide grandfathering / an audited repair path / a policy mode; emergency overrides must be explicit, attributable, and visible to gates. Per CLAUDE.md handler convention, re-validate every new constraint at Zod + handler entry + consuming gate, and test the internal-call path that bypasses Zod.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "legacy evidence rows written before this story (no pinned verification) remain valid and readable — no hard break of in-flight stories",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the explicit escape/grandfather path (policy mode or audited repair) is attributable and visible to gates, not a silent bypass",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the internal fn-call path bypassing Zod is still enforced because the handler and the consuming coverage gate re-validate the pin/receipt",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
