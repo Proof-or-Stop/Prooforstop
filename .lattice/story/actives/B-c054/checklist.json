@@ -486,7 +486,39 @@
       "context": "No help text, command-policy reason, process-fact rationale, doctor line or commit message added by this story claims tamper-resistance beyond the §0.6 assurance tier (practical threat model, not a hostile local agent).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -rn all new .ts files in packages/main/src/core/red-evidence/ and handlers/doctor.ts for overclaim tokens (tamper-proof|tamper-resistant|cannot be forged|unforgeable|cryptographic proof|mathematically proves|impossible to fake) → zero matches; WHY: §0.6 fences W2 to practical tier only",
+            "type": "cli"
+          },
+          {
+            "desc": "grep -rn all new strings (help text, diagnostics, comments with user-facing text) for the word \"tamper\" → zero matches OR only in the context of \"does not resist tampering\" (honest scoping); WHY: positive assertion of tier fidelity",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep for \"secure\" or \"secured\" in new code → only in appropriate context (never claiming W2 provides security against hostile local agent); WHY: \"secure\" is a softer overclaim but still potentially misleading",
+            "type": "cli"
+          },
+          {
+            "desc": "All doctor output lines, command-policy reasons, and process-fact rationales added by this story use language consistent with §0.6 (accidental fabrication, workflow drift, casual gaming) → manual review checklist; WHY: the assurance tier constrains all user-facing language",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep for claims like \"guarantees\", \"ensures integrity\", \"prevents forgery\" in commit messages and code comments of this story → zero matches in contexts implying stronger-than-§0.6 guarantees; WHY: commit messages are also user-facing and must not overclaim",
+            "type": "cli"
+          },
+          {
+            "desc": "No new string in this story references Tier-C capabilities (signed receipts, cross-host cryptographic proof) as if they are present → zero matches for \"receipt signing\" or \"cross-host proof\" in new code; WHY: this is W2, not Tier-C",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-010",
