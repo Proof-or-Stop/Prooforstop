@@ -183,7 +183,7 @@ export interface StoryInfo {
   blockingFor?: string[];
 }
 
-export type ChecklistStatus = 'pending' | 'in_progress' | 'done';
+export type ChecklistStatus = 'pending' | 'in_progress' | 'done' | 'withdrawn';
 
 export type VerificationLane = 'happy' | 'edge' | 'adversarial';
 export type VerificationIntentType = 'logic' | 'cli' | 'browser' | 'manual' | 'docs';
@@ -720,6 +720,13 @@ export interface ChecklistItem {
   /** @deprecated Legacy testIntent kept for old story data and compatibility helpers. */
   testIntent?: TestIntent | null;
   status: ChecklistStatus;
+  /**
+   * B-1909: when status==='withdrawn', the decisionId of the confirmed +
+   * userConfirmed scope-shrinkage decision that authorized the withdrawal.
+   * Stamped exclusively by scope_shrinkage_decision_set (the sole applier);
+   * absent on every non-withdrawn item and on all legacy data.
+   */
+  decisionRef?: string;
   startTime: string | null;
   endTime: string | null;
 }
@@ -2579,6 +2586,12 @@ export interface ProofStoryContractData {
   originalIntentRequestHash?: string;
   confirmedMilestoneLedgerHash?: string;
   acceptanceBindings: ProofStoryAcceptanceBinding[];
+  /**
+   * B-1909: append-only acceptance-binding withdrawals recorded post-PLAN by the
+   * scope-shrinkage decision applier. Never mutates or removes acceptanceBindings;
+   * absent on legacy contracts (treated as no dispositions).
+   */
+  bindingDispositions?: ProofStoryBindingDisposition[];
   diagnosticGaps: ProofStoryDiagnosticGap[];
   note?: string;
   createdAt: string;
@@ -2610,8 +2623,53 @@ export interface ScopeShrinkageDecisionData {
   removedMilestoneIds: string[];
   reason: string;
   approvedBy: string;
+  /**
+   * B-1909: stable identifier the checklist-item withdrawal (decisionRef) and
+   * the append-only binding disposition (decisionRef) both cite so the two
+   * layers are provably linked to one decision. Optional for legacy load;
+   * generated on write when the caller omits it.
+   */
+  decisionId?: string;
+  /**
+   * B-1909: checklist item ids withdrawn by this confirmed decision. The sole
+   * applier flips each named item to status='withdrawn'. Optional/empty on
+   * legacy data and on binding-only shrinkage.
+   */
+  withdrawnChecklistItemRefs?: string[];
+  /**
+   * B-1909: acceptance-binding ids withdrawn by this confirmed decision. The
+   * sole applier appends an append-only ProofStoryBindingDisposition for each.
+   * Optional/empty on legacy data and on checklist-only shrinkage.
+   */
+  withdrawnAcceptanceBindingRefs?: string[];
+  /** B-1909: optional audit references backing the withdrawal (transcripts, findings, docs). */
+  evidenceRefs?: string[];
+  /**
+   * B-1909: explicit, operator-confirmed re-approval that authorizes withdrawing
+   * EVERY effective acceptance binding (emptying the effective scope). Never
+   * inferable — the write-time empty-scope floor HARD-REFUSES a full withdrawal
+   * unless this field is present on the confirmed decision.
+   */
+  fullWithdrawalReapproval?: {
+    approvedBy: string;
+    reason: string;
+    at: string;
+  };
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * B-1909: append-only record beside the PLAN-frozen acceptanceBindings that
+ * marks an original binding withdrawn without editing or deleting it. Written
+ * exclusively by the scope-shrinkage decision applier so authority is
+ * unforgeable, and readable from DEV/REVIEW/TEST without returning to PLAN.
+ */
+export interface ProofStoryBindingDisposition {
+  bindingId: string;
+  disposition: 'withdrawn';
+  decisionRef: string;
+  withdrawnAt: string;
 }
 
 export interface RedEvidenceRecord {

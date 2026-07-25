@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Storage honesty: the stored record must say withdrawn, not merely project it at read time, because F-062's actual complaint is that checklist.json says done.",
+    "Append-only correction: an original acceptance binding is never edited or deleted; withdrawal is a new record beside it, preserving the frozen PLAN promise for audit.",
+    "Unforgeable authority: a withdrawn disposition can only originate from a confirmed + userConfirmed scope-shrinkage decision the operator recorded, so a DEV agent cannot self-withdraw.",
+    "Two layers, one decision id: the checklist disposition and the binding disposition are distinct records linked by the same decisionId, with consistency validated both ways.",
+    "No empty-scope PASS: withdrawing every core acceptance binding must require explicit re-approval, never silently yield a formal pass."
+  ],
+  "drivers": [
+    "The precedent (B-bf52 F-062) is a storage-level inconsistency, so a read-time-only projection would not resolve it.",
+    "proofstory_contract_set is deliberately PLAN-frozen, so the correction path must live outside it and be reachable from DEV/REVIEW/TEST.",
+    "scope_shrinkage_decision_set is already the authorized post-DEV shrinkage writer with allowedPhases PLAN/DEV/REVIEW/TEST and userConfirmed enforcement — the natural authority anchor.",
+    "24 status===done consumers plus the DEV->REVIEW gate mean a new terminal status is a gate-visible change that must be handled site by site.",
+    "The user asked explicitly for two layers linked by one decision id, not a single field change, and flagged the empty-scope guard as the highest-value guarantee."
+  ],
+  "options": [
+    {
+      "name": "A: Projection-only from the decision (no stored status)",
+      "pros": [
+        "Matches the existing confirmedShrinkageIds read-time idiom exactly",
+        "Single source of truth (the decision); no status-union migration",
+        "Smallest code change"
+      ],
+      "cons": [
+        "checklist.json still stores status:done — F-062's literal complaint (dishonest stored record) survives",
+        "Every raw reader of checklist.json is still misled",
+        "The user explicitly asked the item to carry status:withdrawn"
+      ]
+    },
+    {
+      "name": "B: Stored withdrawn status + append-only binding record, applied SOLELY by the scope-shrinkage decision writer",
+      "pros": [
+        "Storage is honest: checklist.json says withdrawn, proofstory.json carries an explicit append-only withdrawal record — directly fixes F-062",
+        "One command (scope_shrinkage_decision_set with the new refs) produces the honest end-state and both reads show withdrawn, meeting the acceptance criterion atomically",
+        "Cross-layer consistency is guaranteed because one writer stamps both layers with the same decisionId",
+        "Authority is unforgeable: withdrawn cannot exist without a confirmed+userConfirmed decision citing the item/binding; checklist_update and proofstory_contract_set both refuse withdrawn writes and point here",
+        "Works from DEV/REVIEW/TEST without touching the PLAN freeze"
+      ],
+      "cons": [
+        "New terminal status touches the status union + ~24 consumers + the DEV->REVIEW gate",
+        "The decision writer now writes three artifacts (decision, checklist, proofstory) under one lock"
+      ]
+    },
+    {
+      "name": "C: Three independent commands (decision, then checklist_update withdrawn, then binding_withdraw)",
+      "pros": [
+        "Clean separation; each layer owns its own write",
+        "Familiar per-command validation surface"
+      ],
+      "cons": [
+        "Transient inconsistency window where the decision exists but the markers do not — the exact timing artifact codex hit in F-062",
+        "Acceptance 'after scope_shrinkage_decision_set both show withdrawn' is not met by one command",
+        "Two extra validation surfaces to keep consistent with the decision"
+      ]
+    }
+  ],
+  "chosen": "B: Stored withdrawn status + append-only binding record, applied SOLELY by the scope-shrinkage decision writer",
+  "rationale": "Only Option B fixes F-062 at the storage level (the real complaint), meets the acceptance criterion in a single authorized command, and guarantees cross-layer consistency by construction. Making the scope-shrinkage decision writer the SOLE applier of both dispositions removes two validation surfaces (checklist_update and proofstory_contract_set simply refuse withdrawn writes and redirect), makes withdrawal authority unforgeable by a DEV agent, and reuses the existing confirmedShrinkageIds projection where read-time derivation is still wanted (gate/counts consult the stored withdrawn status, which the decision writer set). The append-only binding-disposition record beside the frozen acceptanceBindings preserves the PLAN promise, and the minimum-delivery floor in the DONE intent-equivalence path blocks empty-scope success. Option A leaves the stored record dishonest; Option C reintroduces the very timing inconsistency the finding described.",
+  "preMortem": [
+    {
+      "scenario": "A new terminal status withdrawn is added but one of the 24 status===done consumers is missed, so a withdrawn item silently counts as delivered or a gate misbehaves.",
+      "trigger": "grep of status==='done' is incomplete, or a consumer uses !== some-status logic that implicitly buckets withdrawn as active/pending.",
+      "consequence": "Either a story cannot advance (withdrawn treated as not-done at the DEV->REVIEW gate) or, worse, withdrawn is counted as delivered — re-creating the F-062 dishonesty in a new place.",
+      "mitigation": "Enumerate all 24 sites in plan.md CHK-002, classify each as terminal-vs-delivered, and add smoke assertions (CHK-007) that a withdrawn item advances the gate yet is excluded from delivered/completed counts and renders WITHDRAWN. Prefer a single shared helper (isDelivered / isTerminal) over ad hoc comparisons."
+    },
+    {
+      "scenario": "The scope-shrinkage decision writer flips checklist status and appends the binding record, but a partial write leaves the three artifacts inconsistent (decision written, checklist flipped, proofstory append failed).",
+      "trigger": "An exception between the three store writes, or a crash, with no surrounding lock/atomicity.",
+      "consequence": "A withdrawn checklist item with no authorizing binding disposition, or a decision with no applied markers — exactly the inconsistency being fixed.",
+      "mitigation": "Perform all three writes inside the existing checklist/main write lock, validate every ref (items and bindings exist) BEFORE any write, and make the applier idempotent so a re-run converges. Test the failure path (nonexistent ref) asserts NO artifact was mutated."
+    },
+    {
+      "scenario": "The minimum-delivery floor is added to the DONE path but is bypassable, so a story still passes after withdrawing every core binding.",
+      "trigger": "The floor checks the wrong set (e.g. original bindings instead of effective/non-withdrawn bindings), or the check is only in one of the two DONE consumers (intent-equivalence vs review-completeness).",
+      "consequence": "The single most important guarantee fails: a formal PASS obtained by withdrawing all hard requirements.",
+      "mitigation": "Define effectiveAcceptanceBindings(contract, decision) once, drive both the review-completeness required-refs set and the floor from it, and assert in CHK-006 smoke that withdrawing all bindings yields a blocking empty_scope_after_withdrawal gap requiring explicit re-approval, in both enforce and the DONE path."
+    },
+    {
+      "scenario": "Backward compatibility breaks: existing scope-shrinkage decisions or contracts without the new fields fail to load or throw.",
+      "trigger": "New required fields on ScopeShrinkageDecisionData / ProofStoryContractData, or a reader that assumes bindingDispositions/withdrawnChecklistItemRefs is always present.",
+      "consequence": "Every prior story with a shrinkage decision (including B-bf52) breaks session_brief / done_prepare reads across the repo.",
+      "mitigation": "All new fields are optional with safe defaults (undefined treated as empty); buildScopeShrinkageDecision keeps existing createdAt; add a compatibility smoke that loads a legacy decision (no new fields) and a legacy contract and asserts they read cleanly."
+    }
+  ],
+  "timestamp": "2026-07-24T19:47:08.764Z"
+}

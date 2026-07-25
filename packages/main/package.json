@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.234",
+  "version": "0.3.235",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -99,6 +99,8 @@
     "test:quantum-claim-admissibility": "node dist/tasks/quantum-claim-admissibility-smoke.js",
     "test:quantum-claim-benchmark": "node dist/tasks/quantum-claim-benchmark-smoke.js",
     "test:proofstory-intent-hardening-smoke": "node dist/tasks/proofstory-intent-hardening-smoke.js",
+    "test:scope-shrinkage-withdrawal-floor-smoke": "node dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+    "test:withdrawn-disposition-smoke": "node dist/tasks/withdrawn-disposition-smoke.js",
     "test:proofstory-acceptance-topology-smoke": "node dist/tasks/proofstory-acceptance-topology-smoke.js",
     "test:proofstory-acceptance-basis-smoke": "node dist/tasks/proofstory-acceptance-basis-smoke.js",
     "test:retired-authority-server-semantics": "node dist/tasks/retired-authority-server-semantics-smoke.js",

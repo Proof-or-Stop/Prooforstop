@@ -7,7 +7,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryGateMode } from '../core/types.js';
+import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, ScopeShrinkageDecisionData } from '../core/types.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -19,15 +19,18 @@ import {
   buildScopeShrinkageDecision,
   buildSlicePlan,
   confirmMilestoneLedger,
+  effectiveAcceptanceBindings,
   evaluateDoneIntentEquivalence,
   evaluateProofStoryDiagnostics,
   evaluateReviewCompleteness,
+  optionalStringArray,
   renderProofStoryDiagnosticReport,
   setSpikeResult,
   setSpikeStatus,
   startSpike,
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
+import { withMkdirLock } from '../core/mkdir-lock.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
@@ -914,6 +917,12 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       return lines.join('\n');
     },
 
+    // B-1909: SOLE APPLIER of both withdrawal dispositions. It records the
+    // decision, flips the named checklist items to status='withdrawn' (stamping
+    // decisionRef), and appends append-only acceptance-binding withdrawal
+    // records — all under one lock, after validating every ref, so a bad ref
+    // mutates nothing. checklist_update and proofstory_contract_set refuse
+    // withdrawn/disposition writes and redirect here.
     scope_shrinkage_decision_set(args: {
       storyId: string;
       decision: 'confirmed' | 'rejected';
@@ -921,18 +930,129 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       removedMilestoneIds?: string[];
       reason: string;
       approvedBy: string;
+      decisionId?: string;
+      withdrawnChecklistItemRefs?: string[];
+      withdrawnAcceptanceBindingRefs?: string[];
+      evidenceRefs?: string[];
+      fullWithdrawalReapproval?: { approvedBy: string; reason: string; at: string };
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
       store.readStory(args.storyId);
-      const decision = buildScopeShrinkageDecision(args, store.readScopeShrinkageDecision(args.storyId));
-      store.writeScopeShrinkageDecision(args.storyId, decision);
-      if (args.json) return stringify(decision);
-      return [
-        `Scope shrinkage decision: ${decision.decision}`,
-        `User confirmed: ${decision.userConfirmed ? 'yes' : 'no'}`,
-        `Removed milestones: ${decision.removedMilestoneIds.join(', ') || 'none'}`,
-      ].join('\n');
+
+      // CHK-005: handler-entry re-validation of the ref arrays (belt-and-suspenders
+      // over Zod; the internal fn path bypasses the CLI schema). Reuses the core
+      // optionalStringArray helper so the validation rule cannot drift (B-1909 F-003).
+      const withdrawnChecklistItemRefs = optionalStringArray(args.withdrawnChecklistItemRefs, 'withdrawnChecklistItemRefs');
+      const withdrawnAcceptanceBindingRefs = optionalStringArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
+      const hasWithdrawals = withdrawnChecklistItemRefs.length > 0 || withdrawnAcceptanceBindingRefs.length > 0;
+
+      return withMkdirLock(
+        store.runtimeLockDirPath(args.storyId, 'checklist', 'checklist'),
+        () => {
+          // Build (and shape-validate) the decision. buildScopeShrinkageDecision
+          // enforces confirmed⇒userConfirmed and confirmed⇒non-empty removal set,
+          // and stamps a stable decisionId.
+          const decision = buildScopeShrinkageDecision(args, store.readScopeShrinkageDecision(args.storyId));
+          const decisionId = decision.decisionId;
+          if (!decisionId) throw new Error('internal: scope-shrinkage decisionId was not assigned');
+
+          // A withdrawal is only authorized by a confirmed + userConfirmed decision.
+          if (hasWithdrawals && !(decision.decision === 'confirmed' && decision.userConfirmed === true)) {
+            throw new Error(
+              'scope_shrinkage_decision_set refused: withdrawnChecklistItemRefs / withdrawnAcceptanceBindingRefs require decision=confirmed with userConfirmed:true',
+            );
+          }
+
+          const contract = store.readProofStoryContract(args.storyId);
+          const checklist = withdrawnChecklistItemRefs.length > 0
+            ? store.readChecklist(args.storyId)
+            : null;
+
+          // VALIDATE every ref BEFORE any write (so a bad ref mutates nothing).
+          if (checklist) {
+            const checklistIds = new Set(checklist.items.map((item) => item.id));
+            for (const ref of withdrawnChecklistItemRefs) {
+              if (!checklistIds.has(ref)) {
+                throw new Error(`scope_shrinkage_decision_set refused: withdrawnChecklistItemRef ${ref} is not a checklist item on ${args.storyId}`);
+              }
+            }
+          }
+          if (withdrawnAcceptanceBindingRefs.length > 0) {
+            const bindingIds = new Set((contract?.acceptanceBindings ?? []).map((binding) => binding.id));
+            for (const ref of withdrawnAcceptanceBindingRefs) {
+              if (!bindingIds.has(ref)) {
+                throw new Error(`scope_shrinkage_decision_set refused: withdrawnAcceptanceBindingRef ${ref} is not an acceptance binding on ${args.storyId}`);
+              }
+            }
+          }
+
+          // EMPTY-SCOPE FLOOR (CHK-006 / OQ-1): applying the binding withdrawals
+          // must not empty the effective (non-withdrawn) binding set when the
+          // contract originally had >= 1 binding, unless the confirmed decision
+          // carries an explicit fullWithdrawalReapproval. Write-time refusal,
+          // independent of doneGateMode.
+          const originalBindingCount = contract?.acceptanceBindings?.length ?? 0;
+          if (originalBindingCount > 0) {
+            const effective = effectiveAcceptanceBindings(contract, decision);
+            if (effective.length === 0 && !decision.fullWithdrawalReapproval) {
+              throw new Error(
+                'scope_shrinkage_decision_set refused: this withdrawal would empty the effective acceptance-binding set. ' +
+                'Emptying scope requires an explicit fullWithdrawalReapproval {approvedBy, reason, at} on the confirmed decision. [empty_scope_after_withdrawal]',
+              );
+            }
+          }
+
+          // APPLY (validation passed): write all artifacts under the same lock.
+          store.writeScopeShrinkageDecision(args.storyId, decision);
+
+          if (checklist && withdrawnChecklistItemRefs.length > 0) {
+            const now = new Date().toISOString();
+            const targets = new Set(withdrawnChecklistItemRefs);
+            for (const item of checklist.items) {
+              if (!targets.has(item.id)) continue;
+              item.status = 'withdrawn';
+              item.decisionRef = decisionId;
+              if (!item.endTime) item.endTime = now;
+            }
+            store.writeChecklist(args.storyId, checklist);
+          }
+
+          if (withdrawnAcceptanceBindingRefs.length > 0 && contract) {
+            const dispositions: ProofStoryBindingDisposition[] = [...(contract.bindingDispositions ?? [])];
+            const alreadyWithdrawn = new Set(
+              dispositions.filter((d) => d.disposition === 'withdrawn').map((d) => d.bindingId),
+            );
+            const withdrawnAt = new Date().toISOString();
+            for (const bindingId of withdrawnAcceptanceBindingRefs) {
+              if (alreadyWithdrawn.has(bindingId)) continue; // idempotent: no duplicate dispositions
+              dispositions.push({ bindingId, disposition: 'withdrawn', decisionRef: decisionId, withdrawnAt });
+              alreadyWithdrawn.add(bindingId);
+            }
+            const updatedContract: ProofStoryContractData = {
+              ...contract,
+              bindingDispositions: dispositions,
+              updatedAt: new Date().toISOString(),
+            };
+            store.writeProofStoryContract(args.storyId, updatedContract);
+          }
+
+          if (hasWithdrawals) {
+            try { autoCommitStoryMetadata(ctx.root, args.storyId, 'scope_shrinkage_decision_set'); } catch { /* best-effort */ }
+          }
+
+          if (args.json) return stringify(decision);
+          return [
+            `Scope shrinkage decision: ${decision.decision}`,
+            `Decision id: ${decisionId}`,
+            `User confirmed: ${decision.userConfirmed ? 'yes' : 'no'}`,
+            `Removed milestones: ${decision.removedMilestoneIds.join(', ') || 'none'}`,
+            `Withdrawn checklist items: ${withdrawnChecklistItemRefs.join(', ') || 'none'}`,
+            `Withdrawn acceptance bindings: ${withdrawnAcceptanceBindingRefs.join(', ') || 'none'}`,
+          ].join('\n');
+        },
+        { label: 'checklist metadata' },
+      );
     },
 
     scope_shrinkage_decision_get(args: { storyId: string; json?: boolean }): string {

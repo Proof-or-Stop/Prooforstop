@@ -432,7 +432,7 @@ Behavior:
   }},
   { name: 'checklist_update', description: 'Update a checklist item (status/relatedDocs; title/context/userSees frozen)', longHelp: CHECKLIST_UPDATE_LONG, schema: {
     storyId: z.string().describe('Story ID'), itemId: z.string().describe('Item ID.'),
-    status: z.enum(['pending','in_progress','done']).optional().describe('New status.'),
+    status: z.enum(['pending','in_progress','done','withdrawn']).optional().describe("New status. 'withdrawn' is REFUSED here — it may only be set by scope_shrinkage_decision_set (the sole authorized applier)."),
     title: z.string().optional().describe('New title; frozen starting in PLAN.'),
     context: z.string().optional().describe('New context; frozen starting in PLAN.'),
     relatedDocs: z.array(z.string()).optional().describe('Related documentation paths used for the three reminders.'),
@@ -447,7 +447,7 @@ Behavior:
     verificationEvidence: z.array(verificationEvidenceSchema).optional().describe('Evidence list covering verificationIntent.'),
     reason: z.string().optional().describe('Change reason.'), agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias; INIT reviewer lanes may not directly change requirement definitions.'),
-    success: z.boolean().optional().describe('Whether the subagent result succeeded; only valid when status=done, default true.'),
+    success: z.boolean().optional().describe('Feeds the subagent_result process event (success flag) when status=done; default true. NOT persisted on the checklist item.'),
   }},
   { name: 'verification_evidence_add', description: 'Add or update evidence satisfying a checklist item\'s verificationIntent', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2671,13 +2671,22 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
-  { name: 'scope_shrinkage_decision_set', description: 'Persist an explicit ProofStory scope-shrinkage decision', schema: {
+  { name: 'scope_shrinkage_decision_set', description: 'Persist an explicit ProofStory scope-shrinkage decision (sole applier of checklist-item and acceptance-binding withdrawals)', schema: {
     storyId: z.string().describe('Story ID'),
     decision: z.enum(['confirmed', 'rejected']).describe('Whether the shrinkage is accepted.'),
     userConfirmed: z.boolean().optional().describe('Must be true when decision=confirmed; DONE equivalence ignores confirmed shrinkage without this explicit user confirmation.'),
     removedMilestoneIds: z.array(z.string().min(1)).optional().describe('Milestones explicitly removed from DONE equivalence when decision=confirmed.'),
     reason: z.string().min(1).describe('Audit reason for the shrinkage decision.'),
     approvedBy: z.string().min(1).describe('Human or agent approving the decision.'),
+    decisionId: z.string().min(1).optional().describe('B-1909: stable id both withdrawal layers cite; generated when omitted.'),
+    withdrawnChecklistItemRefs: z.array(z.string().min(1)).optional().describe('B-1909: checklist item ids to withdraw (flipped to status=withdrawn with decisionRef). Requires decision=confirmed + userConfirmed.'),
+    withdrawnAcceptanceBindingRefs: z.array(z.string().min(1)).optional().describe('B-1909: acceptance-binding ids to withdraw (append-only disposition beside the frozen binding). Requires decision=confirmed + userConfirmed.'),
+    evidenceRefs: z.array(z.string().min(1)).optional().describe('B-1909: optional audit references backing the withdrawal.'),
+    fullWithdrawalReapproval: z.object({
+      approvedBy: z.string().min(1).describe('Operator approving a full withdrawal that empties the effective binding set.'),
+      reason: z.string().min(1).describe('Why emptying the acceptance scope is authorized.'),
+      at: z.string().min(1).describe('ISO 8601 timestamp of the re-approval.'),
+    }).optional().describe('B-1909: explicit re-approval required to withdraw every effective acceptance binding (empty-scope floor).'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
   { name: 'scope_shrinkage_decision_get', description: 'Read the ProofStory scope-shrinkage decision', schema: {
