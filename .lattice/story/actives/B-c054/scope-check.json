@@ -1,6 +1,6 @@
 {
   "storyId": "B-c054",
-  "checkedAt": "2026-07-25T00:42:01.629Z",
+  "checkedAt": "2026-07-25T00:56:51.861Z",
   "features": [
     {
       "feature": "CANON: RFC 8785 canonicalizer with UTF-16 code-unit key order, minimal number/string encoding, JSON null preserved, sha256:<64-hex> digest rendering (§0.4)",
@@ -11,8 +11,8 @@
     },
     {
       "feature": "Self-omitting recordDigest helper (CANON over an object with a named field itself omitted, e.g. a canonDigestOmitting-style helper) (§0.4)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
@@ -283,13 +283,26 @@
   },
   "summary": {
     "total": 21,
-    "covered": 16,
+    "covered": 17,
     "excluded": 4,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "b9b8e9239b4bac3abb2cba234ec470311b9d78d970d769138446552bcdf28980",
-  "openQuestions": []
+  "_hash": "b3671ae7cffc4f729a56da6a9655fa92faa8e4abf702527d83d8a2d5359b09a3",
+  "openQuestions": [
+    {
+      "id": "OQ-B-c054-forbiddenCatchAlls-8th-entry-pinned-value-contradiction",
+      "q": "Does the frozen forbiddenCatchAlls[7] default literal equal the empty string (0 chars) or the 2-character double-quote literal '\"\"' (a quote followed by a quote)? The story's own OQ-resolution record and its own checklist verification-intent currently assert OPPOSITE answers to this already-once-litigated question, and it directly determines the frozen policyDigest literal in CHK-003.",
+      "evidence": "understanding.json unknowns[0]: 'RESOLVED (OQ-B-c054-forbiddenCatchAlls-8th-entry): forbiddenCatchAlls[7] = empty string, per the spec's own \"\"=empty-string convention at §0.4 lines 74/76; frozen policyDigest pinned to that reading.' VERSUS checklist.json CHK-003 verificationIntent.edge[2].desc (raw, decoded): the 8th listed default entry is rendered as the JSON-stringify-escaped token `\"\\\"\\\"\"` (which decodes to the 2-character string consisting of two double-quote characters), and the WHY clause literally says 'the 8th entry (double-quote literal)' -- the opposite reading from the one the OQ resolution claims to have pinned. Spec source itself (red-evidence-subsystem-spec.md line 299): '| policy.forbiddenCatchAlls | ... | `.*`, `.+`, `.`, `^$`, `^.*$`, `^.+$`, `\\s*`, `\"\"` |' is genuinely ambiguous markdown and does not itself resolve which reading is correct; §0.4 lines 74-76 (cited by the OQ resolution) governs RECORD-FIELD nullability conventions (chain fields null vs other fields omitted, never written as \"\"), not how this §1.2 table cell should be parsed, so it does not actually settle the ambiguity either way.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-c054/understanding.json:19",
+        ".lattice/story/actives/B-c054/checklist.json:179",
+        ".lattice/story/actives/B-c054/plan.md:8",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md:299",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md:74-76"
+      ]
+    }
+  ]
 }
