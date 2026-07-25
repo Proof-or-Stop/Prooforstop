@@ -86,7 +86,39 @@
       "context": "In the SAME commit as the widening: guard redEvidenceRecordSatisfied (packages/main/src/core/proofstory.ts:931) so its record.observedFailure.trim() at :932 (reached via .some() at :947 and missingRedEvidence at :1196) is only applied to v1 records — a v2 record must not crash the LIVE enforce gate (devGateMode/reviewGateMode/doneGateMode all enforce in lattice.config.json). Prove the diagnostic output is BYTE-IDENTICAL to the pre-change run on a v1-only store (RED signal A).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "RED signal A baseline: on a v1-only store, capture the FULL diagnostic output of redEvidenceRecordSatisfied/missingRedEvidence BEFORE the change; after the change, capture the same output on the SAME v1-only store; outputs are BYTE-IDENTICAL (diff returns 0); WHY: the v1-skip guard must be transparent to all v1 paths — devGateMode/reviewGateMode/doneGateMode all enforce",
+            "type": "cli"
+          },
+          {
+            "desc": "On a mixed v1+v2 store where the v1 record satisfies the gate: proofstory_gate_check does NOT throw; v2 records are silently skipped; the v1 verdict is correct; WHY: v2 records must be invisible to the v1 gate predicate",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A store with ONLY v2 records (no v1): missingRedEvidence fires (no v1 record satisfies the predicate); the diagnostic names the target as missing; WHY: v2-only stores have no satisfying v1 record and must report missing, not crash",
+            "type": "cli"
+          },
+          {
+            "desc": "A v1 record with empty-string observedFailure: gate still rejects (trim() yields empty → unsatisfied); WHY: the guard change must not alter any v1 evaluation path",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "RED signal A attack: write a v2 quarantine record (no observedFailure field) into a real story red-evidence.json; run the real proofstory_gate_check → must NOT throw TypeError at record.observedFailure.trim(); WHY: this is the exact live crash path (proofstory.ts:932 via .some() at :947 from missingRedEvidence at :1196) that throws today and must be fixed",
+            "type": "cli"
+          },
+          {
+            "desc": "Inject a record with schemaVersion proofstory.red_evidence.v2 but WITH an observedFailure field present (a malformed hybrid): the version discriminator governs the skip, not field presence; the record is still skipped by the v1 predicate; WHY: defense-in-depth against malformed records",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
