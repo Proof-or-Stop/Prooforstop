@@ -291,16 +291,14 @@
         },
         {
           "intentRef": "CHK-003:edge:inconclusive-boundary",
-          "kind": "logic_test",
-          "verdict": "success",
-          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "kind": "manual_transcript",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
-          "headHash": "8e4e36cbad111225326e1e2ebb60d27a232ce4ea",
+          "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
+          "headHash": "aa9eeaf6a39d14180346f2897053917c7524628d",
           "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
           "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:02:59.126Z"
+          "timestamp": "2026-07-25T22:31:21.632Z"
         },
         {
           "intentRef": "CHK-003:adversarial:threshold-bypass",
