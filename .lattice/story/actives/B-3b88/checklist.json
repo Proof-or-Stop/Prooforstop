@@ -93,10 +93,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "same-stem dist/src + .js/.ts variants accepted (normalization does not false-positive)",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.024Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -105,10 +105,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "no-stem command (npm test) never triggers a false contradiction",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.024Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -117,10 +117,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "command with no file-like argument (lattice validate) is accepted",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.024Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -129,10 +129,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "command present but file absent is accepted (contradiction needs both fields)",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.024Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -141,10 +141,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "file present but command absent is accepted (no command means no stem)",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.024Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -153,10 +153,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": ".js and .cjs of the same stem are accepted (extension normalized)",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.024Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -165,10 +165,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "multi-arg command compares the last script target (alpha), not the intermediate setup.js",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.025Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -177,10 +177,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "verification_evidence_batch_add contradictory entry is also refused (bypass closed)",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.025Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -189,10 +189,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "shell pipe: primary target extracted before the pipe, contradiction refused",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.025Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -201,10 +201,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "path traversal in command: basename resolved before comparison, contradiction refused",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.025Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -213,10 +213,10 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "empty-string command with a real file is accepted without crashing",
-          "headHash": "a9036147aff80a21716ef7d3001d93e33a4834cf",
-          "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59",
-          "storyFilesHash": "d9a91ba1b0ae3271eae1fc0e3a0096c8994f51857ba6a187b47c2fac484d96b9",
-          "timestamp": "2026-07-25T23:19:18.025Z"
+          "headHash": "7044e479fb39dc9ceb5fe17ee9a666995e25444b",
+          "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509",
+          "storyFilesHash": "81703d664e2e6a013225e7cb97581aa0da13dd6b05466c172a995462acbc6ef8",
+          "timestamp": "2026-07-25T23:51:13.737Z"
         }
       ]
     },
