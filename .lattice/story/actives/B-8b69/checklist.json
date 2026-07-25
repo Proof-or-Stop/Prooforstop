@@ -134,6 +134,18 @@
           "materialHash": "b754621ed4690a8ad728c163ace792d220c6c0d77ca51ed178d8acba27a874a0",
           "storyFilesHash": "177999ecb1d8ec2b2a9846507cc8d0780941b56de5dcffe1eced93338769f295",
           "timestamp": "2026-07-25T15:30:22.601Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "assertDevStartReuseFromMainAndRebootstrap: after deleting the worktree dir (+ git worktree prune), dev_start re-bootstraps and recreates the worktree on disk.",
+          "headHash": "efc2619c7c911163bb697b7488dae71a7f30e197",
+          "materialHash": "b754621ed4690a8ad728c163ace792d220c6c0d77ca51ed178d8acba27a874a0",
+          "storyFilesHash": "177999ecb1d8ec2b2a9846507cc8d0780941b56de5dcffe1eced93338769f295",
+          "timestamp": "2026-07-25T15:30:24.336Z"
         }
       ]
     },
