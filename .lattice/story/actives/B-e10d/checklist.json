@@ -156,9 +156,9 @@
       "id": "CHK-005",
       "title": "Register red-target-bindings.json in the lifecycle artifact set and the ProofStory artifact path list",
       "context": "Add the filename to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (core/lifecycle-registry.ts:599) so the scope classifier (rejects unknown top-level story artifacts at :849) accepts it as lifecycle metadata, and to the ProofStory artifact path list. This closes RED signal A (a story touching the file can now reach DONE).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:36.729Z",
       "verificationIntent": {
         "happy": [
           {
