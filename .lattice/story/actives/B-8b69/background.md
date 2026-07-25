@@ -1,15 +1,15 @@
 ## Trigger Event
 
-2026-07-25 repro-first intake is creating a story from accepted candidate evidence. Probe rp-ms08p73e-rdc1ts and review rr-ms08pfzt-43otgo are bound before development starts.
+2026-07-25: during W2a (B-c054) a PLAN scope review legitimately flagged a frozen checklist title that had to change to name a real deliverable. The sanctioned recovery — `lattice story_advance --phase=INIT_CHECK` to bounce the story back — failed for a worktree'd story, forcing a direct `checklist.json` title hand-edit. Root cause was verified in `packages/main/src/handlers/worktree.ts` around line 910 and reproduced twice at proofbound 0.3.237 (probe rp-ms08p73e-rdc1ts, red-reviewed rr-ms08pfzt-43otgo).
 
 ## Key Insights
 
-The repro review is red-reviewed and classified as target-bug, so this story starts from observed failing behavior instead of a speculative fix. Candidate cand-plan-init-reopen remains intake evidence only.
+The failure is TWO independent defects, not one. (1) dev_start path/reuse bug: run from inside the worktree, the reuse early-return check resolves `story.worktree.path` via `getRepoRoot()` (`git rev-parse --show-toplevel`, which returns the worktree itself), double-nesting to a non-existent path, so it clears the worktree record and re-bootstraps; the re-bootstrap then computes `storyRel` relative to `resolveMainRepoRoot()` (`--git-common-dir`, the MAIN checkout) while the metadata root is the worktree, yielding a `.worktrees/<id>/`-prefixed path, so the branch-content guard `gitTreePathExists` false-fails ("Branch story/<id> already exists but does not contain .worktrees/<id>/.lattice/.../index.json"). Both stem from using a worktree-local path where the main repo root was required. (2) The state machine (`packages/main/src/core/machine.ts`) defines NO backward edge out of PLAN toward INIT_CHECK/INIT — the only PLAN edge is START→DEV — so even with the path bug fixed, `story_advance` PLAN→INIT_CHECK is an illegal transition (machine probe: allowed=false). A third contradiction: `checklist.ts` keeps title/context frozen AT INIT_CHECK too (only INIT allows edits), yet its guidance says "bounce to INIT_CHECK to change title" — which would not actually unfreeze it.
 
 ## Solution Tradeoffs
 
-Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof.
+Chosen design (confirmed with the maintainer): add a gated PLAN→INIT reopen transition, because INIT is the only phase where title/context is genuinely editable, so reopening to INIT actually restores the flagged-title recovery without weakening the INIT_CHECK scope-freeze invariant. Rejected alternative: reopen to INIT_CHECK and remove INIT_CHECK from the title-freeze set — simpler-sounding but it weakens the freeze invariant. The dev_start worktree-reuse path must also be fixed so the subsequent re-advance INIT→INIT_CHECK (run from inside the still-existing worktree) reuses the worktree instead of re-bootstrapping and false-failing. The contradictory guidance is corrected to point at the reopen-to-INIT path.
 
-## Conversational Texture
+## Conversation Texture
 
-The maintainer sees a normal Lattice story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.
+A maintainer at PLAN sees a scope review say the frozen title must change. They run the reopen command, land back at INIT, edit the title with `checklist_update`, re-run INIT review, and re-advance INIT→INIT_CHECK→PLAN — all from inside the existing worktree, with no `git` surgery and no hand-edited `checklist.json`. The permanent round-trip smoke reproduces exactly that sequence and fails first (RED) on both the missing transition and the dev_start path bug, then passes (GREEN) after the fix.

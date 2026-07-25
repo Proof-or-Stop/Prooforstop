@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8b69",
+  "checkedAt": "2026-07-25T10:45:25.482Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "b1a816a259dcb896e226779eed0c8b3bd325ee4884e9f35cf86cbd92efeb822e",
+  "executionBoundaryHash": "6b3199ac8d0048beb678d00759d5b82fcbb24a10d1412e522791a196fbd4117c",
+  "freshnessHash": "a79ba5cda16f497fc85573ca82fb52f03c5c5898fb8fdf124e801b309dd68744",
+  "effectiveExcludedKeywords": [
+    "Any broader state-machine refactor beyond the PLAN->INIT edge",
+    "Authority",
+    "Changes to DEV/REVIEW/TEST/DONE gates",
+    "customerKeyRef",
+    "Layer4",
+    "Removing INIT_CHECK from titleContextProtectedPhases or weakening the INIT_CHECK scope-freeze invariant",
+    "repair UX",
+    "Reworking the repro-first intake or evidence store"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any broader state-machine refactor beyond the PLAN->INIT edge",
+      "source": "scopeBoundary.excluded",
+      "text": "Any broader state-machine refactor beyond the PLAN->INIT edge",
+      "excluded": true
+    },
+    {
+      "keyword": "Changes to DEV/REVIEW/TEST/DONE gates",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to DEV/REVIEW/TEST/DONE gates",
+      "excluded": true
+    },
+    {
+      "keyword": "Removing INIT_CHECK from titleContextProtectedPhases or weakening the INIT_CHECK scope-freeze invariant",
+      "source": "scopeBoundary.excluded",
+      "text": "Removing INIT_CHECK from titleContextProtectedPhases or weakening the INIT_CHECK scope-freeze invariant",
+      "excluded": true
+    },
+    {
+      "keyword": "Reworking the repro-first intake or evidence store",
+      "source": "scopeBoundary.excluded",
+      "text": "Reworking the repro-first intake or evidence store",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "dad4595319cac54bed7f61e657d62fb8b4f76b4dfc3e393baf8e1d1d1fa2462e"
+}

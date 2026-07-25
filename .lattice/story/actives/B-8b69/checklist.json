@@ -2,8 +2,41 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Implement fix for reproduced failure",
-      "context": "Probe: rp-ms08p73e-rdc1ts, Review: rr-ms08pfzt-43otgo",
+      "title": "Add a gated PLAN->INIT reopen transition to the story state machine",
+      "context": "New backward edge PLAN->INIT guarded by canReopenToInit (owner-gated, requires a reason, allowed only pre-REVIEW from PLAN). Wire it into BOTH the xstate machine states and canSendStoryEventWithoutSnapshotCan so story_advance --phase=INIT from PLAN lands at INIT, the only phase where title/context is editable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fix dev_start so a bounce from inside the worktree reuses the existing worktree instead of false-failing",
+      "context": "In worktree.ts dev_start, resolve the existing worktree path and storyRel against the MAIN repo root (git --git-common-dir) rather than --show-toplevel, so the reuse early-return fires and the branch-content guard stops seeing a .worktrees/<id>/-prefixed path. Required so re-advance INIT->INIT_CHECK from inside the worktree reuses rather than re-bootstraps.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-8b69/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Correct the contradictory title-freeze guidance to point at reopen-to-INIT",
+      "context": "checklist.ts tells the user to story_advance back to INIT_CHECK to change title/context, but INIT_CHECK stays in titleContextProtectedPhases so title is still frozen there; only INIT allows edits. Update the guidance text to name the reopen-to-INIT path. Keep INIT_CHECK protected (no invariant change).",
+      "relatedDocs": [
+        ".lattice/story/actives/B-8b69/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a round-trip smoke proving the reopen recovery works from inside the worktree",
+      "context": "Permanent smoke: story -> INIT_CHECK -> PLAN (commands run from inside the worktree), reopen to INIT, edit a checklist item title via checklist_update, re-freeze scope and re-run INIT review, re-advance INIT->INIT_CHECK->PLAN; assert the title change persisted with no git surgery or hand-edited checklist.json. Must fail RED before the fix on both the missing PLAN->INIT edge and the dev_start path bug.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-8b69/background.md"
+      ],
       "status": "pending",
       "startTime": null,
       "endTime": null
