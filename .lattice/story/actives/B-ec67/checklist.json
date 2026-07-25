@@ -6,7 +6,40 @@
       "context": "packages/main/src/core/types.ts:203-212 (VerificationIntentItem; precedent plannedPathDeclarations:211). The pair is not required at PLAN (intent frozen from DEV, impl absent at PLAN); pin on the FIRST verification_evidence_add for that intentRef, refuse any later write that changes it. selector = test id / case name / assertion string that MUST appear in captured output; command = executable + argv, not a raw shell program.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verification:{command,selector} is on VerificationIntentItem; the first evidence write for an intentRef pins it onto the intent and it round-trips through read/write",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a legacy intent/evidence with no pinned verification loads and reads without throwing (grandfathered)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a second evidence write that changes the pinned command or selector is refused (pin immutable), while a second write with the same command re-executes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
