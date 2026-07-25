@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Define the v2 record union with exhaustive per-operation field sets and always-present nullable chain fields",
       "context": "packages/main/src/core/red-evidence/record-v2.ts declares the proofstory.red_evidence.v2 union with the exhaustive per-operation field sets of §1.10 (lines 591-721); the §0.4 chain fields seq/priorRecordDigest/supersedes are ALWAYS present and carry JSON null at seq==1; recordDigest = W2a CANON over the record with recordDigest omitted; specDigest per §1.10.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-25T10:52:16.042Z",
-      "endTime": null,
+      "endTime": "2026-07-25T11:17:00.220Z",
       "verificationIntent": {
         "happy": [
           {
@@ -42,7 +42,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/record-v2.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "v2 union + guards + digests (commit 8727b2db83); smoke section 1 asserts per-op field omission, null chain fields, specDigest, and classifyRedRecordSchema fail-closed on unknown version",
+          "headHash": "8727b2db83c2ce26be277e6b7df62f38f874a2e5",
+          "materialHash": "10fd97415f0567bb888a00a8b1a5aecfa38120a4e8d72df0c14776fbe22dee18",
+          "storyFilesHash": "339bd89eace523f4c458816004585b6dcc95b937ae7a04bf91dd32cb0ae8ed85",
+          "timestamp": "2026-07-25T11:17:00.448Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
