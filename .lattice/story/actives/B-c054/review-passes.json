@@ -433,6 +433,36 @@
         "scanEscalationReason": null
       },
       "_hash": "27839908e783434e3b3d453345adc7a1ccb64cd730a1d8d339e413a7315d12e5"
+    },
+    {
+      "id": "B-c054:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Merge-confirmation test-coverage re-review on current material (post `git merge main` b6b2c85417, materialHash a9a1b7b9f1022832dd2ccfa82e477d007938d05731e90c07a04038f6da64bee6, storyFilesHash 0923fb577e602825bb91189d56c539763049d013bf1fbcc696c4fec8edaa6a45). Confirmed the merge introduces no coverage regression: (1) `git diff ea1238b33d b6b2c85417 -- packages/main/src/core/red-evidence packages/main/src/tasks/red-evidence-policy-canon-smoke.ts packages/main/tests/red packages/main/src/handlers/doctor.ts packages/main/src/core/config.ts` is empty — the merge touched zero story-owned source files; the only conflict was lattice.config.json, union-resolved (kept this story's red-evidence-policy-canon-smoke entry verbatim, added two unrelated main smokes scope-shrinkage-withdrawal-floor-smoke.js and withdrawn-disposition-smoke.js, dropped nothing from the story's pre-merge validate.commands set). (2) Exhaustive intentRef<->verificationEvidence set comparison across all 10 checklist items (script-derived, not eyeballed): 105 verificationIntent entries (happy+edge+adversarial) == 105 verificationEvidence entries, zero missing, zero orphaned/extra, zero must-priority gaps, zero waivers, zero fail-result evidence, and every item has all three (happy/edge/adversarial) columns populated (this story is high_assurance channel). (3) Ran `npm --prefix packages/main run build` (tsc, exit 0) then directly executed the three bound commands on current rebuilt dist/material: `node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js` (OK, exit 0), `node --test packages/main/tests/red/red-w2a-canon-differential.mjs` (PASS, exit 0), `node --test packages/main/tests/red/red-w2a-policy-failclosed.mjs` (PASS, exit 0) — all three genuinely pass on current material, not just re-asserted from stale evidence. (4) Regex-scanned every verificationEvidence note for `<name>.(ts|mjs|js):<line>` citation patterns (the F-004 defect class): zero hits, confirming F-004's fix (stable content-based descriptions replacing brittle file:line citations) still holds after the merge. No blocker. Note: verificationEvidence entries themselves remain bound to the pre-merge materialHash/storyFilesHash (7bc8c5f9.../ab36629f...) since I am reviewer-write and evidence-hash refresh is an owner-gated command (verification_evidence_refresh_stale/recover_evidence); the owner should run one of those (or done_prepare) to re-bind evidence hashes to current material before DONE.",
+      "createdAt": "2026-07-25T06:42:57.799Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-024",
+      "envelopeId": "deafc04b4bb84147a41aad277cc58fa96807d8098a48e3f1e45bdd0dc8ba272e",
+      "writerSessionId": "review-testcov-b-c054-m",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Ran a script-derived exhaustive intentRef<->verificationEvidence set-diff across all 10 checklist items (105/105 matched, zero gaps) rather than eyeballing; grepped every verificationEvidence note for stale file:line citation patterns (zero hits, F-004 holds); diffed the merge commit against the pre-merge story tip restricted to story-owned source paths (empty diff, confirms zero code drift from the merge); independently re-ran the smoke and both tests/red/*.mjs directly against a freshly rebuilt dist (all exit 0) rather than trusting the recorded evidence rows."
+      },
+      "_hash": "aba7a7a3177a31a3ffe51563c901d02d38374b3dce6c48749ea12b1149d0452e"
     }
   ]
 }
