@@ -234,10 +234,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-canon-differential.mjs",
           "result": "pass",
           "note": "canon() of a lone-surrogate member name or string value now THROWS (RFC 8785 §3.2.2.2 requires a lone surrogate to terminate canonicalization; F-CX1 fix, commit eff4404936). red-w2a-canon-differential.mjs asserts canon('\\uD800'), canon('\\uDC00'), canon('a\\uD83Dz') and a lone-surrogate object key each throw, while a valid surrogate pair '\\u{1F600}' does NOT. This satisfies CHK-001:adversarial:0's 'either throws or produces a deterministic output (must not silently corrupt)' via the throw branch — no silent corruption.",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.240Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -373,10 +373,10 @@
           "command": "git show 148ba1f0f7 --stat",
           "result": "pass",
           "note": "RED commit 148ba1f0f7 committed both .mjs test files BEFORE canon.ts/policy.ts existed; import of dist/core/red-evidence/canon.js would fail with ERR_MODULE_NOT_FOUND, proving genuine RED→GREEN transition",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -599,10 +599,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-policy-failclosed.mjs",
           "result": "pass",
           "note": "Post-resolution snapshot mutation now REJECTS: the resolved policySnapshot is deep Object.freeze'd (F-001 fix, commit eff4404936), so adding a 15th key / pinnedPath.push / mutating a nested registry object each throw TypeError; red-w2a-policy-failclosed.mjs asserts Object.isFrozen(snapshot)===true and that each mutation throws. Genuinely demonstrates the intent's 'adding a 15th key -> rejects' within the §0.6 practical tier.",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         }
       ]
     },
@@ -1578,10 +1578,10 @@
           "command": "git diff main...HEAD -- packages/main/src/core/proofstory.ts packages/main/src/handlers/proofstory.ts",
           "result": "pass",
           "note": "proofstory_gate_check output is byte-identical because this story makes ZERO changes to the gate's code: the git diff over core/proofstory.ts and handlers/proofstory.ts is empty. The doctor red-evidence line is added to createDoctorHandlers only, never to any proofstory gate path; identical gate code over identical inputs yields byte-identical output.",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -1614,10 +1614,10 @@
           "command": "node bin/lattice.js doctor",
           "result": "pass",
           "note": "live 'ls .lattice/story/actives/B-c054/evidence/' returns 'No such file or directory' after running doctor — no gate evidence file was written; doctor is advisory-only",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         },
         {
           "intentRef": "CHK-008:adversarial:1",
@@ -1712,10 +1712,10 @@
           "command": "grep -rn -i 'tamper' packages/main/src/core/red-evidence/*.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "grep returns exit code 1 (zero matches) — no use of 'tamper' in any context in new code",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -1724,10 +1724,10 @@
           "command": "grep -rn -iE '\\bsecure\\b|\\bsecured\\b' packages/main/src/core/red-evidence/*.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "grep returns exit code 1 (zero matches) — no 'secure'/'secured' anywhere in new code",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         },
         {
           "intentRef": "CHK-009:edge:1",
@@ -1748,10 +1748,10 @@
           "command": "git log -1 2fde890c60 --format='%s%n%n%b' | grep -iE 'tamper-proof|tamper-resistant|cannot be forged|unforgeable|cryptographic proof|mathematically proves|impossible to fake|guarantees integrity|prevents forgery'",
           "result": "pass",
           "note": "grep matches 'no tamper-proof / cannot-be-forged claims' — this is honest tier-fencing (negation), NOT an overclaim; the commit explicitly states what it does NOT claim, consistent with §0.6",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         },
         {
           "intentRef": "CHK-009:adversarial:1",
@@ -1760,10 +1760,10 @@
           "command": "grep -rn -iE 'receipt signing|cross-host proof' packages/main/src/core/red-evidence/*.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "grep returns exit code 1 (zero matches) — no Tier-C capability references in W2 code",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.020Z"
         }
       ]
     },
@@ -1851,10 +1851,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "live 'node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js' exits 0 with 'OK'; the smoke is registered and passes in the validate suite",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.021Z"
         },
         {
           "intentRef": "CHK-010:happy:2",
@@ -1899,10 +1899,10 @@
           "command": "ls -la packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
           "result": "pass",
           "note": "file exists at 16284 bytes (confirmed by live ls)",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.021Z"
         },
         {
           "intentRef": "CHK-010:edge:2",
@@ -1911,10 +1911,10 @@
           "command": "ls -la packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "file exists at 15869 bytes after build (confirmed by live ls)",
-          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
-          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
-          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
-          "timestamp": "2026-07-25T05:20:52.241Z"
+          "headHash": "ffea1ff15b0f70e32d8d36c074ebea5897b8db7f",
+          "materialHash": "7bc8c5f929e37d6a282c3be7f53c619f33dca5777cc727aabeeac807821cd4bc",
+          "storyFilesHash": "ab36629fca211b883715f0a8a7026c0c6231a79a251c2fbca2df730f680a4866",
+          "timestamp": "2026-07-25T05:53:22.021Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
