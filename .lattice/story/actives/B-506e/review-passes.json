@@ -1,0 +1,43 @@
+{
+  "passes": [
+    {
+      "id": "B-506e:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 confirmation. F-005 (non-exhaustive schemaVersion discriminant) CONFIRMED FIXED: record-v2.ts adds classifyRedRecordSchemaSafe (v1|v2|unsupported, non-throwing) + typed RedEvidenceSchemaError(message, schemaVersion) subclass; classifyRedRecordSchema now fails closed via that typed error. Wired at every production read site: store.ts:870 readRedEvidence classifies EVERY record at load and throws RedEvidenceSchemaError on an unsupported version (store.readRedEvidence is the sole choke point for red-evidence.json reads across machine.ts/phase-gates.ts/proofstory.ts/story-review.ts/red-evidence.ts, verified by grep); proofstory.ts:948-949 redEvidenceRecordSatisfied double-guards (isRedEvidenceV2 + classifyRedRecordSchemaSafe!==v1) before touching any v1-only field, defense-in-depth even if a non-v1 record bypasses the read gate. Ran the new committed regression red-w2c-schema-failclosed.mjs live: v3 record read-path throws typed RedEvidenceSchemaError (never TypeError), live gate never throws a bare TypeError, v1-only verdict byte-identical, v2/v3 injected directly into diagnostic input never crashes the predicate. F-006 (dead normalizeReason import) CONFIRMED FIXED: append.ts:32 import trimmed to controlOperationKey/deriveRecordId; normalizeReason remains used internally by operation-key.ts:49 controlOperationKey, no functionality lost. tsc --noEmit clean. Quality audit of fix commit b4fa4bbfad: (1) new nested locking in handlers/red-evidence.ts red_evidence_binding_set (F-009) acquires withBindingLock (outer) then the exported redEvidenceChainLockDir chain-lock (inner) via withMkdirLock, both using try/finally-backed acquireMkdirLock/release (mkdir-lock.ts:477-484) so both locks release on every path including throw; grepped all call sites of redEvidenceChainLockDir - the chain-append path (append.ts appendControlRecord, invoked only via red_evidence_quarantine/recover) acquires ONLY the chain lock, never the binding lock, so lock order is consistently binding-then-chain with no caller ever acquiring chain-then-binding, so no AB-BA cycle/deadlock risk, and binding_set never re-enters the chain lock so no self-deadlock either. (2) RedEvidenceSchemaError is a proper named Error subclass (name=RedEvidenceSchemaError, stable readonly schemaVersion field), not a bare Error. (3) No new as-any/colon-any, no new empty catches, no new I/O introduced into chain.ts or operation-key.ts (both remain untouched by the fix commit and import no fs/process modules). (4) Read-path fail-closed throw from store.readRedEvidence is appropriate, not new uncaught-crash fragility: it only fires for a genuinely unsupported schemaVersion (v1/v2, the only real production shapes, never throw), it is exactly what CHK-002:adversarial:0 mandates (forward-compat must fail closed at parse/load time), and every existing call site already tolerates a thrown exception per pre-existing codebase convention (story-review.ts wraps both usages in try/catch and degrades to an advisory message; machine.ts guard functions already wrap proofStoryDevGateFailure in a blanket try/catch with documented fail-closed/fail-open semantics predating and unrelated to this diff; CLI handler call sites surface exceptions as normal command errors per repo convention). Ran all 6 relevant red-w2c-*.mjs regressions live (schema-failclosed, binding-corrupt-chain, head-consistency, binding-freeze-race, validate-registration, gate-guard) - all OK. 0 findings this round.",
+      "createdAt": "2026-07-25T22:41:07.474Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-008",
+      "envelopeId": "bfff05221a09bf7b685264ab5c0698668aaf9144c5c15405c0f6a6200c59d68e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8f8918d8c620c7e01fead5bbce06e150fef739912519c04434d5b858e67e9191"
+    }
+  ]
+}
