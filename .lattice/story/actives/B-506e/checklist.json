@@ -232,9 +232,9 @@
       "id": "CHK-005",
       "title": "Implement the closed transition table with transitive cycle-safe effective-head resolution",
       "context": "The §3.3 closed transition table governs legal quarantine/recover transitions with governing-red-assert derivation; effective-head resolution walks transitively through chained recover records and is cycle-safe (a self-referential or looping recover chain TERMINATES instead of recursing forever).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:17:52.835Z",
       "verificationIntent": {
         "happy": [
           {
@@ -282,7 +282,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "closed transition table + transitive cycle-safe effectiveHeadOperation (self+mutual recover terminate); chain-smoke section 4 (commit 3976bccb2e)",
+          "headHash": "fff4c9f5b3dc71955b6b0d407bbd36441e82c803",
+          "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
+          "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
+          "timestamp": "2026-07-25T11:17:53.101Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
