@@ -29,6 +29,66 @@
       "_hash": "0d32cfc480de078e4ff98d14a603d55b56d06329d2dac1c41023f57250fc127d",
       "signatureTag": "missing|unknown|handlers-quorum-prune",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-003",
+      "desc": "CHK-002:edge:2 evidence overclaims, packages/main/src/handlers/quorum-submit.ts:519-526 vs packages/main/src/tasks/quorum-submit-smoke.ts:1665-1669: intent requires the refusal message to be verified as naming standing runIds, materialDigest of the standing verdicts, and pointing at review_escalation_status. The production message does contain all of that, but the ONLY assertion against it anywhere in the smoke suite is assert.match(..., /quorum_submit refuses: .*drift-accept/i, ...) at line 1667 (and /drift-accept/i at 1711/1714) -- neither checks for runIds, materialDigest values, or the literal string review_escalation_status. The verificationEvidence note for CHK-002:edge:2 (\"Drift-branch message content asserted via regex; message names standing runIds, older material(s), current storyFilesHash, poisoning consequence, and points at review_escalation_status\") overstates what the bound regex actually verifies -- it is true of the production code, not of the test assertion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T23:01:09.303Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-002",
+      "_hash": "cfde342ccdf7ee460e6fa4397834d2aeb627ab1a9c76834f8a2f1b34ed753c5d",
+      "signatureTag": "edge|unknown|edge-evidence-overclaims",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-004",
+      "desc": "CHK-003:happy:2 evidence cites an unbound command, packages/main/src/tasks/quorum-submit-smoke.ts:2098-2113: the checklist scope.allowedModify explicitly includes packages/main/src/core/config.ts (DEFAULT_PHASE_TOOLS wiring), and config.ts:362 does add quorum_prune to DEFAULT_PHASE_TOOLS. But the bound checks own comment (~2106-2109) says exercising that wiring is \"outside this storys scope contract\" and is not tested there (only catalog+policy resolution and non-unknown-command dispatch are asserted). The verificationEvidence note for CHK-003:happy:2 instead claims coverage via \"scripts/verify-process-fact-contract.mjs passes with the new fact row and DEFAULT_PHASE_TOOLS entry\" -- but that script is a different, separate command from the one this evidence row is bound to (node packages/main/dist/tasks/quorum-submit-smoke.js), and no verificationEvidence row records that script having been run at this headHash/materialHash. The claimed \"wiring verification across all 5 integration points\" is therefore not actually demonstrated by evidence bound to this storys own smoke command for the config.ts integration point.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T23:01:09.695Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-002",
+      "_hash": "ce9fc0f587b21c2bb0d269917930e5a12049f11cdb6b804f6c2d69dc7f8ab814",
+      "signatureTag": "missing|unknown|happy-evidence-cites",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-005",
+      "desc": "CHK-002:adversarial:2 evidence overclaims, packages/main/src/tasks/quorum-submit-smoke.ts:1622-1673: intent explicitly requires asserting hostVerdictEventCount, verdictFileCount, AND `git rev-parse HEAD` all unchanged after the drift-accept refusal (does not advance HEAD). The bound check (refuses a redundant re-submit when the standing quorum drift-accepts) captures beforeEvents/beforeVerdicts (lines 1640-1641) and asserts them unchanged (lines 1670-1671), but never captures or re-checks `git rev-parse HEAD` before/after the refusal -- unlike every other refusal-leaks-no-state check in this same file (e.g. lines 1545/1552, 1740/1745, 1877/1890, 1943/1951) which do assert HEAD is unchanged via beforeHead. One of the three required invariants in this adversarial intent is unverified.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T23:01:10.791Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-002",
+      "_hash": "8dfe8cdc0b421956dd126411a1a7aaef5c6daa29b8cf901b1c566aef448a0adc",
+      "signatureTag": "adversarial|unknown|adversarial-evidence-overclaims",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-006",
+      "desc": "CHK-001:edge:0 evidence reuses happy:1 assertion, packages/main/src/tasks/quorum-submit-smoke.ts:1622-1673 (lines 1633-1636): the intent explicitly states storyFilesHash equality is necessary but not sufficient and requires an independent check that commitMainDrift touches zero story-owned file blobs. The bound evidence reuses the exact same storyHashBefore===storyHashAfter assertion already used for CHK-001:happy:1 -- no distinct file-level/diff-based assertion exists anywhere in the suite verifying commitMainDrift only ever touches main-drift.ts; this is proven only by the note (\"commitMainDrift helper commits only ... - no story-diff file is touched\"), which is a claim about the helpers hardcoded implementation, not an independent runtime check as the intent explicitly demanded.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T23:01:11.933Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-002",
+      "_hash": "3bec506560623652305f258778ca699c2b85147370588925152c86cb2046c1a4",
+      "signatureTag": "edge|unknown|edge-evidence-reuses",
+      "signatureTagSource": "auto"
     }
   ]
 }
