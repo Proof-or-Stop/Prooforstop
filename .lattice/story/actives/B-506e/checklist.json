@@ -480,9 +480,9 @@
       "id": "CHK-009",
       "title": "Serialize every chain append under one mkdir claim covering read-head, dedupe, validate and write",
       "context": "All four chain appends are serialized under ONE atomic mkdir claim covering read-head through write, modeled on the executable acquireMkdirLock pattern at packages/main/src/handlers/transition-orchestrator.ts:812-836 (acquire :819, release :859) via packages/main/src/core/mkdir-lock.ts:253 — NOT the §4.1 line-1171 citation (an explanatory comment). Two racing red_evidence_quarantine processes yield exactly one record + a unique head; the loser reports a held-claim abort (RED signal B).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:17:57.920Z",
       "verificationIntent": {
         "happy": [
           {
@@ -518,7 +518,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "all appends under one withMkdirLock claim; genuine 2-process race -> exactly one record + unique head; red-w2c-quarantine-race + chain-smoke section 9 (commit 3976bccb2e)",
+          "headHash": "6ee83a0bffca1f76e8b42e950e6302ad860cb9a6",
+          "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
+          "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
+          "timestamp": "2026-07-25T11:17:58.276Z"
+        }
+      ]
     },
     {
       "id": "CHK-010",
