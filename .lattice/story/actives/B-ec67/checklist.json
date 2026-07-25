@@ -47,7 +47,40 @@
       "context": "packages/main/src/handlers/checklist.ts:888 verification_evidence_add AND :947 verification_evidence_batch_add (parallel entry point with the same defect — BOTH must reach the same enforcement boundary). VerificationIntentType is logic|cli|browser|manual|docs; the command-executable set is logic|cli|browser. For those, stop trusting caller command+result; run the pinned command via packages/main/src/core/validation-executor.ts executeValidationPlan (spawn:394) and refuse when (a) exit!=0 but pass claimed, (b) selector absent from output, (c) intentRef does not resolve to an intent on the item (today silently accepted), (d) pinned command != command to run (receipt-command-mismatch: expected X, got Y from done-required-validation.ts:701).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "for an executable intent (logic|cli|browser) verification_evidence_add runs the pinned command via the shared enforce-and-stamp helper and writes a receipt when exit==0 and the selector is present",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verification_evidence_batch_add enforces identically through the same shared helper: a selector-absent row is refused through the batch path too",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the write is refused on each of exit!=0-but-pass-claimed, selector-absent-from-output, intentRef-not-resolving-to-an-intent-on-the-item, and pinned-command != command-to-run (receipt-command-mismatch)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
