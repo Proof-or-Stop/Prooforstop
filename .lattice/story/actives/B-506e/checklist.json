@@ -890,15 +890,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-007:adversarial:0",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/core/red-evidence/chain.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "command": "node packages/main/tests/red/red-w2c-head-consistency.mjs",
           "result": "pass",
-          "note": "§3.5 order derive-key->dedupe->replay->head->transition->integrity->append; corrupted key raises CONFLICT; chain-smoke section 6 (commit 3976bccb2e)",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "Fixes F-008: assertStoredControlRecordConsistent ran ONLY on a dedupeHit, so a FRESH (non-replay) append trusted the resolved head's stored recordDigest/operationKey/id without recomputation and chained onto a corrupt head (the handler derives referencedRecordDigest FROM the stored record, so the downstream digest check compared the tampered value against itself and passed). append.ts now recomputes the head BEFORE it is used as the prior link. The test (a) proves non-vacuity — the identical fresh recover on a well-formed head SUCCEEDS; (b) tampers ONLY the stored recordDigest and asserts RedEvidenceChainError/REASON_STORE_CORRUPTION with records.length unchanged; (c) re-seals the record around a tampered operationKey (so recordDigest still recomputes) and asserts the same CONFLICT. The recover key embeds operation=recover so the dedupe branch is provably NOT taken. Verified RED: removing the head recomputation makes (b) fail with 'Missing expected exception'. Commit b4fa4bbfad.",
+          "headHash": "7b3ec39996726e90df3aca1530cdc5fd3cc38152",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:03:52.243Z"
         },
         {
           "intentRef": "CHK-007:happy:0",
