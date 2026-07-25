@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Define the v2 record union with exhaustive per-operation field sets and always-present nullable chain fields",
       "context": "packages/main/src/core/red-evidence/record-v2.ts declares the proofstory.red_evidence.v2 union with the exhaustive per-operation field sets of §1.10 (lines 591-721); the §0.4 chain fields seq/priorRecordDigest/supersedes are ALWAYS present and carry JSON null at seq==1; recordDigest = W2a CANON over the record with recordDigest omitted; specDigest per §1.10.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-25T10:52:16.042Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
