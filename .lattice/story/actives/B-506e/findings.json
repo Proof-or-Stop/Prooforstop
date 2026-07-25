@@ -28,7 +28,7 @@
       "desc": "CHK-001:edge:0 evidence is weaker than the sibling coverage in the same file. Intent: \"Construct a green-confirm record; verify it has confirmsRecordId/confirmsRecordDigest/confirmsAssertionDigest but NO assertion/policySnapshot of its own\". red-evidence-chain-smoke.ts section 1 (lines 180-197) proves this EXACT pattern for the quarantine record by hand-building a draft object and asserting field presence/absence with the `in` operator in a loop. For green-confirm (CHK-001:edge:0) the smoke never constructs a GreenConfirmRecordV2 instance at all -- it only calls greenConfirmOperationKey() (a function over primitive strings) and checks the GRN- id prefix (lines 333/338). The claim that this is adequate because \"the field set is the compiled discriminated-union contract (green-confirm writer is W2e)\" relies purely on TypeScript type erasure at compile time; nothing at runtime confirms a constructed green-confirm object omits assertion/policySnapshot the way the quarantine test does two sections above it. Building a synthetic GreenConfirmRecordV2 draft (as was already done for red-assert and quarantine, which also have no writer command registered by this story) and running the same `in`-based presence/omission loop would have been directly achievable without needing the W2e writer, and would match the sibling evidence quality used for every other operation in this same section.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T12:18:35.613Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/red-evidence/record-v2.ts"
       ],
       "signatureTag": "edge|ts|edge-evidence-weaker",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4fa4bbfad: chain-smoke section 1 adds a synthetic GreenConfirmRecordV2 draft with an in-operator field-set loop asserting confirms fields and red baseline copies PRESENT and assertion/policySnapshot OMITTED. CHK-001:edge:0 re-bound.",
+      "resolvedAt": "2026-07-25T22:34:19.783Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-003",
