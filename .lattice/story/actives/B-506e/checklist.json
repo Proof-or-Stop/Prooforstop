@@ -50,7 +50,35 @@
       "context": "packages/main/src/core/types.ts:2700 RedEvidenceData.records[] is widened to hold mixed v1 and v2 records in one array with the same on-disk file layout (schemaVersion-discriminated); no migration of existing v1 stores.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Read a store with v1-only records; round-trip write and re-read; all v1 records retain schemaVersion proofstory.red_evidence.v1 and their original shape; WHY: no migration means v1 stores are untouched",
+            "type": "cli"
+          },
+          {
+            "desc": "Read a store with mixed v1 + v2 records; both schemaVersion discriminators parse correctly; v1 records are not widened or rewritten; WHY: the mixed array is the core data model change",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Empty records array parses and round-trips as an empty array; WHY: boundary condition for stores with no evidence yet",
+            "type": "cli"
+          },
+          {
+            "desc": "A store containing only v2 records (zero v1) parses correctly; WHY: new stories may never have v1 records",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A record with an unknown schemaVersion (e.g. proofstory.red_evidence.v3) is rejected at parse/load time with a diagnostic, not silently accepted into the array; WHY: forward-compatibility must fail closed",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
