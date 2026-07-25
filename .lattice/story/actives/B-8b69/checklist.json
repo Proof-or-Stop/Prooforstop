@@ -155,7 +155,13 @@
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "desc": "the smoke runs entirely from inside the worktree with no git surgery and no hand-edited checklist.json",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
         "adversarial": [
           {
             "desc": "the same smoke fails RED against pre-fix code (missing PLAN->INIT edge and dev_start path bug)",
