@@ -14,6 +14,21 @@
       "_hash": "b40d8757cf7d371e30aef191b4302030d208c63da377792fcc24a6bb3e402584",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-002",
+      "desc": "handlers/quorum-prune.ts:125-135 writeUniqueBackup() writes the pre-prune backup directly into the git-tracked story dir (.lattice/story/actives/<id>/process-events.jsonl.bak-<ts>) and NEVER stages/commits/gitignores it (no matching *.bak-* gitignore pattern; the *.bak pattern at .gitignore does not match the .bak-<timestamp> suffix). Verified live: after `quorum_prune {apply:true}` succeeds, `git status --porcelain=v1 --untracked-files=all` in the story dir shows `?? .../process-events.jsonl.bak-<ts>` (repro output captured). Both assertCleanPruneBaseline (quorum-prune.ts:112-123, called at :336) and assertCleanQuorumBaseline (quorum-submit.ts:219-228, called at :529) do a raw whole-tree `git status --porcelain=v1 --untracked-files=all` with zero exemption for this file, so the very first legitimate follow-up action after a successful recovery -- another quorum_prune apply, OR a genuinely-new quorum_submit once the story-owned files change -- throws \"worktree/index must be clean\"/\"nothing to prune\" refusals caused entirely by the tool's own leftover backup, not by real user dirt. The same unexempted --untracked-files=all pattern is reused broadly (validation-executor.ts:202, done-prepare-generated-metadata.ts:362, dirty-worktree-gate.ts:42, recover-evidence.ts:68, cross-host-review.ts:81), so a leftover backup can also block TEST/DONE-adjacent gates. This directly undermines the story's stated goal (\"the escalation floor returns to the pre-poisoning assurance level\" / official low-friction recovery) since the operator must now manually discover and clean up (commit, delete, or gitignore) the tool's own artifact before doing anything else in the story. None of the 12 quorum_prune smoke checks catch this: the one test that runs quorum_prune apply twice (\"never overwrites a previous run backup\") masks it by doing its own `git add -A; git commit` between the two applies, which incidentally absorbs the first backup file into a commit -- a step a real operator/recovery workflow would not necessarily perform.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-25T22:58:40.883Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-003",
+      "_hash": "0d32cfc480de078e4ff98d14a603d55b56d06329d2dac1c41023f57250fc127d",
+      "signatureTag": "missing|unknown|handlers-quorum-prune",
+      "signatureTagSource": "auto"
     }
   ]
 }
