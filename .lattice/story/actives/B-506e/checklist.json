@@ -721,9 +721,23 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-25T11:18:26.168Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-012:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/red-evidence.ts",
+          "command": "node packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "both commands derive target from referenced record + enforce expectedRedTargets at write time; out-of-topology rejected nothing written; chain-smoke section 7 (commit 31bb8adf2e)",
+          "headHash": "168e151309792d2f52817e8f49b1773cade27e4c",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:18:26.339Z"
+        }
+      ]
     }
   ],
   "auditLog": [
