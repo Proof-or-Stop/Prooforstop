@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Persist the reopen reason into the phase_transition audit event",
+      "context": "buildPhaseTransitionProcessEvent (transition-orchestrator.ts) gains optional transitionType/reason appended only when defined; the call site passes { transitionType: 'reopen', reason: args.reason?.trim() } only when eventType === 'REOPEN'. Normal transitions must keep a byte-identical event shape so the flow-stability deepEqual shape test and all phase_transition consumers stay green. Reference: commit 05385c9.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Correct the overstated REOPEN checklist-reset atomicity comment",
+      "context": "The reset (writeChecklist) and the phase write (writeStory) are two separate fs writes under a mkdir persist claim: concurrency-atomic and ordered so the phase write lands last, but not crash-transactional. Reword 'land together or not at all' to state the real guarantee and why the residual failure direction is the safe one. Comment-only. Reference: commit de46617.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Clarify the scope of the dev_start worktree prune",
+      "context": "pruneWorktreeRegistry (worktree.ts) runs `git worktree prune --expire now`, which cannot remove a live sibling worktree but does clear every currently-missing registration repo-wide, not just the calling story's. Document both facts so callers do not rely on it being story-scoped. Comment-only. Reference: commit 48b82c0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
