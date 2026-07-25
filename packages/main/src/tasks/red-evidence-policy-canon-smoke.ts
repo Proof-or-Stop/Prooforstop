@@ -272,7 +272,7 @@ try {
   rejected(resolveRedEvidencePolicy(withPattern('^abc')));   // missing trailing $
   rejected(resolveRedEvidencePolicy(withPattern('abc$')));   // missing leading ^
   rejected(resolveRedEvidencePolicy(withPattern('^a\\$')));  // escaped trailing $ is not an anchor
-  ok(resolveRedEvidencePolicy(withPattern('^abc$')));        // anchored, all-literal argv
+  ok(resolveRedEvidencePolicy(withPattern('^(?<x>abc)$')));   // anchored + named capture (§1.2 requires >=1; R3-3)
   assert.ok(codes(rejected(resolveRedEvidencePolicy(base({
     runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'no-such-profile@9', testCaseRefPattern: '^a$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
   })))).includes('red_evidence_policy_runner_adapter_unknown_profile'), 'adapter -> unregistered profile rejects');
@@ -282,10 +282,51 @@ try {
   assert.ok(codes(rejected(resolveRedEvidencePolicy(withToolchain('broken')))).includes('red_evidence_policy_runner_profile_toolchain_not_object'), 'non-object toolchain rejects (R2-CX1)');
   assert.ok(codes(rejected(resolveRedEvidencePolicy(withToolchain({ node: 'nope' })))).includes('red_evidence_policy_runner_profile_toolchain_entry'), 'malformed toolchain entry rejects');
   rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node' } })));          // missing sha256
-  assert.ok(codes(rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: 'relative/node', sha256: 'abc' } })))).includes('red_evidence_policy_runner_profile_toolchain_absolute_path'), 'non-absolute toolchain absolutePath rejects (structural)');
-  ok(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node', sha256: 'abc' } }))); // well-formed structural toolchain resolves
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: 'relative/node', sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } })))).includes('red_evidence_policy_runner_profile_toolchain_absolute_path'), 'non-absolute toolchain absolutePath rejects (structural)');
+  ok(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node', sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } }))); // well-formed 64-hex structural toolchain resolves
   assert.equal(ok(resolveRedEvidencePolicy({ pinnedPath: ['/usr/bin'] })).policyDigest, FROZEN_DEFAULT_DIGEST,
     'frozen default digest survives the exhaustive §1.2 structural pass');
+
+  // === 6c. R3 §1.2 DEPTH layer — field TYPE **and DOMAIN** (cross-host codex r3) =
+  // Round-2 checked field PRESENCE/type; the DOMAIN constraints below were still
+  // fail-open. Each rejects with a DISTINCT code; defaults + well-formed customs ok.
+  const adapterField = (o: Record<string, unknown>): Record<string, unknown> => base({
+    runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^x:(?<script>[a-z]+)$', argvTemplate: ['${script}'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit', ...o }],
+  });
+  const profileField = (o: Record<string, unknown>): Record<string, unknown> => base({
+    runnerProfileRegistry: [{ runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME', 'TMPDIR', 'CI'], cwd: '.', submodules: false, ...o }],
+  });
+  // R3-1: argvTemplate partial-token placeholder (contains ${ but not exactly ${name}).
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(adapterField({ argvTemplate: ['prefix-${script}'] })))).includes('red_evidence_policy_argv_partial_placeholder'), 'partial-token placeholder rejects (R3-1)');
+  rejected(resolveRedEvidencePolicy(adapterField({ argvTemplate: ['${}'] })));
+  ok(resolveRedEvidencePolicy(adapterField({ argvTemplate: ['cost$5', '${script}'] })));  // a bare '$' literal is not a placeholder
+  // R3-2: adapter.cwd AND profile.cwd must be NON-EMPTY repo-relative strings.
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(adapterField({ cwd: '/tmp' })))).includes('red_evidence_policy_runner_adapter_cwd_not_repo_relative'), 'absolute adapter cwd rejects (R3-2)');
+  rejected(resolveRedEvidencePolicy(adapterField({ cwd: '../outside' })));
+  rejected(resolveRedEvidencePolicy(adapterField({ cwd: '' })));
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(profileField({ cwd: '/tmp' })))).includes('red_evidence_policy_runner_profile_cwd_not_repo_relative'), 'absolute profile cwd rejects (R3-2)');
+  rejected(resolveRedEvidencePolicy(profileField({ cwd: '../outside' })));
+  rejected(resolveRedEvidencePolicy(profileField({ cwd: '' })));
+  ok(resolveRedEvidencePolicy(adapterField({ cwd: 'packages/main' })));   // nested repo-relative PASSES
+  ok(resolveRedEvidencePolicy(profileField({ cwd: 'packages/main' })));
+  // R3-3: testCaseRefPattern must have >=1 NAMED capture group.
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(adapterField({ testCaseRefPattern: '^npm$', argvTemplate: ['npm'] })))).includes('red_evidence_policy_test_case_ref_pattern_no_capture'), 'captureless pattern rejects (R3-3)');
+  rejected(resolveRedEvidencePolicy(adapterField({ testCaseRefPattern: '^(npm)$', argvTemplate: ['npm'] })));  // an UNNAMED capture is insufficient
+  ok(resolveRedEvidencePolicy(adapterField({ testCaseRefPattern: '^(?<x>npm)$', argvTemplate: ['npm'] })));
+  // R3-4: prepCommands entries must be NON-EMPTY argv arrays.
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(profileField({ prepCommands: [[]] })))).includes('red_evidence_policy_runner_profile_prep_command_empty'), 'empty prepCommands argv rejects (R3-4)');
+  rejected(resolveRedEvidencePolicy(profileField({ prepCommands: [['npm', 'ci'], []] })));
+  // R3 proactive: integer param domain, string elements, sha256 64-hex-lowercase shape.
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1.5] }] })));   // float
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: ['1'] }] })));   // string
+  rejected(resolveRedEvidencePolicy(adapterField({ allowedEnvKeys: [7] })));       // non-string env key
+  rejected(resolveRedEvidencePolicy(adapterField({ argvTemplate: [7] })));         // non-string argv token
+  rejected(resolveRedEvidencePolicy(profileField({ prepCommands: [[7]] })));       // non-string argv element
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(profileField({ toolchain: { node: { absolutePath: '/usr/bin/node', sha256: 'abc' } } })))).includes('red_evidence_policy_runner_profile_toolchain_sha256'), 'short toolchain sha256 rejects (R3 proactive)');
+  rejected(resolveRedEvidencePolicy(profileField({ toolchain: { node: { absolutePath: '/usr/bin/node', sha256: 'E'.repeat(64) } } })));  // uppercase hex rejects
+  ok(resolveRedEvidencePolicy(profileField({ toolchain: { node: { absolutePath: '/usr/bin/node', sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } } })));
+  assert.equal(ok(resolveRedEvidencePolicy({ pinnedPath: ['/usr/bin'] })).policyDigest, FROZEN_DEFAULT_DIGEST,
+    'frozen default digest survives the R3 DEPTH structural pass');
 
   // === 7. doctor line — exactly one non-gating red-evidence line =============
   const hyphenCount = (s: string): number => (s.match(/red-evidence/gi) ?? []).length;

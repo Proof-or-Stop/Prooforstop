@@ -260,8 +260,11 @@ const withPattern = (testCaseRefPattern) => base({
 rejected(resolveRedEvidencePolicy(withPattern('^abc')));   // missing trailing $
 rejected(resolveRedEvidencePolicy(withPattern('abc$')));   // missing leading ^
 rejected(resolveRedEvidencePolicy(withPattern('^a\\$')));  // trailing $ is ESCAPED — not a real end anchor
-ok(resolveRedEvidencePolicy(withPattern('^abc$')));        // properly anchored, all-literal argv needs no captures
-ok(resolveRedEvidencePolicy(withPattern('^$')));           // the empty-anchor pattern is anchored
+// §1.2 requires >=1 NAMED capture group (R3-3), even for an all-literal argv: an
+// anchored+captured pattern PASSES, a captureless anchored one now REJECTS.
+ok(resolveRedEvidencePolicy(withPattern('^(?<name>abc)$')));  // anchored + named capture
+rejected(resolveRedEvidencePolicy(withPattern('^abc$')));    // anchored but NO named capture → reject
+rejected(resolveRedEvidencePolicy(withPattern('^$')));       // empty-anchor, no capture → reject
 
 // adapter.runnerProfileId MUST reference a registered profile.
 {
@@ -274,7 +277,7 @@ ok(resolveRedEvidencePolicy(withPattern('^$')));           // the empty-anchor p
 // an adapter referencing a profile registered in the SAME override resolves ok.
 ok(resolveRedEvidencePolicy(base({
   runnerProfileRegistry: [{ runnerProfileId: 'custom@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: false }],
-  runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'custom@1', testCaseRefPattern: '^a$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
+  runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'custom@1', testCaseRefPattern: '^(?<a>.+)$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
 })));
 
 // R2-CX1: profile toolchain STRUCTURAL shape (object of argv0 -> {absolutePath,sha256}).
@@ -304,6 +307,97 @@ rejected(resolveRedEvidencePolicy(withToolchain({ '': { absolutePath: '/usr/bin/
 }
 // a WELL-FORMED toolchain resolves ok (W2e does the runtime resolve + sha256 match).
 ok(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node', sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } })));
+
+// ── R3: §1.2 DEPTH layer — TYPE **and DOMAIN** of EVERY registry field ────────
+// Round-2 checked field PRESENCE/type; cross-host codex r3 confirmed the DOMAIN
+// constraints were still fail-open. Each block below REJECTS with a DISTINCT
+// named diagnostic on the complete implementation; the DEFAULT registries + every
+// well-formed custom entry still resolve ok. Config-load STRUCTURAL only — the
+// runtime toolchain file-resolution + sha256-match stays fenced to W2e.
+const withAdapterField = (o) => base({
+  runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^x:(?<script>[a-z]+)$', argvTemplate: ['${script}'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit', ...o }],
+});
+const withProfileField = (o) => base({
+  runnerProfileRegistry: [{ runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME', 'TMPDIR', 'CI'], cwd: '.', submodules: false, ...o }],
+});
+
+// R3-1: argvTemplate partial-token placeholder (contains ${ but not exactly ${name}).
+{
+  const r = rejected(resolveRedEvidencePolicy(withAdapterField({ argvTemplate: ['prefix-${script}'] })));
+  assert.ok(codes(r).includes('red_evidence_policy_argv_partial_placeholder'),
+    'a partial-token placeholder "prefix-${script}" rejects (no partial-token interpolation, §1.2)');
+}
+rejected(resolveRedEvidencePolicy(withAdapterField({ argvTemplate: ['${}'] })));                 // empty placeholder name
+rejected(resolveRedEvidencePolicy(withAdapterField({ argvTemplate: ['${1bad}'] })));             // capture name starts with a digit
+rejected(resolveRedEvidencePolicy(withAdapterField({ argvTemplate: ['${script}suffix'] })));     // trailing text after placeholder
+// a pure-literal token containing a bare '$' (no ${) is NOT a placeholder → accepted verbatim
+ok(resolveRedEvidencePolicy(withAdapterField({ argvTemplate: ['cost$5', '${script}'] })));
+
+// R3-2: adapter.cwd AND profile.cwd must be a NON-EMPTY repo-relative string.
+{
+  const r = rejected(resolveRedEvidencePolicy(withAdapterField({ cwd: '/tmp' })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_adapter_cwd_not_repo_relative'),
+    'an absolute adapter cwd "/tmp" rejects');
+}
+rejected(resolveRedEvidencePolicy(withAdapterField({ cwd: '../outside' })));   // traversal
+rejected(resolveRedEvidencePolicy(withAdapterField({ cwd: 'a/../../b' })));    // traversal mid-path
+rejected(resolveRedEvidencePolicy(withAdapterField({ cwd: '' })));            // empty
+{
+  const r = rejected(resolveRedEvidencePolicy(withProfileField({ cwd: '/tmp' })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_profile_cwd_not_repo_relative'),
+    'an absolute profile cwd "/tmp" rejects');
+}
+rejected(resolveRedEvidencePolicy(withProfileField({ cwd: '../outside' })));  // traversal
+rejected(resolveRedEvidencePolicy(withProfileField({ cwd: '' })));           // empty
+// a legitimate repo-relative cwd (nested, and the default '.') PASSES
+ok(resolveRedEvidencePolicy(withAdapterField({ cwd: 'packages/main' })));
+ok(resolveRedEvidencePolicy(withProfileField({ cwd: 'packages/main' })));
+
+// R3-3: testCaseRefPattern with no named capture group rejects.
+{
+  const r = rejected(resolveRedEvidencePolicy(withAdapterField({ testCaseRefPattern: '^npm$', argvTemplate: ['npm'] })));
+  assert.ok(codes(r).includes('red_evidence_policy_test_case_ref_pattern_no_capture'),
+    'an anchored but captureless pattern "^npm$" rejects (§1.2 requires >=1 named capture)');
+}
+// an UNNAMED capture group does not satisfy "named capture" → still rejects
+rejected(resolveRedEvidencePolicy(withAdapterField({ testCaseRefPattern: '^(npm)$', argvTemplate: ['npm'] })));
+// a single named capture PASSES (default adapters already have one)
+ok(resolveRedEvidencePolicy(withAdapterField({ testCaseRefPattern: '^(?<x>npm)$', argvTemplate: ['npm'] })));
+
+// R3-4: prepCommands with an empty argv entry rejects.
+{
+  const r = rejected(resolveRedEvidencePolicy(withProfileField({ prepCommands: [[]] })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_profile_prep_command_empty'),
+    'an empty prepCommands argv [[]] rejects (argv[0] is the command)');
+}
+rejected(resolveRedEvidencePolicy(withProfileField({ prepCommands: [['npm', 'ci'], []] })));  // one empty among many
+// a non-empty argv PASSES
+ok(resolveRedEvidencePolicy(withProfileField({ prepCommands: [['npm', 'ci']] })));
+
+// R3 proactive: matcherClass exit-code-in param entries must be INTEGERS in 0..255.
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1.5] }] })));  // float
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: ['1'] }] })));  // string
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [-1] }] })));   // below 0
+
+// R3 proactive: allowedEnvKeys / argvTemplate / prepCommands elements must be strings.
+rejected(resolveRedEvidencePolicy(withAdapterField({ allowedEnvKeys: [7] })));       // non-string env key
+rejected(resolveRedEvidencePolicy(withAdapterField({ argvTemplate: [7] })));         // non-string argv token
+rejected(resolveRedEvidencePolicy(withProfileField({ allowedEnvKeys: [7] })));       // non-string env key
+rejected(resolveRedEvidencePolicy(withProfileField({ prepCommands: [[7]] })));       // non-string argv element
+
+// R3 proactive: toolchain sha256 must be a 64-char lowercase hex string (structural).
+const withToolchainField = (tc) => withProfileField({ toolchain: tc });
+{
+  const r = rejected(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/usr/bin/node', sha256: 'abc' } })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_profile_toolchain_sha256'),
+    'a too-short toolchain sha256 rejects (structural 64-hex shape; no runtime file match)');
+}
+rejected(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/usr/bin/node', sha256: 'E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855' } }))); // uppercase hex
+rejected(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/usr/bin/node', sha256: 'g'.repeat(64) } })));  // non-hex chars
+rejected(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/usr/bin/node', sha256: 'a'.repeat(63) } })));  // 63 chars
+rejected(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/usr/bin/node', sha256: 'a'.repeat(65) } })));  // 65 chars
+// a well-formed 64-hex-lowercase sha256 PASSES (W2e does the runtime match)
+ok(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/usr/bin/node', sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } })));
 
 // After the exhaustive §1.2 structural pass the DEFAULT registries STILL resolve
 // to the frozen digest (well-formed defaults are unaffected by any new check).

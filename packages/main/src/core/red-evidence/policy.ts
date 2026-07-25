@@ -149,15 +149,54 @@ function forbiddenEnvKeyViolations(keys: unknown, extensions: string[]): string[
   return violations;
 }
 
+/** The ONLY §1.2 placeholder form: a WHOLE token that is exactly `${<name>}`. */
+const EXACT_PLACEHOLDER = /^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$/;
+
 function argvPlaceholders(argvTemplate: unknown): string[] {
   if (!Array.isArray(argvTemplate)) return [];
   const names: string[] = [];
   for (const token of argvTemplate) {
     if (typeof token !== 'string') continue;
-    const match = /^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$/.exec(token);
+    const match = EXACT_PLACEHOLDER.exec(token);
     if (match) names.push(match[1]);
   }
   return names;
+}
+
+/**
+ * §1.2: each `argvTemplate` token is EITHER a pure literal (contains NO `${`) OR
+ * EXACTLY `${<name>}` (the whole token) — "no partial-token interpolation". A
+ * token that CONTAINS `${` but is not the exact placeholder form (e.g.
+ * `prefix-${script}`, `${}`, `${1bad}`) is an unsupported partial interpolation
+ * and fails closed at config load (R3-1). Returns the offending tokens.
+ */
+function partialPlaceholderTokens(argvTemplate: unknown): string[] {
+  if (!Array.isArray(argvTemplate)) return [];
+  const bad: string[] = [];
+  for (const token of argvTemplate) {
+    if (typeof token !== 'string') continue;
+    if (/\$\{/.test(token) && !EXACT_PLACEHOLDER.test(token)) bad.push(token);
+  }
+  return bad;
+}
+
+/**
+ * §1.2 `cwd` is repo-relative. Mirrors the scope-contract path canonicalizer
+ * (`repo-relative-v1`, scope-path-classifier.ts): a repo-relative path is a
+ * NON-EMPTY string that is NOT absolute (no leading `/`, backslash-normalized)
+ * and contains NO `..` traversal segment. The default cwd `.` is valid. Runtime
+ * resolution against the repo root is fenced to W2e — this is a shape check.
+ */
+function isRepoRelativePath(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length === 0) return false;
+  const slash = value.replace(/\\/g, '/');
+  if (slash.startsWith('/')) return false; // absolute
+  return slash.split('/').every((segment) => segment !== '..'); // no traversal
+}
+
+/** §1.2 toolchain `sha256` STRUCTURAL shape: a 64-char lowercase hex string. */
+function isSha256Hex(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
 }
 
 /**
@@ -408,6 +447,21 @@ export function resolveRedEvidencePolicy(
         if (typeof entry.testCaseRefPattern === 'string' && captures !== null && !isAnchoredPattern(entry.testCaseRefPattern)) {
           add('red_evidence_policy_test_case_ref_pattern_unanchored', `red_evidence_policy_test_case_ref_pattern_unanchored: ${JSON.stringify(entry.testCaseRefPattern)} is not anchored (must start ^ and end with an unescaped $)`);
         }
+        // §1.2 testCaseRefPattern is compiled "with NAMED capture groups"; a
+        // captureless pattern makes testCaseRef identification meaningless, so a
+        // pattern with ZERO named capture groups fails closed (R3-3).
+        if (typeof entry.testCaseRefPattern === 'string' && captures !== null && captures.size === 0) {
+          add('red_evidence_policy_test_case_ref_pattern_no_capture', `red_evidence_policy_test_case_ref_pattern_no_capture: ${JSON.stringify(entry.testCaseRefPattern)} has no named capture group (§1.2 requires >=1 named capture)`);
+        }
+        // §1.2 adapter cwd is repo-relative (governs the exercised run).
+        if (typeof entry.cwd === 'string' && !isRepoRelativePath(entry.cwd)) {
+          add('red_evidence_policy_runner_adapter_cwd_not_repo_relative', `red_evidence_policy_runner_adapter_cwd_not_repo_relative: adapter cwd ${JSON.stringify(entry.cwd)} must be a non-empty repo-relative path (not absolute, no ".." segment)`);
+        }
+        // §1.2 "no partial-token interpolation": a token containing ${ that is
+        // not the exact ${name} placeholder fails closed (R3-1).
+        for (const partial of partialPlaceholderTokens(entry.argvTemplate)) {
+          add('red_evidence_policy_argv_partial_placeholder', `red_evidence_policy_argv_partial_placeholder: argvTemplate token ${JSON.stringify(partial)} is neither a pure literal nor the exact placeholder form (partial-token interpolation is unsupported, §1.2)`);
+        }
         for (const placeholder of argvPlaceholders(entry.argvTemplate)) {
           if (!captures || !captures.has(placeholder)) {
             add('red_evidence_policy_argv_unresolved_placeholder', `red_evidence_policy_argv_unresolved_placeholder: \${${placeholder}} names no capture in testCaseRefPattern`);
@@ -441,6 +495,21 @@ export function resolveRedEvidencePolicy(
         if (missingProfile.length > 0) {
           add('red_evidence_policy_runner_profile_schema', `red_evidence_policy_runner_profile_schema: runnerProfileRegistry entry has invalid/missing required fields ${JSON.stringify(missingProfile)}`);
         }
+        // §1.2 each prepCommands entry is executed directly as an argv array with
+        // NO shell — argv[0] is the command, so an EMPTY argv is unexecutable and
+        // fails closed with a distinct diagnostic (R3-4). (Type/string-element
+        // checks live in the schema block above.)
+        if (Array.isArray(entry.prepCommands)) {
+          for (const cmd of entry.prepCommands) {
+            if (Array.isArray(cmd) && cmd.length === 0) {
+              add('red_evidence_policy_runner_profile_prep_command_empty', 'red_evidence_policy_runner_profile_prep_command_empty: each prepCommands entry must be a NON-EMPTY argv array (argv[0] is the command)');
+            }
+          }
+        }
+        // §1.2 profile cwd is repo-relative (governs prep commands).
+        if (typeof entry.cwd === 'string' && !isRepoRelativePath(entry.cwd)) {
+          add('red_evidence_policy_runner_profile_cwd_not_repo_relative', `red_evidence_policy_runner_profile_cwd_not_repo_relative: profile cwd ${JSON.stringify(entry.cwd)} must be a non-empty repo-relative path (not absolute, no ".." segment)`);
+        }
         // runnerProfileId UNIQUE (§1.2 unique registry key).
         if (typeof entry.runnerProfileId === 'string' && entry.runnerProfileId.length > 0) {
           if (seenProfileIds.has(entry.runnerProfileId)) {
@@ -472,6 +541,11 @@ export function resolveRedEvidencePolicy(
               // is NOT resolved and the sha256 is NOT verified here (that is W2e).
               if (!isAbsolutePosix(absolutePath)) {
                 add('red_evidence_policy_runner_profile_toolchain_absolute_path', `red_evidence_policy_runner_profile_toolchain_absolute_path: toolchain[${JSON.stringify(argv0)}].absolutePath ${JSON.stringify(absolutePath)} must be absolute`);
+              }
+              // STRUCTURAL: sha256 must be a 64-char lowercase hex string. The
+              // digest is NOT matched against the file here (that is W2e).
+              if (!isSha256Hex(sha256)) {
+                add('red_evidence_policy_runner_profile_toolchain_sha256', `red_evidence_policy_runner_profile_toolchain_sha256: toolchain[${JSON.stringify(argv0)}].sha256 ${JSON.stringify(sha256)} must be a 64-char lowercase hex string`);
               }
             }
           }
