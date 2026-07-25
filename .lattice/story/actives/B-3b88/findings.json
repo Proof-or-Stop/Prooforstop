@@ -49,7 +49,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:265 TEST-phase tool table row for verification_evidence_refresh_stale still reads \"Refresh the HEAD/material hash of stale evidence based on the coverage report\" — a blanket description that was NOT updated by this diff and contradicts the corrected, adjacent bullets in the SAME file (line 195 and line 278), which now correctly state that refresh only re-stamps command-less attestation and REFUSES stale command-backed result:pass rows (per checklist.ts CHK-002 fix). A reader consulting only the TEST-phase table (the first place a reader looks for command behavior) would believe refresh_stale unconditionally refreshes any stale evidence — i.e. the exact laundering behavior this story just eliminated.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-25T23:56:39.309Z",
@@ -61,7 +61,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: story-lifecycle.md:265 TEST-phase tool table row now states refresh re-stamps command-less attestation only and refuses command-backed result:pass. Repo-wide sweep confirms no other LIVE misleading refresh_stale description remains (the only old-wording hit is a frozen 2026-06-13 translation-audit snapshot in cli-engine-english-open-source-execution-plan.md, out of scope).",
+      "resolvedAt": "2026-07-25T23:58:39.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
