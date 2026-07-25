@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-506e",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:8f5247f9fe523e36c6ff40441d8d4a527ea4e3c1a94f0c3d3520355e9eced532",
+  "acceptanceBindings": [
+    {
+      "id": "AB-V2SCHEMA",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The v2 record union declares exhaustive per-operation field sets with always-present nullable chain fields and a CANON recordDigest; RedEvidenceData widens to a mixed v1/v2 array with unchanged on-disk layout; and redEvidenceRecordSatisfied skips every non-v1 record so the live enforce gate produces byte-identical diagnostics on a v1-only store (RED signal A)."
+    },
+    {
+      "id": "AB-CHAIN",
+      "checklistRefs": [
+        "CHK-004",
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:happy:2",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1",
+        "CHK-004:adversarial:2",
+        "CHK-004:adversarial:3",
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:edge:0",
+        "CHK-005:edge:1",
+        "CHK-005:edge:2",
+        "CHK-005:adversarial:0",
+        "CHK-005:adversarial:1",
+        "CHK-005:adversarial:2",
+        "CHK-005:adversarial:3",
+        "CHK-005:adversarial:4",
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:happy:2",
+        "CHK-006:edge:0",
+        "CHK-006:edge:1",
+        "CHK-006:edge:2",
+        "CHK-006:adversarial:0",
+        "CHK-006:adversarial:1",
+        "CHK-006:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Chain head resolves by both uniqueness conjuncts; the three integrity checks run with fork rejection carrying a reason id distinct from the prior-digest check; the closed transition table governs quarantine/recover with cycle-safe transitive effective-head resolution; and the three operation-key preimages plus deterministic OP-first12hex-seq ids are derived per section 3.4."
+    },
+    {
+      "id": "AB-APPEND",
+      "checklistRefs": [
+        "CHK-007",
+        "CHK-008",
+        "CHK-009"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:happy:1",
+        "CHK-007:edge:0",
+        "CHK-007:edge:1",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1",
+        "CHK-007:adversarial:2",
+        "CHK-008:happy:0",
+        "CHK-008:happy:1",
+        "CHK-008:edge:0",
+        "CHK-008:edge:1",
+        "CHK-008:adversarial:0",
+        "CHK-008:adversarial:1",
+        "CHK-009:happy:0",
+        "CHK-009:happy:1",
+        "CHK-009:edge:0",
+        "CHK-009:edge:1",
+        "CHK-009:adversarial:0",
+        "CHK-009:adversarial:1",
+        "CHK-009:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The append pipeline runs the mandated order (derive key, dedupe, replay short-circuit, head, transition, integrity, append); the dedupe search is scoped so a quarantined record cannot swallow a deliberate replacement; and all four appends serialize under one mkdir claim so two racing quarantines yield exactly one record and a unique head (RED signal B)."
+    },
+    {
+      "id": "AB-CONTROL",
+      "checklistRefs": [
+        "CHK-010",
+        "CHK-011"
+      ],
+      "verificationIntentRefs": [
+        "CHK-010:happy:0",
+        "CHK-010:happy:1",
+        "CHK-010:happy:2",
+        "CHK-010:happy:3",
+        "CHK-010:happy:4",
+        "CHK-010:edge:0",
+        "CHK-010:edge:1",
+        "CHK-010:edge:2",
+        "CHK-010:adversarial:0",
+        "CHK-010:adversarial:1",
+        "CHK-010:adversarial:2",
+        "CHK-010:adversarial:3",
+        "CHK-010:adversarial:4",
+        "CHK-010:adversarial:5",
+        "CHK-010:adversarial:6",
+        "CHK-011:happy:0",
+        "CHK-011:happy:1",
+        "CHK-011:happy:2",
+        "CHK-011:edge:0",
+        "CHK-011:edge:1",
+        "CHK-011:adversarial:0",
+        "CHK-011:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "red_evidence_quarantine and red_evidence_recover append control records with a derived approvedBy and the section 4.1 reference-validation state machine; red_evidence_binding_set enforces the binding freeze once a run record exists on an unquarantined chain; and the committed chain smoke registered in lattice.config.json plus the two-command wiring cover the full rejection matrix (RED signal C)."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "W2c v2 chain plane: 4 acceptance bindings cover all 11 checklist items and 88 verificationIntents; the three RED signals (live enforce-gate crash, two-process race, hashed rejection matrix) are the convergence anchor.",
+  "createdAt": "2026-07-25T10:23:01.512Z",
+  "updatedAt": "2026-07-25T10:23:01.512Z"
+}
