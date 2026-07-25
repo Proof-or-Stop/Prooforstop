@@ -1,0 +1,154 @@
+{
+  "storyId": "B-e10d",
+  "checkedAt": "2026-07-25T07:48:55.525Z",
+  "features": [
+    {
+      "feature": "Binding store persisted at .lattice/story/actives/<id>/red-target-bindings.json, schema proofstory.red_target_bindings.v1 (file-level shape: schemaVersion, storyId, bindings[], createdAt, updatedAt)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Exactly ONE binding per acceptanceTargetRef; a second write for the same ref is a duplicate-target rejection, not an overwrite",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "targetBindingDigest = CANON over exactly the 3-field subobject {acceptanceTargetRef,adapterId,testCaseRef} ONLY, createdAt (and any other storage metadata) STRIPPED; CANON over a STORED entry (incl. createdAt) must NOT equal the digest while CANON over the stripped subobject MUST (direction verified correct in CHK-002's happy/edge intents)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Mutation only via the registered, lease-gated command red_evidence_binding_set(storyId, acceptanceTargetRef, adapterId, testCaseRef)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Binding-freeze rule: setting a binding is legal only while the target chain is EMPTY or its head is a quarantine record; once a run record exists on an unquarantined chain the binding is frozen for that target",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background.md Conversational Texture + understanding.json constraints: 'the §1.1.3 binding-freeze rule (needs chain-head semantics, lands with the chain in W2c; vacuous today as no v2 record exists)' -- note: decision.json itself does not carry this defer text (see openQuestions/summary caveat)",
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Committed-tree reader / anti-swap rule: the reader resolves a binding from <ref>:.lattice/story/actives/<id>/red-target-bindings.json via git show, never the live story directory",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "A green-confirm's tree MUST carry a binding whose CANON digest equals the governing red-assert's targetBindingDigest, else the green run is rejected",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background.md/understanding.json: 'any chain record append or read' is out of scope -- red_evidence_green_confirm does not exist yet",
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "RED-assert run-time validation: the assertion's adapterId/testCaseRef MUST equal the committed binding and targetBindingDigest MUST recompute, else rejected (§1.6 R1-6)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.json constraints: 'run-time adapterId/testCaseRefPattern validation (runner), R1-5/R1-6' fenced to the runner story",
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "§3.3 write-time gate: red_evidence_binding_set rejects any acceptanceTargetRef not in expectedRedTargets",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "§3.3 write-time membership gate also applies identically to the four chain-append operations (red-assert/green-confirm/quarantine/recover)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "these four commands do not exist yet in this story; background.md fences them to 'four later high-semantics commands'",
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "expectedRedTargets is exported as a shared resolver WITHOUT changing its computed set (pure extraction from the module-private core/proofstory.ts function)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "§4.1 owner-lease gate: enforceStoryOwnerLeaseGate rejects the command when another session holds an ACTIVE lease",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "§4.1 actor mutation authority: resolveAgentMutationAuthority classifies the acting identity and fails closed on conflicting identities ([agent_dispatch_identity_conflict])",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "§4.1 approvedBy is DERIVED (resolved actor + lease sessionId, serialized as <actor>@<sessionId>), recorded on the record and covered by recordDigest, deliberately excluded from the §3.4 operation key",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "this rule governs the four chain-record operations' recordDigest-covered fields; the §1.1.3 binding store schema has no approvedBy field at all, so it is not applicable to red_evidence_binding_set",
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "§4.1 serialization: the implementation MUST serialize ALL FOUR append operations under the same atomic mkdir-claim discipline as transition-orchestrator.ts, or land after W0.3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "spec text explicitly scopes this to 'ALL FOUR append operations' (red-assert/green-confirm/quarantine/recover), not red_evidence_binding_set, which those four commands don't exist yet in this story",
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Lifecycle scope classifier recognizes red-target-bindings.json as a registered lifecycle artifact (closes RED signal A: a story touching the file can reach DONE)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Complete 13-point command registration/wiring recipe for red_evidence_binding_set (registry.ts, cli/command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, process-fact-registry.ts, closed AgentDispatchMutationCommand union, per-role permittedMutations arrays, plus the four hard-coded verify-process-fact-contract.mjs enumerations and the frozen command-catalog-smoke.ts trailing-order assertion) so the three pre-existing contracts pass with no named divergence",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "red-evidence-target-binding-smoke registered in lattice.config.json validate.commands, and an assertion pins that redEvidenceSatisfied/missingRedEvidence and all existing gate verdicts are unchanged",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 18,
+    "covered": 12,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0a1eab1730cb7fd161985e0c63c30270c8f5db713275b12cf25d5282d3b1d014",
+  "openQuestions": []
+}
