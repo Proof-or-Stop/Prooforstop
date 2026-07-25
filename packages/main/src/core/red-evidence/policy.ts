@@ -212,18 +212,69 @@ function isAnchoredPattern(pattern: string): boolean {
   return backslashes % 2 === 0;
 }
 
+/**
+ * Enumerate the REAL named-capture-group names of a `testCaseRefPattern`.
+ *
+ * Returns `null` when the pattern is not a string or does not compile as an
+ * ECMAScript `u`-mode regex. Otherwise returns the set of named-capture names.
+ *
+ * A prior implementation textually scanned `RegExp.source` for `(?<name>`, which
+ * wrongly matched a `(?<name>`-shaped sequence appearing INSIDE a character class
+ * `[...]` (there it is literal characters, not a group) or after a backslash
+ * escape (an escaped `\(` is a literal paren, not a group opener). That let a
+ * captureless pattern pass the ">=1 named capture" check and let a `${name}` argv
+ * placeholder resolve against a nonexistent capture.
+ *
+ * This walks the source deterministically: it SKIPS an escape and the char it
+ * escapes (`\` + next), SKIPS the span of a character class (from an unescaped
+ * `[` to the matching unescaped `]`), and only OUTSIDE both recognizes
+ * `(?<name>` — where `name` is a `[A-Za-z_][A-Za-z0-9_]*` group-name identifier
+ * (same charset as the §1.2 argv placeholder form) — as a real named capture.
+ * `(?<=` / `(?<!` lookbehinds are naturally excluded because `=` / `!` are not
+ * valid name-start characters.
+ */
 function patternCaptureNames(pattern: unknown): Set<string> | null {
   if (typeof pattern !== 'string') return null;
   try {
-    const compiled = new RegExp(pattern, 'u');
-    const names = new Set<string>();
-    const rx = /\(\?<([A-Za-z_][A-Za-z0-9_]*)>/g;
-    let match: RegExpExecArray | null;
-    while ((match = rx.exec(compiled.source)) !== null) names.add(match[1]);
-    return names;
+    new RegExp(pattern, 'u'); // fail closed on an uncompilable pattern
   } catch {
     return null;
   }
+  const names = new Set<string>();
+  const src = pattern;
+  const isNameStart = (ch: string): boolean => /[A-Za-z_]/.test(ch);
+  const isNamePart = (ch: string): boolean => /[A-Za-z0-9_]/.test(ch);
+  let inClass = false;
+  let i = 0;
+  while (i < src.length) {
+    const ch = src[i];
+    if (ch === '\\') {
+      i += 2; // skip the escape and the escaped character (literal, never a group)
+      continue;
+    }
+    if (inClass) {
+      if (ch === ']') inClass = false;
+      i += 1;
+      continue;
+    }
+    if (ch === '[') {
+      inClass = true;
+      i += 1;
+      continue;
+    }
+    // Outside a character class: a real named-capture opener is `(?<name>`.
+    if (ch === '(' && src[i + 1] === '?' && src[i + 2] === '<' && isNameStart(src[i + 3] ?? '')) {
+      let k = i + 4;
+      while (k < src.length && isNamePart(src[k])) k += 1;
+      if (src[k] === '>') {
+        names.add(src.slice(i + 3, k));
+        i = k + 1;
+        continue;
+      }
+    }
+    i += 1;
+  }
+  return names;
 }
 
 /**

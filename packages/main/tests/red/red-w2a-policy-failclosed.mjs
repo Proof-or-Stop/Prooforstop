@@ -399,6 +399,39 @@ rejected(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/u
 // a well-formed 64-hex-lowercase sha256 PASSES (W2e does the runtime match)
 ok(resolveRedEvidencePolicy(withToolchainField({ node: { absolutePath: '/usr/bin/node', sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } })));
 
+// ── R4-1 (cross-host codex r4): patternCaptureNames must TOKENIZE the pattern,
+// not textually scan for `(?<name>`. A `(?<name>`-shaped sequence appearing INSIDE
+// a character class (literal characters, NOT a group) or after a backslash escape
+// is NOT a real named capture. The buggy textual scan counted it, so a captureless
+// pattern wrongly passed the ">=1 named capture" check and a `${name}` argv
+// placeholder wrongly resolved against a nonexistent capture — BOTH must reject.
+{
+  // `[(?<fake>]` is a character CLASS body → ZERO real named captures. With a
+  // literal-only argv the pattern must REJECT with the no-capture diagnostic.
+  const r = rejected(resolveRedEvidencePolicy(withAdapterArgv(['tool'], '^[(?<fake>]+$')));
+  assert.ok(codes(r).includes('red_evidence_policy_test_case_ref_pattern_no_capture'),
+    'a `(?<fake>` INSIDE a character class is not a real named capture → no-capture rejection');
+}
+{
+  // SAME class-embedded pattern with `${fake}`: the placeholder names no REAL
+  // capture, so it must reject with the unresolved-placeholder diagnostic.
+  const r = rejected(resolveRedEvidencePolicy(withAdapterArgv(['tool', '${fake}'], '^[(?<fake>]+$')));
+  assert.ok(codes(r).includes('red_evidence_policy_argv_unresolved_placeholder'),
+    '${fake} against a class-embedded `(?<fake>` resolves to no real capture → unresolved-placeholder rejection');
+}
+{
+  // A backslash-escaped `\(?<x>` is an OPTIONAL literal `(` followed by literal
+  // `<x>`, NOT a named group — it must NOT be counted, so this captureless
+  // anchored pattern REJECTS.
+  const r = rejected(resolveRedEvidencePolicy(withAdapterArgv(['tool'], '^\\(?<x>$')));
+  assert.ok(codes(r).includes('red_evidence_policy_test_case_ref_pattern_no_capture'),
+    'a backslash-escaped `\\(?<x>` is not a real named capture → no-capture rejection');
+}
+// REGRESSION: a GENUINE named capture (default npm-script adapter shape) still
+// resolves ok, both with a literal argv and with a `${...}` placeholder against it.
+ok(resolveRedEvidencePolicy(withAdapterArgv(['tool'], '^(?<script>[A-Za-z0-9:_-]+)$')));
+ok(resolveRedEvidencePolicy(withAdapterArgv(['${script}'], '^(?<script>[A-Za-z0-9:_-]+)$')));
+
 // After the exhaustive §1.2 structural pass the DEFAULT registries STILL resolve
 // to the frozen digest (well-formed defaults are unaffected by any new check).
 {
