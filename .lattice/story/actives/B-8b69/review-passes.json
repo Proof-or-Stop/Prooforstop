@@ -84,6 +84,43 @@
         "scanEscalationReason": null
       },
       "_hash": "d7ad83ffbe0ac2198e8d0546291a3d84c413ac4755c932aa7dee251664588345"
+    },
+    {
+      "id": "B-8b69:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality-lane re-review at HEAD bff69bdbfc, delta since my prior pass RP-003: the new worktree.ts F-008 targeted stale-worktree-admin prune block + its assertDevStartReuseFromMainAndRebootstrap test. Guard findWorktreeResidue(storyId,branch,worktreePath,repoRoot) && !isUsableGitWorktree(worktreePath) is scoped to THIS story only (branch-ref/path/basename match); pruneWorktreeRegistry runs git worktree prune --expire now which by gits semantics only drops missing-on-disk registrations, so live siblings are unaffected. All 4 helpers pre-existing (git blame b52a035d86), already used at the existing worktree-remove call sites -- no new I/O surface, only a new narrowly-guarded call site. No as any / empty catch / dead code introduced anywhere in the diff (grep-verified). Re-verified F-006: REOPEN checklist done/in_progress->pending reset in transition-orchestrator.ts is co-located inside the mkdir persistClaim try block, after the oldPhase re-read guard and before writeStory/before finally-release, gated strictly on eventType===REOPEN. Re-verified checklist.ts F-001/F-003 guidance branches PLAN vs DEV correctly (matches actual reachable phases). Re-verified resolveWorktreePath (CHK-002) uses resolveMainRepoRoot() consistently at all 5 call sites, byte-identical for from-main callers. Re-verified isReopenToInit CWD-gate special-case only affects PLAN->INIT reopen, not other phase=INIT transitions. flow-stability-smoke.ts baseline rebaseline is the sole intended reflection of the new PLAN->INIT edge. Independently ran node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js against the prebuilt dist: GREEN exit 0, both suites pass including the from-main reuse + delete-then-rebootstrap-without-external-prune regression for the new F-008 block. Cross-checked findings.json/review-passes.json: 7 prior findings (F-001..F-007, incl. one critical and one process-integrity catch) all resolved with strong code-verified fixes; no residual gap found. No blocker.",
+      "createdAt": "2026-07-25T15:44:32.591Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-011",
+      "envelopeId": "95ad03f117059f7c95457d451191b98752999961e18a0942960a257126427219",
+      "writerSessionId": "claude-code-8f6ba6c5-plan-init-reopen",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8b69/background.md",
+          ".lattice/story/actives/B-8b69/checklist.json",
+          ".lattice/story/actives/B-8b69/findings.json",
+          ".lattice/story/actives/B-8b69/plan.md",
+          ".lattice/story/actives/B-8b69/review-passes.json",
+          "docs/requirements/decisions/plan-init-reopen.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8b69/decision.json",
+          ".lattice/story/actives/B-8b69/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ecffb6d99a188948a5fc2f17bdc893a1e1da065030e12a6ef139738fe636df8a"
     }
   ]
 }
