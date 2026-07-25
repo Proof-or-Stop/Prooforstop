@@ -4,9 +4,70 @@
       "id": "CHK-001",
       "title": "Add a gated PLAN->INIT reopen transition to the story state machine",
       "context": "New backward edge PLAN->INIT guarded by canReopenToInit (owner-gated, requires a reason, allowed only pre-REVIEW from PLAN). Wire it into BOTH the xstate machine states and canSendStoryEventWithoutSnapshotCan so story_advance --phase=INIT from PLAN lands at INIT, the only phase where title/context is editable.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-25T12:00:41.136Z",
+      "userSees": "Running lattice story_advance {storyId:B-x,phase:INIT,reason:...} from a PLAN worktree prints: Story B-x advanced to INIT. Omitting reason prints a clear refusal; reopening from any non-PLAN phase is refused.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_advance phase=INIT from a PLAN worktree with a reason lands the story at INIT",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "after reopening to INIT, checklist_update of the title succeeds because title/context is editable at INIT",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "reopen is refused when reason is missing, and refused from any non-PLAN phase such as DEV or REVIEW",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The round-trip smoke asserts story_advance phase=INIT with a reason from a PLAN worktree lands the story at INIT (phaseOf===INIT).",
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a reopen without a reason is refused (matches /reason of at least .. characters/) and the phase does not move.",
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -15,9 +76,78 @@
       "relatedDocs": [
         ".lattice/story/actives/B-8b69/background.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-25T12:00:41.997Z",
+      "userSees": "Re-advancing lattice story_advance phase=INIT_CHECK from inside the existing worktree prints: Story B-x advanced to INIT_CHECK reusing the worktree, instead of: Branch story/B-x already exists but does not contain .worktrees/...",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "re-advance INIT->INIT_CHECK from inside the existing worktree reuses it and does not emit the does-not-contain .worktrees false-fail",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "dev_start invoked from the main repo root still resolves and reuses the worktree byte-identically",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "when the worktree directory was deleted, dev_start re-bootstraps cleanly without the .worktrees-prefixed branch-content false-fail",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "Re-bound to current material: the round-trip smoke re-advances INIT->INIT_CHECK from inside the existing worktree and asserts no does-not-contain .worktrees false-fail. GREEN at current HEAD.",
+          "headHash": "51771b2d212af126f0130fbf611efd231736a368",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:27:25.294Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "assertDevStartReuseFromMainAndRebootstrap: from the MAIN root, dev_start on a story with an existing worktree reuses it (reports already-exists / Path), exercising resolveWorktreePath main-root resolution + the reuse early-return.",
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "assertDevStartReuseFromMainAndRebootstrap: deletes ONLY the worktree dir (NO external prune) and asserts dev_start re-bootstraps it ITSELF. dev_start now prunes its own stale worktree registration before git worktree add (F-008, worktree.ts). RED-verified: with that prune disabled the same test fails with the missing-but-already-registered git error.",
+          "headHash": "dd942eac1a26fe26bc4c651397ca28463934ccff",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T15:48:52.822Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -26,9 +156,66 @@
       "relatedDocs": [
         ".lattice/story/actives/B-8b69/background.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-25T12:00:42.823Z",
+      "userSees": "Attempting checklist_update of a title at PLAN prints a refusal that tells the user to story_advance --phase=INIT (not INIT_CHECK) to change title/context.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checklist_update of a title at PLAN prints a refusal that names story_advance --phase=INIT (reopen-to-INIT), not INIT_CHECK",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the refusal text no longer instructs the user to go back to INIT_CHECK",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "title/context edits remain rejected at INIT_CHECK so the scope-freeze invariant is preserved",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a title edit at PLAN is refused and the refusal matches /reopen to INIT/ and shows phase:INIT, and does NOT say back to INIT_CHECK.",
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a title edit at INIT_CHECK is rejected (frozenAtCheck.code != 0) and the corrected title is unchanged, proving INIT_CHECK stays frozen (scope-freeze invariant preserved).",
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -37,9 +224,68 @@
       "relatedDocs": [
         ".lattice/story/actives/B-8b69/background.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-25T12:00:43.645Z",
+      "userSees": "npm --prefix packages/main test (or test:all) runs plan-init-reopen-roundtrip-smoke and it PASSES (GREEN) after the fix; the same smoke FAILS (RED) against pre-fix code.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the plan-init-reopen round-trip smoke passes GREEN after the fix",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the smoke runs entirely from inside the worktree with no git surgery and no hand-edited checklist.json",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the same smoke fails RED against pre-fix code (missing PLAN->INIT edge and dev_start path bug)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "Re-bound to current material: the plan-init-reopen round-trip smoke passes GREEN after the fix (exit 0, both suites). Verified at current HEAD.",
+          "headHash": "f6b4ec794b17d66fec29dbc49462670c535f7e4e",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:27:27.165Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "Re-bound to current material: RED-verified — against pre-fix code (stash of all 7 non-test files to parent 6495f31) the same smoke fails with Cannot transition from PLAN to INIT; GREEN after. Verified at current HEAD.",
+          "headHash": "bfcd86d198f7ed04ba5ad1c9f7e3c5740292a71f",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:27:28.885Z"
+        }
+      ]
     }
   ]
 }

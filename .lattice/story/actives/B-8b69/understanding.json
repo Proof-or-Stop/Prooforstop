@@ -1,0 +1,28 @@
+{
+  "task": "Restore the sanctioned recovery path so a PLAN-phase worktree'd story whose frozen checklist title a scope review flagged can be edited, re-reviewed, and re-advanced, without git surgery or hand-editing checklist.json.",
+  "outcome": "From inside the story worktree at PLAN, the maintainer runs `lattice story_advance '{\"storyId\":\"B-x\",\"phase\":\"INIT\",\"reason\":\"scope review flagged the frozen title\"}'` and sees `Story B-x advanced to INIT`. They then run `lattice checklist_update '{\"storyId\":\"B-x\",\"itemId\":\"CHK-001\",\"title\":\"<new deliverable-naming title>\"}'` and it succeeds instead of being rejected. After re-running the INIT review and `lattice story_advance phase=INIT_CHECK` (which prints `Story B-x advanced to INIT_CHECK` reusing the existing worktree, not `Branch ... does not contain .worktrees/...`) and `phase=PLAN`, the story is back at PLAN carrying the corrected title. No `git` commands and no manual edit of checklist.json were needed.",
+  "facts": [
+    "machine.ts PLAN state (xstate + canSendStoryEventWithoutSnapshotCan) has only a START->DEV edge; there is no backward edge from PLAN to INIT_CHECK or INIT (verified; machine probe PLAN--INIT_CHECK-->allowed=false).",
+    "transition-orchestrator.ts resolves the event as PHASE_TO_EVENT[targetPhase] plus a single hardcoded REPLAN special case (args.phase==='PLAN' && story.phase==='DEV'); no PLAN->INIT mapping exists (line ~611-618).",
+    "worktree.ts dev_start reuse early-return (line ~818) calls resolveWorktreePath which joins story.worktree.path against getRepoRoot() (git --show-toplevel = the worktree itself when run from inside it), double-nesting to a non-existent path so it clears story.worktree and re-bootstraps; the re-bootstrap computes storyRel against resolveMainRepoRoot() (git --git-common-dir = main), yielding a .worktrees/<id>/-prefixed path that the branch-content guard (line ~912) false-fails.",
+    "story.worktree.path is ALWAYS main-repo-root-relative ('.worktrees/<id>'), so resolveWorktreePath should resolve it against the main repo root for all callers, not --show-toplevel.",
+    "checklist.ts titleContextProtectedPhases includes INIT_CHECK, so title/context is editable only at INIT; the guidance at line ~666 ('story_advance back to INIT_CHECK') is self-contradictory.",
+    "Two independent INIT reviewers (lattice-review-story-init + product-reviewer) verified all three claims against source and passed with 0 issues; repro is bound as story-evidence-binding seb-ms08pthg-ybzc4e from probe rp-ms08p73e-rdc1ts (red-reviewed target-bug)."
+  ],
+  "constraints": [
+    "Do NOT weaken the INIT_CHECK scope-freeze invariant: INIT_CHECK stays in titleContextProtectedPhases; only INIT unfreezes title/context.",
+    "The reopen must be gated and auditable: require a reason and allow it only from PLAN (pre-REVIEW).",
+    "Preserve byte-identical behavior for all existing transitions and for dev_start when run from the main root.",
+    "The re-advance INIT->INIT_CHECK from inside the existing worktree must reuse the worktree (dev_start early-return), not re-bootstrap."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "timestamp": "2026-07-25T10:54:29.772Z"
+}

@@ -130,7 +130,16 @@ export interface StoryTransitionArgs {
   storyId: string;
   phase: StoryPhase;
   checklist?: Array<{ id: string; title: string }>;
+  /**
+   * B-8b69: required, audited reason for the gated PLAN->INIT reopen. Ignored for
+   * every other transition. Enforced (non-blank, >= REOPEN_REASON_MIN chars) before
+   * the REOPEN event is sent.
+   */
+  reason?: string;
 }
+
+/** B-8b69: minimum length of the mandatory PLAN->INIT reopen reason. */
+export const REOPEN_REASON_MIN = 10;
 
 /**
  * The structured result of one transition. story-advance.ts (the thin handler)
@@ -476,7 +485,13 @@ async function runStoryTransitionInner(
 
     // CWD gate: PLAN/DEV/TEST phases must execute inside the worktree
     const CWD_GATED: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST'];
-    if (CWD_GATED.includes(args.phase) && story.worktree) {
+    // B-8b69: the PLAN->INIT reopen must also run inside the worktree, even though
+    // the TARGET phase (INIT) is not itself cwd-gated. The story sits at PLAN with an
+    // active worktree whose branch carries the authoritative metadata; running the
+    // reopen from the main root would flip main's (stale) index.json to INIT and leave
+    // the worktree at PLAN — a split brain. Gate on the reopen shape, not the target.
+    const isReopenToInit = args.phase === 'INIT' && story.phase === 'PLAN';
+    if ((CWD_GATED.includes(args.phase) || isReopenToInit) && story.worktree) {
       assertCwdInWorktree(store, args.storyId);
     }
 
@@ -617,6 +632,21 @@ async function runStoryTransitionInner(
       eventType = 'REPLAN';
     }
     // TEST→DEV rollback: PHASE_TO_EVENT['DEV']='START' matches automatically
+    // B-8b69: gated PLAN->INIT reopen. PHASE_TO_EVENT['INIT']='INIT', which the PLAN
+    // state has no edge for; remap to the REOPEN event and enforce the required,
+    // audited reason here (the pure machine guard has no access to args). A missing
+    // or too-short reason fails BEFORE the actor.can() check so the refusal names the
+    // reason requirement rather than an opaque illegal-transition message.
+    if (args.phase === 'INIT' && story.phase === 'PLAN') {
+      eventType = 'REOPEN';
+      if (!args.reason || args.reason.trim().length < REOPEN_REASON_MIN) {
+        throw new Error(
+          `Cannot reopen ${args.storyId} to INIT: a reason of at least ${REOPEN_REASON_MIN} characters is required ` +
+          `(explain why the frozen checklist title/context must change — e.g. which PLAN scope review flagged it). ` +
+          `Re-run: lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'.`,
+        );
+      }
+    }
 
     const canSend = canSendStoryEvent(actor, eventType, args.storyId, store, ctx.root, args.phase === 'DONE' ? doneGitCwd : undefined);
     if (!canSend) {
@@ -852,6 +882,31 @@ async function runStoryTransitionInner(
       // abort at the guard before writing EITHER file.
       if (checklistToWrite) {
         store.writeChecklist(args.storyId, checklistToWrite);
+      }
+      // B-8b69 (F-005/F-006): reopening to INIT unfreezes the checklist title/context,
+      // so any item that already reached done/in_progress MUST be reset to pending —
+      // otherwise a story that went DEV -> REPLAN -> PLAN -> reopen could retitle an
+      // already-done item with no re-verification, silently decoupling the requirement
+      // from the delivered code (the tampering the INIT_CHECK freeze prevents, which
+      // decision.json promises the reopen preserves). This synchronous read-mutate-write
+      // is co-located INSIDE the atomic persist claim (F-006), right beside the phase
+      // writeStory: the reset and the phase=INIT write land together or not at all, so
+      // an exception can never leave phase=INIT with a stale done item that — since
+      // REOPEN only fires from PLAN — could never be re-triggered. It also aborts at the
+      // oldPhase re-read guard above with the phase write, so a loser concurrent
+      // transition never resets. No-op for the common case (all items already pending).
+      if (eventType === 'REOPEN') {
+        const reopenChecklist = store.readChecklist(args.storyId);
+        let reopenMutated = false;
+        for (const item of reopenChecklist.items) {
+          if (item.status === 'done' || item.status === 'in_progress') {
+            item.status = 'pending';
+            item.startTime = null;
+            item.endTime = null;
+            reopenMutated = true;
+          }
+        }
+        if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);
       }
       store.writeStory(args.storyId, story);
     } finally {
