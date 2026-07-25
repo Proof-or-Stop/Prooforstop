@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-c054:F-001",
+      "desc": "CHK-003:adversarial:2 verificationEvidence is mis-bound: the intent claims 'An attacker adding a 15th key to the snapshot object after resolution -> the snapshot type/validator rejects or the digest changes', but the bound command (node dist/tasks/red-evidence-policy-canon-smoke.js, cited smoke:171+103) only exercises unknown-key REJECTION on the INPUT config before resolution, never on the OUTPUT snapshot after resolveRedEvidencePolicy() returns. Live re-test proves the literal claim is false: policy.ts:348-363 returns a plain (non-frozen) snapshot object; `r.snapshot.evil15thKey = \"injected\"` after a successful resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"]}) silently succeeds (object now has 15 keys) with NO throw/rejection and the already-computed policyDigest field is unchanged (stale, not recomputed) -- neither of the intent's two disjuncts (reject | digest changes) holds. The evidence note conflates pre-resolution config-key validation (real, correctly tested elsewhere by CHK-003:adversarial:0) with post-resolution snapshot-mutation protection (untested, and demonstrably absent). Fix: either add Object.freeze(snapshot) before returning + a real test asserting the mutation throws, or reword/retire the intent to match what is actually guaranteed (input-side unknown-key rejection only).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T04:16:08.499Z",
+      "reviewRound": "2026-07-25T04:09:32.942Z",
+      "reviewRunId": "B-c054:RR-002",
+      "_hash": "b2da0f4a51c05d20daf0328c008a3a1dd0acc2c0f8faafd9c3afca287cf2d0bc",
+      "files": [
+        "packages/main/src/core/red-evidence/policy.ts",
+        "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-verificationevidence-bound",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
