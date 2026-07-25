@@ -119,6 +119,21 @@
       "_hash": "d83b3f52c4ff7d89e4c7ac2f059a47c5f89e192572ec5c97ea5a074408b6c5be",
       "signatureTag": "happy|unknown|promise-undelivered-usersees",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-009",
+      "desc": "doc-promise-undelivered (same root cause as F-008): because quorum_prune has no `dryRun` schema field, packages/main/src/cli/help-renderer.ts:150-151 dryRunHelpLine() falls through its no-dryRun-field branch, matches /dry-run/i against the tool description text, and prints `Dry-run: always-on. This command only projects guidance and does not execute the side-effect path.` in `node bin/lattice.js quorum_prune --help` — empirically verified live. This is actively wrong: `apply:true` performs a real mutating side effect (writes a timestamped backup, rewrites the committed process-events.jsonl, and creates a git commit via captureLifecycleMetadataTransaction/commitLifecycleMetadataTransaction in packages/main/src/handlers/quorum-prune.ts:338-366). For a recovery command whose entire safety design (plan.md Risks section) rests on dry-run-by-default + explicit apply, the auto-generated --help text tells operators the opposite of the truth about when it mutates state.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-25T23:05:58.338Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-001",
+      "_hash": "8ceb0a9a2412f554fb8e9bf3f647994e54b367ae5274dc5c1bc66f839b085c96",
+      "signatureTag": "adversarial|unknown|promise-undelivered-same",
+      "signatureTagSource": "auto"
     }
   ]
 }
