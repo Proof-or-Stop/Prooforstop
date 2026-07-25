@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|mjs|adversarial-evidence-mismatch",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-002",
+      "desc": "CHK-001:edge:0 evidence is weaker than the sibling coverage in the same file. Intent: \"Construct a green-confirm record; verify it has confirmsRecordId/confirmsRecordDigest/confirmsAssertionDigest but NO assertion/policySnapshot of its own\". red-evidence-chain-smoke.ts section 1 (lines 180-197) proves this EXACT pattern for the quarantine record by hand-building a draft object and asserting field presence/absence with the `in` operator in a loop. For green-confirm (CHK-001:edge:0) the smoke never constructs a GreenConfirmRecordV2 instance at all -- it only calls greenConfirmOperationKey() (a function over primitive strings) and checks the GRN- id prefix (lines 333/338). The claim that this is adequate because \"the field set is the compiled discriminated-union contract (green-confirm writer is W2e)\" relies purely on TypeScript type erasure at compile time; nothing at runtime confirms a constructed green-confirm object omits assertion/policySnapshot the way the quarantine test does two sections above it. Building a synthetic GreenConfirmRecordV2 draft (as was already done for red-assert and quarantine, which also have no writer command registered by this story) and running the same `in`-based presence/omission loop would have been directly achievable without needing the W2e writer, and would match the sibling evidence quality used for every other operation in this same section.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T12:18:35.613Z",
+      "reviewRound": "2026-07-25T12:11:38.694Z",
+      "reviewRunId": "B-506e:RR-003",
+      "_hash": "3e66c62ee486f8bc92435412a972024cfb450d62ade31c4cd2a9382dcd13ace4",
+      "files": [
+        "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+        "packages/main/src/core/red-evidence/record-v2.ts"
+      ],
+      "signatureTag": "edge|ts|edge-evidence-weaker",
+      "signatureTagSource": "auto"
     }
   ]
 }
