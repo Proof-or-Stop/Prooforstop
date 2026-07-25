@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-3783",
+  "status": "FAIL",
+  "startedAt": "2026-07-25T22:42:48.061Z",
+  "endedAt": "2026-07-25T22:44:14.454Z",
+  "durationMs": 86393,
+  "headHash": "3d485a291b6c828a28940ba87ab264f14e052b1c",
+  "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+  "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3783",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3783",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 76377,
+      "outputDigest": "c26d008d334e07235f570e6ba6adc72d5285409938fc553e21d160dc0099ac81",
+      "outputTail": "\n> @lattice/core@0.3.238 build\n> tsc\n\n",
+      "startedAt": "2026-07-25T22:42:48.063Z",
+      "endedAt": "2026-07-25T22:44:04.442Z",
+      "effectiveEnvironmentDigest": "c2a2f1ebf4e043c37680326882691a0ce2fedf99e8d74994e3ad519e7b002b05",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3d485a291b6c828a28940ba87ab264f14e052b1c",
+      "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+      "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3783",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3783",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 9043,
+      "outputDigest": "62b25c309d5fb665862634d0870c37bd47923aeda5e9c67e203b1fd7f69fde26",
+      "outputTail": "123  [commit]  mutates-main=no   locked=n/a  OK\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\n\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\n\n> lattice@0.3.238 test:production-test-seam-guard\n> node packages/main/dist/tasks/production-test-seam-guard.js\n\nProduction test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.\n\n> lattice@0.3.238 test:lattice-residue\n> node scripts/verify-lattice-residue.mjs\n\nPASS lattice-residue: 0 brand residue in product runtime source\n\n> lattice@0.3.238 test:proof-or-stop-prompt-baseline\n> node scripts/verify-proof-or-stop-prompt-baseline.mjs\n\nnode:internal/errors:983\n  const err = new Error(message);\n              ^\n\nError: Command failed: /Users/jek/.nvm/versions/node/v22.13.0/bin/node /Users/jek/Documents/Work/proofbound/.worktrees/B-3783/bin/lattice.js agent_prompt --role=implementation-reviewer\nlattice local bootstrap is not ready.\n\nMissing build artifacts:\n  - /Users/jek/Documents/Work/proofbound/.worktrees/B-3783/packages/utils/dist/index.js\n\nRecovery:\n  1. npm --prefix packages/main run build\n  2. npm --prefix packages/utils run build\n  3. Retry the same command\n\nFallbacks:\n  - Core-only local CLI: node packages/main/dist/cli.js <command>\n    Use this for current-worktree gate/status/validate checks while developing Lattice.\n  - Global CLI (heartbeat-only, not current-worktree gate/status evidence):\n    LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice session_brief\n    The global-fallback exemption is only for session_brief heartbeat; it is never worktree gate/status evidence.\n\n    at genericNodeError (node:internal/errors:983:15)\n    at wrappedFn (node:internal/errors:537:14)\n    at checkExecSyncError (node:child_process:882:11)\n    at execFileSync (node:child_process:918:15)\n    at runAgentPrompt (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-3783/scripts/verify-proof-or-stop-prompt-baseline.mjs:1390:10)\n    at collectPromptStateFromSource (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-3783/scripts/verify-proof-or-stop-prompt-baseline.mjs:2019:9)\n    at async verifyBaseline (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-3783/scripts/verify-proof-or-stop-prompt-baseline.mjs:3327:23)\n    at async file:///Users/jek/Documents/Work/proofbound/.worktrees/B-3783/scripts/verify-proof-or-stop-prompt-baseline.mjs:3405:3 {\n  status: 1,\n  signal: null,\n  output: [\n    null,\n    Buffer(0) [Uint8Array] [],\n    Buffer(764) [Uint8Array] [\n      108,  97, 116, 116, 105,  99, 101,  32, 108, 111,  99,  97,\n      108,  32,  98, 111, 111, 116, 115, 116, 114,  97, 112,  32,\n      105, 115,  32, 110, 111, 116,  32, 114, 101,  97, 100, 121,\n       46,  10,  10,  77, 105, 115, 115, 105, 110, 103,  32,  98,\n      117, 105, 108, 100,  32,  97, 114, 116, 105, 102,  97,  99,\n      116, 115,  58,  10,  32,  32,  45,  32,  47,  85, 115, 101,\n      114, 115,  47, 106, 101, 107,  47,  68, 111,  99, 117, 109,\n      101, 110, 116, 115,  47,  87, 111, 114, 107,  47, 112, 114,\n      111, 111, 102,  98,\n      ... 664 more items\n    ]\n  ],\n  pid: 90237,\n  stdout: Buffer(0) [Uint8Array] [],\n  stderr: Buffer(764) [Uint8Array] [\n    108,  97, 116, 116, 105,  99, 101,  32, 108, 111,  99,  97,\n    108,  32,  98, 111, 111, 116, 115, 116, 114,  97, 112,  32,\n    105, 115,  32, 110, 111, 116,  32, 114, 101,  97, 100, 121,\n     46,  10,  10,  77, 105, 115, 115, 105, 110, 103,  32,  98,\n    117, 105, 108, 100,  32,  97, 114, 116, 105, 102,  97,  99,\n    116, 115,  58,  10,  32,  32,  45,  32,  47,  85, 115, 101,\n    114, 115,  47, 106, 101, 107,  47,  68, 111,  99, 117, 109,\n    101, 110, 116, 115,  47,  87, 111, 114, 107,  47, 112, 114,\n    111, 111, 102,  98,\n    ... 664 more items\n  ]\n}\n\nNode.js v22.13.0\n",
+      "startedAt": "2026-07-25T22:44:04.936Z",
+      "endedAt": "2026-07-25T22:44:13.979Z",
+      "effectiveEnvironmentDigest": "c2a2f1ebf4e043c37680326882691a0ce2fedf99e8d74994e3ad519e7b002b05",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3d485a291b6c828a28940ba87ab264f14e052b1c",
+      "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+      "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
