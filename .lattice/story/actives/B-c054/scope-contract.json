@@ -1,0 +1,49 @@
+{
+  "storyId": "B-c054",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/red-evidence/canon.ts",
+    "packages/main/src/core/red-evidence/policy.ts",
+    "packages/main/src/core/red-evidence/registries.ts",
+    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+    "packages/main/tests/red/red-w2a-canon-differential.mjs",
+    "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-w2a-canon-differential.mjs",
+    "packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/red-evidence/runner.ts",
+    "packages/main/src/core/red-evidence/envelope.ts"
+  ],
+  "scopeChangeReason": "W2a foundation: CANON + fail-closed policy resolver + non-gating doctor line; runtime execution (runner/envelope) and enforcement fenced to W2e/W3.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-25T00:10:16.529Z",
+  "updatedAt": "2026-07-25T00:10:50.621Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md": "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+    "packages/main/src/core/red-evidence/runner.ts": "packages/main/src/core/red-evidence/runner.ts",
+    "packages/main/src/core/red-evidence/envelope.ts": "packages/main/src/core/red-evidence/envelope.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/doctor.ts": "packages/main/src/handlers/doctor.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/red-evidence/canon.ts": "packages/main/src/core/red-evidence/canon.ts",
+    "packages/main/src/core/red-evidence/policy.ts": "packages/main/src/core/red-evidence/policy.ts",
+    "packages/main/src/core/red-evidence/registries.ts": "packages/main/src/core/red-evidence/registries.ts",
+    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+    "packages/main/tests/red/red-w2a-canon-differential.mjs": "packages/main/tests/red/red-w2a-canon-differential.mjs",
+    "packages/main/tests/red/red-w2a-policy-failclosed.mjs": "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+  }
+}

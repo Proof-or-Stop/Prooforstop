@@ -1,0 +1,103 @@
+{
+  "storyId": "B-c054",
+  "checkedAt": "2026-07-25T07:00:08.839Z",
+  "headHash": "02a255c40693c4ec164c89ee06d3918c4d17d3ef",
+  "materialHash": "a9a1b7b9f1022832dd2ccfa82e477d007938d05731e90c07a04038f6da64bee6",
+  "storyFilesHash": "0923fb577e602825bb91189d56c539763049d013bf1fbcc696c4fec8edaa6a45",
+  "reviewRound": "2026-07-25T06:36:50.457Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-c054/summary.json#changes",
+      "promise": "canon.ts is an RFC 8785 CANON canonicalizer (UTF-16 code-unit key order, preserved JSON null, minimal number encoding, sha256:<64-hex>) exporting canonDigest/canonDigestOmitting/first12hex, throwing on lone surrogates and non-plain objects",
+      "verifiedBy": "diff/read + live run",
+      "evidence": "packages/main/src/core/red-evidence/canon.ts (195 lines) implements exactly the claimed rules: Object.keys(obj).sort() code-unit order (not localeCompare), JSON null preserved literally, JSON.stringify minimal number/string form, non-finite numbers throw, assertNoLoneSurrogate throws on lone UTF-16 surrogates in both member names and string values, non-plain-object prototype check throws on Date/Map/Set/RegExp, canonDigest/canonDigestOmitting/first12hex all present and match doc comments. Ran the registered smoke live: red-evidence-policy-canon-smoke: OK, exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c054/summary.json#changes",
+      "promise": "policy.ts + registries.ts implement a fail-closed resolver of the exhaustive 14-key policySnapshot with spec-verbatim defaults, unknown-key rejection, complete §1.12 clamp-REJECT floors, and complete §1.2 registry-schema structural validation (uniqueness, anchored named-capture patterns, repo-relative cwd, argv exact-placeholder, toolchain shape)",
+      "verifiedBy": "diff/read + live run",
+      "evidence": "packages/main/src/core/red-evidence/policy.ts (673 lines) read in full: POLICY_SNAPSHOT_KEYS (registries.ts) has exactly 14 keys, unknown-key loop rejects fail-closed, 6+ distinct HARD_FLOORS diagnostics, duplicate-key detection for matcherClassRegistry/runnerAdapterRegistry/runnerProfileRegistry, isAnchoredPattern + patternCaptureNames (char-class/escape-aware tokenizer) enforce anchored named-capture patterns, isRepoRelativePath enforces repo-relative cwd, EXACT_PLACEHOLDER + partialPlaceholderTokens enforce exact-name-placeholder-or-literal argv rule, toolchain shape checked structurally (absolute path + 64-hex sha256, no file resolution). Ran both RED .mjs tests live via node --test: both PASS (1/1). Ran the registered smoke live: OK. Independently re-derived the default policyDigest with pinnedPath=[/usr/bin] from the built dist module: sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767, matching the story's claimed literal byte-for-byte."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c054/summary.json#changes",
+      "promise": "config.ts declares an optional redEvidence block (no default)",
+      "verifiedBy": "diff/read",
+      "evidence": "packages/main/src/core/config.ts diff adds RedEvidencePolicyConfig interface (open index signature) and LatticeConfig.redEvidence?: RedEvidencePolicyConfig. Purely additive; no DEFAULT_CONFIG or existing field touched."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c054/summary.json#changes",
+      "promise": "doctor.ts adds a non-gating red-evidence policy line",
+      "verifiedBy": "diff/read + live run",
+      "evidence": "doctor.ts adds scanRedEvidencePolicy() (loadConfig + resolveRedEvidenceDoctorLine, catches all errors, never throws) and pushes redEvidencePolicy.line into the text renderer plus the JSON shape. Ran `node bin/lattice.js doctor` live: exit 0, grep -c \"Red-evidence\" = 1 (exactly one line)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c054/summary.json#changes",
+      "promise": "a registered smoke + committed RED tests",
+      "verifiedBy": "diff/read + live run + git log",
+      "evidence": "lattice.config.json validate.commands gained red-evidence-policy-canon-smoke (timeoutMs 180000); grep confirms no redEvidence block is committed to lattice.config.json (self-pinning rule). git log shows genuine RED-before-GREEN: commit 148ba1f0f7 (02:11:33) committed both RED .mjs files importing packages/main/dist/core/red-evidence/* which did not exist in that commit's tree (confirmed via git ls-tree — only the two RED .mjs files + the spec doc, no red-evidence source), preceding GREEN commit 2fde890c60 plus 4 further review-driven fix commits (eff4404936, da3fc395a9, 70cbc59220, 3b05d13219). All three (smoke + 2 RED mjs) built and run live: all PASS/OK, exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c054/summary.json#expectedOutcome+actualTranscript",
+      "promise": "`lattice doctor` prints exactly one line `Red-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)` and exits 0",
+      "verifiedBy": "live run",
+      "evidence": "Ran `node bin/lattice.js doctor` live in the worktree (no redEvidence block configured): output line 91 is exactly `Red-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)`, doctor exit code 0, grep -c \"Red-evidence\" = 1. This is a byte-for-byte match to the CORRECTED summary.json wording (verified the prior inaccurate 'not configured'-wrapped / Chinese-phrase wording has been removed and replaced with this exact string, which is also what resolveRedEvidenceDoctorLine in policy.ts actually renders: prefix 'Red-evidence policy: ' + diagnostic.message + suffix ' (advisory only; doctor is not a gate)')."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-c054/summary.json#limitations",
+      "promise": "W2a scope excludes runtime executable resolution and toolchain sha256 file-matching (a different module, W2e, per the spec's own decomposition), and this is a clean module boundary, not a reduction",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep for child_process/execFile/spawn/.exec( across packages/main/src/core/red-evidence/ finds zero process-execution calls; the sole '.exec(' hit is EXACT_PLACEHOLDER.exec(token), a String.prototype regex call unrelated to process execution. policy.ts toolchain validation is explicitly STRUCTURAL only (absolute-path shape + 64-hex shape) with inline comments naming file-resolution/sha256-match as W2e's job. background.md independently states the same module boundary (W2e = 'RUNTIME executable resolution'). Genuine, honestly-declared module boundary."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "red-evidence-policy-canon-smoke.js run live (freshly rebuilt via tsc): OK, exit 0, covering canon code-unit order, null-preservation, number-encoding, lone-surrogate-throw, non-plain-object-throw, self-omitting-digest, first12hex. red-w2a-canon-differential.mjs run live via node --test: PASS (1/1)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke + red-w2a-canon-differential.mjs both assert canonDigest({B:1,a:2}) differs from digestCanonicalJson({B:1,a:2}) and canon preserves priorRecordDigest:null while canonicalJsonForSigning drops it — both run live and pass."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke asserts the resolved default snapshot has exactly 14 keys and policyDigest equals the frozen literal; independently re-derived resolveRedEvidencePolicy({pinnedPath:['/usr/bin']}) live from the built dist and got the identical digest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767. red-w2a-policy-failclosed.mjs asserts the same set. Both pass live."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Smoke + failclosed test assert resolveRedEvidencePolicy with an empty block rejects with exactly `red_evidence_policy_missing: pinnedPath`; live `lattice doctor` run (no block configured) renders that exact diagnostic as its sole Red-evidence line."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Smoke iterates the §1.12 floor-violation cases and asserts distinct diagnostic codes; failclosed test asserts the same set. Both pass live (exit 0)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Smoke + failclosed test assert forbidden env-key rejection, bare-catch-all/tracked-material-overlap invarianceExcludePaths rejection while node_modules/** is kept, and unresolved-placeholder argv rejection. Both pass live."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "config.ts diff is purely additive (new optional interface + field, no DEFAULT_CONFIG change); type-level addition with runtime coverage via the CHK-008 doctor-line live run (loadConfig with the block absent succeeds and produces the fail-closed line, proving no default-loading regression).",
+      "waiverReason": "type-only interface addition with no independent runtime branch beyond what the CHK-008 doctor-line live run already exercises"
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Live `node bin/lattice.js doctor` run: exit 0, exactly one Red-evidence line matching the exact corrected summary wording byte-for-byte."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "Live grep for tamper-proof/cannot be forged/unforgeable/tamper-resistant across packages/main/src/core/red-evidence/*.ts and doctor.ts: zero matches (the only regex-shaped hit is the smoke's own OVERCLAIM detector, which is the check itself, not a violation)."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "lattice.config.json diff shows the smoke registered in validate.commands with timeoutMs 180000; live grep confirms zero `redEvidence` occurrences in lattice.config.json (no block committed, consistent with pinnedPath being host-specific). Smoke run live: OK."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 10 checklist items are genuinely delivered and independently re-verified from a fresh context: canon.ts, policy.ts, registries.ts, config.ts, and doctor.ts match their claimed behavior exactly; the smoke and both RED .mjs tests were rebuilt and re-run live (all pass, exit 0); the frozen default policyDigest was independently re-derived byte-for-byte; git log confirms genuine RED-before-GREEN history (148ba1f0f7 RED precedes 2fde890c60 GREEN, with the module genuinely absent from the RED commit's tree); the W2a/W2e module boundary is honest (zero process-execution calls in red-evidence/); and the doctor line promised in summary.json now matches the live `lattice doctor` output byte-for-byte, confirming the prior wording inaccuracy noted in an earlier review pass has been correctly fixed. No dishonest or undelivered claims found."
+  },
+  "_hash": "91ff56a7932941cec2ee9044ea761a2ac5497d8cbd0ffbf28e71719781321970"
+}
