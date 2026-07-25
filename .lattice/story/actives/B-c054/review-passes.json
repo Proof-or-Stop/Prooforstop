@@ -87,6 +87,29 @@
         "scanEscalationReason": null
       },
       "_hash": "0bc0428fe738d6ebf65675ced7e9d3fc06454d57fda8447861698e6a05aa03fc"
+    },
+    {
+      "id": "B-c054:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Round-2 verification of commit eff44049362959935cc83b741cb697ef91a3ff85 (fixes for 5 round-1 findings). Rebuilt dist from src cleanly (tsc, no errors). Independently exercised the built canon.ts/policy.ts directly with node (not just re-reading source): canon of a lone-high-surrogate string and a lone-low-surrogate string each throw, a lone surrogate as an object key throws, a valid astral surrogate PAIR (emoji) does NOT throw; canon(new Date()), canon(new Map()), canon(new Set()), canon(/re/), and a class instance all throw (including nested one level deep inside a plain object), a null-prototype object still canonicalizes fine and matches the plain-object output. policy.ts invarianceExcludePaths: a glob matching all .ts files under any depth rejects over a root-level tracked foo.ts AND over a nested a/b/foo.ts (also verified a mid-path variant and single-star/double-star bare catch-alls all reject), while node_modules/** is kept (ok:true) when it matches no tracked material (confirmed with a realistic material list that excludes node_modules paths). Malformed matcherClassRegistry (predicateKind outside the closed enum), runnerAdapterRegistry (missing required fields), and runnerProfileRegistry (missing required fields) entries each reject with a distinct diagnostic code; the DEFAULT registries (no override) still resolve ok:true. Object.isFrozen(snapshot) is true and every nested array/object is frozen; a top-level scalar mutation and a nested-array push each throw in strict mode. The frozen default policyDigest reproduces exactly the pinned literal sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767 (ran resolveRedEvidencePolicy directly plus ran the actual smoke red-evidence-policy-canon-smoke.js and both tests/red/red-w2a-canon-differential.mjs and tests/red/red-w2a-policy-failclosed.mjs -- all exit 0/PASS). Cross-checked policy.ts against spec sections 0.4 and 1.12 in the red-evidence-subsystem-spec decisions doc -- code matches the normative table exactly, including the invarianceExcludePaths material-overlap rule. Also ran lattice doctor: exactly one red-evidence line, exit 0, config has no redEvidence block (out of scope per CHK-010). No new defect found: no over-broad guard rejects a valid input I could construct, and the default registries/policy still resolve unchanged.",
+      "createdAt": "2026-07-25T04:46:32.558Z",
+      "reviewRound": "2026-07-25T04:37:25.897Z",
+      "reviewRunId": "B-c054:RR-009",
+      "envelopeId": "46e0d27e034bfcf780ac5f007205ac2397673ee4a7ab6954f4ec5bd406465b0e",
+      "writerSessionId": "review-behavior-b-c054-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0124c3b56aeaf2cc4a3f42cc5e76008f63bb0bc01c57acb0b7c809f39256777a"
     }
   ]
 }
