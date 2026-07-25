@@ -122,7 +122,35 @@
       "context": "A committed-tree reader resolves a binding from <ref>:.lattice/story/actives/<id>/red-target-bindings.json via git show, NOT from the live (possibly edited) story directory; a test where the committed tree and the live directory hold different bindings proves the reader returns the committed one (§1.1.3 committed-tree lookup).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Commit a red-target-bindings.json with binding-A at ref HEAD, then call the committed-tree reader with that ref -> returns binding-A; WHY: proves the reader resolves from the committed tree via git show",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Committed tree has binding-A and live story directory has binding-B (different adapterId or testCaseRef) -> reader returns binding-A (the committed one), NOT binding-B; WHY: the core anti-swap assertion: live edits are invisible to the reader",
+            "type": "cli"
+          },
+          {
+            "desc": "No red-target-bindings.json exists at the given commit ref -> reader returns null or empty (no crash, no fallback to live directory); WHY: boundary on missing-file-at-ref path",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After a post-review edit adds a new binding to the live directory (not committed), reader at the pre-edit ref still returns only the pre-edit bindings; WHY: proves the swap-after-review attack is blocked — the binding that authorizes a run is always the committed one",
+            "type": "cli"
+          },
+          {
+            "desc": "Reader called with an invalid or nonexistent git ref -> throws or returns an error (does not silently fall back to reading the live directory); WHY: fail-closed on bad ref prevents accidental live-directory reads",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
