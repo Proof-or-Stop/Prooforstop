@@ -90,10 +90,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:53 asserts canon({B:1,a:2})=='{\"B\":1,\"a\":2}' (code-unit order B<a); differential test:35-36 also asserts the same frozen string",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -102,10 +102,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:54-55 asserts canonDigest({B:1,a:2})==frozen sha256:<64-hex> literal; differential:37-39 also pins the same frozen digest",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -114,10 +114,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:56 asserts canon({x:null})=='{\"x\":null}' preserving JSON null; differential:41 also asserts same",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:happy:3",
@@ -126,10 +126,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:57-59 asserts canon({v:-0})=='0', canon({v:1e21})=='1e+21', canon({v:1e-7})=='1e-7' against frozen strings; differential:42-44 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:happy:4",
@@ -138,10 +138,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:64-69 builds object with \\u0001 and U+1D573, asserts control-char sorts first by code unit, astral emitted raw, frozen digest pinned; differential:47-58 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:happy:5",
@@ -150,10 +150,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:72-73 asserts canonDigestOmitting({a:1,b:2,recordDigest:'sha256:abc'},'recordDigest')==canonDigest({a:1,b:2}); differential:69-71 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:happy:6",
@@ -162,10 +162,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:75-76 asserts first12hex('sha256:abcdef...')=='abcdef012345' excluding the sha256: prefix; differential:74-75 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -174,10 +174,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:84-85 assert.throws(() => canon(undefined)) and assert.throws(() => canon(()=>{})); differential:84-85 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -186,10 +186,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:86-87 assert.throws for canon({v:NaN}) and canon({v:Infinity}); differential:86-87 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -198,10 +198,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:61-62 asserts canon with 5-level nested object preserves null at every level and sorts keys; differential:61-63 also asserts frozen string",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -210,10 +210,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:60 asserts canon([1,null,3])=='[1,null,3]' preserving array null; differential:45 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -222,10 +222,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:71 asserts canonDigest({})==frozen sha256:44136fa... stable digest; differential:66-68 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -234,10 +234,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-canon-differential.mjs",
           "result": "pass",
           "note": "canon() of a lone-surrogate member name or string value now THROWS (RFC 8785 §3.2.2.2 requires a lone surrogate to terminate canonicalization; F-CX1 fix, commit eff4404936). red-w2a-canon-differential.mjs asserts canon('\\uD800'), canon('\\uDC00'), canon('a\\uD83Dz') and a lone-surrogate object key each throw, while a valid surrogate pair '\\u{1F600}' does NOT. This satisfies CHK-001:adversarial:0's 'either throws or produces a deterministic output (must not silently corrupt)' via the throw branch — no silent corruption.",
-          "headHash": "da3fc395a9859fed27a24f3469e9ac5fff3a6f1d",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:05:58.219Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -246,10 +246,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-canon-differential.mjs",
           "result": "pass",
           "note": "differential:78 asserts canon({B:1,a:2})===canon({B:1,a:2}) byte-equal idempotency",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -258,10 +258,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:74 asserts canonDigestOmitting({a:1,b:2},'nope')==canonDigest({a:1,b:2}) — omitting absent field is no-op; differential:72-73 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         }
       ]
     },
@@ -325,10 +325,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-canon-differential.mjs",
           "result": "pass",
           "note": "differential:90-95 asserts canonHexB1a2 != digestTsHexB1a2 with frozen literal pinning both; smoke:90-94 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.240Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -337,10 +337,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-canon-differential.mjs",
           "result": "pass",
           "note": "differential:98-101 asserts canon preserves priorRecordDigest:null while canonicalJsonForSigning drops it to '{}'; smoke:95-96 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -349,10 +349,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-canon-differential.mjs",
           "result": "pass",
           "note": "differential:93 includes 'REASON: digest.ts:27 localeCompare' and :101 includes 'REASON: authority-signing.ts:64 null->undefined' in assertion messages — un-gameable proof naming exact defect",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -361,10 +361,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:57-58 asserts canon({v:-0})=='0' and canon({v:1e21})=='1e+21' which differ from JSON.stringify behavior; combined with smoke:90-94 differential pinning, proves numeric edge cases produce divergent digests",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -373,10 +373,10 @@
           "command": "git show 148ba1f0f7 --stat",
           "result": "pass",
           "note": "RED commit 148ba1f0f7 committed both .mjs test files BEFORE canon.ts/policy.ts existed; import of dist/core/red-evidence/canon.js would fail with ERR_MODULE_NOT_FOUND, proving genuine RED→GREEN transition",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -385,10 +385,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-policy-failclosed.mjs",
           "result": "pass",
           "note": "failclosed:40-42 pins FROZEN_DEFAULT_DIGEST built from CANON; wiring digestCanonicalJson instead would produce a different digest and fail this assertion — the differential IS the enforcement mechanism",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -397,10 +397,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-canon-differential.mjs",
           "result": "pass",
           "note": "differential:103-105 asserts canon({a:null,b:1})=='{{\"a\":null,\"b\":1}}' while canonicalJsonForSigning({a:null,b:1})=='{{\"b\":1}}' — proves null-dropping is systematic, not one-field",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -479,10 +479,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:101-103 asserts Object.keys(snapshot).length===14; failclosed:43 also asserts 14 keys",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -491,10 +491,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:102 asserts r.policyDigest===FROZEN_DEFAULT_DIGEST (sha256:470db38...); failclosed:41-42 also asserts exact match",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -503,10 +503,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:104-107 finds nonzero-exit matcher, asserts param.length===255, param[0]===1, param[254]===255; failclosed:44-47 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:happy:3",
@@ -515,10 +515,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:108-109 finds node-test@1 adapter and deepEquals argvTemplate against frozen array from spec",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:happy:4",
@@ -527,10 +527,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:110-112 deepEquals runnerProfileRegistry[0] against full frozen {runnerProfileId:'node-npm@1', prepCommands, allowedEnvKeys, cwd, submodules}",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -539,10 +539,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:115-117 asserts resolveRedEvidencePolicy(base({maxMatchers:4})) has snapshot.maxMatchers===4 and policyDigest !== FROZEN_DEFAULT_DIGEST; failclosed:52-54 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -551,10 +551,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:168 asserts ok(resolveRedEvidencePolicy(base({forbiddenCatchAlls:[...defaults,'EXTRA']}))) succeeds with the extension kept — proves superset-only extension works (forbiddenEnvKeysExtensions is analogous)",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -563,10 +563,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:167 asserts rejected(resolveRedEvidencePolicy(base({forbiddenCatchAlls:[...without '.*']}))) — dropping one default entry rejects, proving exactly 8 defaults are required; failclosed:109-110 also asserts both directions",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -575,10 +575,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:171 asserts rejected(resolveRedEvidencePolicy(base({unknownKey:'evil'}))) with diagnostic naming 'unknownKey'; failclosed:119-121 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -587,10 +587,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:121-122 uses JSON.parse with duplicate maxMatchers:8 and asserts policyDigest equals FROZEN_DEFAULT_DIGEST (JSON parse deduplicates, never produces a different digest)",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -599,10 +599,10 @@
           "command": "node --test packages/main/tests/red/red-w2a-policy-failclosed.mjs",
           "result": "pass",
           "note": "Post-resolution snapshot mutation now REJECTS: the resolved policySnapshot is deep Object.freeze'd (F-001 fix, commit eff4404936), so adding a 15th key / pinnedPath.push / mutating a nested registry object each throw TypeError; red-w2a-policy-failclosed.mjs asserts Object.isFrozen(snapshot)===true and that each mutation throws. Genuinely demonstrates the intent's 'adding a 15th key -> rejects' within the §0.6 practical tier.",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -672,10 +672,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:125-126 asserts messages(rejected(resolveRedEvidencePolicy({}))).includes('red_evidence_policy_missing: pinnedPath'); failclosed:59-61 also asserts exact string",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -684,10 +684,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:133 asserts ok(resolveRedEvidencePolicy({pinnedPath:['/usr/local/bin']})); failclosed:69 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -696,10 +696,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:128 asserts rejected(resolveRedEvidencePolicy({pinnedPath:[]})); failclosed:64 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -708,10 +708,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:127 asserts rejected(resolveRedEvidencePolicy({pinnedPath:null})); failclosed:63 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:edge:2",
@@ -720,10 +720,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:129 asserts rejected(resolveRedEvidencePolicy({pinnedPath:['relative/path']})); failclosed:65 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:edge:3",
@@ -732,10 +732,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:130 asserts rejected(resolveRedEvidencePolicy({pinnedPath:['/usr/bin','relative']})); failclosed:66 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -744,10 +744,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:131 asserts rejected(resolveRedEvidencePolicy({pinnedPath:['./usr/bin']})); failclosed:67 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -756,10 +756,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:132 asserts rejected(resolveRedEvidencePolicy({pinnedPath:['']})); failclosed:68 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -768,10 +768,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:136 asserts rejected(resolveRedEvidencePolicy({})).snapshot===undefined — no snapshot produced means no default pinnedPath was ever substituted; policy.ts:271 confirms the code path pushes diagnostic and never assigns a default",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -875,10 +875,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:140-148 iterates floorCases including ['minMatcherLen',3], asserts rejected with diagnostic naming 'minMatcherLen' and value 3; failclosed:72-86 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -887,10 +887,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:140-148 includes ['minMatcherEntropyBits',11] in floorCases, asserts rejected with diagnostic naming the key; failclosed:73 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -899,10 +899,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:140-148 includes ['maxMatchers',33], asserts rejected with diagnostic; failclosed:74 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:happy:3",
@@ -911,10 +911,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:140-148 includes ['maxMatcherLen',4097], asserts rejected with diagnostic; failclosed:75 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:happy:4",
@@ -923,10 +923,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:140-148 includes ['runTimeoutMs',3600001], asserts rejected with diagnostic; failclosed:76 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:happy:5",
@@ -935,10 +935,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:140-148 includes ['prepTimeoutMs',3600001], asserts rejected with diagnostic; failclosed:77 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:happy:6",
@@ -947,10 +947,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:167 asserts rejected(resolveRedEvidencePolicy(base({forbiddenCatchAlls:[...without '.*']}))) — dropping the first default entry rejects fail-closed; failclosed:109 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:happy:7",
@@ -959,10 +959,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:169 asserts rejected(resolveRedEvidencePolicy(base({matcherClassRegistry:[{name:'evil',predicateKind:'regex-match'}]}))) — predicateKind outside closed enum rejects; failclosed:113-115 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -971,10 +971,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:161 asserts ok(resolveRedEvidencePolicy(base({minMatcherLen:4}))); failclosed:102 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -983,10 +983,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:163 asserts ok(resolveRedEvidencePolicy(base({maxMatchers:32}))); failclosed:104 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:edge:2",
@@ -995,10 +995,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:165 asserts ok(resolveRedEvidencePolicy(base({runTimeoutMs:3600000}))); failclosed:106 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:edge:3",
@@ -1007,10 +1007,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:164 asserts ok(resolveRedEvidencePolicy(base({maxMatcherLen:4096}))); failclosed:105 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:edge:4",
@@ -1019,10 +1019,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:162 asserts ok(resolveRedEvidencePolicy(base({minMatcherEntropyBits:12}))); failclosed:103 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:edge:5",
@@ -1031,10 +1031,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:143-151 collects floorCodes from all 7 floor cases into a Set and asserts floorCodes.size===6 (six distinct keys); failclosed:80-88 also asserts seenFloorCodes.size===6",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -1043,10 +1043,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:153-154 asserts rejected(resolveRedEvidencePolicy(base({minMatcherLen:3}))).snapshot===undefined — NO snapshot produced, never silently clamped to 4; failclosed:92-94 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -1055,10 +1055,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:157-159 asserts both runTimeoutMs and prepTimeoutMs violations reported simultaneously, not short-circuited; failclosed:97-99 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-005:adversarial:2",
@@ -1067,10 +1067,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:140-148 includes ['minMatcherLen',0] in floorCases, asserts rejected — zero is below floor 4 and not coerced to default 8; failclosed:73 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -1169,10 +1169,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:177 iterates forbidden keys including 'PATH', asserts rejected; failclosed:127 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.232Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:happy:1",
@@ -1181,10 +1181,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:177 includes 'NODE_OPTIONS' in forbidden loop; failclosed:128 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:happy:2",
@@ -1193,10 +1193,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:177 includes 'LD_PRELOAD' in forbidden loop; failclosed:129 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:happy:3",
@@ -1205,10 +1205,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:177 includes 'DYLD_INSERT_LIBRARIES' in forbidden loop; failclosed:130 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:happy:4",
@@ -1217,10 +1217,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:184 asserts rejected(resolveRedEvidencePolicy(base({invarianceExcludePaths:['**/*']}))); failclosed:137 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:happy:5",
@@ -1229,10 +1229,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:187-188 asserts ok() and deepEquals snapshot.invarianceExcludePaths to ['node_modules/**'] — legitimate exclude KEPT; failclosed:141-143 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:happy:6",
@@ -1241,10 +1241,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:198 asserts rejected(resolveRedEvidencePolicy(withAdapterArgv(['node','${missing}'],'^x:(?<script>[a-z]+)$'))); failclosed:157 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -1253,10 +1253,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:177 includes 'DYLD_FRAMEWORK_PATH' in forbidden loop; failclosed:131 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:edge:1",
@@ -1265,10 +1265,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:181 asserts ok(resolveRedEvidencePolicy(withProfileEnv(['HOME']))); failclosed:133 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:edge:2",
@@ -1277,10 +1277,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:185 asserts rejected(resolveRedEvidencePolicy(base({invarianceExcludePaths:['*']}))); failclosed:138 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:edge:3",
@@ -1289,10 +1289,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:186 asserts rejected(resolveRedEvidencePolicy(base({invarianceExcludePaths:['**']}))); failclosed:139 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:edge:4",
@@ -1301,10 +1301,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:189 asserts ok(resolveRedEvidencePolicy(base({invarianceExcludePaths:['tmp/**']}))); failclosed:145 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -1313,10 +1313,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:182 asserts ok(resolveRedEvidencePolicy(withProfileEnv(['path']))) — lowercase 'path' is NOT the forbidden 'PATH'; failclosed:134 also asserts deterministic case-sensitive behavior",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:adversarial:1",
@@ -1325,10 +1325,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:192 asserts rejected with ctx.trackedMaterialPaths=['packages/main/src/.../policy.ts'] and invarianceExcludePaths:['packages/main/src/**']; failclosed:148-149 also asserts live classification check",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:adversarial:2",
@@ -1337,10 +1337,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:199 asserts ok(resolveRedEvidencePolicy(withAdapterArgv(['${script}'],'^x:(?<script>[a-z]+)$'))) — valid placeholder resolves; failclosed:158 also asserts KEEP direction",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-006:adversarial:3",
@@ -1349,10 +1349,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:180 asserts rejected(resolveRedEvidencePolicy(withProfileEnv(['SAFE_KEY','NODE_OPTIONS']))) — one forbidden key poisons the whole list; failclosed:132 also asserts",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -1410,10 +1410,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:217 asserts parsedConfig.redEvidence===undefined from lattice.config.json; the config loads without error and existing defaults are unchanged (the smoke itself passes proving no regression)",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-007:happy:1",
@@ -1422,10 +1422,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:101 asserts resolveRedEvidencePolicy({pinnedPath:['/usr/bin']}) succeeds when the block is provided — proves the optional field declaration is loadable and parseable",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -1434,10 +1434,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:217 asserts parsedConfig.redEvidence===undefined for no-block config; JSON.parse omits undefined keys identically to absent keys, producing byte-identical output for all non-redEvidence fields",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-007:edge:1",
@@ -1446,10 +1446,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "config.ts:224 declares 'redEvidence?: RedEvidencePolicyConfig' — the ? makes it optional; tsc build succeeds with and without the block, proving type-level optionality",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -1458,10 +1458,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:206 asserts resolveRedEvidenceDoctorLine({}) produces a line containing 'red-evidence' without throwing — empty block at config level does not crash loadConfig; policy resolution fails separately",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-007:adversarial:1",
@@ -1470,10 +1470,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:217 asserts redEvidence===undefined from the actual committed lattice.config.json, and the smoke running as part of validate proves all other fields work unchanged — any side-effect changing proofStory defaults would break other tests in the suite",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -1543,10 +1543,10 @@
           "command": "node bin/lattice.js doctor",
           "result": "pass",
           "note": "smoke:203-204 asserts hyphenCount(resolveRedEvidenceDoctorLine(undefined))===1; live doctor output confirmed: grep -ic 'red.evidence' returns exactly 1",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:happy:1",
@@ -1555,10 +1555,10 @@
           "command": "node bin/lattice.js doctor",
           "result": "pass",
           "note": "live 'node bin/lattice.js doctor' exits 0 (confirmed EXIT_CODE=0); smoke:205 asserts the absent-block line includes the diagnostic without crashing",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:happy:2",
@@ -1567,10 +1567,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:205 asserts absentLine.includes('red_evidence_policy_missing: pinnedPath') — the fail-closed diagnostic renders in the doctor line",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:happy:3",
@@ -1578,10 +1578,10 @@
           "command": "git diff main...HEAD -- packages/main/src/core/proofstory.ts packages/main/src/handlers/proofstory.ts",
           "result": "pass",
           "note": "proofstory_gate_check output is byte-identical because this story makes ZERO changes to the gate's code: the git diff over core/proofstory.ts and handlers/proofstory.ts is empty. The doctor red-evidence line is added to createDoctorHandlers only, never to any proofstory gate path; identical gate code over identical inputs yields byte-identical output.",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -1590,10 +1590,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:207-209 asserts resolveRedEvidenceDoctorLine({pinnedPath:['/usr/bin']}) contains FROZEN_DEFAULT_DIGEST — valid block renders the resolved policyDigest",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:edge:1",
@@ -1602,10 +1602,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:210 asserts resolveRedEvidenceDoctorLine('not-an-object') does not throw/undefined — bad block caught gracefully, doctor never crashes",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -1614,10 +1614,10 @@
           "command": "node bin/lattice.js doctor",
           "result": "pass",
           "note": "live 'ls .lattice/story/actives/B-c054/evidence/' returns 'No such file or directory' after running doctor — no gate evidence file was written; doctor is advisory-only",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:adversarial:1",
@@ -1626,10 +1626,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:203-204,206 asserts hyphenCount===1 for absent-block, empty-block, and valid-block scenarios — always exactly one red-evidence line, never duplicate registration",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-008:adversarial:2",
@@ -1638,10 +1638,10 @@
           "command": "node bin/lattice.js doctor",
           "result": "pass",
           "note": "live doctor runs with NO redEvidence block (invalid/missing pinnedPath) and exits 0; smoke:205 asserts the absent-block diagnostic renders correctly without affecting exit code",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -1700,10 +1700,10 @@
           "command": "grep -rn -E 'tamper-proof|tamper-resistant|cannot be forged|unforgeable|cryptographic proof|mathematically proves|impossible to fake' packages/main/src/core/red-evidence/*.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "grep returns exit code 1 (zero matches) — no overclaim tokens in any new red-evidence .ts files or doctor.ts; smoke:227-235 also asserts OVERCLAIM regex against file contents",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-009:happy:1",
@@ -1712,10 +1712,10 @@
           "command": "grep -rn -i 'tamper' packages/main/src/core/red-evidence/*.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "grep returns exit code 1 (zero matches) — no use of 'tamper' in any context in new code",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -1724,10 +1724,10 @@
           "command": "grep -rn -iE '\\bsecure\\b|\\bsecured\\b' packages/main/src/core/red-evidence/*.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "grep returns exit code 1 (zero matches) — no 'secure'/'secured' anywhere in new code",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-009:edge:1",
@@ -1736,10 +1736,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:227-235 reads all red-evidence source files and doctor.ts red-evidence lines, asserts OVERCLAIM regex (tamper-proof|guarantees integrity|prevents forgery|...) returns false — zero overclaim tokens in diagnostics, doctor lines, or process-fact rationales",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
@@ -1748,10 +1748,10 @@
           "command": "git log -1 2fde890c60 --format='%s%n%n%b' | grep -iE 'tamper-proof|tamper-resistant|cannot be forged|unforgeable|cryptographic proof|mathematically proves|impossible to fake|guarantees integrity|prevents forgery'",
           "result": "pass",
           "note": "grep matches 'no tamper-proof / cannot-be-forged claims' — this is honest tier-fencing (negation), NOT an overclaim; the commit explicitly states what it does NOT claim, consistent with §0.6",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-009:adversarial:1",
@@ -1760,10 +1760,10 @@
           "command": "grep -rn -iE 'receipt signing|cross-host proof' packages/main/src/core/red-evidence/*.ts packages/main/src/handlers/doctor.ts",
           "result": "pass",
           "note": "grep returns exit code 1 (zero matches) — no Tier-C capability references in W2 code",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     },
@@ -1839,10 +1839,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:219-223 parses lattice.config.json, finds the smoke entry with command:'node' and args containing 'red-evidence-policy-canon-smoke'; assertion fails if not registered",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:happy:1",
@@ -1851,10 +1851,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "live 'node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js' exits 0 with 'OK'; the smoke is registered and passes in the validate suite",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:happy:2",
@@ -1863,10 +1863,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:217 asserts parsedConfig.redEvidence===undefined from lattice.config.json; confirmed by live python3 parse showing 'redEvidence key present: False'",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:happy:3",
@@ -1875,10 +1875,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:217 contains the assertion 'lattice.config.json MUST contain no redEvidence block' — the smoke itself enforces the uncommitted-policy rule",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -1887,10 +1887,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:224 asserts smokeEntry.timeoutMs===180000; confirmed by live parse of lattice.config.json showing timeoutMs=180000",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:edge:1",
@@ -1899,10 +1899,10 @@
           "command": "ls -la packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
           "result": "pass",
           "note": "file exists at 16284 bytes (confirmed by live ls)",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:edge:2",
@@ -1911,10 +1911,10 @@
           "command": "ls -la packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "file exists at 15869 bytes after build (confirmed by live ls)",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
@@ -1923,10 +1923,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:222 asserts smokeEntry is truthy — if the validate.commands entry were removed, this assertion would fail, proving registration is load-bearing; the smoke runs as part of validate only because it is registered",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         },
         {
           "intentRef": "CHK-010:adversarial:1",
@@ -1935,10 +1935,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
           "result": "pass",
           "note": "smoke:217 asserts parsedConfig.redEvidence===undefined — if a redEvidence block were added to lattice.config.json, this assertion would FAIL, proving the self-pinning uncommitted-policy rule is enforced by the smoke itself",
-          "headHash": "84859391de87e3020777188cce00d39e450e46f0",
-          "materialHash": "5f1dc3fe1cca1b7c652b596da78eb76c3891f59521d1e6fc8719c4b689f4e8ca",
-          "storyFilesHash": "27b93f80ba0f0055be15460c7138f76607e5d9879f71e84a5e835bdd47ce3084",
-          "timestamp": "2026-07-25T05:06:49.233Z"
+          "headHash": "70cbc5922015b264202bd7f16d1103f7a722dff5",
+          "materialHash": "a29e41289d068668dc22742fdb4651cfbd497b273fca6931082a5c9314e579c0",
+          "storyFilesHash": "363d04ef4879604bae2fa180e875dc4d37d6c7bf865cd14912f7cdbcdeb6281d",
+          "timestamp": "2026-07-25T05:20:52.241Z"
         }
       ]
     }
