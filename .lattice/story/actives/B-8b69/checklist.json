@@ -122,6 +122,18 @@
           "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
           "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
           "timestamp": "2026-07-25T12:00:19.559Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "assertDevStartReuseFromMainAndRebootstrap: from the MAIN root, dev_start on a story with an existing worktree reuses it (reports already-exists / Path), exercising resolveWorktreePath main-root resolution + the reuse early-return.",
+          "headHash": "3f0e4c2ebb633942fba7f6907b444ea312403be3",
+          "materialHash": "b754621ed4690a8ad728c163ace792d220c6c0d77ca51ed178d8acba27a874a0",
+          "storyFilesHash": "177999ecb1d8ec2b2a9846507cc8d0780941b56de5dcffe1eced93338769f295",
+          "timestamp": "2026-07-25T15:30:22.601Z"
         }
       ]
     },
