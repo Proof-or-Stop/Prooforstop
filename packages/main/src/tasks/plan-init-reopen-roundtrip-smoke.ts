@@ -124,6 +124,63 @@ function repairInitCheck(root: string, storyId: string): void {
   assert.equal(r.code, 0, `init_check_repair should succeed: ${r.out}`);
 }
 
+const SMOKE_BACKGROUND = [
+  '## Trigger Event',
+  '2026-07-25 B-0000 dev_start reuse smoke needs enough trigger detail to satisfy background validation.',
+  '## Key Insights',
+  'dev_start must reuse an existing worktree and re-bootstrap a deleted one, resolving worktree.path against the main repo root.',
+  '## Solution Tradeoffs',
+  'The smoke drives the init_check_repair fallback rather than spawning reviewer subagents to reach INIT_CHECK deterministically.',
+  '## Conversation Texture',
+  'A maintainer re-runs dev_start from the main root; it reports the existing worktree, and re-creates it if the directory was removed.',
+].join('\n\n');
+
+// Seed a fresh repo with a chore story advanced to INIT_CHECK (real worktree on disk).
+function seedStoryAtInitCheck(): { root: string; storyId: string; wt: string } {
+  const root = initRepo();
+  const created = run(root, 'story_create', {
+    name: 'devstart-reuse', title: 'dev_start reuse', description: 'Verify dev_start worktree reuse and deleted-worktree re-bootstrap.',
+    type: 'chore', priority: 'medium', background: SMOKE_BACKGROUND,
+    checklist: [{ title: 'dev_start reuse coverage', context: 'from-main reuse and deleted-worktree re-bootstrap.' }],
+  });
+  assert.equal(created.code, 0, `story_create should succeed: ${created.out}`);
+  const storyId = created.out.match(/B-[a-f0-9]+/)?.[0];
+  assert.ok(storyId, 'story_create should return a story id');
+  freezeStory(new StoryStore(root), storyId!);
+  repairInitCheck(root, storyId!);
+  git(root, ['add', '.lattice/story/actives']);
+  git(root, ['commit', '-m', 'seed devstart reuse story']);
+  assert.equal(run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }).code, 0, 'INIT_CHECK advance should succeed');
+  const wt = join(root, '.worktrees', storyId!);
+  assert.equal(existsSync(wt), true, 'worktree should exist after INIT_CHECK');
+  return { root, storyId: storyId!, wt };
+}
+
+// CHK-002 edge:0 (dev_start from the MAIN root reuses an existing worktree — exercises
+// resolveWorktreePath's main-root resolution + the reuse early-return at worktree.ts
+// ~818) and adversarial:0 (worktree dir deleted -> dev_start re-bootstraps). These are
+// the from-the-MAIN-root paths, distinct from the round-trip's from-inside-the-worktree
+// reuse (CHK-002:happy:0). They are the real evidence for the should-priority intents.
+function assertDevStartReuseFromMainAndRebootstrap(): void {
+  const { root, storyId, wt } = seedStoryAtInitCheck();
+  try {
+    // edge:0 — from the MAIN root, dev_start reuses the existing worktree.
+    const reuse = run(root, 'dev_start', { storyId });
+    assert.equal(reuse.code, 0, `dev_start from main should reuse the worktree: ${reuse.out}`);
+    assert.match(reuse.out, /already exists|Path:/i, 'dev_start from main should report the existing worktree (reuse early-return)');
+    assert.equal(existsSync(wt), true, 'the worktree is still present after reuse');
+
+    // adversarial:0 — delete the worktree dir + prune the registration, then dev_start re-bootstraps it.
+    rmSync(wt, { recursive: true, force: true });
+    try { git(root, ['worktree', 'prune']); } catch { /* best-effort registry cleanup */ }
+    const rebootstrap = run(root, 'dev_start', { storyId });
+    assert.equal(rebootstrap.code, 0, `dev_start should re-bootstrap after the worktree was deleted: ${rebootstrap.out}`);
+    assert.equal(existsSync(wt), true, 'dev_start recreated the worktree after deletion');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function main(): void {
   const root = initRepo();
   const worktree = join(root, '.worktrees');
@@ -243,3 +300,5 @@ function main(): void {
 }
 
 main();
+assertDevStartReuseFromMainAndRebootstrap();
+console.log('✓ dev_start from-main reuse + deleted-worktree re-bootstrap passed');
