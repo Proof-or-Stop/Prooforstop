@@ -58,6 +58,45 @@
         "scanEscalationReason": "high-risk lifecycle/gate + process-fact change (13-point command registration including the closed AgentDispatchMutationCommand union and 4 hard-coded ProofStory enumerations); read the full spec sections cited by the story background/plan to verify sign-off is correct"
       },
       "_hash": "fe38389a6d4ab97fe2fa797a305b1d9bd4ab36396a01639efafc4a11d6f1ddbb"
+    },
+    {
+      "id": "B-e10d:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "SECOND-ROUND re-review on current material (head 59d72a7, materialHash 7e93fc6b...). Verified via git diff 52522f9d..59d72a73 that production behavior source is BYTE-IDENTICAL to round-1-approved head: target-bindings.ts, handlers/red-evidence.ts, store.ts, types.ts, proofstory.ts, lifecycle-registry.ts, agent-dispatch-registry.ts, command-policy.ts, config.ts, process-fact-levels.ts, process-fact-registry.ts, registry.ts, command-catalog.ts, command-catalog-smoke.ts, verify-process-fact-contract.mjs, lattice.config.json all show empty diffs (16/16 checked). Only diff since round 1: (a) red-evidence-target-binding-smoke.ts removed the unused execFileSync import and added a new section 5b STALE-lease-takeover regression test (foreign stale lease REJECTS without --takeover with STALE+--takeover-pointing error and no lease write, then the SAME session recovers with --takeover, lease transfers with fresh heartbeat, and the registered handler binds M1 through the recovered lease — full choke-point-to-handler path); (b) red-w2b-wiring-contract.mjs added a remove-one-registration-point adversarial test (strips the single command-policy.ts red_evidence_binding_set line via ESM loader patch for the two dist contracts and a symlink-farm source overlay for verify-process-fact-contract, non-destructively, and proves all three contracts fail with a NAMED red_evidence_binding_set divergence, not a generic message). Rebuilt dist clean (tsc, no errors). Ran and confirmed PASS: red-evidence-target-binding-smoke.js (exit 0, includes new stale-lease path), red-w2b-binding-store.mjs (node --test, 1/1 pass), red-w2b-wiring-contract.mjs (exit 0, includes new remove-one-registration-point path), lifecycle-registry-contract.js (0 divergences), command-ownership-contract.js (337 commands valid), verify-process-fact-contract.mjs (Process fact contract verified). Re-confirmed the createdAt-strip digest (allowlist strippedBindingIdentity over exactly 3 fields, target-bindings.ts:81), store uniqueness (RedTargetBindingDuplicateError, never overwrite, target-bindings.ts:60/130), committed-tree anti-swap reader, expectedRedTargets same-set+case-sensitive membership, and owner-lease/foreign-lease + new stale-lease-takeover path all pass end-to-end through the smoke. Confirmed NO gate-verdict change: smoke asserts JSON.stringify(missingRedEvidence) byte-identical before/after a binding write (smoke.ts:349-377), and evaluateProofStoryDiagnostics/proofstory.ts is untouched since round 1. command-catalog-smoke.js still fails at line 141 on the pre-existing unrelated lattice-review-channel agentType schema assertion (agent-dispatch-registry.ts confirmed unchanged since round 1, and this story's own trailing-order assertion at :102-109 executes and passes before that unrelated failure is reached) — same pre-existing condition independently verified in round 1, not a regression, not filed. No behavioral defect found in this second round; the change since round 1 approval is test-only (2 new regression tests) plus one dead-import removal.",
+      "createdAt": "2026-07-25T09:10:24.269Z",
+      "reviewRound": "2026-07-25T09:06:12.028Z",
+      "reviewRunId": "B-e10d:RR-008",
+      "envelopeId": "d471b09304bd76978f48b1e7b0590479df5724a16b3fdbafca18f93882b0a166",
+      "writerSessionId": "review-behavior-b-e10d-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "second-round re-review of a high-risk lifecycle/gate + process-fact change (13-point command registration); re-verified full spec sign-off from round 1 remains valid since production source is byte-identical, confirmed via git diff against the round-1-approved head rather than a fresh full re-read"
+      },
+      "_hash": "7c150f0cc6a6e63a58b9686487931788ba8b5e87e305d56516307618207644d6"
     }
   ]
 }
