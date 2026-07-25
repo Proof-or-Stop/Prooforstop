@@ -1296,15 +1296,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-010:adversarial:4",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/handlers/red-evidence.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2c-rejection-matrix.mjs",
           "result": "pass",
-          "note": "quarantine/recover with §4.1 state machine + DERIVED approvedBy (forged ignored) + binding-freeze/unfreeze/re-freeze; chain-smoke sections 7-8 + red-w2c-rejection-matrix (commit 31bb8adf2e)",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "Fixes F-010: spec 4.1 says a free-form approvedBy argument 'is not accepted', but the handler accepted the request and SILENTLY IGNORED it. appendChainControl now REJECTS a defined args.approvedBy with 'approvedBy is derived as <actor>@<sessionId>, not a caller argument'. The rejection-matrix case changed from ignored to REJECTED: it asserts the throw AND that records.length is unchanged (nothing written), then quarantines WITHOUT approvedBy and asserts the stored approvedBy still matches ^lattice-implementer@ (derivation preserved). chain-smoke section 7 mirrors this. Commit b4fa4bbfad.",
+          "headHash": "c21a22cebf2984c83d058983f44cc2ce745eeea7",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:03:09.646Z"
         },
         {
           "intentRef": "CHK-010:happy:0",
