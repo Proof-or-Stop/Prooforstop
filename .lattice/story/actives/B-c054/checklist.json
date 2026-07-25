@@ -1575,14 +1575,13 @@
         {
           "intentRef": "CHK-008:happy:3",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
+          "command": "git diff main...HEAD -- packages/main/src/core/proofstory.ts packages/main/src/handlers/proofstory.ts",
           "result": "pass",
-          "note": "smoke:202-210 proves the doctor line is advisory-only and renders via resolveRedEvidenceDoctorLine (not gate evidence); the smoke self-pinning assertion at line 217 confirms no redEvidence block in config, so no gate evidence path exists",
-          "headHash": "2fde890c60d82a95cacdc75e7c5093d953abb676",
-          "materialHash": "c44a964b568774763c37f35ae26860784d21cbeb37244ccaad30d17bde131319",
-          "storyFilesHash": "f7d44cac70aa5e95485e46cd92d28a4da9eecb64f86ad49eddbbcceccf19657c",
-          "timestamp": "2026-07-25T01:31:00.928Z"
+          "note": "proofstory_gate_check output is byte-identical because this story makes ZERO changes to the gate's code: the git diff over core/proofstory.ts and handlers/proofstory.ts is empty. The doctor red-evidence line is added to createDoctorHandlers only, never to any proofstory gate path; identical gate code over identical inputs yields byte-identical output.",
+          "headHash": "00ffa587930e695e1f5081d9687a60e2759c960f",
+          "materialHash": "9f0bb219d36ea8246c4ceb3faea1f044e12b8102ae1e323cbbf43267378d9ccb",
+          "storyFilesHash": "c9969f1dd280fd023728c4cf872464f7c2fa71545f8d7301a904d6179c7de5e7",
+          "timestamp": "2026-07-25T04:35:50.446Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
