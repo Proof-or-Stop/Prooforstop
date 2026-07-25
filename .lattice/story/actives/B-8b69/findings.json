@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-8b69:F-001",
+      "desc": "packages/main/src/handlers/checklist.ts:662-670: the non-PLAN branch of the title/context-freeze refusal message (\"first roll back to PLAN, then run lattice story_advance ... phase INIT\") is inaccurate/impossible for the phases where it actually fires. titleContextProtectedPhases (line 651) includes INIT_CHECK, DEV, REVIEW, TEST, DONE. From REVIEW or TEST the machine only allows a rollback to DEV (machine.ts REVIEW/TEST states: START->DEV via canReenterDev), not directly to PLAN -- reaching PLAN needs a second hop (DEV->PLAN via REPLAN) that the message never mentions. From DONE there is NO rollback edge at all (machine.ts: DONE:{type:\"final\"}), so a title-edit attempt on a DONE story is told to do something structurally impossible. Only the DEV case (single REPLAN hop) matches the literal instruction. Severity medium because the refusal itself still correctly blocks the edit (no invariant break), but the recovery guidance it prints is factually wrong/misleading for REVIEW, TEST and DONE.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-25T12:35:38.924Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-001",
+      "_hash": "0c0acf2d2479dbffb4c2efc99e4a3a43dd8671c5793deab41f4d4e7349f6dc17",
+      "signatureTag": "edge|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
