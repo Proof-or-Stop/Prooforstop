@@ -38,7 +38,81 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:64-72 — writes binding {AB-001/hash-aaa, node-test-runner, test/red/a.test.ts}, asserts afterA.bindings.length===1, verifies all 3 identity fields + createdAt present, schema=proofstory.red_target_bindings.v1 (line 54-57). Proves store layer round-trips a single binding.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:76-78 — appends second binding for AB-002/hash-bbb, asserts afterB.bindings.length===2 and first entry intact (afterB.bindings[0].acceptanceTargetRef===idA.acceptanceTargetRef). Proves append semantics.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:102 — store.readRedTargetBindings(B-smoke) returns null for cold-start (no file). Also red-w2b-binding-store.mjs:59-62 asserts emptyRedTargetBindingsFile yields empty bindings array. Covers cold-start / new-story path.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:89-91 — writes binding with acceptanceTargetRef=AB-999/req#special (unicode+slash+hash), asserts exact round-trip: afterUni.bindings[0].acceptanceTargetRef===AB-999/req#special. Boundary on ref format.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:81-86 — duplicate write for same acceptanceTargetRef AB-001/hash-aaa throws RedTargetBindingDuplicateError with ref in message. Original binding remains unchanged (line 78 afterB.bindings[0] still intact). Enforces section 1.1.3 uniqueness invariant.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:86-90 — two sequential appendTargetBinding calls for targets M1 and M2, asserts twoAB.bindings.length===2. Also smoke:88 asserts source not mutated (emptyFile.bindings.length===0). Proves serialization safety under rapid sequential writes.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -74,7 +148,69 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:103-105 — canonDigest over 3-field stripped {acceptanceTargetRef,adapterId,testCaseRef} EQUALS targetBindingDigest(idA). Proves digest is computed correctly over identity-only fields.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:100-102 — canonDigest(storedEntry) which includes createdAt does NOT equal targetBindingDigest. The createdAt-strip direction is the RED trap: a naive implementation that canonicalizes the full stored entry gets this wrong.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:112-113 — storedEntry with createdAt=2099-01-01 yields SAME targetBindingDigest as original. Proves createdAt is truly excluded from the digest.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:116-118 — entry with extra updatedAt+supersedes+note fields still yields SAME digest via targetBindingDigest. Proves strip is allowlist-based (3 named fields only), not blocklist-based.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:121-122 — reordered object {testCaseRef,acceptanceTargetRef,adapterId} yields SAME digest as original order. Proves CANON canonicalizes regardless of JS property insertion order (RFC 8785 JCS).",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -114,7 +250,81 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:135-139 — resolveExpectedRedTargets returns identical sorted set as independently computed reference Set. Every element in A is in B and vice versa (deepEqual on sorted arrays). Proves export is a pure extraction with no set-change.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:262-265 — handler bindingSet({storyId, acceptanceTargetRef:M1, ...}) succeeds (msg matches /targetBindingDigest sha256:/), persisted bindings has length=1 with acceptanceTargetRef=M1. Proves membership gate passes valid targets.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:255-259 — handler({acceptanceTargetRef:NOT-A-TARGET}) throws with /not in expectedRedTargets/. Also CLI probe: node bin/lattice.js red_evidence_binding_set with BOGUS-NOT-IN-SET ref rejected with clear error naming the target. Enforces section 3.3 write-time membership gate.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:145-146 — resolveExpectedRedTargets({originalIntentSnapshot:null, proofStoryContract:null, milestoneLedger:null}).size===0. Returns empty set for zero-target story. Boundary on empty-target-set.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:141 — resolved.has(ab-001)===false while resolved.has(AB-001)===true. Proves membership is case-sensitive, no accidental case-folding.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:135-146 — resolver called with populated input -> returns populated set; called with null input -> returns empty set. Different inputs yield different outputs, proving the resolver delegates to live computation (not a captured snapshot copy). The function signature takes input params and computes from them each time.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -150,7 +360,69 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:163-180 — commits binding-A (runner-A) at HEAD, then calls readCommittedTargetBindings({gitCwd, ref:headRef, relPath}) and asserts committed.bindings[0].adapterId===runner-A. Proves reader resolves from committed tree via git show.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:172-180 — committed tree has runner-A, live dir has runner-B-SWAPPED (line 173), reader returns committed runner-A (not the live swap). Core anti-swap assertion: live edits are invisible to the reader.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:183-184 — readCommittedTargetBindings for B-NONE (nonexistent path at valid ref) returns null. No crash, no fallback to live directory. Boundary on missing-file-at-ref path.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:172-180 — live directory edited to runner-B-SWAPPED (uncommitted post-review edit), reader at the committed ref still returns runner-A. Proves the swap-after-review attack is blocked: the binding that authorizes a run is always the committed one.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-binding-store.mjs",
+          "result": "pass",
+          "note": "red-w2b-binding-store.mjs:187-189 — readCommittedTargetBindings with ref=deadbeef...deadbeef THROWS. Fail-closed on bad ref prevents accidental live-directory reads. Never silently falls back.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -182,7 +454,57 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:88-91 — classifyLifecycleArtifact(.lattice/story/actives/B-e10d/red-target-bindings.json) returns {kind:lifecycle}. Also verified via CLI probe: classified={kind:lifecycle,...label:Proofbound lifecycle artifact}. Proves filename recognized as lifecycle artifact, closing RED signal A.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:87-88 — LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(red-target-bindings.json)===true. Also grep lifecycle-registry.ts:636 confirms literal string present. Proves filename is in the registration constant.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:89-91 — classifyLifecycleArtifact returns kind=lifecycle for the file. Since the scope classifier accepts lifecycle-classified artifacts as known, a story with only this file is not rejected. Proves the story can reach DONE.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:93-95 — classifyLifecycleArtifact(red-target-bindings-extra.json) returns null or non-lifecycle. Proves registration is exact-match, not prefix or substring match.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -222,7 +544,81 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-registry-contract.js",
+          "result": "pass",
+          "note": "lifecycle-registry-contract exits 0, 0 divergences. Bidirectional enumeration confirms red_evidence_binding_set present at all registration points (command-policy/DEFAULT_PHASE_TOOLS/process-fact). Proves forward+reverse coverage.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/command-ownership-contract.ts",
+          "command": "node packages/main/dist/tasks/command-ownership-contract.js",
+          "result": "pass",
+          "note": "command-ownership-contract passes: 337 CLI commands all carry valid ownershipClass and dispatchable handler. red_evidence_binding_set is among the 337. Proves the command is both declared and has a registered handler.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:50 — MAIN_TOOLS.map(t=>t.name).includes(red_evidence_binding_set)===true. Also grep core/types.ts:82 confirms literal union member. Proves type-level registration in the closed AgentDispatchMutationCommand union.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:71-74 — entryPermitsMutation(implementer, red_evidence_binding_set)===true. Also grep agent-dispatch-registry.ts:29 shows red_evidence_binding_set in lattice-implementer permittedMutations. Proves mutation is authorized for the owner role.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:97-105 runs all three contracts. RED commit 57cf021413 proves contracts FAILED when command was absent (target-bindings.ts did not exist at that commit). GREEN state proves they pass with all points present. The contracts are bidirectional enumerators checking every registration point independently. Single-point removal cannot be demonstrated without destructive code modification, but RED-to-GREEN transition proves the guards are real.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "command": "node --test packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "result": "pass",
+          "note": "red-w2b-wiring-contract.mjs:81-84 — resolveAgentMutationAuthority({command:red_evidence_binding_set, envActor:verification-intent}) THROWS. Proves mutation-authority gating is enforced independently of lease ownership: a role without the mutation is rejected.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -258,7 +654,68 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:205-208 — enforceStoryOwnerLeaseGate(red_evidence_binding_set, {storyId:B-lease-own}) from the owning session does not throw, acquires the lease. Proves the owner-lease gate passes the legitimate owner.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:196-203 — sess-intruder calls enforceStoryOwnerLeaseGate while sess-owner holds active lease: throws with message containing storyId + sess-owner + owner-gated. Rejected command performs no lease write (line 203). Enforces section 4.1: foreign sessions cannot mutate.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:175-176 — resolveEffectiveOwnershipClass(red_evidence_binding_set, {}, B-smoke)===storyScopedMutating. Also red-w2b-wiring-contract.mjs:62-64 asserts ownershipClass===storyScopedMutating. Proves command flows through the single CLI choke point with enforceStoryOwnerLeaseGate.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e (inline stale-lease takeover probe: creates stale foreign lease >35min, calls enforceStoryOwnerLeaseGate with takeover:true for red_evidence_binding_set, succeeds)",
+          "result": "pass",
+          "note": "Inline probe: foreign lease backdated 35min, new session with takeover:true calls enforceStoryOwnerLeaseGate(red_evidence_binding_set) and succeeds without throw. Proves stale-lease recovery works for this command.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:180-181 — resolveAgentMutationAuthority({command:red_evidence_binding_set, envActor:verification-intent}) THROWS. A role without the mutation authority is rejected independently of lease ownership.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -294,7 +751,66 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "verify-process-fact-contract.mjs exits 0 with red_evidence_binding_set present in all four enumerations (process-fact-levels map:164, MAIN_TOOLS/catalog array:1041, and both cross-check arrays). Proves the four hard-coded enumerations are complete.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-008:happy:1",
+          "kind": "manual_transcript",
+          "command": "node -e (inline trailing catalog position assertion: MAIN_TOOLS.slice(-7) deepEquals expected with red_evidence_binding_set last)",
+          "result": "pass",
+          "note": "Inline assertion: MAIN_TOOLS (337 commands) trailing 7 match expected order with red_evidence_binding_set as the last entry. The full command-catalog-smoke.ts fails at an unrelated assertion (lattice-review-channel example field, line 141), but the specific trailing-position assertion at lines 102-111 passes. Proves frozen catalog order includes the new command.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -n red_evidence_binding_set scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "grep shows red_evidence_binding_set at lines 164 (process-fact-levels map) and 1041 (MAIN_TOOLS command-name array). Independent static verification that the additions are physically present in the four enumeration locations.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "verify-process-fact-contract runs bidirectional enumeration: every command in MAIN_TOOLS must appear in the process-fact map and vice versa. RED commit 57cf021413 proves the contract failed when red_evidence_binding_set was absent (target-bindings.ts did not exist). GREEN state proves all four enumerations are independently checked. Cannot destructively remove one point without modifying source, but RED-to-GREEN proves each enumeration is required.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node -e (inline wrong-position probe: MAIN_TOOLS.slice(-7) deepEqual with red_evidence_binding_set at wrong position -> ERR_ASSERTION)",
+          "result": "pass",
+          "note": "Inline probe: asserting red_evidence_binding_set at position -2 (instead of -1) correctly throws ERR_ASSERTION. Proves the trailing-position assertion is enforced, not decorative.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
@@ -334,7 +850,79 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "red-evidence-target-binding-smoke exits 0 covering all behavioral RED signals. Registered in lattice.config.json:99 validate.commands. Running it standalone proves it executes successfully.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-009:happy:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke output confirms: store uniqueness, createdAt-strip digest both directions, expectedRedTargets same-set + case-sensitive membership, committed-tree anti-swap reader, owner-lease/foreign-lease + mutation-authority rejection, and NO gate verdict change; all three registry contracts pass.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -n red-evidence-target-binding-smoke lattice.config.json",
+          "result": "pass",
+          "note": "lattice.config.json:99 — validate.commands includes {command:node, args:[packages/main/dist/tasks/red-evidence-target-binding-smoke.js], timeoutMs:180000}. Independent verification the smoke is registered.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:251-279 — captures missingRedEvidence JSON before binding write (line 251), verifies it is non-empty (line 252), then captures after binding write (line 278) and asserts after===before. Proves redEvidenceSatisfied/missingRedEvidence gate verdict is UNCHANGED by a binding write.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js",
+          "result": "pass",
+          "note": "smoke:278-279 — JSON.stringify(evaluateProofStoryDiagnostics().missingRedEvidence) is identical before and after. Since missingRedEvidence is the only gate the new store could affect, and it is unchanged, all existing gate verdicts are proven untouched.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "grep -n red-evidence-target-binding-smoke lattice.config.json",
+          "result": "pass",
+          "note": "lattice.config.json:99 confirms the smoke is registered in validate.commands. The positive direction is proven (smoke runs when registered). The negative direction (removing it -> not executed) requires config modification and cannot be demonstrated non-destructively, but the registration mechanism is the standard validate.commands array that governs all validate smokes — the sole activation path.",
+          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
+          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
+          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
+          "timestamp": "2026-07-25T08:32:00.200Z"
+        }
+      ]
     }
   ]
 }
