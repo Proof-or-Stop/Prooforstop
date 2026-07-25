@@ -21,6 +21,7 @@ import type { Finding } from './types.js';
 import { storyMachine, type StoryMachineContext } from './machine.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { isFindingBlocking } from './advisory.js';
+import { isTerminalChecklistStatus } from './checklist-status.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { isReviewerAgent } from './review-run.js';
@@ -163,7 +164,8 @@ export function getGuardFailureReason(
 
   if (targetPhase === 'REVIEW') {
     const cl = store.readChecklist(storyId);
-    const pending = cl.items.filter(i => i.status !== 'done');
+    // B-1909 CHK-002: withdrawn items are terminal, not outstanding.
+    const pending = cl.items.filter(i => !isTerminalChecklistStatus(i.status));
     if (pending.length > 0) {
       return `Cannot enter REVIEW: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
     }

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1909",
+  "changes": "Adds an honest way to record a planned checklist item and its acceptance binding as WITHDRAWN (proven undeliverable in review) instead of leaving them recorded as delivered. core/types.ts: new terminal ChecklistStatus 'withdrawn' + ChecklistItem.decisionRef; ScopeShrinkageDecisionData gains decisionId + withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs; new ProofStoryBindingDisposition + ProofStoryContractData.bindingDispositions. core/proofstory.ts: buildScopeShrinkageDecision unions refs across calls under one immutable decisionId; effectiveAcceptanceBindings + withdrawn helpers; DONE-path defense-in-depth gap. handlers/proofstory.ts: scope_shrinkage_decision_set is the SOLE applier — validates every ref then atomically flips the checklist item to withdrawn+decisionRef and appends an append-only binding disposition, refusing at write time to empty the effective binding set without explicit fullWithdrawalReapproval (independent of doneGateMode). handlers/checklist.ts refuses a direct status=withdrawn write. New core/checklist-status.ts predicates route every done-consumer (machine.ts, artifact-contract.ts, milestone-status.ts, guard-utils.ts, lifecycle-readiness.ts, verification.ts, dashboard.ts, handlers/{checklist,hints,session,story-query}.ts) so withdrawn is terminal-but-not-delivered and renders WITHDRAWN. proofstory_contract_set stays PLAN-frozen. Two registered real-machine smokes cover both directions (the withdrawn-disposition end-to-end smoke and the write-time empty-scope floor smoke).",
+  "usage": "lattice scope_shrinkage_decision_set '{\"storyId\":\"B-xxx\",\"decision\":\"confirmed\",\"userConfirmed\":true,\"reason\":\"review proved CHK-nnn undeliverable\",\"approvedBy\":\"operator\",\"withdrawnChecklistItemRefs\":[\"CHK-nnn\"],\"withdrawnAcceptanceBindingRefs\":[\"AB-mmm\"]}' — then lattice checklist_get and lattice proofstory_contract_get both report CHK-nnn and AB-mmm as withdrawn (never done), reachable from DEV/REVIEW/TEST without returning to PLAN. Emptying the whole binding set additionally requires a fullWithdrawalReapproval field.",
+  "expectedOutcome": "After an authorized confirmed scope-shrinkage decision naming CHK-nnn and AB-mmm, checklist_get shows CHK-nnn as withdrawn (status=withdrawn + decisionRef, never done) and proofstory_contract_get shows AB-mmm withdrawn via an append-only bindingDisposition while the original binding object survives byte-for-byte; withdrawn is never counted as delivered/completed anywhere and always renders WITHDRAWN; and withdrawing every core binding is refused unless explicitly re-approved.",
+  "actualTranscript": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js -> 'withdrawn-disposition-smoke: PASS' (asserts, from story phase DEV and REVIEW: checklist_get shows CHK-002 withdrawn+decisionRef never done; proofstory_contract_get shows the AB-1 disposition with the original binding byte-for-byte intact; story_list/story_get/session_brief/hints/milestone-status all treat withdrawn as terminal-not-delivered and never label it DONE; direct checklist_update withdrawn refused; non-existent item/binding refused with no mutation; layer independence; and emptying all bindings refused without fullWithdrawalReapproval, allowed with it). the write-time floor smoke prints PASS (decisionId generation/immutability, ref union across sequential calls, legacy-decision compat, write-time empty-scope floor, evidenceRefs round-trip).",
+  "outcomeDiff": "No difference — every observable in expectedOutcome is asserted by the two passing smokes and the 22 must-intent verification-evidence entries; all three review lanes plus delivery review passed and the 3x2 review-assurance quorum is recorded.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. All 7 checklist items delivered; no item or binding of THIS story was itself withdrawn. Scope stayed exactly as planned; command-policy.ts was intentionally untouched (proofstory_contract_set PLAN-freeze preserved by design).",
+  "pitfalls": "Three convergence hazards worth knowing. (1) lattice.config.json is a story-owned file (the smokes were registered there); merging main re-shifts storyFilesHash, which invalidates the review passes/quorum and forces a re-attestation round even though the reviewed source is byte-identical — close promptly once quorum binds. (2) Command-backed verification evidence must be actually re-run after a real main merge; verification_evidence_refresh_stale will not silently rewrite hashes for related drift. (3) A mid-review session restart drops in-flight background reviewers before they persist; resume them by agentId to reissue verdicts rather than re-spawning from scratch.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 452821
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 228896
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1474241
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 6527959
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 5835624
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 4133294
+    }
+  },
+  "totalDurationMs": 18654139,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-24T23:07:40.192Z",
+  "updatedAt": "2026-07-25T00:45:00.300Z"
+}

@@ -4,7 +4,7 @@
   "title": "Record undeliverable checklist items and acceptance bindings as withdrawn instead of delivered",
   "description": "When review proves a planned item undeliverable and scope is legitimately shrunk, the canonical product record must say WITHDRAWN, not DONE. Today it cannot.\n\nTwo verified gaps, to be fixed as two linked layers rather than one field change.\n\nLayer 1 (checklist disposition). checklist_update --status accepts only pending | in_progress | done (packages/main/src/cli/command-catalog.ts:435, packages/main/src/handlers/checklist.ts:564). A withdrawn item must stay done, which reads as delivered. The --success flag, documented as valid only when status=done, never persists onto the item: handlers/checklist.ts:770 forwards success only into the subagent_result process event, so after checklist_update with success:false the item still shows success undefined. Verified on B-bf52: CHK-003 is status done with no success key at all.\n\nLayer 2 (acceptance contract). proofstory_contract_set has allowedPhases ['PLAN'] (packages/main/src/core/command-policy.ts:420). When review proves an acceptance binding false there is no way to correct the record from DEV or REVIEW. Verified on B-bf52: AB-003 still asserts that identifier-embedded ordinals stay distinct, which the shipped code deliberately does not do. The PLAN freeze is correct and must stay; what is missing is an append-only correction path, not a way to rewrite the original promise.\n\nThe two layers must not collapse into one field. A checklist withdrawn must not silently cancel a binding, and a binding withdrawal must not silently rewrite the checklist. They are joined by citing the same scope-shrinkage decision id, and that agreement is validated.\n\nThe authorizing record is the scope-shrinkage decision, which today carries no decision id, no binding refs and no evidence refs (packages/main/src/core/proofstory.ts:162-169, 1285-1310). It gains a stable decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs, so neither layer has to duplicate the reason.\n\nAcceptance: after a scope_shrinkage_decision_set that removes CHK-nnn, both checklist_get and proofstory_contract_get show that item and its binding as withdrawn rather than delivered, from DEV or REVIEW, without returning to PLAN.\n\nWithdrawal must not become a back door. done keeps meaning genuinely delivered; withdrawn never counts toward delivered or completed success; withdrawn bindings drop out of the effective acceptance projection but the original binding stays readable in the audit record; and a story cannot pass by withdrawing every core binding and claiming an empty-scope success.\n\nRecorded in full at .lattice/story/actives/B-bf52/scope-shrinkage-decision.json and finding B-bf52:F-062, which a cross-host reviewer filed as a real inconsistency in the canonical product record.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "checklist",
@@ -23,7 +23,7 @@
   ],
   "createdAt": "2026-07-24T19:34:06.161Z",
   "startedAt": "2026-07-24T19:34:06.161Z",
-  "endedAt": null,
+  "endedAt": "2026-07-25T00:46:32.624Z",
   "events": [
     {
       "phase": "INIT",
@@ -42,11 +42,106 @@
       "user": "Harmonygo",
       "sessionId": "sess-bc61e97261770da4871e0bb5892b5d28",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-24T19:45:29.182Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T20:10:03.423Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T21:58:22.162Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T23:01:05.826Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T23:15:44.114Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T23:16:02.119Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T23:32:05.942Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-24T23:50:15.847Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-24T23:50:27.062Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-25T00:08:55.199Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-25T00:46:32.624Z",
+      "branch": "story/B-1909",
+      "user": "Harmonygo",
+      "sessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1909",
-    "branch": "story/B-1909",
-    "createdAt": "2026-07-24T19:41:34.063Z"
-  }
+  "currentReviewRound": "2026-07-24T23:50:27.062Z"
 }

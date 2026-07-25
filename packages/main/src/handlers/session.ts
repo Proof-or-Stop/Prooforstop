@@ -28,6 +28,7 @@ import { StoryStore } from '../core/store.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { readActivityLogTail } from '../core/activity-log.js';
 import { summarizeReviewerStatus, type ReviewerStatusSummary } from '../core/reviewer-status.js';
+import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { renderAntiStall, reviewAntiStall, testAntiStall } from '../core/anti-stall.js';
 import { gitProbe, isGitRepository } from '../core/git-probe.js';
 import { loadConfig } from '../core/config.js';
@@ -426,14 +427,20 @@ interface ChecklistSummary {
   done: number;
   inProgress: Array<{ id: string; title: string }>;
   pending: Array<{ id: string; title: string }>;
+  withdrawn: Array<{ id: string; title: string }>;
 }
 
 function summarizeChecklist(cl: ChecklistData | null): ChecklistSummary | null {
   if (!cl || !Array.isArray(cl.items)) return null;
-  const summary: ChecklistSummary = { total: cl.items.length, done: 0, inProgress: [], pending: [] };
+  const summary: ChecklistSummary = { total: cl.items.length, done: 0, inProgress: [], pending: [], withdrawn: [] };
   for (const it of cl.items) {
-    if (it.status === 'done') summary.done++;
+    // B-1909 CHK-002: withdrawn is terminal-but-not-delivered — it must NOT fall
+    // into `pending` (the old `else`), or DEV next-step would keep proposing it
+    // as the next item and allDone (pending+inProgress empty) would never hold.
+    // `done` stays DELIVERED-only.
+    if (isDeliveredChecklistStatus(it.status)) summary.done++;
     else if (it.status === 'in_progress') summary.inProgress.push({ id: it.id, title: it.title });
+    else if (isWithdrawnChecklistStatus(it.status)) summary.withdrawn.push({ id: it.id, title: it.title });
     else summary.pending.push({ id: it.id, title: it.title });
   }
   return summary;
@@ -1088,10 +1095,22 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
       if (checklistSummary) {
         lines.push('');
-        lines.push(`## Checklist (${checklistSummary.done}/${checklistSummary.total} done)`);
+        // B-1909 CHK-002: withdrawn items are terminal-but-not-delivered; surface
+        // them in the header (never folded into the done tally) so they read as
+        // WITHDRAWN, not DONE.
+        const withdrawnNote = checklistSummary.withdrawn.length > 0
+          ? `, ${checklistSummary.withdrawn.length} withdrawn`
+          : '';
+        lines.push(`## Checklist (${checklistSummary.done}/${checklistSummary.total} done${withdrawnNote})`);
         if (checklistSummary.inProgress.length > 0) {
           lines.push(`  in_progress (${checklistSummary.inProgress.length}):`);
           for (const it of checklistSummary.inProgress.slice(0, 5)) {
+            lines.push(`    - ${it.id} ${it.title}`);
+          }
+        }
+        if (checklistSummary.withdrawn.length > 0) {
+          lines.push(`  withdrawn (${checklistSummary.withdrawn.length}):`);
+          for (const it of checklistSummary.withdrawn.slice(0, 5)) {
             lines.push(`    - ${it.id} ${it.title}`);
           }
         }
