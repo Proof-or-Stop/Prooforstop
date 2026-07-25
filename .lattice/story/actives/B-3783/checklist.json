@@ -76,25 +76,29 @@
         },
         {
           "intentRef": "CHK-001:happy:1",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "packages/main/src/tasks/command-catalog-smoke.ts",
-          "note": "Forward branch (dispatchableCanonicalNames.has(entry.canonicalName)) keeps the original assertions: every example field schemaAccepts==true and validateAgentDispatchRequest(...).entry===entry. Smoke GREEN confirms all dispatchable entries pass both schema and runtime.",
-          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "Command-backed (exit 0): the smoke run executes the forward branch, asserting for every dispatchable AGENT_DISPATCH_ACCEPTED_TYPES entry that each example field schemaAccepts==true and validateAgentDispatchRequest(...).entry===entry.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
           "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
           "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
-          "timestamp": "2026-07-25T21:56:58.032Z"
+          "timestamp": "2026-07-25T22:20:38.108Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "packages/main/src/tasks/command-catalog-smoke.ts",
-          "note": "Reverse branch asserts schemaAccepts('dispatch','agentType',canonicalName)==false AND assert.throws(validateAgentDispatchRequest, /retired|unknown/i). Exercised for lattice-review-channel; smoke GREEN.",
-          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "Command-backed (exit 0): the same smoke run executes the reverse branch, asserting the retired lattice-review-channel is schema-rejected (schemaAccepts==false) AND validateAgentDispatchRequest throws matching /retired|unknown/i.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
           "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
           "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
-          "timestamp": "2026-07-25T21:56:58.032Z"
+          "timestamp": "2026-07-25T22:20:38.108Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -210,25 +214,29 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "lattice.config.json",
-          "note": "Parsed lattice.config.json: exactly 1 validate.commands entry matches command-catalog-smoke.js -> {command:node,args:[packages/main/dist/tasks/command-catalog-smoke.js],timeoutMs:180000}.",
-          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "command": "node -e \"const c=require('./lattice.config.json');const m=c.validate.commands.filter(e=>typeof e==='object'&&(e.args||[]).join(' ').includes('command-catalog-smoke.js'));process.exit(m.length===1&&!m[0].focus?0:1)\"",
+          "result": "pass",
+          "note": "Command-backed (exit 0): parses lattice.config.json and asserts exactly one validate.commands object entry references command-catalog-smoke.js.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
           "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
           "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
-          "timestamp": "2026-07-25T21:56:58.032Z"
+          "timestamp": "2026-07-25T22:20:38.108Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "lattice.config.json",
-          "note": "Structural check: the entry has no focus property; is-in-fast-focus-set==false, so it runs on the normal validate tier.",
-          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "command": "node -e \"const c=require('./lattice.config.json');const m=c.validate.commands.filter(e=>typeof e==='object'&&(e.args||[]).join(' ').includes('command-catalog-smoke.js'));process.exit(m.length===1&&!m[0].focus?0:1)\"",
+          "result": "pass",
+          "note": "Command-backed (exit 0): the same parse asserts the command-catalog-smoke entry has no focus property, so it runs on the normal (non-fast) validate tier.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
           "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
           "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
-          "timestamp": "2026-07-25T21:56:58.032Z"
+          "timestamp": "2026-07-25T22:20:38.108Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
