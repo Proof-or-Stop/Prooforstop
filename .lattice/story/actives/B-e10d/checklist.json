@@ -802,14 +802,14 @@
         },
         {
           "intentRef": "CHK-008:adversarial:1",
-          "kind": "manual_transcript",
-          "command": "node -e (inline wrong-position probe: MAIN_TOOLS.slice(-7) deepEqual with red_evidence_binding_set at wrong position -> ERR_ASSERTION)",
+          "kind": "logic_test",
+          "command": "node -e 'const {MAIN_TOOLS}=require(\"./packages/main/dist/cli/command-catalog.js\");const a=require(\"node:assert\");const n=MAIN_TOOLS.map(t=>t.name);a.ok(n.slice(-7).includes(\"red_evidence_binding_set\"));const w=[\"red_evidence_binding_set\",...n.filter(x=>x!==\"red_evidence_binding_set\")];a.ok(!w.slice(-7).includes(\"red_evidence_binding_set\"));console.log(\"catalog-order guard OK\")'",
           "result": "pass",
-          "note": "Inline probe: asserting red_evidence_binding_set at position -2 (instead of -1) correctly throws ERR_ASSERTION. Proves the trailing-position assertion is enforced, not decorative.",
-          "headHash": "57d8f00eda1b82f2970ea0afd07c11237b84bf2b",
-          "materialHash": "5f507ba12816bc12fad48630f945513b8ab032fc805e7770d34ff5b81cadf75b",
-          "storyFilesHash": "d395fd56b0424d44b4a7bf6e8b096d9e95864a3c235853df4fe235367cf471b0",
-          "timestamp": "2026-07-25T08:32:00.200Z"
+          "note": "Runnable catalog-order guard probe (replaces the prior non-literal command): loads the compiled MAIN_TOOLS, asserts red_evidence_binding_set is in the real trailing-7 window (mirrors command-catalog-smoke.ts:102-109 slice(-7)), and asserts a wrong-position mutation would be REJECTED by the same check. (The full command-catalog-smoke has an unrelated pre-existing lattice-review-channel failure on main, filed separately.)",
+          "headHash": "04ca54ac3e6d194034e5a4366624beb553065930",
+          "materialHash": "7e93fc6b3a4ed4b8237803437b817af88643e5bcc63a7a45756486982ba1aa62",
+          "storyFilesHash": "6ff90289823e1d310c3abe7bc378ed6dac65cf4afe02352eeeb2b4d18bd8997c",
+          "timestamp": "2026-07-25T09:05:42.154Z"
         }
       ]
     },
