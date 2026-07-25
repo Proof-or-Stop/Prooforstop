@@ -231,6 +231,33 @@
         "scanEscalationReason": null
       },
       "_hash": "2346e38d9cb2afd11ce4c5e0147eeb99a1ec0fe22d0b3275ad7b77e989328761"
+    },
+    {
+      "id": "B-c054:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Final concept-completeness pass. Since rounds 1-3, only commit 3b05d13219 landed (patternCaptureNames tokenizer fix in policy.ts, additive: private helper reimplemented + 3 new RED regression cases + 1 regression assertion, no exports added/removed, no concept deleted/replaced). Verified on current material (HEAD b9e7d3c, clean tree except lattice bookkeeping): (1) canon.ts remains the sole canonicalizer -- commit touches only policy.ts/tests, canon.ts untouched by 3b05d13219, and policy.ts only imports canonDigest from canon.js (no competing canonicalizer defined; the nearby path-canonicalizer comment refers to the pre-existing unrelated repo-relative-v1 path classifier, not JSON canonicalization). (2) Scope fence intact: red-evidence/ dir contains only canon.ts, policy.ts, registries.ts (no runner.ts/envelope.ts); zero child_process/spawn/execFile/resolveExecutable in the diff or dir; toolchain sha256 handling stays a pure isSha256Hex format check with no fs import/reads (comment explicitly fences the resolve-real-path+sha256 MATCH to W2e); lattice.config.json diff is only the new smoke-test registration line, no redEvidence block. (3) Assurance-tier fence: grepped commit message + all added diff lines for verified/proven/guarantee/certif/attest/authoritative/cryptographic-proof/fully-secure tokens -- zero matches; the sole W2e mention in the diff context is a pre-existing unchanged line (no + prefix), not introduced by this commit. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-25T05:58:10.085Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-016",
+      "envelopeId": "c58009160962f0f825605c47bf58cf0b63e90015ce38d2ab8e3d526d3409c975",
+      "writerSessionId": "review-concept-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/registries.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b857f4eef6b20169fc863fcac783eb191fa6b51f78953998e0132451c8fc550"
     }
   ]
 }
