@@ -24,6 +24,16 @@ import { strict as assert } from 'node:assert';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
+import {
+  mkdtempSync,
+  mkdirSync,
+  readdirSync,
+  symlinkSync,
+  readFileSync,
+  writeFileSync,
+  rmSync,
+} from 'node:fs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..'); // packages/main
@@ -104,4 +114,138 @@ runContract('lifecycle-registry-contract', 'node', [join(DIST, 'tasks', 'lifecyc
 runContract('command-ownership-contract', 'node', [join(DIST, 'tasks', 'command-ownership-contract.js')]);
 runContract('verify-process-fact-contract', 'node', [join(repoRoot, 'scripts', 'verify-process-fact-contract.mjs')]);
 
-console.log('red-w2b-wiring-contract: OK (13 wiring points present; lifecycle-registry / command-ownership / verify-process-fact contracts all pass)');
+// ── ADVERSARIAL (CHK-006:adversarial:0 + CHK-008:adversarial:0): remove ONE ──
+// registration point → NAMED divergence.
+//
+// The coarse whole-module-absent RED (the file-header repro) only proves the
+// contracts fail when target-bindings.ts does not exist at all. The specific
+// claim these adversarial intents make is stronger and un-gameable: removing a
+// SINGLE registration point — the command-policy.ts entry for
+// red_evidence_binding_set — makes each of the three mechanical contracts fail
+// with a divergence that NAMES the command, not a generic message. This section
+// reproduces that, non-destructively (the working tree is NEVER modified):
+//   • the two dist contracts (command-ownership / lifecycle-registry) IMPORT the
+//     compiled command-policy.js, so they run under an ESM loader that returns a
+//     patched command-policy.js — the red_evidence_binding_set entry stripped —
+//     for that ONE module while every other module loads unchanged;
+//   • verify-process-fact-contract reads command-policy.ts SOURCE TEXT, so it
+//     runs against a symlink-farm overlay whose ONLY real (non-symlink) file is a
+//     patched command-policy.ts; every other path resolves to the real repo.
+// Each contract must exit non-zero AND name red_evidence_binding_set. The parent
+// pre-verifies that the strip actually changed each file, so a broken mechanism
+// (entry not found, loader not applied) fails loudly rather than passing vacuously.
+
+/** Remove the single-line command-policy entry `red_evidence_binding_set: {...},`. */
+const REMOVE_ENTRY_RE = /^[^\n]*\bred_evidence_binding_set:[^\n]*\n/m;
+function stripBindingEntry(source, label) {
+  const stripped = source.replace(REMOVE_ENTRY_RE, '');
+  assert.notEqual(stripped, source,
+    `${label}: expected to find and remove the red_evidence_binding_set registration line (mechanism precondition)`);
+  assert.ok(!/\bred_evidence_binding_set:/.test(stripped),
+    `${label}: exactly one red_evidence_binding_set registration line must remain after removal`);
+  return stripped;
+}
+
+const scratchDirs = [];
+function scratch(label) {
+  const dir = mkdtempSync(join(tmpdir(), `red-w2b-${label}-`));
+  scratchDirs.push(dir);
+  return dir;
+}
+
+try {
+  // (a) The two DIST contracts, under an ESM loader that strips the entry from
+  // the compiled command-policy.js at load time.
+  const compiledPolicyPath = join(DIST, 'core', 'command-policy.js');
+  const patchedCompiled = stripBindingEntry(readFileSync(compiledPolicyPath, 'utf8'), 'dist/core/command-policy.js');
+  const loaderDir = scratch('loader');
+  const patchedCompiledPath = join(loaderDir, 'command-policy.patched.js');
+  writeFileSync(patchedCompiledPath, patchedCompiled);
+  // patch-loader substitutes the patched source for the compiled command-policy
+  // module ONLY; the module url is preserved so its relative imports still
+  // resolve against the real dist tree.
+  writeFileSync(join(loaderDir, 'patch-loader.mjs'), [
+    `import { readFileSync } from 'node:fs';`,
+    `const PATCHED = readFileSync(process.env.RED_W2B_PATCHED_POLICY, 'utf8');`,
+    `export async function load(url, context, nextLoad) {`,
+    `  if (url.endsWith('/core/command-policy.js')) {`,
+    `    return { format: 'module', source: PATCHED, shortCircuit: true };`,
+    `  }`,
+    `  return nextLoad(url, context);`,
+    `}`,
+    ``,
+  ].join('\n'));
+  const registerPath = join(loaderDir, 'register-loader.mjs');
+  writeFileSync(registerPath, [
+    `import { register } from 'node:module';`,
+    `register('./patch-loader.mjs', import.meta.url);`,
+    ``,
+  ].join('\n'));
+
+  function assertContractNamesDivergence(label, cmd, args, needle) {
+    const r = spawnSync(cmd, args, {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      env: { ...process.env, RED_W2B_PATCHED_POLICY: patchedCompiledPath },
+    });
+    const out = `${r.stdout}\n${r.stderr}`;
+    assert.notEqual(r.status, 0,
+      `${label} must FAIL (non-zero) when the red_evidence_binding_set command-policy entry is removed; got status=${r.status}\n${out}`);
+    assert.ok(out.includes('red_evidence_binding_set'),
+      `${label} divergence must NAME red_evidence_binding_set (not a generic message)\n${out}`);
+    assert.ok(needle.test(out),
+      `${label} must report the specific missing-registration divergence for red_evidence_binding_set\n${out}`);
+  }
+
+  assertContractNamesDivergence(
+    'command-ownership-contract (entry removed)',
+    'node',
+    ['--import', registerPath, join(DIST, 'tasks', 'command-ownership-contract.js')],
+    /red_evidence_binding_set["\s].*has no CommandPolicy entry|has no CommandPolicy entry[\s\S]*red_evidence_binding_set/,
+  );
+  assertContractNamesDivergence(
+    'lifecycle-registry-contract (entry removed)',
+    'node',
+    ['--import', registerPath, join(DIST, 'tasks', 'lifecycle-registry-contract.js')],
+    /process-fact lifecycle entry red_evidence_binding_set[\s\S]*has no command-policy entry/,
+  );
+
+  // (b) verify-process-fact-contract reads command-policy.ts SOURCE text, so run
+  // it against a symlink-farm overlay whose only real file is a patched
+  // command-policy.ts; every other path symlinks to the real repo (cwd-relative
+  // reads and dist imports both resolve to the unchanged real tree).
+  const overlay = scratch('src-overlay');
+  const realPolicyTs = join(repoRoot, 'packages', 'main', 'src', 'core', 'command-policy.ts');
+  const patchedPolicyTs = stripBindingEntry(readFileSync(realPolicyTs, 'utf8'), 'src/core/command-policy.ts');
+  // Nested symlink farm: at each level mirror the real dir with symlinks, except
+  // descend (real dir) into the one child that leads to command-policy.ts, and
+  // replace command-policy.ts itself with the patched real file.
+  function mirror(realDir, ovDir, descend, patchName) {
+    mkdirSync(ovDir, { recursive: true });
+    for (const name of readdirSync(realDir)) {
+      if (name === descend || name === patchName) continue;
+      symlinkSync(join(realDir, name), join(ovDir, name));
+    }
+  }
+  mirror(repoRoot, overlay, 'packages');
+  mirror(join(repoRoot, 'packages'), join(overlay, 'packages'), 'main');
+  mirror(join(repoRoot, 'packages/main'), join(overlay, 'packages/main'), 'src');
+  mirror(join(repoRoot, 'packages/main/src'), join(overlay, 'packages/main/src'), 'core');
+  mirror(join(repoRoot, 'packages/main/src/core'), join(overlay, 'packages/main/src/core'), null, 'command-policy.ts');
+  writeFileSync(join(overlay, 'packages/main/src/core/command-policy.ts'), patchedPolicyTs);
+  {
+    const r = spawnSync('node', [join(repoRoot, 'scripts', 'verify-process-fact-contract.mjs')], {
+      cwd: overlay,
+      encoding: 'utf8',
+    });
+    const out = `${r.stdout}\n${r.stderr}`;
+    assert.notEqual(r.status, 0,
+      `verify-process-fact-contract (entry removed) must FAIL (non-zero); got status=${r.status}\n${out}`);
+    assert.ok(/MAIN_TOOLS command\(s\) missing lifecycle policy: [^\n]*red_evidence_binding_set/.test(out),
+      `verify-process-fact-contract must report the specific "missing lifecycle policy: red_evidence_binding_set" divergence\n${out}`);
+  }
+} finally {
+  for (const dir of scratchDirs) rmSync(dir, { recursive: true, force: true });
+}
+
+console.log('red-w2b-wiring-contract: OK (13 wiring points present; lifecycle-registry / command-ownership / verify-process-fact contracts all pass; and removing the ONE command-policy.ts registration point makes all three fail with a divergence naming red_evidence_binding_set — working tree untouched)');
