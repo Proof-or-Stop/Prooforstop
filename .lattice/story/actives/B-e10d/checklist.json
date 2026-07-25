@@ -228,9 +228,9 @@
       "id": "CHK-007",
       "title": "Gate the command through the owner lease and resolved agent mutation authority",
       "context": "red_evidence_binding_set flows through the single CLI choke point (packages/main/src/cli-engine.ts:1372) as a storyScopedMutating ownership class gated by enforceStoryOwnerLeaseGate, and by resolveAgentMutationAuthority (core/agent-dispatch-registry.ts:504) via entryPermitsMutation (:435). The command is rejected while a FOREIGN session holds an active owner lease (§4.1).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:38.022Z",
       "verificationIntent": {
         "happy": [
           {
