@@ -1582,15 +1582,15 @@
         },
         {
           "intentRef": "CHK-011:adversarial:0",
-          "kind": "manual_transcript",
-          "file": "scripts/verify-process-fact-contract.mjs",
-          "command": "node scripts/verify-process-fact-contract.mjs",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "command": "node packages/main/tests/red/red-w2c-wiring-detectability.mjs",
           "result": "pass",
-          "note": "verify-process-fact-contract fails-closed and NAMES any MAIN_TOOLS command missing a lifecycle/process-fact wiring point — demonstrated by red-w2b-wiring-contract.mjs, which non-destructively strips one command-policy entry and asserts the mechanical contracts fail naming the command; wiring completeness is enforced by this committed contract, not manual inspection.",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "Fixes F-001 (b): RE-BOUND to the correct intent. This test's actual scenario is command-catalog/command-policy de-registration, which is exactly this intent ('delete the command-catalog entry for red_evidence_quarantine'); it was previously cross-assigned to adversarial:1. Via an ESM --import loader it non-destructively strips the ONE compiled command-policy entry for red_evidence_quarantine (then red_evidence_recover) and asserts BOTH command-ownership-contract and lifecycle-registry-contract exit non-zero and NAME the removed command, with a green baseline proving non-vacuity; the real registries are never edited. Commit b4fa4bbfad.",
+          "headHash": "d269c466154f8e79b35ccd942f3849fc6e46d75e",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:03:31.300Z"
         },
         {
           "intentRef": "CHK-011:adversarial:1",
