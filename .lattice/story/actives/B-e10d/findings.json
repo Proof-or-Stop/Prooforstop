@@ -14,6 +14,26 @@
       "_hash": "03d772141e7f418490d98801838de12277d4ba0c9b8bb919a31b4bc997111c6f",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e10d:F-002",
+      "desc": "checklist.json:696-705 CHK-007:adversarial:0 (stale foreign lease >30min + --takeover succeeds for red_evidence_binding_set) is bound to command=\"node -e (inline stale-lease takeover probe: ...)\" — this is English prose, not a literal executable command (confirmed: running it verbatim throws SyntaxError: Unexpected identulti stale). No committed test file exercises this scenario: grep -n takeover|stale across red-w2b-binding-store.mjs, red-w2b-wiring-contract.mjs, and red-evidence-target-binding-smoke.ts returns zero matches. The stale-lease+--takeover code path (story-owner-lease.ts / cli/ownership-gate.ts takeOverOwnerLease) is exercised by NO reproducible artifact for this command; the claim rests solely on an unrepeatable manual_transcript note. For a high_assurance story this access-control adversarial claim is effectively unverifiable by an independent reviewer.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T08:44:18.843Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-002",
+      "_hash": "53bc5ab19885d0b52cc3cb5db3592f17ea9114e7b2d54c72cb13a13f14251cd3",
+      "files": [
+        "packages/main/tests/red/red-w2b-binding-store.mjs",
+        "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+        ".lattice/story/actives/B-e10d/checklist.json"
+      ],
+      "signatureTag": "adversarial|mjs|checklist-json-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
