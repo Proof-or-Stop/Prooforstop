@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Implement RFC 8785 CANON: code-unit key order, preserved JSON null, the §0.4 self-omitting recordDigest helper, and sha256 prefix rendering",
       "context": "packages/main/src/core/red-evidence/canon.ts exports the canonicalizer (recursive UTF-16 code-unit key order, minimal number/string encoding, JSON null preserved), the digest helper rendering sha256:<64-hex>, the §0.4 nullability/omission helpers, the digest-with-field-omitted helper, and first12hex over the 64-hex body excluding the sha256: prefix.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T01:20:50.781Z",
       "verificationIntent": {
         "happy": [
           {
