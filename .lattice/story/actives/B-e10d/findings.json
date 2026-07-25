@@ -55,6 +55,25 @@
       ],
       "signatureTag": "adversarial|mjs|checklist-json-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e10d:F-004",
+      "desc": "checklist.json:769-778 CHK-008:happy:1 and checklist.json:803-812 CHK-008:adversarial:1 are bound to command fields that are English-prose descriptions wrapped as \"node -e (inline ... probe: ...)\" rather than literal executable commands (same non-reproducible pattern as F-002/CHK-007:adversarial:0). Materiality is lower here: happy:1s underlying claim (red_evidence_binding_set at the correct trailing MAIN_TOOLS position) is independently corroborated -- I ran node packages/main/dist/tasks/command-catalog-smoke.js directly and it proceeds past the trailing-order assert.deepEqual (lines ~102-111) without throwing, only failing later at an unrelated pre-existing assertion (line 141, lattice-review-channel example field -- confirmed pre-existing by rebuilding at merge-base commit 5a7f468ac2, which fails identically at the equivalent line). adversarial:1s claim rests on well-established Node assert.deepEqual array-mismatch semantics. Recommend recording the actual literal command/script used (or a saved throwaway script path) instead of a paraphrased description, per this repos own literal-command evidence discipline.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T08:44:41.918Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-002",
+      "_hash": "6d65a82a49fc6e8d3412c8298e6f93262589b41a86b7aa8cd54f4508d2092b97",
+      "files": [
+        "packages/main/src/tasks/command-catalog-smoke.ts",
+        ".lattice/story/actives/B-e10d/checklist.json"
+      ],
+      "signatureTag": "adversarial|ts|checklist-json-happy",
+      "signatureTagSource": "auto"
     }
   ]
 }
