@@ -33,8 +33,40 @@
         "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js"
       },
       "createdAt": "2026-07-25T22:41:11.920Z"
+    },
+    {
+      "id": "RED-20260725224654",
+      "trigger": "verification_evidence_add accepts a self-contradictory command/file evidence row (F-049/F-050)",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "17512b0add8dbc47bada82cd03249fbd1a3c1671",
+      "baselineMaterialHash": "dc74448b08db2f9a5ef5c7655d0f835467e966d57d4e89535de4d4e6573e8212",
+      "observedFailure": "Contradictory add accepted; RED smoke asserts a throw and fails with 'Missing expected exception'.",
+      "failingCommand": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js"
+      },
+      "createdAt": "2026-07-25T22:46:54.944Z"
+    },
+    {
+      "id": "RED-20260725224657",
+      "trigger": "verification_evidence_refresh_stale re-certifies a stale command-backed pass without re-execution (F-045/F-046/F-047)",
+      "acceptanceTargetRef": "AB-002",
+      "baselineHeadHash": "17512b0add8dbc47bada82cd03249fbd1a3c1671",
+      "baselineMaterialHash": "dc74448b08db2f9a5ef5c7655d0f835467e966d57d4e89535de4d4e6573e8212",
+      "observedFailure": "Command-backed pass row is refreshed to current head instead of left stale; RED smoke fails asserting headHash stays 0000….",
+      "failingCommand": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+      "greenRelation": {
+        "targetRef": "AB-002",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js"
+      },
+      "createdAt": "2026-07-25T22:46:57.343Z"
     }
   ],
   "createdAt": "2026-07-25T22:40:57.108Z",
-  "updatedAt": "2026-07-25T22:41:11.920Z"
+  "updatedAt": "2026-07-25T22:46:57.343Z"
 }
