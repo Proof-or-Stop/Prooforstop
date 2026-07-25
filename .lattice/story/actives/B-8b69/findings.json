@@ -39,7 +39,7 @@
       "desc": "CHK-001:adversarial:0 (must) is a compound claim: reopen refused when reason is missing AND refused from any non-PLAN phase such as DEV or REVIEW. plan-init-reopen-roundtrip-smoke.ts lines 162-166 (and its recorded verificationEvidence note) only exercise the missing-reason clause; the story never advances to DEV/REVIEW and attempts a reopen from there, and grep of packages/main/src for REOPEN/canReopenToInit turns up no other test covering the non-PLAN-phase refusal. The switch-case in machine.ts canSendStoryEventWithoutSnapshotCan (case PLAN: only place REOPEN is wired) makes it structurally likely to be correct, but this half of the must-priority intent has zero test evidence and a future refactor of that switch could silently break it with nothing to catch it.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T12:40:53.894Z",
@@ -47,7 +47,11 @@
       "reviewRunId": "B-8b69:RR-002",
       "_hash": "c8a9626ca8cb9948ca9bc83c48c48cf14cdcf49b24f0b6f908699c31366d6694",
       "signatureTag": "adversarial|unknown|adversarial-compound-claim",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The smoke now asserts reopen (phase=INIT) from a non-PLAN phase (INIT_CHECK) is refused with an illegal-transition error and does not move the phase, covering the previously-untested non-PLAN half of CHK-001:adversarial:0. commit 7dee7d7f89.",
+      "resolvedAt": "2026-07-25T12:50:15.079Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8b69:F-004",
