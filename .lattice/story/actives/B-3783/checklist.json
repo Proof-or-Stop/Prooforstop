@@ -65,9 +65,9 @@
       "id": "CHK-002",
       "title": "command-catalog-smoke registered in validate.commands normal tier",
       "context": "Add node packages/main/dist/tasks/command-catalog-smoke.js to lattice.config.json validate.commands (NOT the fast focus set; it spawns real CLI subprocesses and compares help output). The build step already runs first in validate, so no new build dependency is introduced.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-25T21:54:02.855Z",
-      "endTime": null,
+      "endTime": "2026-07-25T21:55:17.095Z",
       "verificationIntent": {
         "happy": [
           {
