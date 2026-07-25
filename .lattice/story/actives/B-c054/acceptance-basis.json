@@ -29,19 +29,12 @@
           "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
-          "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
           "source-file:packages/main/src/cli/command-catalog.ts:sha256:42c237f49144fbbaddf5cee447705601f664565d72a3cd00ce00bddea9046465",
-          "source-file:packages/main/src/handlers/doctor.ts:sha256:4629cd9bbd1d3e6465f1be1e5e1d2ac6bc2dd1145a8ee38f29d51d5738f1e7b9",
+          "source-file:packages/main/src/handlers/doctor.ts:sha256:c758d6356d3963497db6162179d40ee39e0f8cf6962c934f0edc5d8572b872aa",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
           "source-file:packages/main/src/registry.ts:sha256:3a8ebab41083110c69933459e78611e444e91b65ae9b03191e9b5ee5019e70fb"
         ],
@@ -70,7 +63,7 @@
             "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
           ]
         },
-        "resultDigest": "sha256:d2b0ae38e95cb534f3a04a23562a6e9364e083f5e775b1fd4feca1d0dcc4962b"
+        "resultDigest": "sha256:246831a11234262dfaf299543ebdb75ecf66ee3c7d3138c5ee496e7a26bab29b"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -82,15 +75,8 @@
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
-          "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
           "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
@@ -128,7 +114,7 @@
             "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
           ]
         },
-        "resultDigest": "sha256:6454e13b541720856c36b6b64b6d552d6dcdb8f0f41e03713a9429a7c1c2ebfd"
+        "resultDigest": "sha256:e531ef3a7b35c93baf13c7667ca43f4772592e4ccd4a9006117c3bb7c0dbf851"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -234,28 +220,21 @@
           "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
           "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
-          "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
-          "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
-          "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
           "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
-          "source-file:packages/main/src/core/config.ts:sha256:86a20788e6f2c78418750e9ab83b97554c32481b17b2e118c774e5bcc1edeca8",
-          "source-file:packages/main/src/core/red-evidence/canon.ts:uninspectable",
-          "source-file:packages/main/src/core/red-evidence/policy.ts:uninspectable",
-          "source-file:packages/main/src/core/red-evidence/registries.ts:uninspectable",
-          "source-file:packages/main/src/handlers/doctor.ts:sha256:4629cd9bbd1d3e6465f1be1e5e1d2ac6bc2dd1145a8ee38f29d51d5738f1e7b9",
+          "source-file:packages/main/src/core/config.ts:sha256:c3e456640191997675551f0e225525fb54536d670b67dde07a37f46268121b51",
+          "source-file:packages/main/src/core/red-evidence/canon.ts:sha256:02a81d30d9e2d8fe3c7768f1e7bc42c65c98ae7e334e19144d022756ce7e07b4",
+          "source-file:packages/main/src/core/red-evidence/policy.ts:sha256:9a39a6d4d4a3a155ceb5136fe696ef19679189d3896a8da54c1145f8f2b2c209",
+          "source-file:packages/main/src/core/red-evidence/registries.ts:sha256:58f6a9eda3d6bd46409a718189d4e19531cdb826e492418836387745743734a2",
+          "source-file:packages/main/src/handlers/doctor.ts:sha256:c758d6356d3963497db6162179d40ee39e0f8cf6962c934f0edc5d8572b872aa",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
           "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
-          "source-file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:uninspectable",
-          "source-file:packages/main/tests/red/red-w2a-canon-differential.mjs:uninspectable",
-          "source-file:packages/main/tests/red/red-w2a-policy-failclosed.mjs:uninspectable",
+          "source-file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:sha256:9a382cef7ac44f09dd26046f11c4bfeedfbd640e30f60f230ecfe04d60b168df",
+          "source-file:packages/main/tests/red/red-w2a-canon-differential.mjs:sha256:12a3d595609dbef2fefa90a4ee2e6c17f7a31c13affc4440cb39e5ef823eb160",
+          "source-file:packages/main/tests/red/red-w2a-policy-failclosed.mjs:sha256:96b7212c69e16ae54e99661d3b0fbaec22bf863e9d764df754512be4c9eeaeb7",
           "source-file:scripts/verify-process-fact-contract.mjs:sha256:b4b392bd96e033d496c8d5ae932a9fbf907f1b8b8c4754b1d1d7cef4ae29c994"
         ],
         "asymmetryPolicy": {
@@ -283,7 +262,7 @@
             "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
           ]
         },
-        "resultDigest": "sha256:b07e61e2425a07d00a2ee476e7476ebdf9b7d85ef114bb7d408f24473af0403b"
+        "resultDigest": "sha256:e3490e14922b2547d53286ca67a63c466d04b3e2a3e6c19f9db4b0e2ee94f377"
       }
     ],
     "scopeRefs": [
@@ -362,32 +341,14 @@
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/red-evidence/canon.ts",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/red-evidence/policy.ts",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/src/core/red-evidence/registries.ts",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/red-w2a-canon-differential.mjs",
-      "snapshot-seal:snapshot_missing:inventory:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/red-evidence/canon.ts",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/red-evidence/policy.ts",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/src/core/red-evidence/registries.ts",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/red-w2a-canon-differential.mjs",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
-      "source file is unreadable or disappeared: packages/main/src/core/red-evidence/canon.ts",
-      "source file is unreadable or disappeared: packages/main/src/core/red-evidence/policy.ts",
-      "source file is unreadable or disappeared: packages/main/src/core/red-evidence/registries.ts",
-      "source file is unreadable or disappeared: packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-      "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-canon-differential.mjs",
-      "source file is unreadable or disappeared: packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
     ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
-      "inventoryDirectoryDigest": "sha256:3b2f6d2d58e82812280173632699ec417b062199e69e2c1a74200b96757e41f7",
-      "inventoryDirectoryCount": 20,
-      "sourceSnapshotDigest": "sha256:c3889bd38318d17fd6a82e1c331cd766214d963dc724b9cf9972db53ea9d228c",
-      "sourceSnapshotCount": 751,
+      "inventoryDirectoryDigest": "sha256:5ea591ae63b93455585d897619a6cd98d0f1485e677d6637c49c8ea31113fdd2",
+      "inventoryDirectoryCount": 21,
+      "sourceSnapshotDigest": "sha256:a9f2e03a82ed12d1f588ae8163f3e4dfb70de4c283fd1f2d2f299dd42dcbb59a",
+      "sourceSnapshotCount": 757,
       "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
       "status": "partial",
       "issues": [
@@ -410,99 +371,39 @@
           "code": "derivation_diagnostic",
           "targetKind": "inventory",
           "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/src/core/red-evidence/canon.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/src/core/red-evidence/policy.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/src/core/red-evidence/registries.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/tests/red/red-w2a-canon-differential.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/src/core/red-evidence/canon.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/src/core/red-evidence/policy.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/src/core/red-evidence/registries.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/tests/red/red-w2a-canon-differential.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
         }
       ],
-      "sealDigest": "sha256:15bdc52815bcdc70363f30dc88393eb10b996d961b7f54e2240feba7dec100e9"
+      "sealDigest": "sha256:3c6a599ec134acc7f98f6848afb880f13bac808a381b04e013edcfc27dff2cf2"
     },
     "binding": {
-      "headHash": "0af6a48fb0b8eb8e0dccc45ad47353b3eb9be107",
-      "materialHash": "3664037617a9ade131b3ccd422edcd950ae01960eb747a2982fc9370aede4427",
-      "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "headHash": "5689ce4f112dfc99d8c6441c0fb5c7604467e748",
+      "materialHash": "9f0bb219d36ea8246c4ceb3faea1f044e12b8102ae1e323cbbf43267378d9ccb",
+      "storyFilesHash": "c9969f1dd280fd023728c4cf872464f7c2fa71545f8d7301a904d6179c7de5e7",
       "scopeCheckDigest": "sha256:83d77532a690964e13bce3da3c4883c0d6373324fefed0fe638d86d9125ba5de",
       "scopeContractDigest": "sha256:550ae58d1ddda52c6902a253dd9920d78025403bd97ba8fd975f1f78a3a7f101",
-      "closureFilesHash": "sha256:4c565ead5cc61e3422b018707fb248873e35738359fcd9840843dd98fb125775"
+      "closureFilesHash": "sha256:00c7aac4f72300020bdf7c59e882dcf959b38c8c7122fc05649a5fa1cd258bb8"
     },
-    "receiptRef": "receipt:coverage-basis:B-c054:plan:0fcfc0adc901dcde",
-    "basisDigest": "sha256:4460693ad83d922f1c9e92ba35a297e4679e1a069d8c3d370875b9b4b1d4d977"
+    "receiptRef": "receipt:coverage-basis:B-c054:plan:639222f958a63d39",
+    "basisDigest": "sha256:642c49c8b55be8ec79395eee61525e666f82295e7d59280c5dcd235f3843fbe2"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-c054:plan:0fcfc0adc901dcde",
+    "receiptRef": "receipt:coverage-basis:B-c054:plan:639222f958a63d39",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
     "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
     "storyId": "B-c054",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:4460693ad83d922f1c9e92ba35a297e4679e1a069d8c3d370875b9b4b1d4d977",
+    "basisDigest": "sha256:642c49c8b55be8ec79395eee61525e666f82295e7d59280c5dcd235f3843fbe2",
     "topologyDigest": "sha256:cd112eec29e9e48d6cfa98d10e80b1676304d6e9b2074c65c9d4967f9585ef25",
     "scopeCheckDigest": "sha256:83d77532a690964e13bce3da3c4883c0d6373324fefed0fe638d86d9125ba5de",
     "scopeContractDigest": "sha256:550ae58d1ddda52c6902a253dd9920d78025403bd97ba8fd975f1f78a3a7f101",
-    "headHash": "0af6a48fb0b8eb8e0dccc45ad47353b3eb9be107",
-    "materialHash": "3664037617a9ade131b3ccd422edcd950ae01960eb747a2982fc9370aede4427",
-    "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "closureFilesHash": "sha256:4c565ead5cc61e3422b018707fb248873e35738359fcd9840843dd98fb125775",
-    "sealDigest": "sha256:15bdc52815bcdc70363f30dc88393eb10b996d961b7f54e2240feba7dec100e9",
+    "headHash": "5689ce4f112dfc99d8c6441c0fb5c7604467e748",
+    "materialHash": "9f0bb219d36ea8246c4ceb3faea1f044e12b8102ae1e323cbbf43267378d9ccb",
+    "storyFilesHash": "c9969f1dd280fd023728c4cf872464f7c2fa71545f8d7301a904d6179c7de5e7",
+    "closureFilesHash": "sha256:00c7aac4f72300020bdf7c59e882dcf959b38c8c7122fc05649a5fa1cd258bb8",
+    "sealDigest": "sha256:3c6a599ec134acc7f98f6848afb880f13bac808a381b04e013edcfc27dff2cf2",
     "workspaceIdentityDigest": "sha256:7ee8bae0651d047ed323bf40d60f2f0369b1f225719796d6d4f292595b5d2436",
-    "signature": "TNgyoXc7kPBlPoJcmWQmt3tb7Awj6qyj14a4q0GJS/LFx4XufSQcq+bU77aKr+4XePltV2mxH69SCOLhBaCjDA=="
+    "signature": "oNv1nVdfXMqzE5jw1ESndxFYlZ3FwqOV9GZfjpObH96Cslch9a94TFpzHbonTL13hJIVcOe1blDsiJvudAE4CA=="
   }
 }
