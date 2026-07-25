@@ -92,6 +92,10 @@ function titleOf(cwd: string, storyId: string, itemId: string): string {
   const r = run(cwd, 'story_get', { storyId, detail: true });
   try { return JSON.parse(r.out).checklist.items.find((i: any) => i.id === itemId)?.title ?? ''; } catch { return ''; }
 }
+function statusOf(cwd: string, storyId: string, itemId: string): string {
+  const r = run(cwd, 'story_get', { storyId, detail: true });
+  try { return JSON.parse(r.out).checklist.items.find((i: any) => i.id === itemId)?.status ?? ''; } catch { return ''; }
+}
 // Make the scope-freeze gate pass for the story's CURRENT projected title/checklist.
 function freezeStory(store: StoryStore, storyId: string): void {
   store.writeScopeBoundary(storyId, buildScopeBoundary({
@@ -156,6 +160,16 @@ function main(): void {
     const wt = join(worktree, storyId!);
     assert.equal(run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }).code, 0, 'INIT_CHECK advance should succeed');
     assert.equal(existsSync(wt), true, 'worktree should exist on disk');
+
+    // ── (F-003) reopen is a PLAN-only backward edge: refused from a non-PLAN phase ──
+    // From INIT_CHECK, phase=INIT maps to the plain INIT event (not REOPEN, which the
+    // orchestrator only emits from PLAN), and INIT_CHECK has no INIT edge, so it is an
+    // illegal transition. Proves canReopenToInit is genuinely PLAN-only.
+    const reopenFromCheck = run(wt, 'story_advance', { storyId, phase: 'INIT', reason: 'attempting to reopen from a non-PLAN phase' });
+    assert.notEqual(reopenFromCheck.code, 0, 'reopen to INIT from a non-PLAN phase (INIT_CHECK) must be refused');
+    assert.match(reopenFromCheck.out, /Cannot transition|not available|illegal|no .*transition/i, 'the non-PLAN reopen refusal should be an illegal-transition style error');
+    assert.equal(phaseOf(wt, storyId!), 'INIT_CHECK', 'a refused non-PLAN reopen must not move the phase');
+
     assert.equal(run(wt, 'story_advance', { storyId, phase: 'PLAN' }).code, 0, 'PLAN advance (inside worktree) should succeed');
     assert.equal(phaseOf(wt, storyId!), 'PLAN', 'story should be at PLAN before the reopen');
 
@@ -165,11 +179,25 @@ function main(): void {
     assert.match(noReason.out, /reason of at least \d+ characters is required/i, 'refusal must cite the reason requirement');
     assert.equal(phaseOf(wt, storyId!), 'PLAN', 'a rejected reopen must not move the phase');
 
+    // ── (F-005) seed a DONE checklist item, mirroring a story that went
+    //    DEV -> REPLAN -> PLAN. Reopening must reset it to pending so the changed
+    //    requirement cannot stay "done" with a retitled, code-decoupled definition.
+    {
+      const seed = new StoryStore(wt);
+      const cl = seed.readChecklist(storyId!);
+      cl.items[0].status = 'done';
+      seed.writeChecklist(storyId!, cl);
+      assert.equal(statusOf(wt, storyId!, 'CHK-001'), 'done', 'CHK-001 should be seeded as done before the reopen');
+    }
+
     // ── (RED target 2) the gated PLAN->INIT reopen from inside the worktree ───
     const reopen = run(wt, 'story_advance', { storyId, phase: 'INIT', reason: 'PLAN scope review flagged the frozen title; it must name the real deliverable.' });
     assert.equal(reopen.code, 0, `reopen to INIT should succeed: ${reopen.out}`);
     assert.match(reopen.out, /advanced to INIT\b/, 'reopen output should report advancement to INIT');
     assert.equal(phaseOf(wt, storyId!), 'INIT', 'story should be back at INIT after the reopen');
+
+    // ── (F-005) the reopen reset the seeded done item back to pending ────────
+    assert.equal(statusOf(wt, storyId!, 'CHK-001'), 'pending', 'reopen must reset a done checklist item to pending so a changed requirement is re-verified (no silent tampering)');
 
     // ── title is editable ONLY at INIT — edit it now ─────────────────────────
     const edit = run(wt, 'checklist_update', { storyId, itemId: 'CHK-001', title: CORRECTED });

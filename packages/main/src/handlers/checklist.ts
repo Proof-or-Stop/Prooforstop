@@ -663,11 +663,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error(
           `${attemptedTitleContext.join('/')} of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +
           `checklist is the source of truth; from INIT_CHECK onward the executor must not tamper with requirement definitions. ` +
-          `To change title/context, reopen to INIT — the only phase where they are editable: ` +
+          `To change title/context, reopen to INIT — the only phase where they are editable. ` +
+          // checklist_update is only reachable in INIT/PLAN/DEV (command-policy),
+          // and INIT is not in titleContextProtectedPhases, so this refusal fires
+          // only at PLAN and DEV — the two branches below cover exactly those.
           `${story.phase === 'PLAN'
-            ? `run lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why the frozen title must change>"}', edit, then re-run INIT review and re-advance`
-            : `first roll back to PLAN, then run lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'`}. ` +
-          `(INIT_CHECK stays frozen, so the scope-freeze invariant is preserved.)`
+            ? `From PLAN: run lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why the frozen title must change>"}', edit the title, then re-run INIT review and re-advance INIT_CHECK -> PLAN`
+            : `From DEV: first roll back to PLAN with lattice story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}', then lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'`}. ` +
+          `(INIT_CHECK stays frozen and reopening resets non-pending checklist items to pending, so the scope-freeze invariant is preserved.)`
         );
       }
 
