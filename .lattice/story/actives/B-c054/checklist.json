@@ -495,9 +495,9 @@
       "id": "CHK-008",
       "title": "Wire a non-gating red-evidence policy health check into createDoctorHandlers and prove doctor exit code is unchanged",
       "context": "createDoctorHandlers (handlers/doctor.ts:67) reports the resolved policyDigest or the fail-closed diagnostic alongside the existing scans; the smoke proves doctor's exit code is unchanged, no gate evidence is written, and proofstory_gate_check output is byte-identical — doctor is not a gate and its stdout is deliberately not frozen.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T01:21:05.890Z",
       "verificationIntent": {
         "happy": [
           {
