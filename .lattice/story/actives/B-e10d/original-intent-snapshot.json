@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e10d",
+  "sourceText": "Operator standing directive: implement Workstream 2 of the DONE red-evidence subsystem spec section by section. W2b adds the per-story target-binding STORE (red-target-bindings.json, schema proofstory.red_target_bindings.v1, one binding per acceptanceTargetRef, createdAt-stripped targetBindingDigest, committed-tree reader) and lands red_evidence_binding_set as the subsystem's FIRST mutating CLI command, owner-lease + mutation-authority gated with the §3.3 expectedRedTargets write-time membership gate, deliberately owning the COMPLETE 13-point command-wiring recipe so the four later high-semantics commands inherit a mechanically-verified path.",
+  "normalizedOutcome": "After this story lands, `lattice red_evidence_binding_set` exists as a working owner-gated CLI command: it writes exactly one binding per acceptance target into .lattice/story/actives/<id>/red-target-bindings.json, records a createdAt-stripped targetBindingDigest, rejects a duplicate target / an out-of-expectedRedTargets ref / a foreign-owner-lease caller, and the committed-tree reader resolves a binding from a git ref rather than the live directory; the three existing mechanical contracts (lifecycle-registry-contract, command-ownership-contract, verify-process-fact-contract) pass with the command fully registered at all 13 wiring points, and no existing gate verdict changes.",
+  "acceptanceClaim": "The red-evidence-target-binding-smoke passes AND the three existing contracts pass: red_evidence_binding_set is registered at every wiring point, persists one-binding-per-target with the createdAt-stripped digest, resolves from the committed tree, and is rejected under a foreign owner lease / duplicate target / out-of-expectedRedTargets ref — with redEvidenceSatisfied/missingRedEvidence and every existing gate verdict unchanged.",
+  "keyRequirementIds": [
+    "REQ-W2B-COMMAND",
+    "REQ-W2B-STORE",
+    "REQ-W2B-WIRING"
+  ],
+  "requestHash": "sha256:62bcb91fc5a5d9eeb74d402c67fbfcb484a11de8eadee205b3196ba58eb95b30",
+  "createdAt": "2026-07-25T07:32:45.024Z",
+  "updatedAt": "2026-07-25T07:32:45.024Z"
+}

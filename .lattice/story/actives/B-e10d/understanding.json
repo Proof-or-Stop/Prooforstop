@@ -1,0 +1,43 @@
+{
+  "task": "Add the per-story red-target-bindings.json store (createdAt-stripped digest + committed-tree reader) and land red_evidence_binding_set as the subsystem's first owner-gated mutating CLI command with the complete 13-point wiring recipe.",
+  "outcome": "$ lattice red_evidence_binding_set '{\"storyId\":\"B-xxxx\",\"acceptanceTargetRef\":\"AB-001\",\"adapterId\":\"npm-script@1\",\"testCaseRef\":\"npm-script:test\"}'\n  Target binding recorded for B-xxxx AB-001 (targetBindingDigest sha256:<64-hex>)\n$ lattice red_evidence_binding_set '{... same acceptanceTargetRef AB-001 ...}'\n  rejected: duplicate target binding for AB-001\n$ lattice red_evidence_binding_set '{... acceptanceTargetRef not in expectedRedTargets ...}'\n  rejected: acceptanceTargetRef not an expected RED target\n$ node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/red-evidence-target-binding-smoke.js\n  all contracts pass; red-evidence-target-binding-smoke: OK\n\nThe operator now has a working owner-gated command that records exactly one target binding per acceptance target with a createdAt-stripped digest, rejects duplicates / out-of-scope targets / foreign-lease callers, and the store's committed-tree reader resolves bindings from a git ref — with every existing gate verdict unchanged.",
+  "facts": [
+    "W2a (B-c054, RFC 8785 CANON + policy resolver) is DONE on main (v0.3.236, merge 0ddca8298d); canon.ts canonDigest is the digest primitive this story's targetBindingDigest reuses.",
+    "expectedRedTargets is currently module-private at core/proofstory.ts:887 (used at :916); it must be exported as a shared resolver WITHOUT changing its computed set.",
+    "The lifecycle scope classifier rejects any unknown top-level story artifact at core/lifecycle-registry.ts:849 (LATTICE_LIFECYCLE_ARTIFACT_FILENAMES at :599) — so red-target-bindings.json must be registered there or a story touching it cannot reach DONE.",
+    "The command must register at 13 points: registry.ts (MAIN_TOOLS dispatchability), cli/command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, process-fact-registry.ts, the closed AgentDispatchMutationCommand union at core/types.ts:69, the per-role permittedMutations arrays gating entryPermitsMutation at agent-dispatch-registry.ts:435, plus the process-fact-levels map (verify-process-fact-contract.mjs :160) and the three command-name arrays (:1013 MAIN_TOOLS/catalog, :1229 command-policy, :1265 process-fact-levels+registry), and the frozen trailing-order assertion at command-catalog-smoke.ts:102-109.",
+    "Three existing contracts are the un-gameable RED signal B: lifecycle-registry-contract.ts (bidirectional forward/reverse inside checkProcessFactLifecycle() ~:150), command-ownership-contract.ts (dispatchability at :136), and verify-process-fact-contract.mjs — they fail with named divergences until every registration point is present."
+  ],
+  "constraints": [
+    "targetBindingDigest = canonDigest (W2a) over EXACTLY the three binding-identity fields with createdAt STRIPPED: CANON over a STORED entry (carries createdAt) must NOT equal the digest; CANON over the stripped subobject MUST.",
+    "Exactly one binding per acceptanceTargetRef (§1.1.3 uniqueness): a second write for the same ref is a duplicate-target rejection, not an overwrite.",
+    "The command is owner-lease gated via the single cli-engine choke point (cli-engine.ts:1372) as storyScopedMutating + resolveAgentMutationAuthority (agent-dispatch-registry.ts:504); rejected under a FOREIGN active owner lease (§4.1).",
+    "The §3.3 write-time gate rejects any acceptanceTargetRef not in expectedRedTargets.",
+    "The committed-tree reader resolves from <ref>:.lattice/story/actives/<id>/red-target-bindings.json via git show, NOT the live directory.",
+    "OUT of scope: binding-freeze rule (W2c chain), run-time adapterId/testCaseRefPattern validation (runner), any chain append/read, any gate rewiring or change to redEvidenceSatisfied/missingRedEvidence — NO existing gate verdict may change."
+  ],
+  "unknowns": [
+    "RESOLVED: the exact shape of the three binding-identity fields for the createdAt-stripped digest — take them from §1.1.3 lines 209-238 (acceptanceTargetRef + adapterId + testCaseRef, or as the spec enumerates) and freeze a differential test both directions.",
+    "RESOLVED: registry.ts is a dispatchability wiring point (command-ownership-contract.ts:136), distinct from MAIN_TOOLS which is defined in cli/command-catalog.ts:228 — the INIT reviewer's INIT-007 label correction."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/red-evidence/target-bindings.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-25T07:33:22.691Z"
+}

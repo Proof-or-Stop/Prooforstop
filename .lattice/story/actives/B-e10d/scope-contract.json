@@ -1,0 +1,64 @@
+{
+  "storyId": "B-e10d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/red-evidence/target-bindings.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+    "packages/main/tests/red/red-w2b-binding-store.mjs",
+    "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-w2b-binding-store.mjs",
+    "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+    "packages/main/src/tasks/red-evidence-target-binding-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "W2b: target-binding store + red_evidence_binding_set + complete wiring; no chain/gate/runtime work.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-25T07:36:09.235Z",
+  "updatedAt": "2026-07-25T07:36:09.235Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts": "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/red-evidence/target-bindings.ts": "packages/main/src/core/red-evidence/target-bindings.ts",
+    "packages/main/src/handlers/red-evidence.ts": "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/tasks/red-evidence-target-binding-smoke.ts": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+    "packages/main/tests/red/red-w2b-binding-store.mjs": "packages/main/tests/red/red-w2b-binding-store.mjs",
+    "packages/main/tests/red/red-w2b-wiring-contract.mjs": "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md": "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+  }
+}

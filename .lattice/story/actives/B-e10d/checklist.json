@@ -6,7 +6,39 @@
       "context": "packages/main/src/core/store.ts gains read/write for .lattice/story/actives/<id>/red-target-bindings.json (schema proofstory.red_target_bindings.v1); the store enforces the §1.1.3 uniqueness invariant of exactly one binding per acceptanceTargetRef (a second write for the same ref is a duplicate-target rejection, not an overwrite). Types in core/types.ts:69 area declare the binding entry and the v1 file shape.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Write a valid binding {acceptanceTargetRef:\"AB-001/hash-aaa\", adapterId:\"node-test-runner\", testCaseRef:\"test/red/a.test.ts\"} -> persists one entry in red-target-bindings.json with schema proofstory.red_target_bindings.v1, three identity fields plus createdAt; WHY: proves store layer round-trips a single binding",
+            "type": "cli"
+          },
+          {
+            "desc": "Write a SECOND binding for a DIFFERENT acceptanceTargetRef -> appends (bindings array length = 2), both entries intact; WHY: proves append semantics, not replace-all",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Read from a story with no existing red-target-bindings.json -> returns empty bindings array or null, no crash; WHY: covers cold-start / new-story path",
+            "type": "cli"
+          },
+          {
+            "desc": "Write a binding where acceptanceTargetRef contains slash, hash, and unicode (e.g. AB-999/req#special) -> persists with exact field values round-tripped; WHY: boundary on ref format",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Write a SECOND binding for the SAME acceptanceTargetRef that already has a stored binding -> rejected as duplicate-target (NOT overwrite); original binding remains unchanged; WHY: enforces section 1.1.3 exactly-one-per-target uniqueness invariant",
+            "type": "cli"
+          },
+          {
+            "desc": "Two rapid sequential writes for two different targets -> both persist without corruption or partial write; WHY: serialization safety under fast successive calls",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
