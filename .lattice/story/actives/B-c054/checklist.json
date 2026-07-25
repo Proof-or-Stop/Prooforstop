@@ -238,7 +238,75 @@
       "context": "minMatcherLen below 4, minMatcherEntropyBits below 12, maxMatchers above 32, maxMatcherLen above 4096, and either runTimeoutMs or prepTimeoutMs above the shared 3600000 (one-hour) ceiling each reject at the §1.12 floor with a distinct named diagnostic and are never silently clamped.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],minMatcherLen:3}) → rejects with a diagnostic containing \"minMatcherLen\" and the value 3; WHY: below floor 4",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],minMatcherEntropyBits:11}) → rejects with a diagnostic containing \"minMatcherEntropyBits\"; WHY: below floor 12",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],maxMatchers:33}) → rejects with a diagnostic containing \"maxMatchers\"; WHY: above cap 32",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],maxMatcherLen:4097}) → rejects with a diagnostic containing \"maxMatcherLen\"; WHY: above cap 4096",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],runTimeoutMs:3600001}) → rejects with a diagnostic containing \"runTimeoutMs\"; WHY: above one-hour ceiling",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],prepTimeoutMs:3600001}) → rejects with a diagnostic containing \"prepTimeoutMs\"; WHY: above one-hour ceiling",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveRedEvidencePolicy with minMatcherLen:4 (exactly at floor) → succeeds; WHY: boundary-exact value must pass, not reject",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with maxMatchers:32 (exactly at cap) → succeeds; WHY: boundary-exact value must pass",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with runTimeoutMs:3600000 (exactly at ceiling) → succeeds; WHY: boundary-exact value must pass",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with maxMatcherLen:4096 (exactly at cap) → succeeds; WHY: boundary-exact",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with minMatcherEntropyBits:12 (exactly at floor) → succeeds; WHY: boundary-exact",
+            "type": "cli"
+          },
+          {
+            "desc": "Each of the 6 floor violations produces a DISTINCT named diagnostic (no two share the same diagnostic string) → all 6 diagnostics collected and asserted unique; WHY: spec says one distinct named diagnostic per violated floor",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveRedEvidencePolicy with minMatcherLen:3 → the returned value is NOT silently clamped to 4 (no snapshot produced at all) → assert result is a rejection, not a snapshot with minMatcherLen:4; WHY: silent clamping is the pre-mortem scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with runTimeoutMs:3600001 and prepTimeoutMs:3600001 simultaneously → rejects with diagnostics for BOTH (not just the first); WHY: all violations must be reported, not short-circuit",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with minMatcherLen:0 → rejects (not treated as falsy/default); WHY: zero is below floor 4 and must not be coerced to default 8",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
