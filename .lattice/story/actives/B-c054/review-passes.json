@@ -58,6 +58,35 @@
         "scanEscalationReason": null
       },
       "_hash": "1bfa10a45bf18fa2dc9cd825ba82a5e064529b84612f1d363597af4db4b11d36"
+    },
+    {
+      "id": "B-c054:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: re-verified 3 completeness properties on current material (HEAD bc95603, after fix commit eff4404936) via grep across packages/main/src. (1) canon.ts remains the SINGLE new canonicalizer under core/red-evidence/ (find + export-grep confirms only pre-existing canonicalJson/canonicalJsonForSigning/etc, none new; fix commit only added private helpers hasLoneSurrogate/assertNoLoneSurrogate, no new exported canonicalizer). (2) Scope fence intact: runner.ts and envelope.ts do not exist anywhere in the repo (grep/find empty) so zero commits on this branch touched them; no execFile/spawn/child_process/resolvedExecutable in any red-evidence source (no runtime executable resolution); lattice.config.json has no redEvidence block committed (grep exit 1) while the canon-smoke IS registered in validate.commands. (3) Assurance-tier fence: grep for tamper-proof|tamper-resistant|cannot be forged|unforgeable|guarantees integrity|prevents forgery across canon.ts/policy.ts/registries.ts = zero hits; same grep across every changed file in the story diff = zero hits (only match is the OVERCLAIM regex literal inside the smokes own CHK-009 guard, not an actual overclaim string); zero hits in the fix commit eff4404936 message. All checklist items CHK-001..CHK-010 remain status=done. No blocker.",
+      "createdAt": "2026-07-25T04:41:09.747Z",
+      "reviewRound": "2026-07-25T04:37:25.897Z",
+      "reviewRunId": "B-c054:RR-007",
+      "envelopeId": "d46d5a29fbd57db9630d6ab9913e8a538bd72d04c70cec5372feac8b09c9954c",
+      "writerSessionId": "review-concept-b-c054-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0bc0428fe738d6ebf65675ced7e9d3fc06454d57fda8447861698e6a05aa03fc"
     }
   ]
 }
