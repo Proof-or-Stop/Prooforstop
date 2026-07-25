@@ -314,7 +314,79 @@
       "context": "An allowedEnvKeys naming PATH, NODE_OPTIONS, LD_PRELOAD or any DYLD_ key rejects; an invarianceExcludePaths entry that is a bare **/* catch-all, or whose glob matches any tracked material path (checked against the live classification at config load, per spec line 759), rejects — while a legitimate exclude like node_modules/** or tmp/** that matches no tracked material is kept; an argvTemplate ${missing} naming a capture its pattern lacks rejects at config resolution.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"PATH\"] → rejects with diagnostic naming PATH as forbidden; WHY: PATH is in the hard-set forbidden list",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"NODE_OPTIONS\"] → rejects; WHY: NODE_OPTIONS lets host inject code",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"LD_PRELOAD\"] → rejects; WHY: LD_PRELOAD is in forbidden set",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"DYLD_INSERT_LIBRARIES\"] → rejects; WHY: any DYLD_ prefix key is forbidden",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with invarianceExcludePaths containing bare \"**/*\" → rejects; WHY: catch-all glob covers all tracked material",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with invarianceExcludePaths:[\"node_modules/**\"] → succeeds and the glob is KEPT in the snapshot; WHY: legitimate exclude that matches no tracked material; proves the KEEP direction",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with argvTemplate:[\"node\",\"${missing}\"] where testCaseRefPattern has no capture named \"missing\" → rejects at config resolution; WHY: unresolvable placeholder",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"DYLD_FRAMEWORK_PATH\"] → rejects; WHY: any DYLD_-prefixed key, not just DYLD_INSERT_LIBRARIES",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"HOME\"] → succeeds; WHY: HOME is not in the forbidden set, proves non-forbidden keys pass",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with invarianceExcludePaths:[\"*\"] (bare star) → rejects; WHY: bare catch-all, single star variant",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with invarianceExcludePaths:[\"**\"] (bare double-star) → rejects; WHY: bare catch-all, double-star variant",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with invarianceExcludePaths:[\"tmp/**\"] → succeeds; WHY: tmp matches no tracked material, proves non-catch-all non-material globs pass",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"path\"] (lowercase) → must still reject if case-insensitive match is needed, OR pass if forbidden set is case-sensitive; behavior must be deterministic; WHY: case sensitivity of env key matching",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with invarianceExcludePaths containing a glob that matches a known tracked material file (e.g. packages/main/src/**) → rejects; WHY: proves the live material-classification check works, not just catch-all detection",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with argvTemplate:[\"${script}\"] where testCaseRefPattern has named capture \"script\" → succeeds; WHY: proves valid placeholder resolution works (adversarial control: the KEEP direction)",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with allowedEnvKeys:[\"SAFE_KEY\",\"NODE_OPTIONS\"] → rejects (one bad key poisons the whole list); WHY: must not skip forbidden keys and keep the rest",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
