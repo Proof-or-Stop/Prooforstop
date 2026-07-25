@@ -537,6 +537,89 @@
         }
       ],
       "_hash": "af1a2ebe4d7884918154e50093ddba056870c8609f2861f465c65394ad9c6aa5"
+    },
+    {
+      "timestamp": "2026-07-25T00:56:59.270Z",
+      "issueCount": 13,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-009",
+          "message": "CHK-009 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-010",
+          "message": "CHK-010 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "10 checklist items; please check for missing combined scenarios (e.g., what happens when Implement RFC 8785 CANON: code-unit key order, preserved JSON null, the §0.4 self-omitting recordDigest helper, and sha256 prefix rendering + Prove differentially that no existing canonicalizer can serve as CANON and record why each was rejected are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: RESOLVED (OQ-B-c054-forbiddenCatchAlls-8th-entry): forbiddenCatchAlls[7] = empty string, per the spec's own \"\"=empty-string convention at §0.4 lines 74/76; frozen policyDigest pinned to that reading.; RESOLVED: RFC 8785 number/string encoding equals JSON.stringify (verified: -0->0, 1e21->1e+21, control-char/unicode escaping) and code-unit key order equals default Array.sort(); CANON test vectors frozen accordingly."
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-B-c054-forbiddenCatchAlls-8th-entry-pinned-value-contradiction unresolved — \"Does the frozen forbiddenCatchAlls[7] default literal equal the empty string ...\". Please run `lattice scope_question_resolve --storyId=B-c054 --oqId=OQ-B-c054-forbiddenCatchAlls-8th-entry-pinned-value-contradiction --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "31f54b9d91acdf0e7ed5829282a5bec93de066e4a0c82014c61d1b6778766006"
     }
   ]
 }

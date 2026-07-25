@@ -297,12 +297,13 @@
       "q": "Does the frozen forbiddenCatchAlls[7] default literal equal the empty string (0 chars) or the 2-character double-quote literal '\"\"' (a quote followed by a quote)? The story's own OQ-resolution record and its own checklist verification-intent currently assert OPPOSITE answers to this already-once-litigated question, and it directly determines the frozen policyDigest literal in CHK-003.",
       "evidence": "understanding.json unknowns[0]: 'RESOLVED (OQ-B-c054-forbiddenCatchAlls-8th-entry): forbiddenCatchAlls[7] = empty string, per the spec's own \"\"=empty-string convention at §0.4 lines 74/76; frozen policyDigest pinned to that reading.' VERSUS checklist.json CHK-003 verificationIntent.edge[2].desc (raw, decoded): the 8th listed default entry is rendered as the JSON-stringify-escaped token `\"\\\"\\\"\"` (which decodes to the 2-character string consisting of two double-quote characters), and the WHY clause literally says 'the 8th entry (double-quote literal)' -- the opposite reading from the one the OQ resolution claims to have pinned. Spec source itself (red-evidence-subsystem-spec.md line 299): '| policy.forbiddenCatchAlls | ... | `.*`, `.+`, `.`, `^$`, `^.*$`, `^.+$`, `\\s*`, `\"\"` |' is genuinely ambiguous markdown and does not itself resolve which reading is correct; §0.4 lines 74-76 (cited by the OQ resolution) governs RECORD-FIELD nullability conventions (chain fields null vs other fields omitted, never written as \"\"), not how this §1.2 table cell should be parsed, so it does not actually settle the ambiguity either way.",
       "sourcePointers": [
-        ".lattice/story/actives/B-c054/understanding.json:19",
-        ".lattice/story/actives/B-c054/checklist.json:179",
-        ".lattice/story/actives/B-c054/plan.md:8",
         "docs/requirements/decisions/red-evidence-subsystem-spec.md:299",
-        "docs/requirements/decisions/red-evidence-subsystem-spec.md:74-76"
-      ]
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md:401",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md:402",
+        ".lattice/story/actives/B-c054/plan.md:8"
+      ],
+      "resolution": "Resolved as the 2-CHARACTER DOUBLE-QUOTE LITERAL (a string of two U+0022 chars), NOT the empty string; this reconciles the earlier contradiction. Corrected reasoning: §1.3 rule 1 (line 401-403) requires every matcher value to be non-empty AND not a member of forbiddenCatchAlls, so an empty-string entry could NEVER match an admissible value and would be an inert dead entry — the default hygiene blocklist would not carry a provably-unreachable member. The coherent reading is that forbiddenCatchAlls lists punctuation-only NOISE text a lazy asserter might paste as failure text (line 402: 'punctuation-only lines like .* are rejected as asserted failure text'); the 2-char literal is such noise and CAN match a value of two quote chars. My earlier citation of §0.4 lines 74/76 was misapplied — those govern record-FIELD nullability (chain fields carry JSON null vs other fields omitted), not the §1.2 table-cell parse. plan.md:8 and the CHK-003 verificationIntents already adopt the 2-char-literal reading; understanding.json is corrected to match. The frozen default policyDigest with fixture pinnedPath=[/usr/bin] is pinned to sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767.",
+      "resolvedAt": "2026-07-25T00:58:53.632Z"
     }
   ]
 }
