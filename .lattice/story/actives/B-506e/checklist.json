@@ -414,7 +414,75 @@
       "context": "packages/main/src/handlers/red-evidence.ts adds red_evidence_quarantine and red_evidence_recover (reusing the W2b 13-point wiring recipe: registry/command-catalog/command-policy/config/process-fact-levels/process-fact-registry/types union/permittedMutations/owner-lease), with the §4.1 (1122-1171) reference-validation state machine, DERIVED approvedBy = <actor>@<sessionId> (never a caller argument), recover-of-a-recover + quarantine-of-non-head rejected; and lands the §1.1.3 binding-freeze rule inside red_evidence_binding_set now that chain-head semantics exist (a binding is frozen once a run record exists on an unquarantined chain).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red_evidence_quarantine(storyId, recordId, reason) creates a quarantine record: operation=quarantine, linkKind=quarantines, recoversRecordId=the named record, referencedRecordDigest matches the named record recordDigest, approvedBy=<actor>@<sessionId> (derived, not caller-supplied); record becomes chain head; WHY: full quarantine command golden path",
+            "type": "cli"
+          },
+          {
+            "desc": "red_evidence_recover(storyId, recordId, reason) creates a recover record: operation=recover, linkKind=recovers, recoversRecordId=the quarantine record, referencedRecordDigest matches, approvedBy derived; recover record becomes chain head; effective operation = the reinstated pre-quarantine operation; WHY: full recover command golden path",
+            "type": "cli"
+          },
+          {
+            "desc": "Binding freeze rule: red_evidence_binding_set for a target that has an unquarantined run record (red-assert or green-confirm head) → REJECTED (binding is frozen); WHY: §1.1.3 freeze forecloses swap-after-review reuse",
+            "type": "cli"
+          },
+          {
+            "desc": "Binding freeze lifted: after quarantining the head, red_evidence_binding_set for the same target → ALLOWED (quarantine un-freezes the binding); WHY: the intended bad-record flow allows rebinding after quarantine",
+            "type": "cli"
+          },
+          {
+            "desc": "Binding on empty chain: red_evidence_binding_set for a target with no chain records → ALLOWED; WHY: initial binding before any run must succeed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "13-point wiring recipe: both red_evidence_quarantine and red_evidence_recover appear in all 13 wiring points (registry, command-catalog, command-policy, config, process-fact-levels, process-fact-registry, types union, permittedMutations, owner-lease, and the 4 verify-process-fact enumerations); WHY: missing any wiring point is a silent failure",
+            "type": "cli"
+          },
+          {
+            "desc": "approvedBy serialization is exactly <actor>@<sessionId> with no padding or formatting; verify it round-trips and is covered by recordDigest; WHY: the serialization format is normative",
+            "type": "cli"
+          },
+          {
+            "desc": "Binding freeze after quarantine + recover: the recovered run record is unquarantined; binding_set is REJECTED again (frozen); WHY: recovery reinstates the freeze",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Recover-of-a-recover: current head is a recover record; attempt red_evidence_recover targeting it → REJECTED by the reference-validation state machine (recover targets quarantine heads only); WHY: RED signal C — double-recover is an invalid transition",
+            "type": "cli"
+          },
+          {
+            "desc": "Quarantine of non-head record: attempt red_evidence_quarantine with a recordId that exists in the chain but is NOT the current head → REJECTED; WHY: RED signal C — only the head can be quarantined",
+            "type": "cli"
+          },
+          {
+            "desc": "Quarantine of already-quarantined head: head is a quarantine record; attempt another quarantine → REJECTED (quarantine admits only recover or red-assert, not another quarantine); WHY: double-quarantine is an invalid transition per the closed table",
+            "type": "cli"
+          },
+          {
+            "desc": "Recover of non-quarantined head: head is a red-assert; attempt red_evidence_recover targeting it → REJECTED (recover requires quarantine head); WHY: recovering a non-quarantined record is an invalid transition",
+            "type": "cli"
+          },
+          {
+            "desc": "Forged approvedBy: caller passes an approvedBy argument → ignored or rejected; the stored approvedBy is always derived from resolveAgentMutationAuthority + lease sessionId; WHY: approvedBy must be unforgeable through the registered surface",
+            "type": "cli"
+          },
+          {
+            "desc": "recoversRecordId references a record from a DIFFERENT story or target chain → REJECTED; recoversRecordId that does not exist → REJECTED; WHY: cross-chain and phantom references are invalid",
+            "type": "cli"
+          },
+          {
+            "desc": "Retired record byte-identical: after quarantine, read back the original (quarantined) record and verify it is BYTE-IDENTICAL to its state before quarantine (hash the JSON representation before and after; hashes match); WHY: RED signal C — immutability means the retired record is never modified in place",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-011",
