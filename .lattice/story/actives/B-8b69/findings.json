@@ -71,10 +71,10 @@
       "_hash": "5de77b9bc4e016f7d75443e620496d4da7bd543814d47ae4457e226bcc661da7",
       "signatureTag": "edge|unknown|edge-adversarial-both",
       "signatureTagSource": "auto",
-      "resolvedReason": "CHK-002 should-priority edges: the dev_start-from-main-root reuse path is exercised by the existing init-check-atomicity-smoke (dev_start from the main root asserts worktree reuse), and the worktree-deleted re-bootstrap by worktree-repair-smoke; both pass on this branch. Advisory (should-priority), covered by sibling smokes.",
-      "resolvedAt": "2026-07-25T12:50:40.296Z",
+      "resolvedReason": "CORRECTED (my earlier citation of worktree-repair-smoke was wrong: it never calls dev_start). Now backed by REAL evidence: the smoke has a new assertDevStartReuseFromMainAndRebootstrap suite that (edge:0) runs dev_start from the MAIN root on a story with an existing worktree and asserts reuse, and (adversarial:0) deletes the worktree dir and asserts dev_start re-bootstraps it. verificationEvidence for CHK-002:edge:0 and CHK-002:adversarial:0 now point at it. commit 3f0e4c2ebb.",
+      "resolvedAt": "2026-07-25T15:30:44.237Z",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "medium"
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8b69:F-005",
