@@ -321,6 +321,37 @@
         "scanEscalationReason": null
       },
       "_hash": "e3fc6411377b8d94c617b3d805520ad26077a46ef2bdb102479e7f6f089a05a6"
+    },
+    {
+      "id": "B-c054:RP-012",
+      "agent": "lattice-review-behavior",
+      "note": "Final behavior confirmation post R4-1 (commit 3b05d13219). Fresh build (tsc clean) + full lattice validate (48/48 configured commands green, exit 0) + both tests/red/*.mjs (red-w2a-canon-differential PASS, red-w2a-policy-failclosed PASS) + red-evidence-policy-canon-smoke OK + lattice doctor (exit 0, red-evidence line = red_evidence_policy_missing: pinnedPath as expected, no gate evidence written, no redEvidence block in lattice.config.json). Behaviorally re-verified against fresh dist (not just re-running the committed tests): canon({B:1,a:2})=={\"B\":1,\"a\":2}, canon(undefined)/canon({v:NaN}) throw, canon({x:null}) preserves null, canonDigest renders sha256:<64hex>, canon does not mutate its input. resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"]}).policyDigest === frozen sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767 (14-key snapshot, Object.frozen, mutation attempt no-ops). patternCaptureNames tokenizer fix verified directly: testCaseRefPattern \"^[(?<fake>]+$\" (fake capture inside a character class) REJECTS with red_evidence_policy_test_case_ref_pattern_no_capture; escaped \\\\(?<x> REJECTS (not counted); lookbehind (?<=x) and negative lookbehind (?<!x) both REJECT (not counted as captures, consistent with spec §1.2/§2.x testCaseRefPattern/argvTemplate ${captureName} contract at red-evidence-subsystem-spec.md:314-322,381-386); genuine ^(?<script>[A-Za-z0-9]+)$ still RESOLVES OK both with a literal argv and with a ${script} placeholder against it (no over-rejection regression). materialHash unchanged across RR-014->RR-018 (7bc8c8...cd4bc), only story-metadata (other-lane review_pass_set) commits landed HEAD between runs; storyFilesHash/scopeContractDigest unchanged. No blocker found.",
+      "createdAt": "2026-07-25T06:13:33.433Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-018",
+      "envelopeId": "5e74b37b6b0a12b044a3635320c51660468eaf0d3ffd7093648e3f31b86c9356",
+      "writerSessionId": "review-behavior-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "533d7a76521149cc1b819b031ca157b9a5b6c7f97e29258a6591fb22d4b3c3de"
     }
   ]
 }
