@@ -18,7 +18,7 @@
  *  6. self-referential / looping recover chain TERMINATES (bounded).
  *  7. replay (same operationKey) returns existing record, length unchanged, no run.
  *  8. corrupted stored operationKey → CONFLICT, nothing written.
- *  9. forged caller approvedBy ignored — recorded approvedBy is <actor>@<sessionId>.
+ *  9. forged caller approvedBy REJECTED — recorded approvedBy is <actor>@<sessionId>.
  * 10. out-of-topology target rejected at write time (CHK-012).
  */
 import { strict as assert } from 'node:assert';
@@ -131,10 +131,15 @@ try {
     // 4: quarantine of a NON-head record rejected.
     assert.throws(() => quarantine({ storyId: 'B-h', recordId: ra1.id, reason: 'x', agent: 'lattice-implementer' }), /not the current chain head/i, 'quarantine of non-head rejected');
 
-    // 5 + 9: retired byte-identical + forged approvedBy ignored.
+    // 9: a forged caller approvedBy is REJECTED (§4.1), nothing written.
+    const lenBeforeForge = store.readRedEvidence('B-h').records.length;
+    assert.throws(() => quarantine({ storyId: 'B-h', recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer', approvedBy: 'FORGED@evil' }),
+      /approvedBy is derived/, 'a caller-supplied approvedBy is rejected, not silently ignored');
+    assert.equal(store.readRedEvidence('B-h').records.length, lenBeforeForge, 'the rejected forged-approvedBy request writes nothing');
+
+    // 5: retired byte-identical + DERIVED approvedBy — quarantine WITHOUT approvedBy.
     const beforeBytes = recordCanonicalBytes(ra2);
-    const msg = quarantine({ storyId: 'B-h', recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer', approvedBy: 'FORGED@evil' });
-    assert.doesNotMatch(msg, /FORGED/, 'forged caller approvedBy is ignored');
+    quarantine({ storyId: 'B-h', recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer' });
     const chain = partitionChain(store.readRedEvidence('B-h').records, 'B-h', 'M1');
     const storedRa2 = chain.find((r) => r.id === ra2.id);
     assert.equal(recordCanonicalBytes(storedRa2), beforeBytes, 'retired record is BYTE-IDENTICAL before/after quarantine');
@@ -169,7 +174,7 @@ try {
     assert.equal(store.readRedEvidence('B-t').records.length, len, 'nothing written on membership rejection');
   }
 
-  console.log('red-w2c-rejection-matrix: OK (fork/seq/prior-mismatch reason ids distinct; self+mutual recover terminate; CONFLICT on corrupted key; quarantine-non-head/recover-of-recover rejected; retired byte-identical; forged approvedBy ignored; replay length-unchanged; CHK-012 out-of-topology rejected)');
+  console.log('red-w2c-rejection-matrix: OK (fork/seq/prior-mismatch reason ids distinct; self+mutual recover terminate; CONFLICT on corrupted key; quarantine-non-head/recover-of-recover rejected; retired byte-identical; forged approvedBy rejected; replay length-unchanged; CHK-012 out-of-topology rejected)');
 } finally {
   for (const r of roots) rmSync(r, { recursive: true, force: true });
 }

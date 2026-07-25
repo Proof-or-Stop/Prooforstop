@@ -72,7 +72,7 @@ import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
 // W2c (B-506e): the v1 red-evidence gate predicate skips every non-v1 (v2 chain)
 // record — a v2 quarantine/recover record carries no observedFailure and must
 // not crash the LIVE enforce gate.
-import { isRedEvidenceV2, type RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
+import { isRedEvidenceV2, classifyRedRecordSchemaSafe, type RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
@@ -936,12 +936,17 @@ function redEvidenceRecordSatisfied(
   record: RedEvidenceRecord | RedEvidenceRecordV2,
   expectedTargets: Set<string>,
 ): boolean {
-  // W2c (B-506e): a v2 record is NOT a v1 red-evidence satisfier — skip it
-  // BEFORE touching any v1-only field (the version discriminator governs, not
-  // field presence). This keeps the v1 gate verdict byte-identical on a v1-only
-  // store and prevents a v2 quarantine/recover record (no observedFailure) from
-  // throwing at record.observedFailure.trim() in the LIVE enforce gate.
+  // W2c (B-506e): ONLY a genuine v1 record can satisfy the v1 predicate. The
+  // schemaVersion discriminant is EXHAUSTIVE — a v2 record (exact literal) AND a
+  // record carrying an UNKNOWN/unsupported schemaVersion (a future v3, a typo, a
+  // corrupted value) are BOTH skipped BEFORE touching any v1-only field. This
+  // keeps the v1 gate verdict byte-identical on a v1-only store and prevents a
+  // non-v1 record (no observedFailure) from falling through to
+  // record.observedFailure.trim() and throwing a TypeError in the LIVE enforce
+  // gate. (Unsupported records are ALSO rejected at load in store.readRedEvidence;
+  // this predicate is defense-in-depth so the gate can never crash on one.)
   if (isRedEvidenceV2(record)) return false;
+  if (classifyRedRecordSchemaSafe(record) !== 'v1') return false;
   if (record.observedFailure.trim().length === 0) return false;
   if (!record.failingCommand && !record.failureReceiptHash) return false;
   if (!record.acceptanceTargetRef || !expectedTargets.has(record.acceptanceTargetRef)) return false;

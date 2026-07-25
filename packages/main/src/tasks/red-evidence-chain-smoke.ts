@@ -196,6 +196,37 @@ try {
       assert.ok(present in q, `quarantine record carries ${present}`);
     }
 
+    // A green-confirm record (CHK-001:edge:0) — a SYNTHETIC hand-built
+    // GreenConfirmRecordV2 draft (the green-confirm WRITER is W2e; the same
+    // technique used for the quarantine draft above, which also has no
+    // story-owned writer). It carries confirms*/redBaseline* and OMITS
+    // assertion/policySnapshot of ITS OWN: the confirmed assertion is reachable
+    // via confirmsRecordId and pinned by confirmsAssertionDigest (§1.10).
+    const gcKey = greenConfirmOperationKey({
+      storyId: 'B-u', acceptanceTargetRef: 'AB-001', greenHeadHash: 'green-head', greenMaterialHash: 'green-mat',
+      confirmsRecordDigest: ra.recordDigest, confirmsAssertionDigest: 'sha256:assertion', specDigest: ra.specDigest,
+    });
+    const gcDraft = {
+      id: deriveRecordId('green-confirm', gcKey, 2),
+      schemaVersion: RED_EVIDENCE_V2_SCHEMA_VERSION, operation: 'green-confirm' as const,
+      seq: 2, priorRecordDigest: ra.recordDigest, supersedes: ra.id,
+      storyId: 'B-u', acceptanceTargetRef: 'AB-001',
+      confirmsRecordId: ra.id, confirmsRecordDigest: ra.recordDigest, confirmsAssertionDigest: 'sha256:assertion',
+      redBaselineHeadHash: 'head-base', redBaselineMaterialHash: 'mat-base',
+      greenHeadHash: 'green-head', greenMaterialHash: 'green-mat',
+      greenRelation: { targetRef: 'AB-001', relation: 'same_acceptance' as const },
+      specDigest: ra.specDigest, runReceipt: {}, operationKey: gcKey, createdAt: NOW,
+    };
+    const gc = { ...gcDraft, recordDigest: computeRecordDigest(gcDraft as unknown as Record<string, unknown>) } as RedEvidenceRecordV2;
+    assert.ok(isRedEvidenceV2(gc) && gc.operation === 'green-confirm', 'synthetic green-confirm is a v2 record');
+    for (const present of ['confirmsRecordId', 'confirmsRecordDigest', 'confirmsAssertionDigest', 'redBaselineHeadHash', 'redBaselineMaterialHash']) {
+      assert.ok(present in gc, `green-confirm record carries ${present} (§1.10)`);
+    }
+    for (const omitted of ['assertion', 'policySnapshot']) {
+      assert.ok(!(omitted in gc), `green-confirm record OMITS ${omitted} of its own (§1.10 — confirmed assertion reached via confirms*)`);
+    }
+    assert.ok(recordDigestMatches(gc), 'green-confirm recordDigest recomputes from its own bytes');
+
     // classifyRedRecordSchema: v1 (no version), v2, and an unknown version FAILS CLOSED.
     assert.equal(classifyRedRecordSchema({ id: 'RED-1', observedFailure: 'x' }), 'v1');
     assert.equal(classifyRedRecordSchema(ra), 'v2');
@@ -452,17 +483,23 @@ try {
     assert.throws(() => quarantine({ storyId, recordId: ra.id, reason: 'x', agent: 'lattice-implementer' }),
       /not the current chain head/i, 'quarantine of a non-head record is rejected');
 
-    // Retired byte-identical: quarantine ra2 (the head); ra2's stored bytes are UNCHANGED.
+    // F-010: a caller-supplied approvedBy is REJECTED (§4.1), not silently
+    // ignored — nothing is written.
+    const lenBeforeForge = store.readRedEvidence(storyId)!.records.length;
+    assert.throws(() => quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer', approvedBy: 'FORGED@evil' }),
+      /approvedBy is derived/, 'a caller-supplied approvedBy is rejected, not silently ignored');
+    assert.equal(store.readRedEvidence(storyId)!.records.length, lenBeforeForge, 'the rejected forged-approvedBy request writes nothing');
+
+    // Retired byte-identical + DERIVED approvedBy: quarantine ra2 (the head) with
+    // NO caller approvedBy; ra2's stored bytes are UNCHANGED and the recorded
+    // approvedBy is the derived <actor>@<sessionId>.
     const beforeBytes = recordCanonicalBytes(ra2);
-    const forgedMsg: string = quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer', approvedBy: 'FORGED@evil' });
+    quarantine({ storyId, recordId: ra2.id, reason: 'retire', agent: 'lattice-implementer' });
     const chainR = partitionChain(store.readRedEvidence(storyId)!.records, storyId, 'M1');
     const storedRa2 = chainR.find((r) => r.id === ra2.id)!;
     assert.equal(recordCanonicalBytes(storedRa2), beforeBytes, 'the retired record is BYTE-IDENTICAL after quarantine (§4.2 immutability)');
-    // Forged approvedBy IGNORED: recorded approvedBy is the derived <actor>@<sessionId>.
-    assert.doesNotMatch(forgedMsg, /FORGED/, 'a caller-supplied approvedBy is ignored');
     const qHead = resolveChainHead(chainR)!;
-    assert.ok('approvedBy' in qHead && !(qHead as { approvedBy: string }).approvedBy.includes('FORGED'), 'stored approvedBy is derived, not forged');
-    assert.match((qHead as { approvedBy: string }).approvedBy, /^lattice-implementer@/, 'approvedBy = <actor>@<sessionId>');
+    assert.match((qHead as { approvedBy: string }).approvedBy, /^lattice-implementer@/, 'approvedBy = <actor>@<sessionId> (derived, not forged)');
 
     // Quarantine of an already-quarantined head → REJECTED.
     assert.throws(() => quarantine({ storyId, recordId: qHead.id, reason: 'again', agent: 'lattice-implementer' }),
@@ -570,7 +607,7 @@ try {
     assert.equal(okCount, 1, `exactly one child won; the loser reported a structured non-zero abort (exit codes ${exitCodes.join(',')})`);
   }
 
-  console.log('red-evidence-chain-smoke: OK — v2 union + §0.4 omission/nullability; enforce-gate byte-identical v1 guard (RED signal A); chain head both conjuncts + three integrity checks with distinct reason ids; closed transition table + transitive cycle-safe effective head; operation-key + normalizedReason + deterministic id; dedupe/replay ordering + scoped dedupe + CONFLICT; full rejection matrix + retired byte-identical + forged approvedBy ignored + CHK-012 membership; §1.1.3 binding-freeze/unfreeze/re-freeze; genuine 2-process mkdir-claim race → one head (RED signal B).');
+  console.log('red-evidence-chain-smoke: OK — v2 union + §0.4 omission/nullability; enforce-gate byte-identical v1 guard (RED signal A); chain head both conjuncts + three integrity checks with distinct reason ids; closed transition table + transitive cycle-safe effective head; operation-key + normalizedReason + deterministic id; dedupe/replay ordering + scoped dedupe + CONFLICT; full rejection matrix + retired byte-identical + forged approvedBy rejected + CHK-012 membership; §1.1.3 binding-freeze/unfreeze/re-freeze; genuine 2-process mkdir-claim race → one head (RED signal B).');
 } finally {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true });
 }

@@ -29,7 +29,7 @@ import {
   type RedEvidenceOperation,
   type RedEvidenceRecordV2,
 } from './record-v2.js';
-import { controlOperationKey, deriveRecordId, normalizeReason } from './operation-key.js';
+import { controlOperationKey, deriveRecordId } from './operation-key.js';
 import {
   checkChainIntegrity,
   effectiveHeadOperation,
@@ -89,8 +89,18 @@ export interface AppendResult {
   replayed: boolean;
 }
 
-/** A per-(story,target) lock dir under the gitignored runtime lock prefix. */
-function chainLockDir(store: RedEvidenceChainStore, storyId: string, acceptanceTargetRef: string): string {
+/**
+ * The per-(story,target) chain lock dir under the gitignored runtime lock prefix.
+ * EXPORTED so `red_evidence_binding_set` can serialize its §1.1.3 freeze
+ * read+write under the SAME lock the append pipeline uses (F-009): a concurrent
+ * quarantine/recover cannot interleave between the freeze read and the binding
+ * write.
+ */
+export function redEvidenceChainLockDir(
+  store: RedEvidenceChainStore,
+  storyId: string,
+  acceptanceTargetRef: string,
+): string {
   // A CANON-derived name is filesystem-safe AND collision-free across targets.
   const name = `chain-${first12hex(canonDigest(acceptanceTargetRef))}`;
   return store.runtimeLockDirPath(storyId, 'red-evidence-chain', name);
@@ -149,7 +159,7 @@ function assertStoredControlRecordConsistent(record: RedEvidenceRecordV2): void 
  */
 export function appendControlRecord(input: AppendControlRecordInput): AppendResult {
   const now = input.now ?? new Date().toISOString();
-  const lockDir = chainLockDir(input.store, input.storyId, input.acceptanceTargetRef);
+  const lockDir = redEvidenceChainLockDir(input.store, input.storyId, input.acceptanceTargetRef);
 
   return withMkdirLock(
     lockDir,
@@ -186,6 +196,14 @@ export function appendControlRecord(input: AppendControlRecordInput): AppendResu
           `${input.operation} refused: target chain is empty — there is no head to reference`,
         );
       }
+      // ── §3.5 store-corruption detector on the RESOLVED HEAD (F-008). The head
+      // is about to become this record's prior link (priorRecordDigest =
+      // head.recordDigest) and is trusted by the reference check below, so its
+      // stored recordDigest/operationKey/id MUST recompute from its own bytes
+      // FIRST. Previously this ran ONLY on a dedupe hit, so a FRESH (non-replay)
+      // append silently extended a corrupt head. A mismatch surfaces a CONFLICT
+      // with NOTHING written, rather than propagating store corruption.
+      assertStoredControlRecordConsistent(head);
       if (head.id !== input.recoversRecordId) {
         throw new RedEvidenceChainError(
           REASON_REFERENCE_INVALID,

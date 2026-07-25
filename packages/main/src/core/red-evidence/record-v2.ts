@@ -168,22 +168,62 @@ export function isControlRecordV2(record: unknown): record is ControlRecordV2 {
   );
 }
 
+/** The three exhaustive schema classes of a stored red-evidence record (§6.4). */
+export type RedRecordSchemaClass = 'v1' | 'v2' | 'unsupported';
+
 /**
- * Classify a stored record's schema. A v1 record has NO `schemaVersion` member
- * (the FILE carries the version, not the record). A record carrying an UNKNOWN
- * `schemaVersion` (e.g. `proofstory.red_evidence.v3`) fails CLOSED — it is never
- * silently accepted (CHK-002 forward-compatibility rule).
+ * Typed error raised when a stored red-evidence record carries an UNSUPPORTED
+ * per-record `schemaVersion` (neither absent/legacy-v1 nor the exact v2 literal).
+ * A dedicated error class lets the READ path fail CLOSED with a clear,
+ * machine-identifiable diagnostic (§6.4) instead of a downstream `TypeError`
+ * when a later v1-only field access (e.g. `observedFailure.trim()`) hits a record
+ * that is not actually v1.
  */
-export function classifyRedRecordSchema(record: unknown): 'v1' | 'v2' {
-  if (typeof record !== 'object' || record === null) {
-    throw new Error('red-evidence: a record must be an object');
+export class RedEvidenceSchemaError extends Error {
+  constructor(message: string, public readonly schemaVersion: unknown) {
+    super(message);
+    this.name = 'RedEvidenceSchemaError';
   }
+}
+
+/**
+ * Non-throwing EXHAUSTIVE schema classifier: `v1` (no per-record `schemaVersion`
+ * / legacy), `v2` (the exact literal), or `unsupported` (ANYTHING else — a future
+ * `v3`, a typo, a corrupted value, or a non-object). This is the discriminant the
+ * gate predicate uses so a non-v1 record is treated as a NON-satisfier WITHOUT
+ * ever touching a v1-only field (never a fall-through into the v1 branch).
+ */
+export function classifyRedRecordSchemaSafe(record: unknown): RedRecordSchemaClass {
+  if (typeof record !== 'object' || record === null) return 'unsupported';
   const schemaVersion = (record as { schemaVersion?: unknown }).schemaVersion;
   if (schemaVersion === undefined) return 'v1';
   if (schemaVersion === RED_EVIDENCE_V2_SCHEMA_VERSION) return 'v2';
-  throw new Error(
+  return 'unsupported';
+}
+
+/**
+ * Classify a stored record's schema, FAILING CLOSED on an unsupported version. A
+ * v1 record has NO `schemaVersion` member (the FILE carries the version, not the
+ * record). A record carrying an UNKNOWN `schemaVersion` (e.g.
+ * `proofstory.red_evidence.v3`) throws {@link RedEvidenceSchemaError} — it is
+ * never silently accepted (CHK-002 forward-compatibility rule). Wired into the
+ * production READ path (`store.readRedEvidence`) so an unknown/corrupt version is
+ * rejected at load time rather than crashing a downstream v1-only field access.
+ */
+export function classifyRedRecordSchema(record: unknown): 'v1' | 'v2' {
+  const klass = classifyRedRecordSchemaSafe(record);
+  if (klass !== 'unsupported') return klass;
+  const schemaVersion =
+    typeof record === 'object' && record !== null
+      ? (record as { schemaVersion?: unknown }).schemaVersion
+      : undefined;
+  if (typeof record !== 'object' || record === null) {
+    throw new RedEvidenceSchemaError('red-evidence: a record must be an object', schemaVersion);
+  }
+  throw new RedEvidenceSchemaError(
     `red-evidence: unknown per-record schemaVersion ${JSON.stringify(schemaVersion)} — ` +
       `only ${JSON.stringify(RED_EVIDENCE_V2_SCHEMA_VERSION)} (v2) or an absent version (legacy v1) is accepted (fail-closed)`,
+    schemaVersion,
   );
 }
 

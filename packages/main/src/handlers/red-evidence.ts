@@ -37,7 +37,12 @@ import {
 import { isRedEvidenceV2, type RedEvidenceRecordV2 } from '../core/red-evidence/record-v2.js';
 import { partitionChain, resolveChainHead } from '../core/red-evidence/chain.js';
 import { controlOperationKey } from '../core/red-evidence/operation-key.js';
-import { appendControlRecord, type AppendResult } from '../core/red-evidence/append.js';
+import {
+  appendControlRecord,
+  redEvidenceChainLockDir,
+  REASON_CORRUPT_CHAIN,
+  type AppendResult,
+} from '../core/red-evidence/append.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
@@ -116,24 +121,48 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         // exists on an UNQUARANTINED chain for the target. Setting is legal while
         // the chain is EMPTY or its head is a `quarantine` record; a run-record
         // head (red-assert / green-confirm / a recover reinstating one) freezes
-        // the binding — retire the assertion (quarantine) first. Read fresh here.
-        const evidence = store.readRedEvidence(args.storyId);
-        const chain = partitionChain(evidence?.records ?? [], args.storyId, acceptanceTargetRef);
-        const head = resolveChainHead(chain);
-        if (head && head.operation !== 'quarantine') {
-          throw new Error(
-            `red_evidence_binding_set: the target binding for "${acceptanceTargetRef}" is FROZEN — a run record exists on an ` +
-              `unquarantined chain (head operation "${head.operation}", §1.1.3). Quarantine the head first to rebind.`,
-          );
-        }
+        // the binding — retire the assertion (quarantine) first.
+        //
+        // F-009: the freeze READ and the binding WRITE MUST be serialized with
+        // chain appends (quarantine/recover) for THIS target, or a concurrent
+        // recover could reinstate a run head BETWEEN the read and the write and
+        // bypass the freeze. Hold the SAME per-(story,target) chain lock the
+        // append pipeline uses so the read+decision+write is atomic w.r.t.
+        // appends. (Lock order: binding lock outer, chain lock inner; chain
+        // appends take ONLY the chain lock, so no ordering cycle / deadlock.)
+        const chainLock = redEvidenceChainLockDir(store, args.storyId, acceptanceTargetRef);
+        return withMkdirLock(
+          chainLock,
+          () => {
+            const evidence = store.readRedEvidence(args.storyId);
+            const chain = partitionChain(evidence?.records ?? [], args.storyId, acceptanceTargetRef);
+            const head = resolveChainHead(chain);
+            // F-007: a NON-empty chain with no unique head is CORRUPT — never
+            // treat a null head from a malformed chain as "empty and settable"
+            // (mirror the append.ts corrupt-chain guard). Fail closed.
+            if (chain.length > 0 && head === null) {
+              throw new Error(
+                `red_evidence_binding_set: the target chain for "${acceptanceTargetRef}" has no unique head ` +
+                  `(${REASON_CORRUPT_CHAIN}, §3.2) — a malformed non-empty chain is not a settable/empty chain; nothing written.`,
+              );
+            }
+            if (head && head.operation !== 'quarantine') {
+              throw new Error(
+                `red_evidence_binding_set: the target binding for "${acceptanceTargetRef}" is FROZEN — a run record exists on an ` +
+                  `unquarantined chain (head operation "${head.operation}", §1.1.3). Quarantine the head first to rebind.`,
+              );
+            }
 
-        const existing = store.readRedTargetBindings(args.storyId) ?? emptyRedTargetBindingsFile(args.storyId);
-        const updated = appendTargetBinding(existing, { acceptanceTargetRef, adapterId, testCaseRef });
-        store.writeRedTargetBindings(args.storyId, updated);
+            const existing = store.readRedTargetBindings(args.storyId) ?? emptyRedTargetBindingsFile(args.storyId);
+            const updated = appendTargetBinding(existing, { acceptanceTargetRef, adapterId, testCaseRef });
+            store.writeRedTargetBindings(args.storyId, updated);
 
-        const digest = targetBindingDigest({ acceptanceTargetRef, adapterId, testCaseRef });
-        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'red_evidence_binding_set');
-        return `Target binding recorded for ${args.storyId} ${acceptanceTargetRef} → adapter=${adapterId} test=${testCaseRef} (targetBindingDigest ${digest})${commitHint}`;
+            const digest = targetBindingDigest({ acceptanceTargetRef, adapterId, testCaseRef });
+            const commitHint = autoCommitStoryMetadata(root, args.storyId, 'red_evidence_binding_set');
+            return `Target binding recorded for ${args.storyId} ${acceptanceTargetRef} → adapter=${adapterId} test=${testCaseRef} (targetBindingDigest ${digest})${commitHint}`;
+          },
+          { label: 'red-evidence chain (binding freeze)' },
+        );
       });
     },
 
@@ -143,7 +172,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
       reason: string;
       agent?: string;
       actor?: string;
-      approvedBy?: string; // caller value is DELIBERATELY IGNORED (§4.1).
+      approvedBy?: string; // caller value is REJECTED (§4.1) — approvedBy is DERIVED.
     }): string {
       return appendChainControl(ctx, {
         command: 'red_evidence_quarantine',
@@ -160,7 +189,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
       reason: string;
       agent?: string;
       actor?: string;
-      approvedBy?: string; // caller value is DELIBERATELY IGNORED (§4.1).
+      approvedBy?: string; // caller value is REJECTED (§4.1) — approvedBy is DERIVED.
     }): string {
       return appendChainControl(ctx, {
         command: 'red_evidence_recover',
@@ -178,7 +207,7 @@ interface ChainControlDispatch {
   operation: 'quarantine' | 'recover';
   linkKind: 'quarantines' | 'recovers';
   requiredHeadOperations: readonly ('red-assert' | 'green-confirm' | 'quarantine' | 'recover')[];
-  args: { storyId: string; recordId: string; reason: string; agent?: string; actor?: string };
+  args: { storyId: string; recordId: string; reason: string; agent?: string; actor?: string; approvedBy?: string };
 }
 
 function appendChainControl(ctx: HandlerContext, dispatch: ChainControlDispatch): string {
@@ -197,6 +226,18 @@ function appendChainControl(ctx: HandlerContext, dispatch: ChainControlDispatch)
   const reason = String(args.reason ?? '').trim();
   if (!recordId || !reason) {
     throw new Error(`${command}: recordId and reason must each be non-blank strings`);
+  }
+
+  // F-010 (§4.1): approvedBy is DERIVED as <actor>@<sessionId>; a free-form
+  // caller-supplied approvedBy "is not accepted". REJECT it (fail-closed) rather
+  // than silently ignoring it, so the unforgeable derivation is explicit at the
+  // registered surface — a caller cannot pass a value under the impression it is
+  // recorded.
+  if (args.approvedBy !== undefined) {
+    throw new Error(
+      `${command}: approvedBy is derived as <actor>@<sessionId>, not a caller argument (§4.1) — ` +
+        `remove the approvedBy field; nothing written.`,
+    );
   }
 
   try {
