@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Persist red-target-bindings.json through StoryStore with exactly one binding per acceptance target",
       "context": "packages/main/src/core/store.ts gains read/write for .lattice/story/actives/<id>/red-target-bindings.json (schema proofstory.red_target_bindings.v1); the store enforces the §1.1.3 uniqueness invariant of exactly one binding per acceptanceTargetRef (a second write for the same ref is a duplicate-target rejection, not an overwrite). Types in core/types.ts:69 area declare the binding entry and the v1 file shape.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-25T08:02:55.173Z",
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:34.112Z",
       "verificationIntent": {
         "happy": [
           {
