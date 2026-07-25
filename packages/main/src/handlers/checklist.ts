@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentType, VerificationLane } from '../core/types.js';
-import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import { buildVerificationCoverage, detectEvidenceRowContradiction, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
@@ -909,6 +909,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (args.waiverType && kind !== 'waiver') {
         throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
       }
+      const contradiction = detectEvidenceRowContradiction({ command: args.command, file: args.file });
+      if (contradiction) {
+        throw new Error(`verification_evidence_add: ${contradiction}`);
+      }
 
       return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
@@ -976,6 +980,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const kind = normalizeEvidenceKind(entry.kind);
         if (entry.waiverType && kind !== 'waiver') {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType can only be used with kind=waiver`);
+        }
+        const entryContradiction = detectEvidenceRowContradiction({ command: entry.command, file: entry.file });
+        if (entryContradiction) {
+          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} ${entryContradiction}`);
         }
         normalizedKinds.push(kind);
       }
@@ -1049,11 +1057,22 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         `${args.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${args.storyId}: ${stale.length}`,
       ];
       let refreshed = 0;
+      let refused = 0;
       for (const entry of stale) {
         const item = cl.items.find(i => i.id === entry.itemId);
         const existing = item?.verificationEvidence || [];
         const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
         const ev = idx >= 0 ? existing[idx] : entry.evidence;
+        // B-3b88 CHK-002: refresh only re-stamps freshness hashes; it never
+        // re-executes. A command-backed result:pass must therefore NOT be
+        // re-certified onto changed material — leave it stale so the operator
+        // re-runs it (verification_evidence_add), instead of laundering the pass.
+        const isCommandBackedPass = !!(ev && typeof ev.command === 'string' && ev.command.trim().length > 0 && ev.result === 'pass');
+        if (isCommandBackedPass) {
+          lines.push(`  - ${entry.intentRef}: ${ev?.command || 'command'} → REFUSED (command-backed pass; re-run to re-verify — refresh will not re-certify)`);
+          refused++;
+          continue;
+        }
         lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
         if (args.dryRun || !item || idx < 0 || !ev) continue;
         existing[idx] = makeEvidence({
@@ -1079,7 +1098,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (!args.dryRun) store.writeChecklist(args.storyId, cl);
       lines.push(args.dryRun
         ? '→ Rerun the above command without dryRun to refresh evidence metadata'
-        : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run lattice validate --story=${args.storyId} --json`);
+        : `Refreshed ${refreshed}/${stale.length} stale evidence item(s)${refused > 0 ? `, refused ${refused} command-backed pass row(s) — re-run to re-verify (refresh does not re-certify)` : ''}. Re-run lattice validate --story=${args.storyId} --json`);
       if (!args.dryRun) {
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_refresh_stale');
         if (commitHint) lines.push(commitHint.replace(/^\n/, ''));

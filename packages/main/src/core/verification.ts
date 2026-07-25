@@ -47,6 +47,50 @@ export function evidenceMatches(evidence: VerificationEvidence, ref: string): bo
   return evidence.intentRef === ref;
 }
 
+/** Matches a script-like path tail: .js/.ts/.cjs/.mjs/.cts/.mts. */
+const SCRIPT_EXT_RE = /\.(?:c|m)?[jt]s$/;
+
+/** Basename stem of a path-like token when it names a script file, else null. */
+function scriptFileStem(pathLike: string): string | null {
+  const base = (pathLike.trim().split(/[\\/]/).pop() || '');
+  if (!SCRIPT_EXT_RE.test(base)) return null;
+  return base.replace(SCRIPT_EXT_RE, '');
+}
+
+/** The target-file stem a command runs: the last script-like token, else null. */
+function commandTargetStem(command: string): string | null {
+  let stem: string | null = null;
+  for (const token of command.trim().split(/\s+/)) {
+    const s = scriptFileStem(token);
+    if (s) stem = s;
+  }
+  return stem;
+}
+
+/**
+ * B-3b88 CHK-001: detect an internally self-contradictory evidence row whose
+ * `command` names one target script and whose `file` field names a different
+ * one (F-049: command→gate-repeat-block-smoke.js, file→convergence-breaker-smoke.ts).
+ * Returns a human-readable reason when the two disagree, else null.
+ *
+ * Conservative by design (no false positives): only fires when BOTH a command
+ * target stem AND a file stem are derivable. Comparison is on the basename stem,
+ * so dist↔src and .js↔.ts spellings of the same target are NOT a contradiction;
+ * a command with no script argument (e.g. `npm test`) yields no stem and is allowed.
+ */
+export function detectEvidenceRowContradiction(row: { command?: string; file?: string }): string | null {
+  const command = typeof row.command === 'string' ? row.command.trim() : '';
+  const file = typeof row.file === 'string' ? row.file.trim() : '';
+  if (!command || !file) return null;
+  const cmdStem = commandTargetStem(command);
+  const fileStem = scriptFileStem(file);
+  if (!cmdStem || !fileStem) return null;
+  if (cmdStem !== fileStem) {
+    return `evidence row is self-contradictory: command targets "${cmdStem}" but the file field names "${fileStem}"`;
+  }
+  return null;
+}
+
 /**
  * B-4e06 CHK-002: the canonical command name that repairs the legacy
  * "evidence exists but verificationIntent missing" state. Referenced by both
