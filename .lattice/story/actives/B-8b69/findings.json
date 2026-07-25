@@ -94,6 +94,21 @@
       "resolvedAt": "2026-07-25T12:50:13.308Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8b69:F-006",
+      "desc": "transition-orchestrator.ts:892-912 (F-005 REOPEN checklist-reset): the readChecklist->mutate->writeChecklist reset runs AFTER persistClaim.release() (line 889), i.e. outside the atomic mkdir-claim critical section. This file's own R4/F-012 precedent (lines 876-885) deliberately co-located the sibling IDEA->PLAN checklistToWrite write INSIDE that same claim specifically so a checklist write tied to a phase transition is atomically conditional on it. The new reset has no such guarantee and no KNOWN-LIMITATION acknowledgment (unlike the claim's own documented OS-freeze residual just above it). If store.readChecklist/writeChecklist throws between story.phase already being committed to INIT (line 886) and the reset landing, the CLI surfaces a hard error while story.phase is ALREADY INIT with done/in_progress items NOT reset -- exactly the silent-tampering scenario F-005 exists to close. Worse: a retry of the same reopen then sees story.phase==='INIT' (not 'PLAN'), so eventType never becomes 'REOPEN' again and the reset can never re-run -- the story is permanently stuck with a stale done item retitlable at INIT with no re-verification. Suggest folding the reset into the persist critical section like checklistToWrite, or documenting the residual risk. Not blocking the common/tested path (fully synchronous, no await, transitionLock serializes same-story concurrency) but a real robustness gap on the exception path.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-25T15:11:52.004Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-005",
+      "_hash": "fd4c2f8726f2a541ca531560a0c40e574db991cb07953e870998d92eeb863eec",
+      "signatureTag": "edge|unknown|transition-orchestrator-reopen",
+      "signatureTagSource": "auto"
     }
   ]
 }
