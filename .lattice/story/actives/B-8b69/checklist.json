@@ -67,7 +67,17 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm --prefix packages/main test (or test:all) runs plan-init-reopen-roundtrip-smoke and it PASSES (GREEN) after the fix; the same smoke FAILS (RED) against pre-fix code.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ]
+      }
     }
   ]
 }
