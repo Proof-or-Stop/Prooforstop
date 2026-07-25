@@ -51,6 +51,39 @@
         "scanEscalationReason": null
       },
       "_hash": "d35c2624001e3b7db902f6a4adbed22cd83cd42b0cde5ce7661d570c1b3e37df"
+    },
+    {
+      "id": "B-8b69:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified my own F-006 (atomicity of the REOPEN checklist-reset) at HEAD a2a28f03a5 (fix commit e95284fd30). Read transition-orchestrator.ts:867-915 directly: the readChecklist->mutate->writeChecklist reset for eventType===REOPEN is now co-located INSIDE the mkdir persist-claim try block, between the checklistToWrite write and store.writeStory(story), before the finally{persistClaim.release()} -- same critical section as the R4/F-012 checklistToWrite precedent. It runs after the oldPhase re-read guard, so a losing concurrent transition aborts before either write. store.readChecklist/writeChecklist (store.ts:224-230) are synchronous fs-backed calls with no await in the block, matching the documented no-preemption argument. eventType is set to REOPEN in exactly one place (grep-confirmed), gated on args.phase===INIT && story.phase===PLAN, so the reset cannot fire for any other transition. Cross-checked machine.ts (canReopenToInitGuard, PLAN.on.REOPEN wired both in the xstate config and the parallel canSendStoryEventWithoutSnapshotCan switch), lifecycle-registry.ts (REOPEN edge PLAN->INIT with cwd-worktree gate), checklist.ts (title-freeze refusal message now correctly branches PLAN vs DEV guidance, matches command-policy allowedPhases=[INIT,PLAN,DEV] so REVIEW/TEST/DONE branches are unreachable dead paths that were removed), and worktree.ts resolveWorktreePath (now resolveMainRepoRoot() instead of getRepoRoot(), reusing the existing B-1a12 helper) plus the belt-and-suspenders storyRel worktreeDir/storyId prefix-strip. Independently ran dist/tasks/plan-init-reopen-roundtrip-smoke.js (PASS: seeds CHK-001 done, reopens PLAN->INIT, asserts reset to pending -- a real un-gamed repro of F-005/F-006) and dist/tasks/flow-stability-smoke.js (PASS: rebaselined PHASE_FLOW_TRANSITION_HEALTH_BASELINE_HASH is self-consistent). No dead code, no unsafe any-casts, no empty catch swallowing added by this diff; eventType/REOPEN typed consistently as string through the existing loosely-typed event pipeline. No blocker.",
+      "createdAt": "2026-07-25T15:24:22.315Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-008",
+      "envelopeId": "3e09367fbdc5af6b68c0475d079e3bde7abb85ac277e30ccbd467297483b2a9a",
+      "writerSessionId": "claude-code-8f6ba6c5-plan-init-reopen",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8b69/decision.json",
+          ".lattice/story/actives/B-8b69/findings.json",
+          ".lattice/story/actives/B-8b69/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d7ad83ffbe0ac2198e8d0546291a3d84c413ac4755c932aa7dee251664588345"
     }
   ]
 }
