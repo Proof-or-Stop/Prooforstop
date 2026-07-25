@@ -48,7 +48,15 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Attempting checklist_update of a title at PLAN prints a refusal that tells the user to story_advance --phase=INIT (not INIT_CHECK) to change title/context.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-004",
