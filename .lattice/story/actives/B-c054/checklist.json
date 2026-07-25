@@ -82,7 +82,43 @@
       "context": "The smoke asserts digestCanonicalJson (core/digest.ts:40, localeCompare sort at :27) yields a different digest for {\"B\":1,\"a\":2} plus null plus 1e21 plus -0, and that canonicalJsonForSigning (core/authority-signing.ts:79, null->undefined at :64) drops a priorRecordDigest: null field — a mechanical un-gameable proof recorded so no later reviewer re-litigates it and no implementer wires digest.ts in.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "canonDigest({B:1,a:2}) !== digestCanonicalJson({B:1,a:2}) → digests differ because localeCompare sorts {a,B} differently from code-unit sort; the exact two digests are frozen literals; WHY: proves digest.ts:27 localeCompare is wrong for CANON",
+            "type": "cli"
+          },
+          {
+            "desc": "canon({priorRecordDigest:null}) output contains \"priorRecordDigest\":null (field preserved) while canonicalJsonForSigning({priorRecordDigest:null}) output omits the field entirely → structural diff; WHY: proves authority-signing.ts:64 null→undefined drops chain-founding fields",
+            "type": "cli"
+          },
+          {
+            "desc": "Each differential assertion carries a one-line reason string naming the exact defect (\"digest.ts:27 localeCompare\" and \"authority-signing.ts:64 null→undefined\") → reasons are recorded in the smoke output; WHY: un-gameable proof that no later reviewer re-litigates",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The differential also covers -0 and 1e21 inputs: canonDigest({v:-0}) vs digestCanonicalJson({v:-0}) and canonDigest({v:1e21}) vs digestCanonicalJson({v:1e21}) → at least one pair differs (JSON.stringify -0 handling); WHY: numeric edge cases may accidentally unify",
+            "type": "cli"
+          },
+          {
+            "desc": "Before canon.ts exists, importing it fails (RED phase) → the import error is the RED evidence; WHY: proves the test genuinely fails before implementation",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An implementer wiring digestCanonicalJson instead of canonDigest in a later story would produce a different policyDigest → the frozen policyDigest literal in CHK-003 catches this substitution; WHY: the differential is the enforcement mechanism, not just documentation",
+            "type": "cli"
+          },
+          {
+            "desc": "canonicalJsonForSigning drops ALL null-valued fields (not just priorRecordDigest) → test with {a:null,b:1} shows canon preserves a while canonicalJsonForSigning drops it; WHY: proves the null-dropping is systematic, not a one-field accident",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
