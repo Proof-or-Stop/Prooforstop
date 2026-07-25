@@ -121,6 +121,35 @@
         "scanEscalationReason": null
       },
       "_hash": "ecffb6d99a188948a5fc2f17bdc893a1e1da065030e12a6ef139738fe636df8a"
+    },
+    {
+      "id": "B-8b69:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified my own prior finding (CHK-002 deleted-worktree adversarial: false-cited evidence + actually-broken dev_start) is genuinely fixed at bff69bdbfc, not re-gamed. worktree.ts dev_start now calls findWorktreeResidue+isUsableGitWorktree before git worktree add, and scopes removeStaleWorktreeAdminDirs(storyId,branch,worktreePath)+pruneWorktreeRegistry to THIS story only. Independently reproduced the underlying git failure mode in a scratch repo (delete a worktree dir without prune -> git worktree add fails fatal: missing but already registered worktree). Confirmed the smoke assertDevStartReuseFromMainAndRebootstrap no longer prunes in the test (only rmSync the dir, asserts dev_start self-heals). Ran the built smoke directly at HEAD bff69bdbfc: both suites pass GREEN. dist already reflects this fix (no rebuild). checklist.json CHK-002 edge/adversarial evidence carries fresh materialHash/timestamp distinct from the stale batch. finding_list shows all 7 findings resolved incl. my own F-007 with an accurate resolvedReason. All must-priority verificationIntent across CHK-001..CHK-004 have concrete pass-result evidence. intent_coverage_check: pass, non-blocking. No test-coverage gaps found.",
+      "createdAt": "2026-07-25T15:45:06.369Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-012",
+      "envelopeId": "b9f4fa7d2057c3d55ea9f67842a8e5672b50d7e857b97abc7e2d621bba3fab2e",
+      "writerSessionId": "claude-code-8f6ba6c5-plan-init-reopen",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8b69/background.md",
+          ".lattice/story/actives/B-8b69/checklist.json",
+          ".lattice/story/actives/B-8b69/plan.md",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8b69/findings.json",
+          ".lattice/story/actives/B-8b69/review-runs.json",
+          "packages/main/dist/handlers/worktree.js",
+          "packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "002379ab400f1b50489ea5b70d17780abe3ab605708a22046932af5157c9fdec"
     }
   ]
 }
