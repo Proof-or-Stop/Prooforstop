@@ -883,32 +883,35 @@ async function runStoryTransitionInner(
       if (checklistToWrite) {
         store.writeChecklist(args.storyId, checklistToWrite);
       }
+      // B-8b69 (F-005/F-006): reopening to INIT unfreezes the checklist title/context,
+      // so any item that already reached done/in_progress MUST be reset to pending —
+      // otherwise a story that went DEV -> REPLAN -> PLAN -> reopen could retitle an
+      // already-done item with no re-verification, silently decoupling the requirement
+      // from the delivered code (the tampering the INIT_CHECK freeze prevents, which
+      // decision.json promises the reopen preserves). This synchronous read-mutate-write
+      // is co-located INSIDE the atomic persist claim (F-006), right beside the phase
+      // writeStory: the reset and the phase=INIT write land together or not at all, so
+      // an exception can never leave phase=INIT with a stale done item that — since
+      // REOPEN only fires from PLAN — could never be re-triggered. It also aborts at the
+      // oldPhase re-read guard above with the phase write, so a loser concurrent
+      // transition never resets. No-op for the common case (all items already pending).
+      if (eventType === 'REOPEN') {
+        const reopenChecklist = store.readChecklist(args.storyId);
+        let reopenMutated = false;
+        for (const item of reopenChecklist.items) {
+          if (item.status === 'done' || item.status === 'in_progress') {
+            item.status = 'pending';
+            item.startTime = null;
+            item.endTime = null;
+            reopenMutated = true;
+          }
+        }
+        if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);
+      }
       store.writeStory(args.storyId, story);
     } finally {
       // Release only across the re-read→write critical section (milliseconds).
       persistClaim.release();
-    }
-
-    // B-8b69 (F-005): reopening to INIT unfreezes the checklist title/context, so
-    // any item that already reached done/in_progress MUST be reset to pending.
-    // Otherwise a story that went DEV -> REPLAN -> PLAN -> reopen could retitle an
-    // already-done item with no re-verification, silently decoupling the requirement
-    // from the delivered code — exactly the tampering the INIT_CHECK freeze exists to
-    // prevent, and which decision.json promises the reopen preserves. Resetting
-    // forces the changed requirement back through DEV/REVIEW before it can be DONE.
-    // No-op for the common case (a fresh PLAN story whose items are all pending).
-    if (eventType === 'REOPEN') {
-      const reopenChecklist = store.readChecklist(args.storyId);
-      let reopenMutated = false;
-      for (const item of reopenChecklist.items) {
-        if (item.status === 'done' || item.status === 'in_progress') {
-          item.status = 'pending';
-          item.startTime = null;
-          item.endTime = null;
-          reopenMutated = true;
-        }
-      }
-      if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);
     }
     if (!transitionGitCwd) {
       transitionGitCwd = resolveGitCwd({
