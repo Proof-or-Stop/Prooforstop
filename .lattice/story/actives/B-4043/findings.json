@@ -261,7 +261,7 @@
       "desc": "quality-cleanup: packages/main/src/handlers/proofstory.ts:12 imports type ScopeShrinkageDecisionData from ../core/types.js but never uses it anywhere in the file (only reference is the import statement itself). This is pre-existing dead code inherited unchanged from main during the merge (verified: main HEAD already has this exact same unused import at proofstory.ts:10 pre-merge), so the merge resolution itself faithfully preserved main state; the underlying dead import should still be dropped.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-25T10:54:19.644Z",
@@ -269,7 +269,11 @@
       "reviewRunId": "B-4043:RR-045",
       "_hash": "7928271ec043f65ed877781d4f43b4db395d771f6ec251e5fd85df9204a63ecd",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed unused ScopeShrinkageDecisionData import at proofstory.ts:12 (commit 8e4e36cbad); tsc build clean.",
+      "resolvedAt": "2026-07-25T22:06:25.675Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4043:F-014",
