@@ -127,7 +127,7 @@
       "desc": "[codex host-B D2] binding_set null head from a malformed non-empty chain is treated as empty and permits the write; mirror append.ts CORRUPT_CHAIN guard.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-25T12:33:13.337Z",
@@ -137,7 +137,11 @@
         "packages/main/src/handlers/red-evidence.ts"
       ],
       "signatureTag": "adversarial|ts|codex-host-binding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4fa4bbfad: handlers/red-evidence.ts:143 adds the corrupt-chain guard so a malformed non-empty chain with no unique head is never treated as an empty settable chain. Test red-w2c-binding-corrupt-chain.mjs PASS.",
+      "resolvedAt": "2026-07-25T22:34:25.505Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-008",
