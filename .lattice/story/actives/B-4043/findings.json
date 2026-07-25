@@ -318,6 +318,24 @@
       ],
       "signatureTag": "missing|json|checklist-json-verificationevidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4043:F-016",
+      "desc": "The identical boilerplate note propagated to ALL 16 verificationEvidence rows (CHK-001..CHK-005) contains a factually wrong quantitative claim: it says a prior F-011 correction fixed an original 47-commands claim to the bound commits actual count of 49 configured lattice validate commands. I verified via git show d008447f41:lattice.config.json (the exact bound headHash=d008447f4105c557b180944435d88c15205faf44 merge commit) that validate.commands.length=52, not 49, and an independent live lattice validate run at the current head today logs running 52 configured validate.command(s) and completes allPass=true. So the note text is wrong a second time (47 -> wrongly corrected to 49 -> actually 52). This does not affect the underlying pass/fail verdicts (I independently reran verify-process-fact-contract.mjs exit 0, proofstory-acceptance-rollout-smoke.js PASS 57 assertions, --issuer-mutations PASS 7 assertions, and the full validate suite allPass=true), but a repeated, twice-wrong self-corrected count inside gate-adjacent evidence notes is a data-integrity smell worth fixing so future readers/graders do not trust an uncorrected number.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T11:04:50.539Z",
+      "reviewRound": "2026-07-25T10:49:35.392Z",
+      "reviewRunId": "B-4043:RR-047",
+      "_hash": "2476dbdacd4e4ec0d9a9459097ec1e28ef219a1cd704073b5ec0d1b6c562fc8a",
+      "files": [
+        "checklist.json"
+      ],
+      "signatureTag": "edge|json|identical-boilerplate-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
