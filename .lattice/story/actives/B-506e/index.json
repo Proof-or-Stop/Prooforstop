@@ -4,7 +4,7 @@
   "title": "Land the v2 record chain plane behind red_evidence_quarantine and red_evidence_recover",
   "description": "Third implementation leaf (W2c) of the trusted RED-evidence subsystem spec. Implement the proofstory.red_evidence.v2 record union (§1.10 per-operation field sets, §0.4 nullability, recordDigest = CANON minus recordDigest), widen RedEvidenceData to a mixed v1/v2 records array, and — in the SAME commit — guard the existing v1 predicate redEvidenceRecordSatisfied to skip non-v1 records so a v2 record does not crash the LIVE enforce gate. Implement the chain plane (partition by (storyId,acceptanceTargetRef); §3.2 head uniqueness; the three §3.3 integrity checks with fork rejection as an independent store-corruption detector; the closed transition table with transitive cycle-safe effective-head resolution; the §3.4 operation-key preimages + deterministic record id; the §3.5 dedupe ordering; one-mkdir-claim serialization of the whole append) and land red_evidence_quarantine + red_evidence_recover (reusing W2b's proven wiring recipe) with derived approvedBy and the §1.1.3 binding-freeze rule.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "red-evidence",
@@ -65,11 +65,21 @@
       "user": "Harmonygo",
       "sessionId": "main-agent-s2s1-stable-f93ff408f3",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-25T12:11:38.694Z",
+      "branch": "story/B-506e",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-506e",
     "branch": "story/B-506e",
     "createdAt": "2026-07-25T10:04:35.788Z"
-  }
+  },
+  "currentReviewRound": "2026-07-25T12:11:38.694Z"
 }
