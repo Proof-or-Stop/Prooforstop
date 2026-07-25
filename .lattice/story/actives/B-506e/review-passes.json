@@ -78,6 +78,26 @@
         "scanEscalationReason": null
       },
       "_hash": "724d43c370f251fa56f831e1d36532ff9c1c1346cc2a4fb757d3f6740bc4f866"
+    },
+    {
+      "id": "B-506e:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round-2 confirmation: independently re-repro F-004 (v3 schemaVersion record) against rebuilt dist in a fresh temp story dir - now throws typed RedEvidenceSchemaError, never a bare TypeError; store.readRedEvidence fails closed at load, gate predicate is defense-in-depth. Ran all 9 committed red-w2c tests fresh against a clean tsc build - all 9 pass (schema-failclosed, gate-guard, binding-corrupt-chain, binding-freeze-race, head-consistency, quarantine-race, rejection-matrix, validate-registration, wiring-detectability). Read-reviewed new logic: (1) handlers/red-evidence.ts:133 nested lock - binding lock outer per-story then chain lock inner per-target via redEvidenceChainLockDir; append.ts chain-append pipeline takes only the chain lock, never the binding lock, so no reverse-order acquisition exists anywhere in the diff, hence no deadlock; withMkdirLock releases in finally so a throw in the inner lock cannot strand the outer lock; grepped writeRedTargetBindings - the only production call site is inside both locks. (2) append.ts:206 assertStoredControlRecordConsistent(head) runs unconditionally on every non-replay path after head is established non-null and before any field of head is trusted or written, matching the CONFLICT/nothing-written claim, confirmed by red-w2c-head-consistency.mjs including a non-vacuity control case. (3) approvedBy rejection at appendChainControl is shared by both red_evidence_quarantine and red_evidence_recover (confirmed by reading source); deriveApprovedBy always serializes actor-at-sessionId matching spec section 4.1 wording that a free-form approvedBy argument is not accepted. (4) corrupt-chain guard at handlers/red-evidence.ts:143 uses chain.length greater than 0 and head === null, mirrors append.ts, throws before any write, confirmed untouched-store by red-w2c-binding-corrupt-chain.mjs. Regression check: v1-only store verdict byte-identical (red-w2c-schema-failclosed.mjs part 5, red-w2c-gate-guard.mjs); mixed v1+v2 store does not throw and v1 verdict is byte-identical with the v2 record present (red-w2c-gate-guard.mjs). No new defects found. Did not run the full lattice validate 52-command suite in this shared worktree after observing multiple other lattice validate processes concurrently rebuilding and racing dist for other stories and reviewers; relied instead on a clean isolated tsc build plus the 9 targeted committed regression tests plus an independent from-scratch repro script, consistent with the read-only no-shared-dist-race review constraint.",
+      "createdAt": "2026-07-25T22:48:29.405Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-012",
+      "envelopeId": "13ab1cd64936bcbfd7e27b752efe30f6c35ec7f7ee4012ba40b3770e38fddc1c",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "single candidate doc exists for this story topic; full read performed directly"
+      },
+      "_hash": "8da4a46e26a69d01496e9bf6b5e2b5bfa347fe78ebedf7ef76d5883a2a69b8ed"
     }
   ]
 }
