@@ -59,9 +59,12 @@ import {
   effectiveHeadOperation,
   isTransitionLegal,
   isRetiredByQuarantine,
+  resolveGoverningRedAssert,
+  checkGreenConfirmTarget,
   REASON_SEQ_INVALID,
   REASON_PRIOR_DIGEST_MISMATCH,
   REASON_CHAIN_FORK,
+  REASON_ILLEGAL_TRANSITION,
 } from '../core/red-evidence/chain.js';
 import { appendControlRecord, RedEvidenceChainError, REASON_STORE_CORRUPTION } from '../core/red-evidence/append.js';
 import { StoryStore } from '../core/store.js';
@@ -300,6 +303,28 @@ try {
     const q2 = makeControl('quarantine', 'B-e', 'AB-001', 4, r.recordDigest, r.id, r.id, r.recordDigest, 'second');
     const r2 = makeControl('recover', 'B-e', 'AB-001', 5, q2.recordDigest, q2.id, q2.id, q2.recordDigest, 'undo2');
     assert.equal(effectiveHeadOperation([ra, q, r, q2, r2], r2), 'red-assert', 'two transitive recover levels');
+
+    // CHK-005:edge:2 — a green-confirm candidate is ADMITTED iff its
+    // confirmsRecordId names the chain's CURRENT governing red-assert; a
+    // foreign/stale target is REJECTED with the transition-table reason,
+    // REGARDLESS of chain ordering. This exercises the declared table branch
+    // directly (the green-confirm WRITER is W2e) via checkGreenConfirmTarget over
+    // a synthetic in-memory records[] fixture — no green-confirm command needed.
+    // `raOther` is a genuine but NON-governing red-assert (a different target).
+    const raOther = synthRedAssert({ storyId: 'B-e', acceptanceTargetRef: 'AB-OTHER', seq: 1, priorRecordDigest: null, supersedes: null });
+    // (a) simplest chain: the effective head IS the governing red-assert.
+    assert.ok(checkGreenConfirmTarget([ra], ra, { confirmsRecordId: ra.id }).ok,
+      'green-confirm confirming the governing red-assert is ADMITTED');
+    const foreignSimple = checkGreenConfirmTarget([ra], ra, { confirmsRecordId: raOther.id });
+    assert.equal(foreignSimple.ok, false, 'a green-confirm confirming a foreign red-assert is REJECTED');
+    assert.equal(foreignSimple.reasonId, REASON_ILLEGAL_TRANSITION, 'the rejection carries the transition-table reason id (REASON_ILLEGAL_TRANSITION)');
+    // (b) regardless of ordering: red-assert -> quarantine -> recover, whose
+    // effective head resolves TRANSITIVELY back to the governing red-assert.
+    assert.equal(resolveGoverningRedAssert([ra, q, r], r)?.id, ra.id, 'governing red-assert resolves transitively through recover');
+    assert.ok(checkGreenConfirmTarget([ra, q, r], r, { confirmsRecordId: ra.id }).ok,
+      'after quarantine+recover, a green-confirm confirming the reinstated governing red-assert is ADMITTED');
+    assert.equal(checkGreenConfirmTarget([ra, q, r], r, { confirmsRecordId: raOther.id }).reasonId, REASON_ILLEGAL_TRANSITION,
+      'a green-confirm confirming a non-governing id is REJECTED even after quarantine+recover');
 
     // Cycle safety: a self-referential recover terminates (bounded, no stack overflow).
     const selfRec = makeControl('recover', 'B-e', 'AB-002', 1, null, 'REC-self', 'REC-self', 'sha256:self', 'loop');

@@ -114,18 +114,20 @@ export function checkChainIntegrity(
 }
 
 /**
- * §3.3 / §4.1 effective head operation. The head's operation, EXCEPT a `recover`
- * head resolves to the operation of the record it reinstates, walked
+ * §3.3 / §4.1 effective-head RECORD resolution. Returns the head record itself,
+ * EXCEPT a `recover` head resolves to the record it reinstates, walked
  * TRANSITIVELY through chained recovers. Cycle-safe: a self-referential or
  * looping recover chain TERMINATES (a `visited` set stops the walk on a repeat).
  *
- * Returns `'empty'` when the chain has no head.
+ * Returns `null` when the chain has no head. This is the single source of truth
+ * for the effective head; {@link effectiveHeadOperation} and
+ * {@link resolveGoverningRedAssert} both project from it.
  */
-export function effectiveHeadOperation(
+function resolveEffectiveHeadRecord(
   chain: readonly RedEvidenceRecordV2[],
   head: RedEvidenceRecordV2 | null,
-): RedEvidenceOperation | 'empty' {
-  if (!head) return 'empty';
+): RedEvidenceRecordV2 | null {
+  if (!head) return null;
   const byId = new Map<string, RedEvidenceRecordV2>(chain.map((record) => [record.id, record]));
   const visited = new Set<string>();
   let current: RedEvidenceRecordV2 | undefined = head;
@@ -140,7 +142,48 @@ export function effectiveHeadOperation(
     if (!reinstated) break;
     current = reinstated;
   }
-  return current ? current.operation : 'empty';
+  return current ?? null;
+}
+
+/**
+ * §3.3 / §4.1 effective head operation. The head's operation, EXCEPT a `recover`
+ * head resolves to the operation of the record it reinstates, walked
+ * TRANSITIVELY through chained recovers. Cycle-safe (see
+ * {@link resolveEffectiveHeadRecord}).
+ *
+ * Returns `'empty'` when the chain has no head.
+ */
+export function effectiveHeadOperation(
+  chain: readonly RedEvidenceRecordV2[],
+  head: RedEvidenceRecordV2 | null,
+): RedEvidenceOperation | 'empty' {
+  const record = resolveEffectiveHeadRecord(chain, head);
+  return record ? record.operation : 'empty';
+}
+
+/**
+ * §3.3 governing-red-assert derivation. The red-assert record that currently
+ * governs a chain — the record every green-confirm on this chain must confirm.
+ * It is the EFFECTIVE head when that resolves to a `red-assert`; when the
+ * effective head is a `green-confirm` it is the red-assert that green-confirm
+ * names via `confirmsRecordId` (a re-confirmation governs through its own
+ * confirmed assertion). Returns `null` when no red-assert governs (empty chain,
+ * a broken/cyclic recover residue, or a green-confirm whose `confirmsRecordId`
+ * does not resolve to a red-assert).
+ */
+export function resolveGoverningRedAssert(
+  chain: readonly RedEvidenceRecordV2[],
+  head: RedEvidenceRecordV2 | null,
+): RedEvidenceRecordV2 | null {
+  const effective = resolveEffectiveHeadRecord(chain, head);
+  if (!effective) return null;
+  if (effective.operation === 'red-assert') return effective;
+  if (effective.operation === 'green-confirm') {
+    const byId = new Map<string, RedEvidenceRecordV2>(chain.map((record) => [record.id, record]));
+    const governed = byId.get(effective.confirmsRecordId);
+    return governed && governed.operation === 'red-assert' ? governed : null;
+  }
+  return null;
 }
 
 /**
@@ -163,6 +206,48 @@ export function isTransitionLegal(
   next: RedEvidenceOperation,
 ): boolean {
   return TRANSITION_TABLE[effectiveHeadOp].has(next);
+}
+
+/**
+ * §3.3 green-confirm TARGET legality. A green-confirm candidate is ADMISSIBLE
+ * only when BOTH (a) `green-confirm` is a legal successor of the chain's
+ * effective head operation AND (b) its `confirmsRecordId` names the chain's
+ * current governing red-assert (see {@link resolveGoverningRedAssert}). A
+ * candidate whose `confirmsRecordId` is a foreign or stale id is REJECTED with
+ * {@link REASON_ILLEGAL_TRANSITION}, regardless of chain ordering — the
+ * green-confirm must confirm the SAME governing assertion, not an old or foreign
+ * one. (The green-confirm WRITER is W2e; this is the append-validation predicate
+ * it will call, exercisable in isolation over a synthetic `records[]` fixture.)
+ */
+export function checkGreenConfirmTarget(
+  chain: readonly RedEvidenceRecordV2[],
+  head: RedEvidenceRecordV2 | null,
+  candidate: { confirmsRecordId: string },
+): ChainIntegrityResult {
+  const effectiveOp = effectiveHeadOperation(chain, head);
+  if (!isTransitionLegal(effectiveOp, 'green-confirm')) {
+    return {
+      ok: false,
+      reasonId: REASON_ILLEGAL_TRANSITION,
+      message: `green-confirm refused: illegal transition from effective head operation "${effectiveOp}"`,
+    };
+  }
+  const governing = resolveGoverningRedAssert(chain, head);
+  if (!governing) {
+    return {
+      ok: false,
+      reasonId: REASON_ILLEGAL_TRANSITION,
+      message: 'green-confirm refused: no governing red-assert resolves for this chain',
+    };
+  }
+  if (candidate.confirmsRecordId !== governing.id) {
+    return {
+      ok: false,
+      reasonId: REASON_ILLEGAL_TRANSITION,
+      message: `green-confirm refused: confirmsRecordId ${JSON.stringify(candidate.confirmsRecordId)} does not name the current governing red-assert ${JSON.stringify(governing.id)}`,
+    };
+  }
+  return { ok: true };
 }
 
 /**
