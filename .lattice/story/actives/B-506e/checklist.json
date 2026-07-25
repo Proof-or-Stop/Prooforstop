@@ -302,9 +302,9 @@
       "id": "CHK-006",
       "title": "Derive the three operation-key preimages and the deterministic record id from the digest body",
       "context": "packages/main/src/core/red-evidence/operation-key.ts derives the three §3.4 (1000-1050) operation-key preimages and normalizedReason, and the deterministic record id `<OP>-first12hex(operationKey)-<seq>`; first12hex reuses the W2a helper over the 64-hex body excluding the sha256: prefix.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:17:54.126Z",
       "verificationIntent": {
         "happy": [
           {
@@ -348,7 +348,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "control operationKey excludes approvedBy + priorRecordDigest/seq; normalizedReason collapses whitespace; deriveRecordId; chain-smoke section 5 (commit 3976bccb2e)",
+          "headHash": "a0951d30efbd9b37e79df3067bed4a587f4e5e07",
+          "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
+          "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
+          "timestamp": "2026-07-25T11:17:54.307Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
