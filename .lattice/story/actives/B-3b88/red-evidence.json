@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3b88",
+  "records": [
+    {
+      "id": "RED-20260725224057",
+      "trigger": "verification_evidence_add accepts an evidence row whose command and file fields name contradictory targets (F-049/F-050)",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "aa1f64807003635dccddd8149ef1209d63216a11",
+      "baselineMaterialHash": "dc74448b08db2f9a5ef5c7655d0f835467e966d57d4e89535de4d4e6573e8212",
+      "observedFailure": "The contradictory add (command=gate-repeat-block-smoke.js, file=convergence-breaker-smoke.ts) is accepted with no refusal; the RED smoke asserts a throw and fails with 'Missing expected exception'.",
+      "failingCommand": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js"
+      },
+      "createdAt": "2026-07-25T22:40:57.108Z"
+    },
+    {
+      "id": "RED-20260725224111",
+      "trigger": "verification_evidence_refresh_stale re-certifies a stale command-backed result:pass onto current material without re-execution (laundering channel; F-045/F-046/F-047)",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "aa1f64807003635dccddd8149ef1209d63216a11",
+      "baselineMaterialHash": "dc74448b08db2f9a5ef5c7655d0f835467e966d57d4e89535de4d4e6573e8212",
+      "observedFailure": "refresh_stale re-stamps a command-backed result:pass row's headHash to current (9df4c6…) instead of leaving it stale; the RED smoke asserts headHash stays 0000… and fails.",
+      "failingCommand": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js"
+      },
+      "createdAt": "2026-07-25T22:41:11.920Z"
+    }
+  ],
+  "createdAt": "2026-07-25T22:40:57.108Z",
+  "updatedAt": "2026-07-25T22:41:11.920Z"
+}
