@@ -47,7 +47,7 @@
       "desc": "CHK-001:adversarial:0 evidence note is stale after the eff4404936 fix. Note text (.lattice/story/actives/B-c054/checklist.json, CHK-001 verificationEvidence, intentRef CHK-001:adversarial:0) reads: 'smoke:81-83 builds lone surrogate key \\uD800 and asserts canon produces deterministic {\\\"\\\\ud800\\\":1} not silent corruption'. That describes the PRE-FIX behavior. The actual code at packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:81-89 and packages/main/tests/red/red-w2a-canon-differential.mjs:80-90 now asserts the OPPOSITE (F-CX1, RFC 8785 3.2.2.2): assert.throws(() => canon(lone)) etc. Independently confirmed live: canon({\"\\uD800\":1}) throws Error CANON: lone surrogate in member name terminates canonicalization, it does NOT return the string {\"\\ud800\":1}. The command still passes and the intent's either-throws-or-deterministic wording is technically satisfied by the throw branch, so this is not a coverage gap, but the note materially misdescribes current runtime behavior (silent/deterministic vs hard throw) and would mislead a future auditor who trusts the note instead of re-running the test, contrary to this story's own un-gameable-proof goal. Fix: update the note to describe the throw-based F-CX1 assertion.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T04:44:03.544Z",
@@ -60,7 +60,11 @@
         ".lattice/story/actives/B-c054/checklist.json"
       ],
       "signatureTag": "adversarial|ts|adversarial-evidence-note",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: CHK-001:adversarial:0 evidence note re-bound to describe current throw-on-lone-surrogate behavior; bound test passes.",
+      "resolvedAt": "2026-07-25T05:07:15.573Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
