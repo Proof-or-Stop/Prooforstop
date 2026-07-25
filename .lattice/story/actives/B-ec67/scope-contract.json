@@ -1,0 +1,42 @@
+{
+  "storyId": "B-ec67",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/done-required-validation.ts"
+  ],
+  "scopeChangeReason": "done-required-validation.ts is referenced (reuse sha256/outputTail + receipt-command-mismatch convention) but NOT modified. verification_evidence_refresh_stale is owned by B-3b88 (Step 1) and must not change.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-25T23:37:48.943Z",
+  "updatedAt": "2026-07-25T23:37:48.943Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/verification.ts": "packages/main/src/core/verification.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts"
+  }
+}

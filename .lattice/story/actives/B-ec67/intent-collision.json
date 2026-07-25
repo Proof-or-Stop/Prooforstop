@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-ec67",
+  "id": "IC-20260725233748",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Enforcement FLOOR only: pin verification:{command,selector} on the intent (added on first evidence write, immutable), route BOTH verification_evidence_add and verification_evidence_batch_add through one shared enforce-and-stamp helper that executes the pinned command via the existing executor and refuses on exit!=0-but-pass / selector-absent / intentRef-unresolved / command-mismatch, stamp a receipt (exitCode/outputDigest/outputTail) with result derived from the exit, demote manual|docs in buildVerificationCoverage so they cannot cover an executable intent, and grandfather legacy prose-only evidence. Excludes verification_run + PreToolUse seatbelt (①b), refresh_stale (B-3b88), Step 3/4.",
+  "acceptedInterpretationHash": "sha256:de5a66915270bd851ae463a114d322504aabf80ce6bffac9013b2b1daefe9956",
+  "notes": "Chosen over a bare expectedCommand field (insufficient; still trusts result) and over shipping only verification_run (leaves the trusted add-path open). Reuses executor + receipt shape + allowlist.",
+  "createdAt": "2026-07-25T23:37:48.344Z",
+  "updatedAt": "2026-07-25T23:37:48.344Z"
+}
