@@ -267,11 +267,11 @@
           "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
-          "note": "The smoke passes GREEN after the fix (exit 0, prints the pass line), driving the full round-trip entirely inside the worktree.",
-          "headHash": "d440c60d8faec5a5e36d7d1bf311165eb81a3a3f",
-          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
-          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
-          "timestamp": "2026-07-25T12:00:21.521Z"
+          "note": "Re-bound to current material: the plan-init-reopen round-trip smoke passes GREEN after the fix (exit 0, both suites). Verified at current HEAD.",
+          "headHash": "f6b4ec794b17d66fec29dbc49462670c535f7e4e",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:27:27.165Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
