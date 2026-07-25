@@ -114,6 +114,23 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-binding",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-008",
+      "desc": "[codex host-B D1] append.ts head consistency (assertStoredControlRecordConsistent) is validated ONLY on a dedupeHit; a fresh non-replay quarantine/recover trusts the resolved head's stored recordDigest/operationKey/id without recomputation, silently extending a corrupt head. Per section 3.5 extend the recompute/CONFLICT-with-nothing-written check to the resolved head before it is used as the prior link.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-25T12:33:43.087Z",
+      "reviewRound": "2026-07-25T12:11:38.694Z",
+      "_hash": "21afa9e1a474a285ccc7d2a9b4bd4f4ed0714a970af473ea66ee9b236cd5aa36",
+      "files": [
+        "packages/main/src/core/red-evidence/append.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-append",
+      "signatureTagSource": "auto"
     }
   ]
 }
