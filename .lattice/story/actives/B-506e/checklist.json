@@ -126,7 +126,51 @@
       "context": "packages/main/src/core/red-evidence/chain.ts partitions records by (storyId, acceptanceTargetRef); head resolution implements BOTH §3.2 (lines 957-964) conjuncts; the three §3.3 (965-992) integrity checks run with FORK rejection as an INDEPENDENT store-corruption/concurrency detector whose reason id is DISTINCT from the prior-digest (check 2) rejection.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Single-record chain (seq=1): resolveHead returns that record; verify conjunct (a) no other record references its priorRecordDigest AND conjunct (b) maximal seq; WHY: simplest chain, both conjuncts must hold simultaneously",
+            "type": "cli"
+          },
+          {
+            "desc": "Three-record chain (seq 1,2,3): resolveHead returns seq=3 record; partitioning by (storyId, acceptanceTargetRef) isolates it from other targets; WHY: multi-record head resolution + partitioning correctness",
+            "type": "cli"
+          },
+          {
+            "desc": "Integrity check 1 passes: newRecord.seq == head.seq + 1 (exactly, no gaps); check 2 passes: newRecord.priorRecordDigest == head.recordDigest; check 3 passes: no existing record claims the same priorRecordDigest; WHY: all three checks pass on a well-formed append",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Chain-founding record (seq=1, priorRecordDigest=null) on empty chain: all three checks pass — check 1 sees seq==1 on empty (correct), check 2 sees null==null (correct), check 3 has nothing to fork against; WHY: empty-chain boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "Two targets (AB-001, AB-002) in same store with same storyId: appending to AB-002 chain does NOT affect AB-001 head; head resolution is per-target; WHY: §3.2 distinct targets chains are independent",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fork attempt: two records both claim the same priorRecordDigest as their prior link; first admitted, second REJECTED by check 3 (fork rejection) with a reason id that is DISTINCT from check 2 prior-digest-mismatch; verify both reason ids exist and differ; WHY: RED signal C — fork rejection must be an independent detector from prior-digest link failure",
+            "type": "cli"
+          },
+          {
+            "desc": "Seq gap: head.seq=1, append with seq=3 → rejected by check 1 with seq-gap diagnostic; WHY: gaps create uncheckable holes in the chain",
+            "type": "cli"
+          },
+          {
+            "desc": "Seq reuse: head.seq=2, append with seq=2 → rejected by check 1 with seq-reuse diagnostic; WHY: reuse would create two records at the same position",
+            "type": "cli"
+          },
+          {
+            "desc": "Prior-digest mismatch: append with priorRecordDigest that does not match head.recordDigest → rejected by check 2; verify this rejection reason id is DISTINCT from check 3 fork rejection; WHY: check 2 and check 3 detect different failure modes (broken link vs contested link) and must have independent diagnostics",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
