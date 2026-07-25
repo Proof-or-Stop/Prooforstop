@@ -302,7 +302,39 @@
       "context": "Create packages/main/src/tasks/red-evidence-target-binding-smoke.ts covering the store uniqueness, the createdAt-strip digest both directions, the expectedRedTargets same-set + membership gate, the committed-tree reader, the owner-lease/foreign-lease rejection, and the full registration surface; register it in lattice.config.json validate.commands. Prove NO existing gate verdict changes: redEvidenceSatisfied / missingRedEvidence and all existing gates are untouched (this story adds a store + command, rewires no gate).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice validate (full suite) -> red-evidence-target-binding-smoke passes (exit 0, listed in validate output); WHY: proves the smoke is registered in lattice.config.json validate.commands and executes successfully",
+            "type": "cli"
+          },
+          {
+            "desc": "Run red-evidence-target-binding-smoke standalone -> passes, covering store uniqueness, createdAt-strip digest both directions, expectedRedTargets same-set + membership gate, committed-tree reader, and owner-lease/foreign-lease rejection; WHY: proves the smoke exercises all behavioral RED signals",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Grep lattice.config.json validate.commands -> includes the literal string red-evidence-target-binding-smoke; WHY: independent verification the smoke is registered",
+            "type": "cli"
+          },
+          {
+            "desc": "Capture redEvidenceSatisfied and missingRedEvidence output for a representative story before and after the change -> values are IDENTICAL; WHY: proves this story adds no gate evaluation changes",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run the full existing gate verdicts (all gates that predate this story) before and after -> every verdict is unchanged; WHY: proves the store+command wiring introduces no unintended side-effects on existing gate logic",
+            "type": "cli"
+          },
+          {
+            "desc": "Remove red-evidence-target-binding-smoke from lattice.config.json validate.commands and run lattice validate -> the smoke is NOT executed (validate still passes but without the smoke); re-add it -> smoke runs; WHY: proves registration is the sole mechanism that activates the smoke in the validate suite",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
