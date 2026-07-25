@@ -76,7 +76,10 @@ export type AgentDispatchMutationCommand =
   | 'finding_add'
   | 'review_pass_set'
   | 'delivery_check_set'
-  | 'finding_resolve';
+  | 'finding_resolve'
+  // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
+  // implementer registers the per-story target binding before a RED run.
+  | 'red_evidence_binding_set';
 
 export type AgentDispatchReviewerLane =
   | 'lattice-review-story-init'
