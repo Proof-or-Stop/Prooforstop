@@ -4,6 +4,7 @@
   "usage": "From inside the story worktree at PLAN: lattice story_advance '{\"storyId\":\"B-x\",\"phase\":\"INIT\",\"reason\":\"<why the frozen title must change>\"}'. Then edit the title with checklist_update (editable only at INIT), re-run INIT review, and re-advance INIT_CHECK -> PLAN. Omitting the reason, or reopening from a non-PLAN phase, is refused.",
   "expectedOutcome": "A maintainer whose PLAN scope review flagged a frozen checklist title can reopen to INIT, fix the title, re-review, and re-advance entirely from inside the worktree, with no git surgery and no hand-edited checklist.json.",
   "actualTranscript": "$ lattice story_advance '{\"storyId\":\"B-x\",\"phase\":\"INIT\",\"reason\":\"scope review flagged the frozen title\"}'\nStory B-x advanced to INIT\n$ lattice checklist_update '{\"storyId\":\"B-x\",\"itemId\":\"CHK-001\",\"title\":\"<corrected deliverable-naming title>\"}'\n(title updated)\n$ lattice story_advance '{\"storyId\":\"B-x\",\"phase\":\"INIT_CHECK\"}'\nStory B-x advanced to INIT_CHECK   (reuses the existing worktree; no 'does not contain .worktrees/...' error)",
+  "outcomeDiff": "Actual matches expected with no divergence: the round-trip smoke drives exactly the designed flow — reopen PLAN->INIT with a reason, edit the title at INIT, re-freeze + re-run INIT review, re-advance INIT_CHECK->PLAN, all from inside the worktree, and the corrected title survives; the reopen resets a seeded done item to pending; a non-PLAN reopen and a reason-less reopen are refused; dev_start reuses an existing worktree and re-bootstraps a deleted one. RED->GREEN confirmed (pre-fix: 'Cannot transition from PLAN to INIT'). The only deltas from an ideal outcome are three codex-flagged LOW items (the reason is validated but not yet persisted so 'auditable' is aspirational; the reset is concurrency-atomic not crash-transactional; the deleted-worktree prune also clears unrelated already-missing registrations) — captured as limitations plus a spawned follow-up task, not behavior divergences.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
@@ -35,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 772351
+      "durationMs": 1985739
     }
   },
-  "totalDurationMs": 21719945,
+  "totalDurationMs": 22933333,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-25T16:44:35.787Z",
-  "updatedAt": "2026-07-25T16:44:35.787Z"
+  "updatedAt": "2026-07-25T17:04:49.176Z"
 }
