@@ -19,9 +19,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Necessary out-of-scope rebaseline of the B-3740 phase-flow regression guard: the in-scope machine change (new gated PLAN->INIT reopen edge) legitimately adds INIT to PLAN.allowedRollback and changes the phase-flow transition-health hash. Updated the expected getPhaseInfo(PLAN).allowedRollback to [INIT] and the baseline hash to match; no behavior change beyond the intended new edge.",
+      "timestamp": "2026-07-25T11:26:17.769Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6495f3199d9c00e15ff23a0942b9ec2002852a9f",
+      "materialHash": "be69ab40454231f1bbf57ad9460d45aee6db9a6609dc73d846c4a13432664f5f"
+    }
+  ],
   "createdAt": "2026-07-25T10:57:58.509Z",
-  "updatedAt": "2026-07-25T10:57:58.509Z",
+  "updatedAt": "2026-07-25T11:26:17.769Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -32,6 +49,7 @@
     "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
   }
 }

@@ -643,7 +643,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // checklist is the truth source; executors (main agent / subagent) cannot tamper with the requirement definition during execution
       //
       // B-9d95 CHK-008: userSees is split out from the protection scope of title/context and gated separately
-      //   - title/context are protected from INIT_CHECK onward (PLAN modifications are rejected, requires story_advance back to INIT_CHECK)
+      //   - title/context are protected from INIT_CHECK onward (PLAN modifications are rejected). To change them, reopen to INIT via `story_advance --phase=INIT` from PLAN — INIT is the ONLY phase where title/context is editable (B-8b69). INIT_CHECK stays protected, so the scope-freeze invariant is preserved.
       //   - userSees is a PLAN artifact (see CLAUDE.md checklist conventions), allowed to be added/modified during the PLAN phase,
       //     frozen from DEV onward (the executor must not tamper with the acceptance description during implementation)
       const story = assertChecklistMutationCwd(store, args.storyId);
@@ -663,7 +663,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error(
           `${attemptedTitleContext.join('/')} of ${args.itemId} cannot be modified during the ${story.phase} phase. ` +
           `checklist is the source of truth; from INIT_CHECK onward the executor must not tamper with requirement definitions. ` +
-          `To change title/context, first story_advance back to INIT_CHECK`
+          `To change title/context, reopen to INIT — the only phase where they are editable: ` +
+          `${story.phase === 'PLAN'
+            ? `run lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why the frozen title must change>"}', edit, then re-run INIT review and re-advance`
+            : `first roll back to PLAN, then run lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'`}. ` +
+          `(INIT_CHECK stays frozen, so the scope-freeze invariant is preserved.)`
         );
       }
 

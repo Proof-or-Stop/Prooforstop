@@ -480,10 +480,24 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     );
   }
 
-  /** Resolve the worktree.path stored in story (may be relative or absolute) to an absolute path */
+  /**
+   * Resolve the worktree.path stored in story (may be relative or absolute) to an
+   * absolute path.
+   *
+   * B-8b69: a stored relative worktree.path (e.g. `.worktrees/B-xxx`) is ALWAYS
+   * relative to the MAIN repo root (that is where the `.worktrees` dir lives), so it
+   * must be joined against the main repo root — resolved via `resolveMainRepoRoot()`
+   * (`git rev-parse --git-common-dir`) which returns the main checkout even when the
+   * command runs from INSIDE a linked worktree. The previous `getRepoRoot()`
+   * (`--show-toplevel`) returned the worktree itself when invoked from within one,
+   * so `join(worktree, ".worktrees/B-xxx")` double-nested to a non-existent path —
+   * defeating dev_start's existing-worktree reuse check and forcing a spurious
+   * re-bootstrap. From the main root the two resolutions are identical, so this is
+   * byte-identical for every from-main caller.
+   */
   function resolveWorktreePath(storedPath: string): string {
     if (isAbsolute(storedPath)) return storedPath;
-    return join(getRepoRoot(), storedPath);
+    return join(resolveMainRepoRoot(), storedPath);
   }
 
   function branchExists(branch: string, cwd: string = root): boolean {
@@ -885,7 +899,22 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const storyAbs = join(root, store.storyDirRel().replace(/\/$/, ''), args.storyId);
       const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
       const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
-      const storyRel = relative(canonicalRepoRoot, canonicalStoryAbs).replace(/\\/g, '/');
+      let storyRel = relative(canonicalRepoRoot, canonicalStoryAbs).replace(/\\/g, '/');
+      // B-8b69 defense-in-depth: when this bootstrap runs from INSIDE a linked
+      // worktree, `root` (the metadata root) is `<main>/<worktreeDir>/<id>` while
+      // `repoRoot` is the main checkout, so the relative path gains a
+      // `<worktreeDir>/<id>/` prefix that does NOT exist on the story branch (whose
+      // metadata lives at storyDirRel from the tree root) — making the branch-content
+      // guard below false-fail on a nested path. Strip that exact prefix so the guard
+      // checks the canonical `storyDirRel/<id>`. The primary fix (resolveWorktreePath
+      // resolving against the main repo root) makes dev_start's reuse check
+      // early-return before reaching here, so this is belt-and-suspenders. Only the
+      // precise `<worktreeDir>/<id>/` shape is stripped, so wrapper-root/gitRoot
+      // layouts (where the metadata root is a non-worktree subdir) are unaffected.
+      const worktreeNestPrefix = `${worktreeDir.replace(/\/+$/, '')}/${args.storyId}/`;
+      if (storyRel.startsWith(worktreeNestPrefix)) {
+        storyRel = storyRel.slice(worktreeNestPrefix.length);
+      }
       // Fail closed with a clear message when story metadata is not inside the
       // resolved git root (mirrors the cli-engine reconcile guard); otherwise the
       // scoped `git add` would fail with an opaque "outside repository" error.
