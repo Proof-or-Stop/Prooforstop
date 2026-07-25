@@ -137,6 +137,49 @@
         "scanEscalationReason": null
       },
       "_hash": "d1251639289e14a3b95d95bb718e051fab88d7f18ef7fcfed847742af2b3109d"
+    },
+    {
+      "id": "B-506e:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge fresh-pass re-review after merge cf7050d95e (main->story, 86 commits, no conflicts). Re-verified: (1) all 5 W2c source files (append.ts, record-v2.ts, proofstory.ts, handlers/red-evidence.ts, store.ts) byte-identical to fix commit b4fa4bbfad; (2) 94 verificationIntent entries across 12 checklist items map 1:1 to 94 verificationEvidence entries, zero missing/orphaned/duplicate intentRefs, zero non-pass results, zero stale, all evidence materialHash/storyFilesHash consistent with current story digest; (3) all 9 committed red-w2c-*.mjs tests + red-evidence-chain-smoke.js + command-ownership-contract.js + verify-process-fact-contract.mjs re-executed directly against the merged tree, all exit 0; (4) red-w2c-validate-registration.mjs confirms red-evidence-chain-smoke.js remains registered in lattice.config.json validate.commands post-merge. No blocker.",
+      "createdAt": "2026-07-25T23:11:23.627Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-015",
+      "envelopeId": "5bbce0b195ebe7b8cbc52ef1fb496595d8306644dc715cf09c12507cdc40af0d",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63a957c92ad2fff9ff658a9ecbf0c91c101c13a26534d355a7428e84307d6305"
     }
   ]
 }
