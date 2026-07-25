@@ -16,18 +16,19 @@
     "No new string may claim tamper-resistance beyond the §0.6 assurance tier."
   ],
   "unknowns": [
-    "forbiddenCatchAlls default 8th entry is rendered `\"\"` in the §1.2 table — resolve whether it is the empty string or the 2-character double-quote literal; matcher values are required non-empty (§1.3 rule 1) so an empty-string entry would be inert, favoring the 2-char literal. This affects the frozen policyDigest and must be confirmed by the scope reviewer before the literal is pinned.",
-    "Exact RFC 8785 number-encoding edge cases to freeze as CANON test vectors (-0, 1e21, 1e-7, integers vs floats) so the differential and determinism proofs are complete."
+    "RESOLVED (OQ-B-c054-forbiddenCatchAlls-8th-entry): forbiddenCatchAlls[7] = empty string, per the spec's own \"\"=empty-string convention at §0.4 lines 74/76; frozen policyDigest pinned to that reading.",
+    "RESOLVED: RFC 8785 number/string encoding equals JSON.stringify (verified: -0->0, 1e21->1e+21, control-char/unicode escaping) and code-unit key order equals default Array.sort(); CANON test vectors frozen accordingly."
   ],
   "touchpoints": [
-    "packages/main/src/core/red-evidence/canon.ts (new)",
-    "packages/main/src/core/red-evidence/policy.ts (new)",
-    "packages/main/src/core/red-evidence/registries.ts (new)",
-    "packages/main/src/core/config.ts:195 (declare redEvidence?)",
-    "packages/main/src/handlers/doctor.ts:67 (non-gating health line)",
-    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts (new)",
-    "packages/main/tests/red/ (committed RED artifacts)",
-    "lattice.config.json validate.commands (register smoke)"
+    "packages/main/src/core/red-evidence/canon.ts",
+    "packages/main/src/core/red-evidence/policy.ts",
+    "packages/main/src/core/red-evidence/registries.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+    "packages/main/tests/red/red-w2a-canon-differential.mjs",
+    "packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+    "lattice.config.json"
   ],
-  "timestamp": "2026-07-25T00:04:34.649Z"
+  "timestamp": "2026-07-25T00:35:16.348Z"
 }
