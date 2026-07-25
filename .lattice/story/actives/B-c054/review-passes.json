@@ -172,6 +172,35 @@
         "scanEscalationReason": null
       },
       "_hash": "43ea4c5eec13fd00130ce62db53aec266cc5687a00d8771df47012376c48bac6"
+    },
+    {
+      "id": "B-c054:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round 3 behavioral re-verification on fresh build (build clean; tsc no errors). Verified against dist directly: (1) canon.ts guards unchanged and still hold — lone surrogate (string value + member name) throws, non-plain-object (Date/Map) throws, undefined/function throws, NaN/Infinity throws, well-formed surrogate pair OK; deep-freeze on resolveRedEvidencePolicy snapshot confirmed at top level + nested array + nested object, mutation throws in strict mode. (2) Frozen default policyDigest with pinnedPath only reproduces exactly sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767, matching CHK-003 literal and the OQ-B-c054-forbiddenCatchAlls-8th-entry resolution (2-char double-quote literal, not empty string). Both default adapters + both default matcher classes + the one default profile resolve ok. (3) New r3 registry validators (da3fc395a9 + 70cbc59220) independently exercised and all REJECT as claimed: duplicate adapterId/runnerProfileId/matcherClass name, unanchored pattern, captureless pattern, adapter+profile cwd in {/tmp, ../x, \"\"}, argvTemplate prefix-${s} partial placeholder, prepCommands [[]] empty argv, toolchain not-object, sha256 too-short/uppercase, exit-code param float/negative/out-of-range(256)/duplicate — each with a distinct named diagnostic code as documented. (4) NO over-rejection found: defaults, a custom adapter with named-capture pattern + literal/${cap} argv + nested repo-relative cwd (incl. \\\"./x\\\" dot-prefixed form), an all-literal argvTemplate, a custom profile (keeping the cross-referenced runnerProfileId consistent with the adapter that selects it), boundary exit-code values [0,255], stream-empty predicateKind, and a forbiddenCatchAlls superset all resolve ok. One initial apparent rejection in my own script (overriding runnerProfileRegistry alone, orphaning the default adapters that reference node-npm@1) was verified to be correct cross-registry-reference behavior, not an implementation bug, once the test fixture was corrected to keep ids consistent. (5) Ran the exact required commands live: node dist/tasks/red-evidence-policy-canon-smoke.js -> OK exit 0; tests/red/red-w2a-canon-differential.mjs -> PASS exit 0; tests/red/red-w2a-policy-failclosed.mjs -> PASS exit 0 (this file's own r3 diff independently covers the same reject/accept matrix); lattice doctor -> exit 0, exactly one \"Red-evidence policy: ...\" line (currently the fail-closed pinnedPath-missing diagnostic since no redEvidence block is committed, per CHK-010). git diff confirms config.ts/doctor.ts/lattice.config.json wiring matches CHK-007/008/010 claims (redEvidence optional on LatticeConfig with open index signature, doctor renders exactly one non-gating line via scanRedEvidencePolicy/resolveRedEvidenceDoctorLine, smoke registered in validate.commands timeoutMs=180000, no redEvidence block committed). All 10 checklist items done, all 3 prior findings resolved. grep for overclaim tokens (tamper-proof/unforgeable/cryptographic proof/etc.) in new files finds zero true positives (only the smoke's own OVERCLAIM regex definition). No blocker.",
+      "createdAt": "2026-07-25T05:33:50.101Z",
+      "reviewRound": "2026-07-25T05:20:58.540Z",
+      "reviewRunId": "B-c054:RR-010",
+      "envelopeId": "54e9200154f7fd53dd9282f0c78da56ee982602e07ff1421a70b8a13b66cf8c6",
+      "writerSessionId": "review-behavior-b-c054-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-fixture-spec.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4a662b8cc5f58a424b04c7ad97b49fda10b3ef31ef1f012c6bd270af364e6036"
     }
   ]
 }
