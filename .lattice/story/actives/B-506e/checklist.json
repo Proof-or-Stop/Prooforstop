@@ -330,7 +330,39 @@
       "context": "The §3.5 dedupe search is scoped (§3.6 lines 1067-1076) so a prior quarantine record cannot silently swallow a deliberate replacement append for the same target — the deliberate replacement is a genuine new record, not a dedupe hit.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Deliberate replacement after quarantine: a red-assert with the SAME assertion parameters (identical operationKey preimage) as a previously quarantined red-assert → new record is CREATED (appended with new seq), not swallowed by dedupe matching the quarantined original; WHY: the quarantined record is excluded from the dedupe search scope so the replacement proceeds as a genuine new append",
+            "type": "cli"
+          },
+          {
+            "desc": "Normal dedupe (no quarantine): a red-assert retry with the same operationKey on a chain where the original is NOT quarantined → correctly dedupes and returns the existing record; WHY: the scoping only excludes quarantined records, not all records",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "After quarantine + recover (un-quarantine): a retry of the SAME red-assert now re-enters the dedupe scope; the recovered original is found and returned as a replay; WHY: recovery reinstates the record into the active dedupe scope",
+            "type": "cli"
+          },
+          {
+            "desc": "Quarantine dedupe for quarantine operations: a retry of the SAME quarantine operation (same operationKey) dedupes correctly against the existing quarantine record; WHY: quarantine records ARE in scope for quarantine-operation dedupe",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Chain with quarantined red-assert followed by deliberate replacement red-assert: verify the quarantined original still exists in the chain (immutability); the replacement has a HIGHER seq and links to the quarantine head as its prior; both records coexist; WHY: immutability + chain integrity must both hold after scoped dedupe",
+            "type": "cli"
+          },
+          {
+            "desc": "Attempt a green-confirm after quarantine: REJECTED by the transition table (quarantine → green-confirm is not a legal transition), regardless of dedupe scoping; WHY: dedupe scoping does not override transition legality — a green-confirm cannot follow a quarantine",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
