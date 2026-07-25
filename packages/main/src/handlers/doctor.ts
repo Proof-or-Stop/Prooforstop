@@ -63,6 +63,7 @@ import {
   scanOwnerSessionTokenStore,
   type OwnerSessionTokenStoreRepair,
 } from '../core/owner-session-token-store.js';
+import { resolveRedEvidenceDoctorLine } from '../core/red-evidence/policy.js';
 
 export function createDoctorHandlers(ctx: HandlerContext) {
   const { root, store } = ctx;
@@ -133,6 +134,12 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       // Guard session scan: report prewrite scope guard status for active stories
       // and check whether the Claude Code PreToolUse hook is installed.
       const guardSessionScan = scanGuardSessions(store, root);
+      // B-c054 (W2a): non-gating red-evidence policy health line. Resolves the
+      // optional redEvidence block and renders exactly ONE advisory line (the
+      // resolved policyDigest when a valid block is present, else the fail-closed
+      // diagnostic). Doctor is not a gate; this scan never throws, writes no gate
+      // evidence, and never changes doctor's exit code.
+      const redEvidencePolicy = scanRedEvidencePolicy(root);
       // B-198c CHK-002: EARLY detection of the wrapper-root violation where the
       // configured storyDir resolves OUTSIDE the resolved gitRoot. The
       // git-backed lifecycle commits story metadata (scoped story branch + DONE
@@ -337,6 +344,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
           codex,
           validation,
           runtime,
+          redEvidencePolicy,
           runtimeArtifacts: {
             tracked: trackedRuntimeArtifacts,
             needsRepair: trackedRuntimeArtifacts.some((artifact) => artifact.repairable),
@@ -538,6 +546,11 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       for (const line of renderStoryMetadataProtectionScan(storyMetadataProtection, storyMetadataRepair)) lines.push(line);
 
       lines.push('');
+      // B-c054 (W2a): exactly one non-gating red-evidence policy line (digest or
+      // fail-closed diagnostic). Advisory only — does not affect doctor's exit code.
+      lines.push(redEvidencePolicy.line);
+
+      lines.push('');
       lines.push(renderRuntimeEnvironmentReport(runtime));
       lines.push('');
       if (brief) {
@@ -567,6 +580,23 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       return lines.join('\n');
     },
   };
+}
+
+/**
+ * B-c054 (W2a): resolve the optional redEvidence policy block into exactly one
+ * non-gating advisory health line for `lattice doctor`. The resolver reports the
+ * §1.2 policyDigest when a valid block is present, else the fail-closed
+ * diagnostic (e.g. `red_evidence_policy_missing: pinnedPath` when absent).
+ * Doctor is not a gate: this scan catches its own errors, never throws, writes
+ * no gate evidence, and never changes doctor's exit code.
+ */
+function scanRedEvidencePolicy(root: string): { line: string } {
+  try {
+    const config = loadConfig(root);
+    return { line: resolveRedEvidenceDoctorLine(config.redEvidence) };
+  } catch {
+    return { line: 'Red-evidence policy: red_evidence_policy_scan_error (advisory only; doctor is not a gate)' };
+  }
 }
 
 /**
