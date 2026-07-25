@@ -270,15 +270,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:adversarial:0",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/core/proofstory.ts",
-          "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "result": "pass",
-          "note": "guard proven byte-identical: without it the live gate throws TypeError at observedFailure.trim(); with it the v1 verdict is byte-identical +v2 (commit 9f52660fdd)",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "Fixes F-003: the skip is now EXHAUSTIVE, not just the exact v2 literal. proofstory.ts redEvidenceRecordSatisfied returns false for ANY record not classified v1 (classifyRedRecordSchemaSafe), so observedFailure.trim() is never reached on a non-v1 record. The test asserts the LIVE gate on a v3 store throws the typed RedEvidenceSchemaError and NOT a bare TypeError, and (defense-in-depth) that a v3 record injected DIRECTLY into the diagnostic input past the read gate does not crash and leaves the verdict byte-identical. Verified RED: pre-fix baseline dist throws TypeError at observedFailure.trim(). Commit b4fa4bbfad.",
+          "headHash": "cc83de3f331a21e706ae56b757e215f4ae0c7d9a",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:02:51.661Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
