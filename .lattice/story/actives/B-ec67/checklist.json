@@ -129,7 +129,40 @@
       "context": "type manual|docs cannot auto-execute. Mark them non-mechanical human attestation and ensure the coverage/gate does NOT treat them as equivalent to an executed receipt, so type:manual cannot become an escape hatch that bypasses execution for an automatable intent.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "manual|docs evidence is stored as attestation, marked explicitly non-mechanical, with no command execution attempted",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "in buildVerificationCoverage a manual/docs attestation does NOT satisfy an executable intent (logic|cli|browser) required coverage — it is not scored equal to an executed receipt",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recording an executable intent as type:manual cannot bypass execution at the coverage gate (the escape hatch is closed)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
