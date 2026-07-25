@@ -370,7 +370,43 @@
       "context": "All four chain appends are serialized under ONE atomic mkdir claim covering read-head through write, modeled on the executable acquireMkdirLock pattern at packages/main/src/handlers/transition-orchestrator.ts:812-836 (acquire :819, release :859) via packages/main/src/core/mkdir-lock.ts:253 — NOT the §4.1 line-1171 citation (an explanatory comment). Two racing red_evidence_quarantine processes yield exactly one record + a unique head; the loser reports a held-claim abort (RED signal B).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Single chain append under mkdir claim: acquires the claim, performs read-head + dedupe + validate + write atomically, releases the claim; record is written with correct chain fields; WHY: confirms the serialization wrapper around the entire critical section",
+            "type": "cli"
+          },
+          {
+            "desc": "Two sequential appends to the same target chain: each acquires and releases the claim in turn; both succeed with monotonic seq and correct priorRecordDigest linking; WHY: sequential non-contending appends must both succeed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Lock release on validation failure: if an integrity check fails mid-claim (e.g. illegal transition), the mkdir claim is released (not left stuck); subsequent appends can acquire the claim; WHY: error paths must not leak the claim",
+            "type": "cli"
+          },
+          {
+            "desc": "Two appends to DIFFERENT targets racing simultaneously: both succeed concurrently; claims are per (storyId, acceptanceTargetRef) scope, not global; WHY: independent target chains must not serialize against each other",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "RED signal B: two child processes racing red_evidence_quarantine on the SAME target chain simultaneously → exactly ONE quarantine record exists after both complete; the chain head is unique (§3.2 invariant holds); the winner has correct seq and priorRecordDigest; the loser reports a held-claim abort; WHY: this is the genuine concurrency race that drops appends or creates two heads today",
+            "type": "cli"
+          },
+          {
+            "desc": "RED signal B verification: after the race, read the store and verify records.length increased by exactly 1 (not 0, not 2); the single quarantine record has the correct recordDigest; WHY: the race must produce exactly the same store state as a sequential execution",
+            "type": "cli"
+          },
+          {
+            "desc": "Claim holder dies (process crash mid-claim): the next process detects staleness and acquires the claim after the staleness timeout; WHY: the mkdir-claim pattern must handle process death without permanent lock-out",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-010",
