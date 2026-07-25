@@ -648,6 +648,19 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+        ]
       }
     }
   ]
