@@ -28,7 +28,7 @@
       "desc": "packages/main/src/core/red-evidence/canon.ts:67-73 canon() types its parameter as `unknown` (not the exported CanonValue type) and only guards typeof===object via `if (t===\"object\")` -> Object.keys(obj).sort() with NO isPlainObject check, so any non-array object (Date, Map, Set, RegExp, class instance, Buffer, Error) silently falls through instead of throwing. Concrete repro: canon({createdAt:new Date(\"2020-01-01\"),name:\"x\"}) === canon({createdAt:new Date(\"2099-12-31\"),name:\"x\"}) === {\"createdAt\":{},\"name\":\"x\"} -- canonDigest of these two materially DIFFERENT records is IDENTICAL because Object.keys(dateInstance) is empty, silently collapsing the date to {}. canon(new Map([[\"a\",1]])) also silently returns \"{}\". This directly contradicts the moduleuxe2x80x99s own documented contract (canon.ts:50-52: undefined/function/symbol are programming errors and THROW) which implies non-CanonValue inputs should fail loudly, and undermines the header comment/spec assurance-tier claim (canon.ts:19-21, spec S:0.6) that CANON detects accidental substitution/casual drift -- an accidental `new Date()` instead of `.toISOString()` (a very common JS mistake, and createdAt is a named field in the spec S:1.10 record schema at line 694) is exactly the class of accident S0.6 says this subsystem defends against, yet it is silently swallowed into a digest collision rather than caught. No current caller in this story passes such a value (policy.ts only builds number/string/array/plain-object fields), so it is not exploitable today, but canon() is documented as the single reused digest primitive for the whole RED-evidence subsystem (canon.ts:1-2, S:0.4) and future records (envelope/runner/receipt work) are very likely to carry timestamp fields. Fix: add an isPlainObject-style guard (Object.getPrototypeOf(value) is Object.prototype or null) in the object branch and throw for anything else, matching the throw already used for undefined/function/symbol.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-25T04:18:26.081Z",
@@ -36,7 +36,11 @@
       "reviewRunId": "B-c054:RR-001",
       "_hash": "28d78a9a328c8256fdaf5a72caa615088e85defdc24123800643e6f2fa2a98c8",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed commit eff4404936: canon() rejects non-plain objects (Date/Map/Set/class throw), eliminating the same-digest-different-date collision; verified behavior-r2 + codex-r2.",
+      "resolvedAt": "2026-07-25T05:07:14.915Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c054:F-003",
