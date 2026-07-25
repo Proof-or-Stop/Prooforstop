@@ -1,0 +1,31 @@
+{
+  "storyId": "B-3b88",
+  "name": "evidence-selfcheck-refresh-honesty",
+  "title": "Reject self-contradictory evidence rows and stop refresh_stale from laundering unverified pass assertions",
+  "description": "Two mechanical ways false verification evidence enters the ledger today, both fixable with no schema change: (1) verification_evidence_add accepts a row whose own command and file fields name contradictory targets; (2) verification_evidence_refresh_stale re-stamps freshness hashes onto a stale result:pass without ever re-executing, laundering an unverified assertion onto new material. This is the cheapest first slice of the evidence-integrity program.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "evidence",
+    "verification",
+    "refresh_stale",
+    "evidence-integrity",
+    "checklist",
+    "false-evidence"
+  ],
+  "createdAt": "2026-07-25T21:28:22.449Z",
+  "startedAt": "2026-07-25T21:28:22.449Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-25T21:28:23.259Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d6bd127d84f15dd24c67da2e4f2a4de6",
+      "agent": "main"
+    }
+  ]
+}
