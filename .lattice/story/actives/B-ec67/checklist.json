@@ -211,7 +211,41 @@
       "context": "RED first: an evidence row whose selector is absent from output must be REFUSED after the fix and (demonstrably) was accepted before. Cover BOTH verification_evidence_add and verification_evidence_batch_add: selector-absent refused; intentRef-not-resolving refused; pinned-command-mismatch refused; exit!=0-but-pass refused; happy path (selector present, exit 0) writes a receipt with real exitCode/outputDigest/outputTail; pin immutability (second write changing command/selector refused); manual intent stays attestation-only and is not scored as a receipt. Register under packages/main/src/tasks and lattice.config.json validate.commands + package.json.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/validate.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "positive: selector present + exit 0 through both verification_evidence_add and verification_evidence_batch_add writes a receipt; the smoke prints PASS and is registered in lattice.config.json validate.commands",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "RED-first: a selector-absent row is REFUSED after the fix and (demonstrably) was accepted before it",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "every refusal case (exit!=0-but-pass, selector-absent, intentRef-unresolved, command-mismatch, pin-change) is refused through BOTH the single and batch entry points",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
