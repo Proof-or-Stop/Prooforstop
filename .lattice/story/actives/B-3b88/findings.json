@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: verification_evidence_refresh_stale help text and workflow guides still describe pre-fix semantics. packages/main/src/cli/command-catalog.ts:479 description is unchanged: \"Refresh HEAD/material hashes for stale verificationEvidence (rerun command)\" -- it was NOT updated even though plan.md CHK-002 step 4 explicitly says to adjust this command help text. Per the new checklist.ts behavior (lines ~1063-1075), refresh_stale now REFUSES any stale row with a non-empty command + result:pass (leaves it stale, prints a refusal message) and only re-stamps command-less attestation rows -- it never reruns anything. The live help text still implies a rerun-then-refresh workflow. docs/requirements/decisions/story-lifecycle.md:195 and :278 and docs/requirements/decisions/testing-infra.md:166 repeat the same stale workflow: \"after re-running the corresponding verification command, drop dryRun to refresh the metadata\" / \"it only refreshes ... does not prove the test actually ran, so the command in the dry-run output should be re-run first.\" Under the new code this instructed workflow no longer works for command-backed pass rows: calling refresh_stale (even after manually re-running the command) will always be refused; the correct new path is verification_evidence_add with a fresh result, not refresh_stale. Severity high: this is a live, user-facing command-description/workflow-doc mismatch with the exact behavior this story intentionally changed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-25T23:27:05.669Z",
@@ -19,7 +19,11 @@
         "docs/requirements/decisions/testing-infra.md"
       ],
       "signatureTag": "missing|ts|code-drift-verification",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 630b6d9: updated command-catalog.ts help, evidence-stale-hint.ts recovery block, story-lifecycle.md (x2) and testing-infra.md to state that refresh_stale refuses command-backed result:pass rows (re-run + re-record via verification_evidence_add) and only re-stamps command-less attestation.",
+      "resolvedAt": "2026-07-25T23:49:13.164Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3b88:F-002",
