@@ -1,0 +1,386 @@
+{
+  "storyId": "B-506e",
+  "checkedAt": "2026-07-25T10:31:06.355Z",
+  "features": [
+    {
+      "feature": "v2 record union declares exhaustive per-operation field sets for red-assert/green-confirm/quarantine/recover (§1.10)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Chain fields seq/priorRecordDigest/supersedes ALWAYS present, JSON null at seq==1 (§0.4/§1.10)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "recordDigest = CANON(record minus recordDigest field) (§0.4/§1.10)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "specDigest = CANON({acceptanceTargetRef, greenRelation}) (§1.10)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "runReceipt full shape incl. evaluationTranscript/streamFrames/exit-termination representation as part of the v2 record schema (§1.10)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Registered CLI entrypoints red_evidence_quarantine and red_evidence_recover (§1.10/§4.1)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Registered CLI entrypoints red_evidence_assert and red_evidence_green_confirm (execute a run) (§1.10/§4.1)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background: 'any command that EXECUTES a run' is fenced to a later leaf (W2d/W2e)",
+      "source": "description"
+    },
+    {
+      "feature": "v1 red_evidence_create retirement at the adoption point (§1.10 line 715 / §6.2)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "background: 'retiring or deprecating red_evidence_create' is explicitly out of scope",
+      "source": "description"
+    },
+    {
+      "feature": "RedEvidenceData.records[] widened to hold mixed v1+v2 in one array, same on-disk file layout, no migration (§3.1)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "redEvidenceRecordSatisfied v1-skip guard proven byte-identical on a v1-only store (RED signal A / §0.1 problem statement)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Chain schema keyed by (storyId, acceptanceTargetRef), independent per target (§3.1)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Chain-head uniqueness invariant: unique record satisfying both conjuncts (§3.2)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Three required integrity checks: monotonic seq / prior-digest link / fork rejection with distinct reason id (§3.3)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Transition legality table (empty/red-assert/green-confirm/quarantine rows), governing red-assert, transitive cycle-safe effective head operation (§3.3)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Target-membership write-time gate: acceptanceTargetRef must be in expectedRedTargets, required on red_evidence_binding_set and all four appends (§3.3, lines 993-998)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Idempotency key / operation-key preimages for red-assert, green-confirm, and quarantine/recover control key incl. normalizedReason (§3.4)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Deterministic recordId = <OP>-first12hex(operationKey)-seq (§3.4)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "approvedBy deliberately excluded from quarantine/recover operation key (§3.4)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "priorRecordDigest/seq deliberately excluded from idempotency key material; chain placement is not key material (§3.4)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Dedup pre-run pre-placement short-circuit: derive key first, search chain before head resolution and any run (§3.5)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "CONFLICT error when a stored record's key/id fails recomputation; nothing written (§3.5)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Dedupe search scoped so a quarantined record cannot swallow a deliberate replacement append (§3.5/§3.6)",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Fork-attempt edge case: first admitted, second rejected (§3.6)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Replay-with-identical-key edge case: records.length unchanged, no second run executed (§3.6)",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "R3 silent-replace rejection rule: absent/broken priorRecordDigest, non-monotonic seq, or a second head is rejected (§3.7)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "red_evidence_quarantine(storyId, recordId, reason) contract: fields, becomes new chain head, prior record untouched (§4.1)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "red_evidence_recover(storyId, recordId, reason) contract: fields, becomes new chain head (§4.1)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Reference-validation state machine: quarantine/recover recoversRecordId must reference the current head in the required state, else REJECTED (§4.1)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "approvedBy DERIVED as <actor>@<sessionId> via lease sessionId + resolveAgentMutationAuthority, never a caller argument (§4.1)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Owner-gated authorization via story-owner lease gate + actor mutation authority for quarantine/recover (§4.1)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Serialize ALL FOUR append operations under one atomic mkdir claim covering read-head through write (§4.1 known limitation)",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "§1.1.3 binding-freeze rule inside red_evidence_binding_set: frozen once a run record exists on an unquarantined chain, unfrozen by quarantine (§1.1.3)",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Genuine two-process concurrency race on red_evidence_quarantine yields exactly one record + unique head (RED signal B / description)",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register red-evidence-chain-smoke in validate.commands + update the 4 verify-process-fact-contract.mjs enumerations + command-catalog-smoke trailing order for the two new commands (description)",
+      "covered_by": "CHK-011",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "decisions/red-evidence-subsystem-spec.md",
+      "decisions/repro-first-gate-enforce-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "decisions/annotation-system.md",
+      "decisions/authority-client-role.md",
+      "decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "decisions/authority-receipt-cross-repo-live-smoke.md",
+      "decisions/authority-receipt-gate-integration-execution-plan.md",
+      "decisions/authority-runner-session-evidence-envelope.md",
+      "decisions/authority-server-vocabulary-retirement.md",
+      "decisions/authority-session-receipt-gate-execution.md",
+      "decisions/autopilot-v2-reliability-execution-plan.md",
+      "decisions/bounded-document-context-scaling-execution-plan.md",
+      "decisions/cc-learnings.md",
+      "decisions/cell06-docker-server-execution-checklist.md",
+      "decisions/claim-admissibility-adapter-pack-framework.md",
+      "decisions/cli-engine-english-open-source-execution-plan.md",
+      "decisions/cli-engine-english-translation-manifest.md",
+      "decisions/cli-engine-modularization-execution-plan.md",
+      "decisions/control-plane-proof-capability-closure-audit.md",
+      "decisions/decision-doc-promotion-execution-plan.md",
+      "decisions/dev-memory.md",
+      "decisions/done-closure-runbook-assistant-execution-plan.md",
+      "decisions/done-full-test-gate-execution-plan.md",
+      "decisions/done-prepare-automation-execution-plan.md",
+      "decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "decisions/framework.md",
+      "decisions/global-lifecycle-control-plane-execution-plan.md",
+      "decisions/host-neutral-observability-console.md",
+      "decisions/host-overflow.md",
+      "decisions/language-neutral-gates-execution-plan.md",
+      "decisions/lattice-authority-customer-api-key-access.md",
+      "decisions/lattice-authority-live-integration.md",
+      "decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "decisions/lattice-authority-receipt-contract.md",
+      "decisions/lattice-authority-remote-evidence-bundle.md",
+      "decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "decisions/lattice-cli-authority-client-receipt-ref.md",
+      "decisions/lattice-codex-command-boundary-execution-plan.md",
+      "decisions/lattice-console-demo-mvp-requirements.md",
+      "decisions/lattice-experience-layer-effectiveness-record.md",
+      "decisions/lattice-experience-layer-execution-plan.md",
+      "decisions/lattice-experiment-protocol.md",
+      "decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "decisions/lattice-parallel-wave.md",
+      "decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "decisions/lattice-unattended-completion-plan.md",
+      "decisions/lattice-workflow-efficiency-baseline.md",
+      "decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "decisions/lifecycle-artifact-scope.md",
+      "decisions/lifecycle-gate-receipt-consumption.md",
+      "decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "decisions/milestone-ledger-status-review-findings.md",
+      "decisions/milestone-not-applicable-justification.md",
+      "decisions/milestone-status-done-gate-reconciliation.md",
+      "decisions/milestone-triggered-gate-mode-default-decision.md",
+      "decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "decisions/multi-model-ablation-replication.md",
+      "decisions/orchestrate-retirement.md",
+      "decisions/owner-session-contract-execution-plan.md",
+      "decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "decisions/playbook-memory-performance-index-optimization-plan.md",
+      "decisions/playbook-promotion-worker-execution-plan.md",
+      "decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "decisions/pos-agent-drivability-optimization.md",
+      "decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "decisions/project-vision.md",
+      "decisions/proof-admissibility-hardening-execution-plan.md",
+      "decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "decisions/proofstory-intent-collision-execution-plan.md",
+      "decisions/repro-first-story-intake-experiment.md",
+      "decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "decisions/review-assurance-floor-execution-plan.md",
+      "decisions/review-run-binding-race.md",
+      "decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "decisions/role-separation.md",
+      "decisions/root-document-migration-guide.md",
+      "decisions/root-markdown-migration-execution-solution.md",
+      "decisions/routine-validation-fresh-pass-reuse.md",
+      "decisions/scope-check-missing-guidance-execution-plan.md",
+      "decisions/session-ownership-and-write-leases.md",
+      "decisions/slim-fields-token-savings-execution-plan.md",
+      "decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "decisions/stack-layering.md",
+      "decisions/stash-split-execution-plan.md",
+      "decisions/story-files-hash-material-drift.md",
+      "decisions/story-lifecycle.md",
+      "decisions/test-fixture-spec.md",
+      "decisions/test-intent-review.md",
+      "decisions/test-runner-consolidation-plan.md",
+      "decisions/testing-completeness.md",
+      "decisions/testing-infra.md",
+      "decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "decisions/tier-c-crosshost-quorum-threat-model.md",
+      "decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "decisions/truth-source.md",
+      "decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "decisions/unlock-layer2-ENG-suite.md",
+      "decisions/unlock-layer3-loop-engineering-suite.md",
+      "decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "decisions/unlock-layer4-production-safety-suite.md",
+      "decisions/usage-ledger-prototype-pollution-hardening.md",
+      "decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "decisions/verification-context-pack.md",
+      "decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 34,
+    "covered": 31,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c68cc562a9720a96aeee135d8eac4737ffc6d254d6e10632f28acec5c8b0dd63",
+  "openQuestions": []
+}
