@@ -166,9 +166,9 @@
       "id": "CHK-004",
       "title": "Resolve the chain head by both uniqueness conjuncts and enforce the three chain-integrity checks",
       "context": "packages/main/src/core/red-evidence/chain.ts partitions records by (storyId, acceptanceTargetRef); head resolution implements BOTH §3.2 (lines 957-964) conjuncts; the three §3.3 (965-992) integrity checks run with FORK rejection as an INDEPENDENT store-corruption/concurrency detector whose reason id is DISTINCT from the prior-digest (check 2) rejection.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:17:51.525Z",
       "verificationIntent": {
         "happy": [
           {
@@ -212,7 +212,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "resolveChainHead both conjuncts + three integrity checks with distinct reason ids (fork vs prior-mismatch); chain-smoke section 3 + red-w2c-rejection-matrix (commit 3976bccb2e)",
+          "headHash": "3976bccb2e799968ac24b545b594126e4852e7ae",
+          "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
+          "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
+          "timestamp": "2026-07-25T11:17:51.720Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
