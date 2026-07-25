@@ -571,6 +571,114 @@
           "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
           "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
           "timestamp": "2026-07-25T11:17:53.101Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 4 (lines 284-291) asserts isTransitionLegal for every legal successor: empty->red-assert; red-assert->green-confirm/red-assert/quarantine; green-confirm->red-assert/green-confirm/quarantine; quarantine->recover/red-assert — every row of the closed transition table accepts its legal successors.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 4 (line 298) builds red-assert->quarantine->recover and asserts effectiveHeadOperation([ra,q,r], r)==='red-assert' — a recover reinstates the pre-quarantine record and the effective head resolves transitively back to the governing red-assert.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 4 (line 290) asserts isTransitionLegal('green-confirm','red-assert') && isTransitionLegal('green-confirm','green-confirm') — the two less-obvious green-confirm successors (re-open/regression and re-confirmation of the same governing red-assert) are legal.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 4 (lines 300-302) extends the chain red-assert->quarantine->recover->quarantine->recover and asserts effectiveHeadOperation(...,r2)==='red-assert' — the effective-head walk traverses TWO transitive recover levels, not just one.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "the runtime check that a green-confirm's confirmsRecordId equals the current governing red-assert id belongs to the green-confirm writer (W2e, not landed in W2c); in W2c chain-smoke section 4 exercises green-confirm transition legality (line 290) and governing-red-assert derivation via effectiveHeadOperation, on which the confirms-match rejection will be built.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 4 (lines 308-312) builds a mutual recover cycle (record A recovers B, B recovers A) and asserts effectiveHeadOperation does NOT throw (terminates) — the cycle is detected and the walk is bounded (also red-w2c-rejection-matrix lines 100-102).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 7 (lines 447-451) recovers a quarantine then attempts recover-of-a-recover and asserts it throws (/head operation|not one of|transition/) — recover is legal only on a quarantine head (4.1 state machine; also red-w2c-rejection-matrix line 154).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:3",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 7 (lines 427-428) appends a second red-assert head then attempts to quarantine the now-non-head seq-1 record and asserts it throws (/not the current chain head/) — only the head can be quarantined (also red-w2c-rejection-matrix line 132).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 4 (lines 285-287) asserts !isTransitionLegal('empty', bad) for each of green-confirm, quarantine, recover — an empty chain admits ONLY red-assert; no governing red-assert exists, so no other transition is possible.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
         }
       ]
     },
@@ -637,6 +745,102 @@
           "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
           "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
           "timestamp": "2026-07-25T11:17:54.307Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "red-assert operationKey = redAssertOperationKey (operation-key.ts lines 64-75) = CANON({operation:'red-assert', storyId, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, specDigest, assertionDigest, policyDigest}) — the 8-field preimage; chain-smoke section 5 (line 337) asserts it renders sha256:<64hex> and deriveRecordId('red-assert',...) yields the RED- prefix (line 332).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "green-confirm operationKey = greenConfirmOperationKey (operation-key.ts lines 88-99) = CANON({operation:'green-confirm', storyId, acceptanceTargetRef, greenHeadHash, greenMaterialHash, confirmsRecordDigest, confirmsAssertionDigest, specDigest}) — its own 8-field preimage; chain-smoke section 5 (line 338) asserts it renders sha256:<64hex> and deriveRecordId('green-confirm',...) yields the GRN- prefix (line 333).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "quarantine/recover operationKey = controlOperationKey (operation-key.ts lines 42-51) = CANON({operation, storyId, acceptanceTargetRef, recoversRecordId, referencedRecordDigest, normalizedReason}) — the 6-field control preimage; chain-smoke section 5 (lines 319-331) derives it and deriveRecordId yields the QUA- (line 330) and REC- (line 331) prefixes.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 5 (lines 321-324) asserts controlOperationKey for a reason with leading/trailing spaces and internal whitespace+tab runs equals the key for 'bad record found', and normalizeReason collapses an internal-run/tab reason to 'a b c' (line 324) — cosmetic whitespace differences derive the SAME operation key (dedupe-safety rule).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 5 (line 335) asserts first12hex('sha256:0123456789abcdef')==='0123456789ab' — the helper strips the sha256: prefix and takes the first 12 hex chars of the body, reusing the W2a canon helper; an off-by-one in prefix stripping would fork ids.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 5 (lines 327-329) asserts deriveRecordId('quarantine', k1, 2).slice(0,-1)===deriveRecordId('quarantine', k1, 5).slice(0,-1) — the same logical operation at different seq derives an identical operationKey body (seq is NOT in the key) and the recordId differs only in the trailing -seq suffix (3.4).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "priorRecordDigest is not a parameter of controlOperationKey/redAssertOperationKey/greenConfirmOperationKey (operation-key.ts; header comment lines 4-6 state the key contains no priorRecordDigest and no seq); chain-smoke section 5 (lines 327-329, comment line 328) shows a retry at any seq/prior derives the same key — a post-append retry never derives a fresh key (audit round 4).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/operation-key.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "the operation-key preimages (operation-key.ts) take only the normative fields; createdAt and note are not inputs to any key function, so non-key metadata cannot influence deduplication; chain-smoke section 5 computes keys from preimage-only inputs and asserts the key body is stable across seq/prior variation (lines 327-329).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
         }
       ]
     },
@@ -695,6 +899,78 @@
           "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
           "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
           "timestamp": "2026-07-25T11:17:55.468Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 (lines 358-364) runs a normal quarantine append through the registered handler: records.length increases by exactly one and resolveChainHead().operation==='quarantine' — the 3.5 pipeline (derive-key -> dedupe (no match) -> resolve-head -> transition -> integrity -> append) writes the record with correct seq/priorRecordDigest/recordDigest.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 (lines 368-371) replays the SAME quarantine (same operationKey): the handler returns a replay message and records.length is UNCHANGED — the dedupe short-circuit returns the existing record before head resolution and any run (also red-w2c-rejection-matrix lines 145-148).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "the operationKey excludes priorRecordDigest and seq (operation-key.ts), so dedupe is key-based not position-based; chain-smoke section 6 (lines 368-371) asserts a same-key replay returns the existing record with unchanged length — a retry resolves the original even after the head advances (3.4).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 appends a quarantine (line 360) then a recover (line 378) — two appends with DIFFERENT operationKeys both proceed through the full pipeline, the second seeing the first as head; distinct keys mean no dedupe interference and both succeed.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 (lines 384-400) stores a control record whose reason was tampered so neither its operationKey nor its derived recordId recompute, then asserts appendControlRecord throws RedEvidenceChainError with reasonId===REASON_STORE_CORRUPTION and nothing is written — an id/key-inconsistent store is a tagged CONFLICT and must not be extended (also red-w2c-rejection-matrix lines 105-116).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "the append pipeline short-circuits on a dedupe hit BEFORE head resolution and any run (3.5 order, append.ts); chain-smoke section 6 (lines 368-371) proves a replay returns the existing record with unchanged length and no new write, so a run-record replay can never reach nonce/receipt generation or a spawned process (the red-assert/green-confirm run writers are W2d/W2e, downstream of this dedupe gate).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
         }
       ]
     },
@@ -749,6 +1025,66 @@
           "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
           "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
           "timestamp": "2026-07-25T11:17:56.926Z"
+        },
+        {
+          "intentRef": "CHK-008:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 (lines 368-371) retries a quarantine whose original is NOT quarantined and asserts it dedupes (returns the existing record, replay, unchanged length) — the scoping excludes only quarantined records, so a non-quarantined original still dedupes normally.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 (lines 377-380) asserts isRetiredByQuarantine(original, chain1)===true after quarantine and ===false after recover — recovery reinstates the record into the active dedupe scope so a retry of the same red-assert re-enters dedupe as a replay.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 (line 369) retries the SAME quarantine operation and it dedupes against the existing quarantine record (replay, unchanged length) — quarantine records ARE in scope for quarantine-operation dedupe.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/append.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 6 (line 377) asserts the quarantined red-assert is isRetiredByQuarantine (excluded from the dedupe scope) so a deliberate replacement would be a genuine new append, and section 7 (lines 431-435) asserts the retired record is BYTE-IDENTICAL after quarantine — immutability and scoped dedupe both hold (the replacement red-assert writer is W2d).",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain-smoke section 4 (line 292) asserts !isTransitionLegal('quarantine','green-confirm') — a green-confirm cannot follow a quarantine regardless of dedupe scoping; the transition table overrides dedupe scope.",
+          "headHash": "868daece8adf5cab120439b6eeb847fb3932e9ab",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:55:40.607Z"
         }
       ]
     },
