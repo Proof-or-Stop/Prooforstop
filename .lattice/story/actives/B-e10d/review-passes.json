@@ -164,6 +164,36 @@
         "scanEscalationReason": null
       },
       "_hash": "bfe960eb11cf6579fd789fb32f2abfa2501f223c172b42a5d1a51862c235a2dc"
+    },
+    {
+      "id": "B-e10d:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test-coverage review: re-verified all 5 round-1 findings (F-002..F-005) are genuinely fixed on current material (materialHash 7e93fc6b3a4ed4b8237803437b817af88643e5bcc63a7a45756486982ba1aa62). (1) CHK-007:adversarial:0/F-002: rebuilt dist (tsc clean) and ran node packages/main/dist/tasks/red-evidence-target-binding-smoke.js -> exit 0; read source section 5b (commit b801541e47) and confirmed it drives real enforceStoryOwnerLeaseGate (src/cli/ownership-gate.ts) + STALE_LEASE_THRESHOLD_MS=30min (story-owner-lease.ts:437) + formatNonOwnerError STALE/--takeover wording -- genuine, not a mock. (2) CHK-006:adversarial:0+CHK-008:adversarial:0/F-003: ran node --test packages/main/tests/red/red-w2b-wiring-contract.mjs -> pass; confirmed git status clean (no diff to command-policy.ts/dist/verify-process-fact-contract.mjs) before AND after the run, proving the remove-one-registration-point regression (commit 04acdca376) is genuinely non-destructive (ESM loader override + symlink-farm overlay, never touches the real tree). (3) CHK-008:happy:1+adversarial:1/F-004: ran both recorded catalog-order probe commands -> pass; independently reproduced the unrelated pre-existing lattice-review-channel failure claim by running command-catalog-smoke.js on both this worktree and the main worktree -- same AssertionError on both, confirming it predates and is untouched by this story. (4) CHK-008:happy:0: grep -c red_evidence_binding_set scripts/verify-process-fact-contract.mjs = 2 (lines 164, 1041); read the other two enumerations (PLAN-only pre-DEV array, L4 gate-consumed-facts array) and confirmed red_evidence_binding_set is correctly absent -- it is a DEV-phase, non-gate-evidence command by design (matches plan.md + code comment). (5) CHK-009:adversarial:1/F-005: ran the recorded config-parse command -> registered:true; confirmed lattice.config.json:99 has the entry; confirmed validate.commands consumption (runtime-environment-checks.ts:775) is generic pre-existing array iteration, so the disclosed negative-direction scope limitation is honest, not a cover-up. Additionally ran the full underlying suite directly (red-w2b-binding-store.mjs, lifecycle-registry-contract.js, command-ownership-contract.js, verify-process-fact-contract.mjs full run) -- all pass. Spot-checked CHK-001..004 line-number citations in red-w2b-binding-store.mjs against actual file content -- all accurate. Tallied checklist.json: 48/48 verificationEvidence entries result=pass, all sharing the current materialHash and storyFilesHash (non-stale). lattice validate itself could not be run directly (owner-gated, lease held by the coordinating parent session) but every command it would invoke was reproduced standalone with identical results. No blockers found; findings F-002..F-005 confirmed resolved with genuine, non-vacuous evidence.",
+      "createdAt": "2026-07-25T09:13:25.982Z",
+      "reviewRound": "2026-07-25T09:06:12.028Z",
+      "reviewRunId": "B-e10d:RR-006",
+      "envelopeId": "081820173bca686488eacba629bfcd82336c7dde33115947e7eb968bf810aa02",
+      "writerSessionId": "review-testcov-b-e10d-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-e10d/background.md",
+          ".lattice/story/actives/B-e10d/checklist.json",
+          ".lattice/story/actives/B-e10d/plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fba1848c23898e90dc97f9c233af3ceb1f11c8c50e1afe38c2cc57734cb87cc1"
     }
   ]
 }
