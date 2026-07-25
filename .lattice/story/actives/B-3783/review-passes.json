@@ -69,6 +69,33 @@
         "scanEscalationReason": null
       },
       "_hash": "c697116d08ea3caec7ee2df7603ddd58c8334bb396f1ae182d39be6b942ee5eb"
+    },
+    {
+      "id": "B-3783:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: audited CHK-001 (9 intents) + CHK-002 (6 intents), all 15 must/should intents have concrete, verified evidence. Live-reproduced both mutation proofs (enum widening + registry filter removal) and re-ran the smoke (GREEN, 337 commands) and confirmed the historical validate run executed command-catalog-smoke.js as command 6/52. No blocker.",
+      "createdAt": "2026-07-25T22:14:48.608Z",
+      "reviewRound": "2026-07-25T22:07:02.769Z",
+      "reviewRunId": "B-3783:RR-003",
+      "envelopeId": "6657cbe6fd4e4577c08a92f85787fd3200e649827c662ba1149cc82646cec358",
+      "writerSessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3783/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3783/background.md",
+          ".lattice/story/actives/B-3783/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "898085fac77410781ca32890c807a30aa60cc4ed08d91e009022bffb56673cdc"
     }
   ]
 }
