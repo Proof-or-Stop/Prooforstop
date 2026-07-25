@@ -4,7 +4,7 @@
   "title": "Fix command-catalog-smoke to respect retired dispatch agents via bidirectional consistency",
   "description": "command-catalog-smoke.ts fails on clean main because it iterates the full AGENT_DISPATCH_REGISTRY (including the deliberately-retired lattice-review-channel) and asserts every canonicalName must be schema-valid and satisfy the runtime dispatch contract. The command catalog is already correct (dispatch.agentType derives from AGENT_DISPATCH_ACCEPTED_TYPES, which filters out the retired lane). The smoke guard itself has the defect. Fix the guard to assert bidirectional consistency and wire it into validate.commands.",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "command-catalog",
@@ -39,6 +39,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-07-25T21:35:47.640Z",
+      "branch": "story/B-3783",
+      "user": "Harmonygo",
+      "sessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-25T21:51:17.076Z",
       "branch": "story/B-3783",
       "user": "Harmonygo",
       "sessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",

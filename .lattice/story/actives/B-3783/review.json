@@ -44,6 +44,41 @@
         }
       ],
       "_hash": "568fcb35ba38dbcdb5b36fa185c994c0a8a1e0cc37a3d586c12fc5bbf74d8a24"
+    },
+    {
+      "timestamp": "2026-07-25T21:51:12.692Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when command-catalog-smoke asserts bidirectional dispatch/registry consistency and exits 0 + command-catalog-smoke registered in validate.commands normal tier are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Exact matcher for the retired runtime rejection: confirm validateAgentDispatchRequest throws with a message matching /retired|unknown/ before asserting on it.; Whether the validate.commands entry needs an explicit timeoutMs like sibling CLI-subprocess smokes, or the default timeout suffices."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "e29e5cfe61a5faf43cd29ce6b19a20c88fe6b6d97fd053e1e874a783ca8fa117"
     }
   ]
 }
