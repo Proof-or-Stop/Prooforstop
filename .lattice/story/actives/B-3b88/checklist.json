@@ -72,7 +72,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "evidence-selfcheck-smoke passes: verification_evidence_add refuses the F-049 contradictory command/file row; matching-stem and no-stem rows still accepted.",
+          "headHash": "bf718f50eed3085e4086c18892b432121b0a18fc",
+          "materialHash": "49ceb1d9e52e95c6b60fecf0cede8e29aa1de774dc577378cb421948ab13dc04",
+          "storyFilesHash": "e800d9cc70a931830d481d6b40236994104fa93fe3fa25d905b106a16ee49da1",
+          "timestamp": "2026-07-25T23:07:52.405Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
