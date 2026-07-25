@@ -138,7 +138,7 @@
       "desc": "stale-evidence-note: .lattice/story/actives/B-8b69/checklist.json:144 (CHK-002:adversarial:0 verificationEvidence.note) reads \"...after deleting the worktree dir (+ git worktree prune), dev_start re-bootstraps...\" but this description is now factually wrong at current HEAD: the F-008 fix commit bff69bdbfc deliberately REMOVED the external `git worktree prune` step from plan-init-reopen-roundtrip-smoke.ts (assertDevStartReuseFromMainAndRebootstrap, lines 172-181) specifically so the test stops relying on it and instead proves dev_start prunes its own stale registration (worktree.ts findWorktreeResidue/removeStaleWorktreeAdminDirs/pruneWorktreeRegistry block). The note text was recorded at headHash efc2619c7c (pre-F-008) and never refreshed, so it now describes a test shape that no longer exists in the repo. Impact is low: the actual current coverage is real and strictly stronger than what the stale note describes (self-heal, not externally-assisted), and I independently re-ran node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js at current HEAD (1e90610431) and it passes GREEN including this exact scenario. But per this story's own precedent (F-007: an evidence note/citation that no longer matches the code it describes), the note should be refreshed via verification_evidence_add so the audit trail stays accurate before DONE.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-25T15:47:29.264Z",
@@ -146,7 +146,11 @@
       "reviewRunId": "B-8b69:RR-013",
       "_hash": "3f3047a4e3eb43cee60564da4cc26f2f90fa663de8f5f07d042c8a9debbeea03",
       "signatureTag": "edge|unknown|stale-evidence-note",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Refreshed the CHK-002:adversarial:0 verificationEvidence note to accurately describe the current (un-gamed) test: it deletes only the worktree dir with NO external prune, and dev_start self-heals via its own F-008 registration prune. The coverage was already real and stronger than the stale note claimed; the note now matches.",
+      "resolvedAt": "2026-07-25T15:48:54.553Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
