@@ -266,7 +266,35 @@
       "context": "Update the FOUR hard-coded ProofStory command enumerations in scripts/verify-process-fact-contract.mjs (the process-fact-levels map near :160 plus the three MAIN_TOOLS command-name enumeration arrays near :1013, :1229, :1265) and the frozen trailing-order assertion at packages/main/src/tasks/command-catalog-smoke.ts:102-109 so the new command's catalog position is asserted; verify-process-fact-contract.mjs passes only when all four enumerations include the command.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node scripts/verify-process-fact-contract.mjs -> passes (exit 0) with red_evidence_binding_set present in all four enumerations (process-fact-levels map, MAIN_TOOLS/catalog array, command-policy array, process-fact-levels+registry array); WHY: proves the four hard-coded enumerations are complete",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the command-catalog-smoke test -> passes with red_evidence_binding_set at the asserted trailing catalog position; WHY: proves the frozen catalog order assertion includes the new command",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Grep each of the four enumeration locations in verify-process-fact-contract.mjs -> each contains the literal string red_evidence_binding_set; WHY: independent static verification that the additions are physically present",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Remove red_evidence_binding_set from exactly one of the four enumerations (e.g. the process-fact-levels map near :160) and re-run verify-process-fact-contract.mjs -> fails with a named assertion error citing the missing command; WHY: proves each of the four enumerations is independently checked, not redundantly counted",
+            "type": "cli"
+          },
+          {
+            "desc": "Change the catalog order assertion to put red_evidence_binding_set at a wrong position -> command-catalog-smoke fails; WHY: proves the trailing-position assertion is enforced, not decorative",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
