@@ -314,7 +314,7 @@
       "desc": "checklist.json CHK-004 verificationEvidence has a 4th entry with intentRef=CHK-004:hardening:issuance-replay-integrity that does not match any declared verificationIntent id (only enforce-and-rollback/mode-invariant-diagnostics/fail-closed-mutations exist under CHK-004). This orphaned row was never touched by verification_evidence_refresh_stale (which only re-stamps rows mapped to a declared intentRef via collectVerificationIntents) and still carries pre-merge hashes: headHash=ce0d2c98bff19f8b7ce33cf43a2213f1b1b392db materialHash=efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3 storyFilesHash=0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4 timestamp=2026-07-24T18:39:02.267Z, vs current storyFilesHash=83deb1844edb7591f0aa78b9c1a32f08f5d039b465b9c4571954724a1975fd8c. I independently re-ran node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations at the current head and it still PASSes (7 assertions), so the underlying claim is true today, but the persisted evidence artifact for this specific row is stale-by-hash and was silently skipped by the refresh pass. Does not block the 15 required intents (all correctly refreshed), but is a stray/misleading record. Fix: either delete the orphaned row or attach it to a real declared intentRef and re-stamp it.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T11:04:36.657Z",
@@ -325,7 +325,11 @@
         "checklist.json"
       ],
       "signatureTag": "missing|json|checklist-json-verificationevidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Orphan verificationEvidence row CHK-004:hardening:issuance-replay-integrity maps to no declared intent (CHK-004 declares happy/edge/adversarial), so it does not affect gate coverage; the 3 declared CHK-004 intents are all covered and fresh. Underlying --issuer-mutations test passes. No CLI exists to delete a single evidence row and direct story-file edits are prohibited; accepting the harmless stale orphan rather than hand-editing checklist.json.",
+      "resolvedAt": "2026-07-25T22:06:27.763Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-4043:F-016",
