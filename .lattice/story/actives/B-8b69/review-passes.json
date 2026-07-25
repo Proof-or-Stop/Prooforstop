@@ -150,6 +150,31 @@
         "scanEscalationReason": null
       },
       "_hash": "002379ab400f1b50489ea5b70d17780abe3ab605708a22046932af5157c9fdec"
+    },
+    {
+      "id": "B-8b69:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified F-008 resolution at HEAD 8576ce8f: CHK-002:adversarial:0 verificationEvidence.note now accurately states the test deletes ONLY the worktree dir (NO external prune) and asserts dev_start self-heals via its own F-008 registration prune. Confirmed against actual source: plan-init-reopen-roundtrip-smoke.ts (assertDevStartReuseFromMainAndRebootstrap) contains zero git-worktree-prune calls, only rmSync(wt) plus explicit no-prune comments; worktree.ts dev_start (lines 979-996) genuinely calls findWorktreeResidue/removeStaleWorktreeAdminDirs/pruneWorktreeRegistry before git worktree add, matching the note. Ran the compiled smoke directly (node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js) -- GREEN, both the round-trip and the from-main reuse+deleted-worktree re-bootstrap suites pass. finding_list confirms all 8 findings (F-001..F-008) resolved, evidenceState verified. Re-checked concept-deletion residue for this diff (29 files, +4193/-20): no orphaned references; other git-worktree-prune call sites (doctor.ts, cross-host-review.ts, done-effects.ts) are pre-existing, unrelated legitimate usages outside this story's scope. Prior substantive concept findings (deletion residue: none; F-005/decision.json INIT_CHECK freeze-invariant promise: genuinely delivered via the atomic REOPEN checklist reset in transition-orchestrator.ts) re-confirmed unchanged. No blocker.",
+      "createdAt": "2026-07-25T15:53:13.215Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-014",
+      "envelopeId": "bfd3d052f99c8916259a64918cfb972afc0d27efb020be07d097e2bfa48ba122",
+      "writerSessionId": "claude-code-8f6ba6c5-plan-init-reopen",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8b69/checklist.json",
+          ".lattice/story/actives/B-8b69/findings.json",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/plan-init-reopen.md",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "667d9eaa69dfc8751678d26a9fc58fdbb323bd4cb2d0db0411d7a9dc9125711d"
     }
   ]
 }
