@@ -1332,15 +1332,15 @@
         },
         {
           "intentRef": "CHK-010:happy:2",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/handlers/red-evidence.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "command": "node packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
           "result": "pass",
-          "note": "chain-smoke section 8 (lines 501-502) asserts red_evidence_binding_set THROWS /FROZEN/ for a target whose chain has an unquarantined run record — the binding is frozen once a run record exists (1.1.3 forecloses swap-after-review reuse).",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "Fixes F-009: the 1.1.3 freeze read+write was serialized only under withBindingLock while chain appends used a DISJOINT chain lock, so a concurrent recover could reinstate a run record between the freeze read and the write. binding_set now holds the SAME per-(story,target) redEvidenceChainLockDir around read+decision+write (binding lock outer, chain lock inner; appends take only the chain lock, so no ordering cycle). Part 1 is a DETERMINISTIC bypass repro (holder child takes the chain lock and reinstates the run record while held) asserting binding_set rejects as FROZEN with nothing bound; part 2 is a genuine 2-process race asserting exactly one of the two serial outcomes and a unique head. Verified RED: pointing binding_set at a disjoint lock dir makes part 1 fail with 'binding_set MUST NOT succeed ... freeze bypass otherwise'. Commit b4fa4bbfad.",
+          "headHash": "41e2b5f2ac2c24d0b948382d13963acc548db990",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:03:11.798Z"
         },
         {
           "intentRef": "CHK-010:happy:3",
