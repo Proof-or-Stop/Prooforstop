@@ -109,7 +109,21 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts the re-advance INIT->INIT_CHECK from inside the worktree succeeds and does NOT emit the does-not-contain .worktrees false-fail, proving dev_start reuses the existing worktree.",
+          "headHash": "8f11dca69b2813b1f2c500c469ba43990c7b3574",
+          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
+          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
+          "timestamp": "2026-07-25T12:00:19.559Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
