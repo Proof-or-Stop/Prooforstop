@@ -230,7 +230,35 @@
       "context": "red_evidence_binding_set flows through the single CLI choke point (packages/main/src/cli-engine.ts:1372) as a storyScopedMutating ownership class gated by enforceStoryOwnerLeaseGate, and by resolveAgentMutationAuthority (core/agent-dispatch-registry.ts:504) via entryPermitsMutation (:435). The command is rejected while a FOREIGN session holds an active owner lease (§4.1).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call red_evidence_binding_set from the session that holds the active owner lease (same LATTICE_SESSION_ID) -> command succeeds, binding is persisted; WHY: proves the owner-lease gate passes the legitimate owner",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call red_evidence_binding_set while a FOREIGN session holds an active owner lease (different LATTICE_SESSION_ID with recent heartbeat) -> rejected with an owner-lease conflict error; WHY: enforces section 4.1 owner-lease gate — foreign sessions cannot mutate",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify the command is classified as storyScopedMutating in command-policy.ts (grep assertion) -> the ownership class is exactly storyScopedMutating; WHY: proves it flows through the single CLI choke point with enforceStoryOwnerLeaseGate",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Foreign session lease expires (no heartbeat for >30min), then call with --takeover from a new session -> command succeeds after taking over the stale lease; WHY: proves stale-lease recovery works for this command",
+            "type": "cli"
+          },
+          {
+            "desc": "Call resolveAgentMutationAuthority with a role whose permittedMutations does NOT include red_evidence_binding_set -> mutation rejected; WHY: proves mutation-authority gating is enforced independently of lease ownership",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
