@@ -976,6 +976,22 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         }
       }
 
+      // B-8b69 (F-008): a worktree whose directory was deleted while its git
+      // registration lingered makes `git worktree add` fail with
+      // "'<path>' is a missing but already registered worktree". When re-bootstrapping
+      // such a story (the reuse early-return above already fell through because the dir
+      // is gone), surgically drop THIS story's stale admin registration + prune the
+      // now-missing entry so the add recreates the worktree cleanly, instead of leaking
+      // the raw git error. Targeted to this story (removeStaleWorktreeAdminDirs); a
+      // no-op on the normal first bootstrap where no residue exists and the path is
+      // absent. The prune only expires already-missing worktrees, so live siblings are
+      // untouched. This makes dev_start's deleted-worktree recovery (CHK-002 adversarial)
+      // actually work rather than relying on the caller to prune first.
+      if (findWorktreeResidue(args.storyId, branch, worktreePath, repoRoot) && !isUsableGitWorktree(worktreePath)) {
+        removeStaleWorktreeAdminDirs(args.storyId, branch, worktreePath, repoRoot);
+        pruneWorktreeRegistry(repoRoot);
+      }
+
       // Create worktree
       git(`worktree add "${worktreePath}" ${branch}`, repoRoot);
 

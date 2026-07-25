@@ -170,11 +170,14 @@ function assertDevStartReuseFromMainAndRebootstrap(): void {
     assert.match(reuse.out, /already exists|Path:/i, 'dev_start from main should report the existing worktree (reuse early-return)');
     assert.equal(existsSync(wt), true, 'the worktree is still present after reuse');
 
-    // adversarial:0 — delete the worktree dir + prune the registration, then dev_start re-bootstraps it.
+    // adversarial:0 — delete ONLY the worktree dir (leaving git's stale registration),
+    // then dev_start must re-bootstrap it ITSELF. The test does NOT prune — dev_start
+    // is responsible for dropping its own stale registration before `git worktree add`
+    // (F-008). If it doesn't, `git worktree add` fails with "missing but already
+    // registered" and this assertion catches the regression.
     rmSync(wt, { recursive: true, force: true });
-    try { git(root, ['worktree', 'prune']); } catch { /* best-effort registry cleanup */ }
     const rebootstrap = run(root, 'dev_start', { storyId });
-    assert.equal(rebootstrap.code, 0, `dev_start should re-bootstrap after the worktree was deleted: ${rebootstrap.out}`);
+    assert.equal(rebootstrap.code, 0, `dev_start must re-bootstrap a deleted worktree on its own (no external prune): ${rebootstrap.out}`);
     assert.equal(existsSync(wt), true, 'dev_start recreated the worktree after deletion');
   } finally {
     rmSync(root, { recursive: true, force: true });
