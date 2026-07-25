@@ -1,0 +1,37 @@
+{
+  "storyId": "B-8b69",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/checklist.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-25T10:57:58.509Z",
+  "updatedAt": "2026-07-25T10:57:58.509Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/story-advance.ts": "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  }
+}

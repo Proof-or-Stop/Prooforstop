@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-8b69",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:bff21005217cb5dd0f82c73f587c5b592d341df9bcd168b4902c4218a4f421e7",
+  "acceptanceBindings": [
+    {
+      "id": "AB-reopen",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [],
+      "milestoneIds": [],
+      "acceptanceClaim": "Running lattice story_advance phase=INIT with a reason from a PLAN worktree reopens the story to INIT; the re-advance INIT->INIT_CHECK reuses the existing worktree; the title-freeze guidance names the reopen-to-INIT path; and the round-trip smoke passes GREEN after the fix and RED before it.",
+      "note": "Single acceptance binding covering all four checklist items."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "acceptance_binding_missing_verification_intent_refs",
+      "severity": "warn",
+      "artifact": "proofstory.json",
+      "message": "AB-reopen has no verificationIntentRefs."
+    }
+  ],
+  "createdAt": "2026-07-25T11:04:45.146Z",
+  "updatedAt": "2026-07-25T11:04:45.146Z"
+}

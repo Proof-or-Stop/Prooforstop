@@ -18,6 +18,23 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "story_advance phase=INIT from a PLAN worktree with a reason lands the story at INIT",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "reopen is refused when reason is missing, and refused from any non-PLAN phase",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {

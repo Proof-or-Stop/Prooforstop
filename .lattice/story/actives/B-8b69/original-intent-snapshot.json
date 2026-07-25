@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-8b69",
+  "sourceText": "In the proofbound repo, `lattice story_advance --phase=INIT_CHECK` fails to bounce a story that is at PLAN with an active worktree, making it impossible to fix a frozen checklist title/context that a PLAN scope review legitimately flags. Root cause verified in worktree.ts:910 (storyRel resolved relative to the resolved repo root gains a .worktrees/<id>/ prefix when run from inside the worktree, so the branch-content guard false-fails). Fix direction: resolve storyRel/worktree path against the same root the branch tree is rooted at, or detect the branch already contains the canonical metadata and reuse the existing worktree. Add a smoke that bounces a PLAN-phase worktree'd story back to INIT_CHECK, edits a title, re-runs INIT review, and re-advances, proving the round-trip works without manual git surgery or checklist hand-edits.",
+  "normalizedOutcome": "A PLAN-phase worktree'd story whose frozen checklist title a scope review flagged can be reopened (to INIT, the only phase where title/context is editable), have its title edited, re-run INIT review, and re-advance INIT_CHECK->PLAN, entirely from inside the existing worktree, with no git surgery and no hand-edited checklist.json. A permanent round-trip smoke proves it RED before the fix and GREEN after.",
+  "acceptanceClaim": "Running lattice story_advance phase=INIT with a reason from a PLAN worktree reopens the story to INIT; the re-advance INIT->INIT_CHECK reuses the existing worktree instead of false-failing on a .worktrees/<id>/-prefixed branch path; the title-freeze guidance names the reopen-to-INIT path; and the round-trip smoke passes GREEN after the fix and fails RED before it.",
+  "keyRequirementIds": [
+    "CHK-001",
+    "CHK-002",
+    "CHK-003",
+    "CHK-004"
+  ],
+  "requestHash": "sha256:bff21005217cb5dd0f82c73f587c5b592d341df9bcd168b4902c4218a4f421e7",
+  "createdAt": "2026-07-25T11:03:22.785Z",
+  "updatedAt": "2026-07-25T11:03:22.785Z"
+}
