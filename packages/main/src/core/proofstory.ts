@@ -69,6 +69,10 @@ import {
 } from './milestone-status.js';
 import type { MaterialClassificationSnapshot } from './material-code-policy.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
+// W2c (B-506e): the v1 red-evidence gate predicate skips every non-v1 (v2 chain)
+// record — a v2 quarantine/recover record carries no observedFailure and must
+// not crash the LIVE enforce gate.
+import { isRedEvidenceV2, type RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
@@ -928,7 +932,16 @@ function expectedRedTargets(input: ProofStoryDiagnosticInput): Set<string> {
   return resolveExpectedRedTargets(input);
 }
 
-function redEvidenceRecordSatisfied(record: RedEvidenceRecord, expectedTargets: Set<string>): boolean {
+function redEvidenceRecordSatisfied(
+  record: RedEvidenceRecord | RedEvidenceRecordV2,
+  expectedTargets: Set<string>,
+): boolean {
+  // W2c (B-506e): a v2 record is NOT a v1 red-evidence satisfier — skip it
+  // BEFORE touching any v1-only field (the version discriminator governs, not
+  // field presence). This keeps the v1 gate verdict byte-identical on a v1-only
+  // store and prevents a v2 quarantine/recover record (no observedFailure) from
+  // throwing at record.observedFailure.trim() in the LIVE enforce gate.
+  if (isRedEvidenceV2(record)) return false;
   if (record.observedFailure.trim().length === 0) return false;
   if (!record.failingCommand && !record.failureReceiptHash) return false;
   if (!record.acceptanceTargetRef || !expectedTargets.has(record.acceptanceTargetRef)) return false;

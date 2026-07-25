@@ -14,6 +14,12 @@ export type {
 } from './validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationCommandExecution } from './validation-types.js';
 import type { SignatureTagSource } from './experience-layer-types.js';
+// W2c (B-506e): the RED-evidence subsystem's v2 record union (chain / control
+// records). RedEvidenceData.records is a mixed v1+v2 array, schemaVersion-
+// discriminated — the on-disk layout is unchanged (still one append-only
+// records[] under the v1 FILE schemaVersion).
+import type { RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
+export type { RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
 
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVIEW' | 'TEST' | 'DONE' | 'DISCARDED'
   // Legacy phases kept for backward compat with existing story data
@@ -79,7 +85,11 @@ export type AgentDispatchMutationCommand =
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
   // implementer registers the per-story target binding before a RED run.
-  | 'red_evidence_binding_set';
+  | 'red_evidence_binding_set'
+  // B-506e (W2c): the two owner-gated chain-control commands — retire a bad
+  // record without mutating history, and undo a mistaken quarantine (§4.1).
+  | 'red_evidence_quarantine'
+  | 'red_evidence_recover';
 
 export type AgentDispatchReviewerLane =
   | 'lattice-review-story-init'
@@ -2698,9 +2708,16 @@ export interface RedEvidenceRecord {
 }
 
 export interface RedEvidenceData {
+  /**
+   * The FILE-level schema stays `proofstory.red_evidence.v1` — the on-disk layout
+   * is unchanged (W2c / B-506e). Individual records are discriminated by their
+   * OWN `schemaVersion`: a legacy v1 record has none, a v2 record carries
+   * `proofstory.red_evidence.v2`. No migration of existing v1 stores.
+   */
   schemaVersion: 'proofstory.red_evidence.v1';
   storyId: string;
-  records: RedEvidenceRecord[];
+  /** Append-only, mixed v1 (legacy) + v2 (chain) records in one array. */
+  records: (RedEvidenceRecord | RedEvidenceRecordV2)[];
   createdAt: string;
   updatedAt: string;
 }
