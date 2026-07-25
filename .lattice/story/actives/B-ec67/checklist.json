@@ -88,7 +88,40 @@
       "context": "Model on packages/main/src/core/done-required-validation.ts:892-895 (exitCode/outputDigest=sha256(output)/outputTail helper:531). Reviewers must see real numbers, killing the claimed-N-actually-M counting errors; the receipt is the tool's proof, not the agent's prose.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "stored evidence for an executable intent carries a receipt (exitCode + outputDigest + outputTail) and the result field is derived from the actual exit code, not the caller",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "outputDigest == sha256(captured output) and outputTail is bounded to the tail of the output",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a caller-supplied result:pass that contradicts a nonzero exit does not survive — the receipt result overrides the claim",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
