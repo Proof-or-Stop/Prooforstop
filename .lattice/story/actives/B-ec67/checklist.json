@@ -39,7 +39,12 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "excludes": [
+        "cwdPolicy pin field (optional refinement from handoff §2a, deferred beyond the enforcement floor)",
+        "expectedExit pin field (the floor uses a fixed exit==0 check; a configurable expected exit is a deferred refinement)",
+        "specDigest pin field (optional tamper-evidence refinement, deferred)"
+      ]
     },
     {
       "id": "CHK-002",
