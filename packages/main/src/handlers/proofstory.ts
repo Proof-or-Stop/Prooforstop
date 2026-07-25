@@ -9,7 +9,7 @@
 import type { HandlerContext } from './context.js';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import type { AcceptanceBasisArtifactV1, AcceptanceRolloutCohortInputV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, ScopeShrinkageDecisionData } from '../core/types.js';
+import type { AcceptanceBasisArtifactV1, AcceptanceRolloutCohortInputV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode } from '../core/types.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,

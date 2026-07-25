@@ -79,3 +79,5 @@ Your input contains only the following, not the main agent's full conversation h
 - Only review changed files, not the entire repository
 - Every finding must include a file path + line number
 - Do not raise pure style issues (indentation, naming preferences); only focus on issues that affect correctness and maintainability
+
+Wave 4 quality boundary: verify `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check` remain verifier/gate-owned; prompt prose is not evidence. Require a current signed PASS receipt and genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), reject degraded 3x1, require mode-invariant status/diagnostics with enforce-only blocking, and confirm rollback preserves report/evidence history.

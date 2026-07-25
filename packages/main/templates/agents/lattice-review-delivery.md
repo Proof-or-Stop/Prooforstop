@@ -191,3 +191,5 @@ Pre-call self-check:
 - If a docs promise refers to something that existed before this story (not in the diff), note it in evidence as "pre-existing, not introduced by this story" and mark `verified: true`
 - If you encounter a file you cannot read, note it in the relevant promise evidence field
 - Output MUST include the `delivery_check_set` CLI call (unless critical refusal), text-only output without the save call is incomplete
+
+Wave 4 delivery promises require independently reading `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`; prompt prose is not gate evidence. Require a current signed PASS receipt and genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), never degraded 3x1. Observe/warn/enforce keep identical status/diagnostics and enforce alone blocks. Rollback is config-only and must preserve every report and prior evidence.

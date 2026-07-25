@@ -41,17 +41,17 @@ export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
 const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
   'lattice-review-behavior': 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
-  'lattice-review-concept': 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a',
-  'lattice-review-docs': '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59',
-  'lattice-review-quality': 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280',
-  'lattice-review-test-coverage': '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0',
+  'lattice-review-concept': 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c',
+  'lattice-review-docs': 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af',
+  'lattice-review-quality': '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504',
+  'lattice-review-test-coverage': '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88',
 });
 
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
   'lattice-review-story-init': '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
   'lattice-review-scope-plan': '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
-  'lattice-implementer': '76733faf83b5eab773d86960c6aa51d87261d8db0660f81a332250c931a62229',
-  'lattice-review-delivery': '5357c140ba9b47f51f362cca7b4aa9289a1d15367427f3ee302a53439dd44b57',
+  'lattice-implementer': 'c26ee6377b2075beb8c12173e5a635a55aff2518398f8a1949cc9826fa6e9163',
+  'lattice-review-delivery': 'e8e7db5d9ce0893105a3bfdab0b9774f22de0a61bfd0d0da37caa7dc8fe584c7',
   'lattice-evaluator': 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
 });
 

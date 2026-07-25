@@ -1194,11 +1194,25 @@ function assertProofStoryProgressiveBoundary() {
     'lattice-review-docs',
     'lattice-review-delivery',
   ];
-  const rolloutPromptPairs = rolloutPromptNames.map(name => [
-    `.lattice-codex/agents/${name}.md`,
-    `.claude/agents/${name}.md`,
-  ]);
-  const lastParagraph = text => text.trim().split(/\n\s*\n/).at(-1)?.trim() || '';
+  // B-4043 F-014: the acceptance-rollout role guidance is sourced from the
+  // canonical package templates (the REAL delivery path — review_run_start /
+  // agent_prompt resolve each role body from templates/agents), NOT from the
+  // regenerable host shims under .claude/agents / .lattice-codex/agents (those
+  // are thin/mirror adapters that `lattice init --upgrade` rewrites). Validate
+  // the tokens in the template source, and prove the guidance does not depend
+  // on the bootstrap-only modular-reviewer shims.
+  const rolloutPromptTemplates = rolloutPromptNames.map(
+    name => `packages/main/templates/agents/${name}.md`,
+  );
+  // Modular reviewer roles render as a body-free review_run_start bootstrap in
+  // the host shim; their guidance must live in the template and reach them via
+  // review_run_start, never via the shim.
+  const rolloutBootstrapOnlyReviewerNames = [
+    'lattice-review-concept',
+    'lattice-review-quality',
+    'lattice-review-test-coverage',
+    'lattice-review-docs',
+  ];
   const rolloutPromptTokens = [
     'acceptance_topology_check',
     'pre_review_check_read',
@@ -1269,10 +1283,12 @@ function assertProofStoryProgressiveBoundary() {
       && rolloutPolicy?.status === 'gateEvidence'
       && rolloutPolicy.gateEvidence === true
       && policyBlockHasOwnershipClass(rolloutPolicy, 'storyScopedMutating')
-      && rolloutPromptPairs.every(([codexPath, claudePath]) =>
-        rolloutPromptTokens.every(token => read(codexPath).toLowerCase().includes(token) && read(claudePath).toLowerCase().includes(token))
-        && lastParagraph(read(codexPath)) === lastParagraph(read(claudePath))),
-    'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and exact Codex/Claude role guidance',
+      && rolloutPromptTemplates.every(templatePath =>
+        rolloutPromptTokens.every(token => read(templatePath).toLowerCase().includes(token)))
+      && rolloutBootstrapOnlyReviewerNames.every(name =>
+        !read(`.claude/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')
+        && !read(`.lattice-codex/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
+    'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [

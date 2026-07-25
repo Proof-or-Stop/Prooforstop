@@ -120,16 +120,23 @@ const rolloutPromptTokens = [
   'rollback',
 ];
 
+// B-4043 F-014: the role guidance is sourced from the canonical package
+// templates (the REAL delivery path — review_run_start / agent_prompt resolve
+// each role body from templates/agents), NOT from the regenerable host shims.
+// The token contract is checked against the template source of truth; the host
+// shims are still checked for codex/claude mirror parity (each host render is a
+// deterministic render of the same template, so their guidance suffix agrees).
 function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boolean {
   const lastParagraph = (text: string) => text.trim().split(/\n\s*\n/).at(-1)?.trim() || '';
   return rolloutPromptNames.every(name => {
+    const templatePath = `packages/main/templates/agents/${name}.md`;
+    const template = overrides.get(templatePath) ?? readFileSync(join(repositoryRoot, templatePath), 'utf8');
+    const tokensPresent = rolloutPromptTokens.every(token => template.toLowerCase().includes(token));
     const codexPath = `.lattice-codex/agents/${name}.md`;
     const claudePath = `.claude/agents/${name}.md`;
     const codex = overrides.get(codexPath) ?? readFileSync(join(repositoryRoot, codexPath), 'utf8');
     const claude = overrides.get(claudePath) ?? readFileSync(join(repositoryRoot, claudePath), 'utf8');
-    return rolloutPromptTokens.every(token =>
-      codex.toLowerCase().includes(token) && claude.toLowerCase().includes(token))
-      && lastParagraph(codex) === lastParagraph(claude);
+    return tokensPresent && lastParagraph(codex) === lastParagraph(claude);
   });
 }
 
@@ -902,16 +909,20 @@ try {
     const controlsPass = controlRows.length === 3 && rolloutReport.metrics.falseBlockCount === 0;
     recordExecutedCase(['A-MUT-2', 'mutation', 'rollout:false-block-controls', 'docs-legacy-single-outcome-controls', 'execute docs-only, legacy, and ordinary single-outcome candidate controls through the rollout verifier', 'PASS', controlsPass ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
-    const codexPath = '.lattice-codex/agents/lattice-implementer.md';
+    // B-4043 F-014: token-contract mutations target the canonical template
+    // source of truth (where the guidance now lives); the authority-sentence
+    // mutation stays on the Claude host shim so it bites via the codex/claude
+    // mirror-parity contract.
+    const implTemplatePath = 'packages/main/templates/agents/lattice-implementer.md';
+    const templateControl = readFileSync(join(repositoryRoot, implTemplatePath), 'utf8');
     const claudePath = '.claude/agents/lattice-implementer.md';
-    const codexControl = readFileSync(join(repositoryRoot, codexPath), 'utf8');
     const claudeControl = readFileSync(join(repositoryRoot, claudePath), 'utf8');
-    assert.ok(codexControl.includes('acceptance_rollout_check'), 'prompt command-removal mutation requires the canonical command token');
-    assert.ok(codexControl.includes('full 3 rounds × 2 hosts'), 'prompt degradation mutation requires the canonical full-3x2 token');
+    assert.ok(templateControl.includes('acceptance_rollout_check'), 'prompt command-removal mutation requires the canonical command token');
+    assert.ok(templateControl.includes('full 3 rounds × 2 hosts'), 'prompt degradation mutation requires the canonical full-3x2 token');
     assert.ok(claudeControl.includes('prompt prose is never gate evidence'), 'prompt-authority mutation requires the canonical non-authority sentence');
     const promptMutations = [
-      new Map([[codexPath, codexControl.replace('acceptance_rollout_check', 'removed_rollout_check')]]),
-      new Map([[codexPath, codexControl.replace('full 3 rounds × 2 hosts', 'degraded 3x1')]]),
+      new Map([[implTemplatePath, templateControl.replace('acceptance_rollout_check', 'removed_rollout_check')]]),
+      new Map([[implTemplatePath, templateControl.replace('full 3 rounds × 2 hosts', 'degraded 3x1')]]),
       new Map([[claudePath, claudeControl.replace('prompt prose is never gate evidence', 'prompt prose is gate evidence')]]),
     ];
     const promptMutationsBite = promptMutations.every(overrides => !rolloutPromptGuidancePass(overrides))
