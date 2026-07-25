@@ -178,7 +178,55 @@
       "context": "The §3.3 closed transition table governs legal quarantine/recover transitions with governing-red-assert derivation; effective-head resolution walks transitively through chained recover records and is cycle-safe (a self-referential or looping recover chain TERMINATES instead of recursing forever).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Empty chain → red-assert: legal; red-assert head → green-confirm (confirmsRecordId == governing red-assert id): legal; red-assert head → quarantine: legal; quarantine head → recover: legal; quarantine head → red-assert (deliberate replacement): legal; WHY: every row of the closed transition table accepts its legal successors",
+            "type": "cli"
+          },
+          {
+            "desc": "Effective-head resolution for a recover record: recover reinstates the record retired by the referenced quarantine; effectiveHeadOperation = the reinstated record operation (transitively); governing red-assert derivation walks back through the chain; WHY: recover is transparent — it re-exposes the pre-quarantine state",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "green-confirm head → red-assert (re-open/regression): legal; green-confirm head → green-confirm (re-confirmation of SAME governing red-assert at newer green tree): legal; WHY: these are the two less-obvious green-confirm successor transitions",
+            "type": "cli"
+          },
+          {
+            "desc": "Transitive effective-head: chain has red-assert → quarantine → recover → quarantine → recover; effective head = red-assert (two levels of transitive walk); WHY: effective-head must walk ALL chained recovers, not just one level",
+            "type": "cli"
+          },
+          {
+            "desc": "green-confirm whose confirmsRecordId does NOT equal the current governing red-assert id → REJECTED regardless of chain ordering; WHY: a green-confirm must confirm the SAME governing assertion, not an old or foreign one",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Self-referential recover chain: a recover record whose recoversRecordId = its own id → effective-head walk TERMINATES (does not recurse forever); WHY: cycle safety is a hard requirement, infinite recursion = crash",
+            "type": "cli"
+          },
+          {
+            "desc": "Looping recover chain: record A recovers B, record B recovers A → effective-head walk detects the cycle and terminates; WHY: mutual reference creates a cycle that must be detected",
+            "type": "cli"
+          },
+          {
+            "desc": "Recover-of-a-recover: current head is a recover record, attempt another recover targeting it → REJECTED by the §4.1 state machine (recover targets quarantine heads only); WHY: RED signal C — recover is only valid on a quarantine head",
+            "type": "cli"
+          },
+          {
+            "desc": "Quarantine of a non-head record: attempt to quarantine a record that is NOT the current chain head → REJECTED; WHY: RED signal C — only the head can be quarantined",
+            "type": "cli"
+          },
+          {
+            "desc": "Empty chain → green-confirm/quarantine/recover: all three REJECTED (empty chain admits only red-assert); WHY: no governing red-assert exists, so no transition is possible",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
