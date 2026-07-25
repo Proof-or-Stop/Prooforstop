@@ -538,9 +538,9 @@
       "id": "CHK-010",
       "title": "Land red_evidence_quarantine and red_evidence_recover with derived approvedBy and the binding freeze rule",
       "context": "packages/main/src/handlers/red-evidence.ts adds red_evidence_quarantine and red_evidence_recover (reusing the W2b 13-point wiring recipe: registry/command-catalog/command-policy/config/process-fact-levels/process-fact-registry/types union/permittedMutations/owner-lease), with the §4.1 (1122-1171) reference-validation state machine, DERIVED approvedBy = <actor>@<sessionId> (never a caller argument), recover-of-a-recover + quarantine-of-non-head rejected; and lands the §1.1.3 binding-freeze rule inside red_evidence_binding_set now that chain-head semantics exist (a binding is frozen once a run record exists on an unquarantined chain).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:18:23.961Z",
       "verificationIntent": {
         "happy": [
           {
@@ -608,7 +608,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:adversarial:4",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/handlers/red-evidence.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "quarantine/recover with §4.1 state machine + DERIVED approvedBy (forged ignored) + binding-freeze/unfreeze/re-freeze; chain-smoke sections 7-8 + red-w2c-rejection-matrix (commit 31bb8adf2e)",
+          "headHash": "31bb8adf2e33c244543ad2a7e4975427472a5dd9",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:18:24.163Z"
+        }
+      ]
     },
     {
       "id": "CHK-011",
