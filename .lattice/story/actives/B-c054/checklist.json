@@ -514,8 +514,9 @@
             "type": "cli"
           },
           {
-            "desc": "All doctor output lines, command-policy reasons, and process-fact rationales added by this story use language consistent with §0.6 (accidental fabrication, workflow drift, casual gaming) → manual review checklist; WHY: the assurance tier constrains all user-facing language",
-            "type": "cli"
+            "desc": "grep every doctor output line, command-policy reason, and process-fact rationale added by this story for overclaim tokens (tamper-proof|tamper-resistant|cannot be forged|guarantees integrity|prevents forgery) yields zero matches; strings stay within the §0.6 practical assurance tier",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "adversarial": [
