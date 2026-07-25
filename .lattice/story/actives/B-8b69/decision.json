@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Recovery must land the story in a phase where the flagged artifact is genuinely editable (INIT), not one that merely looks earlier.",
+    "Never weaken an existing safety invariant to add a convenience path; the INIT_CHECK scope-freeze stays intact.",
+    "Backward transitions are gated and auditable (reason required, pre-REVIEW only).",
+    "Fix the root cause of the path bug (main-root-relative worktree paths) rather than patching one call site."
+  ],
+  "drivers": [
+    "A PLAN scope review can legitimately require a frozen title to change, and today there is no sanctioned way to do it for a worktree'd story.",
+    "The title/context freeze invariant (INIT_CHECK onward) must be preserved.",
+    "The round-trip must work entirely from inside the existing worktree with no git surgery."
+  ],
+  "options": [
+    {
+      "name": "Reopen to INIT via a gated PLAN->INIT transition (chosen)",
+      "pros": [
+        "INIT is the only phase where checklist_update permits title/context edits, so this actually restores the capability.",
+        "Preserves the INIT_CHECK scope-freeze invariant untouched.",
+        "Natural re-advance path INIT->INIT_CHECK->PLAN re-runs the INIT review, so a changed title is re-validated."
+      ],
+      "cons": [
+        "Requires a new machine edge + event + guard and the dev_start worktree-reuse fix so the re-advance reuses the worktree.",
+        "Slightly longer round-trip (re-run INIT review) than an in-place title edit."
+      ]
+    },
+    {
+      "name": "Reopen to INIT_CHECK and remove INIT_CHECK from titleContextProtectedPhases (rejected)",
+      "pros": [
+        "Matches the original (contradictory) guidance wording 'bounce to INIT_CHECK'.",
+        "Shorter round-trip."
+      ],
+      "cons": [
+        "Weakens the scope-freeze invariant: making title editable at INIT_CHECK reopens the remove+re-add bypass the freeze was designed to prevent.",
+        "Still needs the dev_start path fix, so it is not actually simpler where it matters."
+      ]
+    }
+  ],
+  "chosen": "Reopen to INIT via a gated PLAN->INIT transition (chosen)",
+  "rationale": "Reopening to INIT is the only option that actually restores the flagged-title recovery, because title/context is editable only at INIT; reopening to INIT_CHECK would require weakening the scope-freeze invariant (driver 2) for no real simplification, since the dev_start worktree-reuse path bug must be fixed either way. The chosen path adds a gated, auditable PLAN->INIT edge (reason required, PLAN-only) and fixes resolveWorktreePath to resolve the always-main-relative worktree path against the main repo root, so the re-advance INIT->INIT_CHECK reuses the existing worktree and re-runs the INIT review on the corrected title.",
+  "preMortem": [
+    {
+      "scenario": "The reopen becomes a way to weaken the INIT_CHECK scope-freeze invariant.",
+      "trigger": "A later change makes title/context editable at INIT_CHECK to shorten the round-trip.",
+      "consequence": "The remove+re-add scope bypass that the freeze was designed to prevent becomes possible again.",
+      "mitigation": "Keep INIT_CHECK in titleContextProtectedPhases; reopen targets INIT only; the round-trip smoke also asserts a title edit at INIT_CHECK stays rejected."
+    },
+    {
+      "scenario": "The dev_start reuse fix breaks the from-main bootstrap path.",
+      "trigger": "resolveWorktreePath is changed to resolve story.worktree.path against the main repo root for all callers.",
+      "consequence": "A dev_start or worktree operation run from the main root resolves the wrong path.",
+      "mitigation": "story.worktree.path is always main-root-relative and getRepoRoot()==main when run from main, so from-main behavior is byte-identical; the round-trip smoke plus existing worktree smokes exercise both roots."
+    },
+    {
+      "scenario": "PLAN->INIT reopen is abused to escape a legitimately failing PLAN->DEV gate.",
+      "trigger": "An agent reopens repeatedly to dodge scope review or a blocking gate.",
+      "consequence": "Scope churn or gate evasion.",
+      "mitigation": "Reopen requires a reason, is PLAN-only and owner-lease gated, and the return trip re-enters the full INIT->INIT_CHECK gate (scope-freeze + INIT review), so nothing downstream is bypassed."
+    }
+  ],
+  "timestamp": "2026-07-25T10:54:30.303Z"
+}

@@ -6,7 +6,19 @@
       "context": "New backward edge PLAN->INIT guarded by canReopenToInit (owner-gated, requires a reason, allowed only pre-REVIEW from PLAN). Wire it into BOTH the xstate machine states and canSendStoryEventWithoutSnapshotCan so story_advance --phase=INIT from PLAN lands at INIT, the only phase where title/context is editable.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running lattice story_advance {storyId:B-x,phase:INIT,reason:...} from a PLAN worktree prints: Story B-x advanced to INIT. Omitting reason prints a clear refusal; reopening from any non-PLAN phase is refused.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
