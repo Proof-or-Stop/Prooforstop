@@ -1,0 +1,30 @@
+{
+  "passes": [
+    {
+      "id": "B-3b88:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review: detectEvidenceRowContradiction is a pure, side-effect-free helper (verification.ts) using basename-stem extraction (dist<->src, .js/.ts/.cjs/.mjs/.cts/.mts normalization); commandTargetStem picks the LAST script-like token so multi-arg/pipe/traversal cases resolve to the right target via basename. Wired identically into verification_evidence_add and verification_evidence_batch_add before persistence — no bypass. refresh_stale change correctly reuses pre-existing failed/stale coverage classification (fail rows never reach the stale list, so edge:1 is consistent with existing logic); whitespace-only command (length>0) is treated as command-backed per spec. No dead code (all new helpers/exports used), no as-any, no empty catches, no I/O in the pure helper. Both new smoke tests build clean (tsc --noEmit) and PASS against dist, run in isolated mkdtemp git fixtures (no writes to real repo). No blocking findings.",
+      "createdAt": "2026-07-25T23:27:02.258Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-001",
+      "envelopeId": "6bef3c153486bc509e047a2869f16707635087e0db497f3b1a79ff6f5af36421",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3d23b6f05dee148392e8f32514f7e59b58a8dfc6f257f1f32c8eab92701fba4"
+    }
+  ]
+}
