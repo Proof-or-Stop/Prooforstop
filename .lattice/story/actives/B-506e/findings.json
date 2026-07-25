@@ -67,6 +67,21 @@
       "_hash": "e3c53d848a6f835436bc81c60f4416a8d00187a9f33caa98a6f097dc760288b5",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-005",
+      "desc": "schemaVersion discriminant is NOT exhaustive — silent fall-through crashes the LIVE enforce gate: packages/main/src/core/red-evidence/record-v2.ts:152-158 isRedEvidenceV2() only recognizes the exact literal proofstory.red_evidence.v2 string; every production call site (proofstory.ts:944 redEvidenceRecordSatisfied, chain.ts:36 partitionChain, handlers/red-evidence.ts:53 findV2Record) uses isRedEvidenceV2 and treats anything that is NOT exactly v2 as v1 by default. The fail-closed helper classifyRedRecordSchema (record-v2.ts:177-188), whose own doc comment promises unknown schemaVersion values fail CLOSED per CHK-002s forward-compatibility rule, is dead in production — its ONLY caller anywhere in src/ is the smoke test (tasks/red-evidence-chain-smoke.ts), never proofstory.ts/chain.ts/red-evidence.ts. Repro: wrote a record with schemaVersion=proofstory.red_evidence.v3 (a hypothetical future/corrupted version) with no observedFailure field into a stores red-evidence.json and called evaluateProofStoryDiagnostics — it THROWS TypeError Cannot read properties of undefined (reading trim) at record.observedFailure.trim(), i.e. it reproduces the EXACT live-gate crash class CHK-003 was supposed to fix, for any schemaVersion other than the two known literals. This also silently violates CHK-002:adversarial:0 (unknown schemaVersion must be rejected at parse/load time with a diagnostic, not silently accepted) — nothing rejects it; it free-falls into the v1 code path and either crashes or (if the malformed record happens to carry v1-shaped fields) could silently satisfy/pollute the v1 gate verdict. Fix: isRedEvidenceV2 (or its call sites) must route through classifyRedRecordSchema (or equivalent) so an unrecognized schemaVersion throws/fails closed BEFORE reaching v1 field access, not fall through as if absent.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-25T12:29:42.706Z",
+      "reviewRound": "2026-07-25T12:11:38.694Z",
+      "reviewRunId": "B-506e:RR-002",
+      "_hash": "5f0f6394701a59e528178980469175dd913fde0c16712a5370d6fbde1490818a",
+      "signatureTag": "edge|unknown|schemaversion-discriminant-exhaustive",
+      "signatureTagSource": "auto"
     }
   ]
 }
