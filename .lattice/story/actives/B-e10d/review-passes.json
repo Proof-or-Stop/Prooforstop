@@ -138,6 +138,32 @@
         "scanEscalationReason": "second-round re-review of delta since round1 head (3d972f305d); confirmed byte-identical diff for all production/wiring files via git diff, so full re-read was scoped to the 2 files that actually changed"
       },
       "_hash": "c0b31cb4a962e4e822f82bd9cb0cbd2dbb748f3a50ce754faf77f245530f6ebf"
+    },
+    {
+      "id": "B-e10d:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-audit: F-001 dead execFileSync import confirmed removed (grep clean, tsc clean, build clean). Two new committed regression tests (smoke sec5b stale-lease-takeover in commit b801541e47, red-w2b-wiring-contract.mjs remove-one-registration-point in commit 04acdca376) reviewed line-by-line: real lease file+injected stale heartbeat with proper env save/restore in finally, non-destructive ESM --import loader + symlink-farm overlay confirmed via git status clean on command-policy.ts/verify-process-fact-contract.mjs after running, non-vacuous via assert.notEqual pre-check that the strip changed source, cleanup in finally, no catch blocks/no swallowed errors in either file. Production source (core/*, handlers/*, registry.ts, cli/command-catalog.ts, scripts/verify-process-fact-contract.mjs) byte-identical since round-1 commit 81b3081b12 (diff stat empty). All green: tsc --noEmit, npm build, smoke, both new mjs tests, and all 3 registration contracts run standalone.",
+      "createdAt": "2026-07-25T09:10:33.658Z",
+      "reviewRound": "2026-07-25T09:06:12.028Z",
+      "reviewRunId": "B-e10d:RR-007",
+      "envelopeId": "226b7ee1615ef59f47d68d8a14baa181b338ea05ece372333e2a404b3d7d528d",
+      "writerSessionId": "review-quality-b-e10d-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-e10d/background.md",
+          ".lattice/story/actives/B-e10d/checklist.json",
+          ".lattice/story/actives/B-e10d/plan.md",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/tests/red/red-w2b-binding-store.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfe960eb11cf6579fd789fb32f2abfa2501f223c172b42a5d1a51862c235a2dc"
     }
   ]
 }
