@@ -186,7 +186,51 @@
       "context": "A redEvidence block without pinnedPath rejects with exactly red_evidence_policy_missing: pinnedPath and no default is substituted; a relative pinnedPath entry rejects.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveRedEvidencePolicy({}) (no pinnedPath) → rejects with exactly the string \"red_evidence_policy_missing: pinnedPath\"; WHY: the exact diagnostic string is spec-mandated and must be asserted literally",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/local/bin\"]}) succeeds → proves pinnedPath presence is the gate; WHY: happy-path control to confirm the rejection is pinnedPath-specific",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[]}) (empty array) → rejects; an empty pinnedPath is functionally equivalent to absent because no executable can resolve; WHY: empty-array edge case",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:null}) → rejects with the same diagnostic; WHY: null is a distinct absent-value from omission",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"relative/path\"]}) → rejects (relative entry is not absolute); WHY: spec requires absolute directories only, §1.12",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\",\"relative\"]}) → rejects even though first entry is absolute; one bad entry is enough; WHY: mixed absolute/relative",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"./usr/bin\"]}) → rejects; dot-prefixed paths look absolute-ish but are relative; WHY: path traversal attempt",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"\"]}) → rejects; empty string is not an absolute path; WHY: degenerate input",
+            "type": "cli"
+          },
+          {
+            "desc": "No default pinnedPath is ever substituted anywhere in the resolver (grep for a default value) → code inspection confirms; WHY: spec says required-with-no-default, silent default would be wrong",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
