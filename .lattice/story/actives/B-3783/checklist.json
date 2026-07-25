@@ -59,7 +59,108 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "GREEN in worktree: printed 'command catalog smoke passed: 337 commands' and exited 0 (pre-fix exit 1 with the lattice-review-channel AssertionError).",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Forward branch (dispatchableCanonicalNames.has(entry.canonicalName)) keeps the original assertions: every example field schemaAccepts==true and validateAgentDispatchRequest(...).entry===entry. Smoke GREEN confirms all dispatchable entries pass both schema and runtime.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Reverse branch asserts schemaAccepts('dispatch','agentType',canonicalName)==false AND assert.throws(validateAgentDispatchRequest, /retired|unknown/i). Exercised for lattice-review-channel; smoke GREEN.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Branch predicate is a Set built from AGENT_DISPATCH_ACCEPTED_TYPES with .has(entry.canonicalName); no agent name is hardcoded, so future retirements/additions are covered automatically.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "The pre-existing dispatchable assertions are preserved verbatim inside the forward branch; only the assertion message prefix changed from 'registered' to 'dispatchable'.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Final line unchanged: 'command catalog smoke passed: ${MAIN_TOOLS.length} commands'; GREEN printed 337 (MAIN_TOOLS.length), not the registry size.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "note": "Live mutation proof: z.enum([...AGENT_DISPATCH_ACCEPTED_TYPES,'lattice-review-channel']) makes the reverse assert.equal(accepts,false) THROW, so the reverse assertion is non-vacuous and catches a stale non-dispatchable agent leaking into the enum.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Deleting the else-branch would drop every reverse assertion and stop exercising the retired entry; the mutation proof shows the reverse branch is the sole guard against enum/registry divergence, so its removal is a detectable coverage loss.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "note": "Verified live: validateAgentDispatchRequest({agentType:'lattice-review-channel'}) THROWS AgentDispatchRegistryError (code unknown_agent_type, message 'retired agentType ...'), not a falsy return; assert.throws with /retired|unknown/i requires a real throw.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -105,7 +206,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "Parsed lattice.config.json: exactly 1 validate.commands entry matches command-catalog-smoke.js -> {command:node,args:[packages/main/dist/tasks/command-catalog-smoke.js],timeoutMs:180000}.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "Structural check: the entry has no focus property; is-in-fast-focus-set==false, so it runs on the normal validate tier.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "The entry is placed after validate.commands[0] (npm --prefix packages/main run build) and after capability-list-smoke, so the dist it runs is freshly built by validate's first step.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "Format matches sibling normal-tier CLI-subprocess smokes review-pass-discard-smoke and init-window-data-loss-smoke: {command:node,args:[...],timeoutMs:180000}.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "lattice validate executes exactly the validate.commands list; removing this entry removes the smoke from the executed set (the pre-fix silent-gap state this story closes). Confirmed by the structural parse showing the guard is present only because of this entry.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        }
+      ]
     }
   ]
 }
