@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Persist red-target-bindings.json through StoryStore with exactly one binding per acceptance target",
+      "context": "packages/main/src/core/store.ts gains read/write for .lattice/story/actives/<id>/red-target-bindings.json (schema proofstory.red_target_bindings.v1); the store enforces the §1.1.3 uniqueness invariant of exactly one binding per acceptanceTargetRef (a second write for the same ref is a duplicate-target rejection, not an overwrite). Types in core/types.ts:69 area declare the binding entry and the v1 file shape.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Compute targetBindingDigest over the createdAt-stripped three-field subobject only",
+      "context": "The recorded targetBindingDigest is CANON (W2a canon.ts) over exactly the three binding-identity fields with createdAt STRIPPED; a stored entry carries createdAt, so CANON over the STORED entry must NOT equal the digest while CANON over the stripped three-field subobject MUST. This createdAt-strip direction is the behavioral RED trap a naive implementation gets wrong.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Export expectedRedTargets as one shared resolver and gate binding writes on target membership",
+      "context": "The currently module-private expectedRedTargets (packages/main/src/core/proofstory.ts:855) is extracted as a shared exported resolver WITHOUT changing its computed set (proven by a same-set assertion). red_evidence_binding_set rejects at write time (§3.3) any acceptanceTargetRef not in expectedRedTargets.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Resolve the authorizing binding from a committed tree ref and never from the live story directory",
+      "context": "A committed-tree reader resolves a binding from <ref>:.lattice/story/actives/<id>/red-target-bindings.json via git show, NOT from the live (possibly edited) story directory; a test where the committed tree and the live directory hold different bindings proves the reader returns the committed one (§1.1.3 committed-tree lookup).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Register red-target-bindings.json in the lifecycle artifact set and the ProofStory artifact path list",
+      "context": "Add the filename to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (core/lifecycle-registry.ts:599) so the scope classifier (rejects unknown top-level story artifacts at :836) accepts it as lifecycle metadata, and to the ProofStory artifact path list. This closes RED signal A (a story touching the file can now reach DONE).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Register red_evidence_binding_set at every wiring point including the closed mutation-command union",
+      "context": "Register the command in registry.ts (MAIN_TOOLS), cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, core/process-fact-registry.ts, AND the two points the spec never names: the CLOSED AgentDispatchMutationCommand union at core/types.ts:69 and the per-role permittedMutations arrays (core/agent-dispatch-registry.ts:435). The existing lifecycle-registry-contract.ts + command-ownership-contract.ts (RED signal B) enumerate these bidirectionally and pass only when all are present.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Gate the command through the owner lease and resolved agent mutation authority",
+      "context": "red_evidence_binding_set flows through the single CLI choke point (packages/main/src/cli-engine.ts:1372) as a storyScopedMutating ownership class gated by enforceStoryOwnerLeaseGate, and by resolveAgentMutationAuthority (core/agent-dispatch-registry.ts:504) via entryPermitsMutation (:435). The command is rejected while a FOREIGN session holds an active owner lease (§4.1).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Update the four hard-coded ProofStory command enumerations and the frozen catalog order assertion",
+      "context": "Update the FOUR hard-coded ProofStory command enumerations in scripts/verify-process-fact-contract.mjs (:160, :987, :1187, :1224) and the frozen trailing-order assertion at packages/main/src/tasks/command-catalog-smoke.ts:102-109 so the new command's catalog position is asserted; verify-process-fact-contract.mjs passes only when all four enumerations include the command.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Register red-evidence-target-binding-smoke in lattice.config.json validate.commands and prove no gate verdict changes",
+      "context": "Create packages/main/src/tasks/red-evidence-target-binding-smoke.ts covering the store uniqueness, the createdAt-strip digest both directions, the expectedRedTargets same-set + membership gate, the committed-tree reader, the owner-lease/foreign-lease rejection, and the full registration surface; register it in lattice.config.json validate.commands. Prove NO existing gate verdict changes: redEvidenceSatisfied / missingRedEvidence and all existing gates are untouched (this story adds a store + command, rewires no gate).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
