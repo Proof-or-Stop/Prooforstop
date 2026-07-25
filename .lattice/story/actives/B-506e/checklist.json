@@ -490,7 +490,43 @@
       "context": "packages/main/src/tasks/red-evidence-chain-smoke.ts covers the v2 union, the enforce-gate byte-identical guard, the chain integrity checks + transition table, the operation-key/dedupe/replay ordering, the mkdir-claim concurrency race, the full rejection matrix, and quarantine/recover + binding-freeze; register it in lattice.config.json validate.commands and update the four verify-process-fact enumerations + command-catalog-smoke trailing order for the two new commands.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red-evidence-chain-smoke registered in lattice.config.json validate.commands; running lattice validate executes the smoke and it passes; WHY: the smoke must be wired into the validation pipeline to run automatically",
+            "type": "cli"
+          },
+          {
+            "desc": "Full npm test suite passes with the two new commands (red_evidence_quarantine, red_evidence_recover) included in all four verify-process-fact-contract.mjs enumerations; WHY: process-fact coverage is a completeness gate",
+            "type": "cli"
+          },
+          {
+            "desc": "command-catalog-smoke trailing order updated to include the two new commands in their correct alphabetical/categorical position; smoke passes; WHY: catalog ordering is validated by the smoke and a missing or misordered entry fails it",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke test covers all three RED signals in one pass: (A) byte-identical v1 guard, (B) genuine 2-process concurrency race, (C) the full rejection matrix (fork rejection with distinct reason id, seq gap, seq reuse, recover-of-recover, quarantine-of-non-head, retired-record-byte-identical, self-referential recover terminates, replay returns existing with unchanged length, corrupted operationKey raises CONFLICT); WHY: the smoke is the convergence anchor and must cover every un-gameable signal",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke covers quarantine/recover + binding-freeze (binding frozen after run record, unfrozen after quarantine, re-frozen after recover); WHY: binding-freeze is a new semantic added in this story",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Remove one wiring point (e.g. delete the command-catalog entry for red_evidence_quarantine) → command-catalog-smoke or verify-process-fact fails; WHY: wiring completeness must be enforced by committed tests, not manual inspection",
+            "type": "cli"
+          },
+          {
+            "desc": "Remove the chain-smoke from validate.commands → lattice validate no longer runs it; the regression must be caught by a committed test or the validate output audit; WHY: de-registration of a critical smoke must be detectable",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
