@@ -628,9 +628,9 @@
       "id": "CHK-011",
       "title": "Register red-evidence-chain-smoke in lattice.config.json validate.commands and run the full suite",
       "context": "packages/main/src/tasks/red-evidence-chain-smoke.ts covers the v2 union, the enforce-gate byte-identical guard, the chain integrity checks + transition table, the operation-key/dedupe/replay ordering, the mkdir-claim concurrency race, the full rejection matrix, and quarantine/recover + binding-freeze; register it in lattice.config.json validate.commands and update the four verify-process-fact enumerations + command-catalog-smoke trailing order for the two new commands.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:18:25.094Z",
       "verificationIntent": {
         "happy": [
           {
@@ -666,7 +666,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-011:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "chain smoke registered in lattice.config.json validate.commands; three registry contracts pass with both new commands (commit 31bb8adf2e)",
+          "headHash": "c8ae785ae0722eb535e14326e8a548e1f44c12f5",
+          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
+          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
+          "timestamp": "2026-07-25T11:18:25.265Z"
+        }
+      ]
     },
     {
       "id": "CHK-012",
