@@ -368,9 +368,9 @@
       "id": "CHK-007",
       "title": "Order the append pipeline so the dedupe search precedes head resolution and any run",
       "context": "packages/main/src/core/red-evidence/append.ts runs the mandated §3.5 ORDER: derive key → dedupe search → replay short-circuit (a replay deriving the same operationKey returns the EXISTING record, records.length UNCHANGED, no second run) → resolve head → transition legality → integrity checks → append; a stored record failing its own key/id recomputation raises a tagged CONFLICT with nothing written.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:17:55.227Z",
       "verificationIntent": {
         "happy": [
           {
@@ -406,7 +406,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/red-evidence/chain.ts",
+          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "result": "pass",
+          "note": "§3.5 order derive-key->dedupe->replay->head->transition->integrity->append; corrupted key raises CONFLICT; chain-smoke section 6 (commit 3976bccb2e)",
+          "headHash": "757dc5a3654ce420f42c7ed1ee00226058c84468",
+          "materialHash": "f6e643e181a935694925778e380ca6fb48306eb7e41c7ac2811d047d65a7933a",
+          "storyFilesHash": "7d083663a7fc58668d4a52c746f75559d2a2f14f784d946751bc4393682f97d4",
+          "timestamp": "2026-07-25T11:17:55.468Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
