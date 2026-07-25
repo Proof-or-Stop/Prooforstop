@@ -434,7 +434,51 @@
       "context": "createDoctorHandlers (handlers/doctor.ts:67) reports the resolved policyDigest or the fail-closed diagnostic alongside the existing scans; the smoke proves doctor's exit code is unchanged, no gate evidence is written, and proofstory_gate_check output is byte-identical — doctor is not a gate and its stdout is deliberately not frozen.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lattice doctor → output contains exactly one line with \"red-evidence\" (case-insensitive search for the section); WHY: doctor must report the health check",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice doctor with NO redEvidence block in config → exit code is 0 (unchanged from before this story); WHY: doctor is not a gate, missing policy must not change exit code",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice doctor → the red-evidence line contains the fail-closed diagnostic (red_evidence_policy_missing: pinnedPath) when no block is configured; WHY: proves the diagnostic renders",
+            "type": "cli"
+          },
+          {
+            "desc": "Run proofstory_gate_check before and after this story → output is byte-identical; WHY: doctor is not a gate, gate_check must not gain new evidence",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run lattice doctor with a VALID redEvidence block (fixture with pinnedPath) → the red-evidence line shows the resolved policyDigest (sha256:...); WHY: proves the valid-block render path",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice doctor when the red-evidence resolver throws an unexpected error → doctor catches it, emits an error diagnostic, and exit code is still 0; WHY: the check must never throw and crash doctor",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run lattice doctor → no file is written to .lattice/story/ gate evidence paths; before-and-after ls of evidence directories is identical; WHY: doctor must not accidentally write gate evidence",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice doctor → stdout contains exactly ONE red-evidence line, not zero and not two+; count occurrences; WHY: duplicate lines indicate double-registration in createDoctorHandlers",
+            "type": "cli"
+          },
+          {
+            "desc": "Run lattice doctor with an invalid redEvidence block (missing pinnedPath) → exit code is STILL 0; WHY: even a misconfigured policy must not gate via doctor",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
