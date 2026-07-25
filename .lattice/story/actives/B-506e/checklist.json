@@ -1595,14 +1595,14 @@
         {
           "intentRef": "CHK-011:adversarial:1",
           "kind": "logic_test",
-          "file": "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
-          "command": "node packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "file": "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "command": "node packages/main/tests/red/red-w2c-validate-registration.mjs",
           "result": "pass",
-          "note": "red-w2c-wiring-detectability.mjs (committed) proves de-registration is DETECTED: via an ESM --import loader it non-destructively strips the ONE compiled command-policy entry for red_evidence_quarantine (then red_evidence_recover) and asserts BOTH command-ownership-contract and lifecycle-registry-contract exit non-zero and NAME the removed command ('has no CommandPolicy entry' / 'process-fact lifecycle entry ... has no command-policy entry'). A green baseline run proves it non-vacuous; the real registries are never edited.",
-          "headHash": "0f9c704703d96bcb4e963e71d30c9aa02630675e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:06:24.619Z"
+          "note": "Fixes F-001 (a): RE-BOUND to the test that matches this intent's literal scenario (remove the chain-smoke from validate.commands). red-w2c-validate-registration.mjs parses lattice.config.json, normalizes every validate.commands entry (bare string OR {command,args}) and asserts packages/main/dist/tasks/red-evidence-chain-smoke.js is registered; per-entry NON-VACUITY re-runs the same detector over an in-memory copy with each required entry stripped and requires it to name that command missing; it also asserts every registered dist task entry has a committed src/**.ts source (dangling/typo'd path). Verified RED: physically deleting the chain-smoke entry from lattice.config.json makes it fail with 'these smokes are NOT registered ... red-evidence-chain-smoke.js' (config restored byte-identical). Commit b4fa4bbfad.",
+          "headHash": "3a74d58575183fdb17d800c4213a7ace8fce7ba7",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:03:30.338Z"
         }
       ]
     },
