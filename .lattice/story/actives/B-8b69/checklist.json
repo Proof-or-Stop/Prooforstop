@@ -122,6 +122,23 @@
         "test": [
           "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the plan-init-reopen round-trip smoke passes GREEN after the fix",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "the same smoke fails RED against pre-fix code (missing PLAN->INIT edge and dev_start path bug)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
