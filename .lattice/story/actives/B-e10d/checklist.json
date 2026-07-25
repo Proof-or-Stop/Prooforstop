@@ -80,9 +80,9 @@
       "id": "CHK-003",
       "title": "Export expectedRedTargets as one shared resolver and gate binding writes on target membership",
       "context": "The currently module-private expectedRedTargets (packages/main/src/core/proofstory.ts:887) is extracted as a shared exported resolver WITHOUT changing its computed set (proven by a same-set assertion). red_evidence_binding_set rejects at write time (§3.3) any acceptanceTargetRef not in expectedRedTargets.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:35.426Z",
       "verificationIntent": {
         "happy": [
           {
