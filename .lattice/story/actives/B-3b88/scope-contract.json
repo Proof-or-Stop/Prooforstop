@@ -1,0 +1,43 @@
+{
+  "storyId": "B-3b88",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/checklist.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+    "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CHK-001's contradiction check is a pure predicate (detectEvidenceRowContradiction); it belongs with the other evidence-binding logic in core/verification.ts and is imported by handlers/checklist.ts. The plan's checklist declared handlers/checklist.ts but the pure helper's natural home is core/verification.ts.",
+      "timestamp": "2026-07-25T23:20:56.926Z",
+      "paths": [
+        "packages/main/src/core/verification.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/verification.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c7ebf5a4c1580ca9ee8f2d376d920f00b797a0cb",
+      "materialHash": "6cf78a9ff335c4a7fe3b514a0a645a5fb0720c2098de3b6f8e9ef812b063ee59"
+    }
+  ],
+  "createdAt": "2026-07-25T23:20:01.856Z",
+  "updatedAt": "2026-07-25T23:20:56.926Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/evidence-selfcheck-smoke.ts": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+    "packages/main/src/tasks/refresh-stale-honesty-smoke.ts": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+    "packages/main/src/core/verification.ts": "packages/main/src/core/verification.ts"
+  }
+}
