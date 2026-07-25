@@ -74,6 +74,25 @@
       ],
       "signatureTag": "adversarial|ts|checklist-json-happy",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e10d:F-005",
+      "desc": "checklist.json:915-924 CHK-009:adversarial:1 claims a bidirectional test (remove red-evidence-target-binding-smoke from lattice.config.json validate.commands -> smoke NOT executed; re-add -> runs), but the bound evidence is only grep -n red-evidence-target-binding-smoke lattice.config.json, i.e. the positive-registration direction. The negative direction (removal -> non-execution) is never exercised. Materiality is low: the note correctly identifies that validate.commands is the sole, generic, pre-existing activation array shared by every other registered smoke in the suite, so this is not novel behavior introduced by this story, but the intents specific bidirectional claim remains formally unproven by the recorded evidence.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T08:44:49.443Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-002",
+      "_hash": "3ac86bb5ac974811f13305144a1eb38ee466a0c6d45341b1076ca56f0b90fcae",
+      "files": [
+        "lattice.config.json",
+        ".lattice/story/actives/B-e10d/checklist.json"
+      ],
+      "signatureTag": "adversarial|json|checklist-json-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
