@@ -51,7 +51,7 @@
       "desc": "packages/main/src/core/proofstory.ts:944 redEvidenceRecordSatisfied guards only isRedEvidenceV2(record) (exact schemaVersion===\"proofstory.red_evidence.v2\"); any record whose schemaVersion is set but NOT that exact string (a future v3, or a corrupted/malformed stored record) falls through to the v1 branch and crashes at record.observedFailure.trim() (:947-949) in the LIVE enforce gate — reproduced live: writing {schemaVersion:\"proofstory.red_evidence.v3\", operation:\"red-assert\", ...} (no observedFailure) into a real store and calling evaluateProofStoryDiagnostics throws TypeError: Cannot read properties of undefined (reading trim). This contradicts CHK-003s own title (skip EVERY non-v1 record) and the forward-compatibility fail-closed philosophy record-v2.ts:177 classifyRedRecordSchema documents (throws on unknown schemaVersion) — but classifyRedRecordSchema is never called from the gate path (only from its own smoke-test assertion in red-evidence-chain-smoke.ts:200-203), so the fail-closed guarantee it advertises is not actually wired to the one place (the live enforce gate) that the story exists to protect. RED signal A is fixed only for the specific known-v2 shape, not for the non-v1/non-v2 case its own doc comments claim to cover.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-25T12:21:15.724Z",
@@ -59,7 +59,11 @@
       "reviewRunId": "B-506e:RR-001",
       "_hash": "2681547a5eacc32340ad7b4bb29e583d6cadb4bef18f42545c81b97650f7c516",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4fa4bbfad (one defect with F-004/F-005): schema discrimination is exhaustive and fail-closed via record-v2.ts:182 RedEvidenceSchemaError and :196 classifyRedRecordSchemaSafe, wired into store.ts:870 read path and proofstory.ts:949 gate predicate. Test red-w2c-schema-failclosed.mjs PASS; differential RED confirmed against the pre-fix tree.",
+      "resolvedAt": "2026-07-25T22:34:21.300Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-004",
