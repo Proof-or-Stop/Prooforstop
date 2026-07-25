@@ -50,10 +50,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "The round-trip smoke asserts story_advance phase=INIT with a reason from a PLAN worktree lands the story at INIT (phaseOf===INIT).",
-          "headHash": "11cd8d6be857ac8e9b241f32d79fad1ae39f3b0b",
-          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
-          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
-          "timestamp": "2026-07-25T12:00:17.659Z"
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "The smoke asserts a reopen without a reason is refused (matches /reason of at least .. characters/) and the phase does not move.",
-          "headHash": "798ed94b7132923fd11493eeb37eb209fba64ef3",
-          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
-          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
-          "timestamp": "2026-07-25T12:00:18.657Z"
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
         }
       ]
     },
@@ -130,10 +130,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "assertDevStartReuseFromMainAndRebootstrap: from the MAIN root, dev_start on a story with an existing worktree reuses it (reports already-exists / Path), exercising resolveWorktreePath main-root resolution + the reuse early-return.",
-          "headHash": "3f0e4c2ebb633942fba7f6907b444ea312403be3",
-          "materialHash": "b754621ed4690a8ad728c163ace792d220c6c0d77ca51ed178d8acba27a874a0",
-          "storyFilesHash": "177999ecb1d8ec2b2a9846507cc8d0780941b56de5dcffe1eced93338769f295",
-          "timestamp": "2026-07-25T15:30:22.601Z"
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -198,10 +198,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "The smoke asserts a title edit at PLAN is refused and the refusal matches /reopen to INIT/ and shows phase:INIT, and does NOT say back to INIT_CHECK.",
-          "headHash": "797c8386823d353e2a1b15ec80ae586ed26ad7de",
-          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
-          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
-          "timestamp": "2026-07-25T12:00:20.546Z"
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -210,10 +210,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "The smoke asserts a title edit at INIT_CHECK is rejected (frozenAtCheck.code != 0) and the corrected title is unchanged, proving INIT_CHECK stays frozen (scope-freeze invariant preserved).",
-          "headHash": "7832767af244578d3155fbc318b3db3f79cb8a79",
-          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
-          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
-          "timestamp": "2026-07-25T12:02:15.242Z"
+          "headHash": "1e0172f9e81711f0c04c0df1ec4a678da24e3a23",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T16:29:04.941Z"
         }
       ]
     },
