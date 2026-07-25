@@ -29,6 +29,46 @@
         "scanEscalationReason": null
       },
       "_hash": "6340717acf5aa3fd6d1fb11daace41de9c699b1b43dc07173b12f8af17a0406a"
+    },
+    {
+      "id": "B-3783:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed CHK-001/CHK-002: bidirectional branch predicate is correct (Set(AGENT_DISPATCH_ACCEPTED_TYPES).has(canonicalName) exactly identifies the single retired entry), reverse assertion is non-vacuous (verified in isolated scratch worktree: widening ACCEPTED_TYPES to include the retired entry makes the smoke fail; neutering the reverse assertions to a skip-only branch makes it silently pass, confirming the shipped assertions are load-bearing). validate.commands wiring placed on normal (untagged) tier after build, matches other non-fast entries. No dead code, no unsafe any, no swallowed errors. No blocking findings.",
+      "createdAt": "2026-07-25T22:13:16.727Z",
+      "reviewRound": "2026-07-25T22:07:02.769Z",
+      "reviewRunId": "B-3783:RR-002",
+      "envelopeId": "e89ca2fe9a86f5137eb4feb5f8eb538e9abab6ae15a3c31a5ee2410618822993",
+      "writerSessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3783/background.md",
+          ".lattice/story/actives/B-3783/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3783/acceptance-basis.json",
+          ".lattice/story/actives/B-3783/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-3783/decision.json",
+          ".lattice/story/actives/B-3783/index.json",
+          ".lattice/story/actives/B-3783/intent-collision.json",
+          ".lattice/story/actives/B-3783/original-intent-snapshot.json",
+          ".lattice/story/actives/B-3783/process-events.jsonl",
+          ".lattice/story/actives/B-3783/process-metrics.json",
+          ".lattice/story/actives/B-3783/proofstory.json",
+          ".lattice/story/actives/B-3783/red-evidence.json",
+          ".lattice/story/actives/B-3783/review.json",
+          ".lattice/story/actives/B-3783/scope-check.json",
+          ".lattice/story/actives/B-3783/scope-contract.json",
+          ".lattice/story/actives/B-3783/test-evidence.json",
+          ".lattice/story/actives/B-3783/understanding.json",
+          "packages/main/src/core/agent-dispatch-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c697116d08ea3caec7ee2df7603ddd58c8334bb396f1ae182d39be6b942ee5eb"
     }
   ]
 }
