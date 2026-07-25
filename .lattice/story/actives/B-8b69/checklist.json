@@ -54,6 +54,18 @@
           "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
           "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
           "timestamp": "2026-07-25T12:00:17.659Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a reopen without a reason is refused (matches /reason of at least .. characters/) and the phase does not move.",
+          "headHash": "798ed94b7132923fd11493eeb37eb209fba64ef3",
+          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
+          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
+          "timestamp": "2026-07-25T12:00:18.657Z"
         }
       ]
     },
