@@ -51,6 +51,45 @@
         "scanEscalationReason": null
       },
       "_hash": "d9ab6288e3a38307c7cc88ff49aec6864fe1d2e268ec14a5c63e4c76df273687"
+    },
+    {
+      "id": "B-3b88:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-review of F-001/F-002 fix (commit 630b6d9). Confirmed refresh_stale command-backed-pass-refused semantics are now consistently described on every live-read surface (CLI help, shared stale-hint renderer, story-lifecycle.md x2, testing-infra.md) and match the actual handler wording. Built dist; ran pinned verification-freshness-smoke.js (passes to the pre-existing unrelated assertSimulatedMainMergeRegression failure, confirmed untouched by this diff / not in any npm script) plus the two new CHK smokes (evidence-selfcheck-smoke, refresh-stale-honesty-smoke), both PASS. Grepped repo-wide for refresh_stale/rerun-command residue: only hit is a frozen 2026-06-13 B-8448 translation-audit snapshot doc (not a live behavioral surface). No concept-residue finding; F-001/F-002 confirmed resolved.",
+      "createdAt": "2026-07-25T23:57:17.695Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-007",
+      "envelopeId": "aba10bf26c9a8e16d4569ea07cbc9174da41e20d83976f025505fa8a9f738b4b",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/findings.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/evidence-plan.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/handlers/recover-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "db6e93240830c3f3213a2fc725e77e66f756e349f43bcafccf08603023d9d2b7"
     }
   ]
 }
