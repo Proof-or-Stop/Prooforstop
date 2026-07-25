@@ -112,9 +112,9 @@
       "id": "CHK-003",
       "title": "Make redEvidenceRecordSatisfied skip every non-v1 record and prove all three gate verdicts are unchanged",
       "context": "In the SAME commit as the widening: guard redEvidenceRecordSatisfied (packages/main/src/core/proofstory.ts:931) so its record.observedFailure.trim() at :932 (reached via .some() at :947 and missingRedEvidence at :1196) is only applied to v1 records — a v2 record must not crash the LIVE enforce gate (devGateMode/reviewGateMode/doneGateMode all enforce in lattice.config.json). Prove the diagnostic output is BYTE-IDENTICAL to the pre-change run on a v1-only store (RED signal A).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T11:17:28.982Z",
       "verificationIntent": {
         "happy": [
           {
@@ -146,7 +146,21 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/proofstory.ts",
+          "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "result": "pass",
+          "note": "guard proven byte-identical: without it the live gate throws TypeError at observedFailure.trim(); with it the v1 verdict is byte-identical +v2 (commit 9f52660fdd)",
+          "headHash": "661286a5b7690a241554072e0254bf7610cb91fa",
+          "materialHash": "5ac21d2a4dc43840490a5c68283cf0f58974f0ee49816af4776d0c28491ed4a8",
+          "storyFilesHash": "af3bbe865358b14fb85400c597081bc59e773a3b315655c1fa2b14c3d81d163e",
+          "timestamp": "2026-07-25T11:17:29.221Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
