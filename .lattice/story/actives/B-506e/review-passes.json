@@ -253,6 +253,57 @@
         "scanEscalationReason": null
       },
       "_hash": "7a5cdecd379adbecec36aea299188d5d76a333bfaee1224322a3a40d7fb4e24f"
+    },
+    {
+      "id": "B-506e:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge fresh-pass re-review after merge cf7050d95e (main->story, 86 commits, no conflicts). Merge-collision check: command-catalog.ts merge diff is a clean 3-way combine (main added an unrelated story_advance reason field for B-8b69; story kept red_evidence_quarantine/red_evidence_recover additions + updated red_evidence_binding_set description) — no textual conflict, no clobbering. lifecycle-registry.ts is byte-identical to main post-merge (story never modified it; W2c does not add lifecycle artifact filenames, only chain records inside the existing red-evidence.json file). Verified all 13 wiring points for red_evidence_quarantine/red_evidence_recover intact post-merge (command-catalog, agent-dispatch-registry permittedMutations+VALID_MUTATIONS, command-policy, process-fact-levels, process-fact-registry, types union, registry.ts, handlers/red-evidence.ts, verify-process-fact-contract.mjs enumerations, command-catalog-smoke trailing order) via targeted grep + line-level inspection; counts match the already-reviewed red_evidence_binding_set baseline. tsc --noEmit clean (0 errors) on merged tree. All 9 committed red-w2c-*.mjs tests pass (exit 0). red-evidence-chain-smoke.js passes (exit 0), confirms v2 union, byte-identical v1 gate guard (RED A), chain integrity+transition table, operation-key/dedupe/replay, binding-freeze, 2-process mkdir-claim race (RED B). scripts/verify-process-fact-contract.mjs passes (exit 0). Separately observed: command-catalog-smoke.js fails on an UNRELATED pre-existing assertion (AGENT_DISPATCH_REGISTRY dispatch-schema loop rejecting the deliberately-dispatch-excluded lattice-review-channel entry) — confirmed by direct reproduction that this same failure already exists on main HEAD e998a8d4be in isolation (no B-506e code), so it predates and is independent of this merge/story; the W2c-specific trailing-catalog-order assertions for red_evidence_quarantine/red_evidence_recover (earlier in the same smoke file, line ~109-113) execute and pass before that unrelated failure is reached. Not filed as a B-506e finding: out of scope (agent-dispatch-registry.ts dispatch-schema wiring, unrelated to red-evidence chain semantics) and not introduced by this merge.",
+      "createdAt": "2026-07-25T23:15:13.275Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-014",
+      "envelopeId": "eadd86cf2979a66d93b01fadaa4348a4f8ea56f9ed260071da6a130e5b478443",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "245aaa46dc61217bb7b0ec17437443c958de85c3658ab364c29790707a9b3399"
     }
   ]
 }
