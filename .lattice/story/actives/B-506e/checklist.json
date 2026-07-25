@@ -63,10 +63,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 1 (lines 189-194) builds a quarantine v2 record and asserts it OMITS observedFailure/baselineHeadHash/baselineMaterialHash/greenRelation/specDigest/assertion/policySnapshot/runReceipt and carries only recoversRecordId/referencedRecordDigest/linkKind/reason/approvedBy/operationKey (0.4 field-set omission).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -75,10 +75,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 1 (lines 173-175) asserts a seq==1 red-assert has priorRecordDigest===null and supersedes===null and that JSON.stringify contains the literal priorRecordDigest:null token — chain fields are PRESENT carrying JSON null, not omitted and not empty string (0.4 nullability).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -87,10 +87,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "GreenConfirmRecordV2 (record-v2.ts lines 104-110) declares confirmsRecordId/confirmsRecordDigest/confirmsAssertionDigest + redBaselineHeadHash/redBaselineMaterialHash and, extending the base rather than the red-assert, carries no assertion/policySnapshot of its own; chain-smoke section 5 exercises green-confirm as a union member via greenConfirmOperationKey (line 338) and the GRN- deterministic id (line 333). The field set is the compiled discriminated-union contract (green-confirm writer is W2e).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -99,10 +99,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 4 constructs recover records via makeControl (lines 297,301) with linkKind='recovers' (helper line 581) and the control field set (no specDigest, no greenRelation); isControlRecordV2 classifies quarantine and recover identically (section 1 line 188). Recover shares the quarantine control-record shape, differing only in linkKind=recovers.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -111,10 +111,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "the v2 record union (record-v2.ts RedEvidenceRecordV2) is a closed per-operation discriminated union, so a field belonging to another operation (runReceipt on a quarantine, trigger on a recover) is rejected at compile time by tsc; chain-smoke section 1 (lines 189-191) asserts the constructed quarantine carries none of the run-record fields.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -123,10 +123,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 1 asserts priorRecordDigest is serialized as JSON null (line 175) and recordDigest recomputes from the record bytes via recordDigestMatches (line 171); CANON preserves null as null and never coerces it to empty string, so a priorRecordDigest of empty-string canonicalizes to a different body and yields a different recordDigest than the canonical null form.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         }
       ]
     },
@@ -185,10 +185,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 2 writes a v1-only store (writeRecords [v1], line 219), captures the diagnostic (before, line 220), then adds a v2 record and re-reads: after===before (line 238) proves v1 records are untouched and still drive the verdict; the file schemaVersion stays proofstory.red_evidence.v1 (RED_EVIDENCE_FILE_SCHEMA_VERSION) with no migration.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -197,10 +197,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "RedEvidenceData.records is widened (types.ts ~line 2700) to the mixed (RedEvidenceRecord|RedEvidenceRecordV2)[] array whose zero case is the empty array; chain-smoke section 2 round-trips v1-only, mixed and v2-only record arrays through store read/write, exercising the widened array type (the empty array is its trivial boundary).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -209,10 +209,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 2 (lines 241-243) writes a store containing only v2 records (records [ra, q], zero v1) and evaluates the diagnostics without crashing (v2Only.length>0), proving a store with only v2 records parses correctly.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -221,10 +221,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 1 (lines 199-200) asserts classifyRedRecordSchema({schemaVersion:'proofstory.red_evidence.v3'}) THROWS /unknown per-record schemaVersion/ — an unknown schemaVersion is rejected at parse/load time with a diagnostic, never silently accepted (fail-closed forward compatibility).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         }
       ]
     },
@@ -287,10 +287,10 @@
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
           "note": "red-w2c-gate-guard.mjs (RED signal A) computes the live missingRedEvidence diagnostic on a v1-only store (before), injects a v2 quarantine record with no observedFailure, and asserts the re-run does NOT throw (lines 89-91) and is BYTE-IDENTICAL: after===before (line 92) — the guard is transparent to the enforce gate (devGateMode/reviewGateMode/doneGateMode).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -299,10 +299,10 @@
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
           "note": "red-w2c-gate-guard.mjs writes a mixed store [v1, v2Quarantine] where the v1 record satisfies the gate, and asserts the diagnostic does not throw and equals the v1-only verdict (line 92) — v2 records are silently skipped and invisible to the v1 predicate.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -311,10 +311,10 @@
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
           "note": "red-w2c-gate-guard.mjs (lines 95-97) writes a v2-only store and asserts missingRedEvidence fires (v2Only.length>0) with no crash — a v2-only store has no v1 satisfier and must report missing rather than throw.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -323,10 +323,10 @@
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
           "note": "the guard discriminates only on schemaVersion, leaving the v1 predicate (observedFailure.trim()) untouched; red-w2c-gate-guard.mjs proves the verdict is byte-identical before/after adding a v2 record (line 92), so a v1 record with empty-string observedFailure still trims to empty and stays unsatisfied exactly as before the change.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -335,10 +335,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 2 (lines 241-243) writes a v2-only store whose v2 red-assert (synthRedAssert) DOES carry an observedFailure field, yet missingRedEvidence still fires — the schemaVersion=v2 discriminator governs the skip, not field presence, so a malformed hybrid v2 record with observedFailure is still skipped by the v1 predicate.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         }
       ]
     },
@@ -413,10 +413,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (line 252) asserts resolveChainHead([ra1]).id===ra1.id for a single-record chain — conjunct (a) no record consumes its priorRecordDigest and conjunct (b) maximal seq both hold simultaneously.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -425,10 +425,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (lines 273-277) partitions a store with targets AB-001 (2 records) and AB-002 (1 record) via partitionChain and resolves each head; resolveChainHead returns the maximal-seq head and AB-002's head is unaffected by AB-001 — multi-record head resolution + per-target partitioning.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -437,10 +437,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (lines 256-257) asserts checkChainIntegrity([ra1], ra1, {seq:2, prior:ra1.recordDigest}).ok — all three checks pass on a well-formed append: check1 seq==head.seq+1, check2 prior==head.recordDigest, check3 no existing record claims the same priorRecordDigest.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -449,10 +449,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (line 254) asserts checkChainIntegrity([], null, {seq:1, prior:null}).ok — the chain-founding record passes all three checks on an empty chain: seq==1 seen as correct, null==null, and nothing to fork against.",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -461,10 +461,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (lines 273-277) proves two targets in the same store are independent chains: partitionChain isolates AB-001 (2 records) from AB-002 (1 record) and resolveChainHead of AB-002 is unaffected by appends to AB-001 (3.2 distinct-target independence).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -473,10 +473,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (line 259) asserts checkChainIntegrity([ra1], ra1, {seq:3, prior:ra1.recordDigest}).reasonId===REASON_SEQ_INVALID — a seq gap (head.seq=1, append seq=3) is rejected by check 1 (also red-w2c-rejection-matrix line 90).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -485,10 +485,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (line 261) asserts checkChainIntegrity([ra1], ra1, {seq:1, prior:ra1.recordDigest}).reasonId===REASON_SEQ_INVALID — a seq reuse (append seq=1 over head.seq=1) is rejected by check 1 (also red-w2c-rejection-matrix line 91).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         },
         {
           "intentRef": "CHK-004:adversarial:3",
@@ -497,10 +497,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 3 (lines 263-270) asserts a prior-digest mismatch yields REASON_PRIOR_DIGEST_MISMATCH (check 2) while a fork yields REASON_CHAIN_FORK (check 3) and REASON_CHAIN_FORK !== REASON_PRIOR_DIGEST_MISMATCH — the broken-link and contested-link detectors have DISTINCT reason ids (also red-w2c-rejection-matrix lines 92-94).",
-          "headHash": "d6ce4783c3c901b16c310d1b214d2c15e55aef5b",
+          "headHash": "8ed7d6b85f7c91f6868b4a1b8bcde746ebbfe15b",
           "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
           "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:20.921Z"
+          "timestamp": "2026-07-25T11:55:32.775Z"
         }
       ]
     },
