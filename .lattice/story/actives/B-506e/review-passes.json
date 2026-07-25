@@ -38,6 +38,46 @@
         "scanEscalationReason": null
       },
       "_hash": "8f8918d8c620c7e01fead5bbce06e150fef739912519c04434d5b858e67e9191"
+    },
+    {
+      "id": "B-506e:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 confirmation. F-003 CONFIRMED FIXED: exhaustive fail-closed schema discrimination now guards the single production observedFailure.trim() call site (proofstory.ts:950) with TWO independent layers: (1) read-path fail-closed at store.ts:870 readRedEvidence, which classifies every record via classifyRedRecordSchema and throws typed RedEvidenceSchemaError on an unsupported schemaVersion, never silently accepting it into records[]; (2) gate-predicate defense-in-depth at proofstory.ts:948-949 (isRedEvidenceV2 skip + classifyRedRecordSchemaSafe!=='v1' skip) before any v1-only field access. Verified store.readRedEvidence is the SOLE production read choke point for red-evidence.json (grep across machine.ts/handlers/proofstory.ts/handlers/story-review.ts/handlers/phase-gates.ts/red-evidence.ts — all construct redEvidence via store.readRedEvidence, no bypass). chain.ts partitionChain and handlers/red-evidence.ts findV2Record were NOT modified and do not need to be: both only ever check isRedEvidenceV2 as a v2 filter and never dereference a v1-only field (observedFailure/failingCommand/baselineHeadHash/greenRelation all live only inside redEvidenceRecordSatisfied), and both consume data exclusively via store.readRedEvidence, so relying on the read-path fail-closed is sufficient there. No code path can still reach observedFailure.trim() on a non-v1 record. Ran red-w2c-schema-failclosed.mjs live (fresh build, tsc --noEmit clean): v3-record read throws typed RedEvidenceSchemaError not TypeError; live gate never throws bare TypeError; v1-only verdict byte-identical before/after; v3 injected directly past the read gate is still invisible to the predicate. All 9 red-w2c/*.mjs + red-evidence-chain-smoke.js pass. Concept-residual scan of b4fa4bbfad: no dead/unreachable code, no leftover TODOs; the retained isRedEvidenceV2(record) check at proofstory.ts:948 is now logically subsumed by the classifyRedRecordSchemaSafe!=='v1' check on the next line (any v2 record already fails that check) but this is harmless intentional defense-in-depth, not a bug, and does not warrant a finding. Fail-closed read does NOT break any legitimate caller: only a genuinely unsupported schemaVersion (never absent-v1 or the exact v2 literal) triggers the new throw, confirmed against a v1-only store, a mixed v1+v2 store, and a v2-only store. Confirmed v1 red_evidence_create writer (handlers/proofstory.ts) is untouched by commit b4fa4bbfad (absent from its changed-files list), and the v1 gate verdict body in redEvidenceRecordSatisfied is byte-identical apart from the new early-return guard (diff-verified + byte-identical assertions in the committed RED test). 0 new findings this round.",
+      "createdAt": "2026-07-25T22:44:18.642Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-007",
+      "envelopeId": "6ac4d8403b5aeed74aef5f97b35a8edb90bce484b1bfb32850127ca41a26c3b9",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/findings.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "724d43c370f251fa56f831e1d36532ff9c1c1346cc2a4fb757d3f6740bc4f866"
     }
   ]
 }
