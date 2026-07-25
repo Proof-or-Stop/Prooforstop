@@ -1,0 +1,125 @@
+{
+  "storyId": "B-3783",
+  "checkedAt": "2026-07-25T21:50:48.007Z",
+  "features": [
+    {
+      "feature": "Fix command-catalog-smoke.ts registry-iteration loop (lines ~152-166) to assert bidirectional dispatch/registry consistency: dispatchable entries schema-accepted + runtime-valid, retired entries schema-rejected + runtime-rejected (throwing with a /retired|unknown/ message)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3783/checklist.json (CHK-001), understanding.json facts/constraints, decision.json chosen option"
+    },
+    {
+      "feature": "Smoke exits 0 on clean main after the fix, printing the existing \"command catalog smoke passed: <N> commands\" message (count reflects MAIN_TOOLS, not registry length)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3783/checklist.json (CHK-001 happy + edge)"
+    },
+    {
+      "feature": "Branch predicate is derived from AGENT_DISPATCH_ACCEPTED_TYPES membership (not a hardcoded name), so future retirements/additions are automatically covered without editing the smoke",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3783/checklist.json (CHK-001 edge + adversarial), decision.json preMortem mitigation"
+    },
+    {
+      "feature": "Existing forward-direction (dispatchable-entry) assertions are preserved, not weakened, while adding the reverse direction",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3783/checklist.json (CHK-001 edge)"
+    },
+    {
+      "feature": "Register node packages/main/dist/tasks/command-catalog-smoke.js in lattice.config.json validate.commands on the normal (non-fast) tier, after the build step",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3783/checklist.json (CHK-002), scope-boundary.json allowed[1]"
+    },
+    {
+      "feature": "lattice validate actually reaches/executes the new entry (not silently skipped or duplicated)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-3783/checklist.json (CHK-002 adversarial)"
+    },
+    {
+      "feature": "Do not modify command-catalog.ts (dispatch.agentType enum / its derivation from AGENT_DISPATCH_ACCEPTED_TYPES) — catalog is already correct",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[1] + scope-contract.json protectedFiles/explicitExcludes; confirmed no touchpoint diff planned for this file",
+      "source": ".lattice/story/actives/B-3783/scope-boundary.json, scope-contract.json"
+    },
+    {
+      "feature": "Do not un-retire lattice-review-channel in agent-dispatch-registry.ts (ACCEPTED_TYPES filter + resolveAgentDispatchType retired rejection must stay)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[3] + scope-contract.json protectedFiles/explicitExcludes",
+      "source": ".lattice/story/actives/B-3783/scope-boundary.json, scope-contract.json, decision.json preMortem mitigation"
+    },
+    {
+      "feature": "Do not add new agent types or refactor registry-to-enum derivation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[0]",
+      "source": ".lattice/story/actives/B-3783/scope-boundary.json"
+    },
+    {
+      "feature": "Do not rewrite unrelated portions of command-catalog-smoke.ts beyond the retired-consistency loop",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[2]",
+      "source": ".lattice/story/actives/B-3783/scope-boundary.json"
+    },
+    {
+      "feature": "packages/main/package.json pre-existing test:command-catalog-smoke npm script (already runs the same compiled smoke) is left as-is; validate.commands wiring uses the direct node dist/ invocation, consistent with sibling entries, not the npm alias",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "understanding.json fact-only observation, not a story deliverable; no artifact promises changing or removing this script",
+      "source": ".lattice/story/actives/B-3783/understanding.json facts[4]"
+    },
+    {
+      "feature": "Root package.json npm test aggregate (line 15) is not updated to include command-catalog-smoke",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "story only commits to lattice validate.commands wiring (index.json description, understanding.json outcome); root npm test aggregate membership is not a promise in any story artifact",
+      "source": "package.json scripts.test, understanding.json outcome"
+    },
+    {
+      "feature": "English-artifacts constraint on all story artifacts and code comments",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "enforced by the pre-existing english-artifacts validate gate, not a story-specific checklist deliverable",
+      "source": ".lattice/story/actives/B-3783/understanding.json constraints[3]"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md (section 8, lines 380-420)",
+      "lattice.config.json",
+      "package.json",
+      "packages/main/package.json",
+      "packages/main/src/tasks/command-catalog-smoke.ts"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    ],
+    "scanEscalationReason": "grep-matched decisions/ for lattice-review-channel and command-catalog-smoke keywords to confirm no separate governing spec conflicts with this small fix; none found to be in scope-conflict (background architecture only, refers to a different smoke file agent-dispatch-registry-smoke.ts)"
+  },
+  "summary": {
+    "total": 12,
+    "covered": 6,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4f40281273f2bc6ee681219a75ab834b40310534a47101582bb60b7afedd0257",
+  "openQuestions": []
+}
