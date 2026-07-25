@@ -188,9 +188,9 @@
       "id": "CHK-006",
       "title": "Register red_evidence_binding_set at every wiring point including the closed mutation-command union",
       "context": "Register the command in registry.ts (MAIN_TOOLS), cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, core/process-fact-registry.ts, AND the two points the spec never names: the CLOSED AgentDispatchMutationCommand union at core/types.ts:69 and the per-role permittedMutations arrays (core/agent-dispatch-registry.ts:435). The existing lifecycle-registry-contract.ts + command-ownership-contract.ts (RED signal B) enumerate these bidirectionally and pass only when all are present.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T08:20:37.378Z",
       "verificationIntent": {
         "happy": [
           {
