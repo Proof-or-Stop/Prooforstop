@@ -82,6 +82,21 @@
       "_hash": "5f0f6394701a59e528178980469175dd913fde0c16712a5370d6fbde1490818a",
       "signatureTag": "edge|unknown|schemaversion-discriminant-exhaustive",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-006",
+      "desc": "packages/main/src/core/red-evidence/append.ts:32 imports normalizeReason from ./operation-key.js but never references it anywhere in the file (grep count = 1, the import line itself); reason normalization is performed by the caller inside controlOperationKey before appendControlRecord ever sees it. Dead import — remove it.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-25T12:29:55.584Z",
+      "reviewRound": "2026-07-25T12:11:38.694Z",
+      "reviewRunId": "B-506e:RR-002",
+      "_hash": "315aed90bb890d6efd9619c9dcd3bbc1e92b14561b4e7f3db722b3b86ba484c3",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
