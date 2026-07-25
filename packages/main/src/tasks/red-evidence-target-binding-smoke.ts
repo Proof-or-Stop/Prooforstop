@@ -28,7 +28,7 @@
 // filesystem control (that is the Tier-C program).
 
 import { strict as assert } from 'node:assert';
-import { spawnSync, execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -213,6 +213,104 @@ try {
     }
   }
 
+  // === 5b. STALE foreign lease recovery: reject without --takeover, succeed ===
+  //        with --takeover, then the registered handler binds through the
+  //        recovered lease (CHK-007:adversarial:0 committed artifact, F-002).
+  //
+  // The §4.1 owner-lease choke point must (a) still REJECT a non-owner
+  // red_evidence_binding_set when a FOREIGN lease is merely STALE and no
+  // takeover flag is supplied — a stale lease is not a free-for-all — and
+  // (b) let the SAME session recover that stale lease with --takeover and then
+  // run the mutating command through the registered handler. This exercises the
+  // exact registered-handler + choke-point path a real CLI invocation follows.
+  {
+    const root = freshRoot('stale-lease');
+    const store = new StoryStore(root);
+    const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages', 'main') };
+    const registry = createMainRegistry(ctx);
+    const bindingSet = registry.get('red_evidence_binding_set');
+    assert.ok(bindingSet, 'red_evidence_binding_set has a registered handler');
+
+    const storyId = 'B-stale';
+    const now = '2026-07-25T00:00:00.000Z';
+    const story: StoryInfo = {
+      storyId, name: 'w2b-stale', title: 'W2b stale-lease takeover',
+      description: 'Fix an authentication session security regression (behavior change).',
+      type: 'bug', phase: 'DEV', priority: 'high', createdAt: now, startedAt: now, endedAt: null,
+    };
+    store.writeStory(storyId, story);
+    const ledgerMilestones = [{
+      id: 'M1', sourceRequirementId: 'REQ-1', claim: 'auth fix', doneMeans: 'test passes',
+      requiredEvidence: [], checklistRefs: ['CHK-001'], verificationIntentRefs: ['CHK-001:happy:0'], status: 'planned' as const,
+    }];
+    const ledger: MilestoneLedgerData = {
+      schemaVersion: 'proofstory.milestone_ledger.v1', storyId, state: 'confirmed',
+      ledgerHash: computeMilestoneLedgerHash(ledgerMilestones),
+      milestones: ledgerMilestones,
+      createdAt: now, updatedAt: now,
+    };
+    store.writeMilestoneLedger(storyId, ledger);
+    assert.equal(resolveExpectedRedTargets(proofStoryDiagnosticInput(store, storyId, root)).has('M1'), true,
+      'M1 is an expected RED target for the stale-lease story');
+
+    const storyDir = store.storyDirPath(storyId);
+    const savedSession = process.env.LATTICE_SESSION_ID;
+    try {
+      // A FOREIGN session "sess-owner" holds a STALE lease: heartbeat 40 minutes
+      // ago (> STALE_LEASE_THRESHOLD_MS of 30 min).
+      const staleStamp = new Date(Date.now() - 40 * 60 * 1000).toISOString();
+      process.env.LATTICE_SESSION_ID = 'sess-owner';
+      resetSessionIdForTest();
+      acquireOwnerLease(storyDir, { command: 'checklist_update', cwd: '/tmp/owner-wt', now: () => staleStamp });
+      const staleLease = JSON.parse(readFileSync(ownerLeasePath(storyDir), 'utf-8'));
+      assert.equal(staleLease.sessionId, 'sess-owner', 'the stale lease is owned by the foreign session');
+      assert.equal(staleLease.heartbeatAt, staleStamp, 'the stale lease heartbeat is 40 minutes old');
+      const leaseBefore = readFileSync(ownerLeasePath(storyDir), 'utf-8');
+
+      // Act as a DIFFERENT session "sess-intruder".
+      process.env.LATTICE_SESSION_ID = 'sess-intruder';
+      resetSessionIdForTest();
+
+      // (a) WITHOUT --takeover: a stale foreign lease still REJECTS the
+      // owner-gated command; the rejection points at --takeover and performs no
+      // lease write (no silent steal of even a stale lease).
+      assert.throws(
+        () => enforceStoryOwnerLeaseGate('red_evidence_binding_set', { storyId }, store, null, root),
+        (err: Error) =>
+          err.message.includes(storyId) &&
+          err.message.includes('sess-owner') &&
+          err.message.includes('STALE') &&
+          err.message.includes('--takeover'),
+        'a stale foreign lease still rejects red_evidence_binding_set without --takeover, pointing at --takeover recovery (§4.1)',
+      );
+      assert.equal(readFileSync(ownerLeasePath(storyDir), 'utf-8'), leaseBefore,
+        'the rejected (no-takeover) command performed no lease write — the stale lease is untouched');
+
+      // (b) WITH --takeover: the same session recovers the stale lease through
+      // the choke point (no throw), and the lease is transferred to it.
+      assert.doesNotThrow(
+        () => enforceStoryOwnerLeaseGate('red_evidence_binding_set', { storyId, takeover: true }, store, null, root),
+        'red_evidence_binding_set with --takeover recovers the STALE foreign lease through the owner-lease choke point',
+      );
+      const recovered = JSON.parse(readFileSync(ownerLeasePath(storyDir), 'utf-8'));
+      assert.equal(recovered.sessionId, 'sess-intruder',
+        'the stale lease was transferred to the takeover session (recovery succeeded)');
+      assert.notEqual(recovered.heartbeatAt, staleStamp, 'the recovered lease carries a fresh heartbeat');
+
+      // (c) With the lease recovered, the REGISTERED handler binds M1 — the
+      // full post-gate dispatch path a real CLI invocation follows.
+      const msg: string = bindingSet!({ storyId, acceptanceTargetRef: 'M1', adapterId: 'node-test-runner', testCaseRef: 'test/red/m1.test.ts', agent: 'lattice-implementer' });
+      assert.match(msg, /targetBindingDigest sha256:/, 'the registered handler bound M1 after stale-lease recovery');
+      const persisted = store.readRedTargetBindings(storyId);
+      assert.ok(persisted && persisted.bindings.length === 1 && persisted.bindings[0].acceptanceTargetRef === 'M1',
+        'the binding written through the recovered lease persisted exactly once');
+    } finally {
+      if (savedSession === undefined) delete process.env.LATTICE_SESSION_ID;
+      else process.env.LATTICE_SESSION_ID = savedSession;
+      resetSessionIdForTest();
+    }
+  }
+
   // === 6. Handler happy/reject paths + NO gate verdict change ================
   {
     const root = freshRoot('handler');
@@ -288,11 +386,7 @@ try {
   runContract('command-ownership-contract', 'node', [join(pkgRoot, 'dist', 'tasks', 'command-ownership-contract.js')]);
   runContract('verify-process-fact-contract', 'node', [join(repoRoot, 'scripts', 'verify-process-fact-contract.mjs')]);
 
-  // Keep execFileSync import meaningful for future direct-CLI probes without
-  // changing behavior (referenced so the import is not pruned by linters).
-  void execFileSync;
-
-  console.log('red-evidence-target-binding-smoke: OK — store uniqueness, createdAt-strip digest both directions, expectedRedTargets same-set + case-sensitive membership, committed-tree anti-swap reader, owner-lease/foreign-lease + mutation-authority rejection, and NO gate verdict change; all three registry contracts pass.');
+  console.log('red-evidence-target-binding-smoke: OK — store uniqueness, createdAt-strip digest both directions, expectedRedTargets same-set + case-sensitive membership, committed-tree anti-swap reader, owner-lease/foreign-lease + mutation-authority rejection, STALE-lease reject-without/recover-with --takeover then registered-handler bind, and NO gate verdict change; all three registry contracts pass.');
 } finally {
   for (const r of roots) rmSync(r, { recursive: true, force: true });
 }
