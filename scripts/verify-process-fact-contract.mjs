@@ -162,6 +162,11 @@ const requiredProcessFactSemantics = {
   // but NOT gate-evidence — it is a run prerequisite, not gate-consumed evidence
   // in this leaf (chain freeze / green-confirm digest match are W2c).
   red_evidence_binding_set: ['schema-contract', 'verification-policy'],
+  // W2c (B-506e): the two chain-control writers are schema + membership-policy
+  // bound but NOT gate-evidence — their v2 records are ignored by the v1 gate
+  // predicate and no gate consumes the chain in this leaf (gate rewiring is W3).
+  red_evidence_quarantine: ['schema-contract', 'verification-policy'],
+  red_evidence_recover: ['schema-contract', 'verification-policy'],
   spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -1039,6 +1044,8 @@ function assertProofStoryProgressiveBoundary() {
     'red_evidence_create',
     'red_evidence_get',
     'red_evidence_binding_set',
+    'red_evidence_quarantine',
+    'red_evidence_recover',
     'spike_start',
     'spike_result_set',
     'spike_result',
