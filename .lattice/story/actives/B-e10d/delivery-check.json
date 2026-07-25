@@ -1,0 +1,110 @@
+{
+  "storyId": "B-e10d",
+  "checkedAt": "2026-07-25T09:37:01.234Z",
+  "headHash": "753ac7ca6be01711ca72543df4871d5b48fb1bb7",
+  "materialHash": "7e93fc6b3a4ed4b8237803437b817af88643e5bcc63a7a45756486982ba1aa62",
+  "storyFilesHash": "6ff90289823e1d310c3abe7bc378ed6dac65cf4afe02352eeeb2b4d18bd8997c",
+  "reviewRound": "2026-07-25T09:06:12.028Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/red-evidence/target-bindings.ts",
+      "promise": "target-binding store: exactly one binding per acceptanceTargetRef (duplicate rejects, append for new targets); targetBindingDigest = CANON over createdAt-stripped 3-field identity subobject; committed-tree reader via git show, fail-closed on bad ref, never falls back to live directory",
+      "verifiedBy": "diff/read+run",
+      "evidence": "file built clean (tsc); packages/main/tests/red/red-w2b-binding-store.mjs exercises append/duplicate-reject/strip-digest-both-directions/committed-vs-live-swap/bad-ref-throws and passes (node --test, 1 pass); appendTargetBinding throws RedTargetBindingDuplicateError on duplicate write; targetBindingDigest allowlists exactly the 3 identity fields"
+    },
+    {
+      "docPath": "packages/main/src/core/proofstory.ts",
+      "promise": "resolveExpectedRedTargets exported as the shared section-3.3 resolver, a byte-for-byte relocation of the previously module-private expectedRedTargets, with the private caller now delegating to it (no computed-set change)",
+      "verifiedBy": "diff/read",
+      "evidence": "diff shows body of former private expectedRedTargets moved verbatim into exported resolveExpectedRedTargets; private expectedRedTargets(input) now returns resolveExpectedRedTargets(input); red-w2b-binding-store.mjs same-set assertion passes"
+    },
+    {
+      "docPath": "packages/main/src/handlers/red-evidence.ts",
+      "promise": "red_evidence_binding_set handler: resolveAgentMutationAuthority actor gate + section-3.3 expectedRedTargets membership gate + section-1.1.3 uniqueness under an mkdir lock, owner-lease enforced upstream at the CLI choke point (storyScopedMutating)",
+      "verifiedBy": "diff/read+run",
+      "evidence": "handler source matches description; command-policy.ts classifies red_evidence_binding_set ownershipClass=storyScopedMutating allowedPhases=[DEV]; live CLI call in TEST phase correctly rejected with allowedPhases:[DEV] (confirms phase gate is real, not decorative); red-evidence-target-binding-smoke.js exercises owner-lease/foreign-lease/stale-lease-takeover/mutation-authority paths and passes"
+    },
+    {
+      "docPath": "plan.md CHK-006/CHK-008 (13-point wiring)",
+      "promise": "red_evidence_binding_set registered at all 13 wiring points (registry.ts, cli/command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, process-fact-registry.ts, types.ts closed union, agent-dispatch-registry.ts permittedMutations + VALID_MUTATIONS, lifecycle-registry.ts artifact filename, verify-process-fact-contract.mjs x2 enumerations, command-catalog-smoke.ts trailing order) and all 3 pre-existing registration contracts pass",
+      "verifiedBy": "diff/read+run",
+      "evidence": "read each of the 13 points present in the diff; ran node packages/main/dist/tasks/lifecycle-registry-contract.js (PASS, 0 divergences), node packages/main/dist/tasks/command-ownership-contract.js (PASS, 337 commands), node scripts/verify-process-fact-contract.mjs (exit 0, Process fact contract verified) after a fresh tsc build in this worktree"
+    },
+    {
+      "docPath": "checklist.json CHK-008 evidence note (self-correction)",
+      "promise": "red_evidence_binding_set is registered in exactly the TWO verify-process-fact-contract.mjs enumerations that fit its L3/DEV-only classification (process-fact-levels map near line 160, MAIN_TOOLS array near line 1013), and is CORRECTLY ABSENT from the PLAN-only (line 1229) and L4-gate-consumed (line 1265) arrays; corrects an earlier all-four-enumerations over-claim",
+      "verifiedBy": "grep",
+      "evidence": "grep -n red_evidence_binding_set scripts/verify-process-fact-contract.mjs returns exactly 2 hits (lines 164, 1041); confirms the self-correction is accurate, not a residual over-claim"
+    },
+    {
+      "docPath": "summary.json actualTranscript / RED-to-GREEN history",
+      "promise": "RED commit 57cf021413 (two RED test files) precedes the GREEN implementation commits and genuinely fails before the implementation exists",
+      "verifiedBy": "git log + reproduced RED in isolated detached worktree",
+      "evidence": "git log main..HEAD --reverse shows 57cf021413 before 0de56e6e69/8d7d45351b/0846e75da5/81b3081b12; git show 57cf021413:packages/main/src/core/red-evidence/target-bindings.ts and :handlers/red-evidence.ts both fail with path exists on disk but not in commit, confirming absence; checked out 57cf021413 into a detached worktree and ran both RED test files directly (no dist build possible since target-bindings.ts source did not exist yet) and both fail with ERR_MODULE_NOT_FOUND, i.e. genuine RED at that commit"
+    },
+    {
+      "docPath": "summary.json limitations + target-bindings.ts module-boundary comments",
+      "promise": "binding-freeze (chain-head/quarantine-head/frozen-once-run) is NOT in this diff (belongs to W2c); run-time adapterId/testCaseRefPattern validation is NOT in this diff (belongs to the runner); no chain record append/read; no gate rewiring (redEvidenceSatisfied/missingRedEvidence untouched)",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep across the diff for chain-head/quarantine-head/frozen-once-run/binding-freeze/chainRecord/testCaseRefPattern finds only doc-comment mentions stating these are explicitly out of scope, no implementation; git diff main...HEAD has zero changes to packages/main/src/handlers/phase-gates.ts or packages/main/src/core/machine.ts; the only proofstory.ts change is the resolveExpectedRedTargets extraction (verified set-preserving)"
+    },
+    {
+      "docPath": "summary.json pitfalls (codex 503 disclosure)",
+      "promise": "a codex r2 re-confirmation hit a transient codex backend 503 outage; codex r1 PASS still applies because production source was byte-identical since r1 (only test files changed), verified by all four Claude review lanes",
+      "verifiedBy": "git log + diff",
+      "evidence": "the only 3 commits touching production source (0de56e6e69, 8d7d45351b, 0846e75da5) all land before any review round; the two post-round-1-findings fix commits (b801541e47, 04acdca376) touch ONLY test/smoke files (red-evidence-target-binding-smoke.ts, red-w2b-wiring-contract.mjs), confirmed via git show --stat, so production code is provably unchanged across rounds; the specific codex-503-infra-outage claim itself is not independently checkable from permitted non-process-events artifacts (review-runs.json / review-passes.json / findings.json contain only the 4 Claude review lanes, no codex entry), but nothing contradicts it and the story does not use it to claim a fabricated codex pass -- it is disclosed as a limitation, consistent with the byte-identical-code fact that was independently verified"
+    },
+    {
+      "docPath": "checklist.json CHK-008 evidence (pre-existing command-catalog-smoke failure disclosure)",
+      "promise": "command-catalog-smoke has an unrelated pre-existing lattice-review-channel failure that reproduces on main (not introduced by this story); the story new trailing-order assertion itself passes",
+      "verifiedBy": "run (in-worktree + on main worktree)",
+      "evidence": "node packages/main/dist/tasks/command-catalog-smoke.js in the B-e10d worktree fails at the lattice-review-channel schema-validity assertion (line ~141) AFTER passing the trailing-order assert.deepEqual (~line 111); rebuilt packages/main on the separate main worktree (/Users/jek/Documents/Work/proofbound, fresh tsc build) and ran the same smoke, got an identical failure at the equivalent line, confirming it pre-dates and is independent of this story"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node --test packages/main/tests/red/red-w2b-binding-store.mjs -> 1 pass; covers single-binding round-trip, second-target append, cold-start empty read, unicode/slash/hash ref round-trip, duplicate-target rejection (RedTargetBindingDuplicateError), rapid sequential writes for two targets"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "same file/run as CHK-001 -> covers stripped-subobject digest match, full-stored-entry-with-createdAt digest mismatch, createdAt-varied same-digest, extra-metadata-fields same-digest (allowlist proof), field-reorder same-digest (RFC8785 JCS order-independence)"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "red-w2b-binding-store.mjs same-set assertion + red-evidence-target-binding-smoke.js membership-gate pass/reject cases -> covers resolver same-set, valid-target write success, out-of-set-ref rejection with named target, empty-target-set story, case-sensitivity (ab-001 vs AB-001), live-not-snapshot delegation"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "red-w2b-binding-store.mjs committed-tree reader section -> covers commit-then-read match, committed-vs-live-swap anti-swap assertion, missing-file-at-valid-ref returns null, bad-ref throws fail-closed"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "red-w2b-wiring-contract.mjs classifyLifecycleArtifact assertions -> file recognized as lifecycle artifact (closes RED signal A), exact-match not prefix-match verified against red-target-bindings-extra.json"
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "node packages/main/dist/tasks/lifecycle-registry-contract.js (PASS, 0 divergences) + node packages/main/dist/tasks/command-ownership-contract.js (PASS, 337 commands) + red-w2b-wiring-contract.mjs remove-one-registration-point regression (all 3 contracts fail with a named divergence citing red_evidence_binding_set when the command-policy.ts entry is stripped) -- independently re-run in this review and confirmed passing/failing as claimed"
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "red-evidence-target-binding-smoke.js owner-lease sections -> same-session success, foreign-active-lease rejection, storyScopedMutating ownership-class assertion, stale-lease (over 30min) reject-without/recover-with --takeover, mutation-authority rejection for an unauthorized role"
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "node scripts/verify-process-fact-contract.mjs (exit 0) + grep confirms exactly 2 (not 4) enumeration hits matching the story L3/DEV-only classification + command-catalog-smoke trailing-order assertion passes (verified it executes before the unrelated pre-existing lattice-review-channel failure) + red-w2b-wiring-contract.mjs remove-one-point regression"
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "node packages/main/dist/tasks/red-evidence-target-binding-smoke.js -> OK, exercises store uniqueness, digest both directions, membership+case-sensitivity, committed-tree anti-swap, owner-lease/foreign-lease/stale-takeover, and asserts missingRedEvidence JSON is byte-identical before/after a binding write; registered in lattice.config.json line 99 validate.commands (grep confirmed)"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 checklist items independently verified against source plus a fresh build in this worktree: the store, digest, committed-tree reader, expectedRedTargets export, handler, and 13-point wiring all exist and behave as documented, all 3 registration contracts pass, both committed RED tests and the registered smoke pass, and RED commit 57cf021413 was reproduced as genuinely failing in an isolated detached worktree before the GREEN implementation commits. The two disclosed caveats (pre-existing lattice-review-channel command-catalog-smoke failure, and a codex-503 re-confirm gap) were independently checked: the smoke failure reproduces identically on a freshly-built main worktree, and production source is provably byte-identical across all review rounds (only test files changed in the post-round-1 fix commits), consistent with the story not claiming a fabricated codex pass. No dishonest self-check or undelivered promise found."
+  },
+  "_hash": "143bf35073b437dacaa652e7ef15089e90698a7d5d89ccbe34e82a6c40657b02"
+}
