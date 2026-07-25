@@ -1594,15 +1594,15 @@
         },
         {
           "intentRef": "CHK-011:adversarial:1",
-          "kind": "manual_transcript",
-          "file": "lattice.config.json",
-          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "command": "node packages/main/tests/red/red-w2c-wiring-detectability.mjs",
           "result": "pass",
-          "note": "red-evidence-chain-smoke is registered in lattice.config.json validate.commands (line ~100), so lattice validate executes it and its three RED signals; de-registering it removes the smoke from the validate command list, surfaced by the validate-output audit. No dedicated committed membership test asserts this smoke's presence in validate.commands; the validate run is the audit.",
-          "headHash": "acb0ebd6798fca3e4c0608fa8919188867b7e936",
-          "materialHash": "ecf025592768f8133d97821e1a674f2547e922ea0dc94755e6d8645f8bf895d1",
-          "storyFilesHash": "3e199f2cd4b816c8b1d325a3b5c2ed9cec4ec93d7c5dd228816a76188e5d816c",
-          "timestamp": "2026-07-25T11:55:41.590Z"
+          "note": "red-w2c-wiring-detectability.mjs (committed) proves de-registration is DETECTED: via an ESM --import loader it non-destructively strips the ONE compiled command-policy entry for red_evidence_quarantine (then red_evidence_recover) and asserts BOTH command-ownership-contract and lifecycle-registry-contract exit non-zero and NAME the removed command ('has no CommandPolicy entry' / 'process-fact lifecycle entry ... has no command-policy entry'). A green baseline run proves it non-vacuous; the real registries are never edited.",
+          "headHash": "0f9c704703d96bcb4e963e71d30c9aa02630675e",
+          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
+          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
+          "timestamp": "2026-07-25T12:06:24.619Z"
         }
       ]
     },
