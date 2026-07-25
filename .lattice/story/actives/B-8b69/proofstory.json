@@ -40,20 +40,20 @@
         "CHK-003",
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-003:happy:0",
+        "CHK-004:happy:0",
+        "CHK-004:adversarial:0"
+      ],
       "milestoneIds": [],
       "acceptanceClaim": "Running lattice story_advance phase=INIT with a reason from a PLAN worktree reopens the story to INIT; the re-advance INIT->INIT_CHECK reuses the existing worktree; the title-freeze guidance names the reopen-to-INIT path; and the round-trip smoke passes GREEN after the fix and RED before it.",
-      "note": "Single acceptance binding covering all four checklist items."
+      "note": "Single acceptance binding covering all four checklist items and their must-level verification intents."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-reopen has no verificationIntentRefs."
-    }
-  ],
+  "diagnosticGaps": [],
   "createdAt": "2026-07-25T11:04:45.146Z",
-  "updatedAt": "2026-07-25T11:04:45.146Z"
+  "updatedAt": "2026-07-25T11:06:59.067Z"
 }

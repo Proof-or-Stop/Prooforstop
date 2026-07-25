@@ -27,10 +27,16 @@
             "priority": "must"
           }
         ],
-        "edge": [],
+        "edge": [
+          {
+            "desc": "after reopening to INIT, checklist_update of the title succeeds because title/context is editable at INIT",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
         "adversarial": [
           {
-            "desc": "reopen is refused when reason is missing, and refused from any non-PLAN phase",
+            "desc": "reopen is refused when reason is missing, and refused from any non-PLAN phase such as DEV or REVIEW",
             "type": "cli",
             "priority": "must"
           }
