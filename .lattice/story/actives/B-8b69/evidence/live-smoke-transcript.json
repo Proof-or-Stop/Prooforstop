@@ -1,0 +1,20 @@
+{
+  "storyId": "B-8b69",
+  "expected": "Running lattice story_advance {storyId:B-x,phase:INIT,reason:...} from a PLAN worktree prints: Story B-x advanced to INIT. Omitting reason prints a clear refusal; reopening from any non-PLAN phase is refused.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+    "exitCode": 0,
+    "stdout": "✓ plan-init-reopen round-trip smoke passed\n✓ dev_start from-main reuse + deleted-worktree re-bootstrap passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-25T16:38:08.771Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "9763b88cff76dda9d8a2605c1dbf909ac7a88e67",
+  "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0"
+}
