@@ -236,6 +236,18 @@
           "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
           "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
           "timestamp": "2026-07-25T12:00:21.521Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "RED proof: against the pre-fix code (git stash of the fix), the same smoke exits non-zero with Cannot transition from PLAN to INIT, confirming it fails RED before the fix and passes GREEN after.",
+          "headHash": "8cd2ffceed32a9aa3d6114013f49eafe4eabee56",
+          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
+          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
+          "timestamp": "2026-07-25T12:00:22.494Z"
         }
       ]
     }
