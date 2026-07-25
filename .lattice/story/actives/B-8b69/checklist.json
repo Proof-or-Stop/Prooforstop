@@ -90,6 +90,17 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checklist_update of a title at PLAN prints a refusal that names story_advance --phase=INIT (reopen-to-INIT), not INIT_CHECK",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
       }
     },
     {
