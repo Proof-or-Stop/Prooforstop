@@ -899,12 +899,17 @@ async function runStoryTransitionInner(
       // already-done item with no re-verification, silently decoupling the requirement
       // from the delivered code (the tampering the INIT_CHECK freeze prevents, which
       // decision.json promises the reopen preserves). This synchronous read-mutate-write
-      // is co-located INSIDE the atomic persist claim (F-006), right beside the phase
-      // writeStory: the reset and the phase=INIT write land together or not at all, so
-      // an exception can never leave phase=INIT with a stale done item that — since
-      // REOPEN only fires from PLAN — could never be re-triggered. It also aborts at the
-      // oldPhase re-read guard above with the phase write, so a loser concurrent
-      // transition never resets. No-op for the common case (all items already pending).
+      // is co-located INSIDE the persist claim (F-006) and ORDERED so the phase=INIT
+      // writeStory below runs LAST. The persist claim is a mkdir concurrency lock, so it
+      // serializes concurrent writers (concurrency-atomic) — it is NOT crash-transactional:
+      // the reset and the phase write are two separate fs writes, so a hard crash between
+      // them can leave the checklist reset without the phase advanced. That residual is the
+      // SAFE direction — because the phase write is LAST, no exception or crash can leave
+      // phase=INIT with a stale done item that, since REOPEN only fires from PLAN, could
+      // never be re-triggered; a reset-without-advance is harmless and re-derivable on a
+      // retry. It also aborts at the oldPhase re-read guard above with the phase write, so a
+      // loser concurrent transition never resets. No-op for the common case (all items
+      // already pending).
       if (eventType === 'REOPEN') {
         const reopenChecklist = store.readChecklist(args.storyId);
         let reopenMutated = false;
