@@ -39,6 +39,25 @@
         "scanEscalationReason": null
       },
       "_hash": "dc1441a5ee14aed66e9d2258f79f3ef5f0fb7931fad06ce403c9abe2067f262c"
+    },
+    {
+      "id": "B-e10d:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "Adversarially exercised the built dist for all 5 behavioral RED signals. (1) createdAt-strip digest: canonDigest over a STORED entry (with createdAt, plus extra storage metadata like updatedAt/note) does NOT equal targetBindingDigest; canonDigest over the 3-field {acceptanceTargetRef,adapterId,testCaseRef} subobject DOES — verified allowlist (not blocklist) semantics directly, both via the shipped tests and via reading strippedBindingIdentity (target-bindings.ts) which hard-lists exactly 3 fields. (2) Store uniqueness: appendTargetBinding rejects a 2nd write for the same acceptanceTargetRef with RedTargetBindingDuplicateError (verified original entry untouched), a different target appends. (3) Committed-tree reader: built a scratch git repo, committed binding-A, edited the live dir to binding-B, and confirmed readCommittedTargetBindings(ref) returns binding-A only; a bad 40-char hex ref throws (fail-closed, no live-dir fallback); a valid ref missing the file returns null. (4) resolveExpectedRedTargets: ran it directly against two different inputs back-to-back and got two different correct sets, proving live delegation (not a captured stale snapshot); membership is case-sensitive (has(\"ab-001\")===false when only \"AB-001\" is a target). (5) Owner-lease gate: read cli-engine.ts:1372 (enforceStoryOwnerLeaseGate call site, storyScopedMutating ownershipClass) and agent-dispatch-registry.ts:504 (resolveAgentMutationAuthority) confirming these are two independent checks, matches the shipped smoke test which explicitly proves a foreign-session lease rejection and a separate mutation-authority rejection. CRITICAL INVARIANT: the shipped smoke asserts JSON.stringify(missingRedEvidence) is byte-identical before/after a binding write for a representative story; I traced redEvidenceSatisfied/missingRedEvidence in core/proofstory.ts and confirmed this story touches neither. verify-process-fact-contract.mjs PLAN-only array (:1234) and L4-gate-consumed array (:1265) correctly EXCLUDE red_evidence_binding_set: it is DEV-phase (not PLAN-only) and registered level=L3/no gate-evidence semantics (not L4), so adding it to either array would make those arrays's own assertions fail (level!==L4, missing gate-evidence semantics) — the omission is sound, not a gap. I independently verified this is a LIVE guard, not vacuous: deleted the command-policy.ts entry for red_evidence_binding_set, rebuilt, and confirmed lifecycle-registry-contract.js, command-ownership-contract.js, and verify-process-fact-contract.mjs all failed with named divergences citing red_evidence_binding_set by name (real exit 1, not just stderr text); restored the file byte-identical (diff clean) and rebuilt, all three contracts + red-evidence-target-binding-smoke.js pass again. Ran both tests/red/red-w2b-binding-store.mjs and tests/red/red-w2b-wiring-contract.mjs directly (not just via the smoke) — both OK. Noted the pre-existing command-catalog-smoke.js failure (lattice-review-channel agentType schema mismatch at line ~141) but confirmed via a fresh build on the actual main branch (unrelated repo checkout) that this failure pre-exists on main and is unrelated to this diff — the story's own added assertion (trailing MAIN_TOOLS order including red_evidence_binding_set) executes and passes before that unrelated failure is reached. Read docs/requirements/decisions/red-evidence-subsystem-spec.md ~lines 200-245 (§1.1.3), ~985-999 (§3.3), ~1140-1171 (§4.1) and confirmed all cited file:line references (ownership-gate.ts:235, agent-dispatch-registry.ts:504) are accurate to the current tree, and that the deliberately out-of-scope binding-freeze rule (chain-head semantics, W2c) is correctly not implemented here per plan.md/background.md. No behavioral defect found.",
+      "createdAt": "2026-07-25T08:40:26.641Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-001",
+      "envelopeId": "4a259068c4aee393a0c40ce53c515d6d77ad334efeb545af48ebedc89ae908e3",
+      "writerSessionId": "review-behavior-b-e10d",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "high-risk lifecycle/gate + process-fact change (13-point command registration including the closed AgentDispatchMutationCommand union and 4 hard-coded ProofStory enumerations); read the full spec sections cited by the story background/plan to verify sign-off is correct"
+      },
+      "_hash": "fe38389a6d4ab97fe2fa797a305b1d9bd4ab36396a01639efafc4a11d6f1ddbb"
     }
   ]
 }
