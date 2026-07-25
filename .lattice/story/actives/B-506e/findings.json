@@ -97,6 +97,23 @@
       "_hash": "315aed90bb890d6efd9619c9dcd3bbc1e92b14561b4e7f3db722b3b86ba484c3",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-007",
+      "desc": "[codex host-B D2] binding_set null head from a malformed non-empty chain is treated as empty and permits the write; mirror append.ts CORRUPT_CHAIN guard.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-25T12:33:13.337Z",
+      "reviewRound": "2026-07-25T12:11:38.694Z",
+      "_hash": "ba25ee710d975224beec84a00fceca530ff7a432d242ab929d2b07b3591f5354",
+      "files": [
+        "packages/main/src/handlers/red-evidence.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-binding",
+      "signatureTagSource": "auto"
     }
   ]
 }
