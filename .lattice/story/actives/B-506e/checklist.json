@@ -286,7 +286,43 @@
       "context": "packages/main/src/core/red-evidence/append.ts runs the mandated §3.5 ORDER: derive key → dedupe search → replay short-circuit (a replay deriving the same operationKey returns the EXISTING record, records.length UNCHANGED, no second run) → resolve head → transition legality → integrity checks → append; a stored record failing its own key/id recomputation raises a tagged CONFLICT with nothing written.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Normal append (no prior matching key): pipeline runs derive-key → dedupe-search (no match) → resolve-head → transition-legality → integrity-checks → append; record is written with correct seq/priorRecordDigest/recordDigest; WHY: confirms the mandated §3.5 pipeline order on the golden path",
+            "type": "cli"
+          },
+          {
+            "desc": "Replay (same operationKey already exists in target chain): pipeline runs derive-key → dedupe-search (match found) → returns EXISTING record immediately; records.length is UNCHANGED; no second run executed, no fresh nonce generated; WHY: the replay short-circuit must happen BEFORE head resolution and any run",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Replay after head moved (another record appended between original and retry): the dedupe search still finds the original record by operationKey (key-based, not position-based); returns existing record even though head has advanced; WHY: §3.4 deliberately excludes priorRecordDigest from the key so retries work after chain movement",
+            "type": "cli"
+          },
+          {
+            "desc": "Two sequential appends with DIFFERENT operationKeys: both proceed through the full pipeline; second append sees the first as head; both succeed; WHY: distinct keys means no dedupe interference",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stored record with corrupted operationKey (recomputing CANON over the stored key fields does NOT equal the stored operationKey): tagged CONFLICT error returned, nothing written to the store, chain unchanged; WHY: RED signal C — store corruption surfacing at append time, not silently propagating",
+            "type": "cli"
+          },
+          {
+            "desc": "Stored record with corrupted recordId (does not match derivation from operationKey + seq): tagged CONFLICT error returned, nothing written; WHY: if the id and key are inconsistent, the store is corrupt and must not be extended",
+            "type": "cli"
+          },
+          {
+            "desc": "Replay of a run record (red-assert/green-confirm): verify no fresh nonce is generated, no second receipt is produced, no run process is spawned; the existing record is returned with its original receipt; WHY: a replay must be zero-side-effect — spawning a process would be observable and non-idempotent",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
