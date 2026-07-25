@@ -463,6 +463,39 @@
         "scanEscalationReason": "Ran a script-derived exhaustive intentRef<->verificationEvidence set-diff across all 10 checklist items (105/105 matched, zero gaps) rather than eyeballing; grepped every verificationEvidence note for stale file:line citation patterns (zero hits, F-004 holds); diffed the merge commit against the pre-merge story tip restricted to story-owned source paths (empty diff, confirms zero code drift from the merge); independently re-ran the smoke and both tests/red/*.mjs directly against a freshly rebuilt dist (all exit 0) rather than trusting the recorded evidence rows."
       },
       "_hash": "aba7a7a3177a31a3ffe51563c901d02d38374b3dce6c48749ea12b1149d0452e"
+    },
+    {
+      "id": "B-c054:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-record after git merge main (b6b2c85417): confirmed byte-identical for story-owned files via git diff ea1238b33d..HEAD on packages/main/src/core/red-evidence/{canon,policy,registries}.ts, red-evidence-policy-canon-smoke.ts, tests/red/red-w2a-{canon-differential,policy-failclosed}.mjs, config.ts, doctor.ts (0 lines changed). lattice.config.json diff between pre-merge tip and HEAD is exactly the 2 unrelated smokes (scope-shrinkage-withdrawal-floor-smoke, withdrawn-disposition-smoke) added ahead of this story's own red-evidence-policy-canon-smoke entry, which is present exactly once (no duplicate registration). All 105 checklist verificationIntent entries across CHK-001..CHK-010 have exactly 105 verificationEvidence entries, 0 result=fail. No verificationEvidence note contains a filename:line citation (F-004 class check confirmed clean); separately verified the checklist context's embedded line citations (digest.ts:27 localeCompare, digest.ts:40 digestCanonicalJson, authority-signing.ts:64 null->undefined, authority-signing.ts:79 canonicalJsonForSigning) still match current file content post-merge. Ran npm run build (clean tsc), then executed the compiled smoke (node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js -> OK exit 0) and both red tests directly (red-w2a-canon-differential.mjs -> PASS; red-w2a-policy-failclosed.mjs -> PASS). Ran root npm test (43-script suite) -> exit 0. Read canon.ts/policy.ts/registries.ts/smoke.ts/both red mjs files in full and confirmed the implementation matches the checklist verificationIntent (RFC 8785 code-unit order, null preservation, differential proofs, 14-key exhaustive snapshot with frozen digest, clamp-REJECT floors, forbidden env keys, catch-all/material-overlap globs, argv placeholder resolution) with no gaps. Spot-checked CHK-010 (grep lattice.config.json for redEvidence -> no match) and CHK-009 (grep new red-evidence files for overclaim tokens -> only the smoke's own detector regex, not an actual overclaim) and CHK-008 (lattice doctor -> exit 0, exactly one advisory Red-evidence policy line). validate / verification_evidence_refresh_stale are owner-gated to the story-owner session and could not be run under this reviewer session; coverage was instead confirmed via direct build+test execution plus full source/checklist inspection as above. No blocker found.",
+      "createdAt": "2026-07-25T06:51:16.656Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-022",
+      "envelopeId": "aedbbeee0f5c2586a278ecd0544ac64ecebed38811406f66fa5d92c4d7fb4ae4",
+      "writerSessionId": "review-testcov-b-c054-rr",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/authority-signing.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ede75cc0137237b0b30c2458f116c4e385279ab0e017e3cfa5cafaca97aaff4"
     }
   ]
 }
