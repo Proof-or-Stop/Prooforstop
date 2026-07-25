@@ -33,6 +33,26 @@
       "_hash": "28d78a9a328c8256fdaf5a72caa615088e85defdc24123800643e6f2fa2a98c8",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c054:F-003",
+      "desc": "CHK-001:adversarial:0 evidence note is stale after the eff4404936 fix. Note text (.lattice/story/actives/B-c054/checklist.json, CHK-001 verificationEvidence, intentRef CHK-001:adversarial:0) reads: 'smoke:81-83 builds lone surrogate key \\uD800 and asserts canon produces deterministic {\\\"\\\\ud800\\\":1} not silent corruption'. That describes the PRE-FIX behavior. The actual code at packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:81-89 and packages/main/tests/red/red-w2a-canon-differential.mjs:80-90 now asserts the OPPOSITE (F-CX1, RFC 8785 3.2.2.2): assert.throws(() => canon(lone)) etc. Independently confirmed live: canon({\"\\uD800\":1}) throws Error CANON: lone surrogate in member name terminates canonicalization, it does NOT return the string {\"\\ud800\":1}. The command still passes and the intent's either-throws-or-deterministic wording is technically satisfied by the throw branch, so this is not a coverage gap, but the note materially misdescribes current runtime behavior (silent/deterministic vs hard throw) and would mislead a future auditor who trusts the note instead of re-running the test, contrary to this story's own un-gameable-proof goal. Fix: update the note to describe the throw-based F-CX1 assertion.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T04:44:03.544Z",
+      "reviewRound": "2026-07-25T04:37:25.897Z",
+      "reviewRunId": "B-c054:RR-006",
+      "_hash": "cd209a29c41e9d513092547e825f3398ea383f70093c537c75aa0297431a4aab",
+      "files": [
+        "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+        "packages/main/tests/red/red-w2a-canon-differential.mjs",
+        ".lattice/story/actives/B-c054/checklist.json"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
