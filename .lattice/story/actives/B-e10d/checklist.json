@@ -190,7 +190,39 @@
       "context": "Register the command in registry.ts (MAIN_TOOLS), cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, core/process-fact-registry.ts, AND the two points the spec never names: the CLOSED AgentDispatchMutationCommand union at core/types.ts:69 and the per-role permittedMutations arrays (core/agent-dispatch-registry.ts:435). The existing lifecycle-registry-contract.ts + command-ownership-contract.ts (RED signal B) enumerate these bidirectionally and pass only when all are present.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run lifecycle-registry-contract.ts (checkProcessFactLifecycle) with red_evidence_binding_set in all registration points -> passes with no divergences; WHY: proves forward+reverse bidirectional enumeration coverage",
+            "type": "cli"
+          },
+          {
+            "desc": "Run command-ownership-contract.ts with red_evidence_binding_set registered in MAIN_TOOLS and createMainRegistry -> passes the dispatchability check; WHY: proves the command is both declared and has a registered handler",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Grep the closed AgentDispatchMutationCommand union in core/types.ts -> includes red_evidence_binding_set as a literal union member; WHY: proves the type-level registration that the contracts may not statically check",
+            "type": "cli"
+          },
+          {
+            "desc": "Grep the permittedMutations arrays in core/agent-dispatch-registry.ts -> at least one role includes red_evidence_binding_set; WHY: proves the mutation is authorized for at least the owner role",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Remove red_evidence_binding_set from ONE registration point (e.g. command-policy.ts) and re-run lifecycle-registry-contract.ts -> fails with a named divergence citing the missing point; WHY: proves the contracts are real guards, not a subset check — every single point is required",
+            "type": "cli"
+          },
+          {
+            "desc": "Remove red_evidence_binding_set from the permittedMutations array and call resolveAgentMutationAuthority -> rejects the mutation; WHY: proves entryPermitsMutation is a live gate, not just a declaration",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
