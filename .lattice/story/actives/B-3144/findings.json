@@ -104,6 +104,21 @@
       "_hash": "6fb43022142296cded68bd1e331240a891e569d8e0cbadffc0aa171c74be8c4c",
       "signatureTag": "missing|unknown|quorum-prune-test",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-008",
+      "desc": "doc-promise-undelivered: CHK-003 userSees literally documents `lattice quorum_prune --storyId=... --dryRun lists the duplicate verdict events...; without --dryRun it backs up, removes them, commits...`, and plan.md CHK-003 specifies the command input as `dryRun` (default true) requiring explicit `apply:true` to mutate. But packages/main/src/cli/command-catalog.ts:2994-3001 (quorum_prune schema) and packages/main/src/handlers/quorum-prune.ts:34-39 (QuorumPruneArgs) define ONLY an `apply` field — there is no `dryRun` field anywhere in the schema or handler. Empirically verified live against the real repo: `node bin/lattice.js quorum_prune --storyId=B-3144` (no flags at all, i.e. omitting --dryRun exactly as userSees describes) still prints `mode: dry-run (no mutation)` — it does NOT back up/remove/commit as userSees claims. The `--dryRun` flag is silently swallowed as an unrecognized key (flag-parser.ts has no schema-strictness) and has zero effect on behavior; the only way to actually mutate is the undocumented-in-userSees `--apply` flag. An operator following the story's own documented usage would be misled about how to trigger the recovery.",
+      "severity": "high",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-25T23:05:08.391Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-001",
+      "_hash": "d83b3f52c4ff7d89e4c7ac2f059a47c5f89e192572ec5c97ea5a074408b6c5be",
+      "signatureTag": "happy|unknown|promise-undelivered-usersees",
+      "signatureTagSource": "auto"
     }
   ]
 }
