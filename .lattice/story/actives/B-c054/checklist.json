@@ -526,7 +526,51 @@
       "context": "The smoke is listed in validate.commands and passes under the full suite; lattice.config.json contains no redEvidence block, and a smoke assertion pins that committing one is out of scope because pinnedPath is host-specific.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice.config.json validate.commands array contains an entry with command:\"node\" and args including \"red-evidence-policy-canon-smoke\" → parsed JSON assertion; WHY: smoke must be registered to run in CI",
+            "type": "cli"
+          },
+          {
+            "desc": "Run the full validate suite (npm test or lattice validate) → the red-evidence-policy-canon-smoke passes (exit 0); WHY: registered smoke must actually pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Read lattice.config.json → it contains NO \"redEvidence\" key at the top level → JSON.parse(config).redEvidence === undefined; WHY: pinnedPath is host-specific, committing a block is out of scope",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke itself asserts that lattice.config.json has no redEvidence block (self-pinning assertion) → the smoke source contains this check; WHY: the uncommitted-policy rule is pinned inside the smoke",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke timeoutMs in validate.commands is 180000 (3 minutes) → parsed from config; WHY: spec/plan specifies this timeout",
+            "type": "cli"
+          },
+          {
+            "desc": "The smoke file exists at packages/main/src/tasks/red-evidence-policy-canon-smoke.ts → file presence check; WHY: source must exist for compilation",
+            "type": "cli"
+          },
+          {
+            "desc": "The compiled smoke exists at packages/main/dist/tasks/red-evidence-policy-canon-smoke.js after build → file presence check; WHY: validate runs dist, not src",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Remove the redEvidence smoke entry from validate.commands, run validate → the smoke does NOT run (regression: unregistered smoke silently passes CI); re-add and confirm it runs; WHY: proves the registration is load-bearing",
+            "type": "cli"
+          },
+          {
+            "desc": "Add a redEvidence block to lattice.config.json, run the smoke → the smoke FAILS (the self-pinning assertion catches it); remove the block; WHY: proves the uncommitted-policy rule is enforced by the smoke itself, not just by convention",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
