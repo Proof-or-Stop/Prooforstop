@@ -16,7 +16,7 @@
     "No new string may claim tamper-resistance beyond the §0.6 assurance tier."
   ],
   "unknowns": [
-    "RESOLVED (OQ-B-c054-forbiddenCatchAlls-8th-entry): forbiddenCatchAlls[7] = empty string, per the spec's own \"\"=empty-string convention at §0.4 lines 74/76; frozen policyDigest pinned to that reading.",
+    "RESOLVED (OQ pinned-value): forbiddenCatchAlls[7] = the 2-character double-quote literal (two U+0022), NOT the empty string — §1.3 rule 1 requires matcher values non-empty so an empty-string entry would be inert; the entry is punctuation-only noise text. Frozen default policyDigest (fixture pinnedPath=[/usr/bin]) = sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767.",
     "RESOLVED: RFC 8785 number/string encoding equals JSON.stringify (verified: -0->0, 1e21->1e+21, control-char/unicode escaping) and code-unit key order equals default Array.sort(); CANON test vectors frozen accordingly."
   ],
   "touchpoints": [
@@ -30,5 +30,5 @@
     "packages/main/tests/red/red-w2a-policy-failclosed.mjs",
     "lattice.config.json"
   ],
-  "timestamp": "2026-07-25T00:35:16.348Z"
+  "timestamp": "2026-07-25T00:59:15.804Z"
 }
