@@ -1,0 +1,42 @@
+{
+  "storyId": "B-ec67",
+  "checkedAt": "2026-07-25T23:31:00.690Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "index.json description opens with \"Step 2 (M1) of the evidence-integrity program\" but M1 is never expanded inline anywhere in background.md/index.json/checklist.json; its definition only lives in the external docs/evidence-integrity-program-spec.md. Carried over from prior round (previously INIT-003), still unaddressed. Advisory only, does not block understanding of the actual task."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Trigger Event/Key Insights repeatedly says \"the B-bf52 burn\" / \"the burn\" (e.g. \"~1/3 of the B-bf52 burn's findings\", \"16 of 19 evidence rows in the burn\") without ever stating what B-bf52 is or what a burn means in this project's vocabulary on first appearance. Carried over from prior round (previously INIT-004), still unaddressed. Meaning is inferable from context; advisory only."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-25T23:30:54.531Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-25T23:31:00.690Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "index.json description opens with \"Step 2 (M1) of the evidence-integrity program\" but M1 is never expanded inline anywhere in background.md/index.json/checklist.json; its definition only lives in the external docs/evidence-integrity-program-spec.md. Carried over from prior round (previously INIT-003), still unaddressed. Advisory only, does not block understanding of the actual task."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Trigger Event/Key Insights repeatedly says \"the B-bf52 burn\" / \"the burn\" (e.g. \"~1/3 of the B-bf52 burn's findings\", \"16 of 19 evidence rows in the burn\") without ever stating what B-bf52 is or what a burn means in this project's vocabulary on first appearance. Carried over from prior round (previously INIT-004), still unaddressed. Meaning is inferable from context; advisory only."
+        }
+      ]
+    }
+  ],
+  "_hash": "63c572c09b7f75d4c536d937b4fc48e42e8f97c60bd8b6efeaa63151dbb2131b"
+}
