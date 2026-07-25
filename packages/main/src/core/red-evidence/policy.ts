@@ -160,6 +160,19 @@ function argvPlaceholders(argvTemplate: unknown): string[] {
   return names;
 }
 
+/**
+ * §1.2 adapter `testCaseRefPattern` is an ANCHORED regex ("starts ^ ends $").
+ * Both ends must be REAL anchors: a leading `^` cannot be escaped (nothing
+ * precedes the first char), but a trailing `$` preceded by an ODD run of
+ * backslashes is an escaped literal dollar — NOT an end anchor — and rejects.
+ */
+function isAnchoredPattern(pattern: string): boolean {
+  if (!pattern.startsWith('^') || !pattern.endsWith('$')) return false;
+  let backslashes = 0;
+  for (let i = pattern.length - 2; i >= 0 && pattern[i] === '\\'; i -= 1) backslashes += 1;
+  return backslashes % 2 === 0;
+}
+
 function patternCaptureNames(pattern: unknown): Set<string> | null {
   if (typeof pattern !== 'string') return null;
   try {
@@ -308,6 +321,7 @@ export function resolveRedEvidencePolicy(
     if (!Array.isArray(provided)) {
       add('red_evidence_policy_invalid_type', 'red_evidence_policy_invalid_type: matcherClassRegistry must be an array');
     } else {
+      const seenMatcherNames = new Set<string>();
       for (const entry of provided) {
         if (!isPlainObject(entry)) {
           add('red_evidence_policy_matcher_class_invalid', 'red_evidence_policy_matcher_class_invalid: matcherClassRegistry entry must be an object');
@@ -315,6 +329,10 @@ export function resolveRedEvidencePolicy(
         }
         if (typeof entry.name !== 'string' || entry.name.length === 0) {
           add('red_evidence_policy_matcher_class_name', 'red_evidence_policy_matcher_class_name: matcherClassRegistry entry requires a non-empty string name');
+        } else if (seenMatcherNames.has(entry.name)) {
+          add('red_evidence_policy_matcher_class_duplicate_name', `red_evidence_policy_matcher_class_duplicate_name: matcherClassRegistry name ${JSON.stringify(entry.name)} is not unique (§1.2 unique registry key)`);
+        } else {
+          seenMatcherNames.add(entry.name);
         }
         const kind = entry.predicateKind;
         if (typeof kind !== 'string' || !(MATCHER_CLASS_PREDICATE_KINDS as readonly string[]).includes(kind)) {
@@ -351,6 +369,7 @@ export function resolveRedEvidencePolicy(
     if (!Array.isArray(provided)) {
       add('red_evidence_policy_invalid_type', 'red_evidence_policy_invalid_type: runnerAdapterRegistry must be an array');
     } else {
+      const seenAdapterIds = new Set<string>();
       for (const entry of provided) {
         if (!isPlainObject(entry)) {
           add('red_evidence_policy_runner_adapter_invalid', 'red_evidence_policy_runner_adapter_invalid: runnerAdapterRegistry entry must be an object');
@@ -368,12 +387,26 @@ export function resolveRedEvidencePolicy(
         if (missingAdapter.length > 0) {
           add('red_evidence_policy_runner_adapter_schema', `red_evidence_policy_runner_adapter_schema: runnerAdapterRegistry entry has invalid/missing required fields ${JSON.stringify(missingAdapter)}`);
         }
+        // adapterId UNIQUE (§1.2 unique registry key).
+        if (typeof entry.adapterId === 'string' && entry.adapterId.length > 0) {
+          if (seenAdapterIds.has(entry.adapterId)) {
+            add('red_evidence_policy_runner_adapter_duplicate_id', `red_evidence_policy_runner_adapter_duplicate_id: adapterId ${JSON.stringify(entry.adapterId)} is not unique (§1.2 unique registry key)`);
+          } else {
+            seenAdapterIds.add(entry.adapterId);
+          }
+        }
         for (const bad of forbiddenEnvKeyViolations(entry.allowedEnvKeys, forbiddenEnvKeysExtensions)) {
           add('red_evidence_policy_forbidden_env_key', `red_evidence_policy_forbidden_env_key: ${bad}`);
         }
         const captures = patternCaptureNames(entry.testCaseRefPattern);
         if (entry.testCaseRefPattern !== undefined && captures === null) {
           add('red_evidence_policy_invalid_test_case_ref_pattern', `red_evidence_policy_invalid_test_case_ref_pattern: ${JSON.stringify(entry.testCaseRefPattern)} is not a valid ECMAScript pattern`);
+        }
+        // §1.2 testCaseRefPattern MUST be anchored (^...$). A compilable but
+        // UNANCHORED pattern would match a prefix/suffix and widen the config
+        // surface — reject fail-closed (runtime matching stays W2e).
+        if (typeof entry.testCaseRefPattern === 'string' && captures !== null && !isAnchoredPattern(entry.testCaseRefPattern)) {
+          add('red_evidence_policy_test_case_ref_pattern_unanchored', `red_evidence_policy_test_case_ref_pattern_unanchored: ${JSON.stringify(entry.testCaseRefPattern)} is not anchored (must start ^ and end with an unescaped $)`);
         }
         for (const placeholder of argvPlaceholders(entry.argvTemplate)) {
           if (!captures || !captures.has(placeholder)) {
@@ -392,6 +425,7 @@ export function resolveRedEvidencePolicy(
     if (!Array.isArray(provided)) {
       add('red_evidence_policy_invalid_type', 'red_evidence_policy_invalid_type: runnerProfileRegistry must be an array');
     } else {
+      const seenProfileIds = new Set<string>();
       for (const entry of provided) {
         if (!isPlainObject(entry)) {
           add('red_evidence_policy_runner_profile_invalid', 'red_evidence_policy_runner_profile_invalid: runnerProfileRegistry entry must be an object');
@@ -407,11 +441,61 @@ export function resolveRedEvidencePolicy(
         if (missingProfile.length > 0) {
           add('red_evidence_policy_runner_profile_schema', `red_evidence_policy_runner_profile_schema: runnerProfileRegistry entry has invalid/missing required fields ${JSON.stringify(missingProfile)}`);
         }
+        // runnerProfileId UNIQUE (§1.2 unique registry key).
+        if (typeof entry.runnerProfileId === 'string' && entry.runnerProfileId.length > 0) {
+          if (seenProfileIds.has(entry.runnerProfileId)) {
+            add('red_evidence_policy_runner_profile_duplicate_id', `red_evidence_policy_runner_profile_duplicate_id: runnerProfileId ${JSON.stringify(entry.runnerProfileId)} is not unique (§1.2 unique registry key)`);
+          } else {
+            seenProfileIds.add(entry.runnerProfileId);
+          }
+        }
         for (const bad of forbiddenEnvKeyViolations(entry.allowedEnvKeys, forbiddenEnvKeysExtensions)) {
           add('red_evidence_policy_forbidden_env_key', `red_evidence_policy_forbidden_env_key: ${bad}`);
         }
+        // §1.2 optional `toolchain`: STRUCTURAL shape only — an object mapping each
+        // non-empty argv0 to `{ absolutePath (absolute string), sha256 (string) }`.
+        // The runtime resolve-real-path + sha256 MATCH is fenced to W2e; here we
+        // only reject a malformed shape at config load (R2-CX1).
+        if ('toolchain' in entry && entry.toolchain !== undefined) {
+          const tc = entry.toolchain;
+          if (!isPlainObject(tc)) {
+            add('red_evidence_policy_runner_profile_toolchain_not_object', `red_evidence_policy_runner_profile_toolchain_not_object: toolchain must be an object mapping argv0 -> {absolutePath, sha256}, got ${JSON.stringify(tc)}`);
+          } else {
+            for (const [argv0, spec] of Object.entries(tc)) {
+              const absolutePath = isPlainObject(spec) ? spec.absolutePath : undefined;
+              const sha256 = isPlainObject(spec) ? spec.sha256 : undefined;
+              if (argv0.length === 0 || !isPlainObject(spec) || typeof absolutePath !== 'string' || typeof sha256 !== 'string') {
+                add('red_evidence_policy_runner_profile_toolchain_entry', `red_evidence_policy_runner_profile_toolchain_entry: toolchain[${JSON.stringify(argv0)}] must be a non-empty argv0 mapping to {absolutePath: string, sha256: string}`);
+                continue;
+              }
+              // STRUCTURAL: absolutePath must be an absolute path string. The file
+              // is NOT resolved and the sha256 is NOT verified here (that is W2e).
+              if (!isAbsolutePosix(absolutePath)) {
+                add('red_evidence_policy_runner_profile_toolchain_absolute_path', `red_evidence_policy_runner_profile_toolchain_absolute_path: toolchain[${JSON.stringify(argv0)}].absolutePath ${JSON.stringify(absolutePath)} must be absolute`);
+              }
+            }
+          }
+        }
       }
       runnerProfileRegistry = provided as RunnerProfile[];
+    }
+  }
+
+  // ── cross-registry: every adapter.runnerProfileId references a registered ───
+  // profile (§1.2 "the profile this adapter selects"). Uses the RESOLVED profile
+  // registry (provided override or default) so a same-override profile counts.
+  {
+    const registeredProfileIds = new Set<string>();
+    for (const profile of runnerProfileRegistry) {
+      if (isPlainObject(profile) && typeof profile.runnerProfileId === 'string' && profile.runnerProfileId.length > 0) {
+        registeredProfileIds.add(profile.runnerProfileId);
+      }
+    }
+    for (const adapter of runnerAdapterRegistry) {
+      if (isPlainObject(adapter) && typeof adapter.runnerProfileId === 'string' && adapter.runnerProfileId.length > 0
+        && !registeredProfileIds.has(adapter.runnerProfileId)) {
+        add('red_evidence_policy_runner_adapter_unknown_profile', `red_evidence_policy_runner_adapter_unknown_profile: adapter runnerProfileId ${JSON.stringify(adapter.runnerProfileId)} references no registered runnerProfileRegistry entry`);
+      }
     }
   }
 

@@ -234,7 +234,9 @@ try {
   ok(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^x:(?<script>[a-z]+)$', argvTemplate: ['${script}'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }] })));
   rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{}] })));
   rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: 'x', allowedEnvKeys: [], cwd: '.', submodules: false }] })));
-  ok(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME'], cwd: '.', submodules: false }] })));
+  // empty adapter registry isolates the profile shape: replacing 'node-npm@1'
+  // would otherwise orphan the DEFAULT adapters' runnerProfileId reference (R2 cross-ref).
+  ok(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [], runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME'], cwd: '.', submodules: false }] })));
 
   // F-001: the resolved policySnapshot is DEEP-FROZEN — casual post-resolution
   // mutation (a stale-digest vector) throws in strict mode (§0.6 casual tier).
@@ -246,6 +248,44 @@ try {
     assert.throws(() => { (r.snapshot.matcherClassRegistry[0] as { name: string }).name = 'mutated'; }, TypeError,
       'nested registry objects in the snapshot are frozen');
   }
+
+  // === 6b. R2 exhaustive §1.2 registry-schema STRUCTURAL constraints =========
+  // Duplicate registry keys, an unanchored testCaseRefPattern, an adapter->unknown
+  // profile reference, and a malformed profile toolchain all reject fail-closed
+  // (cross-host codex r2). Runtime toolchain file-resolution + sha256 match = W2e.
+  const codes = (r: Extract<ResolveRedEvidencePolicyResult, { ok: false }>): string[] => r.diagnostics.map((d) => d.code);
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [
+    { name: 'dup', predicateKind: 'stream-empty' }, { name: 'dup', predicateKind: 'stream-nonempty' },
+  ] })))).includes('red_evidence_policy_matcher_class_duplicate_name'), 'duplicate matcher name rejects');
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [
+    { adapterId: 'dup@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^a$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' },
+    { adapterId: 'dup@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^b$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' },
+  ] })))).includes('red_evidence_policy_runner_adapter_duplicate_id'), 'duplicate adapterId rejects');
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [
+    { runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: false },
+    { runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: false },
+  ] })))).includes('red_evidence_policy_runner_profile_duplicate_id'), 'duplicate runnerProfileId rejects');
+  const withPattern = (p: string): Record<string, unknown> => base({
+    runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: p, argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
+  });
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(withPattern('(?<x>.+)')))).includes('red_evidence_policy_test_case_ref_pattern_unanchored'), 'unanchored pattern rejects');
+  rejected(resolveRedEvidencePolicy(withPattern('^abc')));   // missing trailing $
+  rejected(resolveRedEvidencePolicy(withPattern('abc$')));   // missing leading ^
+  rejected(resolveRedEvidencePolicy(withPattern('^a\\$')));  // escaped trailing $ is not an anchor
+  ok(resolveRedEvidencePolicy(withPattern('^abc$')));        // anchored, all-literal argv
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(base({
+    runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'no-such-profile@9', testCaseRefPattern: '^a$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
+  })))).includes('red_evidence_policy_runner_adapter_unknown_profile'), 'adapter -> unregistered profile rejects');
+  const withToolchain = (toolchain: unknown): Record<string, unknown> => base({
+    runnerProfileRegistry: [{ runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME', 'TMPDIR', 'CI'], cwd: '.', submodules: false, toolchain }],
+  });
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(withToolchain('broken')))).includes('red_evidence_policy_runner_profile_toolchain_not_object'), 'non-object toolchain rejects (R2-CX1)');
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(withToolchain({ node: 'nope' })))).includes('red_evidence_policy_runner_profile_toolchain_entry'), 'malformed toolchain entry rejects');
+  rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node' } })));          // missing sha256
+  assert.ok(codes(rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: 'relative/node', sha256: 'abc' } })))).includes('red_evidence_policy_runner_profile_toolchain_absolute_path'), 'non-absolute toolchain absolutePath rejects (structural)');
+  ok(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node', sha256: 'abc' } }))); // well-formed structural toolchain resolves
+  assert.equal(ok(resolveRedEvidencePolicy({ pinnedPath: ['/usr/bin'] })).policyDigest, FROZEN_DEFAULT_DIGEST,
+    'frozen default digest survives the exhaustive §1.2 structural pass');
 
   // === 7. doctor line — exactly one non-gating red-evidence line =============
   const hyphenCount = (s: string): number => (s.match(/red-evidence/gi) ?? []).length;

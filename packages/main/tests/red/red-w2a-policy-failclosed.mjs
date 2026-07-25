@@ -197,8 +197,10 @@ ok(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{ adapterId: 'x@1', r
 rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{}] })));
 rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: 'not-array', allowedEnvKeys: [], cwd: '.', submodules: false }] })));
 rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: 'yes' }] })));
-// a WELL-FORMED custom profile PASSES
-ok(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME'], cwd: '.', submodules: false }] })));
+// a WELL-FORMED custom profile PASSES (empty adapter registry isolates the
+// profile shape: replacing the default profile 'node-npm@1' would otherwise
+// orphan the DEFAULT adapters' runnerProfileId reference — see R2 cross-ref).
+ok(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [], runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME'], cwd: '.', submodules: false }] })));
 
 // ── F-001: the resolved policySnapshot is DEEP-FROZEN (no post-resolution mutation) ──
 {
@@ -209,6 +211,105 @@ ok(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p
     'nested arrays in the snapshot are frozen too');
   assert.throws(() => { r.snapshot.matcherClassRegistry[0].name = 'mutated'; }, TypeError,
     'nested registry objects in the snapshot are frozen too');
+}
+
+// ── R2: EXHAUSTIVE §1.2 registry-schema STRUCTURAL constraints ───────────────
+// The round-1 fix enforced required-field PRESENCE but left these axes fail-open
+// (cross-host codex r2). Each block REJECTS with a DISTINCT named diagnostic on
+// the complete implementation; the DEFAULT registries + every well-formed custom
+// entry still resolve ok. In-scope = config-load STRUCTURAL validation; the
+// runtime toolchain file-resolution + sha256-match stays fenced to W2e.
+
+// R2-CX2: duplicate registry keys reject (matcher name / adapterId / profileId).
+{
+  const r = rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [
+    { name: 'dup', predicateKind: 'stream-empty' },
+    { name: 'dup', predicateKind: 'stream-nonempty' },
+  ] })));
+  assert.ok(codes(r).includes('red_evidence_policy_matcher_class_duplicate_name'),
+    'a duplicate matcher class name rejects with a distinct diagnostic');
+}
+{
+  const r = rejected(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [
+    { adapterId: 'dup@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^a$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' },
+    { adapterId: 'dup@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^b$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' },
+  ] })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_adapter_duplicate_id'),
+    'a duplicate adapterId rejects with a distinct diagnostic');
+}
+{
+  // duplicated node-npm@1 keeps the default adapters' profile reference valid, so
+  // the ONLY rejection is the duplicate profile id.
+  const r = rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [
+    { runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: false },
+    { runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: false },
+  ] })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_profile_duplicate_id'),
+    'a duplicate runnerProfileId rejects with a distinct diagnostic');
+}
+
+// R2-CX3: an UNANCHORED testCaseRefPattern rejects (must be ^...$, escaped-$ aware).
+const withPattern = (testCaseRefPattern) => base({
+  runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern, argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
+});
+{
+  const r = rejected(resolveRedEvidencePolicy(withPattern('(?<x>.+)')));
+  assert.ok(codes(r).includes('red_evidence_policy_test_case_ref_pattern_unanchored'),
+    'a pattern with neither ^ nor $ anchor rejects (the R2-CX3 blocker case)');
+}
+rejected(resolveRedEvidencePolicy(withPattern('^abc')));   // missing trailing $
+rejected(resolveRedEvidencePolicy(withPattern('abc$')));   // missing leading ^
+rejected(resolveRedEvidencePolicy(withPattern('^a\\$')));  // trailing $ is ESCAPED — not a real end anchor
+ok(resolveRedEvidencePolicy(withPattern('^abc$')));        // properly anchored, all-literal argv needs no captures
+ok(resolveRedEvidencePolicy(withPattern('^$')));           // the empty-anchor pattern is anchored
+
+// adapter.runnerProfileId MUST reference a registered profile.
+{
+  const r = rejected(resolveRedEvidencePolicy(base({
+    runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'no-such-profile@9', testCaseRefPattern: '^a$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
+  })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_adapter_unknown_profile'),
+    'an adapter referencing an unregistered profile rejects');
+}
+// an adapter referencing a profile registered in the SAME override resolves ok.
+ok(resolveRedEvidencePolicy(base({
+  runnerProfileRegistry: [{ runnerProfileId: 'custom@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: false }],
+  runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'custom@1', testCaseRefPattern: '^a$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }],
+})));
+
+// R2-CX1: profile toolchain STRUCTURAL shape (object of argv0 -> {absolutePath,sha256}).
+// node-npm@1 keeps the default adapters' profile reference valid, so the ONLY
+// rejection is the toolchain one.
+const withToolchain = (toolchain) => base({
+  runnerProfileRegistry: [{ runnerProfileId: 'node-npm@1', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME', 'TMPDIR', 'CI'], cwd: '.', submodules: false, toolchain }],
+});
+{
+  const r = rejected(resolveRedEvidencePolicy(withToolchain('broken')));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_profile_toolchain_not_object'),
+    'a non-object toolchain rejects (the R2-CX1 blocker case)');
+}
+rejected(resolveRedEvidencePolicy(withToolchain(['not', 'a', 'map'])));  // an array is not a toolchain map
+{
+  const r = rejected(resolveRedEvidencePolicy(withToolchain({ node: 'not-an-object' })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_profile_toolchain_entry'), 'a non-object toolchain value rejects');
+}
+rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node' } })));        // missing sha256
+rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node', sha256: 7 } }))); // sha256 not a string
+rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: 7, sha256: 'abc' } })));        // absolutePath not a string
+rejected(resolveRedEvidencePolicy(withToolchain({ '': { absolutePath: '/usr/bin/node', sha256: 'abc' } }))); // empty argv0 key
+{
+  const r = rejected(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: 'relative/node', sha256: 'abc' } })));
+  assert.ok(codes(r).includes('red_evidence_policy_runner_profile_toolchain_absolute_path'),
+    'a non-absolute toolchain absolutePath rejects (STRUCTURAL only; no file resolution / sha256 match)');
+}
+// a WELL-FORMED toolchain resolves ok (W2e does the runtime resolve + sha256 match).
+ok(resolveRedEvidencePolicy(withToolchain({ node: { absolutePath: '/usr/bin/node', sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' } })));
+
+// After the exhaustive §1.2 structural pass the DEFAULT registries STILL resolve
+// to the frozen digest (well-formed defaults are unaffected by any new check).
+{
+  const r = ok(resolveRedEvidencePolicy({ pinnedPath: ['/usr/bin'] }));
+  assert.equal(r.policyDigest, FROZEN_DEFAULT_DIGEST, 'frozen default digest survives the exhaustive §1.2 structural pass');
 }
 
 console.log('red-w2a-policy-failclosed: PASS');
