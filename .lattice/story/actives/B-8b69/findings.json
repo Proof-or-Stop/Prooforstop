@@ -44,6 +44,21 @@
       "_hash": "c8a9626ca8cb9948ca9bc83c48c48cf14cdcf49b24f0b6f908699c31366d6694",
       "signatureTag": "adversarial|unknown|adversarial-compound-claim",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8b69:F-004",
+      "desc": "CHK-002:edge:0 and CHK-002:adversarial:0 (both should-priority) have zero verificationEvidence and are not exercised anywhere in plan-init-reopen-roundtrip-smoke.ts: the smoke only bootstraps the worktree once from root (a fresh create, not a reuse) and then always calls story_advance from inside wt, so neither dev_start-invoked-from-main-repo-root-after-the-worktree-already-exists nor dev_start-after-the-worktree-directory-was-deleted is ever driven. Advisory per review rules (should, not must), but worth recording since these are the two edge/adversarial branches of the CHK-002 dev_start path fix and currently rely entirely on code-reading confidence, not test evidence.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T12:41:02.107Z",
+      "reviewRound": "2026-07-25T12:17:45.684Z",
+      "reviewRunId": "B-8b69:RR-002",
+      "_hash": "5de77b9bc4e016f7d75443e620496d4da7bd543814d47ae4457e226bcc661da7",
+      "signatureTag": "edge|unknown|edge-adversarial-both",
+      "signatureTagSource": "auto"
     }
   ]
 }
