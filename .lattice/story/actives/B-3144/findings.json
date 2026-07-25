@@ -89,6 +89,21 @@
       "_hash": "3bec506560623652305f258778ca699c2b85147370588925152c86cb2046c1a4",
       "signatureTag": "edge|unknown|edge-evidence-reuses",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-007",
+      "desc": "CHK-003 (quorum_prune) test-coverage gap, packages/main/src/tasks/quorum-submit-smoke.ts:2245-2268: no check anywhere in the 12 quorum_prune checks asserts the worktree is clean immediately after a successful `quorum_prune {apply:true}`. quorum-prune.ts:161-169 lifecycleMetadataPaths(kind=quorum-submit) scopes the commit to ONLY process-events.jsonl; writeUniqueBackup() (quorum-prune.ts:125-135, called at :351) writes process-events.jsonl.bak-<timestamp> directly into the tracked story dir and it is never staged/committed by that scoped transaction. .gitignore:32 `*.bak` does not match the `.bak-<timestamp>` suffix, so the backup is left untracked. assertCleanPruneBaseline/assertCleanQuorumBaseline both run an unscoped `git status --porcelain=v1 --untracked-files=all`, so the very next quorum_prune or quorum_submit call would refuse on the tools own leftover artifact -- verified live by re-running quorum_prune {apply:true} in a fresh fixture right after a first apply with no intervening commit: it refuses nothing-to-prune only after the backup is manually cleaned. The ONE check that runs prune twice (quorum-submit-smoke.ts:2245 never overwrites a previous run backup) masks this because it does its own git add -A + commit between the two applies (lines ~2261-2262), which is not a step a real recovery operator performs. So CHK-003 happy path claim (userSees: the escalation floor returns to the pre-poisoning assurance level / official low-friction recovery) is unverified at the worktree-cleanliness level and is contradicted once you try the very next legitimate action. (Independently corroborates a live concurrent lattice-review-quality RR-003 finding on the same defect, verified here from the test-coverage angle: no verificationEvidence row demonstrates clean-after-apply.)",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T23:01:12.552Z",
+      "reviewRound": "2026-07-25T22:42:25.197Z",
+      "reviewRunId": "B-3144:RR-002",
+      "_hash": "6fb43022142296cded68bd1e331240a891e569d8e0cbadffc0aa171c74be8c4c",
+      "signatureTag": "missing|unknown|quorum-prune-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
