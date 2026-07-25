@@ -126,7 +126,59 @@
       "context": "The resolver returns exactly the §1.2 key set with the spec's enumerated defaults including the full 1..255 exit-code array and the two default adapters and one default profile verbatim; its policyDigest equals a frozen sha256:<64-hex> constant; an unknown key inside the block rejects fail-closed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/local/bin\",\"/usr/bin\"]}) returns a snapshot with exactly 14 keys (maxMatchers,maxMatcherLen,minMatcherLen,minMatcherEntropyBits,runTimeoutMs,prepTimeoutMs,killGraceMs,forbiddenCatchAlls,forbiddenEnvKeysExtensions,invarianceExcludePaths,pinnedPath,matcherClassRegistry,runnerAdapterRegistry,runnerProfileRegistry) → key count === 14 and each key present; WHY: exhaustive key coverage",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with only pinnedPath set yields policyDigest === a frozen sha256:<64-hex> literal → exact string match; WHY: two implementations MUST resolve identical default digests; the frozen literal is independently computed from the spec defaults",
+            "type": "cli"
+          },
+          {
+            "desc": "Default matcherClassRegistry contains [{name:\"nonzero-exit\",predicateKind:\"exit-code-in\",param:[1..255]},{name:\"stderr-nonempty\",predicateKind:\"stream-nonempty\"}] → param array has exactly 255 elements [1,2,...,255]; WHY: abbreviated [1..255] would silently break the digest",
+            "type": "cli"
+          },
+          {
+            "desc": "Default runnerAdapterRegistry contains npm-script@1 (script-exit) and node-test@1 (reporter-event) with the exact argvTemplate arrays from §1.2 → deep equality; WHY: a mis-transcribed template token would silently break adapter resolution",
+            "type": "cli"
+          },
+          {
+            "desc": "Default runnerProfileRegistry contains node-npm@1 with prepCommands:[[\"npm\",\"ci\"]], allowedEnvKeys:[\"HOME\",\"TMPDIR\",\"CI\"], cwd:\".\", submodules:false → deep equality; WHY: profile defaults are digest-bound",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "resolveRedEvidencePolicy with pinnedPath set AND maxMatchers:4 (valid, above floor) → snapshot.maxMatchers === 4 and policyDigest differs from the default frozen literal; WHY: proves user override works and changes the digest",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy with pinnedPath + forbiddenEnvKeysExtensions:[\"MY_CUSTOM_KEY\"] → snapshot includes the extension; WHY: spec says policy may extend the set",
+            "type": "cli"
+          },
+          {
+            "desc": "Default forbiddenCatchAlls has exactly 8 entries matching the §1.2 table (\".*\",\".+\",\".\",\"^$\",\"^.*$\",\"^.+$\",\"\\\\s*\",\"\\\"\\\"\") → array deep equality; WHY: the 8th entry (double-quote literal) is an edge case from the plan",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],unknownKey:\"evil\"}) → rejects fail-closed with a diagnostic naming the unknown key; WHY: unknown keys must never silently pass",
+            "type": "cli"
+          },
+          {
+            "desc": "resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"],maxMatchers:8,maxMatchers:8}) with a duplicated key in source JSON → either deduplicates (JSON parse) or rejects; must never produce a different digest than single-key; WHY: JSON duplicate-key ambiguity",
+            "type": "cli"
+          },
+          {
+            "desc": "An attacker adding a 15th key to the snapshot object after resolution → the snapshot type/validator rejects or the digest changes; WHY: policySnapshot must be exactly 14 keys, no more",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
