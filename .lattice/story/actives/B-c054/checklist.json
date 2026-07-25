@@ -394,7 +394,39 @@
       "context": "core/config.ts declares the block beside proofStory (core/config.ts:195); with the block absent its state in every representation is byte-identical to before this story, proven by a smoke assertion.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Load lattice.config.json with NO redEvidence block → loadConfig output canon-digest equals a frozen baseline digest computed before this story; WHY: proves adding the optional field declaration does not change any existing config default",
+            "type": "cli"
+          },
+          {
+            "desc": "Load lattice.config.json with a valid redEvidence block (pinnedPath set) → loadConfig parses it without error and the block is accessible; WHY: proves the optional field is declared and loadable",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Load lattice.config.json with redEvidence:undefined vs redEvidence absent → both produce byte-identical loadConfig output for every non-redEvidence field; WHY: explicit undefined vs omission must not diverge",
+            "type": "cli"
+          },
+          {
+            "desc": "The LatticeConfig TypeScript interface includes redEvidence as optional (?) → tsc compiles with and without the block; WHY: type-level optionality",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Load lattice.config.json with redEvidence:{} (empty block, no pinnedPath) → does NOT crash loadConfig; the block is present but policy resolution would fail separately; WHY: config loading must not throw on a structurally empty block",
+            "type": "cli"
+          },
+          {
+            "desc": "Every field in loadConfig output EXCEPT redEvidence is compared field-by-field before and after this story → all identical; WHY: a side-effect changing proofStory defaults or another field would be a regression",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
