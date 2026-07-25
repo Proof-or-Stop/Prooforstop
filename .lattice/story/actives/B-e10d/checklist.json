@@ -46,7 +46,35 @@
       "context": "The recorded targetBindingDigest is CANON (W2a canon.ts) over exactly the three binding-identity fields with createdAt STRIPPED; a stored entry carries createdAt, so CANON over the STORED entry must NOT equal the digest while CANON over the stripped three-field subobject MUST. This createdAt-strip direction is the behavioral RED trap a naive implementation gets wrong.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Compute canonDigest over the 3-field stripped subobject {acceptanceTargetRef, adapterId, testCaseRef} for a stored binding -> result EQUALS the recorded targetBindingDigest; WHY: proves the digest is computed correctly over the identity-only fields",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compute canonDigest over the STORED entry (which includes createdAt) -> result does NOT equal the recorded targetBindingDigest; WHY: the createdAt-strip direction is the behavioral RED trap; a naive implementation that canonicalizes the full stored entry gets this wrong",
+            "type": "cli"
+          },
+          {
+            "desc": "Two bindings with identical identity fields but different createdAt values -> produce the SAME targetBindingDigest; WHY: proves createdAt is truly excluded from the digest",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stored entry with additional storage metadata fields beyond createdAt (e.g. updatedAt at file level) -> those fields are also absent from the digest input; canonDigest over {3-field} still equals recorded digest; WHY: proves the strip is allowlist-based (3 named fields only), not blocklist-based (remove createdAt only)",
+            "type": "cli"
+          },
+          {
+            "desc": "Reorder the three identity fields in the input object -> canonDigest still matches (CANON is order-independent per RFC 8785 JCS); WHY: proves deterministic canonicalization regardless of JS property insertion order",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
