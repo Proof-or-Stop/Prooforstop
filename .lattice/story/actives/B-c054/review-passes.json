@@ -258,6 +258,39 @@
         "scanEscalationReason": null
       },
       "_hash": "6b857f4eef6b20169fc863fcac783eb191fa6b51f78953998e0132451c8fc550"
+    },
+    {
+      "id": "B-c054:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 105 checklist intents (CHK-001..CHK-010, happy/edge/adversarial) have exactly one passing verificationEvidence each, no missing/failing refs. Verified F-004 fix: scanned all 105 verificationEvidence notes for filename:line citation patterns -- zero matches (was ~93 stale citations across 7 batch-refresh commits, e.g. 5dfaadc718/287cc1a701/4f4e3d024b/e6d32b8079/edef86c644/6c0aea85c3 each rewrote 15 notes + ffea1ff15b rewrote 3 = 93 total; sample diff config.ts:224/smoke:206/smoke:203-204 -> section-reference prose, no raw line numbers). Confirmed 12 evidence entries got a clean headHash/timestamp refresh in 1a3615af2d (matches claim). Confirmed commit 3b05d13219 adds a genuine RED regression test in red-w2a-policy-failclosed.mjs: supplies pattern ^[(?<fake>]+$ (named-capture-shaped text inside a character class) and asserts rejection via red_evidence_policy_test_case_ref_pattern_no_capture, plus a ${fake} placeholder variant and a backslash-escaped-opener variant, plus a genuine-capture regression control -- matches the described patternCaptureNames tokenizer fix in policy.ts. Rebuilt dist (npm --prefix packages/main run build, clean tsc) and spot-ran all three: node dist/tasks/red-evidence-policy-canon-smoke.js -> OK exit 0; node --test tests/red/red-w2a-canon-differential.mjs -> 1 pass; node --test tests/red/red-w2a-policy-failclosed.mjs -> 1 pass. lattice.config.json has no redEvidence key and registers the smoke in validate.commands (CHK-010 self-pin intact). All 4 prior findings (F-001..F-004) show status=resolved. No blocker.",
+      "createdAt": "2026-07-25T05:58:27.917Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-015",
+      "envelopeId": "57f429ecf12cfaee9cab82ac79ef4aa505fd6bc0e060f994d86f48fa0fc25d49",
+      "writerSessionId": "review-testcov-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/findings.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          ".lattice/story/actives/B-c054/review-runs.json",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "be7703d18e484350f422fe58d6d87817b3c448693e406015906dceff42bd41be"
     }
   ]
 }
