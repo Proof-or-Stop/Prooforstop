@@ -29,7 +29,15 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Re-advancing lattice story_advance phase=INIT_CHECK from inside the existing worktree prints: Story B-x advanced to INIT_CHECK reusing the worktree, instead of: Branch story/B-x already exists but does not contain .worktrees/...",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
