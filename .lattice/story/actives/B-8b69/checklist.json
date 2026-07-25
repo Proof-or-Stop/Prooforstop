@@ -165,7 +165,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a title edit at PLAN is refused and the refusal matches /reopen to INIT/ and shows phase:INIT, and does NOT say back to INIT_CHECK.",
+          "headHash": "797c8386823d353e2a1b15ec80ae586ed26ad7de",
+          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
+          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
+          "timestamp": "2026-07-25T12:00:20.546Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
