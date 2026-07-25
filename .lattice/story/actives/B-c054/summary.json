@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c054",
+  "changes": "Landed the RED-evidence subsystem foundation (spec §0.4/§0.6/§1.2/§1.12): (1) packages/main/src/core/red-evidence/canon.ts — an RFC 8785 CANON canonicalizer (UTF-16 code-unit key order, preserved JSON null, minimal number encoding, sha256:<64-hex>) with canonDigest/canonDigestOmitting/first12hex, throwing on lone surrogates and non-plain objects; (2) policy.ts + registries.ts — a fail-closed resolver of the exhaustive 14-key policySnapshot with the spec's verbatim defaults, unknown-key rejection, §1.12 clamp-REJECT floors, and complete §1.2 registry-schema structural validation (uniqueness, anchored named-capture patterns, repo-relative cwd, argv exact-placeholder, toolchain shape, etc.); (3) config.ts declares an optional redEvidence block (no default); (4) doctor.ts adds a non-gating red-evidence policy line; (5) a registered smoke + committed RED tests.",
+  "usage": "Run `lattice doctor` — it now prints one red-evidence policy line (the fail-closed `red_evidence_policy_missing: pinnedPath` diagnostic when no block is configured, or the resolved policyDigest once a host sets one). The CANON canonicalizer and resolveRedEvidencePolicy resolver are the shared leaves the eight subsequent W2 stories digest and resolve policy through.",
+  "expectedOutcome": "$ lattice doctor\\n  ... existing sections ...\\n  Red-evidence policy: not configured (red_evidence_policy_missing: pinnedPath)\\n$ echo $?\\n0\\n$ npm --prefix packages/main run validate\\n  ✓ red-evidence-policy-canon-smoke passed\\n  验证全绿 (all validate.commands green)",
+  "actualTranscript": "`lattice doctor` prints exactly one line `Red-evidence policy: not configured (red_evidence_policy_missing: pinnedPath)` and exits 0; `node bin/lattice.js validate` runs all validate.commands green including red-evidence-policy-canon-smoke (OK); both tests/red/*.mjs PASS; the frozen default policyDigest is sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767 (independently re-derived from the spec defaults by two separate reviewers, so not a self-referential echo).",
+  "outcomeDiff": "No difference — the doctor line, exit code, and green smoke suite match the expected outcome exactly.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "By design (spec fences): runtime executable resolution and toolchain file existence + sha256 file-content match are fenced to the disposable-workspace runner story W2e — W2a validates only the CONFIG-LOAD static shape (e.g. it checks toolchain.sha256 is 64-hex but never reads the file). Assurance is the §0.6 practical tier (accidental fabrication / workflow drift / casual gaming); a determined local attacker with direct filesystem access is explicitly out of scope (Tier-C). No redEvidence block is committed to lattice.config.json because pinnedPath is host-specific and required-with-no-default.",
+  "pitfalls": "Convergence took genuine cross-host adversarial review: codex host-B found progressively deeper §1.2 registry-schema fail-open gaps across FIVE rounds (r1 canon input + required fields; r2 toolchain/uniqueness/anchoring; r3 partial-token/cwd/captureless/empty-argv; r4 patternCaptureNames char-class false-positive; r5 COMPLETE across 111 cases) — the lesson for later W2 stories is to implement fail-closed schema validation by mirroring the spec clause-by-clause with a test per field on the FIRST pass. Also: the frozen policyDigest depends on resolving the §1.2 forbiddenCatchAlls 8th entry as the 2-char double-quote literal (not empty string) and on the fixture pinnedPath=[/usr/bin]. The DONE merge of main (117 commits behind) conflicted in lattice.config.json (union-resolved) and re-staled the full-3x2 quorum, forcing a merge-confirmation re-review — future stories should merge main BEFORE the final quorum. Two out-of-band tooling issues surfaced: the PLAN→INIT_CHECK title-edit bounce is broken for worktree'd stories (filed task_1cf40256), and the convergence breaker false-froze on legitimate DEV→REVIEW evidence-binding progress (needed a human story_resume ack).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1040599
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 71292
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 3508911
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 14476772
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 4981121
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 386985
+    }
+  },
+  "totalDurationMs": 24466676,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-25T06:30:46.290Z",
+  "updatedAt": "2026-07-25T06:30:46.290Z"
+}
