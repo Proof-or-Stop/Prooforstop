@@ -476,7 +476,7 @@ Behavior:
       note: z.string().describe('Why this evidence satisfies the intent.'),
     })).describe('Evidence array; reads and writes the checklist once in the same call.'),
   }},
-  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence (rerun command)', schema: {
+  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale command-less attestation evidence; command-backed result:pass rows are refused and must be re-run + re-recorded via verification_evidence_add (never silently re-certified)', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},

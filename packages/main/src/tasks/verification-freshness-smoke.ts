@@ -368,15 +368,18 @@ for (const path of material) {
     assert.match(dryRun, /\[DRY-RUN\] Stale verification evidence/);
     assert.match(dryRun, /npm test/);
 
+    // B-3b88 CHK-002: a command-backed result:pass is REFUSED by refresh (never
+    // silently re-certified onto changed material) — it stays stale until it is
+    // re-run and re-recorded via verification_evidence_add.
     const result = handlers.verification_evidence_refresh_stale({ storyId });
-    assert.match(result, /Refreshed 1\/1 stale evidence/);
+    assert.match(result, /refused 1 command-backed pass/);
     const after = buildVerificationCoverage(
       store.readChecklist(storyId),
       head,
       (headHash, evidence) => checkEvidenceFreshnessForGit(root, headHash, evidence?.materialHash).fresh,
     );
-    assert.equal(after.entries[0]?.status, 'covered', 'refresh helper should make stale evidence covered at current head');
-    assert.equal(after.entries[0]?.evidence?.headHash, head);
+    assert.equal(after.entries[0]?.status, 'stale', 'command-backed pass stays stale (refused, not re-certified)');
+    assert.equal(after.entries[0]?.evidence?.headHash, base);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -429,7 +432,6 @@ for (const path of material) {
           note: 'old evidence with rich metadata',
           headHash: base,
           materialHash: baseMaterialHash,
-          command: 'npm test',
           attestation: { kind: 'human', actor: 'smoke-test', result: 'pass' },
           actorTrust: { level: 'verified', source: 'ci' } as any,
           factProvenance: {
@@ -807,7 +809,6 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
             note: 'old evidence pinned to baseSha',
             headHash: baseSha,
             materialHash: baseMaterialHash,
-            command: 'npm test',
           }],
         }],
       };
@@ -1006,7 +1007,6 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
           note: 'evidence captured BEFORE main merge',
           headHash: baseSha,
           materialHash: baseMaterialHash,
-          command: 'npm test',
         }],
       }],
     };
