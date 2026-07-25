@@ -178,6 +178,18 @@
           "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
           "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
           "timestamp": "2026-07-25T12:00:20.546Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts a title edit at INIT_CHECK is rejected (frozenAtCheck.code != 0) and the corrected title is unchanged, proving INIT_CHECK stays frozen (scope-freeze invariant preserved).",
+          "headHash": "7832767af244578d3155fbc318b3db3f79cb8a79",
+          "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18",
+          "storyFilesHash": "fb1cb01057571e96a260312461bf427417314732ce4319d722088fafd3b760c5",
+          "timestamp": "2026-07-25T12:02:15.242Z"
         }
       ]
     },
