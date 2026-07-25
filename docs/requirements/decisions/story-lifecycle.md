@@ -262,7 +262,7 @@ The CLI layer filters the available commands by the current story phase. When th
 |---|---|
 | `lattice validate` | Standard validation, writes validation evidence |
 | `done_required_validate` | Opt-in DONE-required validation, writes `done-required-evidence.json` for the separate DONE-required row |
-| `verification_evidence_refresh_stale` | Refresh the HEAD/material hash of stale evidence based on the coverage report |
+| `verification_evidence_refresh_stale` | Re-stamp the HEAD/material hash of stale command-less attestation evidence only; a command-backed `result:pass` row is refused and must be re-run + re-recorded via `verification_evidence_add` |
 | `bug_report` / `bug_update` / `bug_list` | Manage bugs produced by validation failures |
 | `summary_set` | Write the pre-DONE user value, actual transcript, diff, outcomeKind, and usage notes |
 | `delivery_check_set` | Record the delivery reviewer signature |
