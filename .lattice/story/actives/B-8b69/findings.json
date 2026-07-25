@@ -119,7 +119,7 @@
       "desc": "doc-promise-undelivered (evidence-chain, not code): .lattice/story/actives/B-8b69/findings.json:74 (F-004 resolvedReason) closes CHK-002:adversarial:0 (should-priority: 'when the worktree directory was deleted, dev_start re-bootstraps cleanly without the .worktrees-prefixed branch-content false-fail') by claiming it is covered by 'the worktree-deleted re-bootstrap by worktree-repair-smoke'. This is false: grep -in dev_start packages/main/src/tasks/worktree-repair-smoke.ts returns ZERO matches -- that file (doctor/story_discard/done_recover repair paths) never calls dev_start at all. The companion review-passes.json RP-002 note instead attributes this coverage to init-check-atomicity-smoke.ts's stuck-INIT_CHECK-no-worktree scenario (assertDevStartRecoversStuckInitCheckStory, lines ~226-247) -- but that test's story() helper is called WITHOUT the worktree=true arg (line 233: story(storyId,'INIT_CHECK'), default worktree=false), so story.worktree is undefined and dev_start's 'if (story.worktree) { ...; if (!existsSync(absPath)) story.worktree = undefined; }' reuse/stale-record branch (worktree.ts ~817-823, the exact branch resolveWorktreePath feeds and that this CHK targets) is never entered -- it exercises 'worktree metadata never existed', not 'worktree directory was deleted after being recorded'. checklist.json's own CHK-002 verificationEvidence array (grep confirmed) has ZERO entries for either CHK-002:edge:0 or CHK-002:adversarial:0 -- only CHK-002:happy:0 has recorded evidence -- so the resolution added no verificationEvidence at all, just a narrative resolvedReason citing a non-existent test. Net effect: two independent review passes (F-004's own resolver and RP-002 / lattice-review-test-coverage) both asserted test coverage for this should-priority adversarial intent that does not exist anywhere in the repo (full-repo grep for dev_start co-occurring with a deleted/missing-worktree-directory scenario finds none outside plan-init-reopen-roundtrip-smoke.ts, which only covers CHK-001/CHK-003, not CHK-002). Functional risk is low -- resolveWorktreePath is invoked from the same cwd context in both the reuse-check and the fresh-bootstrap path, so a genuinely deleted-worktree invocation (which can only realistically happen from the main root, since a shell cannot cd into an already-deleted directory) is structurally covered by the existing from-main-root reuse test -- but the review concern is the false evidence citation itself, repeated independently across two review lanes, closing a must-verify-in-spirit adversarial intent on an unsubstantiated claim rather than either a real test or an honest advisory dismissal.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-25T15:26:00.306Z",
@@ -127,7 +127,11 @@
       "reviewRunId": "B-8b69:RR-009",
       "_hash": "b9f965a983405ff7f25315bd87324b4e824d8f26ae307072a3c71d595f1b5dd2",
       "signatureTag": "adversarial|unknown|misattributed-resolution-evidence",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Valid finding: the F-004 resolution cited coverage (worktree-repair-smoke / init-check-atomicity worktree=false) that does not actually exercise the resolveWorktreePath reuse branch. Fixed by ADDING real tests instead of a citation: assertDevStartReuseFromMainAndRebootstrap in plan-init-reopen-roundtrip-smoke.ts genuinely exercises from-main reuse and deleted-worktree re-bootstrap, and CHK-002:edge:0/adversarial:0 now have real verificationEvidence bound to it. Smoke GREEN. commit 3f0e4c2ebb.",
+      "resolvedAt": "2026-07-25T15:30:45.749Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
