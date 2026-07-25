@@ -259,6 +259,22 @@ function main(): void {
     // ── (F-005) the reopen reset the seeded done item back to pending ────────
     assert.equal(statusOf(wt, storyId!, 'CHK-001'), 'pending', 'reopen must reset a done checklist item to pending so a changed requirement is re-verified (no silent tampering)');
 
+    // ── (B-8b69 follow-up) the reopen reason is PERSISTED into the append-only
+    //    phase_transition audit event, not just validated then dropped — otherwise
+    //    the "audited reopen" claim is not durably true. The event carries a
+    //    transitionType marker so a reopen is distinguishable from a forward
+    //    transition when auditing history. ─────────────────────────────────────
+    {
+      const REOPEN_REASON = 'PLAN scope review flagged the frozen title; it must name the real deliverable.';
+      const events = new StoryStore(wt).readProcessEvents(storyId!);
+      const reopenEvent = events.find(
+        (e) => e.type === 'phase_transition' && (e as any).fromPhase === 'PLAN' && (e as any).toPhase === 'INIT',
+      );
+      assert.ok(reopenEvent, 'the reopen must append a PLAN->INIT phase_transition process event');
+      assert.equal((reopenEvent as any).transitionType, 'reopen', 'the reopen phase_transition event must be marked transitionType=reopen');
+      assert.equal((reopenEvent as any).reason, REOPEN_REASON, 'the reopen reason must be persisted verbatim in the phase_transition audit event (validated-but-dropped is not auditable)');
+    }
+
     // ── title is editable ONLY at INIT — edit it now ─────────────────────────
     const edit = run(wt, 'checklist_update', { storyId, itemId: 'CHK-001', title: CORRECTED });
     assert.equal(edit.code, 0, `title edit at INIT should succeed: ${edit.out}`);

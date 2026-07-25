@@ -133,7 +133,9 @@ export interface StoryTransitionArgs {
   /**
    * B-8b69: required, audited reason for the gated PLAN->INIT reopen. Ignored for
    * every other transition. Enforced (non-blank, >= REOPEN_REASON_MIN chars) before
-   * the REOPEN event is sent.
+   * the REOPEN event is sent, then persisted (with transitionType:"reopen") into the
+   * append-only phase_transition process event so the reopen is durably auditable —
+   * a validated-but-dropped reason would not be.
    */
   reason?: string;
 }
@@ -425,6 +427,12 @@ export function buildPhaseTransitionProcessEvent(input: {
   materialHash: string;
   storyFilesHash: string;
   reviewRound: string;
+  // B-8b69 follow-up: durable audit of the gated PLAN->INIT reopen. Both are set
+  // ONLY on a REOPEN transition and omitted for every normal transition, so a normal
+  // phase_transition event keeps its exact prior shape (old JSONL readers and the
+  // builder shape test stay green; the fields are strictly additive).
+  transitionType?: string;
+  reason?: string;
 }): Omit<ProcessEvent, 'timestamp'> {
   return {
     type: 'phase_transition',
@@ -435,6 +443,8 @@ export function buildPhaseTransitionProcessEvent(input: {
     materialHash: input.materialHash,
     storyFilesHash: input.storyFilesHash,
     reviewRound: input.reviewRound,
+    ...(input.transitionType !== undefined ? { transitionType: input.transitionType } : {}),
+    ...(input.reason !== undefined ? { reason: input.reason } : {}),
   };
 }
 
@@ -928,6 +938,15 @@ async function runStoryTransitionInner(
       materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
       storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
       reviewRound: story.currentReviewRound ?? '',
+      // B-8b69 follow-up: the gated PLAN->INIT reopen reason is validated above
+      // (>= REOPEN_REASON_MIN chars) but was previously dropped here. Persist it —
+      // with a transitionType marker distinguishing a reopen from a forward
+      // transition — into this append-only, only-on-success phase_transition event
+      // so the reopen is durably auditable. Set ONLY for REOPEN; every normal
+      // transition passes neither field and keeps its exact prior event shape.
+      ...(eventType === 'REOPEN'
+        ? { transitionType: 'reopen', reason: args.reason?.trim() }
+        : {}),
     }));
 
     // ── post effects. B-56d3: non-DONE transition effects in
