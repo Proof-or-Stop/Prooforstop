@@ -1,0 +1,501 @@
+{
+  "passes": [
+    {
+      "id": "B-c054:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness clean: canon.ts is the SINGLE new canonicalizer, scope fence holds (no runner.ts/envelope.ts touch, no exec resolution, no committed redEvidence block), assurance-tier fence holds (zero overclaim tokens as actual claims). See finding-free summary in readManifest scanEscalationReason.",
+      "createdAt": "2026-07-25T04:14:37.212Z",
+      "reviewRound": "2026-07-25T04:09:32.942Z",
+      "reviewRunId": "B-c054:RR-004",
+      "envelopeId": "d42f821b580bedfedfda33a65950a05d39c1dd4381522508637dfe5515470972",
+      "writerSessionId": "review-concept-b-c054",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Concept-completeness properties verified via git diff main...HEAD grep across packages/main/src: (1) canon.ts confirmed as the sole new canonicalizer — digest.ts/authority-contracts.ts/authority-signing.ts/usage-ledger/canonical-json.ts appear in the diff/imports list but are UNTOUCHED (git diff --diff-filter=M shows only checklist.json/index.json/process-events.jsonl/lattice.config.json/config.ts/doctor.ts modified), referenced read-only by the RED differential test per CHK-002 to prove unsuitability, not duplicated; policy.ts imports canonDigest from canon.js, doctor.ts calls resolveRedEvidenceDoctorLine from policy.ts (no reimplementation). (2) Scope fence: git diff main...HEAD --name-only has zero runner.ts/envelope.ts entries; grep for child_process/spawn/execFile/resolveExecutable across the full diff returns zero hits; lattice.config.json diff is exactly one new validate.commands smoke entry, grep redEvidence on the full file returns zero matches (no committed block). (3) Assurance-tier fence: grepped tamper-proof|tamper-resistant|cannot be forged|unforgeable|guarantees integrity|prevents forgery across canon.ts/policy.ts/registries.ts/doctor.ts diff/config.ts diff/commit 2fde890c60 message — 2 hits total, both defensive (the smoke tasks own OVERCLAIM guard regex definition, and the commit messages explicit disclaimer no tamper-proof / cannot-be-forged claims), zero actual overclaims. No blocking findings."
+      },
+      "_hash": "e42e7d0bcbddb894697d9349d91775321deaeb5942a3e7be9caaa891b4fe9c80"
+    },
+    {
+      "id": "B-c054:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality audit (diff main...HEAD, 9 code files): canon.ts imports ONLY node:crypto (leaf discipline confirmed by grep); policy.ts/registries.ts have zero fs/process/env imports (pure resolution + pure data, confirmed by grep). No `as any`/any-leakage in new files (pre-existing any-casts in doctor.ts are outside this diffs hunks). RedEvidencePolicyConfig in config.ts has exactly the 14 POLICY_SNAPSHOT_KEYS keys (verified 1:1 against registries.ts). resolveRedEvidencePolicy exhaustively validates all 14 keys (6 distinct floor/cap/ceiling diagnostics + 8 registry/env/glob/argv checks), returns a strongly-typed discriminated union (ok:true|false) with typed PolicyDiagnostic[]. scanRedEvidencePolicy (doctor.ts) wraps loadConfig+resolveRedEvidenceDoctorLine in try/catch matching the existing empty-catch defensive-scan convention already used by scanOrphanWorktrees/scanGuardSessions in this file (never throws, verified live: lattice doctor exits 0 and prints exactly one Red-evidence policy line with no redEvidence block configured). No hand-inlined canonicalizer duplicates canon.ts anywhere in the diff; the frozen policyDigest literal is duplicated verbatim across the smoke and the two RED .mjs tests, but this is the projects intentional repro-first/independent-frozen-vector pattern (each RED artifact independently pins vectors so no single shared constant can be silently gamed) — drift is fail-loud, not silent. registries.ts has zero imports and is pure data, matching its header claim. Ran npx tsc --noEmit (clean), built dist, executed all three new test/smoke files directly — all PASS. One non-blocking observation: CanonValue (canon.ts) is exported but never referenced anywhere including canon()s own signature (unknown + runtime validation used instead) — zero runtime footprint, common for a foundation-leaf landed ahead of consumers. No blocking findings.",
+      "createdAt": "2026-07-25T04:18:56.445Z",
+      "reviewRound": "2026-07-25T04:09:32.942Z",
+      "reviewRunId": "B-c054:RR-003",
+      "envelopeId": "c07c3509a173e4446530f85d20120fc0927cfd307be5f55cd8dba098cfe2d680",
+      "writerSessionId": "review-quality-b-c054",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1bfa10a45bf18fa2dc9cd825ba82a5e064529b84612f1d363597af4db4b11d36"
+    },
+    {
+      "id": "B-c054:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: re-verified 3 completeness properties on current material (HEAD bc95603, after fix commit eff4404936) via grep across packages/main/src. (1) canon.ts remains the SINGLE new canonicalizer under core/red-evidence/ (find + export-grep confirms only pre-existing canonicalJson/canonicalJsonForSigning/etc, none new; fix commit only added private helpers hasLoneSurrogate/assertNoLoneSurrogate, no new exported canonicalizer). (2) Scope fence intact: runner.ts and envelope.ts do not exist anywhere in the repo (grep/find empty) so zero commits on this branch touched them; no execFile/spawn/child_process/resolvedExecutable in any red-evidence source (no runtime executable resolution); lattice.config.json has no redEvidence block committed (grep exit 1) while the canon-smoke IS registered in validate.commands. (3) Assurance-tier fence: grep for tamper-proof|tamper-resistant|cannot be forged|unforgeable|guarantees integrity|prevents forgery across canon.ts/policy.ts/registries.ts = zero hits; same grep across every changed file in the story diff = zero hits (only match is the OVERCLAIM regex literal inside the smokes own CHK-009 guard, not an actual overclaim string); zero hits in the fix commit eff4404936 message. All checklist items CHK-001..CHK-010 remain status=done. No blocker.",
+      "createdAt": "2026-07-25T04:41:09.747Z",
+      "reviewRound": "2026-07-25T04:37:25.897Z",
+      "reviewRunId": "B-c054:RR-007",
+      "envelopeId": "d46d5a29fbd57db9630d6ab9913e8a538bd72d04c70cec5372feac8b09c9954c",
+      "writerSessionId": "review-concept-b-c054-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0bc0428fe738d6ebf65675ced7e9d3fc06454d57fda8447861698e6a05aa03fc"
+    },
+    {
+      "id": "B-c054:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Round-2 verification of commit eff44049362959935cc83b741cb697ef91a3ff85 (fixes for 5 round-1 findings). Rebuilt dist from src cleanly (tsc, no errors). Independently exercised the built canon.ts/policy.ts directly with node (not just re-reading source): canon of a lone-high-surrogate string and a lone-low-surrogate string each throw, a lone surrogate as an object key throws, a valid astral surrogate PAIR (emoji) does NOT throw; canon(new Date()), canon(new Map()), canon(new Set()), canon(/re/), and a class instance all throw (including nested one level deep inside a plain object), a null-prototype object still canonicalizes fine and matches the plain-object output. policy.ts invarianceExcludePaths: a glob matching all .ts files under any depth rejects over a root-level tracked foo.ts AND over a nested a/b/foo.ts (also verified a mid-path variant and single-star/double-star bare catch-alls all reject), while node_modules/** is kept (ok:true) when it matches no tracked material (confirmed with a realistic material list that excludes node_modules paths). Malformed matcherClassRegistry (predicateKind outside the closed enum), runnerAdapterRegistry (missing required fields), and runnerProfileRegistry (missing required fields) entries each reject with a distinct diagnostic code; the DEFAULT registries (no override) still resolve ok:true. Object.isFrozen(snapshot) is true and every nested array/object is frozen; a top-level scalar mutation and a nested-array push each throw in strict mode. The frozen default policyDigest reproduces exactly the pinned literal sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767 (ran resolveRedEvidencePolicy directly plus ran the actual smoke red-evidence-policy-canon-smoke.js and both tests/red/red-w2a-canon-differential.mjs and tests/red/red-w2a-policy-failclosed.mjs -- all exit 0/PASS). Cross-checked policy.ts against spec sections 0.4 and 1.12 in the red-evidence-subsystem-spec decisions doc -- code matches the normative table exactly, including the invarianceExcludePaths material-overlap rule. Also ran lattice doctor: exactly one red-evidence line, exit 0, config has no redEvidence block (out of scope per CHK-010). No new defect found: no over-broad guard rejects a valid input I could construct, and the default registries/policy still resolve unchanged.",
+      "createdAt": "2026-07-25T04:46:32.558Z",
+      "reviewRound": "2026-07-25T04:37:25.897Z",
+      "reviewRunId": "B-c054:RR-009",
+      "envelopeId": "46e0d27e034bfcf780ac5f007205ac2397673ee4a7ab6954f4ec5bd406465b0e",
+      "writerSessionId": "review-behavior-b-c054-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0124c3b56aeaf2cc4a3f42cc5e76008f63bb0bc01c57acb0b7c809f39256777a"
+    },
+    {
+      "id": "B-c054:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Second-round code-quality audit of eff44049 (5 REVIEW findings fixed). tsc --noEmit clean; dist build clean; smoke and both mjs RED tests PASS; full lattice validate (48/48 commands) all green. canon.ts: lone-surrogate detection + plain-object prototype guard are correctly scoped, no any usage, still imports only node:crypto. policy.ts: deepFreeze<T> is minimal/generic/used once, no dead code; freezing does not change canon bytes so policyDigest is unaffected. The **/ glob fix is a minimal, correct change (only adds the i+2===slash branch for zero-or-more segments; other ** behavior unchanged). Registry-schema validators are fully typed with no any-leakage, emit distinct diagnostic codes, and the repeated missingXxx[] pattern across matcherClass/adapter/profile reflects genuinely different required-field schemas, not gratuitous duplication. No TODO/FIXME/commented-out code introduced.",
+      "createdAt": "2026-07-25T04:53:20.165Z",
+      "reviewRound": "2026-07-25T04:37:25.897Z",
+      "reviewRunId": "B-c054:RR-008",
+      "envelopeId": "20355b960a178d3fcb49e57db36c691416ee4a26d339c417f9f9f3d1b7ff14fa",
+      "writerSessionId": "review-quality-b-c054-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1bc6502b044a374f741fedfecb799c3b009a281518c4d323a2afbb5c961174f2"
+    },
+    {
+      "id": "B-c054:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 re-verify after fix commits da3fc395a9 (W2a r2 registry-schema structural validation) and 70cbc59220 (r3 config-load DEPTH validation: cwd/argv/pattern/prep/sha256). No concept deletion/replacement this round (diff is purely additive under packages/main/src/core/red-evidence/ plus one interface field in config.ts, one non-gating scan in doctor.ts, one validate.commands registration in lattice.config.json; the single deleted diff line is a JSON comma-append artifact, not a concept removal), so per role rule I record a pass rather than a padding finding. Re-checked the three requested fences on current material: (1) canon.ts (canon/canonDigest/canonDigestOmitting/omitUndefinedDeep/first12hex) remains the single canonicalizer -- grepped policy.ts/registries.ts/config.ts/doctor.ts for stray canonicalize defs, found none; policy.ts imports canonDigest from canon.ts and its isRepoRelativePath is a boolean shape-validator (not a duplicate canonicalizer), whose docstring only references the pre-existing scope-path-classifier.ts canonicalizer as a pattern mirror. (2) scope fence intact -- git diff main...HEAD --stat has zero hits for runner.ts/envelope.ts anywhere in the repo; grepped the 6 story-touched files for child_process/spawn/execFile/resolveExecutable and found none added (all execFileSync/readFileSync hits in doctor.ts/config.ts are pre-existing lines outside the diff, confirmed via git diff plus-filter); the only sha256 code is canon.ts hashing in-memory CANON bytes (not a file read) and policy.ts's isSha256Hex, a pure 64-hex regex format check whose comment explicitly defers real toolchain-file resolution and verification to W2e; lattice.config.json diff only appends the new smoke to validate.commands, no redEvidence block committed. (3) assurance-tier fence -- grepped all added lines (git diff main...HEAD, excluding .lattice/ metadata JSON which only contains checklist prose describing what to grep for) for overclaim tokens and found zero occurrences in actual code/comments (the one hit outside .lattice/ is the smoke test's own OVERCLAIM negative-assertion regex, not an overclaim statement); grepped both fix-commit messages (da3fc395a9859fed27a24f3469e9ac5fff3a6f1d, 70cbc5922015b264202bd7f16d1103f7a722dff5) directly and found zero matches. Live-verified rather than trusting grep alone: rebuilt dist (tsc) and ran node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js (OK, exit 0 -- includes its own live OVERCLAIM-regex assertion against canon.ts/policy.ts/registries.ts and doctor red-evidence lines, plus the validate.commands registration check), and both packages/main/tests/red/red-w2a-canon-differential.mjs and red-w2a-policy-failclosed.mjs directly (PASS, exit 0). All 10 checklist items (CHK-001..CHK-010) read done. No blocker found this round; all three properties hold on current material.",
+      "createdAt": "2026-07-25T05:28:43.060Z",
+      "reviewRound": "2026-07-25T05:20:58.540Z",
+      "reviewRunId": "B-c054:RR-012",
+      "envelopeId": "a448f3e18def60ae12407ff0c124f002050e54c147fca900c1614cd4b9901430",
+      "writerSessionId": "review-concept-b-c054-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "43ea4c5eec13fd00130ce62db53aec266cc5687a00d8771df47012376c48bac6"
+    },
+    {
+      "id": "B-c054:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round 3 behavioral re-verification on fresh build (build clean; tsc no errors). Verified against dist directly: (1) canon.ts guards unchanged and still hold — lone surrogate (string value + member name) throws, non-plain-object (Date/Map) throws, undefined/function throws, NaN/Infinity throws, well-formed surrogate pair OK; deep-freeze on resolveRedEvidencePolicy snapshot confirmed at top level + nested array + nested object, mutation throws in strict mode. (2) Frozen default policyDigest with pinnedPath only reproduces exactly sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767, matching CHK-003 literal and the OQ-B-c054-forbiddenCatchAlls-8th-entry resolution (2-char double-quote literal, not empty string). Both default adapters + both default matcher classes + the one default profile resolve ok. (3) New r3 registry validators (da3fc395a9 + 70cbc59220) independently exercised and all REJECT as claimed: duplicate adapterId/runnerProfileId/matcherClass name, unanchored pattern, captureless pattern, adapter+profile cwd in {/tmp, ../x, \"\"}, argvTemplate prefix-${s} partial placeholder, prepCommands [[]] empty argv, toolchain not-object, sha256 too-short/uppercase, exit-code param float/negative/out-of-range(256)/duplicate — each with a distinct named diagnostic code as documented. (4) NO over-rejection found: defaults, a custom adapter with named-capture pattern + literal/${cap} argv + nested repo-relative cwd (incl. \\\"./x\\\" dot-prefixed form), an all-literal argvTemplate, a custom profile (keeping the cross-referenced runnerProfileId consistent with the adapter that selects it), boundary exit-code values [0,255], stream-empty predicateKind, and a forbiddenCatchAlls superset all resolve ok. One initial apparent rejection in my own script (overriding runnerProfileRegistry alone, orphaning the default adapters that reference node-npm@1) was verified to be correct cross-registry-reference behavior, not an implementation bug, once the test fixture was corrected to keep ids consistent. (5) Ran the exact required commands live: node dist/tasks/red-evidence-policy-canon-smoke.js -> OK exit 0; tests/red/red-w2a-canon-differential.mjs -> PASS exit 0; tests/red/red-w2a-policy-failclosed.mjs -> PASS exit 0 (this file's own r3 diff independently covers the same reject/accept matrix); lattice doctor -> exit 0, exactly one \"Red-evidence policy: ...\" line (currently the fail-closed pinnedPath-missing diagnostic since no redEvidence block is committed, per CHK-010). git diff confirms config.ts/doctor.ts/lattice.config.json wiring matches CHK-007/008/010 claims (redEvidence optional on LatticeConfig with open index signature, doctor renders exactly one non-gating line via scanRedEvidencePolicy/resolveRedEvidenceDoctorLine, smoke registered in validate.commands timeoutMs=180000, no redEvidence block committed). All 10 checklist items done, all 3 prior findings resolved. grep for overclaim tokens (tamper-proof/unforgeable/cryptographic proof/etc.) in new files finds zero true positives (only the smoke's own OVERCLAIM regex definition). No blocker.",
+      "createdAt": "2026-07-25T05:33:50.101Z",
+      "reviewRound": "2026-07-25T05:20:58.540Z",
+      "reviewRunId": "B-c054:RR-010",
+      "envelopeId": "54e9200154f7fd53dd9282f0c78da56ee982602e07ff1421a70b8a13b66cf8c6",
+      "writerSessionId": "review-behavior-b-c054-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/test-fixture-spec.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/truth-source.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4a662b8cc5f58a424b04c7ad97b49fda10b3ef31ef1f012c6bd270af364e6036"
+    },
+    {
+      "id": "B-c054:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Third-round code-quality re-audit focused on the r3 fix (da3fc395a9 + 70cbc59220), which added the full section-1.2 registry-schema DEPTH validators to policy.ts: partialPlaceholderTokens, isRepoRelativePath, isSha256Hex, plus per-field domain checks (adapter/profile cwd repo-relative, testCaseRefPattern requires at least 1 named capture, prepCommands non-empty argv, matcherClass exit-code-in integer/0-255/unique domain, toolchain sha256 64-hex-lowercase shape). npx tsc --noEmit (packages/main) is clean. grep confirms zero any-type usage in canon.ts/policy.ts/registries.ts; every new helper narrows unknown with explicit type guards or as-number/as-string-array casts, no any-leakage. canon.ts imports ONLY node:crypto (grep-confirmed); policy.ts imports only canonDigest from canon.js and named exports from registries.js; registries.ts has zero imports; grep for fs/process/child_process across packages/main/src/core/red-evidence/ returns zero hits -- policy.ts stays a pure structural resolver, the toolchain sha256/absolutePath checks are shape-only (never resolve or read a file), matching the module header stated fence to W2e. All 6 new diagnostic codes from the r3 fix (red_evidence_policy_argv_partial_placeholder, red_evidence_policy_runner_adapter_cwd_not_repo_relative, red_evidence_policy_test_case_ref_pattern_no_capture, red_evidence_policy_runner_profile_prep_command_empty, red_evidence_policy_runner_profile_cwd_not_repo_relative, red_evidence_policy_runner_profile_toolchain_sha256) are distinct from every pre-existing code (full code inventory via grep, no collisions). No new validator is over-broad: each only fires when the field is already the correct type (e.g. the cwd repo-relative check runs only when typeof entry.cwd is string, so it never double-reports against the pre-existing schema-presence diagnostic), and the three registries (matcherClass/runnerAdapter/runnerProfile) have genuinely different required fields, so the parallel per-registry validation blocks are not gratuitous duplication (confirmed each helper -- isRepoRelativePath, isSha256Hex, partialPlaceholderTokens, argvPlaceholders, forbiddenEnvKeyViolations -- is defined once and reused across call sites, zero dead code). No console.log/TODO/FIXME/commented-out code in the new or touched files. Test coverage for the r3 fix is thorough in both packages/main/tests/red/red-w2a-policy-failclosed.mjs and the smoke inlined section-6c block (partial-placeholder, cwd traversal/absolute/empty, captureless/unnamed-capture pattern, empty prepCommands, float/string/negative exit-code param, non-string array elements, short/uppercase/non-hex/wrong-length sha256) with both REJECT and matching KEEP/PASS control cases, and the frozen default policyDigest is re-asserted unchanged after the new DEPTH pass. CHK-009 assurance-tier fence still holds: grep for tamper-proof/unforgeable/guarantees/etc across all new and touched files returns only the smoke own OVERCLAIM detector regex, zero actual overclaims. Verified full build and test chain live: npm run build (packages/main) clean; node dist/tasks/red-evidence-policy-canon-smoke.js OK; node tests/red/red-w2a-canon-differential.mjs PASS; node tests/red/red-w2a-policy-failclosed.mjs PASS; full node bin/lattice.js validate ran all 48 configured commands green including validate.commands[47] red-evidence-policy-canon-smoke (exit 0). No blocking findings this round.",
+      "createdAt": "2026-07-25T05:35:05.994Z",
+      "reviewRound": "2026-07-25T05:20:58.540Z",
+      "reviewRunId": "B-c054:RR-013",
+      "envelopeId": "92a57329e3ed78ca93fe87987bbd82c9726aede0eb7d788a0d8d0080544658ca",
+      "writerSessionId": "review-quality-b-c054-r3",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2346e38d9cb2afd11ce4c5e0147eeb99a1ec0fe22d0b3275ad7b77e989328761"
+    },
+    {
+      "id": "B-c054:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Final concept-completeness pass. Since rounds 1-3, only commit 3b05d13219 landed (patternCaptureNames tokenizer fix in policy.ts, additive: private helper reimplemented + 3 new RED regression cases + 1 regression assertion, no exports added/removed, no concept deleted/replaced). Verified on current material (HEAD b9e7d3c, clean tree except lattice bookkeeping): (1) canon.ts remains the sole canonicalizer -- commit touches only policy.ts/tests, canon.ts untouched by 3b05d13219, and policy.ts only imports canonDigest from canon.js (no competing canonicalizer defined; the nearby path-canonicalizer comment refers to the pre-existing unrelated repo-relative-v1 path classifier, not JSON canonicalization). (2) Scope fence intact: red-evidence/ dir contains only canon.ts, policy.ts, registries.ts (no runner.ts/envelope.ts); zero child_process/spawn/execFile/resolveExecutable in the diff or dir; toolchain sha256 handling stays a pure isSha256Hex format check with no fs import/reads (comment explicitly fences the resolve-real-path+sha256 MATCH to W2e); lattice.config.json diff is only the new smoke-test registration line, no redEvidence block. (3) Assurance-tier fence: grepped commit message + all added diff lines for verified/proven/guarantee/certif/attest/authoritative/cryptographic-proof/fully-secure tokens -- zero matches; the sole W2e mention in the diff context is a pre-existing unchanged line (no + prefix), not introduced by this commit. No concept deletion/replacement this round; concept residue check completed, no blocker.",
+      "createdAt": "2026-07-25T05:58:10.085Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-016",
+      "envelopeId": "c58009160962f0f825605c47bf58cf0b63e90015ce38d2ab8e3d526d3409c975",
+      "writerSessionId": "review-concept-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/registries.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b857f4eef6b20169fc863fcac783eb191fa6b51f78953998e0132451c8fc550"
+    },
+    {
+      "id": "B-c054:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 105 checklist intents (CHK-001..CHK-010, happy/edge/adversarial) have exactly one passing verificationEvidence each, no missing/failing refs. Verified F-004 fix: scanned all 105 verificationEvidence notes for filename:line citation patterns -- zero matches (was ~93 stale citations across 7 batch-refresh commits, e.g. 5dfaadc718/287cc1a701/4f4e3d024b/e6d32b8079/edef86c644/6c0aea85c3 each rewrote 15 notes + ffea1ff15b rewrote 3 = 93 total; sample diff config.ts:224/smoke:206/smoke:203-204 -> section-reference prose, no raw line numbers). Confirmed 12 evidence entries got a clean headHash/timestamp refresh in 1a3615af2d (matches claim). Confirmed commit 3b05d13219 adds a genuine RED regression test in red-w2a-policy-failclosed.mjs: supplies pattern ^[(?<fake>]+$ (named-capture-shaped text inside a character class) and asserts rejection via red_evidence_policy_test_case_ref_pattern_no_capture, plus a ${fake} placeholder variant and a backslash-escaped-opener variant, plus a genuine-capture regression control -- matches the described patternCaptureNames tokenizer fix in policy.ts. Rebuilt dist (npm --prefix packages/main run build, clean tsc) and spot-ran all three: node dist/tasks/red-evidence-policy-canon-smoke.js -> OK exit 0; node --test tests/red/red-w2a-canon-differential.mjs -> 1 pass; node --test tests/red/red-w2a-policy-failclosed.mjs -> 1 pass. lattice.config.json has no redEvidence key and registers the smoke in validate.commands (CHK-010 self-pin intact). All 4 prior findings (F-001..F-004) show status=resolved. No blocker.",
+      "createdAt": "2026-07-25T05:58:27.917Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-015",
+      "envelopeId": "57f429ecf12cfaee9cab82ac79ef4aa505fd6bc0e060f994d86f48fa0fc25d49",
+      "writerSessionId": "review-testcov-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/findings.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          ".lattice/story/actives/B-c054/review-runs.json",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "be7703d18e484350f422fe58d6d87817b3c448693e406015906dceff42bd41be"
+    },
+    {
+      "id": "B-c054:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fourth-round code-quality re-audit scoped to the single code change since round 3: commit 3b05d13219 (B-c054 R4-1), which rewrote patternCaptureNames() in packages/main/src/core/red-evidence/policy.ts:236-268 from a textual RegExp.source scan (/\\(\\?<([A-Za-z_][A-Za-z0-9_]*)>/g) to a deterministic character-by-character tokenizer that tracks escape (backslash+next skip) and character-class ([...]) spans and only recognizes (?<name> as a real named capture outside both. Read background.md, plan.md, checklist.json (via review_run_start task context), and the full policy.ts + registries.ts + canon.ts + the two red/*.mjs test files + the tokenizer commit diff directly (git show 3b05d13219). npx tsc --noEmit (packages/main) is clean. grep confirms zero any usage in policy.ts. Purity confirmed by import grep: canon.ts imports ONLY node:crypto; policy.ts imports only canonDigest from canon.js and named exports from registries.js; registries.ts has zero imports; no fs/process/child_process anywhere in packages/main/src/core/red-evidence/. Built dist (npm run build) clean; ran node dist/tasks/red-evidence-policy-canon-smoke.js (OK), node tests/red/red-w2a-canon-differential.mjs (PASS), node tests/red/red-w2a-policy-failclosed.mjs (PASS, including the 4 new R4-1 RED assertions: class-embedded fake capture rejects no-capture, ${fake} against a class-embedded fake rejects unresolved-placeholder, backslash-escaped opener rejects no-capture, and the genuine-capture regression control still passes both literal and placeholder forms); full node bin/lattice.js validate ran all 48 configured commands green ending 验证全绿 (includes validate.commands[47] red-evidence-policy-canon-smoke: OK). The tokenizer itself: minimal, single-purpose, no dead code, no over-engineering (does not attempt to handle unrelated regex features like quantifiers/alternation-counting since capture-name enumeration does not need them); doc comment accurately describes the prior bug and the fix. I independently re-implemented the tokenizer in a scratch script and cross-checked it against real new RegExp(pattern,u) semantics on 10 adversarial patterns beyond the committed RED tests: empty class [] immediately closing (JS-correct, not POSIX-literal-close-bracket), nested-looking open-bracket inside a class (literal, ignored), an escaped closing bracket inside a class correctly does not prematurely close, a real capture immediately following a class, a lookbehind (?<=...) correctly excluded (its = is not a name-start char) while a real named capture beside it is still found, a negative lookbehind (?<!...) correctly excluded, escaped literal brackets around a real capture, an escaped backslash followed by a real capture, a unicode-property escape not confusing the scanner, and duplicate named-group names across alternation (rejected upstream by new RegExp itself in Node 22, so the tokenizer never sees it, fail-closed via the null-return path, unchanged from before). Also verified that switching the scan target from compiled.source (old) to the raw input pattern string (new) cannot change capture detection: RegExp.prototype.source only re-escapes forward-slash and raw line-terminator characters relative to the input pattern, and never touches the parenthesis/question-mark/angle-bracket/name characters, so the two are structurally equivalent for this specific scan. No regressions found; no findings raised.",
+      "createdAt": "2026-07-25T06:06:14.797Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-017",
+      "envelopeId": "6d8492864373c71415f02b445452969b9e8689d03b5f488c2cad21e950c32a70",
+      "writerSessionId": "review-quality-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/checklist.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3fc6411377b8d94c617b3d805520ad26077a46ef2bdb102479e7f6f089a05a6"
+    },
+    {
+      "id": "B-c054:RP-012",
+      "agent": "lattice-review-behavior",
+      "note": "Final behavior confirmation post R4-1 (commit 3b05d13219). Fresh build (tsc clean) + full lattice validate (48/48 configured commands green, exit 0) + both tests/red/*.mjs (red-w2a-canon-differential PASS, red-w2a-policy-failclosed PASS) + red-evidence-policy-canon-smoke OK + lattice doctor (exit 0, red-evidence line = red_evidence_policy_missing: pinnedPath as expected, no gate evidence written, no redEvidence block in lattice.config.json). Behaviorally re-verified against fresh dist (not just re-running the committed tests): canon({B:1,a:2})=={\"B\":1,\"a\":2}, canon(undefined)/canon({v:NaN}) throw, canon({x:null}) preserves null, canonDigest renders sha256:<64hex>, canon does not mutate its input. resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"]}).policyDigest === frozen sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767 (14-key snapshot, Object.frozen, mutation attempt no-ops). patternCaptureNames tokenizer fix verified directly: testCaseRefPattern \"^[(?<fake>]+$\" (fake capture inside a character class) REJECTS with red_evidence_policy_test_case_ref_pattern_no_capture; escaped \\\\(?<x> REJECTS (not counted); lookbehind (?<=x) and negative lookbehind (?<!x) both REJECT (not counted as captures, consistent with spec §1.2/§2.x testCaseRefPattern/argvTemplate ${captureName} contract at red-evidence-subsystem-spec.md:314-322,381-386); genuine ^(?<script>[A-Za-z0-9]+)$ still RESOLVES OK both with a literal argv and with a ${script} placeholder against it (no over-rejection regression). materialHash unchanged across RR-014->RR-018 (7bc8c8...cd4bc), only story-metadata (other-lane review_pass_set) commits landed HEAD between runs; storyFilesHash/scopeContractDigest unchanged. No blocker found.",
+      "createdAt": "2026-07-25T06:13:33.433Z",
+      "reviewRound": "2026-07-25T05:53:28.637Z",
+      "reviewRunId": "B-c054:RR-018",
+      "envelopeId": "5e74b37b6b0a12b044a3635320c51660468eaf0d3ffd7093648e3f31b86c9356",
+      "writerSessionId": "review-behavior-b-c054-final",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "533d7a76521149cc1b819b031ca157b9a5b6c7f97e29258a6591fb22d4b3c3de"
+    },
+    {
+      "id": "B-c054:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "Re-record post-merge (b6b2c85417). Verified story source byte-identical (git diff ea1238b33d..4d7b88b17c for red-evidence/, tests/red/, doctor.ts, config.ts empty). lattice.config.json diff confirms merge only added 2 unrelated smokes from main via union resolution (scope-shrinkage-withdrawal-floor-smoke.js, withdrawn-disposition-smoke.js) alongside this story own red-evidence-policy-canon-smoke.js entry. Rebuilt clean (tsc). red-evidence-policy-canon-smoke.js OK exit0; red-w2a-canon-differential.mjs PASS exit0; red-w2a-policy-failclosed.mjs PASS exit0. Frozen digest sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767 present unchanged in both files. lattice doctor exit0, exactly one red-evidence line (advisory red_evidence_policy_missing: pinnedPath, no gate evidence written, no redEvidence block in lattice.config.json). No behavior regression from the merge; original CHK-001..CHK-010 review conclusions stand unchanged.",
+      "createdAt": "2026-07-25T06:39:58.390Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-019",
+      "envelopeId": "7c761997be0de1203506dbabbd1e1c4d6a08e3d227fd2301e28aeebcaf35142e",
+      "writerSessionId": "review-behavior-b-c054-rr",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0f86c9e36557b527f9c085deb72248361dfbd3baf5fbc01e78fbdb1de80625cd"
+    },
+    {
+      "id": "B-c054:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Re-record after git merge main (b6b2c85417). Confirmed merge only unions 2 unrelated smoke entries into lattice.config.json validate.commands; red-evidence source (canon.ts/policy.ts/registries.ts/config.ts/doctor.ts/smoke.ts/mjs tests) byte-identical across the merge (git diff ea1238b33d..b6b2c85417 shows only lattice.config.json +2 lines). Verified: npx tsc --noEmit clean; npm run build clean; red-evidence-policy-canon-smoke.js, red-w2a-canon-differential.mjs, red-w2a-policy-failclosed.mjs all pass directly; lattice.config.json parses as valid JSON with 50 validate.commands entries, all unique (no duplicate/malformed union entry); no redEvidence key committed to lattice.config.json (CHK-010 pin honored). No new findings beyond prior rounds; no blockers.",
+      "createdAt": "2026-07-25T06:40:04.891Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-021",
+      "envelopeId": "45532c786836e6d1dec67e4efa36cff65eb07b05196505a7419a1d8f9cd7fd2d",
+      "writerSessionId": "review-quality-b-c054-rr",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1f0a49763555f750f9085b903b779bce2b80686d3df8d3122d1372cfa69b16b1"
+    },
+    {
+      "id": "B-c054:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Re-record after git merge main (b6b2c854): git diff ea1238b33d..4d7b88b confirms code byte-identical for red-evidence/, config.ts, doctor.ts, canon-smoke.ts, red tests. lattice.config.json diff = 2-line unrelated-smoke union from main + this stories own canon-smoke registration only, no redEvidence config block. canon.ts remains sole canonicalizer (policy.ts imports canonDigest, does not reimplement). No runner.ts/envelope.ts in red-evidence/ (scope fence intact). Zero child_process/spawn/fs-read matches in red-evidence/ or the canon-smoke task. doctor wiring is try/catch-wrapped, one advisory line, exit code untouched. Differential red test proves digest.ts/authority-signing.ts cannot serve as CANON. Smoke task self-fences an OVERCLAIM regex. No promise-undelivered doc tokens (only doc delta is plan.md). All 10 checklist items done. No blocker.",
+      "createdAt": "2026-07-25T06:40:56.904Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-023",
+      "envelopeId": "610b8e25b7d55943cf963400b398194659ac1c3e8bb39b9cc5d7cf0c1d633ad5",
+      "writerSessionId": "sess-a70eeb2c180c96135bfaf1140208eedc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27839908e783434e3b3d453345adc7a1ccb64cd730a1d8d339e413a7315d12e5"
+    },
+    {
+      "id": "B-c054:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Merge-confirmation test-coverage re-review on current material (post `git merge main` b6b2c85417, materialHash a9a1b7b9f1022832dd2ccfa82e477d007938d05731e90c07a04038f6da64bee6, storyFilesHash 0923fb577e602825bb91189d56c539763049d013bf1fbcc696c4fec8edaa6a45). Confirmed the merge introduces no coverage regression: (1) `git diff ea1238b33d b6b2c85417 -- packages/main/src/core/red-evidence packages/main/src/tasks/red-evidence-policy-canon-smoke.ts packages/main/tests/red packages/main/src/handlers/doctor.ts packages/main/src/core/config.ts` is empty — the merge touched zero story-owned source files; the only conflict was lattice.config.json, union-resolved (kept this story's red-evidence-policy-canon-smoke entry verbatim, added two unrelated main smokes scope-shrinkage-withdrawal-floor-smoke.js and withdrawn-disposition-smoke.js, dropped nothing from the story's pre-merge validate.commands set). (2) Exhaustive intentRef<->verificationEvidence set comparison across all 10 checklist items (script-derived, not eyeballed): 105 verificationIntent entries (happy+edge+adversarial) == 105 verificationEvidence entries, zero missing, zero orphaned/extra, zero must-priority gaps, zero waivers, zero fail-result evidence, and every item has all three (happy/edge/adversarial) columns populated (this story is high_assurance channel). (3) Ran `npm --prefix packages/main run build` (tsc, exit 0) then directly executed the three bound commands on current rebuilt dist/material: `node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js` (OK, exit 0), `node --test packages/main/tests/red/red-w2a-canon-differential.mjs` (PASS, exit 0), `node --test packages/main/tests/red/red-w2a-policy-failclosed.mjs` (PASS, exit 0) — all three genuinely pass on current material, not just re-asserted from stale evidence. (4) Regex-scanned every verificationEvidence note for `<name>.(ts|mjs|js):<line>` citation patterns (the F-004 defect class): zero hits, confirming F-004's fix (stable content-based descriptions replacing brittle file:line citations) still holds after the merge. No blocker. Note: verificationEvidence entries themselves remain bound to the pre-merge materialHash/storyFilesHash (7bc8c5f9.../ab36629f...) since I am reviewer-write and evidence-hash refresh is an owner-gated command (verification_evidence_refresh_stale/recover_evidence); the owner should run one of those (or done_prepare) to re-bind evidence hashes to current material before DONE.",
+      "createdAt": "2026-07-25T06:42:57.799Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-024",
+      "envelopeId": "deafc04b4bb84147a41aad277cc58fa96807d8098a48e3f1e45bdd0dc8ba272e",
+      "writerSessionId": "review-testcov-b-c054-m",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Ran a script-derived exhaustive intentRef<->verificationEvidence set-diff across all 10 checklist items (105/105 matched, zero gaps) rather than eyeballing; grepped every verificationEvidence note for stale file:line citation patterns (zero hits, F-004 holds); diffed the merge commit against the pre-merge story tip restricted to story-owned source paths (empty diff, confirms zero code drift from the merge); independently re-ran the smoke and both tests/red/*.mjs directly against a freshly rebuilt dist (all exit 0) rather than trusting the recorded evidence rows."
+      },
+      "_hash": "aba7a7a3177a31a3ffe51563c901d02d38374b3dce6c48749ea12b1149d0452e"
+    },
+    {
+      "id": "B-c054:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-record after git merge main (b6b2c85417): confirmed byte-identical for story-owned files via git diff ea1238b33d..HEAD on packages/main/src/core/red-evidence/{canon,policy,registries}.ts, red-evidence-policy-canon-smoke.ts, tests/red/red-w2a-{canon-differential,policy-failclosed}.mjs, config.ts, doctor.ts (0 lines changed). lattice.config.json diff between pre-merge tip and HEAD is exactly the 2 unrelated smokes (scope-shrinkage-withdrawal-floor-smoke, withdrawn-disposition-smoke) added ahead of this story's own red-evidence-policy-canon-smoke entry, which is present exactly once (no duplicate registration). All 105 checklist verificationIntent entries across CHK-001..CHK-010 have exactly 105 verificationEvidence entries, 0 result=fail. No verificationEvidence note contains a filename:line citation (F-004 class check confirmed clean); separately verified the checklist context's embedded line citations (digest.ts:27 localeCompare, digest.ts:40 digestCanonicalJson, authority-signing.ts:64 null->undefined, authority-signing.ts:79 canonicalJsonForSigning) still match current file content post-merge. Ran npm run build (clean tsc), then executed the compiled smoke (node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js -> OK exit 0) and both red tests directly (red-w2a-canon-differential.mjs -> PASS; red-w2a-policy-failclosed.mjs -> PASS). Ran root npm test (43-script suite) -> exit 0. Read canon.ts/policy.ts/registries.ts/smoke.ts/both red mjs files in full and confirmed the implementation matches the checklist verificationIntent (RFC 8785 code-unit order, null preservation, differential proofs, 14-key exhaustive snapshot with frozen digest, clamp-REJECT floors, forbidden env keys, catch-all/material-overlap globs, argv placeholder resolution) with no gaps. Spot-checked CHK-010 (grep lattice.config.json for redEvidence -> no match) and CHK-009 (grep new red-evidence files for overclaim tokens -> only the smoke's own detector regex, not an actual overclaim) and CHK-008 (lattice doctor -> exit 0, exactly one advisory Red-evidence policy line). validate / verification_evidence_refresh_stale are owner-gated to the story-owner session and could not be run under this reviewer session; coverage was instead confirmed via direct build+test execution plus full source/checklist inspection as above. No blocker found.",
+      "createdAt": "2026-07-25T06:51:16.656Z",
+      "reviewRound": "2026-07-25T06:36:50.457Z",
+      "reviewRunId": "B-c054:RR-022",
+      "envelopeId": "aedbbeee0f5c2586a278ecd0544ac64ecebed38811406f66fa5d92c4d7fb4ae4",
+      "writerSessionId": "review-testcov-b-c054-rr",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-c054/background.md",
+          ".lattice/story/actives/B-c054/checklist.json",
+          ".lattice/story/actives/B-c054/plan.md",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/policy.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+          "packages/main/tests/red/red-w2a-canon-differential.mjs",
+          "packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/authority-signing.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ede75cc0137237b0b30c2458f116c4e385279ab0e017e3cfa5cafaca97aaff4"
+    }
+  ]
+}

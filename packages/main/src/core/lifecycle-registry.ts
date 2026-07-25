@@ -630,6 +630,10 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'intent-collision.json',
   'scope-shrinkage-decision.json',
   'red-evidence.json',
+  // W2b (B-e10d): the per-story target-binding store written by StoryStore
+  // (readRedTargetBindings/writeRedTargetBindings) and by red_evidence_binding_set.
+  // Provenance-only registration — no gate evidence semantics change here.
+  'red-target-bindings.json',
   'spike.json',
   // Command-family story metadata written by store.ts (grill / finding
   // clusters / scope-extension decisions); B-3ed9

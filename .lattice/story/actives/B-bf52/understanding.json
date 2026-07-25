@@ -1,0 +1,32 @@
+{
+  "task": "Make gateFailureDigest produce one counter key per substantively distinct gate rejection, so the convergence breaker stops reading incremental progress as one gate failing repeatedly.",
+  "outcome": "A story that fixes one gate gap and then hits a different gate gap keeps its gate-failure counter at 1 per distinct failure and is no longer frozen, so no interactive human TTY acknowledgement is needed to continue, while two genuine retries of the same failure still accumulate to 2 and still trip the breaker.",
+  "facts": [
+    "gateFailureDigest at packages/main/src/core/convergence-breaker.ts:469-482 normalizes the reason text and truncates it to 200 characters at :479 before hashing.",
+    "Its doc comment at :463-468 states the intended contract: rejections differing only in incidental detail collapse to one key.",
+    "bumpGateFailureCount at :485-500 stores one record per digest key, and maxGateFailureCount feeds assessBreaker, which trips at a repeat count of 2.",
+    "The only production caller is packages/main/src/cli-engine.ts:1508, which passes the thrown Error message verbatim as the reason.",
+    "A real DEV-gate rejection is the sentence at packages/main/src/core/machine.ts:179 followed by renderProofStoryDiagnosticReport at packages/main/src/core/proofstory.ts:1890-1918.",
+    "That report's fixed header measures 244 normalized characters before the Diagnostic gaps list begins, so the 200-character cut lands inside the header.",
+    "Reconstructing that render with the real gap texts at proofstory.ts:1002, :1129 and :1137 yields the single digest story_advance/506877715ebd for three substantively different rejections.",
+    "The path rule at :475 rewrites any slash-bearing token, and the digit rule at :476 rewrites digit runs inside identifier tokens.",
+    "The existing distinctness guard at packages/main/src/tasks/convergence-breaker-smoke.ts:180-182 uses the fixtures reason ALPHA and reason BETA, which are too short to reach the truncation and contain none of the collapsing token shapes.",
+    "convergence-breaker-smoke is wired into the root full test suite as the npm script test:convergence-breaker at package.json:116, reached from the npm test chain at package.json:15, which lattice.config.json lists as a doneRequiredCommand.",
+    "Resolved unknown: a generous worst-case DEV-gate rejection (20 gap rows, 15 trigger rows, 10 parent-rollup rows plus the header) measures 7,448 characters, so a sanity bound of 16,384 sits roughly 2.2 times above the worst realistic message while still capping a pathological input.",
+    "Resolved unknown: a structural path rule that matches an absolute path only at a token start (preceded by string start, whitespace, quote, parenthesis or bracket) needs no enumeration of machine roots, is identical on macOS and Linux, and was measured to satisfy all eight direction cases: it keeps DEV/REVIEW distinct from DEV/TEST, src/core/alpha.ts distinct from src/core/beta.ts, CHK-001 distinct from CHK-002 and story ids distinct, while still collapsing /Users against /private/var and /home against /tmp.",
+    "Resolved unknown: no production rejection message embeds a volatile counter attached to an identifier. The only attached-counter shapes in the tree (attempt-${iteration} and repair-attempt-${repairRound} at planned-steps-executor.ts:1298 and :1309) are step record ids, and that module throws no Error at all; the remaining matches are smoke-file names. The narrowed digit rule therefore does not over-distinguish any message that reaches cli-engine.ts:1508 today."
+  ],
+  "constraints": [
+    "The breaker threshold, its counters, assessBreaker, resetGateFailureCounts and the story_resume recovery flow must not change.",
+    "The bump call site at cli-engine.ts:1508 must not change, so the digest keeps taking free-text reason input.",
+    "The normalizer must keep collapsing incidental tokens; a fix that merely makes every reason unique would disable the breaker.",
+    "Only packages/main/src/core/convergence-breaker.ts and packages/main/src/tasks/convergence-breaker-smoke.ts may be modified, and lattice.config.json needs no edit because the smoke is already in the root suite.",
+    "Story artifacts must be written in English to satisfy the english-artifacts gate."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/tasks/convergence-breaker-smoke.ts"
+  ],
+  "timestamp": "2026-07-23T22:57:15.046Z"
+}

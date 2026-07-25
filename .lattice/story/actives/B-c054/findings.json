@@ -1,0 +1,93 @@
+{
+  "findings": [
+    {
+      "id": "B-c054:F-001",
+      "desc": "CHK-003:adversarial:2 verificationEvidence is mis-bound: the intent claims 'An attacker adding a 15th key to the snapshot object after resolution -> the snapshot type/validator rejects or the digest changes', but the bound command (node dist/tasks/red-evidence-policy-canon-smoke.js, cited smoke:171+103) only exercises unknown-key REJECTION on the INPUT config before resolution, never on the OUTPUT snapshot after resolveRedEvidencePolicy() returns. Live re-test proves the literal claim is false: policy.ts:348-363 returns a plain (non-frozen) snapshot object; `r.snapshot.evil15thKey = \"injected\"` after a successful resolveRedEvidencePolicy({pinnedPath:[\"/usr/bin\"]}) silently succeeds (object now has 15 keys) with NO throw/rejection and the already-computed policyDigest field is unchanged (stale, not recomputed) -- neither of the intent's two disjuncts (reject | digest changes) holds. The evidence note conflates pre-resolution config-key validation (real, correctly tested elsewhere by CHK-003:adversarial:0) with post-resolution snapshot-mutation protection (untested, and demonstrably absent). Fix: either add Object.freeze(snapshot) before returning + a real test asserting the mutation throws, or reword/retire the intent to match what is actually guaranteed (input-side unknown-key rejection only).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T04:16:08.499Z",
+      "reviewRound": "2026-07-25T04:09:32.942Z",
+      "reviewRunId": "B-c054:RR-002",
+      "_hash": "b2da0f4a51c05d20daf0328c008a3a1dd0acc2c0f8faafd9c3afca287cf2d0bc",
+      "files": [
+        "packages/main/src/core/red-evidence/policy.ts",
+        "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-verificationevidence-bound",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed commit eff4404936: deep Object.freeze of resolved snapshot; CHK-003:adversarial:2 re-bound; verified behavior-r2 + test-coverage-r2.",
+      "resolvedAt": "2026-07-25T05:07:14.256Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c054:F-002",
+      "desc": "packages/main/src/core/red-evidence/canon.ts:67-73 canon() types its parameter as `unknown` (not the exported CanonValue type) and only guards typeof===object via `if (t===\"object\")` -> Object.keys(obj).sort() with NO isPlainObject check, so any non-array object (Date, Map, Set, RegExp, class instance, Buffer, Error) silently falls through instead of throwing. Concrete repro: canon({createdAt:new Date(\"2020-01-01\"),name:\"x\"}) === canon({createdAt:new Date(\"2099-12-31\"),name:\"x\"}) === {\"createdAt\":{},\"name\":\"x\"} -- canonDigest of these two materially DIFFERENT records is IDENTICAL because Object.keys(dateInstance) is empty, silently collapsing the date to {}. canon(new Map([[\"a\",1]])) also silently returns \"{}\". This directly contradicts the moduleuxe2x80x99s own documented contract (canon.ts:50-52: undefined/function/symbol are programming errors and THROW) which implies non-CanonValue inputs should fail loudly, and undermines the header comment/spec assurance-tier claim (canon.ts:19-21, spec S:0.6) that CANON detects accidental substitution/casual drift -- an accidental `new Date()` instead of `.toISOString()` (a very common JS mistake, and createdAt is a named field in the spec S:1.10 record schema at line 694) is exactly the class of accident S0.6 says this subsystem defends against, yet it is silently swallowed into a digest collision rather than caught. No current caller in this story passes such a value (policy.ts only builds number/string/array/plain-object fields), so it is not exploitable today, but canon() is documented as the single reused digest primitive for the whole RED-evidence subsystem (canon.ts:1-2, S:0.4) and future records (envelope/runner/receipt work) are very likely to carry timestamp fields. Fix: add an isPlainObject-style guard (Object.getPrototypeOf(value) is Object.prototype or null) in the object branch and throw for anything else, matching the throw already used for undefined/function/symbol.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-25T04:18:26.081Z",
+      "reviewRound": "2026-07-25T04:09:32.942Z",
+      "reviewRunId": "B-c054:RR-001",
+      "_hash": "28d78a9a328c8256fdaf5a72caa615088e85defdc24123800643e6f2fa2a98c8",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed commit eff4404936: canon() rejects non-plain objects (Date/Map/Set/class throw), eliminating the same-digest-different-date collision; verified behavior-r2 + codex-r2.",
+      "resolvedAt": "2026-07-25T05:07:14.915Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c054:F-003",
+      "desc": "CHK-001:adversarial:0 evidence note is stale after the eff4404936 fix. Note text (.lattice/story/actives/B-c054/checklist.json, CHK-001 verificationEvidence, intentRef CHK-001:adversarial:0) reads: 'smoke:81-83 builds lone surrogate key \\uD800 and asserts canon produces deterministic {\\\"\\\\ud800\\\":1} not silent corruption'. That describes the PRE-FIX behavior. The actual code at packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:81-89 and packages/main/tests/red/red-w2a-canon-differential.mjs:80-90 now asserts the OPPOSITE (F-CX1, RFC 8785 3.2.2.2): assert.throws(() => canon(lone)) etc. Independently confirmed live: canon({\"\\uD800\":1}) throws Error CANON: lone surrogate in member name terminates canonicalization, it does NOT return the string {\"\\ud800\":1}. The command still passes and the intent's either-throws-or-deterministic wording is technically satisfied by the throw branch, so this is not a coverage gap, but the note materially misdescribes current runtime behavior (silent/deterministic vs hard throw) and would mislead a future auditor who trusts the note instead of re-running the test, contrary to this story's own un-gameable-proof goal. Fix: update the note to describe the throw-based F-CX1 assertion.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T04:44:03.544Z",
+      "reviewRound": "2026-07-25T04:37:25.897Z",
+      "reviewRunId": "B-c054:RR-006",
+      "_hash": "cd209a29c41e9d513092547e825f3398ea383f70093c537c75aa0297431a4aab",
+      "files": [
+        "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+        "packages/main/tests/red/red-w2a-canon-differential.mjs",
+        ".lattice/story/actives/B-c054/checklist.json"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-evidence-note",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: CHK-001:adversarial:0 evidence note re-bound to describe current throw-on-lone-surrogate behavior; bound test passes.",
+      "resolvedAt": "2026-07-25T05:07:15.573Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c054:F-004",
+      "desc": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:'smoke:NN' file:line citations inside verificationEvidence notes are stale across ~40+ entries (CHK-001:edge:0/1, CHK-003:happy:0-4/edge:0, CHK-004:happy:0-1/edge:0-3/adversarial:0-2, CHK-007/008/009/010 nearly all). Example: CHK-010:happy:2/3 and CHK-007:happy:0/edge:0/adversarial:1 cite 'smoke:217' for the redEvidence===undefined config-parse assertion, but that code is now at smoke.ts:345-347 (line 217 is a **/*.ts glob-exclude test, unrelated). CHK-009 cites smoke:227-235 for the OVERCLAIM regex check; real location is smoke.ts:356-365. CHK-003:happy:0 cites smoke:101-103 for the 14-key snapshot check; real location is smoke.ts:118-119. CHK-001:edge:0/1 cite smoke:84-87 for canon(undefined)/NaN/Infinity throws; those lines now hold lone-surrogate assertions (real location smoke.ts:100-103). Root cause: three revision waves (F-CX1/F-002 fixes, r2 registry-schema validation, r3 depth validation) inserted ~230 new lines mid-file, shifting downstream content by 16 to 130+ lines, and the two verification_evidence_refresh_stale passes re-stamped headHash/materialHash/timestamp on every entry without re-deriving the cited line numbers, so notes now assert false structural claims about where in the file the tested behavior lives. Functionally the tests still pass (verified: npm --prefix packages/main run build && node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js exits 0/OK, and every described assertion genuinely exists somewhere in the file) and the pass/fail verdict is driven by the whole-file command exit code, not the cited line -- so this is not a coverage gap, but the notes as written misrepresent the codebase and would mislead a reviewer who trusts a cited line without re-deriving it. Contrast: the companion packages/main/tests/red/red-w2a-policy-failclosed.mjs 'failclosed:NN' citations remain accurate (only a harmless +/-1 off-by-one on the packed floorCases array lines 72-79), and packages/main/tests/red/red-w2a-canon-differential.mjs 'differential:NN' citations are accurate for CHK-001 happy/adversarial:1/2 but also drifted by ~22 lines for CHK-001:edge:0/1 and CHK-002:happy:0/1 (e.g. CHK-002:happy:0 cites differential:90-95 for the digest.ts localeCompare differential; real location is differential.mjs:112-118) after the F-CX1/F-002 insertions.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T05:33:03.777Z",
+      "reviewRound": "2026-07-25T05:20:58.540Z",
+      "reviewRunId": "B-c054:RR-011",
+      "_hash": "60a639f58e02f4c18b036b33832f6645e8f584db8db3c18f988c687dd730577c",
+      "files": [
+        "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+        "packages/main/tests/red/red-w2a-canon-differential.mjs"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: 93 verificationEvidence notes re-bound with stable content-based descriptions (dropping brittle raw file:line citations that had drifted 16-130 lines across revision waves). Functional evidence unchanged (assertions exist + pass); notes no longer misrepresent code location and will not re-stale on future edits.",
+      "resolvedAt": "2026-07-25T05:53:35.632Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

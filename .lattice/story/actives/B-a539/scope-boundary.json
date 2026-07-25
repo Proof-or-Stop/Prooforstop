@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a539",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Remove the duplicate bare-string reviewer-scan-budget-guard-smoke entry from validate.commands in lattice.config.json",
+    "Scan validate.commands for any other pair with identical full execution identity",
+    "Verify from lattice validate invocation records that the smoke is invoked exactly once"
+  ],
+  "excluded": [
+    "Adding, removing or retiming any other validate command",
+    "Any change to the validate runner implementation in packages/main/src",
+    "Changing focus tags, timeouts or fail-closed behaviour of remaining commands",
+    "Changing the reviewer-scan-budget-guard-smoke script itself",
+    "Removing same-script entries that differ in meaningful execution parameters"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User request 2026-07-24: confirm the duplication, remove one of the two entries keeping the one with the more complete options, check the rest of the list for other duplicate command+args pairs, and verify lattice validate runs that smoke exactly once.",
+  "createdAt": "2026-07-24T17:31:40.380Z",
+  "updatedAt": "2026-07-24T17:31:40.380Z",
+  "_hash": "4dbca9c7953926e6066f6e528486d62367026de53bf4463385c6bcd41674b1c2"
+}

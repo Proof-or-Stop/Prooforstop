@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-c054",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:b46144e58bd8a311ec75cfc218a6b4d1e4a7e5b4e9567eb328fe858292b91a6a",
+  "acceptanceBindings": [
+    {
+      "id": "AB-CANON",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:happy:2",
+        "CHK-001:happy:3",
+        "CHK-001:happy:4",
+        "CHK-001:happy:5",
+        "CHK-001:happy:6",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:edge:2",
+        "CHK-001:edge:3",
+        "CHK-001:edge:4",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-001:adversarial:2",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:happy:2",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "CANON is a distinct RFC 8785 leaf (code-unit key order, preserved JSON null, sha256:<64-hex>) whose output differs from digestCanonicalJson and canonicalJsonForSigning on frozen vectors, proven differentially.",
+      "note": "Foundation canonicalizer + its un-gameable differential proof."
+    },
+    {
+      "id": "AB-POLICY",
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004",
+        "CHK-005",
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:happy:2",
+        "CHK-003:happy:3",
+        "CHK-003:happy:4",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:edge:2",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2",
+        "CHK-004:happy:0",
+        "CHK-004:happy:1",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:edge:2",
+        "CHK-004:edge:3",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1",
+        "CHK-004:adversarial:2",
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:happy:2",
+        "CHK-005:happy:3",
+        "CHK-005:happy:4",
+        "CHK-005:happy:5",
+        "CHK-005:happy:6",
+        "CHK-005:happy:7",
+        "CHK-005:edge:0",
+        "CHK-005:edge:1",
+        "CHK-005:edge:2",
+        "CHK-005:edge:3",
+        "CHK-005:edge:4",
+        "CHK-005:edge:5",
+        "CHK-005:adversarial:0",
+        "CHK-005:adversarial:1",
+        "CHK-005:adversarial:2",
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:happy:2",
+        "CHK-006:happy:3",
+        "CHK-006:happy:4",
+        "CHK-006:happy:5",
+        "CHK-006:happy:6",
+        "CHK-006:edge:0",
+        "CHK-006:edge:1",
+        "CHK-006:edge:2",
+        "CHK-006:edge:3",
+        "CHK-006:edge:4",
+        "CHK-006:adversarial:0",
+        "CHK-006:adversarial:1",
+        "CHK-006:adversarial:2",
+        "CHK-006:adversarial:3",
+        "CHK-007:happy:0",
+        "CHK-007:happy:1",
+        "CHK-007:edge:0",
+        "CHK-007:edge:1",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The 14-key policySnapshot resolves to the spec's verbatim defaults digesting to a frozen sha256 literal, and fails closed with a distinct named diagnostic on every §1.12 floor, missing/relative pinnedPath, unknown key, forbidden env key, invariance catch-all/tracked-material glob, and unresolvable argv placeholder.",
+      "note": "Fail-closed resolver + config type; the direction of the invariance rule is proven both ways."
+    },
+    {
+      "id": "AB-DOCTOR",
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-008:happy:0",
+        "CHK-008:happy:1",
+        "CHK-008:happy:2",
+        "CHK-008:happy:3",
+        "CHK-008:edge:0",
+        "CHK-008:edge:1",
+        "CHK-008:adversarial:0",
+        "CHK-008:adversarial:1",
+        "CHK-008:adversarial:2"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "lattice doctor emits exactly one non-gating red-evidence policy line (resolved policyDigest or the fail-closed diagnostic) while its exit code and proofstory_gate_check output stay byte-identical.",
+      "note": "The live, non-gating consumer that makes the leaf observable to the operator."
+    },
+    {
+      "id": "AB-HYGIENE",
+      "checklistRefs": [
+        "CHK-009",
+        "CHK-010"
+      ],
+      "verificationIntentRefs": [
+        "CHK-009:happy:0",
+        "CHK-009:happy:1",
+        "CHK-009:edge:0",
+        "CHK-009:edge:1",
+        "CHK-009:adversarial:0",
+        "CHK-009:adversarial:1",
+        "CHK-010:happy:0",
+        "CHK-010:happy:1",
+        "CHK-010:happy:2",
+        "CHK-010:happy:3",
+        "CHK-010:edge:0",
+        "CHK-010:edge:1",
+        "CHK-010:edge:2",
+        "CHK-010:adversarial:0",
+        "CHK-010:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "No new string overclaims beyond the §0.6 assurance tier and the smoke is registered in validate.commands with the uncommitted-policy rule pinned.",
+      "note": "Assurance-tier fidelity + suite registration."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Re-bound after checklist update: CHK-005 gained 2 §1.12 floor intents; every binding carries the full current verificationIntent ref set.",
+  "createdAt": "2026-07-25T00:08:41.405Z",
+  "updatedAt": "2026-07-25T00:36:23.168Z"
+}

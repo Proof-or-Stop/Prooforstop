@@ -15,6 +15,7 @@ import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
 import { evaluateOptionalLiveSmokeTranscript } from './live-smoke-transcript-evidence.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
+import { isTerminalChecklistStatus } from './checklist-status.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
@@ -352,7 +353,11 @@ export function renderScopeAntiExpansionSummary(
 
 export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
   const cl = context.store.readChecklist(context.storyId);
-  if (!cl.items.every(item => item.status === 'done')) return false;
+  // B-1909 CHK-002: advance when every item is TERMINAL (done OR withdrawn); a
+  // withdrawn item is recorded-undeliverable and no longer outstanding. The
+  // verification-evidence check below does not require a withdrawn item's
+  // intents (buildVerificationCoverage skips withdrawn items).
+  if (!cl.items.every(item => isTerminalChecklistStatus(item.status))) return false;
   const story = context.store.readStory(context.storyId);
   const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
   return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
@@ -1164,7 +1169,8 @@ export function getGuardFailureReason(
 
   if (targetPhase === 'REVIEW') {
     const cl = store.readChecklist(storyId);
-    const pending = cl.items.filter(i => i.status !== 'done');
+    // B-1909 CHK-002: withdrawn items are terminal, not outstanding.
+    const pending = cl.items.filter(i => !isTerminalChecklistStatus(i.status));
     if (pending.length > 0) {
       return `Cannot enter REVIEW: ${pending.length} checklist item(s) not done: ${pending.map(i => i.id).join(', ')}`;
     }

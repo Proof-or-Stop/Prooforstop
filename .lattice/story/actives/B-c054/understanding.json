@@ -1,0 +1,34 @@
+{
+  "task": "Land the RED-evidence subsystem foundation leaf: an RFC 8785 CANON canonicalizer and a fail-closed 14-key policy resolver, surfaced as one non-gating line in lattice doctor.",
+  "outcome": "$ lattice doctor\n  ... (existing health sections unchanged) ...\n  Red-evidence policy: not configured (red_evidence_policy_missing: pinnedPath)\n$ echo $?\n0\n$ npm --prefix packages/main run validate\n  ...\n  ✓ red-evidence-policy-canon-smoke passed\n  Suite: all validate.commands passed\n\nThe operator sees a new, honest red-evidence policy status line in doctor (fail-closed because no pinnedPath is configured on this host) with doctor's exit code unchanged, and the full validate suite green including the new smoke that mechanically proves CANON is a distinct RFC 8785 leaf and the policy resolver rejects every unsafe configuration.",
+  "facts": [
+    "The trusted RED-evidence subsystem spec is DONE on main at docs/requirements/decisions/red-evidence-subsystem-spec.md; §0.4 defines CANON, §0.6 the assurance tier, §1.2 the 14-key policy table/registries/defaults, §1.12 the hard safety floors.",
+    "No RFC 8785 / JCS canonicalizer exists in packages/main/src or node_modules (verified); core/digest.ts:40 digestCanonicalJson sorts keys by a.localeCompare(b) at :27 and drops null in objects; core/authority-signing.ts:64 normalizeSigningJson maps JSON null to undefined and sorts by code-POINT — neither can serve as CANON.",
+    "RedEvidenceRecord already exists at core/types.ts:2617; CANON is the single digest leaf every W2 record/subobject will digest through.",
+    "createDoctorHandlers is at handlers/doctor.ts:67 and composes many non-gating scan+render sections; config.ts:195 declares proofStory? beside where redEvidence? will sit.",
+    "lattice.config.json validate.commands entries are {command,args,timeoutMs?} dicts; it currently has NO redEvidence block and must keep none (pinnedPath is required-with-no-default and host-specific)."
+  ],
+  "constraints": [
+    "CANON must be RFC 8785: UTF-16 code-UNIT recursive key order, minimal number/string encoding, and JSON null PRESERVED (never dropped/omitted); digest rendered sha256:<64-hex>.",
+    "The resolved policySnapshot must contain EXACTLY the 14 spec keys with the spec's verbatim defaults; policyDigest must equal a frozen sha256 literal so any fudged default fails; an unknown key rejects.",
+    "§1.12 floors CLAMP-REJECT (fail closed at config load), never silently clamp; pinnedPath is required-no-default with diagnostic red_evidence_policy_missing: pinnedPath.",
+    "Diagnostic-only: the doctor line never gates (exit code + proofstory_gate_check output byte-identical); no enforcement (W3), no runtime executable resolution (W2e), no redEvidence block committed.",
+    "No new string may claim tamper-resistance beyond the §0.6 assurance tier."
+  ],
+  "unknowns": [
+    "RESOLVED (OQ pinned-value): forbiddenCatchAlls[7] = the 2-character double-quote literal (two U+0022), NOT the empty string — §1.3 rule 1 requires matcher values non-empty so an empty-string entry would be inert; the entry is punctuation-only noise text. Frozen default policyDigest (fixture pinnedPath=[/usr/bin]) = sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767.",
+    "RESOLVED: RFC 8785 number/string encoding equals JSON.stringify (verified: -0->0, 1e21->1e+21, control-char/unicode escaping) and code-unit key order equals default Array.sort(); CANON test vectors frozen accordingly."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/red-evidence/canon.ts",
+    "packages/main/src/core/red-evidence/policy.ts",
+    "packages/main/src/core/red-evidence/registries.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+    "packages/main/tests/red/red-w2a-canon-differential.mjs",
+    "packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-25T00:59:15.804Z"
+}

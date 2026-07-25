@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c054",
+  "changes": "Landed the RED-evidence subsystem foundation (spec §0.4/§0.6/§1.2/§1.12): (1) packages/main/src/core/red-evidence/canon.ts — an RFC 8785 CANON canonicalizer (UTF-16 code-unit key order, preserved JSON null, minimal number encoding, sha256:<64-hex>) with canonDigest/canonDigestOmitting/first12hex, throwing on lone surrogates and non-plain objects; (2) policy.ts + registries.ts — a fail-closed resolver of the exhaustive 14-key policySnapshot with the spec's verbatim defaults, unknown-key rejection, §1.12 clamp-REJECT floors, and complete §1.2 registry-schema structural validation (uniqueness, anchored named-capture patterns, repo-relative cwd, argv exact-placeholder, toolchain shape); (3) config.ts declares an optional redEvidence block (no default); (4) doctor.ts adds a non-gating red-evidence policy line; (5) a registered smoke + committed RED tests.",
+  "usage": "Run `lattice doctor` — it now prints one red-evidence policy line (the fail-closed `red_evidence_policy_missing: pinnedPath` diagnostic when no block is configured, or the resolved policyDigest once a host sets one). The CANON canonicalizer and resolveRedEvidencePolicy resolver are the shared leaves the eight subsequent W2 stories digest and resolve policy through.",
+  "expectedOutcome": "$ lattice doctor\\n  ... existing sections ...\\n  Red-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)\\n$ echo $?\\n0\\n$ npm --prefix packages/main run validate\\n  red-evidence-policy-canon-smoke: OK\\n  all validate.commands green",
+  "actualTranscript": "`lattice doctor` prints exactly one line `Red-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)` and exits 0; `node bin/lattice.js validate` runs all validate.commands green including red-evidence-policy-canon-smoke (OK); both tests/red/*.mjs PASS; the frozen default policyDigest is sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767, independently re-derived from the spec defaults by two separate reviewers.",
+  "outcomeDiff": "No difference — the doctor line, exit code, and green smoke suite match the expected outcome exactly. Every one of the 10 checklist items was fully delivered and verified.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — W2a fully delivers its defined scope (CANON canonicalizer, the fail-closed config-load policy resolver with complete §1.2 static validation, and the non-gating doctor line). The runner-side runtime behaviours (executable resolution, toolchain file existence and sha256 file-content matching) are a DIFFERENT module in the spec's own decomposition and were never part of W2a's definition — this is a clean module boundary, not a reduction. The subsystem's assurance target is the §0.6 practical threat model as the spec normatively defines it.",
+  "pitfalls": "Convergence required genuine cross-host adversarial review: the codex second host surfaced progressively deeper §1.2 registry-schema validation gaps across five rounds (round 1 canon input + required fields; round 2 toolchain/uniqueness/anchoring; round 3 partial-token/cwd/captureless/empty-argv; round 4 a patternCaptureNames character-class false-positive; round 5 clean across 111 cases). The lesson for the eight following W2 stories: implement fail-closed schema validation by mirroring the spec clause-by-clause with a test per field on the FIRST implementer pass. The frozen policyDigest depends on reading the §1.2 forbiddenCatchAlls 8th entry as the 2-character double-quote literal and on fixture pinnedPath=[/usr/bin]. The DONE merge (branch was 117 commits behind main) conflicted in lattice.config.json (union-resolved) and re-staled the 3x2 quorum, forcing a merge-confirmation re-review — next time merge main BEFORE the final quorum. Two tooling issues were filed: the PLAN->INIT_CHECK title-edit bounce is broken for worktree'd stories (task_1cf40256), and the convergence breaker false-froze on legitimate DEV->REVIEW evidence binding (cleared by a human story_resume ack).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1040599
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 71292
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 3508911
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 14482627
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 5537636
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 745298
+    }
+  },
+  "totalDurationMs": 25387359,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-25T06:30:46.290Z",
+  "updatedAt": "2026-07-25T06:46:06.973Z"
+}

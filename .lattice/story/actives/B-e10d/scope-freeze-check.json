@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-e10d",
+  "checkedAt": "2026-07-25T07:31:29.216Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "dd6ea158c6de40df5ad74aea1972c08d8421adc4007b71d116edac476fb78c1c",
+  "executionBoundaryHash": "2269071363df26bf0a1d7deddd7d7b7872c97ca74a268033fea02518c82fac20",
+  "freshnessHash": "e9446f6c7233906a7c9a526d215d51d4b77539e8569979e01afc1617a64b46de",
+  "effectiveExcludedKeywords": [
+    "Any gate rewiring and any change to redEvidenceSatisfied / missingRedEvidence",
+    "Any red-evidence chain record append or read",
+    "Registration-time adapterId / testCaseRefPattern validation (spec mandates these at RUN time R1-5/R1-6; runner story)",
+    "The §1.1.3 binding-freeze rule (needs chain-head semantics; lands with the chain in W2c)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any gate rewiring and any change to redEvidenceSatisfied / missingRedEvidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Any gate rewiring and any change to redEvidenceSatisfied / missingRedEvidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Any red-evidence chain record append or read",
+      "source": "scopeBoundary.excluded",
+      "text": "Any red-evidence chain record append or read",
+      "excluded": true
+    },
+    {
+      "keyword": "Registration-time adapterId / testCaseRefPattern validation (spec mandates these at RUN time R1-5/R1-6; runner story)",
+      "source": "scopeBoundary.excluded",
+      "text": "Registration-time adapterId / testCaseRefPattern validation (spec mandates these at RUN time R1-5/R1-6; runner story)",
+      "excluded": true
+    },
+    {
+      "keyword": "The §1.1.3 binding-freeze rule (needs chain-head semantics; lands with the chain in W2c)",
+      "source": "scopeBoundary.excluded",
+      "text": "The §1.1.3 binding-freeze rule (needs chain-head semantics; lands with the chain in W2c)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "485de36c46c3a25fb4e41e2bbf649c010c62c848746165abe2a3892f1450a367"
+}

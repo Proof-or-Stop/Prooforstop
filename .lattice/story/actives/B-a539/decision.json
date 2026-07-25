@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "A deduplication must be strictly behaviour-preserving: every execution mode keeps the coverage it had before.",
+    "Compare candidates by full execution identity (command, args, shell, cwd, env, timeout, optional), never by script path alone.",
+    "When two entries differ only by a selection tag, keep the superset so no mode loses the command.",
+    "Prove the result from the runner's own invocation record rather than from an exit code."
+  ],
+  "drivers": [
+    "The smoke runs twice on every unfocused validate, so every phase gate that validates pays double for zero extra signal.",
+    "validate is on the critical path of REVIEW to TEST and DONE transitions, so wasted time compounds across stories.",
+    "The fix must not silently drop the smoke from the fast focus set."
+  ],
+  "options": [
+    {
+      "name": "A: keep focus-tagged object",
+      "pros": [
+        "Deletes the bare string at index 4 and keeps the focus-tagged object, which is a strict superset.",
+        "Unfocused runs still execute the smoke once; validate --focus=fast still selects it.",
+        "Zero change to arguments, shell handling, cwd, env, timeout or fail-closed behaviour."
+      ],
+      "cons": [
+        "The surviving entry is the object form, so the diff looks like the plainer line was the one removed."
+      ]
+    },
+    {
+      "name": "B: keep bare string",
+      "pros": [
+        "Deletes the object at index 12 and keeps the shorter bare string, which reads more simply."
+      ],
+      "cons": [
+        "The smoke would silently drop out of the fast focus set, weakening validate --focus=fast.",
+        "That is a behaviour change disguised as a cleanup."
+      ]
+    },
+    {
+      "name": "C: leave duplication",
+      "pros": [
+        "Leaving the duplication is the zero-risk option and touches nothing."
+      ],
+      "cons": [
+        "The reported waste persists on every validating phase gate.",
+        "The duplicate keeps misleading future readers into thinking two distinct checks exist."
+      ]
+    }
+  ],
+  "chosen": "A: keep focus-tagged object",
+  "rationale": "Option A is the only strictly behaviour-preserving edit. Because focus is a selection tag rather than an execution parameter, and unfocused runs execute every configured command, the focus-tagged object covers both the full run and the fast-focused run, while the bare string covers only the full run. Keeping the superset removes the duplicate invocation without reducing coverage in any mode.",
+  "preMortem": [
+    {
+      "scenario": "The wrong entry is removed and the smoke silently disappears from validate --focus=fast.",
+      "trigger": "Deduping by script path alone and keeping whichever entry appears first.",
+      "consequence": "Focused fast validation loses a guard smoke with no visible failure, so a regression can pass the fast gate.",
+      "mitigation": "Keep the focus-tagged entry and verify selection explicitly under both an unfocused run and validate --focus=fast."
+    },
+    {
+      "scenario": "A same-script pair that intentionally differs (different args, timeout, cwd or env) is deleted as a false duplicate.",
+      "trigger": "A dedupe scan that matches on the script filename instead of the whole entry.",
+      "consequence": "A distinct configured check silently stops running and the config loses real coverage.",
+      "mitigation": "Run a full-identity scan that serialises every field, and separately report same-script pairs so differentiated entries are reviewed and preserved."
+    },
+    {
+      "scenario": "The exactly-once claim is asserted from a green validate without evidence.",
+      "trigger": "Treating a zero exit code as proof that the duplicate is gone.",
+      "consequence": "A remaining duplicate invocation, or an accidentally dropped invocation, goes unnoticed and the story closes on a false claim.",
+      "mitigation": "Count command results for the script in the validate --json invocation record and require the count to be exactly one."
+    },
+    {
+      "scenario": "Hand-editing the JSON corrupts lattice.config.json or reorders unrelated entries.",
+      "trigger": "A careless multi-line edit or a reformatting pass over the whole file.",
+      "consequence": "Config parsing fails or unrelated validate commands change order, breaking validation for every story.",
+      "mitigation": "Delete exactly one line, then re-parse the file with node and diff the normalised command list against the pre-edit list to confirm the only difference is the removed entry."
+    }
+  ],
+  "timestamp": "2026-07-24T17:33:40.615Z"
+}

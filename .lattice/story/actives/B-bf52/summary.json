@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bf52",
+  "changes": "packages/main/src/core/convergence-breaker.ts: two behavioural changes against main. The POSIX absolute-path rule in normalizeGateReason (extracted as its own exported function) now matches only at a token start, so a slash-bearing identifier like DEV/REVIEW and a repo-relative path like src/core/alpha.ts are no longer rewritten to one token, while host-varying absolute paths still collapse. And gateFailureDigest's prefix is signals-conditional: when extractGateBlockSignals returns nothing, the prefix widens so a signal-less reason that diverges late keeps a distinct key. convergence-breaker-smoke.ts: a rebuilt case matrix with named cases and guard tags. packages/main/tests/red/: two committed, runnable test artifacts — a RED harness and a differential-vs-main probe.",
+  "usage": "No user-facing command. The convergence breaker is internal: gateFailureDigest(command, reason) keys the per-story gate-failure counter. Run node packages/main/dist/tasks/convergence-breaker-smoke.js for the case matrix, and node packages/main/tests/red/red-s3-differential-probe.mjs <fresh-main-dist> to compare this build against main.",
+  "expectedOutcome": "Two false-freeze classes that main mints one key for stop being conflated: a story whose gate rejection names DEV/REVIEW then DEV/TEST, or src/core/alpha.ts then src/core/beta.ts, now gets distinct keys and is not frozen as a repeat. A genuine repeat of the same failure, and every ambiguous bare identifier, still collapses so the brake still trips.",
+  "actualTranscript": "convergence-breaker-smoke.js prints its must-differ cases at keys=2 counter=1 breaker=proceed and its must-still-collapse cases at keys=1 counter=2 breaker=trips, exit 0. The RED harness passes on this branch and fails against a freshly built main on exactly the delivered classes. The differential probe reports zero pairs where this build collapses what main distinguishes.",
+  "outcomeDiff": "After the operator-confirmed scope shrinkage that removes CHK-003 from the acceptance basis, no delivery gap is left: every remaining milestone is met. CHK-002 and CHK-004 landed in full. CHK-001 user-visible outcome, the C1 false-freeze class no longer minting one key per story, is true on the shipped tree; its primary fix was delivered on main by sibling story B-cc54 which this branch adopts unchanged, and this story adds the signals-conditional prefix. CHK-003 is the removed milestone, withdrawn because it was proven undeliverable from message text alone. Verdict is accepted for the reduced scope, the reduction fully accounted for by the confirmed shrinkage.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "CHK-003 was withdrawn, not delivered, and the withdrawal is a proof rather than a shortfall of effort. Recognising a lifecycle artifact ordinal in a gate rejection requires telling it apart from a third-party test label of the same shape, and the two are the same string because test output is interpolated verbatim into the rejection at machine.ts:1190. Eight successive recognition rules were each broken by cross-host review on a different token shape before the eighth showed they were eight measurements of one impossibility; for a brake the tie breaks toward collapse because over-recognising lets a retry mint a fresh key forever. The operator confirmed the scope shrinkage and scope-shrinkage-decision.json lists CHK-003 as removed. The test suite asserts the opposite of what CHK-003 asked, so the withdrawal is machine-checked. One frozen artifact stays stale by a tooling limit that no phase after PLAN can correct: proofstory_contract_set is PLAN-only (command-policy.ts:420), so the AB-003 acceptance binding still reads as if ordinals stay distinct; this is recorded partially_mitigated and a workflow task was filed to add a withdrawn state. The follow-up that could achieve CHK-003 needs the digest to consult story state to know which ordinals exist, which makes it store-dependent on a hot path.",
+  "pitfalls": "This ran 25+ review rounds and 62 cross-host findings; the code stabilised around round 20 and most later rounds were record-quality defects of the main agent, not code. Four recurring traps for the next person: (1) a boundary assertion for recognising ids leaks — it leaked eight times to eight punctuation shapes; the only closed form is a whole-token equality test with zero reduction, and even that cannot separate an id from an identically-shaped label. (2) Every time the case matrix changes, re-record ALL evidence notes as a whole set and cite case names and guard tags, never hand-written counts — a partial re-record leaves sibling notes contradicting each other, and counts go stale. (3) Do not re-run an evidence-producing command that already passes: after a git merge main that stales only the review passes, re-run the passes, not quorum_submit — quorum round ids omit the material digest, so a second submit double-writes and invalidates all rounds, with no supersede path; recovery needed surgically removing the duplicate events from the append-only, un-chained process-events.jsonl. (4) The quorum-submit-smoke validate budget was raised to 20m on main because the suite grew past its 600s budget and was deterministically failing every story's phase advance.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1248734
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 32494
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 811283
+    },
+    "DEV": {
+      "count": 15,
+      "durationMs": 22076587
+    },
+    "REVIEW": {
+      "count": 15,
+      "durationMs": 53076367
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 215441
+    }
+  },
+  "totalDurationMs": 77461418,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-24T20:01:20.256Z",
+  "updatedAt": "2026-07-24T20:02:33.221Z"
+}

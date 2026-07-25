@@ -1,0 +1,246 @@
+{
+  "passes": [
+    {
+      "id": "B-1909:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Independently re-verified fixes for F-002 and F-005 (commits ac756995e7 + c865b13ba6). F-002: buildScopeShrinkageDecision now unions withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs with existing (unionStringRefs, dedup, stable order) instead of resetting to only the latest calls args; decisionId is now immutable once stamped (conflicting caller decisionId throws, record left byte-identical); dead withdrawnChecklistItemIdsFrom/withdrawnBindingIdsFrom imports removed from handlers/proofstory.ts. Reproduced the original two-sequential-call regression with a standalone script against the fixed tree: withdrawnChecklistItemRefs now stays [CHK-002] after a second call withdrawing AB-1 under the same decisionId (previously reset to []). New regression coverage in scope-shrinkage-withdrawal-floor-smoke.ts and withdrawn-disposition-smoke.ts both pass. F-005: dashboard.ts migrated checklistDone to isDeliveredChecklistStatus, added a checklistWithdrawn bucket via isWithdrawnChecklistStatus, progress bar fills on done+withdrawn (terminal) while numeric label stays delivered-only with a separate (+N withdrawn) annotation. lattice validate --lint passes (3 tsconfigs). No new concept residue introduced. Both findings genuinely resolved; no blocking concept-completeness issue remains this round.",
+      "createdAt": "2026-07-24T22:40:55.289Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-008",
+      "envelopeId": "9e343913f93abdc4e03dbab57ef496824f258085ba68268bd7dafcac655e76c2",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "da40089bad934e29b2d1f3ee5473a059ffcce6e2c01ddc72f9ff5a3fc8da718c"
+    },
+    {
+      "id": "B-1909:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: independently verified commit ac756995e7 fixes both prior findings. F-001 (buildScopeShrinkageDecision refs reset instead of accumulated): confirmed via direct read of core/proofstory.ts that withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs now go through a new unionStringRefs(existing, incoming) helper (existing first, incoming appended, Set-deduped) before the confirmed-must-withdraw check reads the merged arrays; also independently ran a 4-call sequential script against the built dist/core/proofstory.js buildScopeShrinkageDecision directly (not just re-running the implementers own smoke) proving accumulation, dedup, and stable order across 4 chained calls under one decisionId, plus a bonus decisionId-immutability guard (F-007) that was not requested but is a correct hardening. F-003 (normalizeScopeRefArray duplicated optionalStringArray): confirmed optionalStringArray is now exported from core/proofstory.ts, handlers/proofstory.ts imports and reuses it directly, and the private duplicate plus its now-dead withdrawnBindingIdsFrom/withdrawnChecklistItemIdsFrom imports are deleted (grep confirms zero remaining references). Re-ran npm --prefix packages/main run build (clean tsc) plus both packages/main/dist/tasks/withdrawn-disposition-smoke.js and scope-shrinkage-withdrawal-floor-smoke.js (both PASS) against the fixed build. Also read the dashboard.ts F-005 fix for another reviewer: consistent use of isDeliveredChecklistStatus/isWithdrawnChecklistStatus, no residual literal status===done. No blocking quality issues remain from this reviewer.",
+      "createdAt": "2026-07-24T22:40:59.705Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-009",
+      "envelopeId": "7a57868389a768256863a88315a37cff16de0b8c1175e99dd5f5bfefdb9d9c1a",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0cf4394c7a1062703698b4c59352256beb9bced1c65572d256bbeb8bc6a57eff"
+    },
+    {
+      "id": "B-1909:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-verification: read git show c865b13ba6, updated smokes, and relevant handler/core sources; built + ran both smoke npm scripts (both PASS). All 4 prior gaps (F-004/F-006/F-008/F-009) genuinely closed via real handler calls with assertions verified against actual source strings/fields; F-007 root cause also fixed in core/proofstory.ts (union + immutable decisionId) with a direct regression test. No new overclaims found. Verdict: PASS.",
+      "createdAt": "2026-07-24T22:42:02.108Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-007",
+      "envelopeId": "c56ee00d3f05ff795bba240ebcae2058de068709c8d030c594de5d558d212b09",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8a4012e9612e4015ca7d684ab27c5fdfcd97c9a159a5b765f86549186b1c019d"
+    },
+    {
+      "id": "B-1909:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round re-bind after main-merge convergence (post RP-003). Reconfirmed packages/main/src/tasks/withdrawn-disposition-smoke.ts and scope-shrinkage-withdrawal-floor-smoke.ts are byte-identical to the previously-approved commit c865b13ba6 (git diff empty); rebuilt and ran both npm run test:withdrawn-disposition-smoke and npm run test:scope-shrinkage-withdrawal-floor-smoke, both PASS. All prior findings F-004/F-006/F-007/F-008/F-009 remain resolved with genuine, independently-verified fixes. Verdict: PASS.",
+      "createdAt": "2026-07-24T23:17:05.137Z",
+      "reviewRound": "2026-07-24T23:16:02.119Z",
+      "reviewRunId": "B-1909:RR-011",
+      "envelopeId": "0bef59d7161896994e2ee84063e79d382be0d9287e72bcf40fef9cc88eed491b",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "599863d19ec6df5308733bff3f5877e2ac85605d42e7c189dad32ef6c9c8fd44"
+    },
+    {
+      "id": "B-1909:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round re-bind (post main-merge convergence). Re-verified git diff main...HEAD for core/proofstory.ts and dashboard.ts against this new head (fb8da03) is unchanged from what I approved in RP-001: buildScopeShrinkageDecision still unions withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs via unionStringRefs and rejects a conflicting decisionId (immutable); dashboard.ts still uses isDeliveredChecklistStatus/isWithdrawnChecklistStatus with a withdrawn bucket and terminal-based progress bar. F-002 and F-005 remain genuinely resolved; no blocking concept-completeness issue this round.",
+      "createdAt": "2026-07-24T23:17:08.238Z",
+      "reviewRound": "2026-07-24T23:16:02.119Z",
+      "reviewRunId": "B-1909:RR-010",
+      "envelopeId": "1dd206bc4aba505a054fa92d1008ab351c00155f089787a46b953fd5ce690a86",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "69c228035d85679e0eae94ce65fcd6a07865b892261f46ff91aad9396565c8f1"
+    },
+    {
+      "id": "B-1909:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Fresh REVIEW round after main merge (head fb8da03). Re-confirmed packages/main/src/core/proofstory.ts and packages/main/src/handlers/proofstory.ts remain byte-identical to commit ac756995e7 (git diff ac756995e7 fb8da03 -- both files: empty), which I previously verified independently fixes F-001 (unionStringRefs accumulates withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs across repeated scope_shrinkage_decision_set calls under one decisionId, plus F-007 decisionId-immutability hardening) and F-003 (optionalStringArray exported from core/proofstory.ts and reused in handlers/proofstory.ts; duplicate normalizeScopeRefArray deleted). Rebuilt (npm --prefix packages/main run build, clean tsc) and reran packages/main/dist/tasks/withdrawn-disposition-smoke.js and scope-shrinkage-withdrawal-floor-smoke.js: both PASS, including the newer F-001/F-002/F-007 union+immutable-decisionId regression test added since. No new quality issues found. No blocking quality issues remain from this reviewer.",
+      "createdAt": "2026-07-24T23:17:11.349Z",
+      "reviewRound": "2026-07-24T23:16:02.119Z",
+      "reviewRunId": "B-1909:RR-012",
+      "envelopeId": "5e4ca2ed40cc503fdad3c8173e45a488b8595a79524bd0fa1b60e631a269f980",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "998a2d467cb1e699aee645648dfc3658e138cc924cc1dab02052202a1bbe318a"
+    },
+    {
+      "id": "B-1909:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round re-bind (main-sync convergence, ~461 commits, B-bf52 DONE + CLI version bump, merged cleanly). Re-verified git diff c0e20b735d HEAD for core/proofstory.ts and dashboard.ts against this new head (f828e4d) is empty -- byte-identical to what I approved in RP-001/RP-005: buildScopeShrinkageDecision still unions withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs via unionStringRefs and rejects a conflicting decisionId (immutable); dashboard.ts still uses isDeliveredChecklistStatus/isWithdrawnChecklistStatus with a withdrawn bucket and terminal-based progress bar. F-002 and F-005 remain genuinely resolved; no blocking concept-completeness issue this round.",
+      "createdAt": "2026-07-24T23:51:16.217Z",
+      "reviewRound": "2026-07-24T23:50:27.062Z",
+      "reviewRunId": "B-1909:RR-013",
+      "envelopeId": "9a7a734309615efc5c2ed788a96964f2e376e17581176ffa5bfa104f2c4b317b",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "acb0a5255371ec11dd1644328353db7e00ef552898874c8c0299b6346e66f366"
+    },
+    {
+      "id": "B-1909:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Another main-sync round (~461 commits merged cleanly, head f828e4d). Independently re-confirmed git diff ac756995e7 HEAD -- packages/main/src/core/proofstory.ts packages/main/src/handlers/proofstory.ts is empty -- the two files remain byte-identical to the fix commit already verified (F-001 unionStringRefs accumulation + F-007 decisionId immutability; F-003 exported/reused optionalStringArray, duplicate deleted). Only package.json/lattice.config.json changed via the main merge, unrelated to my review scope. No new quality issues found. No blocking quality issues remain from this reviewer.",
+      "createdAt": "2026-07-24T23:51:19.492Z",
+      "reviewRound": "2026-07-24T23:50:27.062Z",
+      "reviewRunId": "B-1909:RR-014",
+      "envelopeId": "1682a149552c1d82275d7fa296a9095079f3ad28abd7ae2fa41f021ecc002129",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/dashboard.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "dcb13dc4e42578c3164b28937b58a62a6cd3718d590263d1cd58cc4a4edcd8db"
+    },
+    {
+      "id": "B-1909:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Third main-sync re-bind (~461 commits merged cleanly). Reconfirmed packages/main/src/tasks/withdrawn-disposition-smoke.ts and scope-shrinkage-withdrawal-floor-smoke.ts remain byte-identical to previously-approved commit c865b13ba6 (git diff empty); both npm run test:withdrawn-disposition-smoke and npm run test:scope-shrinkage-withdrawal-floor-smoke PASS after rebuild. All prior findings F-004/F-006/F-007/F-008/F-009 remain resolved with genuine, independently-verified fixes; no new smoke/coverage changes to re-review. Verdict: PASS.",
+      "createdAt": "2026-07-24T23:51:24.997Z",
+      "reviewRound": "2026-07-24T23:50:27.062Z",
+      "reviewRunId": "B-1909:RR-015",
+      "envelopeId": "1de3364da6b29465aaadc150f0726b981b1b93ba6922eef19b9a0d97657f367b",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44d4c03f61a1c1ef39dc7fe8bd5985df472f1080080db13e448acb9d4103f867"
+    }
+  ]
+}

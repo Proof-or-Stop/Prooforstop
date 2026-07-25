@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c054",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json — register the smoke in validate.commands; NO redEvidence block committed",
+    "packages/main/src/core/config.ts — declare optional redEvidence policy block beside proofStory (config.ts:195); no existing default changes",
+    "packages/main/src/core/red-evidence/canon.ts — RFC 8785 CANON canonicalizer + §0.4 nullability/self-omitting-digest helpers + sha256 prefix rendering",
+    "packages/main/src/core/red-evidence/policy.ts — fail-closed policy resolver: 14-key exhaustive policySnapshot, per-key defaults, unknown-key reject, §1.12 clamp-REJECT floors, config-load validation (pinnedPath absolute, forbidden env keys, argv placeholder resolvability, invarianceExcludePaths tracked-material/catch-all reject)",
+    "packages/main/src/core/red-evidence/registries.ts — default matcherClass/adapter/profile registry objects + discriminated-schema validation",
+    "packages/main/src/handlers/doctor.ts — non-gating red-evidence policy health line in createDoctorHandlers (doctor.ts:67), always emits one line",
+    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts — smoke: CANON differential vs digest.ts+authority-signing, default policyDigest vs frozen literal, fail-closed matrix",
+    "packages/main/tests/red/ — committed tracked RED test artifacts (3-half evidence)"
+  ],
+  "excluded": [
+    "Assertion-envelope schema validation and matcher application/minimum-specificity matching (§1.1/§1.3) — later W2 stories",
+    "Committing a redEvidence policy block to lattice.config.json — pinnedPath is host-specific and required-with-no-default; every smoke resolves from a temp-project fixture",
+    "Disposable-workspace runner and four-tuple net-state invariance (§2) — W2e",
+    "Enforcement wiring / classifier-driven ProofStory triggers / enforce flip — reserved for W3",
+    "Runtime executable resolution (resolvedExecutable, toolchain sha256 digest, §2.3 step 3b) — fenced to the disposable-workspace runner story W2e; W2a validates config well-formedness only, never executes",
+    "Supersedes-chain integrity, idempotency, quarantine, recovery, legacy migration (§3/§4/§6) — later W2 stories"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-directed W2a foundation story from the DONE red-evidence spec (§0.4/§0.6/§1.2/§1.12); scope is CANON + fail-closed policy resolver + non-gating doctor line only.",
+  "createdAt": "2026-07-24T23:59:56.357Z",
+  "updatedAt": "2026-07-24T23:59:56.357Z",
+  "_hash": "235d66fea04c80c2d93258c03edcc884a17253fe4b39077623e05cd37e012e93"
+}

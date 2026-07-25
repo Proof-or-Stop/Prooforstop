@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1909",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node bin/lattice.js",
+    "npm --prefix packages/main run build",
+    "npx tsc"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node",
+    "tsc"
+  ],
+  "allowedPaths": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/hints.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/handlers/story-query.ts",
+    "packages/main/src/tasks",
+    "packages/main/src/validate.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "TypeScript-only change in packages/main. No network, no destructive git. New withdrawn disposition + append-only binding withdrawal + smoke.",
+  "createdAt": "2026-07-24T19:41:20.756Z",
+  "updatedAt": "2026-07-24T19:41:20.756Z",
+  "_hash": "e6880069add2bca28cc747b68987daede2b36b937c3f5ba352c54c7fb9908bef"
+}

@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+## Proofbound 0.3.233 - 2026-07-24
+
+Rolls up CLI versions 0.3.224 through 0.3.233 — eleven stories landed since
+v0.3.223. The theme is **acceptance topology**: a staged ProofStory
+acceptance-topology pipeline lands through Wave 3 (schema and diagnostics,
+independently derived coverage basis, PLAN structural gate, independent critic,
+executable pre-review gate), the complex roles finish the move onto modular
+Prompt Envelopes, and four gate-convergence bugs are fixed.
+
+**Highlights**
+
+- **ProofStory acceptance topology, Waves 1–3 (B-4444, B-1995, B-a32a, B-98b0,
+  B-9123, B-4ec1).** The acceptance-topology and pre-review gate plan is
+  ratified (B-4444), then shipped in staged waves: Wave 1 establishes the
+  topology schema with read-only diagnostics (B-1995); Wave 1A derives the
+  coverage basis independently of the checklist author (B-a32a); Wave 2 adds
+  the PLAN structural gate (B-98b0); Wave 2A adds an independent topology
+  critic reviewer (B-9123); Wave 3 makes the pre-review gate executable
+  (B-4ec1).
+- **Complex roles on modular Prompt Envelopes (B-407c).** Story 6 of the
+  role-prompt modularization series migrates the complex roles onto modular
+  full and incremental Prompt Envelopes, extending the 0.3.223 reviewer-role
+  migration.
+- **Gate convergence fixes (B-f824, B-cc54, B-956f, B-5e4a).** Reviewer
+  independent validates no longer poison `done_prepare` convergence (B-f824);
+  a gate that blocks repeatedly with an identical reason now halts the
+  ineffective-remedy loop instead of retrying forever (B-cc54); advanced-gate
+  material-code classification is language-neutral (B-956f); and
+  acceptance-topology artifact filenames are registered in the lifecycle scope
+  registry so they are no longer misclassified as out-of-scope writes (B-5e4a).
+
 ## Proofbound 0.3.223 - 2026-07-20
 
 Rolls up CLI versions 0.3.215 through 0.3.223 — ten stories landed since v0.3.214.

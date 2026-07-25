@@ -1,0 +1,90 @@
+{
+  "storyId": "B-1909",
+  "checkedAt": "2026-07-25T00:39:24.697Z",
+  "headHash": "fa1879d4e4d262ad79ccc9298295905b51525452",
+  "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+  "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+  "reviewRound": "2026-07-24T23:50:27.062Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-001",
+      "promise": "ChecklistStatus gains a terminal 'withdrawn' value plus ChecklistItem.decisionRef; checklist_update REFUSES a direct status=withdrawn write (both Zod-declared and runtime-enforced) and points at scope_shrinkage_decision_set as the sole authorized applier; legacy items without the field still load unchanged.",
+      "verifiedBy": "diff/grep + real-machine execution (re-verified post-merge)",
+      "evidence": "packages/main/src/core/types.ts: ChecklistStatus union + ChecklistItem.decisionRef; packages/main/src/cli/command-catalog.ts: z.enum([...,'withdrawn']) with refusal note; packages/main/src/handlers/checklist.ts:589-214 throws '[withdrawn_requires_scope_shrinkage_decision]' before any write; re-ran node packages/main/dist/tasks/withdrawn-disposition-smoke.js -> PASS after rebuilding against merged main (asserts throw + item unchanged + legacy round-trip)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-002",
+      "promise": "Every done-consumer across core/handlers treats withdrawn as terminal-but-not-delivered: advancement guards accept done-or-withdrawn, delivered/done tallies stay done-only, and no renderer (checklist_get/story_get/session_brief/story_list/dashboard) ever prints a withdrawn item as DONE.",
+      "verifiedBy": "diff/grep + real-machine execution (re-verified post-merge)",
+      "evidence": "packages/main/src/core/checklist-status.ts (isDeliveredChecklistStatus/isTerminalChecklistStatus/isWithdrawnChecklistStatus) consumed by machine.ts, artifact-contract.ts, guard-utils.ts, lifecycle-readiness.ts, milestone-status.ts, verification.ts, dashboard.ts, handlers/{checklist,hints,session,story-query}.ts (diff unchanged post-merge, confirmed by re-diffing main...HEAD); re-ran withdrawn-disposition-smoke.js -> PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-003",
+      "promise": "ScopeShrinkageDecisionData extended with a stable, immutable decisionId plus withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs that ACCUMULATE (union) across repeated calls under one decisionId; legacy decision.json without these fields keeps loading; a confirmed decision with nothing to withdraw is rejected.",
+      "verifiedBy": "diff/grep + real-machine execution (re-verified post-merge)",
+      "evidence": "packages/main/src/core/proofstory.ts buildScopeShrinkageDecision (unionStringRefs, immutable-decisionId conflict rejection, SD- deterministic id) unchanged post-merge; re-ran node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js -> PASS (legacy load, decisionId generation/preservation, empty-removal rejection, two-call union accumulation, conflicting decisionId rejected with byte-identical record)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-004",
+      "promise": "An append-only ProofStoryContractData.bindingDispositions record marks acceptance bindings withdrawn without mutating the frozen acceptanceBindings; effectiveAcceptanceBindings excludes withdrawn bindings; this is readable/writable from DEV and REVIEW without returning to PLAN, while proofstory_contract_set itself stays PLAN-frozen.",
+      "verifiedBy": "diff/grep + real-machine execution (re-verified post-merge)",
+      "evidence": "packages/main/src/core/types.ts ProofStoryBindingDisposition + ProofStoryContractData.bindingDispositions; core/proofstory.ts effectiveAcceptanceBindings + buildProofStoryContract carries existing bindingDispositions forward verbatim; re-ran withdrawn-disposition-smoke.js -> PASS asserting COMMAND_POLICIES['proofstory_contract_set'].allowedPhases === ['PLAN'] and byte-for-byte binding survival from DEV and REVIEW phases."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-005",
+      "promise": "Withdrawal authority is validated in both directions before any write: every withdrawnChecklistItemRef/withdrawnAcceptanceBindingRef must name a real item/binding, a withdrawal is only authorized by a confirmed+userConfirmed decision, and the check is enforced at handler entry (defense-in-depth over Zod) with the internal-call path (which bypasses Zod) also tested.",
+      "verifiedBy": "diff/grep + real-machine execution (re-verified post-merge)",
+      "evidence": "packages/main/src/handlers/proofstory.ts scope_shrinkage_decision_set validates every ref before any write, plus a handler-level 'hasWithdrawals && !(confirmed&&userConfirmed)' guard independent of the core-fn throw; re-ran both smokes -> PASS covering unknown-item/unknown-binding refusal, userConfirmed:false refusal, and decision=rejected-with-refs refusal, each asserting zero mutation."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-006",
+      "promise": "A story cannot obtain a formal PASS by withdrawing every acceptance requirement that proved hard: emptying the effective (non-withdrawn) acceptance-binding set is HARD-REFUSED at write time (independent of doneGateMode) unless an explicit fullWithdrawalReapproval {approvedBy, reason, at} is attached to the confirmed decision; a defense-in-depth diagnostic gap also flags empty-scope in evaluateDoneIntentEquivalence/evaluateReviewCompleteness.",
+      "verifiedBy": "diff/grep + real-machine execution (re-verified post-merge)",
+      "evidence": "packages/main/src/handlers/proofstory.ts empty-scope floor check before APPLY; core/proofstory.ts evaluateDoneIntentEquivalence/evaluateReviewCompleteness push 'empty_scope_after_withdrawal' gap when originalBindingCount>0 and effective===0; re-ran both smokes -> PASS: full withdrawal without reapproval throws /empty_scope_after_withdrawal/ and writes nothing, the same call WITH fullWithdrawalReapproval succeeds."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-007",
+      "promise": "A smoke covering both directions (positive: withdrawal recorded + rendered from DEV and REVIEW with no PLAN return; negative: done-still-delivered, direct withdrawn refused, bad refs refused, mismatched/immutable decisionId refused, byte-for-byte binding survival, empty-scope refusal) is registered under packages/main/src/tasks/ and in validate.commands.",
+      "verifiedBy": "diff/grep + direct execution by this reviewer (re-verified post-merge)",
+      "evidence": "lattice.config.json validate.commands and package.json/packages/main/package.json test scripts retained the scope-shrinkage-withdrawal-floor-smoke / withdrawn-disposition-smoke registrations across the main merge (only the merge itself touched these registration files, confirmed by diff); I rebuilt (npm --prefix packages/main run build, now version 0.3.234) and re-ran both smokes myself post-merge: `node packages/main/dist/tasks/withdrawn-disposition-smoke.js` -> PASS; `node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js` -> PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Post-merge re-run: withdrawn-disposition-smoke.js PASS: direct checklist_update status=withdrawn throws /scope_shrinkage_decision_set/, item stays done (no write); legacy items load unchanged."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Post-merge re-run: withdrawn-disposition-smoke.js PASS: checklistAllDoneGuard(done+withdrawn)=true; counts done=1/withdrawn=1; story_list '1/2 +1w'; hints all-terminal advancement path; milestone-status no risk/no next-action + control differential; story_get and session_brief render 'withdrawn' with decisionRef, never 'done'."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Post-merge re-run: scope-shrinkage-withdrawal-floor-smoke.js PASS: legacy decision compat, decisionId generation/preservation, empty-removal rejection, userConfirmed rejection."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Post-merge re-run: withdrawn-disposition-smoke.js PASS: bindingDisposition recorded, original AB-1 JSON byte-identical to pre-withdrawal capture, effectiveAcceptanceBindings excludes AB-1, PLAN-frozen policy check holds."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Post-merge re-run: both smokes PASS: unknown checklist/binding ref refusal (zero writes), userConfirmed:false refusal, decision=rejected-with-refs handler-level refusal."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Post-merge re-run: both smokes PASS: full withdrawal without fullWithdrawalReapproval throws /empty_scope_after_withdrawal/ and writes nothing; identical call WITH reapproval succeeds, effective set empties only then."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Post-merge re-run: rebuilt via npm --prefix packages/main run build (0.3.234) then executed both registered smokes myself: withdrawn-disposition-smoke.js -> PASS; scope-shrinkage-withdrawal-floor-smoke.js -> PASS. Both remain wired into lattice.config.json validate.commands and package.json test scripts after the main merge (verified by diff)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-issued after B-1909 merged main (materialHash shift from c9df76d to 41350fab): I independently confirmed the story-owned source files (types.ts, checklist-status.ts, proofstory.ts, handlers/proofstory.ts, handlers/checklist.ts, both smoke tasks) are unchanged by the merge -- only package.json/lattice.config.json/packages/main/package.json gained the smoke registrations, consistent with a byte-identical source merge. Rebuilt and re-ran both real-machine smokes myself post-merge; both PASS. All 9 reviewer findings remain resolved/verified, checklist is 7/7 done, no unresolved TODOs. Verdict unchanged: 7/7 promises verified, 7/7 features real-machine tested."
+  },
+  "_hash": "f693a5d99ebb445d6e1f0670316aa6b87f8187aa05e2b63cd0e0da9f3bc20d96"
+}

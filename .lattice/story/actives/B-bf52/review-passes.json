@@ -1,0 +1,455 @@
+{
+  "passes": [
+    {
+      "id": "B-bf52:RP-001",
+      "agent": "lattice-review-behavior",
+      "note": "Round-8 confirmation audit: attempted to falsify the strictly-better-than-main claim for the F-043/F-044 fixes at commit 87b0b3711c and could not. (1) Built a fresh, independent copy of main (git worktree at HEAD e436eb5447, source-tree-diff-verified identical to the live main checkout) and ran a differential digest sweep (gateFailureDigest) with 18 self-constructed pairs from real producers (machine.ts Cannot-enter-* reasons, story-owner-lease formatNonOwnerError, main-write-lock contention, mkdir-lock heldMessage, scope-gate/ProofStory-gate renders): 12 retry-class pairs (same underlying failure, only volatile detail differs) all collapse identically on both branch and main; 6 distinct-class pairs (genuinely different failures) show branch never collapsing anything main still distinguishes; 0 regressions in either direction. Also ran the story's own convergence-breaker-smoke matrix (8 must-differ plus 15 must-still-collapse plus completeness guard) in an isolated build; all pass. (2) Re-probed the F-043 hyphen-compound shape against the two allowlisted stems not covered by the existing fixture (chk-, sep-), plus uppercase-cased and repeated-stem variants; all correctly collapse (protected only when not hyphen-preceded). Audited the remaining 5 allowlisted prefixes for i-class instability (wholesale renumbering forced by the retry itself): chk- and f- are system-minted sequential plus append-only (checklist.ts:420, finding.ts:552); sep- is system-minted sequential plus append-only, decisions patch-in-place by id (scope-anti-expansion.ts); req- is immutable after first set (types.ts) and, per the story's own completeness guard, measured inert at its only render site (always past the 200-char prefix window) so it cannot currently cause a regression either way; bug- is caller-supplied but duplicate-id-guarded and append-only, with the fix path being bug_update (status mutate) not a re-report, so nothing forces renumbering on a mechanical retry, structurally unlike init_check_set's wholesale overwrite. None share the i- defect. (3) Confirmed tasks/gate-repeat-block-smoke.ts is byte-identical to main (diff exit 0) and its compiled suite exits 0. (4) Reproduced both mutations in isolated, throwaway git-worktree copies: M15 (leading guard weakened back to a bare word boundary) fails exactly 1 of 23 cases, embedded-test-output-hyphen-compounds; M14 (i- re-added to the allowlist) fails exactly 1 of 23 cases, init-check-issue-ordinal. Both matrix cases localize precisely to their guarded rule, no collateral failures. Methodology note: the shared worktree is being actively used by other concurrent reviewer lanes in this same REVIEW round (currentReviewRound matches this round's timestamp; new findings F-045 through F-047 were filed by other lanes mid-session, and the live convergence-breaker.ts source was twice observed transiently mutated to other exact prior-regression shapes, almost certainly other reviewers' own mutation-testing in flight); all decisive measurements above were therefore taken from throwaway git-worktree-add-detach copies at HEAD, immune to that live churn, not from the shared path. Tree left clean (git checkout plus npm run build) and re-verified clean immediately before this call.",
+      "createdAt": "2026-07-24T11:36:47.876Z",
+      "reviewRound": "2026-07-24T11:13:41.302Z",
+      "reviewRunId": "B-bf52:RR-024",
+      "envelopeId": "300239a6bf1f6d3705e68a85cc6b7d961b6afe38a47045c32c023cbe16b03be2",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/handlers/bug.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-anti-expansion.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "95a9704119c2fca4dd1c25f2c811c0c0053cf971fb798c24a15100f99261cdf7"
+    },
+    {
+      "id": "B-bf52:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after F-045/F-046/F-047 fix. Verified all 19 verificationEvidence notes (whole-set re-recording, no partial-set drift): CHK-002:adversarial:0 M1-subset now reads phase-pair/in-repo-file-path/signal-less-long-rejection with the withdrawn cross-dependency claim, CHK-003:happy:0 init-check-issue-ordinal correctly moved out of substantive-id-allowlist must-differ into must-still-collapse (consistent with CHK-003:edge:1), CHK-004:adversarial:0 window claim corrected to measured M12b(592)/M12(600) facts consistent with CHK-001:edge:0. All three independently reproduced against real code in a detached immutable worktree (git worktree add --detach), not taken on faith: M1 (path rule widened) fails exactly {phase-pair, in-repo-file-path, signal-less-long-rejection}; M12b (window->592) leaves B-cc54 suite green while M12 (window->600) breaks it at CHK-002:adversarial:1; init-check-issue-ordinal confirmed present only in MUST_COLLAPSE with guardedBy review-bookkeeping-not-allowlisted. Also spot-verified M9 and M14 mutation claims in CHK-003:adversarial:0. Cross-checked all 22 guardedBy tags across all 19 notes against the live source guardedBy fields: zero mismatches. Ran the real suites clean-build in the detached copy: convergence-breaker-smoke.js PASS (23/23 cases) and gate-repeat-block-smoke.js (B-cc54, byte-unmodified per git diff main) PASS, both exit 0. No stale case names, no wrong guard tags, no cross-note contradictions found. The whole-set re-recording holds this round. No blocker.",
+      "createdAt": "2026-07-24T11:52:40.653Z",
+      "reviewRound": "2026-07-24T11:13:41.302Z",
+      "reviewRunId": "B-bf52:RR-026",
+      "envelopeId": "f6dbddc55bceb2b64c63bca94949ff79c240428d99e166af0cd8b4bbfb9865c6",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9416bf787fd4b76304345bda76d759b53867467e8b1dbcc19707e6087bb449b3"
+    },
+    {
+      "id": "B-bf52:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Extended differential sweep (2 rounds, 45 fixture pairs) run against a freshly built main (worktree at e436eb544704) vs this commit ee60df9b31, covering VERIFY(1) shapes: slash-joined labels for all 5 allowlisted prefixes, doubled-prefix (same+mixed+triple), underscore-joined compounds, digit-letter tails, and real ids after string-start/whitespace/paren/bracket/colon/quote/comma -- zero worse-than-main cases; every divergence is either both-collapse (tied with main) or branch-strictly-better. Retry stability confirmed (same input digests identically across repeated calls). VERIFY(2): traced all 5 real production render sites (core/machine.ts:1195 BUG-, :1169 CHK-, :756 F- via composite storyId:F-NNN, :273 SEP-, core/proofstory.ts:1026 REQ-) -- every one introduces its id via a protected delimiter (colon+space or comma/semicolon+space); hunted unprotected-delimiter shapes (=, hyphen, slash, period, brace, angle, pipe) and confirmed each ties with main (never worse), matching the itemId=CHK-001 residual reasoning in the code comment. VERIFY(3): packages/main/src/tasks/gate-repeat-block-smoke.ts is byte-identical to main (empty diff) and its compiled suite (node dist/tasks/gate-repeat-block-smoke.js) exits 0. VERIFY(4): mutated the live regex back to the exact pre-F-048 form `(?<![\\\\w-])(?:${alt})-[a-z0-9-]*\\\\d\\\\b`, rebuilt, and ran the full convergence-breaker-smoke matrix (27 cases) to completion before it asserts -- exactly 2 of 27 named cases fail (embedded-test-output-slash-joined-names, embedded-test-output-doubled-prefix) and nothing else, matching the AssertionError's own grouped report. Also cross-ran the tracked RED harness (tests/red/red-s3-digest-collapse.mjs) against both builds: 9/9 pass on branch, 4/9 fail on fresh main (defect genuinely present pre-fix, not vacuous). Read checklist.json (4 items, all done) and cross-checked userSees against gateFailureDigest/normalizeGateReason/buildSubstantiveIdTokenRe in packages/main/src/core/convergence-breaker.ts (lines 463-936). Confirmed scope-contract.json acknowledgements cover both extra tracked files (acceptance-basis.json lifecycle artifact, tests/red/red-s3-digest-collapse.mjs acknowledged-expansion) -- no unscoped material changes. No candidate decisions/ doc governs this digest mechanism specifically (workflow-convergence-failure-remediation-execution-plan.md covers an unrelated subsystem, candidate-spec-routing.ts / story-dispatch.ts). No blocker found; all measurements performed in an immutable detached scratch worktree at HEAD (ee60df9b31) plus a freshly built main scratch worktree, both since removed; shared worktree left clean.",
+      "createdAt": "2026-07-24T12:32:00.663Z",
+      "reviewRound": "2026-07-24T12:16:14.339Z",
+      "reviewRunId": "B-bf52:RR-027",
+      "envelopeId": "b882db14ae8e66d4529a8e0c9d9b2604ef6142eea298c26871a7786e23c9ffa0",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "728f623bbfc895fcecc5871006bbc0a49f72c7bcfe4f73f28515f3f2a0f59d9e"
+    },
+    {
+      "id": "B-bf52:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Verified F-059/F-060 fixes and F-062 partially_mitigated resolution are honest. plan.md Sections 2-4 correctly state C2/C4 delivered (token-start path rule), C1 partially delivered by signals-conditional prefix (C1 core fixed on main by B-cc54), C3 withdrawn with the machine.ts:1190 evidence.output-interpolation proof; no stale allowlist-delivers-C3 claim remains (grep confirms allowlist/SUBSTANTIVE_ID only survive as retrospective comments at convergence-breaker.ts:576/583). All four CHK-003 verificationEvidence notes state NOT DELIVERED with the same proof and cite the correct must-still-collapse cases (checklist-ordinal, unfixed-bug-ordinal, bcc54-story-id-digits). scope-shrinkage-decision.json is operator-confirmed (userConfirmed:true, approvedBy jek) and lists CHK-003 removed with matching reasoning. Read command-policy.ts:420 directly: proofstory_contract_set is allowedPhases:[PLAN] only, confirming AB-003 cannot be corrected from DEV/REVIEW; also read handlers/checklist.ts:561-776 directly and confirmed checklist_update.status enum is pending|in_progress|done (no withdrawn value) and args.success only feeds an appendProcessEvent audit-log entry, never a persisted field on the item itself -- so the claimed tooling gaps are real, not a convenient excuse, and no unused correction route exists (no other diagnosticGaps writer). partially_mitigated therefore reads as the honest resolution type: the load-bearing, mutable records (plan.md, all CHK-003 evidence, scope-shrinkage-decision.json) are fully corrected and consistent with the shipped code, while the one still-stale place (frozen AB-003 acceptance-binding note) is disclosed at the point a reader would meet it rather than silently left standing. Re-verified shipped behavior from a rebuild at HEAD 280a5440b4-equivalent (no code diff since): node dist/tasks/convergence-breaker-smoke.js PASS (checklist-ordinal case now must-still-collapse, matching the withdrawal), node dist/tasks/gate-repeat-block-smoke.js PASS (B-cc54 suite, byte-unmodified vs main), tests/red/red-s3-digest-collapse.mjs PASS on this branch and correctly FAILS 3/10 (C1c/C2/C4, exactly the delivered classes) against a freshly built main worktree (local main tip bb3312e34d, packages/main built clean), tests/red/red-s3-differential-probe.mjs run against that same fresh-main comparison build: PASS, 4/4 delivered classes branch-finer, 13/13 volatile/withdrawn classes tie (including CHK-NNN and BUG-NNN ordinals), 0 BAR1/BAR2 violations, cost ratio 1.66x measured. One non-blocking observation not filed as a finding: background.md Key Insights section labels the greedy-path-overreach class C3 and the digit/identifier-ordinal class C4, while plan.md (and checklist CHK-003, which is the digit rule) label them the opposite way around; each document is internally self-consistent and neither makes a false claim about delivered behavior, so this is a cosmetic label swap between an INIT-time narrative doc and the later plan, not a doc-promise-undelivered defect -- flagged to the coordinator for awareness only. No blocking issues found.",
+      "createdAt": "2026-07-24T18:06:55.619Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-035",
+      "envelopeId": "8da7ee77e87a5eff156b3c902c3f301af1d3ed52c457e035eee9b63cc95fe033",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/proofstory.json",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cb3877d44a6e66b263f734f2eec87868f8c6772002aac95e90607cc197c3fda7"
+    },
+    {
+      "id": "B-bf52:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Audited the partially_mitigated resolution of F-062 and the corrected CHK-003 notes (my own F-061 fix). Verified live: command-policy.ts:420 proofstory_contract_set has allowedPhases:[PLAN] and this is a real enforced hard block (empirically reproduced the REVIEW-phase rejection via cli-engine.ts isCommandAllowed; no rollback-to-PLAN lifecycle path exists), so partially_mitigated is honest, not an avoided fix. Confirmed ChecklistStatus has no withdrawn value (types.ts:186) and success is only an ephemeral process-event field, never persisted on the checklist item (handlers/checklist.ts) -- matching the notes claims exactly. Confirmed proofstory.json AB-003 still asserts identifier-embedded-ordinals-stay-distinct (stale as claimed) and scope-shrinkage-decision.json is present with userConfirmed:true, decision:confirmed, CHK-003 in removedMilestoneIds (resolving codexs timing-artifact read). Cross-referenced all 19 verificationEvidence notes against the 21 named cases/guardedBy tags actually in convergence-breaker-smoke.ts: every citation (checklist-ordinal, unfixed-bug-ordinal, embedded-test-output-third-party-label, bcc54-story-id-digits for CHK-003:edge:1 confirming the F-061 fix landed, bare-attempt-ordinal, machine-absolute-path/delimiter-attached-absolute-path, phase-pair, in-repo-file-path, signal-less-long-rejection, proofstory-gap-signal-set, blocking-finding-cited-path-within/past-window) matches an existing case asserting exactly what its note claims; no F-049/F-050-class command/claim mismatch found. From an immutable `git worktree add --detach` copy at HEAD (only story-record files differ from source commit 280a5440b4): rebuilt and ran both suites -- convergence-breaker-smoke.js PASS exit 0 (5 must-differ + 16 must-still-collapse, all matching notes) and gate-repeat-block-smoke.js PASS exit 0, byte-identical to main (0-line diff) -- and both committed probes -- red-s3-digest-collapse.mjs 10/10 PASS exit 0, red-s3-differential-probe.mjs PASS exit 0 standalone and against a fresh main comparison build. In a second immutable detached worktree, reverted the path rule to the pre-fix greedy form and confirmed both the smoke suite and the differential probe (BAR 3, 4/4 violations) correctly FAIL exit 1, proving CHK-002:adversarial:0 is a genuine revert-proof. In a third immutable detached worktree, mutated out only the digit rule and reproduced CHK-004:adversarial:0s exact claim: 10 of 21 cases fail (not 11), iso-timestamp-only stays green. Confirmed the bidirectional completeness guard and its allowlist are genuinely deleted (no orphaned functions/constants). All measurement worktrees I created (review-detached-worktree, probe-main, widened-path-rule, mutation-digit-rule) were removed after use; nothing pre-existing was touched or deleted. No blocker found.",
+      "createdAt": "2026-07-24T18:16:55.347Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-036",
+      "envelopeId": "b56fb895d206251a0658b3ebd31006706568f0ef05a4c537a9597a2bc09abae8",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/proofstory.json",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c2198de4f9d6fb9b284dd64d68bf661ee8df68d5383e37cd703efe8f729160ed"
+    },
+    {
+      "id": "B-bf52:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residual scan for the F-058 withdrawal (commit 280a5440b4, measured from an immutable git worktree add --detach copy; packages/ and docs/ are byte-identical between that commit and current HEAD 7c2b91b781, confirmed via git diff). Concepts withdrawn: SUBSTANTIVE_ID_PREFIXES / listSubstantiveIdPrefixes / buildSubstantiveIdRe / SUBSTANTIVE_ID_RE, the placeholder encode/decode (TOKEN_PLACEHOLDER_ALPHABET/TOKEN_SENTINEL*/encodeTokenIndex/decodeTokenIndex), protectSubstantiveIds (whole-token walk), the punctuation-strip/balanced-wrapper history, the doubled-prefix lookahead, the colon-composite qualifier, and the bidirectional completeness guard (smoke.ts section 7c). Repo-wide grep (packages/, docs/, .lattice/, lattice.config.json, package.json, templates/agents/) for every identifier and for prose terms (whole-token, balanced-wrapper, doubled-prefix, bidirectional completeness guard, substantive-id, placeholder) finds zero live code/export/import references and zero doc/comment describing the apparatus as present-tense current behavior. All surviving hits are inside convergence-breaker.ts/convergence-breaker-smoke.ts/red-s3-differential-probe.mjs retrospective comment blocks explicitly headed as retirement history (e.g. THE ROUND-15 RETIREMENT REGISTER), plus historical findings.json/review-passes.json ledger entries recording past rounds — both are the disclosed/expected historical-retrospective case, not current-state claims. Guard tags: the live GuardRule union in convergence-breaker-smoke.ts has exactly 8 members (path-rule-overreach, path-rule-collapse, prefix-window-residual, digit-rule-collapse, iso-or-digit-rule-collapse, hex-rule-collapse, signals-conditional-prefix, signals-fold), all declared and all used on the 21 live matrix cases (5 must-differ + 16 must-still-collapse); none of the 11 retired tags (substantive-id-allowlist, allowlist-boundedness, substantive-id-token-head-exact, substantive-id-token-tail-exact, substantive-id-pure-ordinal-body, substantive-id-no-reduction, substantive-id-colon-composite-cost, retired-prefix-not-allowlisted, review-bookkeeping-not-allowlisted, pinned-behaviour-documentation, and the section-7c completeness-guard label itself) appear as an active guardedBy value or an orphaned declaration. Exports of convergence-breaker.ts checked directly: no listSubstantiveIdPrefixes or other apparatus export remains, and no other src file imports one. Story artifacts under .lattice/story/actives/B-bf52/ checked (checklist.json, plan.md, background.md, proofstory.json, scope-shrinkage-decision.json, scope-check.json, understanding.json, original-intent-snapshot.json, intent-collision.json, red-evidence.json, review.json): all current (non-findings-ledger) artifacts correctly state the withdrawal, with the one disclosed exception already recorded by the story as partially_mitigated (F-062): proofstory.json AB-003 still asserts identifier-embedded ordinals stay distinct, because proofstory_contract_set is PLAN-only per command-policy.ts:420 and cannot be corrected from REVIEW — not re-filed per instruction. No other story artifact found making a current claim the code no longer supports (the C3/C4 label swap between background.md and scope-check.json vs plan.md is a pre-existing cosmetic INIT-vs-plan naming inconsistency already surfaced non-blocking by a prior reviewer in review-passes.json, and is unrelated to the substantive-id apparatus withdrawal). Empirically re-verified from the live worktree (byte-identical src to the immutable copy): npm run test:convergence-breaker PASS (5 must-differ + 16 must-still-collapse, matrix banner matches source), red-s3-digest-collapse.mjs 10/10 PASS, red-s3-differential-probe.mjs PASS (BAR 3 4/4, SKIPs cleanly with no comparison build). No blocker.",
+      "createdAt": "2026-07-24T18:25:41.727Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-038",
+      "envelopeId": "2a7a6f2925be922efc3d3abb7e0b9a83fe73f292810ad7666aebcc136ad25113",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/proofstory.json",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/review-passes.json",
+          ".lattice/story/actives/B-bf52/scope-check.json",
+          "docs/",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2da144136547fa362ae90d0e705233530ff8f7ad7f9f7e13b9b2f0d395369c4e"
+    },
+    {
+      "id": "B-bf52:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality lane on the shipped diff (normalizeGateReason extraction + signals-conditional prefix in convergence-breaker.ts; convergence-breaker-smoke.ts matrix; the two red/ probes). Measured from an immutable git worktree add --detach 280a5440b4 copy plus a second detached copy of main for differential/mutation checks (shared worktree left untouched, no stash used). (1) Dead code/orphans: none. normalizeGateReason has exactly one production caller (gateFailureDigest, same file, line ~653) plus test callers in convergence-breaker-smoke.ts -- confirmed by grep across the whole src tree; the export is honestly self-documented in its own doc comment as existing so a test can check a fixture precondition against the real chain, not silently test-only. All imports in the touched files are used (checked each by count); no as-any or empty catches were introduced. tsc -p packages/main/tsconfig.json compiles clean. (2) The two regexes: readable, well-commented; the token-start lookbehind class is documented with its rationale. Backtracking is linear -- verified empirically against adversarial inputs (2M-char slash run, 200k short tokens) with no slowdown. (3) convergence-breaker-smoke.ts: every fixture builder (leaseNonOwner, scopeGateBlock, doneTestFailureBareToken, initCheckBlockingIssues, openReviewLoop, blockingFindingsCitingPath, proofStoryDevGateBlock, etc.) is used by at least one case; every GuardRule tag in the type union has at least one guardedBy usage (checked all 8 tags); the retirement-register comment correctly describes removed mechanisms in the past tense with no orphaned code left behind (grepped for substantive-id/whole-token/placeholder -- only appear inside the historical comment). Ran the compiled smoke: PASS, 5 must-differ + 16 must-still-collapse cases. (4) Both red/ files: read in full, ran both (10/10 and PASS respectively). Independently reproduced the differential probe own documented claims by mutating a detached copy dist back to main wider path regex: got exactly the claimed 4 BAR-3 violations / 0 BAR-1 / 0 BAR-2, and separately confirmed BAR-1 is honestly self-disclosed as vacuous against a plain-main comparison build (its own printed CAVEAT). Noted real fixture-literal duplication (about 16 shared string literals) across the two red/ files and the smoke matrix with no shared fixtures module, but no regression risk found and it matches this codebase established pattern of deliberately-independent, unshared verification artifacts (per the CC54-duplication rationale already in smoke.ts); not filed as it does not cross the correctness/maintainability bar on its own. (5) Type safety/IO isolation: touched functions are pure string transforms, no I/O; pre-existing fail-open catch blocks elsewhere in the file are untouched by this diff and are the documented module design. No CLAUDE.md/README changes in this diff, so no doc-promise-undelivered risk. No blocking findings from this lane.",
+      "createdAt": "2026-07-24T18:30:52.198Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-037",
+      "envelopeId": "6126c0a115d44dfcf70e6627597857864eacbbd27be52c64830c6ed04f1759dd",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/checklist.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71df9635e946c125f4c9c89c68bbd922b2745a5b09ab79e21da8aea00dd9546c"
+    },
+    {
+      "id": "B-bf52:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge confirmation of RP-004 (behavior lane), not a re-audit. Verified: (1) git diff 280a5440b4 -- packages/main/src/core/convergence-breaker.ts packages/main/src/tasks/convergence-breaker-smoke.ts packages/main/tests/red/ is empty — this stories files are byte-identical to what was reviewed at RP-004; (2) git diff 280a5440b4 --stat -- packages/main/src packages/main/tests shows exactly the 9 other-story files the merge brought in (lattice-brand.ts, lifecycle-registry.ts, process-fact-registry.ts, done-prepare.ts + 3 done-prepare smokes, flow-stability-smoke.ts, lifecycle-registry-contract.ts); (3) gate-repeat-block-smoke.ts is also byte-identical vs 280a5440b4; (4) grepped the 9 merged files for convergence-breaker/gateFailureDigest/bumpGateFailureCount/assessBreaker references — only hit is process-fact-registry.ts:1390, a pre-existing (unchanged by this merge) rationale string describing an unrelated process-fact entry, not a functional import/call; the merges own diff to that file touches a different rationale field entirely. No merged file imports or calls into convergence-breaker.ts or its callers. (5) Rebuilt dist (tsc) then ran all four probes fresh: node packages/main/dist/tasks/convergence-breaker-smoke.js PASS (full must-differ/must-still-collapse matrix), node packages/main/dist/tasks/gate-repeat-block-smoke.js PASS (5/5), node packages/main/tests/red/red-s3-digest-collapse.mjs PASS 10/10, node packages/main/tests/red/red-s3-differential-probe.mjs PASS (BAR3 4/4 delivered classes distinguished; differential lane vs a second build correctly SKIP in this single-checkout context, not a failure). (6) review_escalation_status confirms ok:true, assuranceLevel full-3x2, fullQuorum 3/3x2, materialHash/storyFilesHash match this review context binding. No behavioral, scope, or userSees findings from RP-004 are invalidated by the merge; checklist CHK-001..CHK-004 behavior is unchanged.",
+      "createdAt": "2026-07-24T19:19:33.642Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-039",
+      "envelopeId": "eb9042de6756a60b5670aedfd06e5a8a2f5cc1755aaea2ff37f84fd34f703a1b",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "62bbbbc6e01717b7302363f85a59bca26e0a9ed36a855b0d284cb9d682e2c8c6"
+    },
+    {
+      "id": "B-bf52:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-confirmation of the F-058 substantive-id-apparatus concept-deletion residual scan (prior lattice-review-concept pass was RR-038). Independently re-ran the scan against POST-MERGE HEAD 81c65554 (merge: raise quorum-submit-smoke validate budget 600s->1200s, parent c15e6dc8 = main tip). Verified starting point myself rather than trusting the dispatch narrative: git diff 280a5440b4 (the F-058 withdrawal commit) vs HEAD is EMPTY for packages/main/src/core/convergence-breaker.ts and packages/main/src/tasks/convergence-breaker-smoke.ts -- those two files are byte-identical, so the reviewable surface for concept-residue purposes has not moved. Note for the record: the claim that only a config change intervened understates the story-branch history (there are 39 own-branch commits after 280a5440b4 including two further REVIEW rounds with finding_add/finding_resolve/verification_evidence_add churn before this merge) but none of that churn touched the two source files, so it does not change this scan's conclusion. Repo-wide grep (excluding node_modules/dist/.git) for SUBSTANTIVE_ID_PREFIXES, listSubstantiveIdPrefixes, buildSubstantiveIdRe, SUBSTANTIVE_ID_RE, protectSubstantiveIds, TOKEN_PLACEHOLDER_ALPHABET, TOKEN_SENTINEL prefix, encodeTokenIndex, decodeTokenIndex, and all 10 retired guard tags (substantive-id-allowlist, allowlist-boundedness, substantive-id-token-head-exact, substantive-id-token-tail-exact, substantive-id-pure-ordinal-body, substantive-id-no-reduction, substantive-id-colon-composite-cost, retired-prefix-not-allowlisted, review-bookkeeping-not-allowlisted, pinned-behaviour-documentation): zero hits outside .lattice story ledger files (historical records) and outside the labelled ROUND-15 RETIREMENT REGISTER comment block at convergence-breaker-smoke.ts lines 292-340 plus two explanatory inline comments at lines 843 and 862 -- none are live guardedBy field values or exports; convergence-breaker.ts itself has zero hits of any withdrawn term. Specifically checked the files merged in from main-side stories B-5e4a/B-f824/B-a539 -- lattice-brand.ts, lifecycle-registry.ts, process-fact-registry.ts, done-prepare.ts plus three done-prepare smoke files, flow-stability-smoke.ts, lifecycle-registry-contract.ts, verify-process-fact-contract.mjs -- for gateFailureDigest, normalizeGateReason, all 8 live guard tags, and any withdrawn substantive-id or token-placeholder identifier: zero hits, zero imports of convergence-breaker, no registry entry naming a deleted task. Confirmed the live GuardRule union in convergence-breaker-smoke.ts has exactly 8 members -- path-rule-overreach, path-rule-collapse, prefix-window-residual, digit-rule-collapse, iso-or-digit-rule-collapse, hex-rule-collapse, signals-conditional-prefix, signals-fold -- all declared and all used at least once across the 21 live matrix cases (5 must-differ plus 16 must-still-collapse); tsc build succeeded clean, which structurally rules out any guardedBy value outside the union. Rebuilt dist via npm run build then ran npm run test:convergence-breaker (exit 0, PASS, 5 must-differ + 16 must-still-collapse) and both tests/red probes: red-s3-digest-collapse.mjs (10/10 PASS, exit 0) and red-s3-differential-probe.mjs (4/4 BAR-3 delivered classes distinguished, PASS, exit 0; differential lane SKIPs cleanly with no comparison build, as documented). No concept residue found. No blocker.",
+      "createdAt": "2026-07-24T19:24:00.165Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-041",
+      "envelopeId": "d5be661a1a3d88ca33fd37ce1cad6381c8ad2489b580fe42f8d91f8931e8d8b7",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/review-passes.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/review-runs.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1760b58918116266f4b8365a78756c448c1e742e0698d4ad16f708067b30bed0"
+    },
+    {
+      "id": "B-bf52:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge confirmation of RP-005 (RR-036), triggered solely by main-merge 81c6555 (quorum-submit-smoke validate-budget 600s->1200s). Verified myself, not assumed: (1) git diff 280a5440b4..HEAD over convergence-breaker.ts, convergence-breaker-smoke.ts and tests/red/ is 0 lines -- the merge commit-stat confirms the ~89 files it touched are all under other stories (.lattice/story/actives/B-5e4a,B-a539,B-f824), lifecycle/process-fact/done-prepare source, package.json/lattice.config.json version bumps, and B-bf52s own .lattice metadata (checklist/findings/index/plan/prompt-envelopes/review-passes/review-runs/test-evidence/process-metrics) -- none of which touch this storys code files. (2) Spot-checked all 19 verificationEvidence notes: every cited case name (phase-pair, in-repo-file-path, blocking-finding-cited-path-within/past-window, signal-less-long-rejection, proofstory-gap-signal-set, machine-absolute-path, machine-path-into-repo-relative-segments, delimiter-attached-absolute-path, bcc54-story-id-digits, bare-attempt-ordinal, review-loop-ordinal) and guardedBy tag (path-rule-overreach, signals-conditional-prefix, signals-fold, path-rule-collapse, digit-rule-collapse, prefix-window-residual) matches a name:/guardedBy: pair still present verbatim in convergence-breaker-smoke.ts, confirming the evidence set did not move under the merge -- consistent with the matrix file itself being untouched (point 1). (3) Rebuilt clean via npm run build (tsc, no errors), then ran all four: npm run test:convergence-breaker PASS exit 0 (5 must-differ + 16 must-still-collapse, all case names matching notes); node packages/main/dist/tasks/gate-repeat-block-smoke.js PASS exit 0 (CHK-001..CHK-005 ok); node packages/main/tests/red/red-s3-digest-collapse.mjs 10/10 PASS exit 0; node packages/main/tests/red/red-s3-differential-probe.mjs PASS exit 0 standalone (BAR3 4/4, 0 violations) AND re-ran with a fresh comparison build (git worktree add --detach at main c15e6dc864, tsc build, then removed via git worktree remove after use -- nothing pre-existing touched) giving BAR1/BAR2 0 violations, 4/4 delivered classes branch-finer as expected, 13/13 volatile classes tied, cost ratio 1.24x. (4) gate-repeat-block-smoke.ts: git diff against main HEAD is 0 lines and sha256 (eee3888e8bfa6b78de07b5a1ed7d7e530a11fb75f3d31ea593326e7ca7411405) matches exactly -- byte-identical confirmed independently, not just diffed. (5) Checked the specific risk named in the ask: grepped flow-stability-smoke.ts and lifecycle-registry-contract.ts (both newly merged) for gateFailureDigest/normalizeGateReason/convergence-breaker/maxGateFailureCount/maxGateRepeat/assessBreaker/bumpGateFailureCount -- zero matches in either, and neither imports convergence-breaker.ts at all (confirmed via their import lists). Broadened the scan to every other merge-touched source file (lifecycle-registry.ts, process-fact-registry.ts, done-prepare.ts and its three smoke tests, verify-process-fact-contract.mjs); only hit is a rationale STRING in process-fact-registry.ts:1390 (a human convergence-breaker acknowledgement emits a durable typed event) describing story_resume/human-ack telemetry, not a competing assertion about digest/normalizer behavior -- no F-026-class contrary sibling assertion exists. All five confirmations hold; this is a re-record of RP-005s already-genuine conclusion, not a new audit. No blocker.",
+      "createdAt": "2026-07-24T19:24:41.604Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-040",
+      "envelopeId": "2ef6c65c21104a7d558ef788023769c46ea95e7415367e630204e054244b115e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/review-passes.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5d509bdf60b7e4c15035d79a2626f17f22320be0a78e0a8b7224577d926bb625"
+    },
+    {
+      "id": "B-bf52:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge confirmation of RP-007 (code-quality lane), not a re-audit. (1) git diff 280a5440b4..HEAD over the two story-scoped files (packages/main/src/core/convergence-breaker.ts, packages/main/src/tasks/convergence-breaker-smoke.ts) is empty -- confirmed. Independently confirmed via merge-base(main,HEAD)=c15e6dc864 that git diff main...HEAD restricted to src/tests/scripts/docs touches exactly 4 files: convergence-breaker.ts, convergence-breaker-smoke.ts, red-s3-digest-collapse.mjs, red-s3-differential-probe.mjs -- the story delivered surface and nothing more. CORRECTION to the dispatch framing: the merge did NOT bring in only one config change / nine files -- diffing the main side of the merge (branch-point b1564a58..c15e6dc864) touches 77 files: full lifecycle bookkeeping for three other stories (B-5e4a, B-a539, B-f824) plus 10 real source/script files (lifecycle-registry.ts, process-fact-registry.ts, done-prepare.ts + 3 done-prepare smoke files, new flow-stability-smoke.ts, lifecycle-registry-contract.ts, new scripts/verify-process-fact-contract.mjs) plus version-bump/package.json/lattice.config.json churn. This does not change my conclusion, but the conclusion is reached independently, not by taking the characterization at face value: (a) grepped the touched files -- none import normalizeGateReason or gateFailureDigest; (b) convergence-breaker.ts's one real cross-file dependency is isCanonicalStoryId from lifecycle-registry.ts (line 37) -- diffed lifecycle-registry.ts across the merge and confirmed the only change is 6 new entries appended to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (provenance registration for B-5e4a); isCanonicalStoryId itself is untouched; (c) diffed the full export list of convergence-breaker.ts between the merged main tip and HEAD: the only difference is normalizeGateReason ADDED (this story's own delivery), nothing removed, so no merged file can be importing something this story deleted. (2) npx tsc -p packages/main/tsconfig.json --noEmit exits 0, clean. npm run build exits 0. (3) normalizeGateReason: grepped the whole src/tests/dist tree -- exactly one production caller (gateFailureDigest, same file) plus test callers in convergence-breaker-smoke.ts; merge added/removed none. (4) gate-repeat-block-smoke.ts: git diff --quiet c15e6dc864 81c655543d over both the .ts source and the compiled dist/tasks/gate-repeat-block-smoke.js exits 0 -- byte-identical to main, confirmed. (5) Re-ran both suites and both committed probes from the freshly rebuilt dist: node packages/main/dist/tasks/convergence-breaker-smoke.js PASS (5 must-differ + 16 must-still-collapse); node packages/main/dist/tasks/gate-repeat-block-smoke.js PASS (5/5 checks); node packages/main/tests/red/red-s3-digest-collapse.mjs 10/10 PASS; node packages/main/tests/red/red-s3-differential-probe.mjs PASS (4/4 BAR-3 classes distinguished, differential lane cleanly SKIPped with no comparison build supplied, as documented). (6) background.md vs plan.md C3/C4 ordering: confirmed real -- background.md labels the greedy-path-collapse (alpha.ts/beta.ts) as C3 and the digit-in-identifier collapse (CHK-001/CHK-002) as C4; plan.md and the shipped code's own F-058 comment block use the opposite assignment (C3=digit/ordinal-undeliverable, C4=greedy-path-delivered). AGREE this is cosmetic, not a finding: both documents are internally self-consistent, background.md's claims describe the original pre-fix bug taxonomy at INIT time (still an accurate historical description, not a claim about current shipped behaviour), and the authoritative account for anyone maintaining this code -- the shipped F-058 comment in convergence-breaker.ts itself, plan.md, and the checklist context text -- is unanimous and uses plain-English cause/effect descriptions rather than bare letters, so no implementation or verification step was ever gated on the swapped label. background.md is INIT-frozen and not part of this diff. No dead code, no as-any, no empty catch blocks introduced in the four delivered files (grepped). No blocking findings from this lane on this confirmation pass.",
+      "createdAt": "2026-07-24T19:26:24.664Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-042",
+      "envelopeId": "0d01feb4fae59cf3a517360461728c714f6e6570752712f23cc3f2130f524b66",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "scanEscalationReason": "Story-scoped code files confirmed byte-identical to the immutable RP-007 base (git diff 280a5440b4..HEAD empty) rather than re-read line-by-line; this pass instead diffed the merge itself, checked the one real cross-file dependency edge, re-ran the full compiled suites/probes from a fresh build, and diffed exported symbols -- a merge-safety confirmation, not a fresh content audit."
+      },
+      "_hash": "3edcf588cb5474323036f9989770daf7634553f8ea80807d8105e5c6a4b6dd25"
+    },
+    {
+      "id": "B-bf52:RP-012",
+      "agent": "lattice-review-behavior",
+      "note": "Fresh-round confirmation after hot-main merge->re-review cascade (main advanced, sibling stories only, none touching this story code). Re-verified: git diff 280a5440b4 -- packages/main/src/core/convergence-breaker.ts packages/main/src/tasks/convergence-breaker-smoke.ts packages/main/tests/red/ is empty (delivered files byte-identical to previously reviewed state); git rev-list --count HEAD..main is 0; rebuilt dist and reran node packages/main/dist/tasks/convergence-breaker-smoke.js, node packages/main/dist/tasks/gate-repeat-block-smoke.js, node packages/main/tests/red/red-s3-digest-collapse.mjs, node packages/main/tests/red/red-s3-differential-probe.mjs -- all PASS/exit 0; gate-repeat-block-smoke.ts confirmed byte-identical to main via git diff main. Spot-checked userSees behavior in smoke output: CHK-002 phase-pair DEV/REVIEW vs DEV/TEST digest differently, alpha.ts vs beta.ts digest differently, CHK-002 machine-specific absolute paths (/Users vs /private/var) still collapse, CHK-003 bare checklist-ordinal CHK-001 vs CHK-002 still collapse (numeric-normalizer narrowing withdrawn per red-s3-digest-collapse K1b comment). No code/test changes this round; behavior matches prior full review of this same material (storyFilesHash unchanged).",
+      "createdAt": "2026-07-24T23:02:42.336Z",
+      "reviewRound": "2026-07-24T23:00:04.606Z",
+      "reviewRunId": "B-bf52:RR-043",
+      "envelopeId": "6921acad5aab08642d41de2aa80f5e12e7f1353d70169bd7eefb95a68a7d5592",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "351b4b75b96ac56e895c5a009da9676987d52af791acd0079312105e7d09e042"
+    },
+    {
+      "id": "B-bf52:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round confirmation post-merge (main advanced 51 sibling-story commits; story rolled TEST->DEV->REVIEW). Not a re-audit: content was fully reviewed in prior rounds RP-007/RP-011 and confirmed unchanged here. Verified: (1) git diff 280a5440b4 -- convergence-breaker.ts convergence-breaker-smoke.ts tests/red/ is empty; (2) git rev-list --count HEAD..main = 0; (3) npx tsc -p packages/main/tsconfig.json --noEmit exits 0 post-merge, normalizeGateReason has exactly one production caller (convergence-breaker.ts:653, inside gateFailureDigest) plus test-only callers in convergence-breaker-smoke.ts, no broken imports; (4) rebuilt dist from clean tsc, then re-ran both suites (convergence-breaker-smoke.js PASS exit 0; gate-repeat-block-smoke.js PASS exit 0, all 5 CHK ok) and both probes (red-s3-digest-collapse.mjs 10/10 PASS; red-s3-differential-probe.mjs PASS, BAR3 4/4, differential lane SKIP as documented -- no comparison build supplied, matches plan.md sec.6 expected behavior); gate-repeat-block-smoke.ts is byte-identical to main (empty git diff main). Noted a stray gitignored convergence-breaker.ts.bak editor backup in the worktree (untracked, matched by .gitignore:32 *.bak, mtime predates current file, not part of git diff main...HEAD or the tsc build) -- harmless, no finding filed.",
+      "createdAt": "2026-07-24T23:04:35.819Z",
+      "reviewRound": "2026-07-24T23:00:04.606Z",
+      "reviewRunId": "B-bf52:RR-046",
+      "envelopeId": "8f42636c3011383b6750dd89e7c83a3f23cdd0642885ade5f141b09dd7771e40",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "scanEscalationReason": "Confirmation-only round: material content of all changed files verified byte-unchanged since prior fully-reviewed rounds RP-007/RP-011 (git diff vs 280a5440b4 and vs main both empty), so full re-read was not required; build+test re-execution was the substantive verification for this round."
+      },
+      "_hash": "67028371d8d6c0220bd1c29e4084db6426338076e8eecef15adc69289c9ca7c6"
+    },
+    {
+      "id": "B-bf52:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round residual confirmation post-merge (51 sibling commits merged into main since prior rounds). git diff main...HEAD is scoped correctly (29 files, no sibling-commit bleed). No identifier-level concept rename/deletion is visible IN THIS DIFF relative to main (the withdrawn substantive-id apparatus — SUBSTANTIVE_ID_PREFIXES/listSubstantiveIdPrefixes/buildSubstantiveIdRe/SUBSTANTIVE_ID_RE/protectSubstantiveIds/TOKEN_PLACEHOLDER encode-decode — was introduced and fully withdrawn within this branchs own prior commits before ever reaching main, so main never had it and this diff shows only the post-withdrawal state). As due diligence given the storys documented 8-round history, ran git grep (tracked files only, repo-wide) for all 8 withdrawn identifiers: zero hits outside this storys own historical ledgers (findings.json/review-runs.json/prompt-envelopes.json, legitimate audit trail of past rounds, not shipped code). Two untracked, gitignored local files (packages/main/src/core/convergence-breaker.ts.bak matching the pre-existing *.bak rule; packages/main/dist/core/convergence-breaker-RLMUTANT.js inside gitignored dist/) do contain the old apparatus but are not tracked, not committed, and not referenced by any tracked script -- confirmed via git diff 280a5440b4 -- convergence-breaker.ts convergence-breaker-smoke.ts tests/red/ = empty (zero drift in actual source since the withdrawal commit). CHK-003s frozen done status despite non-delivery is a properly recorded, operator-approved scope-shrinkage-decision.json (approvedBy jek, userConfirmed true), machine-pinned by must-still-collapse cases K5a/K5b (checklist-ordinal, unfixed-bug-ordinal) -- not an undelivered promise. Verified GuardRule union (8 declared: path-rule-overreach, path-rule-collapse, prefix-window-residual, digit-rule-collapse, iso-or-digit-rule-collapse, hex-rule-collapse, signals-conditional-prefix, signals-fold) all 8 used in the MUST_DIFFER/MUST_COLLAPSE matrix, none orphaned. Rebuilt dist clean (tsc, 0 errors). npm run test:convergence-breaker PASS (5 must-differ + 16 must-still-collapse). Both tests/red/ probes PASS (red-s3-digest-collapse.mjs 10/10; red-s3-differential-probe.mjs BAR3 4/4, differential lane SKIPped by design with no comparison build supplied). No blocker.",
+      "createdAt": "2026-07-24T23:07:31.070Z",
+      "reviewRound": "2026-07-24T23:00:04.606Z",
+      "reviewRunId": "B-bf52:RR-045",
+      "envelopeId": "00d7ff73e623da5940f95d0f4dce99d1a978bd450d48c841138db14d5ce22baa",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/prompt-envelopes.json",
+          ".lattice/story/actives/B-bf52/review-runs.json",
+          "packages/main/dist/core/convergence-breaker-RLMUTANT.js",
+          "packages/main/src/core/convergence-breaker.ts.bak"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9a7e2d9448231d9bcfe35369c989221d6969994bf30a0b0544e35ddb2b538daf"
+    },
+    {
+      "id": "B-bf52:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round confirmation (round 2026-07-24T23:00:04.606Z) post merge->re-review cascade: main advanced 51 sibling-story commits and the story rolled TEST->DEV->REVIEW, minting this new round; storyFilesHash unchanged (9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b), so this is a confirmation of test-coverage verdicts already reached at RP-005/RP-010, not a re-audit. Verified: (1) git diff 280a5440b4 -- packages/main/src/core/convergence-breaker.ts packages/main/src/tasks/convergence-breaker-smoke.ts packages/main/tests/red/ is empty. (2) git rev-list --count HEAD..main = 0. (3) Spot-checked the 19 verificationEvidence notes across CHK-001..CHK-004 (5+5+4+5): every case name and guard tag they cite (signals-conditional-prefix, prefix-window-residual, path-rule-overreach, path-rule-collapse, digit-rule-collapse, signals-fold, phase-pair, in-repo-file-path, bare-attempt-ordinal, blocking-finding-cited-path-past-window/within-window, proofstory-gap-signal-set, machine-absolute-path, delimiter-attached-absolute-path, machine-path-into-repo-relative-segments) is present in the current convergence-breaker-smoke.ts. Confirmed CHK-003s three NOT-DELIVERED-labelled notes (happy:0, edge:1, adversarial:0) are backed by fact: checklist-ordinal and unfixed-bug-ordinal both exist in the MUST_COLLAPSE array (guardedBy digit-rule-collapse, run via the must-still-collapse lane), i.e. the code genuinely collapses the CHK-001-vs-CHK-002 pair the frozen userSees demanded stay distinct -- matching the notes claim rather than contradicting it. (4) Rebuilt dist from a clean tsc (0 errors); re-ran both suites: npm run test:convergence-breaker PASS (5 must-differ counter=1 + 16 must-still-collapse counter=2/breaker-trips, exit 0), node dist/tasks/gate-repeat-block-smoke.js PASS (5/5 CHK, exit 0); re-ran both probes: red-s3-digest-collapse.mjs 10/10 PASS, red-s3-differential-probe.mjs PASS against a freshly built comparison of CURRENT main (447a337847, built in a fresh detached worktree since prior comparison builds on disk were 59-235 commits stale) -- BAR3 4/4 delivered classes distinguished, 13/13 volatile classes tie, 4/4 delivered classes branch-finer than main as expected, 0 BAR1/BAR2 violations. gate-repeat-block-smoke.ts confirmed byte-identical to main (git diff main on that path empty). No blocker.",
+      "createdAt": "2026-07-24T23:08:24.008Z",
+      "reviewRound": "2026-07-24T23:00:04.606Z",
+      "reviewRunId": "B-bf52:RR-044",
+      "envelopeId": "e8d453d82a20a90d72665d0cecb021effbdf06a91a1a68678872b1b739b99f0a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "scanEscalationReason": "Confirmation-only round: source content of all in-scope files verified byte-unchanged since prior fully test-coverage-reviewed rounds RP-005/RP-010 (git diff vs 280a5440b4 empty), so full re-read of file bodies was not required beyond targeted spot-checks of the 19 verificationEvidence notes against the smoke matrix; rebuild + re-execution of both suites and both probes (one against a freshly built current-main comparison) was the substantive re-verification for this round."
+      },
+      "_hash": "19e1eff639fe04b918e33980303a7985f8298f616a7adba61927a152479c91ba"
+    }
+  ]
+}

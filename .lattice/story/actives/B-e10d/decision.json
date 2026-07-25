@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Reuse the W2a trust root: targetBindingDigest is canonDigest (W2a canon.ts), never a new canonicalizer.",
+    "One command owns the complete wiring recipe: land all 13 registration points on the cheapest command so four later commands inherit a mechanically-verified path.",
+    "Fail closed on identity: exactly one binding per target, createdAt stripped from the digest, out-of-expectedRedTargets rejected, foreign owner lease rejected.",
+    "Anti-swap by construction: authorize runs from the COMMITTED tree, never the live (editable) story directory.",
+    "Change no gate: this story adds a store + command; redEvidenceSatisfied/missingRedEvidence and every existing gate verdict stay identical."
+  ],
+  "drivers": [
+    "The createdAt-strip digest direction is the behavioral trap: CANON over a stored entry (with createdAt) must NOT equal the digest; CANON over the 3-field subobject MUST.",
+    "The 13-point registration surface is enforced bidirectionally by three existing contracts that predate this story — every point must be present or the contracts fail with named divergences.",
+    "expectedRedTargets must be exported as a shared resolver WITHOUT changing its computed set (a pure extraction, provable by a same-set assertion)."
+  ],
+  "options": [
+    {
+      "name": "Dedicated store leaf (target-bindings.ts) + handler + full 13-point wiring (chosen)",
+      "pros": [
+        "Store logic (uniqueness, createdAt-strip digest, committed-tree reader) isolated and unit-testable",
+        "The complete wiring recipe is proven once and reused by four later commands",
+        "The three existing contracts mechanically verify every registration point"
+      ],
+      "cons": [
+        "Touches 15 files for registration (wiring-heavy)",
+        "Must get the createdAt-strip digest direction and all 13 points exactly right"
+      ]
+    },
+    {
+      "name": "Inline the store in the handler, register minimally",
+      "pros": [
+        "Fewer files"
+      ],
+      "cons": [
+        "No isolated store to unit-test the createdAt-strip trap",
+        "Later commands rediscover the 13-point surface each time",
+        "Contracts fail on any missed point — no benefit over doing it completely"
+      ]
+    }
+  ],
+  "chosen": "Dedicated store leaf (target-bindings.ts) + handler + full 13-point wiring (chosen)",
+  "rationale": "The store's identity rules (one-per-target, createdAt-stripped digest, committed-tree reader) are load-bearing and un-gameable, so they belong in an isolated, unit-tested leaf; and because the four later high-semantics commands (assert/green_confirm/quarantine/recover) all need the SAME owner-lease + mutation-authority + registration path, landing the complete 13-point recipe once on this lowest-semantics command — mechanically verified by the three pre-existing contracts — is strictly cheaper than each later command rediscovering it.",
+  "preMortem": [
+    {
+      "scenario": "createdAt-strip digest computed over the stored entry",
+      "trigger": "Implementer canonicalizes the whole stored binding (incl. createdAt) for the digest",
+      "consequence": "targetBindingDigest is unstable across writes and a green-confirm can never match a red-assert's digest",
+      "mitigation": "RED differential test asserts CANON over a STORED entry (with createdAt) does NOT equal the recorded digest while CANON over the 3-field subobject DOES"
+    },
+    {
+      "scenario": "A registration point is missed",
+      "trigger": "One of the 13 wiring points (esp. the closed AgentDispatchMutationCommand union or a permittedMutations array) is not updated",
+      "consequence": "the command is un-dispatchable or un-authorized, or a contract fails",
+      "mitigation": "the three existing contracts (lifecycle-registry / command-ownership / verify-process-fact) are run in the smoke and fail with a named divergence until every point is present"
+    },
+    {
+      "scenario": "expectedRedTargets set changes on extraction",
+      "trigger": "The export refactor accidentally alters the computed target set",
+      "consequence": "stories that used to have targets now differ — a silent behavior change",
+      "mitigation": "a same-set assertion proves the exported resolver returns the identical set for representative inputs"
+    },
+    {
+      "scenario": "The reader resolves from the live directory",
+      "trigger": "Implementer reads red-target-bindings.json from the working tree instead of the committed ref",
+      "consequence": "an uncommitted/post-review edit authorizes a run — the swap-after-review attack",
+      "mitigation": "a test where the committed tree and the live directory hold DIFFERENT bindings asserts the reader returns the committed one via git show"
+    },
+    {
+      "scenario": "An existing gate verdict changes",
+      "trigger": "The wiring inadvertently alters redEvidenceSatisfied/missingRedEvidence or a phase gate",
+      "consequence": "unrelated stories' DONE-readiness shifts",
+      "mitigation": "the smoke asserts no existing gate verdict changes and CHK-009 pins this; the store+command add no gate evaluation"
+    }
+  ],
+  "timestamp": "2026-07-25T07:34:31.548Z"
+}

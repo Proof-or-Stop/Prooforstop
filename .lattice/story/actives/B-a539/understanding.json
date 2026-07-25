@@ -1,0 +1,23 @@
+{
+  "task": "Remove the duplicated reviewer-scan-budget-guard-smoke entry from validate.commands in lattice.config.json so the smoke is invoked once per unfocused lattice validate run.",
+  "outcome": "lattice.config.json lists the smoke exactly once (the focus-tagged object), the validate --json invocation record shows exactly one command result for that script, and validate --focus=fast still selects it.",
+  "facts": [
+    "validate.commands has 48 entries; index 4 is the bare string 'node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js' and index 12 is {command:node, args:[same script], focus:[fast]}.",
+    "commandFromString in packages/main/src/handlers/verifier.ts sets shell:true only when SHELL_META_RE (/[;&|<>$()`]/) matches; 'node <path>.js' does not match, so the bare string is split into the same command and args as the object form.",
+    "Neither entry declares cwd, env, timeoutMs or optional, so both share one execution identity apart from the focus tag.",
+    "filterFocusedConfiguredCommands (verifier.ts:184) keeps only commands whose focus array includes the requested focus; an unfocused run uses the full configuredCommands list.",
+    "A strict full-identity scan of all 48 entries found exactly one same-script pair (indexes 4 and 12) and no other duplicates.",
+    "The duplication pre-dates B-4043: both merge parents b8e28971d0^ and e436eb5447 already contain both entries."
+  ],
+  "constraints": [
+    "Only lattice.config.json may change; the smoke script and the validate runner implementation stay untouched.",
+    "Arguments, timeout, execution context and fail-closed behaviour of the surviving entry must be preserved exactly.",
+    "Entries that share the script path but carry meaningfully different execution parameters must not be removed.",
+    "Exactly-once must be proven from the runner invocation record, not from a green exit code alone."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-24T17:33:01.016Z"
+}

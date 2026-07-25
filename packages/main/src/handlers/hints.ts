@@ -8,6 +8,7 @@
 import type { StoryStore } from '../core/store.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { currentGitHead } from '../core/evidence-freshness.js';
+import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 
 export interface ActiveStoryInfo {
   storyId: string;
@@ -55,6 +56,7 @@ interface ChecklistSummary {
   done: number;
   inProgress: number;
   pending: number;
+  withdrawn: number;
   inProgressIds: string[];
   pendingIds: string[];
   allDone: boolean;
@@ -63,15 +65,21 @@ interface ChecklistSummary {
 function summarizeChecklist(cl: { items: Array<{ id: string; status: string }> } | null): ChecklistSummary | null {
   if (!cl || !Array.isArray(cl.items)) return null;
   const summary: ChecklistSummary = {
-    total: cl.items.length, done: 0, inProgress: 0, pending: 0,
+    total: cl.items.length, done: 0, inProgress: 0, pending: 0, withdrawn: 0,
     inProgressIds: [], pendingIds: [], allDone: false,
   };
   for (const it of cl.items) {
-    if (it.status === 'done') summary.done++;
+    // B-1909 CHK-002: withdrawn is terminal-but-not-delivered — count it in its
+    // own bucket so it neither inflates `done` (delivered) nor leaks into
+    // `pending` (which would keep the story looking outstanding forever).
+    if (isDeliveredChecklistStatus(it.status)) summary.done++;
     else if (it.status === 'in_progress') { summary.inProgress++; summary.inProgressIds.push(it.id); }
+    else if (isWithdrawnChecklistStatus(it.status)) summary.withdrawn++;
     else { summary.pending++; summary.pendingIds.push(it.id); }
   }
-  summary.allDone = summary.total > 0 && summary.done === summary.total;
+  // allDone = every item TERMINAL (done OR withdrawn) — the advancement signal.
+  // Delivered coverage remains `done`.
+  summary.allDone = summary.total > 0 && cl.items.every(it => isTerminalChecklistStatus(it.status));
   return summary;
 }
 

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-506e",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proofstory.ts — guard redEvidenceRecordSatisfied to skip non-v1",
+    "packages/main/src/core/red-evidence/append.ts — ordered append pipeline + dedupe + replay + mkdir-claim",
+    "packages/main/src/core/red-evidence/chain.ts — partition + head + integrity checks + transition table",
+    "packages/main/src/core/red-evidence/operation-key.ts — key preimages + deterministic id",
+    "packages/main/src/core/red-evidence/record-v2.ts — v2 record union + nullability + recordDigest",
+    "packages/main/src/core/red-evidence/target-bindings.ts — binding-freeze rule",
+    "packages/main/src/core/store.ts — mixed v1/v2 read/write",
+    "packages/main/src/core/types.ts — widen RedEvidenceData + v2 types + command union",
+    "packages/main/src/handlers/red-evidence.ts — quarantine + recover handlers",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/red-evidence-chain-smoke.ts — the smoke",
+    "packages/main/tests/red/ — committed RED test artifacts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excluded": [
+    "altering any gate verdict or gate wiring or the enforcement flip",
+    "envelope-schema-and-matcher-admissibility-and-run-receipt work — reserved for leaves W2d and W2e",
+    "removal of the legacy v1 create writer",
+    "the disposable-workspace runner that spawns processes — reserved for leaf W2e"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-directed W2c from the DONE red-evidence spec (§1.10/§3.1-3.7/§4.1); scope = v2 record + chain plane + quarantine/recover + enforce-gate guard + binding-freeze. excludedScope reworded to avoid substring collision with the background prose.",
+  "createdAt": "2026-07-25T10:04:20.182Z",
+  "updatedAt": "2026-07-25T10:04:20.182Z",
+  "_hash": "486e716f409003b08475be3ec7135d93b1295639e867970ab304eb9cf428a76d"
+}

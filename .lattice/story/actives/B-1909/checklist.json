@@ -1,0 +1,584 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add withdrawn as a terminal checklist disposition through schema, CLI validation and persistence",
+      "context": "packages/main/src/core/types.ts:691 ChecklistItem, handlers/checklist.ts:564 status union, cli/command-catalog.ts:435 z.enum(['pending','in_progress','done']). Item gains status 'withdrawn' plus a decisionRef naming the authorizing scope-shrinkage decision. The item keeps its original title/context/userSees/verificationIntent verbatim; withdrawal is a disposition, not a rewrite of what was planned. Also decide the fate of the currently-dead --success flag rather than leaving it documented but unpersisted.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T21:44:40.833Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ChecklistStatus accepts withdrawn and a withdrawn item with decisionRef round-trips through readChecklist/writeChecklist unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A legacy checklist item (no status=withdrawn, no decisionRef) still loads and reads exactly as before",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "checklist_update refuses a direct status=withdrawn write and its error points to scope_shrinkage_decision_set as the sole authorized applier",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Positive path sets item.status=withdrawn with decisionRef and reads it back through checklist_get; round-trips through store read/write.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Checklist items seeded without status=withdrawn/decisionRef load and render exactly as before (all fixture items lack decisionRef).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Direct checklist_update status=withdrawn throws matching /scope_shrinkage_decision_set/ and the item stays done (no write).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make every done consumer treat withdrawn as terminal but not delivered",
+      "context": "24 sites match status === 'done' under packages/main/src/core and handlers. Load-bearing ones: core/machine.ts:355 DEV to REVIEW every-item-done gate, core/artifact-contract.ts:133, handlers/checklist.ts:82 counts, handlers/story-query.ts:568, handlers/hints.ts:70, handlers/session.ts:435, core/milestone-status.ts:456,560. Withdrawn must satisfy 'no longer outstanding' for phase advancement while never incrementing delivered or completed-success counts, and must render as WITHDRAWN, never as DONE, in checklist_get, story_get, session_brief and any export.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T21:44:45.987Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checklistAllDoneGuard treats withdrawn as terminal so DEV->REVIEW advances when every item is done-or-withdrawn",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "delivered/completed counts (checklist.ts:82, story-query:568, hints:70, session:435, milestone-status) exclude withdrawn from delivered totals",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No renderer (checklist_get, story_get, session_brief, exports) ever prints a withdrawn item as DONE",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/artifact-contract.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/session.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "checklistAllDoneGuard returns true for a done+withdrawn checklist, so DEV->REVIEW advances treating withdrawn as terminal.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "slim counts and summarizeChecklist report done=1 (delivered-only) and withdrawn=1 separately; withdrawn never increments the delivered/done tally.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "checklist_get renders the withdrawn item with status 'withdrawn' and asserts notEqual 'done' — no renderer shows it as DONE.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend the scope-shrinkage decision into the single authorizing record both layers cite",
+      "context": "core/proofstory.ts:162-169 BuildScopeShrinkageDecisionArgs and 1285-1310 buildScopeShrinkageDecision currently carry only removedMilestoneIds, reason, approvedBy, userConfirmed. Add a stable decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs (for example the finding id that proved undeliverability). Existing decisions without these fields must keep loading; B-bf52's own decision.json is the compatibility fixture.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T21:44:48.307Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "buildScopeShrinkageDecision persists decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs and scope_shrinkage_decision_get returns them",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A legacy decision.json without the new fields (B-bf52 fixture) loads with safe empty defaults and does not throw",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A confirmed decision that names no withdrawnChecklistItemRefs, no withdrawnAcceptanceBindingRefs and no removedMilestoneIds is rejected (nothing to withdraw)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+          "result": "pass",
+          "note": "buildScopeShrinkageDecision generates an SD- decisionId, persists withdrawnChecklistItemRefs, and preserves createdAt/decisionId across updates.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+          "result": "pass",
+          "note": "A legacy decision object with no new fields loads; withdrawnChecklistItemIdsFrom/withdrawnBindingIdsFrom return empty sets and effectiveAcceptanceBindings keeps all bindings.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+          "result": "pass",
+          "note": "A confirmed decision naming no withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/removedMilestoneIds is rejected (nothing to withdraw).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add an append-only acceptance-binding withdrawal readable from DEV and REVIEW without returning to PLAN",
+      "context": "proofstory_contract_set keeps allowedPhases ['PLAN'] (core/command-policy.ts:420). Add a separate writer that appends a binding-level withdrawal record {bindingId, disposition: 'withdrawn', decisionRef} beside the frozen acceptanceBindings in .lattice/story/actives/<id>/proofstory.json. The original binding object must be preserved byte-for-byte; proofstory_contract_get renders original plus disposition, and the effective-binding projection excludes withdrawn bindings from acceptance evaluation.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T21:44:51.169Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The decision writer appends {bindingId,disposition:withdrawn,decisionRef} to proofstory.json and proofstory_contract_get shows the disposition, invoked from DEV and from REVIEW with no PLAN return",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The effective-binding projection excludes withdrawn bindings while the original ProofStoryAcceptanceBinding object is preserved byte-for-byte",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "proofstory_contract_set still refuses to run outside PLAN and cannot be used to write a withdrawal (freeze intact)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "scope_shrinkage_decision_set appends {bindingId,disposition:withdrawn,decisionRef} and proofstory_contract_get shows it, run with story phase DEV and phase REVIEW (no PLAN return).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "effectiveAcceptanceBindings excludes the withdrawn binding while the original acceptanceBindings[AB-1] object survives byte-for-byte (JSON compared before/after).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "COMMAND_POLICIES.proofstory_contract_set.allowedPhases deepEquals ['PLAN'] (freeze intact); scope_shrinkage_decision_set reaches DEV/REVIEW/TEST — the correction path, not proofstory_contract_set, does the withdrawal.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Validate withdrawal authority and cross-layer consistency in both directions",
+      "context": "Refuse status withdrawn with no decisionRef, or with a decisionRef naming a decision that does not exist, is not confirmed/userConfirmed, or does not list that item in withdrawnChecklistItemRefs. Refuse a binding withdrawal that is not authorized by the same kind of decision, and refuse the two layers citing different decision ids for the same shrinkage. Per CLAUDE.md Handler coding convention, enforce at Zod, at handler entry, and at every consuming gate, and test the internal-call path that bypasses Zod. Withdrawal authority follows the scope-shrinkage decision's existing approval, so a DEV agent cannot unilaterally withdraw a binding.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T21:44:53.922Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Withdrawing CHK-nnn and AB-mmm under one confirmed+userConfirmed decision stamps both layers with the same decisionId",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A decision that does not cite the item/binding is refused, and citing two different decision ids across the two layers for the same shrinkage is refused",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Layer independence: a decision listing ONLY withdrawnChecklistItemRefs withdraws only the checklist item and leaves its binding active; a decision listing ONLY withdrawnAcceptanceBindingRefs withdraws only the binding and leaves the checklist item unchanged (no silent cross-cancellation)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The internal-call path bypassing Zod is still rejected because handler and consuming gate re-validate; a DEV agent without userConfirmed:true cannot produce a withdrawal",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "The withdrawn item.decisionRef and the binding disposition.decisionRef both equal the single stamped decisionId.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "A decision naming a non-existent checklist item (/not a checklist item/) or non-existent binding (/not an acceptance binding/) is refused and mutates nothing; single-applier design makes cross-layer id mismatch structurally impossible.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Layer independence: an item-only decision leaves the bound binding active; a binding-only decision leaves every checklist item unchanged. No silent cross-cancellation.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "The smoke calls scope_shrinkage_decision_set on the handler directly (the internal, Zod-bypassing path) and the ref/authority refusals still fire at the handler level.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Guard against empty-scope success when core bindings are withdrawn",
+      "context": "The highest-value test in the request: a story must not obtain a formal PASS by withdrawing every requirement that proved hard. Define the minimum delivery floor (at least one non-withdrawn acceptance binding with real evidence) and where it is evaluated relative to the existing DONE intent-equivalence path in core/proofstory.ts:1514 and 1864, which already skip confirmed-shrinkage milestone ids. Full withdrawal must require explicit re-approval rather than passing silently.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T21:44:57.527Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Withdrawing a proper subset of bindings leaves a non-empty effective set; the write-time applier succeeds and the DONE intent-equivalence path proceeds",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Withdrawing ALL acceptance bindings WITHOUT an explicit full-withdrawal re-approval is HARD-REFUSED by the sole applier at write time, independent of doneGateMode (proven by asserting refusal under the default observe config)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The floor evaluates the effective (non-withdrawn) set, not the original bindings, so leaving withdrawn originals present cannot fake surviving scope; the DONE empty_scope_after_withdrawal diagnostic exists only as defense-in-depth",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Withdrawing a proper subset (AB-1 of AB-1/AB-2) leaves a non-empty effective set; the applier succeeds.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Withdrawing all bindings without fullWithdrawalReapproval is HARD-REFUSED (/empty_scope_after_withdrawal/) in a config-less temp root (default observe), proving independence from doneGateMode; with the re-approval field it is allowed.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "The empty-scope floor reads effectiveAcceptanceBindings (non-withdrawn); approved full withdrawal empties the effective set to length 0, so leaving withdrawn originals cannot fake surviving scope.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-007",
+      "title": "Add a smoke covering both directions of the recorded acceptance",
+      "context": "Register under packages/main/src/tasks/ and validate.commands, following the existing proofstory smoke tasks. Positive direction: after a scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW, with no PLAN return. Negative direction: done still means delivered; withdrawn is excluded from delivered/completed counts; withdrawn without a valid decisionRef is refused; a decision not citing the item is refused; mismatched decision ids across the two layers are refused; the original binding survives withdrawal unmodified; and withdrawing all core bindings does not yield a pass.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T21:45:00.129Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Positive smoke: after scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Negative smoke: done still counts as delivered, withdrawn is excluded from delivered/completed counts, and the original binding survives withdrawal unmodified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative smoke: withdrawn without a valid decisionRef is refused, a decision not citing the item is refused, mismatched decision ids are refused, and withdrawing all core bindings does not yield a pass",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/validate.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Positive both-phase direction (DEV+REVIEW): checklist_get and proofstory_contract_get both report withdrawn; smoke prints PASS.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Negative direction: done stays delivered (count 1), withdrawn excluded from counts, original binding survives byte-for-byte.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Negative refusals: direct withdrawn refused, non-existent item/binding refused, all-bindings-withdrawn refused without re-approval, allowed with it.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      ]
+    }
+  ]
+}

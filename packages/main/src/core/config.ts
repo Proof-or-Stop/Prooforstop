@@ -84,6 +84,33 @@ export interface ProofStoryConfig {
   doneGateMode?: 'observe' | 'warn' | 'enforce';
 }
 
+/**
+ * B-c054 (W2a): optional trusted RED-evidence policy block (spec §1.2).
+ * DIAGNOSTIC ONLY — surfaced by `lattice doctor` and resolved by the fail-closed
+ * policy resolver (core/red-evidence/policy.ts). NO loader default is applied:
+ * an absent block leaves the subsystem unconfigured, and `pinnedPath` is
+ * required-with-no-default per §1.2. This interface is intentionally permissive
+ * (open index signature) so an UNKNOWN key still reaches the fail-closed
+ * resolver instead of being silently dropped at parse time.
+ */
+export interface RedEvidencePolicyConfig {
+  maxMatchers?: number;
+  maxMatcherLen?: number;
+  minMatcherLen?: number;
+  minMatcherEntropyBits?: number;
+  runTimeoutMs?: number;
+  prepTimeoutMs?: number;
+  killGraceMs?: number;
+  forbiddenCatchAlls?: string[];
+  forbiddenEnvKeysExtensions?: string[];
+  invarianceExcludePaths?: string[];
+  pinnedPath?: string[];
+  matcherClassRegistry?: unknown[];
+  runnerAdapterRegistry?: unknown[];
+  runnerProfileRegistry?: unknown[];
+  [key: string]: unknown;
+}
+
 export type AcceptanceTopologyGateMode = NonNullable<ProofStoryConfig['acceptanceTopologyGateMode']>;
 export type AcceptanceRolloutGateMode = NonNullable<ProofStoryConfig['acceptanceRolloutGateMode']>;
 
@@ -202,6 +229,8 @@ export interface LatticeConfig {
   /** B-956f: language-neutral material-code classification overrides. */
   materialCode?: MaterialCodeConfig;
   proofStory?: ProofStoryConfig;
+  /** B-c054 (W2a): optional trusted RED-evidence policy block; no loader default. */
+  redEvidence?: RedEvidencePolicyConfig;
   lifecycleControl?: LifecycleControlConfig;
   /**
    * B-3b05: review_pass_set writer-session provenance validation. Default warn
@@ -445,6 +474,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_shrinkage_decision_set',
     'parent_ledger_rollup_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
+    'red_evidence_binding_set', // W2b (B-e10d): register the per-story target binding before a RED run; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
     'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
     'pre_review_check',
     'acceptance_rollout_report',

@@ -1,0 +1,160 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Delete the duplicate bare-string validate.commands entry and keep the focus-tagged object",
+      "context": "lattice.config.json validate.commands index 4 (bare string) duplicates index 12 (object with focus:[fast]). commandFromString in packages/main/src/handlers/verifier.ts parses the bare string into an identical command/args pair with no shell, so the two entries share one execution identity apart from the focus selection tag. Keep index 12: unfocused runs execute every configured command, and only focus-tagged commands survive validate --focus=fast.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "grep -c reviewer-scan-budget-guard-smoke lattice.config.json prints 1",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T17:40:25.023Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the edit, lattice.config.json parses and validate.commands contains exactly one entry whose command line references reviewer-scan-budget-guard-smoke.js, and it is the object carrying focus:[fast].",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The surviving entry keeps the identical execution identity: command node, the same single script arg, and no shell, cwd, env, timeoutMs or optional field, so no argument, timeout, execution context or fail-closed behaviour changes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Every other validate.commands entry is byte-identical before and after the edit, and the list length drops by exactly one.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The removal does not drop the smoke from the fast focus set: filtering validate.commands by focus fast still selects reviewer-scan-budget-guard-smoke.js after the edit.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "git show 304d459c8d --stat && git show 304d459c8d -- lattice.config.json",
+          "result": "pass",
+          "note": "Re-attested post-merge. Commit 304d459c8d still shows 1 file changed, 1 deletion(-) removing only the bare-string entry. The subsequent main merge (c15e6dc864, quorum budget 600000->1200000 on a different line) did not reintroduce a duplicate: current validate.commands is 47 entries with the smoke registered once.",
+          "headHash": "6ce406254290438d0973392c8a0e1200b23ddba0",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:45.853Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"count validate.commands entries referencing reviewer-scan-budget-guard-smoke.js\"",
+          "result": "pass",
+          "note": "Re-attested post-merge (main merged into story-owned lattice.config.json). validate.commands length 47 and exactly one entry references reviewer-scan-budget-guard-smoke.js, the focus:[fast] object. grep -c on the file prints 1 and the file parses as JSON.",
+          "headHash": "4c0282e03260804bfb2397b207df9c45320301e2",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:43.394Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"filter validate.commands by focus includes fast\"",
+          "result": "pass",
+          "note": "Re-attested post-merge. Filtering current validate.commands for entries whose focus includes fast still yields the reviewer-scan-budget-guard-smoke.js entry, so the smoke remains in the fast focus set.",
+          "headHash": "3f54ab9585837cc5de9987ddd5d20a4cc9ba82b5",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:47.302Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"print the surviving entry and its keys\"",
+          "result": "pass",
+          "note": "Re-attested post-merge. The surviving entry declares only command, args and focus (no shell/cwd/env/timeoutMs/optional), identical execution identity to both pre-edit entries, so arguments, timeout, execution context and fail-closed behaviour are preserved.",
+          "headHash": "e28a13452e9bcd0def0938ad4ab7d49a902d886d",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:44.705Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove from validate invocation records that the smoke runs exactly once and rescan for other duplicates",
+      "context": "Verify against the runner's own invocation record (validate --json command results), not just a zero exit code. Also rescan validate.commands for any other pair with identical full execution identity, and confirm that same-script pairs differing in meaningful execution parameters are left untouched.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "The validate --json command records contain exactly one entry for reviewer-scan-budget-guard-smoke.js and the duplicate scan reports no remaining full-identity duplicates",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-24T18:01:52.164Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A real lattice validate run reports exactly one command result for reviewer-scan-budget-guard-smoke.js in its invocation record, and that result passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A full-identity duplicate scan over all validate.commands entries reports zero remaining duplicate groups.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The same-script scan is reported separately from the full-identity scan, so any pair sharing a script path but differing in meaningful execution parameters is surfaced and deliberately preserved rather than removed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "LATTICE_MAX_TIMEOUT_MS=3600000 node bin/lattice.js validate --json",
+          "result": "pass",
+          "note": "Re-attested post-merge on the merged story-owned lattice.config.json. Complete validate run: status=pass, 47 command results, ALL passing (zero failures), of which exactly ONE references reviewer-scan-budget-guard-smoke.js with code:0 and output \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 7 required phrases present)\". The stderr per-command record shows exactly one start line for that script. This supersedes the earlier pre-merge attestation and confirms exactly-once holds after main was merged (which raised the quorum-submit-smoke budget to 20m, letting the full run complete green under lighter host load).",
+          "headHash": "3ab3a7b738d216d2bb61a6a871a21ce314abfcff",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:19:54.108Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"full-identity duplicate scan over validate.commands\"",
+          "result": "pass",
+          "note": "Re-attested post-merge. Full-identity scan (all fields) and execution-identity scan (ignoring focus/label) over all 47 current entries both report zero duplicate groups.",
+          "headHash": "ca86ce66cdee645a797f2f0f1ace9664e2f42ad6",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:48.634Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"same-script-path scan over validate.commands, reported separately\"",
+          "result": "pass",
+          "note": "Re-attested post-merge. Same-script scan reported separately reports zero remaining pairs; no entry shares a script path with different execution parameters, so nothing differentiated was removed.",
+          "headHash": "b8f0b6a8ff0ca8f9fd58281c3e9742c65596de0c",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:49.884Z"
+        }
+      ]
+    }
+  ]
+}

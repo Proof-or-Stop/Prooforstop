@@ -164,6 +164,11 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  // W2b (B-e10d): the target-binding writer records structured metadata under a
+  // schema and enforces the §3.3 expectedRedTargets membership policy, but is a
+  // run PREREQUISITE — deliberately NOT 'gate-evidence' (nothing consumes the
+  // binding as a gate in this leaf; chain freeze / green-confirm match are W2c).
+  red_evidence_binding_set: ['schema-contract', 'verification-policy'],
   spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result: ['schema-contract', 'verification-policy', 'gate-evidence'],
