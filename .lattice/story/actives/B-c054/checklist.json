@@ -360,9 +360,9 @@
       "id": "CHK-006",
       "title": "Reject forbidden environment keys, bare catch-all invariance globs, and unresolvable argv placeholders at config resolution",
       "context": "An allowedEnvKeys naming PATH, NODE_OPTIONS, LD_PRELOAD or any DYLD_ key rejects; an invarianceExcludePaths entry that is a bare **/* catch-all, or whose glob matches any tracked material path (checked against the live classification at config load, per spec line 759), rejects — while a legitimate exclude like node_modules/** or tmp/** that matches no tracked material is kept; an argvTemplate ${missing} naming a capture its pattern lacks rejects at config resolution.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-25T01:21:03.232Z",
       "verificationIntent": {
         "happy": [
           {
