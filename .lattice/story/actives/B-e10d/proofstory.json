@@ -34,7 +34,24 @@
         "CHK-002",
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1"
+      ],
       "milestoneIds": [],
       "acceptanceClaim": "The red-target-bindings.json v1 store persists exactly one binding per acceptanceTargetRef, records targetBindingDigest = canonDigest over the createdAt-STRIPPED 3-field subobject (not the stored entry), and its committed-tree reader resolves a binding from a git ref rather than the live directory.",
       "note": "Store identity + digest + anti-swap reader."
@@ -45,7 +62,19 @@
         "CHK-003",
         "CHK-007"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:edge:1",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1"
+      ],
       "milestoneIds": [],
       "acceptanceClaim": "expectedRedTargets is exported as a shared resolver with an identical computed set, and red_evidence_binding_set is rejected for an out-of-expectedRedTargets acceptanceTargetRef and while a FOREIGN session holds an active owner lease.",
       "note": "Membership gate + owner-lease/mutation-authority gate."
@@ -57,7 +86,23 @@
         "CHK-006",
         "CHK-008"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0",
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:edge:0",
+        "CHK-006:edge:1",
+        "CHK-006:adversarial:0",
+        "CHK-006:adversarial:1",
+        "CHK-008:happy:0",
+        "CHK-008:happy:1",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0",
+        "CHK-008:adversarial:1"
+      ],
       "milestoneIds": [],
       "acceptanceClaim": "red-target-bindings.json is registered as lifecycle metadata and red_evidence_binding_set is registered at all 13 wiring points (incl. the closed AgentDispatchMutationCommand union and permittedMutations) and the four ProofStory enumerations + frozen catalog order, so the three existing contracts pass.",
       "note": "The complete mechanically-verified registration surface."
@@ -67,48 +112,21 @@
       "checklistRefs": [
         "CHK-009"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-009:happy:0",
+        "CHK-009:happy:1",
+        "CHK-009:edge:0",
+        "CHK-009:edge:1",
+        "CHK-009:adversarial:0",
+        "CHK-009:adversarial:1"
+      ],
       "milestoneIds": [],
       "acceptanceClaim": "red-evidence-target-binding-smoke is registered in validate.commands and passes, and no existing gate verdict (redEvidenceSatisfied/missingRedEvidence) changes.",
       "note": "Suite registration + no-gate-change guarantee."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-STORE has no verificationIntentRefs."
-    },
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-GATE has no verificationIntentRefs."
-    },
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-WIRING has no verificationIntentRefs."
-    },
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-SMOKE has no verificationIntentRefs."
-    },
-    {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
-    }
-  ],
-  "note": "W2b: four bindings cover all nine checklist items; verificationIntent refs attached after test-intent.",
+  "diagnosticGaps": [],
+  "note": "Re-bound with full verificationIntent ref sets (48 intents).",
   "createdAt": "2026-07-25T07:36:08.836Z",
-  "updatedAt": "2026-07-25T07:36:08.836Z"
+  "updatedAt": "2026-07-25T07:41:30.724Z"
 }
