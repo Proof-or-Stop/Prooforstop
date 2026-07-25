@@ -191,7 +191,7 @@
       "desc": "[codex host-B D4] section 4.1 says a free-form approvedBy argument 'is not accepted'; handlers currently accept the request and SILENTLY IGNORE it. Fail-closed: reject the request when a caller supplies approvedBy (it is derived as actor@sessionId). Update the rejection-matrix test from ignored to rejected.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-25T12:33:46.100Z",
@@ -202,7 +202,11 @@
         "packages/main/tests/red/red-w2c-rejection-matrix.mjs"
       ],
       "signatureTag": "adversarial|ts|codex-host-section",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b4fa4bbfad: handlers/red-evidence.ts:238 REJECTS a caller-supplied approvedBy instead of silently ignoring it; the stored value stays derived. red-w2c-rejection-matrix.mjs and chain-smoke section 7 updated from ignored to rejected, asserting the throw and records.length unchanged.",
+      "resolvedAt": "2026-07-25T22:34:29.758Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
