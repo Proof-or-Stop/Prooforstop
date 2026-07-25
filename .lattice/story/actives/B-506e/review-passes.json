@@ -180,6 +180,28 @@
         "scanEscalationReason": null
       },
       "_hash": "63a957c92ad2fff9ff658a9ecbf0c91c101c13a26534d355a7428e84307d6305"
+    },
+    {
+      "id": "B-506e:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge fresh pass after cf7050d95e (merge main into story/B-506e, 86 commits, no conflicts). Confirmed via git diff that all five core W2c files (append.ts, chain.ts/record-v2.ts, proofstory.ts, handlers/red-evidence.ts, store.ts) are byte-identical to fix commit b4fa4bbfad across the entire merge range (002edb0c0b..cf7050d95e) and vs b4fa4bbfad..HEAD (0 diff lines). Re-ran the two RED-signal-A committed tests directly on the merged tree: red-w2c-gate-guard.mjs (v1 verdict byte-identical, v2 record does not crash live enforce gate, v2-only store reports missing not crash) and red-w2c-schema-failclosed.mjs (v3 record fails closed with typed RedEvidenceSchemaError, never a bare TypeError) — both OK. Ran all nine red-w2c-*.mjs tests and the red-evidence-chain-smoke dist task — all OK. Audited every file touched by the merge (lattice-brand.ts version bump, lifecycle-registry.ts, machine.ts, handlers/checklist.ts, handlers/story-advance.ts, handlers/transition-orchestrator.ts, handlers/worktree.ts, tasks/flow-stability-smoke.ts) and confirmed all changes belong to an unrelated story (B-8b69 gated PLAN->INIT reopen) that does not touch core/mkdir-lock.ts, core/store.ts, core/proofstory.ts gate/enforce path, or core/red-evidence/*; no interaction with the W2c nested per-(storyId,acceptanceTargetRef) mkdir-claim chain-append lock. Also ran scripts/verify-process-fact-contract.mjs (passed). Noted but out-of-scope: dist/tasks/command-catalog-smoke.js and dist/tasks/agent-dispatch-registry-smoke.js fail, but both failures trace to unrelated pre-existing code (agent-dispatch-registry.ts lattice-review-channel handling from commit 560307c536, and an unrelated smoke-fixture git-init gap) that is byte-identical on both sides of B-506e's diff against main (not touched by this story or this merge) — not filed as a B-506e finding. No behavioral regression found for W2c.",
+      "createdAt": "2026-07-25T23:13:17.474Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-016",
+      "envelopeId": "c09e17ad52070432914cc9461c07d7209860e2b21130f94ea5c0f7d27d5a7086",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4007524019c0b3c303c8583a0aef9b8b31e908270312ac380f4c9b3cd49d5916"
     }
   ]
 }
