@@ -90,7 +90,59 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call refresh_stale on a stale row with command=\"node dist/tasks/X.js\" and result=pass -> row is left stale (NOT refreshed), output says requires real re-verification; WHY: core behavior change, the exact laundering channel that produced F-045/F-046/F-047",
+            "type": "cli"
+          },
+          {
+            "desc": "Call refresh_stale on a stale attestation row (no command field, result=pass) -> row IS refreshed with new hashes; WHY: attestation-only rows are safe to re-stamp since they have no executable claim",
+            "type": "cli"
+          },
+          {
+            "desc": "refresh_stale output summary distinguishes refused command-backed rows from refreshed attestation rows; WHY: the user must see which rows need manual re-verification vs which were auto-refreshed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call refresh_stale with dryRun=true on mix of command-backed pass + attestation stale rows -> output reports which rows WOULD be refused vs refreshed, no mutation; WHY: dryRun path must also reflect the new classification",
+            "type": "cli"
+          },
+          {
+            "desc": "Call refresh_stale on a stale row with command present but result=fail -> behavior per current implementation (not a pass, so not the laundering channel); WHY: the fix targets result:pass specifically, non-pass rows are out of scope per plan",
+            "type": "cli"
+          },
+          {
+            "desc": "Call refresh_stale when all stale rows are attestation-only (no command) -> all refreshed normally; WHY: no command-backed passes means no rows are refused, regression test for the base case",
+            "type": "cli"
+          },
+          {
+            "desc": "Call refresh_stale when zero rows are stale -> returns no stale evidence message; WHY: boundary case, must not crash when there is nothing to classify",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call refresh_stale where ALL stale rows are command-backed passes -> zero rows refreshed, output clearly states every row requires real re-verification; WHY: the worst-case laundering scenario where the agent tries to bulk-wash all evidence via refresh",
+            "type": "cli"
+          },
+          {
+            "desc": "Call refresh_stale on a stale row with command=\" \" (whitespace-only) and result=pass -> must be treated as command-backed (non-empty command field); WHY: whitespace command must not slip through as command-less",
+            "type": "cli"
+          },
+          {
+            "desc": "After refresh_stale refuses a command-backed pass row, immediately call verification_evidence_add with the same intentRef and a new real result:pass -> accepted; WHY: the fix must not block the legitimate re-verification path, only the no-execution refresh shortcut",
+            "type": "cli"
+          },
+          {
+            "desc": "Call refresh_stale on stale rows where two rows share the same item but one is command-backed pass and one is attestation -> only the attestation row is refreshed; WHY: per-row classification must be independent, not per-item",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
