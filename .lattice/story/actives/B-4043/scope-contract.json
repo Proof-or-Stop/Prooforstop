@@ -194,10 +194,54 @@
       "phase": "DEV",
       "headHash": "3aa3179f93db179fd964835bbe46df4b0efffec2",
       "materialHash": "f03d70ddc72e0a374b01341402c8d732efc81abdd8b3fb81f2534298c93a0a6a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Operator-authorized F-014 critical fix: move Wave4 acceptance-rollout role guidance from generated host shims into the canonical templates (packages/main/templates/agents/*.md, the review_run_start source of truth), which requires regenerating the frozen prompt-approval digests in prompt-registry.ts + verify-proof-or-stop-prompt-baseline.mjs + docs/requirements/baselines/*, aligning the pre-existing-red implementer role-body budget in prompt-budget.ts/story6-role-migration-smoke.ts, and repointing the verifier. Same acceptance-topology feature scope as B-4043 CHK-001.",
+      "timestamp": "2026-07-25T22:05:19.936Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/story6-role-migration-smoke.ts",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-concept.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-docs.md",
+        "packages/main/templates/agents/lattice-review-quality.md",
+        "packages/main/templates/agents/lattice-review-test-coverage.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/test-case-reviewer.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/tasks/story6-role-migration-smoke.ts",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-concept.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-docs.md",
+        "packages/main/templates/agents/lattice-review-quality.md",
+        "packages/main/templates/agents/lattice-review-test-coverage.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/test-case-reviewer.md",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "e4fc94e4633b48c554b970d16c384379fc5487f1",
+      "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6"
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-25T10:49:16.929Z",
+  "updatedAt": "2026-07-25T22:05:19.936Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -246,6 +290,21 @@
     "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json",
     "package.json": "package.json",
     "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
-    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/core/prompt-budget.ts": "packages/main/src/core/prompt-budget.ts",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/tasks/story6-role-migration-smoke.ts": "packages/main/src/tasks/story6-role-migration-smoke.ts",
+    "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-concept.md": "packages/main/templates/agents/lattice-review-concept.md",
+    "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-review-docs.md": "packages/main/templates/agents/lattice-review-docs.md",
+    "packages/main/templates/agents/lattice-review-quality.md": "packages/main/templates/agents/lattice-review-quality.md",
+    "packages/main/templates/agents/lattice-review-test-coverage.md": "packages/main/templates/agents/lattice-review-test-coverage.md",
+    "packages/main/templates/agents/lattice-review-topology-critic.md": "packages/main/templates/agents/lattice-review-topology-critic.md",
+    "packages/main/templates/agents/test-case-reviewer.md": "packages/main/templates/agents/test-case-reviewer.md",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs"
   }
 }
