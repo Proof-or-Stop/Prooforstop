@@ -97,6 +97,47 @@
         "scanEscalationReason": "second-round re-review of a high-risk lifecycle/gate + process-fact change (13-point command registration); re-verified full spec sign-off from round 1 remains valid since production source is byte-identical, confirmed via git diff against the round-1-approved head rather than a fresh full re-read"
       },
       "_hash": "7c150f0cc6a6e63a58b9686487931788ba8b5e87e305d56516307618207644d6"
+    },
+    {
+      "id": "B-e10d:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Second-round concept-completeness re-check on current material (delta since round1 head 3d972f305d): git diff 3d972f305d..HEAD --stat over packages/main/src, packages/main/tests, scripts, lattice.config.json shows exactly 2 files touched, both tests — red-evidence-target-binding-smoke.ts (F-001 unused execFileSync import + void-reference removed; F-002 new stale-lease-takeover section 5b added) and red-w2b-wiring-contract.mjs (F-003 new remove-one-registration-point named-divergence section added). Every other production/wiring file (target-bindings.ts, handlers/red-evidence.ts, store.ts, registry.ts, command-catalog.ts, agent-dispatch-registry.ts, command-policy.ts, config.ts, lifecycle-registry.ts, process-fact-levels.ts, process-fact-registry.ts, proofstory.ts, types.ts, command-catalog-smoke.ts, verify-process-fact-contract.mjs, lattice.config.json, red-w2b-binding-store.mjs) diffs byte-identical (empty diff) vs round1 head, confirming no production/wiring drift. Concept-completeness re-verified via grep on the delta only: canon.ts remains the sole canonicalizer (target-bindings.ts:33 and the smoke both import canonDigest from core/red-evidence/canon.js; zero new canon/canonicalize tokens introduced by the delta) — repo-wide canonical* hits are pre-existing unrelated subsystems, not new. Scope fence intact: zero hits in the delta for chain-head/chainHead/quarantine/binding-freeze/bindingFreeze/frozen-once-run/gate-rewiring/redEvidenceSatisfied/missingRedEvidence — the two new test sections only EXERCISE existing owner-lease and command-policy machinery (enforceStoryOwnerLeaseGate, registered handler, command-policy.ts text), they add no production logic anywhere. No committed red-evidence.json / redEvidence block added (git log --diff-filter=A + find both empty). No overclaim tokens (tamper-proof|cannot be forged|unforgeable|guarantees integrity|prevents forgery|unbreakable|bulletproof) in the delta diff or in commit messages b801541e47 / 04acdca376 (all greps empty). Rebuilt dist (tsc) and ran both changed test files directly plus red-w2b-binding-store.mjs — all three exit 0, genuinely exercising the new stale-lease and named-divergence assertions (not vacuous). Remaining 6 changed files in the full story-dir stat (acceptance-basis.json, checklist.json, findings.json, index.json, process-events.jsonl, process-metrics.json) are lattice lifecycle bookkeeping from the F-001..F-005 finding-resolution round, not production code. No concept deletion/replacement introduced this round; no blocker.",
+      "createdAt": "2026-07-25T09:10:25.384Z",
+      "reviewRound": "2026-07-25T09:06:12.028Z",
+      "reviewRunId": "B-e10d:RR-009",
+      "envelopeId": "6d929ac40522b69de0b7aa41e7179b3093d0f7e2a1f57d1b1e237544518f6b20",
+      "writerSessionId": "review-concept-b-e10d-r2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-e10d/background.md",
+          ".lattice/story/actives/B-e10d/checklist.json",
+          ".lattice/story/actives/B-e10d/plan.md",
+          "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+          "packages/main/tests/red/red-w2b-wiring-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/tests/red/red-w2b-binding-store.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "second-round re-review of delta since round1 head (3d972f305d); confirmed byte-identical diff for all production/wiring files via git diff, so full re-read was scoped to the 2 files that actually changed"
+      },
+      "_hash": "c0b31cb4a962e4e822f82bd9cb0cbd2dbb748f3a50ce754faf77f245530f6ebf"
     }
   ]
 }
