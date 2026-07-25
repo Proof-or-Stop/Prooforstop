@@ -595,14 +595,14 @@
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
+          "file": "packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+          "command": "node --test packages/main/tests/red/red-w2a-policy-failclosed.mjs",
           "result": "pass",
-          "note": "smoke:171 proves unknown top-level key rejects; combined with smoke:103 asserting exactly 14 keys, any 15th key either rejects (if unknown) or changes the digest (if valid); the unknown-key gate covers post-resolution injection",
-          "headHash": "2fde890c60d82a95cacdc75e7c5093d953abb676",
-          "materialHash": "c44a964b568774763c37f35ae26860784d21cbeb37244ccaad30d17bde131319",
-          "storyFilesHash": "f7d44cac70aa5e95485e46cd92d28a4da9eecb64f86ad49eddbbcceccf19657c",
-          "timestamp": "2026-07-25T01:31:00.928Z"
+          "note": "Post-resolution snapshot mutation now REJECTS: the resolved policySnapshot is deep Object.freeze'd (F-001 fix, commit eff4404936), so adding a 15th key / pinnedPath.push / mutating a nested registry object each throw TypeError; red-w2a-policy-failclosed.mjs asserts Object.isFrozen(snapshot)===true and that each mutation throws. Genuinely demonstrates the intent's 'adding a 15th key -> rejects' within the §0.6 practical tier.",
+          "headHash": "eff44049362959935cc83b741cb697ef91a3ff85",
+          "materialHash": "9f0bb219d36ea8246c4ceb3faea1f044e12b8102ae1e323cbbf43267378d9ccb",
+          "storyFilesHash": "c9969f1dd280fd023728c4cf872464f7c2fa71545f8d7301a904d6179c7de5e7",
+          "timestamp": "2026-07-25T04:35:49.573Z"
         }
       ]
     },
