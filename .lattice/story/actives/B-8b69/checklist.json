@@ -141,11 +141,11 @@
           "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
-          "note": "assertDevStartReuseFromMainAndRebootstrap: after deleting the worktree dir (+ git worktree prune), dev_start re-bootstraps and recreates the worktree on disk.",
-          "headHash": "efc2619c7c911163bb697b7488dae71a7f30e197",
-          "materialHash": "b754621ed4690a8ad728c163ace792d220c6c0d77ca51ed178d8acba27a874a0",
-          "storyFilesHash": "177999ecb1d8ec2b2a9846507cc8d0780941b56de5dcffe1eced93338769f295",
-          "timestamp": "2026-07-25T15:30:24.336Z"
+          "note": "assertDevStartReuseFromMainAndRebootstrap: deletes ONLY the worktree dir (NO external prune) and asserts dev_start re-bootstraps it ITSELF. dev_start now prunes its own stale worktree registration before git worktree add (F-008, worktree.ts). RED-verified: with that prune disabled the same test fails with the missing-but-already-registered git error.",
+          "headHash": "dd942eac1a26fe26bc4c651397ca28463934ccff",
+          "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+          "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+          "timestamp": "2026-07-25T15:48:52.822Z"
         }
       ]
     },
