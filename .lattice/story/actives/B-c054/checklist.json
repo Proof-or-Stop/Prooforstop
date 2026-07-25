@@ -11,7 +11,7 @@
     {
       "id": "CHK-002",
       "title": "Prove differentially that no existing canonicalizer can serve as CANON and record why each was rejected",
-      "context": "The smoke asserts digestCanonicalJson (core/digest.ts:40, localeCompare sort at :27) yields a different digest for {\"B\":1,\"a\":2} plus null plus 1e21 plus -0, and that canonicalJsonForSigning (core/authority-signing.ts:79, null->undefined at :65) drops a priorRecordDigest: null field — a mechanical un-gameable proof recorded so no later reviewer re-litigates it and no implementer wires digest.ts in.",
+      "context": "The smoke asserts digestCanonicalJson (core/digest.ts:40, localeCompare sort at :27) yields a different digest for {\"B\":1,\"a\":2} plus null plus 1e21 plus -0, and that canonicalJsonForSigning (core/authority-signing.ts:79, null->undefined at :64) drops a priorRecordDigest: null field — a mechanical un-gameable proof recorded so no later reviewer re-litigates it and no implementer wires digest.ts in.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -35,7 +35,7 @@
     {
       "id": "CHK-005",
       "title": "Clamp-REJECT every hard safety floor with one distinct named diagnostic per violated floor",
-      "context": "minMatcherLen below 4, minMatcherEntropyBits below 12, maxMatchers above 32, maxMatcherLen above 4096, and runTimeoutMs out of range each reject at the §1.12 floor with a distinct named diagnostic and are never silently clamped.",
+      "context": "minMatcherLen below 4, minMatcherEntropyBits below 12, maxMatchers above 32, maxMatcherLen above 4096, and either runTimeoutMs or prepTimeoutMs above the shared 3600000 (one-hour) ceiling each reject at the §1.12 floor with a distinct named diagnostic and are never silently clamped.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -43,7 +43,7 @@
     {
       "id": "CHK-006",
       "title": "Reject forbidden environment keys, bare catch-all invariance globs, and unresolvable argv placeholders at config resolution",
-      "context": "An allowedEnvKeys naming PATH, NODE_OPTIONS, LD_PRELOAD or any DYLD_ key rejects; an invarianceExcludePaths entry of bare ** or a non-tracked-material path rejects; an argvTemplate ${missing} naming a capture its pattern lacks rejects at config resolution.",
+      "context": "An allowedEnvKeys naming PATH, NODE_OPTIONS, LD_PRELOAD or any DYLD_ key rejects; an invarianceExcludePaths entry that is a bare **/* catch-all, or whose glob matches any tracked material path (checked against the live classification at config load, per spec line 759), rejects — while a legitimate exclude like node_modules/** or tmp/** that matches no tracked material is kept; an argvTemplate ${missing} naming a capture its pattern lacks rejects at config resolution.",
       "status": "pending",
       "startTime": null,
       "endTime": null

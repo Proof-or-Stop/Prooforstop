@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c054",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node --test *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node packages/main/dist/tasks/red-evidence-policy-canon-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/red-evidence/",
+    "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+    "packages/main/tests/red/"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Config-load + digest + doctor-render only; no child-process execution of RED runs (that is W2e). Build compiles TS→dist; smoke + node --test exercise the new leaf against temp-project fixtures.",
+  "createdAt": "2026-07-25T00:00:07.228Z",
+  "updatedAt": "2026-07-25T00:00:07.228Z",
+  "_hash": "93020d58de6beb0b02fb97de374872ad28c7c99cbdd2c61e87384213bdc14ed5"
+}
