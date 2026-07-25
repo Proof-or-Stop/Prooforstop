@@ -1380,15 +1380,15 @@
         },
         {
           "intentRef": "CHK-010:edge:1",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "file": "packages/main/src/handlers/red-evidence.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 7 (lines 439-440) asserts the stored approvedBy is exactly <actor>@<sessionId> (matches ^lattice-implementer@, no padding) and it is part of the record body covered by recordDigest (computeRecordDigest hashes the whole record); a caller-supplied approvedBy is ignored (line 437).",
-          "headHash": "5012904185b59a341e6ce90177fe167cce91225e",
-          "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea",
-          "storyFilesHash": "b92712b894eab6ce7555983f1f59653163e029df70516d29f5ba9dcec5d94bda",
-          "timestamp": "2026-07-25T12:08:20.665Z"
+          "note": "approvedBy serialization is exactly <actor>@<sessionId> and is covered by recordDigest; after the F-010 fix the derivation is the ONLY path (a caller-supplied approvedBy is rejected outright rather than ignored), so the stored value cannot diverge from the derived one. chain-smoke section 7 asserts the stored approvedBy matches ^lattice-implementer@ with no padding on a quarantine issued WITHOUT any approvedBy argument. Commit b4fa4bbfad.",
+          "headHash": "d43055049b82d3c83f8b8b89351acf0b8b885e2b",
+          "materialHash": "b635b7be9b90c563bb7a66ace206c6e775f411e2dbc297244b313aa6f0e5da1b",
+          "storyFilesHash": "d8b26c79cfa8f3ee8f1e4ae58eb4c925c47f7c65afe171efa3f50f359a5c2877",
+          "timestamp": "2026-07-25T22:03:10.748Z"
         },
         {
           "intentRef": "CHK-010:edge:2",
