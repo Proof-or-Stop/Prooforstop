@@ -42,8 +42,15 @@ export type CanonValue =
  *     `-0` -> `0`, `1e21` -> `1e+21`, `1e-7` -> `1e-7`); a non-finite number
  *     (`NaN`/`Infinity`) is not valid JSON and THROWS.
  *   - strings/booleans use `JSON.stringify` (RFC-8785 minimal escaping; control
- *     chars -> `\uXXXX`, non-ASCII emitted as raw UTF-8, lone surrogates
- *     deterministically escaped).
+ *     chars -> `\uXXXX`, non-ASCII emitted as raw UTF-8). A lone surrogate (in a
+ *     string value OR a member name) is NOT valid Unicode and, per RFC 8785
+ *     §3.2.2.2, TERMINATES canonicalization with an error rather than being
+ *     silently escaped; a well-formed surrogate PAIR is fine.
+ *   - only PLAIN JSON objects (prototype `Object.prototype` or `null`) are
+ *     canonicalizable. A `Date`/`Map`/`Set`/`RegExp`/class instance is NOT a JSON
+ *     object — it would silently collapse to `{}` and alias two distinct values
+ *     (e.g. two different `Date`s) to one digest — so it THROWS, same as a
+ *     non-finite number.
  *   - arrays keep element order.
  *   - object keys are sorted by the default `Array.prototype.sort()`, i.e.
  *     UTF-16 code-unit order (= RFC 8785), NOT localeCompare.
@@ -60,20 +67,72 @@ export function canon(value: unknown): string {
     }
     return JSON.stringify(value);
   }
-  if (t === 'string' || t === 'boolean') return JSON.stringify(value);
+  if (t === 'string') {
+    // RFC 8785 §3.2.2.2: a lone surrogate terminates canonicalization with an
+    // error (do NOT silently escape it).
+    assertNoLoneSurrogate(value as string, 'string value');
+    return JSON.stringify(value);
+  }
+  if (t === 'boolean') return JSON.stringify(value);
   if (Array.isArray(value)) {
     return `[${value.map((item) => canon(item)).join(',')}]`;
   }
   if (t === 'object') {
+    // Only a PLAIN JSON object (prototype Object.prototype or null) is
+    // canonicalizable. A Date/Map/Set/RegExp/class instance enumerates no (or the
+    // wrong) own keys and would collapse to `{}` — aliasing distinct values to one
+    // digest — so it THROWS, the same hard failure as a non-finite number.
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== null) {
+      throw new Error(
+        'CANON: only plain JSON objects are canonicalizable; a Date/Map/Set/RegExp/class instance is not (it would collapse to {} and alias distinct values to one digest)',
+      );
+    }
     const obj = value as Record<string, unknown>;
     // Default sort() compares by UTF-16 code unit, which is exactly the RFC 8785
     // member ordering. Do NOT swap in localeCompare (that is digest.ts's defect).
     const keys = Object.keys(obj).sort();
-    return `{${keys.map((k) => `${JSON.stringify(k)}:${canon(obj[k])}`).join(',')}}`;
+    return `{${keys
+      .map((k) => {
+        // §3.2.2.2 applies to member NAMES too: a lone-surrogate key terminates
+        // canonicalization with an error.
+        assertNoLoneSurrogate(k, 'member name');
+        return `${JSON.stringify(k)}:${canon(obj[k])}`;
+      })
+      .join(',')}}`;
   }
   throw new Error(
     `CANON: unsupported value of type ${t}; undefined/function/symbol are programming errors for CANON inputs`,
   );
+}
+
+/**
+ * True iff `s` contains a lone UTF-16 surrogate: a high surrogate
+ * (0xD800..0xDBFF) not immediately followed by a low surrogate (0xDC00..0xDFFF),
+ * or a low surrogate not immediately preceded by a high surrogate. A well-formed
+ * surrogate PAIR (a real astral code point) is NOT a lone surrogate.
+ */
+function hasLoneSurrogate(s: string): boolean {
+  for (let i = 0; i < s.length; i += 1) {
+    const code = s.charCodeAt(i);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = i + 1 < s.length ? s.charCodeAt(i + 1) : 0;
+      if (next < 0xdc00 || next > 0xdfff) return true; // high not followed by low
+      i += 1; // valid pair — consume the matched low surrogate
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      return true; // low not preceded by a high (a pair would have consumed it)
+    }
+  }
+  return false;
+}
+
+/** RFC 8785 §3.2.2.2: throw if `s` carries a lone surrogate (`where` names the site). */
+function assertNoLoneSurrogate(s: string, where: string): void {
+  if (hasLoneSurrogate(s)) {
+    throw new Error(
+      `CANON: lone surrogate in ${where} terminates canonicalization with an error (RFC 8785 §3.2.2.2)`,
+    );
+  }
 }
 
 function sha256hex(input: string): string {

@@ -101,8 +101,17 @@ function globToRegExp(glob: string): RegExp {
     const ch = glob[i];
     if (ch === '*') {
       if (glob[i + 1] === '*') {
-        source += '.*';
-        i += 1;
+        if (glob[i + 2] === '/') {
+          // `**/` matches zero-or-more path segments INCLUDING zero, so a glob
+          // like `**/*.ts` matches a ROOT-LEVEL `foo.ts` as well as `a/b/foo.ts`.
+          // (The old `.*` + literal `/` required at least one slash and thus
+          // fail-open-skipped root-level tracked material — F-CX2.)
+          source += '(?:.*/)?';
+          i += 2; // consume the second '*' and the '/'
+        } else {
+          source += '.*';
+          i += 1;
+        }
       } else {
         source += '[^/]*';
       }
@@ -113,6 +122,17 @@ function globToRegExp(glob: string): RegExp {
     }
   }
   return new RegExp(`^${source}$`);
+}
+
+/** Deep-freeze `value` in place (arrays + nested plain objects) and return it. */
+function deepFreeze<T>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    for (const key of Object.keys(value as Record<string, unknown>)) {
+      deepFreeze((value as Record<string, unknown>)[key]);
+    }
+    Object.freeze(value);
+  }
+  return value;
 }
 
 function forbiddenEnvKeyViolations(keys: unknown, extensions: string[]): string[] {
@@ -289,9 +309,35 @@ export function resolveRedEvidencePolicy(
       add('red_evidence_policy_invalid_type', 'red_evidence_policy_invalid_type: matcherClassRegistry must be an array');
     } else {
       for (const entry of provided) {
-        const kind = isPlainObject(entry) ? entry.predicateKind : undefined;
+        if (!isPlainObject(entry)) {
+          add('red_evidence_policy_matcher_class_invalid', 'red_evidence_policy_matcher_class_invalid: matcherClassRegistry entry must be an object');
+          continue;
+        }
+        if (typeof entry.name !== 'string' || entry.name.length === 0) {
+          add('red_evidence_policy_matcher_class_name', 'red_evidence_policy_matcher_class_name: matcherClassRegistry entry requires a non-empty string name');
+        }
+        const kind = entry.predicateKind;
         if (typeof kind !== 'string' || !(MATCHER_CLASS_PREDICATE_KINDS as readonly string[]).includes(kind)) {
           add('red_evidence_policy_matcher_class_predicate_kind', `red_evidence_policy_matcher_class_predicate_kind: predicateKind ${JSON.stringify(kind)} is outside the closed §1.2 enum ${JSON.stringify(MATCHER_CLASS_PREDICATE_KINDS)}`);
+          continue; // param/stream semantics are keyed on a known predicateKind
+        }
+        if (kind === 'exit-code-in') {
+          const param = entry.param;
+          if (
+            !Array.isArray(param) ||
+            param.length === 0 ||
+            param.some((n) => !Number.isInteger(n) || (n as number) < 0 || (n as number) > 255) ||
+            new Set(param).size !== param.length
+          ) {
+            add('red_evidence_policy_matcher_class_param', 'red_evidence_policy_matcher_class_param: exit-code-in requires a non-empty array of UNIQUE integers in 0..255');
+          }
+          // exit classes consult no stream; a declared stream must be "combined".
+          if (entry.stream !== undefined && entry.stream !== 'combined') {
+            add('red_evidence_policy_matcher_class_stream', `red_evidence_policy_matcher_class_stream: exit-code-in stream must be "combined" (or absent), got ${JSON.stringify(entry.stream)}`);
+          }
+        } else if (entry.param !== undefined) {
+          // stream-nonempty / stream-empty forbid param entirely.
+          add('red_evidence_policy_matcher_class_param', `red_evidence_policy_matcher_class_param: ${kind} forbids param (present ⇒ config-load reject)`);
         }
       }
       matcherClassRegistry = provided as MatcherClass[];
@@ -306,7 +352,22 @@ export function resolveRedEvidencePolicy(
       add('red_evidence_policy_invalid_type', 'red_evidence_policy_invalid_type: runnerAdapterRegistry must be an array');
     } else {
       for (const entry of provided) {
-        if (!isPlainObject(entry)) continue;
+        if (!isPlainObject(entry)) {
+          add('red_evidence_policy_runner_adapter_invalid', 'red_evidence_policy_runner_adapter_invalid: runnerAdapterRegistry entry must be an object');
+          continue;
+        }
+        // §1.2 adapter schema — every field is required and fail-closed.
+        const missingAdapter: string[] = [];
+        if (typeof entry.adapterId !== 'string' || entry.adapterId.length === 0) missingAdapter.push('adapterId');
+        if (typeof entry.runnerProfileId !== 'string' || entry.runnerProfileId.length === 0) missingAdapter.push('runnerProfileId');
+        if (typeof entry.testCaseRefPattern !== 'string') missingAdapter.push('testCaseRefPattern');
+        if (!Array.isArray(entry.argvTemplate) || entry.argvTemplate.length === 0 || entry.argvTemplate.some((tok) => typeof tok !== 'string')) missingAdapter.push('argvTemplate');
+        if (!Array.isArray(entry.allowedEnvKeys) || entry.allowedEnvKeys.some((k) => typeof k !== 'string')) missingAdapter.push('allowedEnvKeys');
+        if (typeof entry.cwd !== 'string') missingAdapter.push('cwd');
+        if (entry.linkageKind !== 'reporter-event' && entry.linkageKind !== 'script-exit') missingAdapter.push('linkageKind');
+        if (missingAdapter.length > 0) {
+          add('red_evidence_policy_runner_adapter_schema', `red_evidence_policy_runner_adapter_schema: runnerAdapterRegistry entry has invalid/missing required fields ${JSON.stringify(missingAdapter)}`);
+        }
         for (const bad of forbiddenEnvKeyViolations(entry.allowedEnvKeys, forbiddenEnvKeysExtensions)) {
           add('red_evidence_policy_forbidden_env_key', `red_evidence_policy_forbidden_env_key: ${bad}`);
         }
@@ -332,7 +393,20 @@ export function resolveRedEvidencePolicy(
       add('red_evidence_policy_invalid_type', 'red_evidence_policy_invalid_type: runnerProfileRegistry must be an array');
     } else {
       for (const entry of provided) {
-        if (!isPlainObject(entry)) continue;
+        if (!isPlainObject(entry)) {
+          add('red_evidence_policy_runner_profile_invalid', 'red_evidence_policy_runner_profile_invalid: runnerProfileRegistry entry must be an object');
+          continue;
+        }
+        // §1.2 profile schema — every field is required and fail-closed.
+        const missingProfile: string[] = [];
+        if (typeof entry.runnerProfileId !== 'string' || entry.runnerProfileId.length === 0) missingProfile.push('runnerProfileId');
+        if (!Array.isArray(entry.prepCommands) || entry.prepCommands.some((cmd) => !Array.isArray(cmd) || cmd.some((a) => typeof a !== 'string'))) missingProfile.push('prepCommands');
+        if (!Array.isArray(entry.allowedEnvKeys) || entry.allowedEnvKeys.some((k) => typeof k !== 'string')) missingProfile.push('allowedEnvKeys');
+        if (typeof entry.cwd !== 'string') missingProfile.push('cwd');
+        if (typeof entry.submodules !== 'boolean') missingProfile.push('submodules');
+        if (missingProfile.length > 0) {
+          add('red_evidence_policy_runner_profile_schema', `red_evidence_policy_runner_profile_schema: runnerProfileRegistry entry has invalid/missing required fields ${JSON.stringify(missingProfile)}`);
+        }
         for (const bad of forbiddenEnvKeyViolations(entry.allowedEnvKeys, forbiddenEnvKeysExtensions)) {
           add('red_evidence_policy_forbidden_env_key', `red_evidence_policy_forbidden_env_key: ${bad}`);
         }
@@ -361,7 +435,12 @@ export function resolveRedEvidencePolicy(
     runnerAdapterRegistry,
     runnerProfileRegistry,
   };
-  return { ok: true, snapshot, policyDigest: canonDigest(snapshot), diagnostics: [] };
+  // §0.6 casual-mutation tier: deep-freeze so a post-resolution mutation (e.g.
+  // adding a 15th key) cannot silently stale the precomputed policyDigest — it
+  // throws in strict mode. Freezing does NOT change enumerable own properties, so
+  // the CANON bytes and policyDigest are byte-identical to the unfrozen snapshot.
+  const frozen = deepFreeze(snapshot);
+  return { ok: true, snapshot: frozen, policyDigest: canonDigest(frozen), diagnostics: [] };
 }
 
 /**

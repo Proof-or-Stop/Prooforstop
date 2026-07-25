@@ -74,11 +74,34 @@ assert.equal(canonDigestOmitting({ a: 1, b: 2 }, 'doesNotExist'), canonDigest({ 
 assert.equal(first12hex('sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789'),
   'abcdef012345', 'first12hex takes 12 hex from the 64-hex body, EXCLUDING the sha256: prefix');
 
-// idempotency + adversarial lone surrogate (deterministic, not corrupt)
+// idempotency
 assert.equal(canon({ B: 1, a: 2 }), canon({ B: 1, a: 2 }), 'CANON is idempotent (byte-equal)');
+
+// F-CX1: a lone surrogate MUST terminate canonicalization with an error
+// (RFC 8785 §3.2.2.2), NOT be silently escaped.
 const lone = {};
 lone['\uD800'] = 1;
-assert.equal(canon(lone), '{"\\ud800":1}', 'lone surrogate key is deterministically escaped, never silently corrupted');
+assert.throws(() => canon(lone), 'lone-surrogate member NAME throws (RFC 8785 §3.2.2.2)');
+assert.throws(() => canon('\uD800'), 'a lone HIGH surrogate string value throws');
+assert.throws(() => canon('\uDC00'), 'a lone LOW surrogate string value throws');
+assert.throws(() => canon('a\uD83Dz'), 'a high surrogate not followed by a low surrogate throws');
+assert.throws(() => canon('a\uDE00'), 'a low surrogate not preceded by a high surrogate throws');
+// a WELL-FORMED surrogate PAIR (a real astral code point) is NOT rejected
+assert.equal(canon('\u{1F600}'), JSON.stringify('\u{1F600}'), 'a valid astral surrogate PAIR canonicalizes (raw UTF-8), not rejected');
+
+// F-002: a non-plain object (Date/Map/Set/RegExp/class instance) MUST throw,
+// never silently collapse to {} and alias two distinct values to one digest.
+assert.throws(() => canon({ createdAt: new Date('2020-01-01T00:00:00Z'), name: 'x' }),
+  'a Date VALUE throws (no {} collapse that would alias 2020 and 2099 to one digest)');
+assert.throws(() => canon(new Date('2099-01-01T00:00:00Z')), 'a top-level Date throws');
+assert.throws(() => canon(new Map([['a', 1]])), 'a Map throws');
+assert.throws(() => canon(new Set([1])), 'a Set throws');
+assert.throws(() => canon(/re/), 'a RegExp throws');
+class Foo { constructor() { this.a = 1; } }
+assert.throws(() => canon(new Foo()), 'a class instance throws (prototype is not Object.prototype)');
+// a null-PROTOTYPE object is still a plain JSON object for CANON (prototype === null)
+assert.equal(canon(Object.assign(Object.create(null), { a: 1, b: 2 })), '{"a":1,"b":2}',
+  'a null-prototype object is a plain JSON object (prototype null is allowed)');
 
 // programming-error inputs throw (§0.4)
 assert.throws(() => canon(undefined), 'canon(undefined) throws');

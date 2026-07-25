@@ -78,9 +78,25 @@ try {
   // omitUndefinedDeep drops undefined but preserves null, then CANON is safe.
   assert.equal(canon(omitUndefinedDeep({ keep: 1, gone: undefined, nul: null })), '{"keep":1,"nul":null}');
 
+  // F-CX1: a lone surrogate TERMINATES canonicalization with an error (RFC 8785
+  // §3.2.2.2) — it is NOT silently escaped. A well-formed surrogate PAIR is fine.
   const lone: Record<string, number> = {};
   lone['\uD800'] = 1;
-  assert.equal(canon(lone), '{"\\ud800":1}', 'lone surrogate deterministically escaped');
+  assert.throws(() => canon(lone), 'lone-surrogate member name throws (RFC 8785 §3.2.2.2)');
+  assert.throws(() => canon('\uD800'), 'a lone high-surrogate string value throws');
+  assert.throws(() => canon('\uDC00'), 'a lone low-surrogate string value throws');
+  assert.throws(() => canon('a\uD83Dz'), 'a high surrogate not followed by a low surrogate throws');
+  assert.equal(canon('\u{1F600}'), JSON.stringify('\u{1F600}'), 'a valid astral surrogate PAIR canonicalizes, not rejected');
+  // F-002: a non-plain object (Date/Map/Set/RegExp/class instance) throws rather
+  // than silently collapsing to {} and aliasing two distinct values to one digest.
+  assert.throws(() => canon({ createdAt: new Date('2020-01-01T00:00:00Z'), name: 'x' }),
+    'a Date value throws (no {} collapse aliasing distinct dates)');
+  assert.throws(() => canon(new Date('2099-01-01T00:00:00Z')), 'a top-level Date throws');
+  assert.throws(() => canon(new Map([['a', 1]])), 'a Map throws');
+  assert.throws(() => canon(new Set([1])), 'a Set throws');
+  assert.throws(() => canon(/re/), 'a RegExp throws');
+  assert.equal(canon(Object.assign(Object.create(null), { a: 1, b: 2 })), '{"a":1,"b":2}',
+    'a null-prototype object is a plain JSON object (allowed)');
   assert.throws(() => canon(undefined), 'canon(undefined) throws');
   assert.throws(() => canon(() => {}), 'canon(function) throws');
   assert.throws(() => canon({ v: NaN }), 'canon(NaN) throws');
@@ -197,6 +213,39 @@ try {
   });
   rejected(resolveRedEvidencePolicy(withAdapterArgv(['node', '${missing}'], '^x:(?<script>[a-z]+)$')));
   ok(resolveRedEvidencePolicy(withAdapterArgv(['${script}'], '^x:(?<script>[a-z]+)$')));
+
+  // F-CX2: "**/" matches zero-or-more path segments INCLUDING zero, so **/*.ts
+  // catches a ROOT-LEVEL tracked material file (foo.ts), not just nested ones.
+  rejected(resolveRedEvidencePolicy(base({ invarianceExcludePaths: ['**/*.ts'] }), { trackedMaterialPaths: ['foo.ts'] }));
+  ok(resolveRedEvidencePolicy(base({ invarianceExcludePaths: ['node_modules/**'] }), { trackedMaterialPaths: ['foo.ts'] }));
+  rejected(resolveRedEvidencePolicy(base({ invarianceExcludePaths: ['**/*.ts'] }), { trackedMaterialPaths: ['a/b/foo.ts'] }));
+
+  // F-CX3: registry entries are fail-closed §1.2 discriminated schemas.
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ predicateKind: 'exit-code-in' }] }))); // missing name + param
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [] }] })));
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [256] }] })));
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1, 1] }] })));
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1], stream: 'stdout' }] })));
+  rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'stream-nonempty', param: [1] }] })));
+  ok(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1, 2, 3] }] })));
+  ok(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'stream-empty' }] })));
+  rejected(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{}] })));
+  rejected(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^x$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'nope' }] })));
+  ok(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^x:(?<script>[a-z]+)$', argvTemplate: ['${script}'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }] })));
+  rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{}] })));
+  rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: 'x', allowedEnvKeys: [], cwd: '.', submodules: false }] })));
+  ok(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME'], cwd: '.', submodules: false }] })));
+
+  // F-001: the resolved policySnapshot is DEEP-FROZEN — casual post-resolution
+  // mutation (a stale-digest vector) throws in strict mode (§0.6 casual tier).
+  {
+    const r = ok(resolveRedEvidencePolicy({ pinnedPath: ['/usr/bin'] }));
+    assert.throws(() => { (r.snapshot as unknown as Record<string, unknown>).evilFifteenthKey = 1; }, TypeError,
+      'adding a 15th key to the resolved snapshot throws (deep Object.freeze)');
+    assert.throws(() => { r.snapshot.pinnedPath.push('/evil'); }, TypeError, 'nested snapshot arrays are frozen');
+    assert.throws(() => { (r.snapshot.matcherClassRegistry[0] as { name: string }).name = 'mutated'; }, TypeError,
+      'nested registry objects in the snapshot are frozen');
+  }
 
   // === 7. doctor line — exactly one non-gating red-evidence line =============
   const hyphenCount = (s: string): number => (s.match(/red-evidence/gi) ?? []).length;

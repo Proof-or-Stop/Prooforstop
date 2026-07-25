@@ -157,4 +157,58 @@ const withAdapterArgv = (argvTemplate, testCaseRefPattern) => base({
 rejected(resolveRedEvidencePolicy(withAdapterArgv(['node', '${missing}'], '^x:(?<script>[a-z]+)$')));
 ok(resolveRedEvidencePolicy(withAdapterArgv(['${script}'], '^x:(?<script>[a-z]+)$')));
 
+// ── F-CX2: "**/" must match zero-or-more path segments INCLUDING zero ────────
+// so a glob like **/*.ts catches a ROOT-LEVEL tracked material file, not only nested ones.
+{
+  const ctx = { trackedMaterialPaths: ['foo.ts'] };
+  rejected(resolveRedEvidencePolicy(base({ invarianceExcludePaths: ['**/*.ts'] }), ctx));
+  // node_modules/** matches no tracked material → still ACCEPTED (KEEP direction preserved)
+  ok(resolveRedEvidencePolicy(base({ invarianceExcludePaths: ['node_modules/**'] }), ctx));
+}
+// a NESTED tracked file is still caught by **/*.ts
+rejected(resolveRedEvidencePolicy(base({ invarianceExcludePaths: ['**/*.ts'] }), { trackedMaterialPaths: ['a/b/foo.ts'] }));
+
+// ── F-CX3: registry entries are fail-closed §1.2 discriminated schemas ───────
+// matcherClass: missing name AND missing the required non-empty param
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ predicateKind: 'exit-code-in' }] })));
+// exit-code-in param must be a non-empty array of UNIQUE ints in 0..255
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [] }] })));
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [256] }] })));
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1, 1] }] })));
+// exit-code-in stream MUST be "combined" (or absent)
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1], stream: 'stdout' }] })));
+// stream-nonempty / stream-empty FORBID param
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'stream-nonempty', param: [1] }] })));
+// a non-string name rejects
+rejected(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 42, predicateKind: 'stream-empty' }] })));
+// WELL-FORMED custom matcher classes PASS (don't over-reject)
+ok(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1, 2, 3] }] })));
+ok(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'exit-code-in', param: [1], stream: 'combined' }] })));
+ok(resolveRedEvidencePolicy(base({ matcherClassRegistry: [{ name: 'x', predicateKind: 'stream-empty' }] })));
+
+// adapter: an empty / malformed entry rejects (all required fields checked)
+rejected(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{}] })));
+rejected(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: ['not-an-object'] })));
+rejected(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^x$', argvTemplate: ['node'], allowedEnvKeys: [], cwd: '.', linkageKind: 'nope' }] })));
+// a WELL-FORMED custom adapter PASSES
+ok(resolveRedEvidencePolicy(base({ runnerAdapterRegistry: [{ adapterId: 'x@1', runnerProfileId: 'node-npm@1', testCaseRefPattern: '^x:(?<script>[a-z]+)$', argvTemplate: ['${script}'], allowedEnvKeys: [], cwd: '.', linkageKind: 'script-exit' }] })));
+
+// profile: an empty / malformed entry rejects (all required fields checked)
+rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{}] })));
+rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: 'not-array', allowedEnvKeys: [], cwd: '.', submodules: false }] })));
+rejected(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: [], cwd: '.', submodules: 'yes' }] })));
+// a WELL-FORMED custom profile PASSES
+ok(resolveRedEvidencePolicy(base({ runnerProfileRegistry: [{ runnerProfileId: 'p', prepCommands: [['npm', 'ci']], allowedEnvKeys: ['HOME'], cwd: '.', submodules: false }] })));
+
+// ── F-001: the resolved policySnapshot is DEEP-FROZEN (no post-resolution mutation) ──
+{
+  const r = ok(resolveRedEvidencePolicy({ pinnedPath: ['/usr/bin'] }));
+  assert.throws(() => { r.snapshot.evilFifteenthKey = 1; }, TypeError,
+    'adding a 15th key to the resolved snapshot throws (deep Object.freeze; §0.6 casual-mutation tier)');
+  assert.throws(() => { r.snapshot.pinnedPath.push('/evil'); }, TypeError,
+    'nested arrays in the snapshot are frozen too');
+  assert.throws(() => { r.snapshot.matcherClassRegistry[0].name = 'mutated'; }, TypeError,
+    'nested registry objects in the snapshot are frozen too');
+}
+
 console.log('red-w2a-policy-failclosed: PASS');
