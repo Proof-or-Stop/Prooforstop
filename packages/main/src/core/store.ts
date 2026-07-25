@@ -16,6 +16,7 @@ import type {
   PreReviewCheckArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
+import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
@@ -859,6 +860,25 @@ export class StoryStore {
 
   writeRedEvidence(storyId: string, data: RedEvidenceData): void {
     this.writeJson(storyId, 'red-evidence.json', data);
+  }
+
+  // ── Red target bindings (W2b / B-e10d, §1.1.3) ──
+  //
+  // Storage location: <storyDir>/<storyId>/red-target-bindings.json, schema
+  // proofstory.red_target_bindings.v1. Exactly one binding per
+  // acceptanceTargetRef; the uniqueness / digest / committed-tree semantics live
+  // in core/red-evidence/target-bindings.ts. Read is null-safe on cold start.
+  readRedTargetBindings(storyId: string): RedTargetBindingsFile | null {
+    try {
+      return this.readJson<RedTargetBindingsFile>(storyId, 'red-target-bindings.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeRedTargetBindings(storyId: string, data: RedTargetBindingsFile): void {
+    this.writeJson(storyId, 'red-target-bindings.json', data);
   }
 
   readProofStorySpikes(storyId: string): ProofStorySpikeData | null {

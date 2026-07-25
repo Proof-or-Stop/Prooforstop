@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-e10d",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:62bcb91fc5a5d9eeb74d402c67fbfcb484a11de8eadee205b3196ba58eb95b30",
+  "acceptanceBindings": [
+    {
+      "id": "AB-STORE",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The red-target-bindings.json v1 store persists exactly one binding per acceptanceTargetRef, records targetBindingDigest = canonDigest over the createdAt-STRIPPED 3-field subobject (not the stored entry), and its committed-tree reader resolves a binding from a git ref rather than the live directory.",
+      "note": "Store identity + digest + anti-swap reader."
+    },
+    {
+      "id": "AB-GATE",
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:edge:1",
+        "CHK-007:adversarial:0",
+        "CHK-007:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "expectedRedTargets is exported as a shared resolver with an identical computed set, and red_evidence_binding_set is rejected for an out-of-expectedRedTargets acceptanceTargetRef and while a FOREIGN session holds an active owner lease.",
+      "note": "Membership gate + owner-lease/mutation-authority gate."
+    },
+    {
+      "id": "AB-WIRING",
+      "checklistRefs": [
+        "CHK-005",
+        "CHK-006",
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:happy:1",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0",
+        "CHK-006:happy:0",
+        "CHK-006:happy:1",
+        "CHK-006:edge:0",
+        "CHK-006:edge:1",
+        "CHK-006:adversarial:0",
+        "CHK-006:adversarial:1",
+        "CHK-008:happy:0",
+        "CHK-008:happy:1",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0",
+        "CHK-008:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "red-target-bindings.json is registered as lifecycle metadata and red_evidence_binding_set is registered at all 13 wiring points (incl. the closed AgentDispatchMutationCommand union and permittedMutations) and the four ProofStory enumerations + frozen catalog order, so the three existing contracts pass.",
+      "note": "The complete mechanically-verified registration surface."
+    },
+    {
+      "id": "AB-SMOKE",
+      "checklistRefs": [
+        "CHK-009"
+      ],
+      "verificationIntentRefs": [
+        "CHK-009:happy:0",
+        "CHK-009:happy:1",
+        "CHK-009:edge:0",
+        "CHK-009:edge:1",
+        "CHK-009:adversarial:0",
+        "CHK-009:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "red-evidence-target-binding-smoke is registered in validate.commands and passes, and no existing gate verdict (redEvidenceSatisfied/missingRedEvidence) changes.",
+      "note": "Suite registration + no-gate-change guarantee."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Re-bound with full verificationIntent ref sets (48 intents).",
+  "createdAt": "2026-07-25T07:36:08.836Z",
+  "updatedAt": "2026-07-25T07:41:30.724Z"
+}

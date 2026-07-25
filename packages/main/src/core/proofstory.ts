@@ -884,7 +884,32 @@ function triggerCodes(triggers: readonly ProofStoryTriggerReason[], requires: Pr
   return triggers.filter((trigger) => trigger.requires === requires).map((trigger) => trigger.code);
 }
 
-function expectedRedTargets(input: ProofStoryDiagnosticInput): Set<string> {
+/**
+ * The narrow slice of a ProofStory diagnostic input that {@link
+ * resolveExpectedRedTargets} reads. A full {@link ProofStoryDiagnosticInput}
+ * structurally satisfies this, so the private caller can delegate without any
+ * change to the computed set.
+ */
+export interface ExpectedRedTargetsInput {
+  originalIntentSnapshot?: { requestHash?: string } | null;
+  proofStoryContract?: {
+    acceptanceBindings: ReadonlyArray<{ id: string; verificationIntentRefs: readonly string[]; milestoneIds: readonly string[] }>;
+  } | null;
+  milestoneLedger?: {
+    milestones: ReadonlyArray<{ id: string; verificationIntentRefs: readonly string[] }>;
+  } | null;
+}
+
+/**
+ * §3.3 shared resolver for the set of acceptance targets a RED run — and the
+ * W2b `red_evidence_binding_set` write-time membership gate — may reference.
+ *
+ * B-e10d CHK-003: exported verbatim from the previously module-private
+ * `expectedRedTargets` WITHOUT changing its computed set (the private caller
+ * below delegates here; a same-set assertion pins the extraction). Membership is
+ * a plain string-set lookup, i.e. CASE-SENSITIVE.
+ */
+export function resolveExpectedRedTargets(input: ExpectedRedTargetsInput): Set<string> {
   const targets = new Set<string>();
   if (input.originalIntentSnapshot?.requestHash) targets.add(input.originalIntentSnapshot.requestHash);
   for (const binding of input.proofStoryContract?.acceptanceBindings ?? []) {
@@ -897,6 +922,10 @@ function expectedRedTargets(input: ProofStoryDiagnosticInput): Set<string> {
     milestone.verificationIntentRefs.forEach((ref) => targets.add(ref));
   }
   return targets;
+}
+
+function expectedRedTargets(input: ProofStoryDiagnosticInput): Set<string> {
+  return resolveExpectedRedTargets(input);
 }
 
 function redEvidenceRecordSatisfied(record: RedEvidenceRecord, expectedTargets: Set<string>): boolean {

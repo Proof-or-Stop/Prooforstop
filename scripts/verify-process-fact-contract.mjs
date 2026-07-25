@@ -158,6 +158,10 @@ const requiredProcessFactSemantics = {
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  // W2b (B-e10d): the target-binding writer is schema + membership-policy bound
+  // but NOT gate-evidence — it is a run prerequisite, not gate-consumed evidence
+  // in this leaf (chain freeze / green-confirm digest match are W2c).
+  red_evidence_binding_set: ['schema-contract', 'verification-policy'],
   spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -1034,6 +1038,7 @@ function assertProofStoryProgressiveBoundary() {
     'scope_shrinkage_decision_get',
     'red_evidence_create',
     'red_evidence_get',
+    'red_evidence_binding_set',
     'spike_start',
     'spike_result_set',
     'spike_result',

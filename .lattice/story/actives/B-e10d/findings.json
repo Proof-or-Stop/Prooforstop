@@ -1,0 +1,118 @@
+{
+  "findings": [
+    {
+      "id": "B-e10d:F-001",
+      "desc": "packages/main/src/tasks/red-evidence-target-binding-smoke.ts:31,291-293 imports execFileSync from node:child_process but never calls it for any purpose; it is silenced with a no-op `void execFileSync;` statement (comment: \"Keep execFileSync import meaningful for future direct-CLI probes\") instead of being removed. This is a dead/unused import kept alive artificially rather than deleted — remove the import (and the void statement) until a real call site exists, or add the actual direct-CLI probe now.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-25T08:38:37.431Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-004",
+      "_hash": "03d772141e7f418490d98801838de12277d4ba0c9b8bb919a31b4bc997111c6f",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed commit b801541e47: removed the unused execFileSync import + void no-op from red-evidence-target-binding-smoke.ts; smoke still builds + passes.",
+      "resolvedAt": "2026-07-25T09:06:51.141Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e10d:F-002",
+      "desc": "checklist.json:696-705 CHK-007:adversarial:0 (stale foreign lease >30min + --takeover succeeds for red_evidence_binding_set) is bound to command=\"node -e (inline stale-lease takeover probe: ...)\" — this is English prose, not a literal executable command (confirmed: running it verbatim throws SyntaxError: Unexpected identulti stale). No committed test file exercises this scenario: grep -n takeover|stale across red-w2b-binding-store.mjs, red-w2b-wiring-contract.mjs, and red-evidence-target-binding-smoke.ts returns zero matches. The stale-lease+--takeover code path (story-owner-lease.ts / cli/ownership-gate.ts takeOverOwnerLease) is exercised by NO reproducible artifact for this command; the claim rests solely on an unrepeatable manual_transcript note. For a high_assurance story this access-control adversarial claim is effectively unverifiable by an independent reviewer.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T08:44:18.843Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-002",
+      "_hash": "53bc5ab19885d0b52cc3cb5db3592f17ea9114e7b2d54c72cb13a13f14251cd3",
+      "files": [
+        "packages/main/tests/red/red-w2b-binding-store.mjs",
+        "packages/main/src/tasks/red-evidence-target-binding-smoke.ts",
+        ".lattice/story/actives/B-e10d/checklist.json"
+      ],
+      "signatureTag": "adversarial|mjs|checklist-json-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed commit b801541e47: added a committed stale-lease-takeover regression (smoke §5b) — red_evidence_binding_set rejects a stale foreign lease without --takeover and recovers it with --takeover. CHK-007:adversarial:0 re-bound to that runnable smoke command (was a non-runnable inline probe).",
+      "resolvedAt": "2026-07-25T09:06:51.776Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e10d:F-003",
+      "desc": "checklist.json:598-608 CHK-006:adversarial:0 and checklist.json:791-801 CHK-008:adversarial:0 both claim \"remove ONE registration point -> fails with a NAMED divergence citing the missing point\" (proving each of the ~13/4 wiring points is independently required, not a subset check). Both are bound only to the RED commit 57cf021413 (where target-bindings.ts and ALL 13 points are simultaneously absent) plus the current GREEN run of the same three contracts. That binary RED(nothing)/GREEN(everything) transition does not distinguish per-point necessity from redundancy among points. I independently re-verified the specific claim non-destructively (isolated scratch git worktree at current HEAD, removed only the red_evidence_binding_set entry from core/command-policy.ts, rebuilt): all three contracts (lifecycle-registry-contract.js, command-ownership-contract.js, scripts/verify-process-fact-contract.mjs) DO fail with a named divergence citing red_evidence_binding_set specifically -- so the underlying behavior is correct -- but the recorded verificationEvidence itself does not demonstrate this, despite being straightforwardly testable without touching the tracked worktree.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T08:44:31.571Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-002",
+      "_hash": "df89e8414f44d313b1788cc98ed1546f669e4cd04fca8f178aaf52d67987d72c",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/lifecycle-registry-contract.ts",
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+        ".lattice/story/actives/B-e10d/checklist.json"
+      ],
+      "signatureTag": "adversarial|mjs|checklist-json-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed commit 04acdca376: added a committed remove-ONE-registration-point regression in red-w2b-wiring-contract.mjs asserting each of the 3 contracts fails with a divergence naming red_evidence_binding_set. CHK-006:adversarial:0 + CHK-008:adversarial:0 re-bound to it (was coarse whole-module-absent RED).",
+      "resolvedAt": "2026-07-25T09:06:52.410Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e10d:F-004",
+      "desc": "checklist.json:769-778 CHK-008:happy:1 and checklist.json:803-812 CHK-008:adversarial:1 are bound to command fields that are English-prose descriptions wrapped as \"node -e (inline ... probe: ...)\" rather than literal executable commands (same non-reproducible pattern as F-002/CHK-007:adversarial:0). Materiality is lower here: happy:1s underlying claim (red_evidence_binding_set at the correct trailing MAIN_TOOLS position) is independently corroborated -- I ran node packages/main/dist/tasks/command-catalog-smoke.js directly and it proceeds past the trailing-order assert.deepEqual (lines ~102-111) without throwing, only failing later at an unrelated pre-existing assertion (line 141, lattice-review-channel example field -- confirmed pre-existing by rebuilding at merge-base commit 5a7f468ac2, which fails identically at the equivalent line). adversarial:1s claim rests on well-established Node assert.deepEqual array-mismatch semantics. Recommend recording the actual literal command/script used (or a saved throwaway script path) instead of a paraphrased description, per this repos own literal-command evidence discipline.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T08:44:41.918Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-002",
+      "_hash": "6d65a82a49fc6e8d3412c8298e6f93262589b41a86b7aa8cd54f4508d2092b97",
+      "files": [
+        "packages/main/src/tasks/command-catalog-smoke.ts",
+        ".lattice/story/actives/B-e10d/checklist.json"
+      ],
+      "signatureTag": "adversarial|ts|checklist-json-happy",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: CHK-008:happy:1 + CHK-008:adversarial:1 re-bound from non-literal inline commands to a runnable catalog-order probe (loads compiled MAIN_TOOLS, asserts the trailing-7-window guard present + a wrong-position mutation rejected).",
+      "resolvedAt": "2026-07-25T09:06:53.036Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e10d:F-005",
+      "desc": "checklist.json:915-924 CHK-009:adversarial:1 claims a bidirectional test (remove red-evidence-target-binding-smoke from lattice.config.json validate.commands -> smoke NOT executed; re-add -> runs), but the bound evidence is only grep -n red-evidence-target-binding-smoke lattice.config.json, i.e. the positive-registration direction. The negative direction (removal -> non-execution) is never exercised. Materiality is low: the note correctly identifies that validate.commands is the sole, generic, pre-existing activation array shared by every other registered smoke in the suite, so this is not novel behavior introduced by this story, but the intents specific bidirectional claim remains formally unproven by the recorded evidence.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-25T08:44:49.443Z",
+      "reviewRound": "2026-07-25T08:32:09.745Z",
+      "reviewRunId": "B-e10d:RR-002",
+      "_hash": "3ac86bb5ac974811f13305144a1eb38ee466a0c6d45341b1076ca56f0b90fcae",
+      "files": [
+        "lattice.config.json",
+        ".lattice/story/actives/B-e10d/checklist.json"
+      ],
+      "signatureTag": "adversarial|json|checklist-json-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: CHK-009:adversarial:1 re-bound to a runnable config-parse command proving the smoke IS registered in validate.commands (the sole activation mechanism); the negative removal direction is generic pre-existing validate.commands infra (low materiality, per the reviewer).",
+      "resolvedAt": "2026-07-25T09:06:53.677Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
+    }
+  ]
+}

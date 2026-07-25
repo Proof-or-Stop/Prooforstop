@@ -99,13 +99,15 @@ assert.deepEqual(toolNames.slice(0, 9), [
   'story_discard',
 ], 'MAIN_TOOLS leading command order changed');
 
-assert.deepEqual(toolNames.slice(-6), [
+assert.deepEqual(toolNames.slice(-7), [
   'spike_record',
   'spike_review_set',
   'red_green_relation_create',
   'red_green_relation_evaluate',
   'regression_matrix_review_set',
   'story_create_from_repro',
+  // W2b (B-e10d): red_evidence_binding_set is appended as the trailing command.
+  'red_evidence_binding_set',
 ], 'MAIN_TOOLS trailing command order changed');
 
 for (const command of [

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-e10d",
+  "id": "IC-20260725073542",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "W2b resolves to exactly ONE reading: the target-binding STORE (red-target-bindings.json v1, one-per-target, createdAt-stripped 3-field digest, committed-tree reader) plus red_evidence_binding_set as the first owner-gated mutating command with the complete 13-point wiring, §3.3 membership gate, and expectedRedTargets export (same set). It does NOT cover the binding-freeze rule (W2c chain), run-time adapter/pattern validation (runner), any chain append/read, or any gate rewiring.",
+  "acceptedInterpretationHash": "sha256:41507c6281f26cb0564796a1d435a9eff773c4cc9c18b4451a59825b35c824dc",
+  "notes": "Independent collision vs siblings W2c..W2i (.lattice/tmp/w2-decomposition.json): W2b uniquely owns the target-binding store + binding_set command + the shared wiring recipe; W2c/d/e depend ON it. The only adjacency is the binding-freeze rule, explicitly fenced to W2c (needs chain-head semantics that do not exist until the chain lands). No competing interpretation survives.",
+  "createdAt": "2026-07-25T07:35:42.060Z",
+  "updatedAt": "2026-07-25T07:35:42.060Z"
+}
