@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "command-catalog-smoke asserts bidirectional dispatch/registry consistency and exits 0",
       "context": "In packages/main/src/tasks/command-catalog-smoke.ts, replace the full-registry loop (currently ~lines 152-166) so it branches on whether entry.canonicalName is in AGENT_DISPATCH_ACCEPTED_TYPES. Dispatchable entries: every example field schema-valid AND validateAgentDispatchRequest returns the entry. Retired entries (e.g. lattice-review-channel): dispatch agentType schema rejects the canonicalName AND validateAgentDispatchRequest throws. Verify: node packages/main/dist/tasks/command-catalog-smoke.js exits 0.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-25T21:51:52.264Z",
-      "endTime": null,
+      "endTime": "2026-07-25T21:54:01.747Z",
       "verificationIntent": {
         "happy": [
           {
