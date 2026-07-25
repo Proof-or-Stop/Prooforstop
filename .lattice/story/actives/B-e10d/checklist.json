@@ -82,7 +82,39 @@
       "context": "The currently module-private expectedRedTargets (packages/main/src/core/proofstory.ts:887) is extracted as a shared exported resolver WITHOUT changing its computed set (proven by a same-set assertion). red_evidence_binding_set rejects at write time (§3.3) any acceptanceTargetRef not in expectedRedTargets.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call the exported expectedRedTargets resolver for a representative story with known topology -> returns the IDENTICAL set as the pre-refactor private function (same-set assertion: every element in A is in B and vice versa); WHY: proves the export is a pure extraction with no set-change",
+            "type": "cli"
+          },
+          {
+            "desc": "Write a binding with an acceptanceTargetRef that IS in expectedRedTargets -> write succeeds; WHY: proves the membership gate passes valid targets",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Write a binding with an acceptanceTargetRef NOT in expectedRedTargets -> rejected at write time with a clear error naming the invalid target; WHY: enforces section 3.3 write-time membership gate",
+            "type": "cli"
+          },
+          {
+            "desc": "Call the resolver for a story with zero expectedRedTargets (no acceptance criteria with targets) -> returns an empty set; any binding write rejects; WHY: boundary on empty-target-set stories",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call the resolver with a target ref that is a case-variant of a valid target (e.g. ab-001 vs AB-001) -> rejected (refs are case-sensitive); WHY: proves no accidental case-folding in membership check",
+            "type": "cli"
+          },
+          {
+            "desc": "Modify the private function source location after export extraction -> the exported resolver still returns the same set (not a stale snapshot); WHY: proves the resolver delegates to the live computation, not a captured copy",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
