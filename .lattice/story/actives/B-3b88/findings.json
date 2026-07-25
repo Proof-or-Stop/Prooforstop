@@ -30,7 +30,7 @@
       "desc": "doc-promise-undelivered: CHK-002 plan.md mechanism step 4 promises \"Adjust the summary line + the command help (\\\"(rerun command)\\\")\" so documented refresh_stale semantics match the new honest behavior. Only the in-code per-row/summary lines (packages/main/src/handlers/checklist.ts:1074,1103) were updated. Two other surfaces still describe the OLD blanket-refresh concept verbatim: (1) packages/main/src/cli/command-catalog.ts:479 tool description literally reads \"Refresh HEAD/material hashes for stale verificationEvidence (rerun command)\" -- the ONLY text an agent sees via `lattice help`/`--help`/MCP tool listing, unchanged, with no mention that command-backed pass rows are now refused; (2) packages/main/src/core/evidence-stale-hint.ts renderEvidenceStaleHint (lines ~88-112) whose \"Run to recover: lattice verification_evidence_refresh_stale\" block is asserted byte-identical across packages/main/src/handlers/session.ts, packages/main/src/handlers/hints.ts, packages/main/src/handlers/transition-orchestrator.ts (pinned by packages/main/src/tasks/verification-freshness-smoke.ts) and shown to every agent that hits EVIDENCE STALE -- still instructs the recovery recipe unconditionally, with no caveat that command-backed pass rows will be refused and require re-running via verification_evidence_add first. This leaves the pre-fix concept (\"refresh_stale generically recovers stale evidence\") as residual, misleading guidance on exactly the surfaces meant to prevent false evidence beliefs -- the core goal of this story.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-25T23:30:32.980Z",
@@ -38,7 +38,11 @@
       "reviewRunId": "B-3b88:RR-004",
       "_hash": "6e5cef0273d78c97da8c36d99212eec966667888998b1083ac8ee8f1953de90c",
       "signatureTag": "missing|unknown|promise-undelivered-plan",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 630b6d9: the concept lane additionally named core/evidence-stale-hint.ts renderEvidenceStaleHint (byte-identical across session/hints/transition-orchestrator, pinned by verification-freshness-smoke) — its 'Run to recover' header now carries the command-backed-refusal caveat, keeping the block line-count and cross-surface byte-identicality intact (verified: the pinned byte-identical assertions pass).",
+      "resolvedAt": "2026-07-25T23:49:14.318Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
