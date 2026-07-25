@@ -1,14 +1,9 @@
 #!/usr/bin/env node
 /**
- * B-3b88 CHK-002 RED/GREEN smoke: verification_evidence_refresh_stale must NOT
- * silently re-certify a stale, command-backed result:pass row onto current
- * material (the laundering channel, checklist.ts ~1051-1077 today copies
- * command/result/note verbatim and only re-stamps the hashes). Command-less
- * attestation rows may still be refreshed.
- *
- * RED (pre-fix): the command-backed pass row is refreshed → its headHash becomes
- *   current → assert.equal(headHash, STALE_HEAD) fails → non-zero exit.
- * GREEN (post-fix): command-backed pass left stale; attestation row still refreshed.
+ * B-3b88 CHK-002 smoke: verification_evidence_refresh_stale must NOT silently
+ * re-certify a stale command-backed result:pass onto current material (laundering),
+ * while still refreshing command-less attestation rows. Covers all CHK-002
+ * happy/edge/adversarial verification intents. Per-row classification is independent.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -28,130 +23,146 @@ const STALE_MATERIAL = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
-    cwd,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
+    cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      GIT_AUTHOR_NAME: 'refresh-honesty-smoke',
-      GIT_AUTHOR_EMAIL: 'refresh-honesty-smoke@example.com',
-      GIT_COMMITTER_NAME: 'refresh-honesty-smoke',
-      GIT_COMMITTER_EMAIL: 'refresh-honesty-smoke@example.com',
+      GIT_AUTHOR_NAME: 'refresh-honesty-smoke', GIT_AUTHOR_EMAIL: 'x@example.com',
+      GIT_COMMITTER_NAME: 'refresh-honesty-smoke', GIT_COMMITTER_EMAIL: 'x@example.com',
     },
   }).trim();
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(
-    join(root, 'lattice.config.json'),
-    JSON.stringify({
-      scanRoot: 'packages/main',
-      rootDir: 'src',
-      storyDir: '.lattice/story/actives',
-      requirementsDir: 'docs/requirements',
-      workflow: { profile: 'balanced' },
-    }, null, 2) + '\n',
-    'utf8',
-  );
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements', workflow: { profile: 'balanced' },
+  }, null, 2) + '\n', 'utf8');
   resetConfigCache();
 }
 
 function baseStory(): StoryInfo {
   return {
-    storyId: STORY_ID,
-    name: 'refresh-honesty-smoke',
-    title: 'refresh_stale honesty fixture',
-    description: 'Fixture story for the refresh_stale command-backed-pass honesty guard.',
-    type: 'bug',
-    phase: 'DEV',
-    priority: 'medium',
-    createdAt: NOW,
-    startedAt: NOW,
-    endedAt: null,
+    storyId: STORY_ID, name: 'refresh-honesty-smoke', title: 'refresh_stale honesty fixture',
+    description: 'Fixture for the refresh_stale command-backed-pass honesty guard.',
+    type: 'bug', phase: 'DEV', priority: 'medium', createdAt: NOW, startedAt: NOW, endedAt: null,
   };
 }
 
-function seed(): ChecklistData {
-  // Both rows are stale (STALE head + STALE material) → both are refresh candidates today.
-  const commandBackedPass: VerificationEvidence = {
-    intentRef: 'CHK-001:happy:0',
-    kind: 'logic_test',
-    command: 'node packages/main/dist/tasks/convergence-breaker-smoke.js',
-    result: 'pass',
-    note: 'command-backed pass — refresh must NOT re-certify without re-execution',
-    headHash: STALE_HEAD,
-    materialHash: STALE_MATERIAL,
-  };
-  const attestationRow: VerificationEvidence = {
-    intentRef: 'CHK-001:edge:0',
-    kind: 'manual_transcript',
-    result: 'pass',
-    note: 'command-less attestation — freshness may still be refreshed',
-    headHash: STALE_HEAD,
-    materialHash: STALE_MATERIAL,
-  };
+// 4 happy + 4 edge + 4 adversarial intent slots so any ref CHK-001:<lane>:<0..3> resolves.
+function seed(rows: VerificationEvidence[]): ChecklistData {
+  const lane = () => Array.from({ length: 4 }, () => ({ desc: 'x', type: 'logic' as const, priority: 'must' as const }));
   return {
-    items: [
-      {
-        id: 'CHK-001',
-        title: 'refresh honesty item',
-        context: 'command-backed pass must not be laundered',
-        status: 'done',
-        startTime: null,
-        endTime: null,
-        verificationIntent: {
-          happy: [{ desc: 'command-backed intent', type: 'logic', priority: 'must' }],
-          edge: [{ desc: 'attestation intent', type: 'manual', priority: 'must' }],
-          adversarial: [],
-        },
-        verificationEvidence: [commandBackedPass, attestationRow],
-      },
-    ],
+    items: [{
+      id: 'CHK-001', title: 'refresh honesty item', context: 'command-backed pass must not be laundered',
+      status: 'done', startTime: null, endTime: null,
+      verificationIntent: { happy: lane(), edge: lane(), adversarial: lane() },
+      verificationEvidence: rows,
+    }],
   };
 }
 
-function createFixture(): { store: StoryStore; ctx: HandlerContext } {
+function createFixture(rows: VerificationEvidence[]): { store: StoryStore; ctx: HandlerContext } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-refresh-honesty-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
-  writeFileSync(join(root, 'README.md'), '# refresh honesty smoke\n', 'utf8');
+  writeFileSync(join(root, 'README.md'), '# smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
-  git(root, ['init']);
-  git(root, ['checkout', '-b', 'main']);
+  git(root, ['init']); git(root, ['checkout', '-b', 'main']);
   git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
   const store = new StoryStore(root);
   store.writeStory(STORY_ID, baseStory());
-  store.writeChecklist(STORY_ID, seed());
-  const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
-  return { store, ctx };
+  store.writeChecklist(STORY_ID, seed(rows));
+  return { store, ctx: { store, root, scanRoot: join(root, 'packages/main') } };
 }
 
-const { store, ctx } = createFixture();
-const refresh = createMainRegistry(ctx).get('verification_evidence_refresh_stale');
-assert.ok(refresh, 'registry exposes verification_evidence_refresh_stale');
+function cmdRow(ref: string, over: Partial<VerificationEvidence> = {}): VerificationEvidence {
+  return { intentRef: ref, kind: 'logic_test', command: 'node packages/main/dist/tasks/x.js', result: 'pass', note: 'command-backed', headHash: STALE_HEAD, materialHash: STALE_MATERIAL, ...over };
+}
+function attRow(ref: string, over: Partial<VerificationEvidence> = {}): VerificationEvidence {
+  return { intentRef: ref, kind: 'manual_transcript', result: 'pass', note: 'attestation, no command', headHash: STALE_HEAD, materialHash: STALE_MATERIAL, ...over };
+}
 
-refresh!({ storyId: STORY_ID });
+function run(rows: VerificationEvidence[], dryRun = false): { output: string; store: StoryStore; ctx: HandlerContext } {
+  const { store, ctx } = createFixture(rows);
+  const refresh = createMainRegistry(ctx).get('verification_evidence_refresh_stale')!;
+  const output = String(refresh({ storyId: STORY_ID, ...(dryRun ? { dryRun: true } : {}) }));
+  return { output, store, ctx };
+}
+function headOf(store: StoryStore, ref: string): string | undefined {
+  const item = store.readChecklist(STORY_ID).items.find(i => i.id === 'CHK-001')!;
+  return (item.verificationEvidence || []).find(e => e.intentRef === ref)?.headHash;
+}
+function refreshed(store: StoryStore, ref: string): boolean {
+  const h = headOf(store, ref);
+  return !!h && h !== STALE_HEAD;
+}
 
-const cl = store.readChecklist(STORY_ID);
-const item = cl.items.find((i) => i.id === 'CHK-001');
-assert.ok(item, 'fixture item present');
-const rows = item!.verificationEvidence || [];
-const cmdRow = rows.find((e) => e.intentRef === 'CHK-001:happy:0');
-const attRow = rows.find((e) => e.intentRef === 'CHK-001:edge:0');
-assert.ok(cmdRow && attRow, 'both evidence rows present after refresh');
-
-// GREEN target: command-backed pass is left stale (not silently re-certified).
-assert.equal(
-  cmdRow!.headHash,
-  STALE_HEAD,
-  'command-backed result:pass must NOT be refreshed without re-execution (laundering channel)',
-);
-// Command-less attestation freshness may still be refreshed.
-assert.notEqual(
-  attRow!.headHash,
-  STALE_HEAD,
-  'command-less attestation row is still refreshed to current head',
-);
+// happy:0 — command-backed pass is left stale.
+{
+  const { store } = run([cmdRow('CHK-001:happy:0')]);
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'happy:0 command-backed pass NOT refreshed');
+}
+// happy:1 — command-less attestation row IS refreshed.
+{
+  const { store } = run([attRow('CHK-001:happy:1')]);
+  assert.equal(refreshed(store, 'CHK-001:happy:1'), true, 'happy:1 attestation refreshed');
+}
+// happy:2 — output distinguishes refused (command-backed) from refreshed (attestation).
+{
+  const { output, store } = run([cmdRow('CHK-001:happy:0'), attRow('CHK-001:happy:1')]);
+  assert.match(output, /REFUSED/, 'happy:2 output flags REFUSED command-backed row');
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'happy:2 command-backed stays stale');
+  assert.equal(refreshed(store, 'CHK-001:happy:1'), true, 'happy:2 attestation refreshed');
+}
+// edge:0 — dryRun on a mix reports classification with NO mutation.
+{
+  const { output, store } = run([cmdRow('CHK-001:happy:0'), attRow('CHK-001:happy:1')], true);
+  assert.match(output, /DRY-RUN/, 'edge:0 dryRun labeled');
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'edge:0 dryRun mutates nothing (cmd)');
+  assert.equal(refreshed(store, 'CHK-001:happy:1'), false, 'edge:0 dryRun mutates nothing (att)');
+}
+// edge:1 — command + result=fail is not a pass, so not the laundering channel (untouched by the guard/candidate set).
+{
+  const { store } = run([cmdRow('CHK-001:happy:0', { result: 'fail' })]);
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'edge:1 failed command row is not re-stamped as a pass');
+}
+// edge:2 — all attestation rows refresh normally.
+{
+  const { store } = run([attRow('CHK-001:happy:0'), attRow('CHK-001:happy:1')]);
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), true, 'edge:2 att0 refreshed');
+  assert.equal(refreshed(store, 'CHK-001:happy:1'), true, 'edge:2 att1 refreshed');
+}
+// edge:3 — zero stale rows: no crash, reports nothing stale.
+{
+  const { output } = run([]);
+  assert.match(output, /No stale/i, 'edge:3 zero-stale message');
+}
+// adversarial:0 — all command-backed passes: zero refreshed, all flagged.
+{
+  const { output, store } = run([cmdRow('CHK-001:happy:0'), cmdRow('CHK-001:happy:1')]);
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'adversarial:0 cmd0 not refreshed');
+  assert.equal(refreshed(store, 'CHK-001:happy:1'), false, 'adversarial:0 cmd1 not refreshed');
+  assert.match(output, /refused 2/i, 'adversarial:0 output reports all refused');
+}
+// adversarial:1 — whitespace-only command is command-backed (must not slip through).
+{
+  const { store } = run([cmdRow('CHK-001:happy:0', { command: ' ' })]);
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'adversarial:1 whitespace command treated as command-backed');
+}
+// adversarial:2 — after refusal, a genuine re-verification via verification_evidence_add is accepted.
+{
+  const { store, ctx } = run([cmdRow('CHK-001:happy:0')]);
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'adversarial:2 refused first');
+  const add = createMainRegistry(ctx).get('verification_evidence_add')!;
+  assert.doesNotThrow(() => add({ storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass', command: 'node packages/main/dist/tasks/x.js', note: 'genuine re-run after refusal' }), 'adversarial:2 re-verification accepted');
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), true, 'adversarial:2 re-verify freshens the row');
+}
+// adversarial:3 — per-row independence: same item, only the attestation row refreshes.
+{
+  const { store } = run([cmdRow('CHK-001:happy:0'), attRow('CHK-001:happy:1')]);
+  assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'adversarial:3 command-backed row stays stale');
+  assert.equal(refreshed(store, 'CHK-001:happy:1'), true, 'adversarial:3 attestation row refreshes');
+}
 
 console.log('refresh-stale-honesty-smoke: PASS');

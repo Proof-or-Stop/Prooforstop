@@ -1067,7 +1067,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         // re-executes. A command-backed result:pass must therefore NOT be
         // re-certified onto changed material — leave it stale so the operator
         // re-runs it (verification_evidence_add), instead of laundering the pass.
-        const isCommandBackedPass = !!(ev && typeof ev.command === 'string' && ev.command.trim().length > 0 && ev.result === 'pass');
+        // Any non-empty command field (incl. whitespace-only) is command-backed:
+        // an agent must not slip a pass through refresh by setting command=" ".
+        const isCommandBackedPass = !!(ev && typeof ev.command === 'string' && ev.command.length > 0 && ev.result === 'pass');
         if (isCommandBackedPass) {
           lines.push(`  - ${entry.intentRef}: ${ev?.command || 'command'} → REFUSED (command-backed pass; re-run to re-verify — refresh will not re-certify)`);
           refused++;

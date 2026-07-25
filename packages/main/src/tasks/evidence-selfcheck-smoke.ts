@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 /**
- * B-3b88 CHK-001 RED/GREEN smoke: verification_evidence_add must refuse an
- * evidence row whose own `command` and `file` fields name contradictory targets
- * (F-049: command→gate-repeat-block-smoke.js, file→convergence-breaker-smoke.ts).
- *
- * RED (pre-fix): the contradictory add is accepted → assert.throws fails → non-zero exit.
- * GREEN (post-fix): the contradictory add throws; matching-stem and no-stem rows still accepted.
+ * B-3b88 CHK-001 smoke: verification_evidence_add / verification_evidence_batch_add
+ * must refuse an evidence row whose `command` and `file` fields name contradictory
+ * targets, without false-positiving on the many benign shapes. Covers all CHK-001
+ * happy/edge/adversarial verification intents.
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -20,132 +18,112 @@ import type { HandlerContext } from '../handlers/context.js';
 
 const STORY_ID = 'B-selfcheck';
 const NOW = '2026-07-25T00:00:00.000Z';
+const CONTRADICTION_RE = /contradict|targets|disagree/i;
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
-    cwd,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
+    cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      GIT_AUTHOR_NAME: 'evidence-selfcheck-smoke',
-      GIT_AUTHOR_EMAIL: 'evidence-selfcheck-smoke@example.com',
-      GIT_COMMITTER_NAME: 'evidence-selfcheck-smoke',
-      GIT_COMMITTER_EMAIL: 'evidence-selfcheck-smoke@example.com',
+      GIT_AUTHOR_NAME: 'evidence-selfcheck-smoke', GIT_AUTHOR_EMAIL: 'x@example.com',
+      GIT_COMMITTER_NAME: 'evidence-selfcheck-smoke', GIT_COMMITTER_EMAIL: 'x@example.com',
     },
   }).trim();
 }
 
 function writeConfig(root: string): void {
-  writeFileSync(
-    join(root, 'lattice.config.json'),
-    JSON.stringify({
-      scanRoot: 'packages/main',
-      rootDir: 'src',
-      storyDir: '.lattice/story/actives',
-      requirementsDir: 'docs/requirements',
-      workflow: { profile: 'balanced' },
-    }, null, 2) + '\n',
-    'utf8',
-  );
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements', workflow: { profile: 'balanced' },
+  }, null, 2) + '\n', 'utf8');
   resetConfigCache();
 }
 
 function baseStory(): StoryInfo {
   return {
-    storyId: STORY_ID,
-    name: 'evidence-selfcheck-smoke',
-    title: 'contradiction guard fixture',
+    storyId: STORY_ID, name: 'evidence-selfcheck-smoke', title: 'contradiction guard fixture',
     description: 'Fixture story for the verification_evidence_add contradiction guard.',
-    type: 'bug',
-    phase: 'DEV',
-    priority: 'medium',
-    createdAt: NOW,
-    startedAt: NOW,
-    endedAt: null,
+    type: 'bug', phase: 'DEV', priority: 'medium', createdAt: NOW, startedAt: NOW, endedAt: null,
   };
 }
 
 function seed(): ChecklistData {
   return {
-    items: [
-      {
-        id: 'CHK-001',
-        title: 'contradiction guard item',
-        context: 'evidence rows must not self-contradict',
-        status: 'done',
-        startTime: null,
-        endTime: null,
-        verificationIntent: {
-          happy: [{ desc: 'happy intent', type: 'logic', priority: 'must' }],
-          edge: [{ desc: 'edge intent', type: 'logic', priority: 'must' }],
-          adversarial: [],
-        },
-        verificationEvidence: [],
+    items: [{
+      id: 'CHK-001', title: 'contradiction guard item', context: 'evidence rows must not self-contradict',
+      status: 'done', startTime: null, endTime: null,
+      verificationIntent: {
+        happy: [{ desc: 'h', type: 'logic', priority: 'must' }],
+        edge: [{ desc: 'e', type: 'logic', priority: 'must' }],
+        adversarial: [{ desc: 'a', type: 'logic', priority: 'must' }],
       },
-    ],
+      verificationEvidence: [],
+    }],
   };
 }
 
-function createFixture(): { root: string; ctx: HandlerContext } {
+function createFixture(): HandlerContext {
   const root = mkdtempSync(join(tmpdir(), 'lattice-evidence-selfcheck-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   writeConfig(root);
-  writeFileSync(join(root, 'README.md'), '# evidence selfcheck smoke\n', 'utf8');
+  writeFileSync(join(root, 'README.md'), '# smoke\n', 'utf8');
   writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 1;\n', 'utf8');
-  git(root, ['init']);
-  git(root, ['checkout', '-b', 'main']);
+  git(root, ['init']); git(root, ['checkout', '-b', 'main']);
   git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
   git(root, ['commit', '-m', 'base']);
   const store = new StoryStore(root);
   store.writeStory(STORY_ID, baseStory());
   store.writeChecklist(STORY_ID, seed());
-  const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
-  return { root, ctx };
+  return { store, root, scanRoot: join(root, 'packages/main') };
 }
 
-const { ctx } = createFixture();
-const add = createMainRegistry(ctx).get('verification_evidence_add');
-assert.ok(add, 'registry exposes verification_evidence_add');
+const ctx = createFixture();
+const reg = createMainRegistry(ctx);
+const add = reg.get('verification_evidence_add')!;
+const batchAdd = reg.get('verification_evidence_batch_add')!;
 
-// (1) Contradiction: command targets gate-repeat-block-smoke.js, file targets convergence-breaker-smoke.ts.
+let n = 0;
+function row(over: Record<string, unknown>): Record<string, unknown> {
+  return { storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass', note: `case ${++n} — contradiction guard scenario`, ...over };
+}
+function expectRefused(over: Record<string, unknown>, label: string): void {
+  assert.throws(() => add(row(over)), CONTRADICTION_RE, label);
+}
+function expectAccepted(over: Record<string, unknown>, label: string): void {
+  assert.doesNotThrow(() => add(row(over)), label);
+}
+
+// happy:0 — F-049 reproduction: contradictory stems refused.
+expectRefused({ command: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' }, 'happy:0 F-049 contradictory');
+// happy:1 — same stem across dist/src + .js/.ts accepted.
+expectAccepted({ command: 'node packages/main/dist/tasks/convergence-breaker-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' }, 'happy:1 same stem normalized');
+// happy:2 — no-stem command + any file accepted.
+expectAccepted({ command: 'npm test', file: 'packages/main/src/tasks/foo.ts' }, 'happy:2 npm test no-stem');
+// edge:0 — command with no file-like argument at all accepted.
+expectAccepted({ command: 'lattice validate', file: 'some-file.ts' }, 'edge:0 lattice validate no file-arg');
+// edge:1 — command present, file absent accepted.
+expectAccepted({ command: 'node packages/main/dist/tasks/foo.js', file: undefined }, 'edge:1 command only');
+// edge:2 — file present, command absent accepted.
+expectAccepted({ command: undefined, file: 'packages/main/src/tasks/foo.ts' }, 'edge:2 file only');
+// edge:3 — same stem, .js vs .cjs accepted (normalized).
+expectAccepted({ command: 'node packages/main/dist/tasks/foo.js', file: 'packages/main/src/tasks/foo.cjs' }, 'edge:3 .js/.cjs same stem');
+// edge:4 — multi-arg: last script arg (alpha) differs from file (beta) → refused, not the intermediate setup.js.
+expectRefused({ command: 'node --require setup.js packages/main/dist/tasks/alpha.js', file: 'packages/main/src/tasks/beta.ts' }, 'edge:4 multi-arg last target');
+// adversarial:1 — shell pipe obfuscation: primary target A vs file B → refused.
+expectRefused({ command: 'node packages/main/dist/tasks/A.js | tee log', file: 'packages/main/src/tasks/B.ts' }, 'adversarial:1 shell pipe');
+// adversarial:2 — path traversal in command: basename alpha vs file beta → refused.
+expectRefused({ command: 'node packages/main/dist/tasks/../tasks/alpha.js', file: 'packages/main/src/tasks/beta.ts' }, 'adversarial:2 path traversal');
+// adversarial:3 — empty-string command + real file accepted without crashing.
+expectAccepted({ command: '', file: 'packages/main/src/tasks/foo.ts' }, 'adversarial:3 empty command no crash');
+
+// adversarial:0 — batch_add with one contradictory entry must ALSO be refused (bypass closed).
 assert.throws(
-  () => add!({
-    storyId: STORY_ID,
-    itemId: 'CHK-001',
-    intentRef: 'CHK-001:happy:0',
-    kind: 'logic_test',
-    command: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js',
-    file: 'packages/main/src/tasks/convergence-breaker-smoke.ts',
-    result: 'pass',
-    note: 'contradictory command vs file target — must be refused',
-  }),
-  /contradict|mismatch|disagree/i,
-  'verification_evidence_add must refuse a row whose command and file name different targets',
+  () => batchAdd({ storyId: STORY_ID, evidences: [
+    { itemId: 'CHK-001', intentRef: 'CHK-001:edge:0', kind: 'logic_test', result: 'pass', note: 'batch benign entry ok', command: 'npm test', file: 'packages/main/src/tasks/foo.ts' },
+    { itemId: 'CHK-001', intentRef: 'CHK-001:adversarial:0', kind: 'logic_test', result: 'pass', note: 'batch contradictory entry must refuse', command: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' },
+  ] }),
+  CONTRADICTION_RE,
+  'adversarial:0 batch_add contradictory entry refused',
 );
-
-// (2) Matching stem across dist/src + .js/.ts must be accepted (no false positive).
-add!({
-  storyId: STORY_ID,
-  itemId: 'CHK-001',
-  intentRef: 'CHK-001:happy:0',
-  kind: 'logic_test',
-  command: 'node packages/main/dist/tasks/convergence-breaker-smoke.js',
-  file: 'packages/main/src/tasks/convergence-breaker-smoke.ts',
-  result: 'pass',
-  note: 'command and file name the same target — allowed after normalization',
-});
-
-// (3) A command with no file-like argument cannot contradict — accepted.
-add!({
-  storyId: STORY_ID,
-  itemId: 'CHK-001',
-  intentRef: 'CHK-001:edge:0',
-  kind: 'logic_test',
-  command: 'npm test',
-  file: 'packages/main/src/tasks/convergence-breaker-smoke.ts',
-  result: 'pass',
-  note: 'no file stem in command — no contradiction possible',
-});
 
 console.log('evidence-selfcheck-smoke: PASS');
