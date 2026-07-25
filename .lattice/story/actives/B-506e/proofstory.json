@@ -123,7 +123,8 @@
       "id": "AB-CONTROL",
       "checklistRefs": [
         "CHK-010",
-        "CHK-011"
+        "CHK-011",
+        "CHK-012"
       ],
       "verificationIntentRefs": [
         "CHK-010:happy:0",
@@ -147,7 +148,13 @@
         "CHK-011:edge:0",
         "CHK-011:edge:1",
         "CHK-011:adversarial:0",
-        "CHK-011:adversarial:1"
+        "CHK-011:adversarial:1",
+        "CHK-012:happy:0",
+        "CHK-012:happy:1",
+        "CHK-012:edge:0",
+        "CHK-012:edge:1",
+        "CHK-012:adversarial:0",
+        "CHK-012:adversarial:1"
       ],
       "milestoneIds": [],
       "acceptanceClaim": "red_evidence_quarantine and red_evidence_recover append control records with a derived approvedBy and the section 4.1 reference-validation state machine; red_evidence_binding_set enforces the binding freeze once a run record exists on an unquarantined chain; and the committed chain smoke registered in lattice.config.json plus the two-command wiring cover the full rejection matrix (RED signal C)."
@@ -156,5 +163,5 @@
   "diagnosticGaps": [],
   "note": "W2c v2 chain plane: 4 acceptance bindings cover all 11 checklist items and 88 verificationIntents; the three RED signals (live enforce-gate crash, two-process race, hashed rejection matrix) are the convergence anchor.",
   "createdAt": "2026-07-25T10:23:01.512Z",
-  "updatedAt": "2026-07-25T10:23:01.512Z"
+  "updatedAt": "2026-07-25T10:34:18.617Z"
 }

@@ -527,6 +527,62 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-012",
+      "title": "Enforce the expectedRedTargets write-time membership gate on red_evidence_quarantine and red_evidence_recover",
+      "context": "Spec section 3.3 (lines 993-998, rev-4 audit fix): every mutating operation REQUIRES acceptanceTargetRef in expectedRedTargets at WRITE time (never re-checked at query time — records are historical facts). red_evidence_binding_set already implements this at packages/main/src/handlers/red-evidence.ts:19,89-91; the two new commands derive acceptanceTargetRef from the referenced record's chain and MUST replicate the write-time check, rejecting a target not in expectedRedTargets. This is handler-body semantic validation, distinct from the 13-point wiring plumbing.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-506e/background.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A red_evidence_quarantine whose referenced record acceptanceTargetRef is in expectedRedTargets appends normally.",
+            "type": "cli"
+          },
+          {
+            "desc": "A red_evidence_recover on an in-topology target chain appends normally.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The derived acceptanceTargetRef is read from the referenced record chain (never a caller argument) and checked against the live expectedRedTargets resolver.",
+            "type": "cli"
+          },
+          {
+            "desc": "A chain whose target was later removed from topology stays queryable because membership is write-time only, not query-time (no corrupt-chain).",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Committed test: red_evidence_quarantine referencing a record whose acceptanceTargetRef is NOT in expectedRedTargets is REJECTED at write time with a membership error and nothing is written.",
+            "type": "cli"
+          },
+          {
+            "desc": "Committed test: the same write-time membership gate rejects red_evidence_recover for an out-of-topology target.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-25T10:33:58.359Z",
+      "phase": "PLAN",
+      "itemId": "CHK-012",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer (scope-check _hash c68cc562) found the section 3.3 target-membership write-time gate uncovered by any checklist title; it is a spec-mandated write-time semantic check on the two new commands (already implemented for red_evidence_binding_set), distinct from the 13-point wiring plumbing. Adding as a named item so gate review covers it.",
+      "addedTitle": "Enforce the expectedRedTargets write-time membership gate on red_evidence_quarantine and red_evidence_recover",
+      "addedContext": "Spec section 3.3 (lines 993-998, rev-4 audit fix): every mutating operation REQUIRES acceptanceTargetRef in expectedRedTargets at WRITE time (never re-checked at query time — records are historical facts). red_evidence_binding_set already implements this at packages/main/src/handlers/red-evidence.ts:19,89-91; the two new commands derive acceptanceTargetRef from the referenced record's chain and MUST replicate the write-time check, rejecting a target not in expectedRedTargets. This is handler-body semantic validation, distinct from the 13-point wiring plumbing."
     }
   ]
 }
