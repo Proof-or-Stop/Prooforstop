@@ -1,0 +1,29 @@
+{
+  "passes": [
+    {
+      "id": "B-ec67:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 independent verification of F-001/F-007 fixes (commits e040952697+f8de35a0fd): rebuilt dist and re-ran my original adversarial repro scripts. F-007: checklist_update now refuses a fabricated executable-intent result:pass row via assertChecklistUpdateEvidenceRowAllowed [checklist_update_executable_evidence_unenforced]; confirmed thrown. F-001: verification_evidence_refresh_stale now carries mechanical/receipt/nonMechanicalReason forward and demotes a refreshed mechanical:true receipt to mechanical:false (receipt dropped, reason auto-filled); confirmed coverage stays non_mechanical/blocking (missingRequired=1) instead of laundering to covered on both the escape-evidence case and the real-receipt-demotion case. Ran tool-executed-evidence-receipt-smoke.js and proofstory-acceptance-topology-smoke.js (which now asserts the F-007 refusal) end to end: both PASS. Reviewed the migrated collateral smokes (field-regression-cli, proofstory-pre-review-check) that switched executable-intent writes to the audited nonMechanicalReason escape — consistent with the new contract, no new concept gaps. verification.ts coverageStatusForCoveredEvidence is comment-only changed (legacy-grandfather logic unchanged) and is now provably safe since no write path can mint mechanical:undefined for a new executable-intent write. No blocking findings this round.",
+      "createdAt": "2026-07-26T01:30:13.558Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-006",
+      "envelopeId": "165caefb99c4a78e3523b193cc04405afa60f8ce87c765ae34ffc171df253373",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "da74cc2dc538d99244260830f324890eb51eb1b8838cc2324b72faf3bb13d854"
+    }
+  ]
+}
