@@ -1,0 +1,128 @@
+{
+  "storyId": "B-506e",
+  "checkedAt": "2026-07-26T00:14:25.283Z",
+  "headHash": "d66399d62972e6dc4b2b410625fecbd8f1556678",
+  "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
+  "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
+  "reviewRound": "2026-07-25T22:32:54.983Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "summary.json#changes",
+      "promise": "Two new owner-gated commands red_evidence_quarantine / red_evidence_recover exist and are fully registered (registry, command-catalog, command-policy, config, process-fact-levels, process-fact-registry, types union, agent-dispatch-registry, process-fact contract)",
+      "verifiedBy": "diff/grep + node execution",
+      "evidence": "packages/main/src/handlers/red-evidence.ts defines both handlers; registered via createRedEvidenceHandlers in registry.ts:411; present in command-catalog.ts:3206/3213, command-policy.ts:438-439, config.ts:469-470, process-fact-levels.ts:353-354, process-fact-registry.ts:172-173, agent-dispatch-registry.ts:29/196, types.ts AgentDispatchMutationCommand union. lifecycle-registry-contract, command-ownership-contract, and scripts/verify-process-fact-contract.mjs all ran and exited 0."
+    },
+    {
+      "docPath": "summary.json#changes",
+      "promise": "approvedBy is DERIVED <actor>@<sessionId> and a caller-supplied approvedBy is rejected",
+      "verifiedBy": "code read + red-w2c-rejection-matrix.mjs",
+      "evidence": "handlers/red-evidence.ts appendChainControl throws if args.approvedBy !== undefined before any write; red-w2c-rejection-matrix.mjs asserts a forged approvedBy is rejected and records.length is unchanged."
+    },
+    {
+      "docPath": "summary.json#changes",
+      "promise": "tasks/red-evidence-chain-smoke.ts is registered in lattice.config.json validate.commands and nine committed regression tests live under packages/main/tests/red/",
+      "verifiedBy": "grep + file listing + execution",
+      "evidence": "lattice.config.json validate.commands has 52 entries; index 51 (commands[51]) is the red-evidence-chain-smoke.js entry, matching the actualTranscript claim '52 of 52... commands[51]'. Exactly 9 files exist under packages/main/tests/red/red-w2c-*.mjs (matches git diff --name-only); all 9 ran directly and exited 0."
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "RedEvidenceData.records[] widened to a mixed v1/v2 array with unchanged on-disk file-level schemaVersion (v1) and no migration of existing v1 stores",
+      "verifiedBy": "diff read",
+      "evidence": "types.ts: `records: (RedEvidenceRecord | RedEvidenceRecordV2)[]`, file-level `schemaVersion: 'proofstory.red_evidence.v1'` unchanged; store.readRedEvidence classifies but does not rewrite records."
+    },
+    {
+      "docPath": "plan.md#CHK-003 / summary.json#limitations",
+      "promise": "redEvidenceRecordSatisfied skips every non-v1 record; a v2 record never crashes the LIVE enforce gate; v1-only diagnostics stay byte-identical",
+      "verifiedBy": "code read + independent differential repro against a pre-fix tree checkout (commit 8727b2db83, git archive + tsc build)",
+      "evidence": "proofstory.ts:944-947 classifies via classifyRedRecordSchemaSafe and returns false for any non-v1 record BEFORE touching observedFailure. Independently reproduced: on the pre-fix tree, a v2/v3 record placed BEFORE (or as the only record, i.e. no prior v1 satisfier) throws TypeError at observedFailure.trim(); on the current tree the same input returns a typed result / no crash. This substantiates RED signal A as genuinely real."
+    },
+    {
+      "docPath": "summary.json#limitations",
+      "promise": "The claimed differential RED (pre-change tree throws a TypeError; current tree returns a typed RedEvidenceSchemaError) plus a byte-identical v1-only diagnostic is proven by a sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc match across five v1 scenarios, backed by a committed regression",
+      "verifiedBy": "grep across full repo + full read of red-w2c-gate-guard.mjs and red-w2c-schema-failclosed.mjs + independent pre-fix differential repro",
+      "evidence": "OVERCLAIM: that exact sha256 string does not appear anywhere in the repository (grep -rn across packages/main and scripts/ returns zero hits), and neither committed test computes a sha256 digest or runs five v1 scenarios (empty/satisfying/blank-observedFailure/foreign-target/mixed) as described in checklist verificationEvidence notes for CHK-002:happy:0 and CHK-003:happy:0 -- the referenced command (red-w2c-schema-failclosed.mjs) only exercises ONE v1-only scenario, using plain JSON.stringify string equality, not a hash. ADDITIONALLY, the specific assertions in both committed tests that claim to inject a v2/v3 record 'into the diagnostic input' and prove it 'does not crash the predicate' place the injected record AFTER an already-satisfying v1 record in the array; since redEvidenceSatisfied uses Array.prototype.some() (short-circuiting), the injected non-v1 record is never actually evaluated by redEvidenceRecordSatisfied in that ordering, on EITHER the pre-fix or post-fix tree -- I independently confirmed the pre-fix tree does NOT throw on that exact [v1, v2] ordering, only on [v2] or [v2, v1] ordering (v2/non-v1 record with no prior satisfier). The read-path fail-closed classifier (store.ts) IS genuinely and correctly tested and IS the primary defense. Net: the core fix is real and independently reproducible, but the specific 'sha256 ... across five v1 scenarios' prose claim is not backed by any committed artifact, and two of the predicate-level 'defense-in-depth' assertions do not exercise the code path their docstrings claim due to short-circuit ordering."
+    },
+    {
+      "docPath": "summary.json#limitations",
+      "promise": "The serialization claim (every chain append serialized under one mkdir claim) is proven by a genuine two-process race",
+      "verifiedBy": "code read + test execution",
+      "evidence": "red-w2c-quarantine-race.mjs spawns two REAL OS child processes (node:child_process spawn) that each dispatch the real registered red_evidence_quarantine handler concurrently against the same chain head; asserts records.length delta==1, exactly one quarantine record, a unique head, and exactly one child exits 0. Ran directly, exit 0. Not a mock."
+    },
+    {
+      "docPath": "summary.json#limitations",
+      "promise": "The chain rules are proven by a hashed rejection matrix (fork/seq/prior-mismatch reason ids, recover-of-recover, quarantine-of-non-head, retired-byte-identical, self/mutual-recover-terminate, replay, corrupted-key CONFLICT, forged approvedBy, out-of-topology)",
+      "verifiedBy": "code read + test execution",
+      "evidence": "red-w2c-rejection-matrix.mjs dispatches real handlers via createMainRegistry (not hand-rolled fakes), uses recordCanonicalBytes for the byte-identical retired-record check, and covers all ten matrix entries listed in its own docstring. Ran directly, exit 0."
+    },
+    {
+      "docPath": "summary.json#limitations",
+      "promise": "This story writes only the two control operations; the assertion envelope, matchers, run receipts and the process-spawning runner belong to later leaves W2d and W2e",
+      "verifiedBy": "diff scope read",
+      "evidence": "handlers/red-evidence.ts only adds red_evidence_quarantine/recover (control records); no envelope/matcher/receipt schema or process-spawning runner code appears in the diff. Matches plan.md 'Out of scope' section."
+    },
+    {
+      "docPath": "summary.json#limitations",
+      "promise": "A separate pre-existing defect on main, where a malformed versionless record still classifies as v1 and crashes the same predicate, was raised by the cross-host reviewer, confirmed by the orchestrator to be identical on main, and filed as its own task rather than folded in here",
+      "verifiedBy": "independent repro on current tree + repo-wide search for a filed task",
+      "evidence": "SUBSTANCE CONFIRMED, PROCESS UNVERIFIABLE: I independently reproduced the defect on the CURRENT post-fix tree -- a versionless record (no schemaVersion field) missing observedFailure classifies as v1 (classifyRedRecordSchemaSafe: 'absent version -> v1' by design) and still throws a bare TypeError at record.observedFailure.trim() in the live gate; this story's fix does not touch it (it only guards on the version discriminant, not v1-shape validation). This confirms the defect is real and still present. However, I could NOT find any filed task/story documenting it: grep -r 'versionless' across .lattice/story/actives/ only matches B-506e's own summary.json; no bug_list entry, no findings.json entry on any other story, and no story created after B-506e (checked all stories by createdAt) has a matching title/description. The 'filed as its own task' claim is not verifiable from repository state (may have been filed outside Lattice, or not filed at all)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "red-evidence-chain-smoke.js section 1 exercises v2 union field-set omission/presence, null chain fields, specDigest, and fail-closed classifier; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "red-w2c-schema-failclosed.mjs: mixed v1/v2/v3 store round-trip, empty/v1-only/v2-only parse correctness, unsupported-version read-time rejection with typed RedEvidenceSchemaError; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "red-w2c-gate-guard.mjs + red-w2c-schema-failclosed.mjs: live enforce gate does not throw on v2/v3 records, v1 verdict unaffected, v2-only/v3-only store reports missing not crash. NOTE: two of the 'inject after a satisfying v1' assertions do not exercise the intended short-circuit-bypassing code path (see docsPromises overclaim entry) -- the substantive fix is still independently verified true via direct repro and via the v2-only/v3-only scenarios which DO exercise it."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "red-w2c-rejection-matrix.mjs: both head-resolution conjuncts, all three integrity checks (seq gap, seq reuse, prior-digest mismatch, fork) with distinct reason ids for fork vs prior-digest-mismatch; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "red-w2c-rejection-matrix.mjs: self-referential and mutual-cycle recover chains terminate (effectiveHeadOperation doesNotThrow); commit 6361b52d4c adds green-confirm target legality; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "red-evidence-chain-smoke.js + red-w2c-quarantine-race.mjs use redAssertOperationKey/controlOperationKey/deriveRecordId directly to construct real records; deterministic id format verified; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "red-w2c-rejection-matrix.mjs: replay returns existing record with records.length unchanged; corrupted stored operationKey/digest raises CONFLICT via red-w2c-head-consistency.mjs; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "red-evidence-chain-smoke.js section covers scoped dedupe (a prior quarantine does not swallow a deliberate replacement append) and CONFLICT; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "red-w2c-quarantine-race.mjs: genuine two-OS-process race via child_process.spawn against the real registered handler, one record/one head/one winner/one structured-abort loser; ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "red-w2c-rejection-matrix.mjs + handlers/red-evidence.ts read: recorded quarantine/recover via real dispatched handlers, forged approvedBy rejected, recover-of-recover and quarantine-of-non-head rejected, binding-freeze covered by red-w2c-binding-freeze-race.mjs and red-w2c-binding-corrupt-chain.mjs; all ran directly, exit 0"
+    },
+    {
+      "featureId": "CHK-011",
+      "transcript": "red-w2c-validate-registration.mjs: non-vacuous proof that lattice.config.json validate.commands registers red-evidence-chain-smoke.js at commands[51] of 52, with mutation-based detection of de-registration; ran directly, exit 0. Independently confirmed the config file itself: 52 total commands, index 51 == red-evidence-chain-smoke.js entry."
+    },
+    {
+      "featureId": "CHK-012",
+      "transcript": "red-w2c-rejection-matrix.mjs: out-of-topology target rejected at write time for both quarantine and recover with 'not in expectedRedTargets' and nothing written; ran directly, exit 0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 12 checklist items are backed by real, non-mocked machine tests (genuine two-process spawn race, real dispatched handlers via createMainRegistry, non-vacuous mutation-based wiring-detectability, live enforce-gate differential). All 9 committed red-w2c-*.mjs tests, the chain smoke, and all three registry contracts pass when run directly. I independently reproduced both the fixed crash (via a pre-fix tree checkout) and the still-open pre-existing versionless-record defect described in limitations, confirming both are substantively accurate. However, the summary/checklist overclaim in one specific respect: the 'sha256 ... across five v1 scenarios' differential-proof claim is not backed by any committed, reproducible artifact (no such hash or five-scenario run exists anywhere in the repo), and two 'defense-in-depth' assertions in the committed tests do not actually exercise the code path they claim to (Array.prototype.some short-circuits past the injected non-v1 record when a prior v1 record already satisfies) -- though the substantive fix is still independently proven true via other paths in the same test files (the v2-only/v3-only scenarios, and the read-path fail-closed classifier). The 'filed as its own task' claim for the pre-existing defect is unverifiable from repository state."
+  },
+  "_hash": "613965da5293aa1ed4a9edccfb36e031af78eca3e808ebe0854fef4f338f9421"
+}
