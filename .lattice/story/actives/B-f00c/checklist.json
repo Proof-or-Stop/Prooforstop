@@ -154,14 +154,16 @@
         },
         {
           "intentRef": "CHK-001:adversarial:1",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "packages/main/src/core/validation-evidence-admissibility.ts",
-          "note": "Both classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts) import classifyMergeLineage from the same './validation-lineage.js' module; grep confirms one shared source, so the two cannot diverge.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "Smoke test 1 drives BOTH classifyTrustedValidationLineage (reuse) and evaluateValidationEvidenceAdmissibility (admissibility) to the same trusted result on one merge scenario; both files import classifyMergeLineage from the single './validation-lineage.js' module, so they cannot diverge. Exit 0.",
+          "headHash": "b15b928ee360bc2fa98c341d54581210fae3aadd",
           "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
           "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "timestamp": "2026-07-26T05:09:03.601Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
