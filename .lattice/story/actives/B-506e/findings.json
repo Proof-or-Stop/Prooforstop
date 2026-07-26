@@ -270,7 +270,7 @@
       "desc": "[codex host-B round-3] The three reverse-order companion cases that round 3 deliberately RETAINED (labelled vacuous) are still assertions in the evidence set that cannot fail: red-w2c-gate-guard.mjs:113 and :116, red-w2c-schema-failclosed.mjs:149 and :152, and red-evidence-chain-smoke.ts:287 and :290 (the artifact registered in lattice.config.json validate.commands). In each, a SATISFYING v1 record precedes the record under test, so Array.prototype.some() short-circuits and the record under test is never evaluated; all six assertions also pass against the pre-guard tree. Labelling them does not make them evidence. Fix per codex: order them [unsatisfying v1, record-under-test, satisfying v1] so the record under test IS evaluated while remaining non-leading — that turns a vacuous companion into a genuine mid-array placement scenario — or remove them. codex confirmed the four round-3 fixes themselves are sound and found no swallowed test conditions.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-26T00:49:36.887Z",
@@ -282,7 +282,11 @@
         "packages/main/src/tasks/red-evidence-chain-smoke.ts"
       ],
       "signatureTag": "adversarial|mjs|codex-host-round",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed per codex host-B. All three retained reverse-order companions are now mid-array cases ordered [non-satisfying v1, record-under-test, satisfying v1]: the leading v1 carries a non-empty observedFailure (so it does not itself crash the pre-fix predicate) but a foreign acceptanceTargetRef, so Array.prototype.some cannot short-circuit and the record under test IS evaluated while remaining non-leading. Non-vacuity was executed, not argued: against a dist built from git archive 8727b2db83 with the earlier already-proven cases stripped so the mid-array case is the one reached, all three FAIL with TypeError at observedFailure.trim; the chain smoke cannot link against that ancestor (chain/append/operation-key do not exist there) so it was run against a dist whose redEvidenceRecordSatisfied body was reverted verbatim, with the same failure. All pass on the current tree.",
+      "resolvedAt": "2026-07-26T01:57:54.345Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-015",
