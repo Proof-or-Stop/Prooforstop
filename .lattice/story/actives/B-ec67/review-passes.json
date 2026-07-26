@@ -24,6 +24,36 @@
         "scanEscalationReason": null
       },
       "_hash": "da74cc2dc538d99244260830f324890eb51eb1b8838cc2324b72faf3bb13d854"
+    },
+    {
+      "id": "B-ec67:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-verification: F-002..F-005 fixed in cb4f966371. Rebuilt clean, ran node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js and npm run test:tool-executed-evidence-receipt-smoke, both print PASS/exit0. Mutation-killed all four independently (sha256-constant swap, caller-echo of result, MIN_NON_MECHANICAL_ESCAPE_REASON=0, disabled manual/docs attestation branch) against compiled dist -> smoke now fails each time as claimed, then restored+rebuilt clean. F-006/F-007 regression cases and case-8 replacement also reviewed; consistent with CHK-001/005 legacy-read semantics (new-write grandfather closed, existing-row read/coverage grandfather unchanged). No new gaps found this round.",
+      "createdAt": "2026-07-26T01:31:46.691Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-005",
+      "envelopeId": "47aecd4da1aea0f593a32355efb24c4ed1c85fa8e47f848215bcd505027d0384",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-ec67/background.md",
+          ".lattice/story/actives/B-ec67/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-ec67/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "151dbe8f7e03ca9250487d000040746a6d13d06f09ebe903ea50c97878c7e300"
     }
   ]
 }
