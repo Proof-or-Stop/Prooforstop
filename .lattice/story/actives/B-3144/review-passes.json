@@ -101,6 +101,32 @@
         "scanEscalationReason": null
       },
       "_hash": "a332deb1df4437986b429b5a5ea18533775f4bf5bd017894a149a680d1e9d533"
+    },
+    {
+      "id": "B-3144:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 verification of F-012 and F-011 fixes (commit e306cc7aad). F-012: the symmetric apply:false+dryRun:false conflict now refuses before any file I/O — verified live against the built CLI by enumerating the full apply/dryRun truth table (9 combinations: {true,true} and {false,false} both refuse with no mutation; {true,false}/{true,undefined}/{undefined,false} all execute; {false,true}/{false,undefined}/{undefined,true}/{undefined,undefined} all dry-run-project only) — no combination silently executes against an explicit refuse instruction or silently no-ops against an explicit execute instruction. F-011: all 5 previously-stale prose sites (quorum-prune.ts module comment + user-facing dry-run note, command-catalog.ts top-level description, process-fact-levels.ts rationale, command-policy.ts reason) now consistently name both apply:true and dryRun:false as executors; verified via git diff and live `lattice quorum_prune --help` output (top-level description and --dryRun flag description no longer contradict). Ran the full quorum-submit-smoke.js suite standalone (not via npm test) to isolate from shared-suite contention: 64/64 checks green including the two new checks added this round (refuses the symmetric apply:false+dryRun:false conflict; every quorum_prune apply/dryRun description states both executors). Confirmed no regressions in surrounding wiring (cli-engine.ts F-001 exclusion, config.ts DEFAULT_PHASE_TOOLS, lattice-cli.ts registration all intact). git status clean after testing, no stray artifacts. All 12 prior findings verified resolved; no new problems found.",
+      "createdAt": "2026-07-26T03:34:19.296Z",
+      "reviewRound": "2026-07-26T03:24:04.565Z",
+      "reviewRunId": "B-3144:RR-013",
+      "envelopeId": "bfa1591b55ea7ab9610e8ea014d890ab52647dfa068a4619bfb6cc23a3b61666",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c603d1e1b7e64a31ef5a013538df01fab2480ba0b6e71577c3bd08dd4df4ed6"
     }
   ]
 }
