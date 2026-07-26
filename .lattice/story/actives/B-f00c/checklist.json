@@ -69,10 +69,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 1 calls classifyMergeLineage, classifyTrustedValidationLineage (reuse copy) and evaluateValidationEvidenceAdmissibility (admissibility copy) on the same merge scenario; both classifier files import classifyMergeLineage from validation-lineage.js. Smoke exits 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.556Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -82,10 +82,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "netDiffChangedPaths runs git diff-tree -r --no-commit-id --name-only --no-renames -z <E> <C>; smoke tests 4/5 assert its output (empty for identical trees, all paths for a large diff). Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -95,10 +95,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 3 asserts classifyMergeLineage returns {kind:'exact-head'} when evidenceHead===currentHead. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -108,10 +108,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 7 injects a throwing changedPathsFn on an ancestor scenario (merge-base OK) and asserts {kind:'diff-failed'} distinct from not-ancestor. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -121,10 +121,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 4: two distinct heads with byte-identical trees -> netDiffChangedPaths empty -> classifyMergeLineage {kind:'trusted-descendant'} (not rejected). Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -134,10 +134,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 5: >1500 changed paths in the net diff do not throw ENOBUFS (maxBuffer 1024*1024*1024) and classify trusted. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -147,10 +147,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 1 asserts the inline per-commit -m union DID list foo.ts while classifyMergeLineage trusts it: reverting to the union flips the result, so the fix is non-vacuous. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -160,10 +160,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 1 drives BOTH classifyTrustedValidationLineage (reuse) and evaluateValidationEvidenceAdmissibility (admissibility) to the same trusted result on one merge scenario; both files import classifyMergeLineage from the single './validation-lineage.js' module, so they cannot diverge. Exit 0.",
-          "headHash": "b15b928ee360bc2fa98c341d54581210fae3aadd",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:09:03.601Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -173,10 +173,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "Full npm test exits 0 (incl test:process-fact-contract) on current material; git diff confirms the 8 reuse factors sit outside the changed hunk, byte-unchanged.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         }
       ]
     },
@@ -249,10 +249,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "RED demonstration: smoke test 1 asserts perCommitUnionChanged (old semantic) includes foo.ts on the merge scenario, reproducing the pre-fix false positive. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -262,10 +262,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "GREEN: smoke test 1 asserts classifyMergeLineage and both copies return trusted for the same merge scenario after the net-diff fix. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -275,10 +275,10 @@
           "command": "node -e \"const c=require('./lattice.config.json');const m=c.validate.commands.filter(e=>String(e).includes('validation-reuse-merge-lineage-smoke.js'));process.exit(m.length===1?0:1)\"",
           "result": "pass",
           "note": "Command-backed (exit 0): lattice.config.json validate.commands has exactly one bare-string (normal-tier) entry for validation-reuse-merge-lineage-smoke.js.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -288,10 +288,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "NEGATIVE: smoke test 2 asserts a genuine non-metadata content change (shared.ts) is untrusted on classifyMergeLineage, the reuse copy, and the admissibility copy. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -301,10 +301,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 4: empty-net-diff between two distinct heads (byte-identical trees) classifies trusted-descendant. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -314,10 +314,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 5: >1500-path net diff exercises maxBuffer without ENOBUFS. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.678Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -327,10 +327,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Mutation resistance: smoke test 1's perCommitUnionChanged assertion fails if the classifier is reverted to the per-commit -m union, so the guard is un-gameable. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.679Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -340,10 +340,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 2 (NEGATIVE) asserts a genuine content change stays untrusted on both paths; it is load-bearing — removing it would let a real change be silently reused with no other assertion catching it. Exit 0.",
-          "headHash": "25618f397378dc7c0bfa92dfcf4a86b19884272a",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:09:04.524Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.679Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -353,10 +353,10 @@
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
           "note": "Smoke test 1 calls BOTH classifyTrustedValidationLineage (reuse path) AND evaluateValidationEvidenceAdmissibility (admissibility path) in the same git state, proving both copies are fixed. Exit 0.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
-          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
-          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "headHash": "3d040e367b10e2ec235352a2b5c98bedd6c2c8fa",
+          "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+          "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+          "timestamp": "2026-07-26T08:34:48.679Z"
         }
       ]
     }
