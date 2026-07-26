@@ -133,7 +133,41 @@
       "context": "RED-first. (1) Drive a story to >= threshold non-improving completed review rounds and assert the Nth ordinary round is MINTED before the fix and REFUSED after, with the structured prompt. (2) Reproduce the F-058 scenario (a checklist item unreachable from the requirement) and assert that declaring it unreachable CLOSES the loop instead of spinning another round. (3) Assert the existing convergence-breaker + story_resume --ack still work and are not double-counted. Register the smoke in lattice.config.json validate.commands + package.json.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the registered smoke prints review-budget-stall-adjudication-smoke: PASS and is wired in lattice.config.json validate.commands + both package.json",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "RED-first: each assertion mutation-kills — reverting the block, the resolution-clear, the unreachable-close, or the breaker coexistence makes the smoke fail",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the smoke drives the REAL gate/handler entry points (not reimplemented logic), reproducing the stall refusal, the F-058 unreachable-item loop closure, and convergence-breaker non-interference",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
