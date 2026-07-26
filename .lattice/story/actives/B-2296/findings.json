@@ -44,7 +44,7 @@
       "desc": "missing: packages/main/src/handlers/checklist.ts:286-306 captureUserSeesSnapshot (the real production hook wired into checklist_update at the status->done transition, lines 1381-1386) is exercised by ZERO automated tests. frozen-claim-drift-smoke.ts and every CHK-002 verificationEvidence row only unit-test the pure detectDrift/buildDriftReport Fns against hand-constructed FrozenClaimSnapshot fixtures -- none of them ever invoke checklist_update or the real captureUserSeesSnapshot/evidenceHashes wiring. CHK-002s own verificationIntent explicitly specified type=cli for happy/edge/adversarial (e.g. CHK-002:happy:0 after userSees is snapshotted at status=done...), but the recorded evidence substitutes the same offline pure-Fn smoke script (kind:integration_test) instead of a real CLI-driven test. I manually verified via an isolated scratch repo (spawnSync against dist/cli.js) that the real hook currently behaves correctly (captures on first done, immutable-once on re-persist), so there is no live bug today -- but a future refactor of the status-transition block in checklist.ts (e.g. reordering the oldStatus capture, or the userSees vs status write order) could silently break snapshot capture or the immutable-once guarantee with no automated test catching it.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T22:15:19.336Z",
@@ -57,7 +57,11 @@
       ],
       "signatureTag": "missing|ts|missing-packages-main",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedReason": "Added integration smoke packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts (commit 01df7748) driving the REAL captureUserSeesSnapshot hook via the shipping checklist_update handler on a temp repo: asserts snapshot pinned on status=done, immutable-once, no-userSees=>no-snapshot, and clean-report path. Registered in validate.commands + package.json; validate green.",
+      "resolvedAt": "2026-07-26T22:43:46.353Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-2296:F-004",
