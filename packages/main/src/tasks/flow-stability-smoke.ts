@@ -1722,11 +1722,15 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
           adversarial: [],
         },
         verificationEvidence: [{
+          // B-3b88: command-less attestation on purpose — this block asserts the
+          // storyFilesHash downgrade semantics and that refresh re-stamps the row.
+          // A command-backed result:pass is now refused by refresh (never
+          // re-certified without re-execution), which is covered by
+          // refresh-stale-honesty-smoke.
           intentRef: 'CHK-001:happy:0',
-          kind: 'logic_test',
-          command: 'synthetic',
+          kind: 'manual_transcript',
           result: 'pass',
-          note: 'synthetic evidence',
+          note: 'synthetic attestation evidence',
           headHash: recordedHead,
           materialHash: recordedMaterial,
           storyFilesHash: recordedStoryFiles,
