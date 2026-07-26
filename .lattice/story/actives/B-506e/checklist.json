@@ -180,15 +180,15 @@
         },
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/core/store.ts",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "result": "pass",
-          "note": "No-migration guarantee re-proven after wiring the load-time classifier into store.readRedEvidence: a v1 record has NO per-record schemaVersion, so it classifies as v1 and loads unchanged; the file-level schemaVersion stays proofstory.red_evidence.v1. red-w2c-schema-failclosed.mjs step 5 round-trips a v1-only store after the change and asserts the diagnostic equals the v1-only baseline, and the differential run against the pre-fix baseline dist is byte-identical (sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc across 5 v1 scenarios). Only an UNSUPPORTED version is rejected. Commit b4fa4bbfad.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.824Z"
+          "note": "Re-run in round 3 after the file changed (step 4 ordering corrected). What this artifact asserts for this intent: steps 1 and 5 write a v1-only store, read it back through the real store.readRedEvidence, run the REAL diagnostics, and assert the missingRedEvidence verdict is byte-identical end to end — v1 records round-trip unrewritten and unwidened. Not asserted here: any hash over the full report; that is red-w2c-v1-verdict-invariance.mjs.",
+          "headHash": "cb0bebba3db2d729e91c14a43c083186ae871107",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:33:13.015Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
