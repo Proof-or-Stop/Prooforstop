@@ -62,6 +62,56 @@
         "scanEscalationReason": null
       },
       "_hash": "37416af47f6f99860dc976484d1ccc7cc40efd453521f0bd38d9d04604b54146"
+    },
+    {
+      "id": "B-1507:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-review of concept/wiring completeness. Verified round-1 fixes (commit eae5eba): (1) verification_pin_guard_check added to process-fact-levels.ts (L0/guard-session-read) with no separate process-fact-registry.ts entry, matching prewrite_guard_check pattern exactly (grep confirms neither appears in the registry maps) -- correct and complete, not a gap. (2) .claude/settings.json Bash matcher for lattice-evidence-pretool.cjs present; lattice check reports .claude:settings.json OK. npm --prefix packages/main run build: clean. lifecycle-registry-contract.js: PASS (0 divergences). lattice check: OK=5; the 4 remaining drift items touch zero files in git diff main...HEAD -- pre-existing/unrelated. Re-scanned the full diff (50 files) for other half-wired residue: verification_run and verification_pin_guard_check are fully wired end-to-end through command-catalog.ts, command-policy.ts, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts (+process-fact-registry.ts for verification_run only, correctly), registry.ts, cli-init.ts+init-assets.ts+managed-assets.ts for both Claude and Codex hosts, and cli-engine.ts MILESTONE_STATUS_APPEND_COMMANDS. The refreshStaleEvidenceMetadataOnly extraction is consistently applied across all three non-executing callers and smoke test call sites, no leftover inline references. Ran pinned-fingerprint-gated tests directly: retired-authority-vocabulary-guard-smoke PASS, scripts/verify-process-fact-contract.mjs PASS, verification-run-and-guard-smoke.js PASS, and confirmed it is registered in lattice.config.json/package.json/packages/main/package.json. Codex real shell tool_name remains documented CANDIDATE-pending (fail-open), not a blocker. No concept-deletion residue and no half-wired residual found this round; F-001/F-002/F-004 confirmed resolved.",
+      "createdAt": "2026-07-26T06:52:50.312Z",
+      "reviewRound": "2026-07-26T06:36:03.008Z",
+      "reviewRunId": "B-1507:RR-014",
+      "envelopeId": "5d392a52be88defede83e9eb7184442036de828a9e7b8cf44b1a67dc28eb184d",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/hooks/lattice-evidence-pretool.cjs",
+          ".claude/settings.json",
+          ".codex/hooks.json",
+          ".codex/hooks/lattice-evidence-pretool.cjs",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/handlers/recover-evidence.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1507/checklist.json",
+          ".lattice/story/actives/B-1507/findings.json",
+          ".lattice/story/actives/B-1507/milestone-ledger.json",
+          ".lattice/story/actives/B-1507/plan.md",
+          ".lattice/story/actives/B-1507/review-passes.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15bb0be6532b65f37c01bc068979f09df9b4189497da6aa26359f1d5b2df5c51"
     }
   ]
 }
