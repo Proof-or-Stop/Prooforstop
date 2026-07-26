@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2296",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status",
+    "node *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm run test:*",
+    "npx tsc --noEmit *"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "npx",
+    "tsc"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/templates"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    ".worktrees",
+    "docs/story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Phase 1 detect+report only. Runtime changes confined to the packages/main CLI. No direct docs/story or .lattice file edits (CLAUDE.md rule 8; all story ops via lattice CLI).",
+  "createdAt": "2026-07-26T11:42:22.936Z",
+  "updatedAt": "2026-07-26T11:42:22.936Z",
+  "_hash": "4265f6e6a5fa195a2bdc775771855930d8f349b6e6cbdecfc9b7bdd8f7f4715f"
+}
