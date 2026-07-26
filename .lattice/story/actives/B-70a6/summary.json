@@ -1,0 +1,56 @@
+{
+  "storyId": "B-70a6",
+  "changes": "transition-orchestrator.ts: buildPhaseTransitionProcessEvent gained optional transitionType/reason, appended only when defined, and the call site passes them only when eventType==='REOPEN' — so a gated PLAN->INIT reopen now leaves its operator-supplied reason in the append-only phase_transition event, while every normal transition keeps a byte-identical event shape. Same file: the REOPEN checklist-reset comment now states its real guarantee (concurrency-atomic via the mkdir persist claim, ordered phase-write-last) instead of claiming the writes 'land together or not at all'. worktree.ts: the pruneWorktreeRegistry comment now documents that `git worktree prune --expire now` cannot remove a live sibling worktree, that it is repo-wide rather than story-scoped, and that a git-worktree-locked entry survives even with its directory gone. plan-init-reopen-roundtrip-smoke.ts: asserts the persisted JSONL carries the reason + transitionType, that a refused reopen appends ZERO PLAN->INIT events, and that a real normal transition carries neither key.",
+  "usage": "lattice story_advance '{\"storyId\":\"B-xxxx\",\"phase\":\"INIT\",\"reason\":\"why the frozen title must change\"}' from PLAN. Afterwards the reason is durably readable: lattice story_get / reading .lattice/story/actives/B-xxxx/process-events.jsonl shows a phase_transition event with fromPhase=PLAN, toPhase=INIT, transitionType=reopen and the verbatim reason.",
+  "expectedOutcome": "A maintainer who reopens a story to INIT can later prove WHY it was reopened, from the durable audit trail rather than from memory; a refused reopen leaves no event claiming success; and no other transition's event shape changes.",
+  "actualTranscript": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js -> '✓ plan-init-reopen round-trip smoke passed' + '✓ dev_start from-main reuse + deleted-worktree re-bootstrap passed' (exit 0). node packages/main/dist/tasks/flow-stability-smoke.js -> '✓ flow stability smoke passed' (exit 0). npm run test:process-fact-contract -> 'Process fact contract verified'. Full lattice validate: all 51 configured commands passed ('Project validation commands passed'). grep -c 'land together or not at all' transition-orchestrator.ts -> 0. grep -n 'live sibling' worktree.ts -> line 578.",
+  "outcomeDiff": "No difference in the shipped behavior versus what was expected. Two deviations from the ORIGINAL request are worth recording: (1) the requester's section 4 also listed actor and eventId provenance, which were deliberately excluded (recorded in scope-boundary.json) after they answered 'no preference' when asked, keeping this a minimal LOW-severity cleanup; (2) the requester's section 5 asked for stronger transition/audit-event transactionality, which was NOT added because the phase_transition event is already appended only after a successful writeStory (a failed transition already cannot leave a success event) and true crash-transactionality is a pre-existing property of ALL transitions, out of scope per their own section 6.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The audit event records reason + transitionType + fromPhase/toPhase/timestamp, but NOT actor or eventId — deliberately excluded, so the trail proves why and when a reopen happened, not which identity performed it. The event append and the phase write remain two separate fs writes under a mkdir concurrency lock: a hard crash between them can still leave a checklist reset without the phase advanced (the safe direction, since the phase write is ordered last), so this is concurrency-atomic and not crash-transactional.",
+  "pitfalls": "Four things cost real time. (1) Driving lattice from a NESTED git worktree (a Claude Code worktree, not a lattice story worktree) makes INIT_CHECK's reconcile resolve a double-nested worktree path and die with a misleading 'spawnSync git ENOENT' — git is present; the cwd does not exist. It left story metadata split across two branches and required cherry-picking both the code and the metadata commits into the story worktree. Same bug class as B-8b69 CHK-002 but on the reconcile path. (2) The validate suite is now 51 commands and blows past story_advance's 900s watchdog (one command alone took 340s); every TEST/DONE advance needs LATTICE_MAX_TIMEOUT_MS raised. (3) Pre-writing a 'reference implementation' before dispatching implementers is a trap: independent implementers found real defects in ALL THREE reference commits — a test that provably could not catch a call-site regression, and three factually false claims in the two comments. Do not assume a pre-written, self-audited change is correct. (4) verification_evidence_refresh_stale will happily rebind ANY stale evidence, including one whose recorded command was the DESTRUCTIVE 'git worktree prune --expire now -v' and one using a moving 'git diff HEAD~1' reference; both were replaced with stable non-destructive greps rather than rebound. Re-run evidence commands yourself before refreshing.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 473106
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 5964077
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 565084
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2986570
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 4506052
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 113364
+    }
+  },
+  "totalDurationMs": 14611404,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-26T03:14:47.367Z",
+  "updatedAt": "2026-07-26T03:14:47.367Z"
+}
