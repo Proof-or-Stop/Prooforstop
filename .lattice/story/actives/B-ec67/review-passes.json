@@ -281,6 +281,36 @@
         "scanEscalationReason": null
       },
       "_hash": "666bc973352c1b9495210fa882afa0a87b0f181ee4c7b85f3e2c695773d898b0"
+    },
+    {
+      "id": "B-ec67:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fresh REVIEW round after story rolled back from TEST; re-dispatched and re-bound. Confirmed via `git diff 64bf559611 HEAD -- packages/main/src/handlers/checklist.ts packages/main/src/core/verification.ts packages/main/src/core/validation-executor.ts packages/main/src/cli/command-catalog.ts packages/main/src/cli/command-schemas.ts packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts packages/main/src/core/types.ts` that all 7 reviewed files remain byte-identical to the commit already independently verified (schema .strip(), carryForwardOnDiskProvenance carry-forward-on-match + drop-on-mismatch, mutation-killed smoke test 12b/12c, live repro of attacker-receipt-rejected / real-receipt-preserved). Only story evidence/metadata changed (18 verification-evidence rows re-recorded), not source. Re-affirming prior verdict: F-006 (critical) and F-008 (low) both fixed and independently verified; no new findings.",
+      "createdAt": "2026-07-26T03:20:36.179Z",
+      "reviewRound": "2026-07-26T03:19:27.125Z",
+      "reviewRunId": "B-ec67:RR-014",
+      "envelopeId": "9241d1f94cb2f503917b140241183dfa3e918fc8581f981048ebe7f9a8b4e381",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd50f5ff6d6f7cb0ed0b0a0dd4f513667d8b7ac5447de842a9e0454d4ee17663"
     }
   ]
 }
