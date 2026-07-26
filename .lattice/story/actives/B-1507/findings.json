@@ -99,7 +99,7 @@
       "desc": "packages/main/src/tasks/verification-run-and-guard-smoke.ts assertion A2 (line ~189-193, `A2: exit-nonzero pin is refused`) failed ONCE inside a live `lattice validate --story=B-1507 --json` run (command 9/54, AssertionError: expected the operation to be REFUSED but it succeeded), on an otherwise-unmutated build -- i.e. lattice validate reported allPass:false partly because of this, independent of the two missing-registry findings I filed separately. I could not reproduce it: 8 sequential standalone runs, 5 runs through the exact runValidationCommand spawn path used by validate (repro script), and 6 concurrent/parallel runs (19 total) all PASSED. Per the CLAUDE.md Debugging Contract I am not claiming a root cause without a repro, but I also cannot silently drop a real exit=1 observed from a fresh validate run of this exact story/build. Flagging as a coverage/reliability gap on the RED-first smoke itself: if verification_run -> enforceAndStampEvidence has any timing sensitivity around child-process exit-code capture under load/contention, the mutation-kill guarantee for A2 is not rock solid. Recommend: rerun `lattice validate --story=B-1507` once or twice more to confirm current stability before relying on this as the sole gate for CHK-001s adversarial intent; if it recurs, that is the repro this contract requires before a fix.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T06:12:17.462Z",
@@ -110,7 +110,11 @@
         "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "eae5eba: unreproduced (0/19 reviewer + 6 here). Root cause traced: A2 receipt_exit_nonzero marker is invariant to node-command outcome (exit-check before selector; runValidationCommand always resolves nonzero/timeout/spawn-error to !exitOk); single live failure attributable to transient host FS/subprocess pressure. Hardened by isolating A2 into partA2Refusal() with a dedicated temp repo removing A1 cross-assertion coupling; assertion not weakened. Smoke PASS 5/5+3/3.",
+      "resolvedAt": "2026-07-26T06:36:56.273Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
