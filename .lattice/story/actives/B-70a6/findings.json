@@ -17,6 +17,40 @@
       ],
       "signatureTag": "missing|ts|happy-verificationevidence-command",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70a6:F-002",
+      "desc": "plan-init-reopen-roundtrip-smoke.ts:266,299,302,314 use 4 unnecessary `as any` casts ((e as any).fromPhase/.toPhase, reopenEvents[0] as any) on the new reopen-persistence + normal-transition-shape assertions. ProcessEvent (core/types.ts) already declares `[key: string]: unknown`, so `e.fromPhase` / `e.toPhase` / `reopenEvents[0].transitionType` resolve to `unknown` without any cast, and `unknown` compares/assigns fine against string literals in assert.equal/hasOwnProperty.call under this project's strict tsconfig. Verified empirically: in an isolated scratch git-worktree copy (separate from the shared REVIEW worktree/dist per the concurrency-hazard note) I removed all 4 casts, ran `npm --prefix packages/main run build` (tsc, strict) -> 0 errors, and reran `node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js` -> both smoke assertions still pass unchanged. So the casts add no compile-time necessity; they just suppress the (already-weak, index-signature-typed) safety net for no benefit. Low severity: test-only file, no behavior difference, `as any` here does not actually widen acceptance beyond what the index signature already allows (a property-name typo would still silently type-check either way) so this is a minor precision/hygiene cleanup rather than a masked-typo risk.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T02:14:59.744Z",
+      "reviewRound": "2026-07-26T01:46:45.517Z",
+      "reviewRunId": "B-70a6:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e17efe8a5050bf67f29c3c9964b6cd4a180786d8334d2c8b6f19864a66a9705c",
+      "files": [
+        "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|plan-init-reopen",
+      "signatureTagSource": "auto"
     }
   ]
 }
