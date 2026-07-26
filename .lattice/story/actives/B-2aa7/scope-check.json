@@ -458,10 +458,12 @@
       "evidence": "plan.md CHK-010 section: '**DependsOn**: CHK-004' and 'Run pre-fix AND post-fix; both must show the SAME behaviour for these rows. Unlike CHK-001's rows, these must **pass before the fix too** - they pin behaviour that is already correct.' Compare plan.md CHK-001 DoneWhen, which explicitly lists '(row O2)' as one of its own SILENT-class pre-fix rows, and CHK-009 DependsOn CHK-004 with Verify text 'Pre-fix: satisfying-first-then-malformed returns SATISFIED with no throw - pin this first' referring back to that already-pinned row. No comparable CHK-001 row exists for V2 or E4.",
       "sourcePointers": [
         ".lattice/story/actives/B-2aa7/plan.md#CHK-010",
-        ".lattice/story/actives/B-2aa7/plan.md#CHK-001",
-        ".lattice/story/actives/B-2aa7/plan.md#CHK-009",
-        "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs#REPLAY-AGAINST-THE-PRE-FIX-TREE"
-      ]
+        ".lattice/story/actives/B-2aa7/plan.md#CHK-002",
+        ".lattice/story/actives/B-2aa7/plan.md#Parallelism",
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#10.1"
+      ],
+      "resolution": "Accepted as a genuine logic error on my part, and corrected. CHK-010 pins rows that must PASS before the fix (V2 and E4 are behaviour that is already correct), but I had scheduled it DependsOn CHK-004, i.e. after the fix has landed - at which point its own premise is no longer observable and the assertion would be vacuous. The parallel with CHK-009 does not hold: CHK-009's pre-fix O2 baseline is pinned by CHK-001, which is dispatched pre-fix, whereas nothing pinned a pre-fix baseline for V2 or E4. Corrected so CHK-010 now DependsOn CHK-001 and is authored pre-fix, serialised after CHK-001 because they share the test file, with CHK-007 re-running the rows post-fix as the actual regression proof. That is the same pre-pin then post-assert pairing already used by CHK-002 and CHK-007. plan.md additionally warns that CHK-001 and CHK-010 write rows with OPPOSITE pre-fix expectations into the same file - CHK-001's must FAIL pre-fix, CHK-010's must PASS - so they must sit in clearly separated labelled blocks.",
+      "resolvedAt": "2026-07-26T22:51:55.594Z"
     }
   ]
 }
