@@ -512,6 +512,7 @@ const MILESTONE_STATUS_APPEND_COMMANDS = new Set([
   'verification_evidence_add',
   'verification_evidence_batch_add',
   'verification_evidence_refresh_stale',
+  'verification_run',
   'story_advance',
   'delivery_check_set',
   'summary_set',

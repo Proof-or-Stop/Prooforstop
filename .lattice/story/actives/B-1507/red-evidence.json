@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-1507",
+  "records": [
+    {
+      "id": "RED-20260726042000",
+      "trigger": "No ergonomic tool-executed path exists: verification_run is unregistered and verification_evidence_refresh_stale only demotes, so a caller must hand-author a pass command (the F-045/F-049/F-050/F-061 on-ramp).",
+      "acceptanceTargetRef": "M1",
+      "baselineHeadHash": "664d03cd32ae418ebfdbfef64d13701c599c9d16",
+      "baselineMaterialHash": "34c0d8d4f5dc15817dae80ca3dc1a76ea8e4e4bdb1259a3cfa453ae881f517a0",
+      "observedFailure": "lattice verification_run is not a registered command (prints 'Unknown command: verification_run'); the stale-evidence refresh re-stamps freshness and demotes a receipt but never re-executes the pinned command.",
+      "failingCommand": "node -e \"const {execSync}=require('child_process'); const o=execSync('node bin/lattice.js verification_run --storyId=B-1507 2>&1 || true',{cwd:process.cwd()}).toString(); process.exit(/Unknown command: verification_run/.test(o)?1:0)\"",
+      "expectedGreenCommand": "node -e \"const {execSync}=require('child_process'); const o=execSync('node bin/lattice.js verification_run --storyId=B-1507 2>&1 || true',{cwd:process.cwd()}).toString(); process.exit(/Unknown command: verification_run/.test(o)?1:0)\"",
+      "greenRelation": {
+        "targetRef": "M1",
+        "relation": "same_acceptance",
+        "command": "node -e \"const {execSync}=require('child_process'); const o=execSync('node bin/lattice.js verification_run --storyId=B-1507 2>&1 || true',{cwd:process.cwd()}).toString(); process.exit(/Unknown command: verification_run/.test(o)?1:0)\""
+      },
+      "note": "Red now: the assertion exits 1 because verification_run is unregistered. Green after CHK-001: the same assertion exits 0 once the command is registered. Full behavioral proof is the registered RED-first smoke (CHK-004).",
+      "createdAt": "2026-07-26T04:20:00.733Z"
+    }
+  ],
+  "createdAt": "2026-07-26T04:20:00.733Z",
+  "updatedAt": "2026-07-26T04:20:00.733Z"
+}

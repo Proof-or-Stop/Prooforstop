@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.240",
+  "version": "0.3.241",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -24,6 +24,7 @@
     "test:production-test-seam-guard": "node packages/main/dist/tasks/production-test-seam-guard.js",
     "test:review-convergence-smoke": "node packages/main/dist/tasks/review-convergence-smoke.js",
     "test:tool-executed-evidence-receipt-smoke": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+    "test:verification-run-and-guard-smoke": "npm --prefix packages/main run test:verification-run-and-guard-smoke",
     "test:review-loop-smoke": "npm --prefix packages/main run test:review-loop-smoke",
     "test:delivery-context-pack-smoke": "npm --prefix packages/main run test:delivery-context-pack-smoke",
     "test:flow-stability-smoke": "npm --prefix packages/main run test:flow-stability-smoke",

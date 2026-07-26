@@ -112,6 +112,7 @@ import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
 import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
 import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
+import { createEvidencePinGuardHandlers } from './handlers/evidence-pin-guard.js';
 import { createReleaseHandlers } from './handlers/release.js';
 import { createAutopilotHandlers } from './handlers/autopilot.js';
 import { createPlannerHandlers } from './handlers/planner.js';
@@ -412,6 +413,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));
+
+  // B-1507 CHK-003: fail-open evidence-pin seatbelt for shell-tool PreToolUse hooks
+  registry.registerBatch(createEvidencePinGuardHandlers(ctx));
 
   // Remote publish approval is local-only: it writes a one-shot pre-push token,
   // never performs the push itself.

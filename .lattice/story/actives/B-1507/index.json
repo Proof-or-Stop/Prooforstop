@@ -4,7 +4,7 @@
   "title": "Add a verification_run command, make the stale-evidence refresh re-execute the pinned command, and add a fail-open PreToolUse early-warning hook",
   "description": "Follow-on to the tool-executed evidence-receipts enforcement floor (story B-ec67). That story made verification_evidence_add / verification_evidence_batch_add execute a pinned (command,selector) and stamp a receipt, and demote a stale-refreshed receipt to non-mechanical. This story adds the ergonomics + early-warning layers so the correct action is the path of least resistance.\n\nThree deliverables:\n1. verification_run command: `lattice verification_run --storyId --intentRef` resolves the intent, executes its pinned verifier, captures exit/output, and atomically writes the receipt — so a caller never authors a pass command by hand. Ideally verification_evidence_add stops accepting a caller-authored command for automated proof at all and instead consumes an internally-generated receipt id.\n2. Stale-evidence refresh RE-EXECUTES the pinned command: today the stale-evidence refresh only demotes a receipt (from the enforcement-floor story) so it can no longer launder; this story makes it re-run the pinned command and re-issue a real receipt when the material changed, closing the loop (the interim per-row laundering guard is story B-3b88; the receipt shape is B-ec67).\n3. PreToolUse fail-open early-warning hook: mirror the existing scope-guard hook (.claude/hooks/lattice-scope-pretool.cjs + handlers/prewrite-guard.ts + its smoke) — a thin host shim that spawns a read-only CLI verdict command and denies early with a teaching message when a caller tries to record evidence whose command/selector does not match the pinned intent, BEFORE the write runs. Fail-open (the handler is the real floor); both hosts; gate the Codex side on an e2e test that uses Codex's real emitted shell-tool name.\n\nThis is the ergonomics + seatbelt layer; the enforcement floor and the write-time refusals already shipped in B-ec67.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "verification",
@@ -26,7 +26,7 @@
   ],
   "createdAt": "2026-07-26T03:50:09.126Z",
   "startedAt": "2026-07-26T03:50:09.126Z",
-  "endedAt": null,
+  "endedAt": "2026-07-26T07:20:37.864Z",
   "events": [
     {
       "phase": "INIT",
@@ -45,11 +45,86 @@
       "user": "Harmonygo",
       "sessionId": "sess-bc61e97261770da4871e0bb5892b5d28",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-26T03:59:25.817Z",
+      "branch": "story/B-1507",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-26T04:20:53.726Z",
+      "branch": "story/B-1507",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-26T05:38:21.358Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-26T05:50:49.896Z",
+      "branch": "story/B-1507",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-26T06:14:35.863Z",
+      "branch": "story/B-1507",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-26T06:36:03.008Z",
+      "branch": "story/B-1507",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "reviewer_forced",
+      "timestamp": "2026-07-26T06:36:57.614Z",
+      "reviewer": "behavior",
+      "reason": "manual",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-26T07:08:32.111Z",
+      "branch": "story/B-1507",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-26T07:20:37.864Z",
+      "branch": "story/B-1507",
+      "user": "Harmonygo",
+      "sessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1507",
-    "branch": "story/B-1507",
-    "createdAt": "2026-07-26T03:58:29.235Z"
-  }
+  "currentReviewRound": "2026-07-26T06:36:03.008Z"
 }

@@ -32,6 +32,7 @@ import {
   renderCodexAgentContent,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
+  renderCodexEvidencePretoolHookScript,
   renderCodexReadmeTemplate,
   renderLatticeBootstrapScript,
   renderLatticeCodexAdapterManifest,
@@ -443,7 +444,11 @@ function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incom
   let changed = !updated.hooks;
 
   for (const [event, eventHooks] of Object.entries(codexHooks)) {
-    const command = eventHooks[0]?.hooks?.[0]?.command;
+    // B-1507 CHK-003: PreToolUse now declares MULTIPLE managed entries (scope
+    // guard + evidence-pin seatbelt). The legacy scope-pretool command migrates
+    // onto the FIRST managed entry's command; each entry is then merged
+    // independently — checking only eventHooks[0] would drop later entries.
+    const migrationTarget = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
       changed = true;
@@ -456,15 +461,18 @@ function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incom
     const migrated = migrateHookCommandEntries(
       hooks[event],
       codexHookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
-      command || '',
+      migrationTarget || '',
     );
     if (migrated.changed) {
       hooks[event] = migrated.entries;
       changed = true;
     }
-    if (command && !hasHookCommand(hooks[event], command)) {
-      hooks[event] = [...hooks[event], ...eventHooks];
-      changed = true;
+    for (const entry of eventHooks) {
+      const command = entry?.hooks?.[0]?.command;
+      if (command && !hasHookCommand(hooks[event], command)) {
+        hooks[event] = [...hooks[event], entry];
+        changed = true;
+      }
     }
   }
   updated.hooks = hooks;
@@ -690,6 +698,13 @@ export function listManagedAssetDefinitions(
           actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
           true,
         ),
+        wholeFile(
+          '.codex/hooks:lattice-evidence-pretool.cjs',
+          '.codex/hooks/lattice-evidence-pretool.cjs',
+          renderCodexEvidencePretoolHookScript(),
+          actual => actual.includes('evidence-pin seatbelt') && actual.includes('verification_pin_guard_check'),
+          true,
+        ),
       );
     }
     if (wantsClaude) {
@@ -764,6 +779,13 @@ export function listManagedAssetDefinitions(
         '.codex/hooks/lattice-scope-pretool.cjs',
         renderCodexPretoolScopeHookScript(),
         actual => actual.includes('Codex PreToolUse hook') && actual.includes('prewrite_guard_check'),
+        true,
+      ),
+      wholeFile(
+        '.codex/hooks:lattice-evidence-pretool.cjs',
+        '.codex/hooks/lattice-evidence-pretool.cjs',
+        renderCodexEvidencePretoolHookScript(),
+        actual => actual.includes('evidence-pin seatbelt') && actual.includes('verification_pin_guard_check'),
         true,
       ),
       { id: 'excluded:.lattice-codex/settings.json', relPath: '.lattice-codex/settings.json', kind: 'excluded-path' },
