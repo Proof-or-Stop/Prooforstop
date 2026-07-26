@@ -1574,11 +1574,11 @@
           "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "red-evidence-chain-smoke section 8 covers quarantine/recover + binding-freeze: binding frozen after a run record (lines 501-502), unfrozen after quarantine (lines 505-507), and re-frozen after recover (lines 510-513) — the new 1.1.3 binding-freeze semantic added in this story.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 8 of red-evidence-chain-smoke.ts (banner: 1.1.3 binding-freeze), the three-step sequence on target CHK-001:happy:0 driven entirely through commands fetched from createMainRegistry: red_evidence_binding_set throws FROZEN while a run record sits on an unquarantined chain (message: a binding is frozen once a run record exists on an unquarantined chain), does not throw after the registered red_evidence_quarantine handler retires that head (message: quarantining the head unfreezes the binding), and throws FROZEN again after the registered red_evidence_recover handler reinstates it (message: recovery reinstates the freeze). The smoke therefore covers both new chain-control commands together with the binding-freeze semantic added by this story.",
+          "headHash": "6e759834c91c343c84676beec57c8ec0d4bfcf78",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:45.141Z"
         },
         {
           "intentRef": "CHK-011:adversarial:0",
