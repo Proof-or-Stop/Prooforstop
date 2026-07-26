@@ -293,7 +293,7 @@
       "desc": "[orchestrator, same class as F-012] 35 of the 94 verificationEvidence notes cite BARE LINE NUMBERS of the COMPILED artifact (packages/main/dist/tasks/red-evidence-chain-smoke.js), and 0 cite a source location. Those citations are already stale on HEAD independently of any round-4 edit — verified: CHK-004:edge:0 cites line 254 but checkChainIntegrity([], null is at 244; CHK-001:edge:1 cites 297 (now 283) and a 'helper line 581' that exceeds the 580-line file; CHK-012:adversarial:1 cites 470 (now 451); CHK-009:adversarial:1 cites 541 (now 504). This is the F-012 defect class (a note pointing at something that is not there), and citing compiled-output lines is structurally wrong because every rebuild re-stales them. Fix: re-anchor each note to a STABLE reference — the SOURCE file plus its section name, helper/function name, or the assertion message — instead of a compiled line number. Each note must describe only what its own cited assertion does (copy-paste between notes is what produced F-012).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-26T01:22:34.125Z",
@@ -303,7 +303,11 @@
         ".lattice/story/actives/B-506e/checklist.json"
       ],
       "signatureTag": "adversarial|json|orchestrator-same-class",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed, and the real scope was larger than filed: 71 of 94 notes carried a line-number citation, not 35 - the filing missed the .mjs and bare-source-line citations, which were stale too. Every affected row is re-anchored to a source file plus a durable locator (the smoke section banner, a helper/const/function name, the .mjs step banner, or the literal assertion message text) with no line numbers at all; residual line-number citations across all 94 rows are now 0 and the duplicate/near-duplicate scan returns 0. Where a note described an assertion that does not exist, it was corrected in place and the gap stated inside the note rather than replaced by invention: CHK-001:edge:1 (isControlRecordV2 asserted only for quarantine), CHK-004:happy:1 (section 3 resolves only the AB-002 partition head, so it now cites section 7), CHK-006:happy:0 and happy:1 (the assertion is a sha256 prefix match, not a 64-hex comparison), and five rows that rest partly on declarations rather than assertions now say so and name W2d/W2e as the owner of the missing writers.",
+      "resolvedAt": "2026-07-26T01:57:59.381Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
