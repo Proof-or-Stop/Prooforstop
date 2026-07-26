@@ -331,14 +331,14 @@
         {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/proofstory.ts",
-          "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "chain-smoke section 2 (lines 241-243) writes a v2-only store whose v2 red-assert (synthRedAssert) DOES carry an observedFailure field, yet missingRedEvidence still fires — the schemaVersion=v2 discriminator governs the skip, not field presence, so a malformed hybrid v2 record with observedFailure is still skipped by the v1 predicate.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.826Z"
+          "note": "Re-bound in round 3. Previously bound to red-evidence-chain-smoke.js, which never constructs a malformed hybrid — nothing in the repo did, so the binding was unbacked. red-w2c-gate-guard.mjs now stores ALONE (nothing can short-circuit past it) a record with schemaVersion=proofstory.red_evidence.v2 carrying a COMPLETE valid v1 field set (non-empty observedFailure, failingCommand, both baseline hashes, well-formed greenRelation on the expected target) and asserts missing_red_evidence still fires. Non-vacuity proved by MUTATION, because no crash-path case can distinguish this one: a temp-tree build of HEAD with the schemaVersion discriminant replaced by a field-presence check (typeof record.observedFailure !== 'string') survives every other assertion in the file and is killed by exactly this one.",
+          "headHash": "96e5451ab61e56bf84b37b5dda5323ef8f3e514b",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:33:11.850Z"
         }
       ]
     },
