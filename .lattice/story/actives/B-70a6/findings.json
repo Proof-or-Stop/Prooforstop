@@ -362,6 +362,21 @@
       "resolvedAt": "2026-07-26T09:15:43.434Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70a6:F-017",
+      "desc": "concept-residue: packages/main/src/handlers/transition-orchestrator.ts:1245 (\"is healed by reconcilePendingReopenAudit on the next transition\") and :1439 (\"the next transition performs the (identical) recovery instead\") are pre-F-005/F-016 unqualified next-transition wording, git-blamed to the original F-004 commit (9ead1958c8) and never touched by the later F-005/F-013/F-016 corrections. F-016 explicitly retired this exact unqualified phrasing from the types.ts PendingReopenAudit docblock (with a mechanical guard, verify-process-fact-contract.mjs:3146, that only checks types.ts) precisely because a reader who stops at an unconditional next-transition claim comes away thinking any later transition always heals a crash, when recovery is actually scoped to the next ORCHESTRATED transition plus the two out-of-band sites, under no concurrency guarantee (F-013). These two in-function comments make the same claim, same story, same crash window, and are not covered by any assertion, so a future edit could re-inflate the ambiguity here even though the interface docblock, the registry rationale and both out-of-band call sites now correctly qualify it. LOW severity: not gate-consumed, and the fully-qualified statement already exists ~350 lines above in the same function (lines 880-889), but it is genuine surviving residue of the exact wording class this story spent F-016 correcting elsewhere.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T09:24:38.413Z",
+      "reviewRound": "2026-07-26T09:15:34.986Z",
+      "reviewRunId": "B-70a6:RR-015",
+      "_hash": "4f7b304e5ef71b9d734748235ac52647804272aea87b6ca3b3de50a996b711c8",
+      "signatureTag": "missing|unknown|concept-residue-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
