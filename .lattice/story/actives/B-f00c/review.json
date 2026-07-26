@@ -44,6 +44,41 @@
         }
       ],
       "_hash": "5d3434305f67faeac785bb83c82f60fc1142b1f00b7240e3b66979e526c4a820"
+    },
+    {
+      "timestamp": "2026-07-26T03:31:25.277Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when One shared merge-lineage classifier (net endpoint diff, -z, maxBuffer, empty-diff means trusted, split catch) routes both the reuse and admissibility copies + RED-first smoke reproduces the merge false-positive on both reuse and admissibility paths, with negative and robustness tests are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Shared-helper placement: a neutral new core/validation-lineage.ts (avoids import cycle) vs exporting from validation-evidence-reuse.ts (admissibility importing reuse is acceptable). Confirm no cycle.; Whether validationHeadLineage lineage_empty / empty-descendant-lineage rejection has any consumer expecting rejection-on-empty; grep before switching empty to trusted."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        }
+      ],
+      "_hash": "c44350991869165da87aad0471cdf502f3eff2c779d2f923ad73030d8a633820"
     }
   ]
 }
