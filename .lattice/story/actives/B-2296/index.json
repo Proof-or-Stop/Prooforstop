@@ -1,0 +1,43 @@
+{
+  "storyId": "B-2296",
+  "name": "frozen-claim-drift-detect",
+  "title": "Detect frozen-claim drift (evidence-integrity §5 follow-on, Phase 1 of 2): bind checklist userSees to a normalized claim-digest + materialHash snapshot and surface a non-blocking FROZEN_CLAIM_DRIFT advisory when either drifts",
+  "description": "Phase 1 of the evidence-integrity program §5 follow-on (docs/evidence-integrity-program-spec.md §5). Bind each checklist userSees frozen claim to a snapshot { normalizedClaimDigest, materialHash, headHash, attestedAt } and surface a structured, NON-blocking FROZEN_CLAIM_DRIFT advisory when EITHER the normalized claim text drifts OR the bound material drifts (rename-aware) under a frozen claim. Bidirectional binding is required because in both source incidents (F-027/F-060 userSees, F-059 plan.md) the claim text stayed frozen while the code moved, so a claim-digest-only check catches neither. Normalization is mechanical (trim + collapse whitespace); no semantic diffing. Legacy userSees with no snapshot are classified legacy-unbound and reported, never errored. Scope: userSees only. Detect + report only — the blocking gate, reviewer re-attestation recovery, and legacy migration policy are Phase 2. Reuses B-ec67 (M1) receipt/freshness and the B-5a9a/B-d243/B-edf1 storyFilesHash drift-advisory pattern.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "evidence-integrity",
+    "frozen-claim",
+    "frozen-field",
+    "usersees",
+    "drift",
+    "re-attestation",
+    "materialHash",
+    "claim-digest",
+    "advisory",
+    "F-027",
+    "F-059",
+    "B-ec67"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-07-26T11:39:38.112Z",
+  "startedAt": "2026-07-26T11:39:38.112Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-26T11:39:39.619Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9725e2ed97011397d297f77e855550f5",
+      "agent": "main"
+    }
+  ]
+}
