@@ -68,7 +68,30 @@
       "context": "Decision D-7. Full validation was chosen, so 'no valid verdict moved' is an assumption until this scan proves it - and the pinned digest CANNOT detect the difference, because all five of its scenarios are well-formed. Enumerate every reachable red-evidence.json in real story directories; for each record compute (current verdict, verdict under full v1 validation). The story may merge only if the differing set is empty, or every entry is individually justified in the story record. Report the count even when zero: 'scanned N artifacts, 0 affected' is the evidence; silence is not.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed scan enumerates every reachable red-evidence artifact and reports a concrete count of records that satisfy the gate today while being schema-invalid.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The scan reports its result even when the affected set is empty, so 'scanned N artifacts, 0 affected' is positive evidence rather than silence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The scan is re-runnable at merge time and does not hard-code the PLAN-phase snapshot of 105 artifacts / 144 records / 0 affected.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
