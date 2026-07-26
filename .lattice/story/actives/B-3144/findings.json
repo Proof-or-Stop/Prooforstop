@@ -214,7 +214,7 @@
       "desc": "packages/main/src/handlers/quorum-prune.ts:219-226 (F-010 fix): the conflict refusal only catches apply:true && dryRun:true. It does not catch the symmetric conflict apply:false && dryRun:false — verified live: with args={apply:false,dryRun:false}, `const apply = args.apply === true || args.dryRun === false` evaluates to true, so the command silently EXECUTES (backs up, rewrites, commits) even though the caller explicitly passed apply:false. This breaks the code's own stated design philosophy (comment at line ~211-218 and the existing apply:true+dryRun:true refusal): an explicitly conflicting combination should be REFUSED, not silently resolved toward the more dangerous (mutating) outcome. Reachable via both programmatic args and CLI (--apply=false --dryRun=false parses to {apply:false,dryRun:false} per cli/flag-parser.ts coerce()). Fix: extend the refusal check to `(args.apply === true && args.dryRun === true) || (args.apply === false && args.dryRun === false)`, or otherwise treat an explicit apply:false as an unconditional veto regardless of dryRun.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-26T03:05:43.560Z",
@@ -222,7 +222,11 @@
       "reviewRunId": "B-3144:RR-011",
       "_hash": "d47b1cb93e91aced1f2248827bcb25abf67d2edef92f755db7cd26f93808cf55",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit e306cc7aad. The F-010 fix's resolution apply = args.apply === true || args.dryRun === false made {apply:false, dryRun:false} evaluate to true, so an explicit apply:false silently executed a backup+rewrite+commit — a contradiction resolved toward the MORE dangerous side, violating the same conflict rule stated in the adjacent comment. The symmetric pair now refuses with a message naming both intents, mirroring the existing apply:true + dryRun:true refusal. New smoke check 'quorum_prune refuses the symmetric apply:false + dryRun:false conflict' asserts the refusal makes no commit and no backup, and that apply:false alone still projects.",
+      "resolvedAt": "2026-07-26T03:24:21.360Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
