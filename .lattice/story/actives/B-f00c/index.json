@@ -1,0 +1,45 @@
+{
+  "storyId": "B-f00c",
+  "name": "dedup-merge-lineage-validation-reuse",
+  "title": "Fix merge-lineage false positive forcing redundant DONE validation re-runs (reuse + admissibility copies via one shared classifier)",
+  "description": "A main-merge makes git diff-tree -m re-list the story's own content-unchanged files as untrusted-lineage-path, so DONE validation reuse is refused (and autopilot_review_submit --deriveBindings hard-throws) despite identical materialHash/storyFilesHash/identity.digest, forcing a redundant ~17 min full-suite re-run. Replace the per-commit -m union with a hardened net endpoint diff in one shared classifier used by both copies.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "validation-reuse",
+    "merge-lineage",
+    "diff-tree",
+    "done-validation",
+    "admissibility",
+    "hot-main"
+  ],
+  "createdAt": "2026-07-26T03:07:44.100Z",
+  "startedAt": "2026-07-26T03:07:44.100Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-26T03:07:44.827Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-26T03:10:30.375Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-f00c",
+    "branch": "story/B-f00c",
+    "createdAt": "2026-07-26T03:10:28.160Z"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3783",
+  "sourceText": "In the proofbound repo, packages/main/src/tasks/command-catalog-smoke.ts fails on a clean main tree: the assertion 'registered lattice-review-channel example field agentType must be schema-valid' fails. The user reviewed the naive fix (add the agent to the enum) and steered toward bidirectional-consistency criteria, fixing the guard rather than the catalog, and asked to evaluate wiring the smoke into validate.commands and to route the change through a Lattice story.",
+  "normalizedOutcome": "node packages/main/dist/tasks/command-catalog-smoke.js exits 0 on clean main, and lattice validate runs that smoke, which asserts bidirectional consistency between the dispatch agentType enum and the retired-agent registry (dispatchable accepted; retired rejected by both schema and runtime).",
+  "acceptanceClaim": "Running node packages/main/dist/tasks/command-catalog-smoke.js exits 0; the smoke fails if a retired agent (lattice-review-channel) is accepted by the dispatch agentType schema, or a dispatchable agent is rejected.",
+  "keyRequirementIds": [
+    "REQ-catalog-smoke-consistency"
+  ],
+  "requestHash": "sha256:229a2702e9686643009bf750bee896c0aa741ab906f1def7396036b679343e1d",
+  "createdAt": "2026-07-25T21:40:34.867Z",
+  "updatedAt": "2026-07-25T21:40:34.867Z"
+}
