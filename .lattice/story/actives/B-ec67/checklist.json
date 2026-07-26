@@ -457,9 +457,9 @@
       "id": "CHK-005",
       "title": "Grandfather existing prose-only intents and provide an explicit, attributable escape path",
       "context": "Do not hard-break in-flight stories that already have prose-only evidence without a pinned (command,selector). Provide grandfathering / an audited repair path / a policy mode; emergency overrides must be explicit, attributable, and visible to gates. Per CLAUDE.md handler convention, re-validate every new constraint at Zod + handler entry + consuming gate, and test the internal-call path that bypasses Zod.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T00:28:51.448Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/checklist.ts",
