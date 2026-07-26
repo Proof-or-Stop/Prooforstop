@@ -84,6 +84,35 @@
         "scanEscalationReason": null
       },
       "_hash": "2ef26391a82b316feeb6e6e12c356557cda71374f20dbeee2988c205d26e39fa"
+    },
+    {
+      "id": "B-f00c:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for the round-2 fix of F-003: production replaces the per-commit git diff-tree -m union + rev-list enumeration with a shared net-endpoint-diff classifier (classifyMergeLineage in validation-lineage.ts). Grepped repo (excluding node_modules/dist/.git) for residual concept tokens: (1) rev-list — zero occurrences in validation-evidence-reuse.ts / validation-evidence-admissibility.ts (both now only call classifyMergeLineage); the sole rev-list use inside validation-reuse-merge-lineage-smoke.ts is an explicitly-labeled reference reimplementation of the OLD pre-fix algorithm used deliberately for the RED case, not residue; other repo-wide rev-list hits are unrelated commit-count usages (lifecycle-readiness.ts, done-oracle.ts, etc.). (2) lineage_empty / empty-descendant-lineage reject codes — zero occurrences anywhere in packages/main/src or scripts (fully removed, matching F-002 fix). (3) diff-tree -m per-commit union pattern — zero occurrences in production src, only appears in a comment describing what was replaced. (4) scripts/verify-process-fact-contract.mjs now asserts merge-base/--is-ancestor/diff-tree/isStoryMetadataPath tokens against validation-lineage.ts (the shared classifier) and dropped the stale rev-list token from the routine-reuse list; no orphaned/contradictory reference to the old location remains. (5) Both production copies import classifyMergeLineage from the SAME ./validation-lineage.js path (single source, no divergence possible). Independently rebuilt (npm run build) and ran scripts/verify-process-fact-contract.mjs (pass) and validation-reuse-merge-lineage-smoke.js (pass). No blocker.",
+      "createdAt": "2026-07-26T04:41:47.152Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-010",
+      "envelopeId": "3018c79305bc4d2c8f8fb08be7173020ef240413c417c76b3a2f481cab9a8158",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ff28af8d21683e49c64ff0aa799fd47577730d22b46e5eb45734d276818d00b8"
     }
   ]
 }
