@@ -496,11 +496,11 @@
           "file": "packages/main/src/core/red-evidence/chain.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 3 (lines 263-270) asserts a prior-digest mismatch yields REASON_PRIOR_DIGEST_MISMATCH (check 2) while a fork yields REASON_CHAIN_FORK (check 3) and REASON_CHAIN_FORK !== REASON_PRIOR_DIGEST_MISMATCH — the broken-link and contested-link detectors have DISTINCT reason ids (also red-w2c-rejection-matrix lines 92-94).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets plus red-w2c-rejection-matrix line offsets. Durable anchor: section 3 of red-evidence-chain-smoke.ts, the consts mism and fork. mism is checkChainIntegrity against head ra1 with a deliberately wrong priorRecordDigest and its reasonId is asserted to be REASON_PRIOR_DIGEST_MISMATCH; fork is the same seq-2 append over the chain [ra1, child] where child already consumes ra1.recordDigest, and its reasonId is asserted to be REASON_CHAIN_FORK under the message (fork rejection is its own detector); a third assertion, assert.notEqual(REASON_CHAIN_FORK, REASON_PRIOR_DIGEST_MISMATCH) carries the message (fork and prior-mismatch reason ids differ). Broken link and contested link are therefore separate detectors with independent diagnostics. Committed regression: red-w2c-rejection-matrix.mjs matrix item 1, messages: prior mismatch rejected; fork rejected; fork reason id is DISTINCT from prior-digest-mismatch.",
+          "headHash": "994317dbf6b64e43f7b2ed077b8d0372ee24654e",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:17.496Z"
         }
       ]
     },
