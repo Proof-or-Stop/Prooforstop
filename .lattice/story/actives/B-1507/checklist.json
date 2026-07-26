@@ -146,7 +146,11 @@
           {
             "desc": "re-execution routes through the same enforceAndStampEvidence refusal path (selector must match current output); a row B-3b88 per-row guard would demote is not re-laundered — both guards coexist",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
           }
         ]
       },
@@ -197,6 +201,25 @@
           "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
           "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
           "timestamp": "2026-07-26T05:33:37.355Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Smoke B3 asserts a pin-less row keeps demote-only behavior (B-3b88 coexistence); re-execution routes through the same enforceAndStampEvidence refusal path.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T05:33:43.091Z"
+          },
+          "headHash": "919131aba2ea725e6c31bae5f90f34349df0b5aa",
+          "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
+          "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
+          "timestamp": "2026-07-26T05:33:43.220Z"
         }
       ]
     },
