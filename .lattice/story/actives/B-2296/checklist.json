@@ -48,7 +48,30 @@
       "userSees": "A developer runs the smoke and sees \"material drift under frozen userSees -> FROZEN_CLAIM_DRIFT\", \"userSees text edited -> FROZEN_CLAIM_DRIFT\", \"unrelated file change -> no drift\", and \"userSees with no snapshot -> legacy-unbound\".",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "after userSees is snapshotted at status=done, mutating story-owned material makes detectDrift report driftKind=material with actionRequired=re_attestation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a userSees with no snapshot is classified legacy-unbound (not drift, not error); an unrelated non-story-owned file change produces NO drift",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "editing userSees text after delivery (non-whitespace) is detected as driftKind=claim even with material unchanged; a whitespace-only userSees edit produces NO drift",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
