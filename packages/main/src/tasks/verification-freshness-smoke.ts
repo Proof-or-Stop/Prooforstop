@@ -370,16 +370,12 @@ for (const path of material) {
     assert.match(dryRun, /\[DRY-RUN\] Stale verification evidence/);
     assert.match(dryRun, /npm test/);
 
-<<<<<<< HEAD
     // B-3b88 CHK-002: a command-backed result:pass is REFUSED by refresh (never
     // silently re-certified onto changed material) — it stays stale until it is
-    // re-run and re-recorded via verification_evidence_add.
-    const result = handlers.verification_evidence_refresh_stale({ storyId });
-    assert.match(result, /refused 1 command-backed pass/);
-=======
+    // re-run and re-recorded via verification_evidence_add. Uses main's
+    // refreshStaleEvidenceMetadataOnly helper.
     const result = refreshStaleEvidenceMetadataOnly(smokeCtx, storyId);
-    assert.match(result, /Refreshed 1\/1 stale evidence/);
->>>>>>> main
+    assert.match(result, /refused 1 command-backed pass/);
     const after = buildVerificationCoverage(
       store.readChecklist(storyId),
       head,

@@ -1785,47 +1785,6 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         return `No stale verification evidence for ${args.storyId}`;
       }
 
-<<<<<<< HEAD
-      const lines = [
-        `${args.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${args.storyId}: ${stale.length}`,
-      ];
-      let refreshed = 0;
-      let refused = 0;
-      for (const entry of stale) {
-        const item = cl.items.find(i => i.id === entry.itemId);
-        const existing = item?.verificationEvidence || [];
-        const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
-        const ev = idx >= 0 ? existing[idx] : entry.evidence;
-        // B-3b88 CHK-002: refresh only re-stamps freshness hashes; it never
-        // re-executes. A command-backed result:pass must therefore NOT be
-        // re-certified onto changed material — leave it stale so the operator
-        // re-runs it (verification_evidence_add), instead of laundering the pass.
-        // Any non-empty command field (incl. whitespace-only) is command-backed:
-        // an agent must not slip a pass through refresh by setting command=" ".
-        const isCommandBackedPass = !!(ev && typeof ev.command === 'string' && ev.command.length > 0 && ev.result === 'pass');
-        if (isCommandBackedPass) {
-          lines.push(`  - ${entry.intentRef}: ${ev?.command || 'command'} → REFUSED (command-backed pass; re-run to re-verify — refresh will not re-certify)`);
-          refused++;
-          continue;
-        }
-        lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
-        if (args.dryRun || !item || idx < 0 || !ev) continue;
-        // B-ec67 F-001: carry the tool-execution provenance forward so refresh does NOT
-        // launder a demoted / receipt row back to mechanical:undefined (= grandfathered
-        // covered). A mechanical:true receipt is DEMOTED to a non-mechanical attestation
-        // here: refresh only re-stamps freshness hashes and does NOT re-run the pinned
-        // command (re-execution is a follow-on story), so a stale receipt must not keep
-        // covering. Coordinates with B-3b88, which also edits refresh_stale (prose-only
-        // laundering); this change is additive — it only carries/demotes mechanical fields.
-        let refreshedMechanical = ev.mechanical;
-        let refreshedReceipt = ev.receipt;
-        let refreshedReason = ev.nonMechanicalReason;
-        if (ev.mechanical === true) {
-          refreshedMechanical = false;
-          refreshedReceipt = undefined;
-          refreshedReason = ev.nonMechanicalReason
-            ?? 'receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt';
-=======
       // Re-execute pinned executable rows OUTSIDE the checklist lock (execution is
       // async; the write body is synchronous). Only a real mechanical pass records a
       // stamp; every failure path leaves the key absent so the write demotes the row.
@@ -1857,24 +1816,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
             // exit != 0 / selector absent / command unavailable / not allowlisted /
             // resolution error: leave the row on the demote path. NO laundering.
           }
->>>>>>> main
         }
       }
 
-<<<<<<< HEAD
-      if (!args.dryRun) store.writeChecklist(args.storyId, cl);
-      lines.push(args.dryRun
-        ? '→ Rerun the above command without dryRun to refresh evidence metadata'
-        : `Refreshed ${refreshed}/${stale.length} stale evidence item(s)${refused > 0 ? `, refused ${refused} command-backed pass row(s) — re-run to re-verify (refresh does not re-certify)` : ''}. Re-run lattice validate --story=${args.storyId} --json`);
-      if (!args.dryRun) {
-        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_refresh_stale');
-        if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
-      }
-      return lines.join('\n');
-      });
-=======
       return writeStaleRefresh(ctx, args.storyId, computed, { dryRun: args.dryRun, reexecByKey });
->>>>>>> main
     },
 
     /**

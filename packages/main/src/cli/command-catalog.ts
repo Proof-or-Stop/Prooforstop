@@ -481,9 +481,6 @@ Behavior:
       nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape for an executable intent: record a non-mechanical attestation WITHOUT execution. Attributable + gate-visible; never grants coverage.'),
     })).describe('Evidence array; reads and writes the checklist once in the same call.'),
   }},
-<<<<<<< HEAD
-  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale command-less attestation evidence; command-backed result:pass rows are refused and must be re-run + re-recorded via verification_evidence_add (never silently re-certified)', schema: {
-=======
   { name: 'verification_run', description: 'B-1507: execute an intent\'s PINNED verifier and atomically record the tool-executed receipt (the caller never authors the command)', schema: {
     storyId: z.string().describe('Story ID'),
     intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID. Resolved to its owning item\'s pinned verification:{command,selector}; the pinned command is what runs.'),
@@ -491,8 +488,7 @@ Behavior:
     note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
     cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
   }},
-  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence (rerun command)', schema: {
->>>>>>> main
+  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale command-less attestation evidence; command-backed result:pass rows are refused and must be re-run + re-recorded via verification_evidence_add (never silently re-certified)', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},
