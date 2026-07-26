@@ -421,6 +421,15 @@ export const LATTICE_SCOPE_PRETOOL_HOOK_FILE = 'lattice-scope-pretool.cjs';
 // the validate REVIEW->TEST gate). Matches Bash only; never blocks.
 export const PRETOOL_ENGLISH_ONLY_HOOK_MATCHER = 'Bash';
 export const ENGLISH_ONLY_GUARD_HOOK_FILE = 'english-only-guard.cjs';
+// B-1507 CHK-003: fail-open PreToolUse evidence-pin seatbelt. Claude emits the
+// shell tool as `Bash`. Codex's real emitted shell tool_name is NOT confirmable
+// in this environment (the previous scope matcher apply_patch|Edit|Write does not
+// match shell execution); we use the best-documented candidates and gate the
+// Codex e2e as pending-real-token. If Codex emits none of these tokens the hook
+// simply never fires (fail-open — never a false green). Claude ships fully.
+export const PRETOOL_EVIDENCE_HOOK_MATCHER = 'Bash';
+export const CODEX_PRETOOL_EVIDENCE_HOOK_MATCHER = 'shell|local_shell|exec_command';
+export const EVIDENCE_PRETOOL_HOOK_FILE = 'lattice-evidence-pretool.cjs';
 
 export function migrateHookCommandEntries(entries: unknown, oldCommand: string, newCommand: string): { entries: unknown; changed: boolean } {
   if (!Array.isArray(entries)) return { entries, changed: false };
@@ -452,6 +461,7 @@ export function getClaudeHooks() {
     PreToolUse: [
       { matcher: PRETOOL_SCOPE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE) }] },
       { matcher: PRETOOL_ENGLISH_ONLY_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(ENGLISH_ONLY_GUARD_HOOK_FILE) }] },
+      { matcher: PRETOOL_EVIDENCE_HOOK_MATCHER, hooks: [{ type: 'command', command: hookCommand(EVIDENCE_PRETOOL_HOOK_FILE) }] },
     ],
     PostToolUse: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
     PostToolUseFailure: [{ matcher: '', hooks: [{ type: 'command', command: hookCommand('log-tools.cjs') }] }],
@@ -464,15 +474,27 @@ export function codexHookCommand(hookFile: string): string {
 
 export function getCodexHooks() {
   return {
-    PreToolUse: [{
-      matcher: CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
-      hooks: [{
-        type: 'command',
-        command: codexHookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE),
-        timeout: 30,
-        statusMessage: 'Checking Proofbound scope',
-      }],
-    }],
+    PreToolUse: [
+      {
+        matcher: CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
+        hooks: [{
+          type: 'command',
+          command: codexHookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE),
+          timeout: 30,
+          statusMessage: 'Checking Proofbound scope',
+        }],
+      },
+      {
+        // B-1507 CHK-003: fail-open evidence-pin seatbelt on the Codex shell tool.
+        matcher: CODEX_PRETOOL_EVIDENCE_HOOK_MATCHER,
+        hooks: [{
+          type: 'command',
+          command: codexHookCommand(EVIDENCE_PRETOOL_HOOK_FILE),
+          timeout: 10,
+          statusMessage: 'Checking Proofbound evidence pin',
+        }],
+      },
+    ],
   };
 }
 
@@ -556,6 +578,150 @@ process.stdin.on('end', () => {
   }
   process.exit(0);
 });
+
+function parseHookInput(raw) {
+  if (!raw || !raw.trim()) return {};
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function parseGuardVerdict(raw) {
+  if (!raw || !raw.trim()) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
+function findRepoRoot(start) {
+  let dir = path.resolve(String(start || process.cwd()));
+  for (let i = 0; i < 20; i++) {
+    if (
+      fs.existsSync(path.join(dir, '.lattice')) ||
+      fs.existsSync(path.join(dir, '.lattice-codex')) ||
+      fs.existsSync(path.join(dir, '.codex')) ||
+      fs.existsSync(path.join(dir, 'lattice.config.json')) ||
+      fs.existsSync(path.join(dir, '.git'))
+    ) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) return path.resolve(String(start || process.cwd()));
+    dir = parent;
+  }
+  return path.resolve(String(start || process.cwd()));
+}
+
+function resolveCli(root) {
+  const jsCandidates = [
+    path.join(root, 'packages', 'main', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
+    path.join(root, 'bin', 'lattice.js'),
+  ];
+  for (const candidate of jsCandidates) {
+    if (fs.existsSync(candidate)) return { command: process.execPath, args: [candidate] };
+  }
+
+  const found = spawnSync('sh', ['-lc', 'command -v lattice'], {
+    cwd: root,
+    encoding: 'utf8',
+    timeout: 2000,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  const command = String(found.stdout || '').split(/\\r?\\n/).find(Boolean);
+  return command ? { command, args: [] } : null;
+}
+`;
+}
+
+export function renderCodexEvidencePretoolHookScript(): string {
+  return `#!/usr/bin/env node
+/**
+ * Codex PreToolUse hook: evidence-pin seatbelt (B-1507 CHK-003)
+ *
+ * Intercepts Codex shell-tool invocations before they run. When the command is a
+ * lattice verification_evidence_add / verification_run whose caller command or
+ * selector would NOT match the intent's immutable pinned verification (B-ec67),
+ * it blocks the write early with a teaching message.
+ *
+ * Exit 0  -> pass (tool proceeds)
+ * Exit 2  -> block (evidence write denied; reason on stderr)
+ *
+ * FAIL-OPEN SEATBELT: unlike the scope guard, ANY error / timeout / missing CLI /
+ * non-shell tool passes through (exit 0). The seatbelt must never block legitimate
+ * work; the real floor is enforceAndStampEvidence in the Proofbound CLI handler.
+ *
+ * PENDING-REAL-TOKEN: Codex's real emitted shell tool_name is not confirmable in
+ * the authoring environment. This matcher uses the best-documented candidates
+ * (shell | local_shell | exec_command). If Codex emits none of these the hook
+ * simply never fires — a true no-op, never a false green. Gate the Codex e2e on
+ * the real token before asserting Codex coverage.
+ */
+'use strict';
+
+const { spawnSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const GUARD_TIMEOUT_MS = 8000;
+// Documented-candidate Codex shell tool tokens (pending real-token confirmation).
+const WRITE_TOOLS = new Set(['shell', 'local_shell', 'exec_command']);
+
+let input = '';
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', chunk => { input += chunk; });
+process.stdin.on('error', () => process.exit(0));
+process.stdin.on('end', () => {
+  try {
+    const payload = parseHookInput(input);
+    if (!payload) { process.exit(0); return; }
+
+    const toolName = String(payload.tool_name || '').trim();
+    if (!WRITE_TOOLS.has(toolName)) { process.exit(0); return; }
+
+    const command = extractCommand(payload.tool_input);
+    if (!command.trim()) { process.exit(0); return; }
+
+    const cwd = payload.cwd || process.cwd();
+    const root = findRepoRoot(cwd);
+    const cli = resolveCli(root);
+    if (!cli) { process.exit(0); return; }
+
+    const checkArgs = JSON.stringify({
+      provider: 'codex',
+      toolName,
+      commandString: command,
+      cwd,
+      json: true,
+    });
+
+    const result = spawnSync(cli.command, [...cli.args, 'verification_pin_guard_check', checkArgs], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: GUARD_TIMEOUT_MS,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    // FAIL-OPEN: a timeout / spawn error must NOT block (seatbelt, not the floor).
+    if (result.signal || result.error) { process.exit(0); return; }
+
+    if (result.status === 0 && !result.signal) {
+      const verdict = parseGuardVerdict(result.stdout);
+      if (verdict && verdict.verdict === 'deny') {
+        const reason = Array.isArray(verdict.reasons)
+          ? verdict.reasons.join('\\n')
+          : 'Codex PreToolUse evidence-pin seatbelt denied this evidence write.';
+        process.stderr.write(reason + '\\n');
+        process.exit(2);
+      }
+    }
+  } catch {
+    // PROBE: hook errors must never block the agent unexpectedly (fail-open).
+  }
+  process.exit(0);
+});
+
+function extractCommand(toolInput) {
+  if (!toolInput || typeof toolInput !== 'object') return '';
+  const command = toolInput.command;
+  if (typeof command === 'string') return command;
+  if (Array.isArray(command)) return command.filter(part => typeof part === 'string').join(' ');
+  return '';
+}
 
 function parseHookInput(raw) {
   if (!raw || !raw.trim()) return {};

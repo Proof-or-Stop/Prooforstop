@@ -2843,6 +2843,14 @@ Behavior:
     cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
+  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a lattice verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s immutable pin; allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
+    provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
+    toolName: z.string().optional().describe('Name of the shell tool being invoked (e.g. Bash on Claude, the Codex shell tool)'),
+    toolInputJson: z.string().optional().describe('JSON-encoded shell tool input; the command string is read from its .command field when commandString is absent'),
+    commandString: z.string().optional().describe('Explicit shell command string to inspect (overrides toolInputJson extraction)'),
+    cwd: z.string().optional().describe('Working directory (informational; the guard resolves the pin from story metadata)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
   { name: 'autopilot_execute', description: 'Execute a bounded unattended Proofbound autopilot loop using local Proofbound commands and local assurance only. Alias: lattice autopilot execute', schema: {
     mode: z.enum(['local']).optional().describe('Autopilot mode: local'),
     storyId: z.string().optional().describe('Story ID to bind the autopilot executor to'),

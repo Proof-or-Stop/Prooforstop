@@ -20,6 +20,7 @@ import {
   renderLatticeProjectConfig,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
+  renderCodexEvidencePretoolHookScript,
   codexHookCommand,
   getCodexHooks,
   getClaudeHooks,
@@ -27,6 +28,7 @@ import {
   LEGACY_SCOPE_PRETOOL_HOOK_FILE,
   LATTICE_SCOPE_PRETOOL_HOOK_FILE,
   ENGLISH_ONLY_GUARD_HOOK_FILE,
+  EVIDENCE_PRETOOL_HOOK_FILE,
   migrateHookCommandEntries,
 } from './init-assets.js';
 import type { InitAssetMode, InitProfile } from './init-assets.js';
@@ -59,7 +61,7 @@ const agentTemplateDir = [
   join(packageRoot, '..', '..', '.claude', 'agents'),
 ].find(existsSync);
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
-const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ONLY_GUARD_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
+const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ONLY_GUARD_HOOK_FILE, EVIDENCE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
 
 // 通过 lattice init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
@@ -374,7 +376,12 @@ function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incom
   let changed = !updated.hooks;
 
   for (const [event, eventHooks] of Object.entries(codexHooks)) {
-    const command = eventHooks[0]?.hooks?.[0]?.command;
+    // B-1507 CHK-003: an event can declare MULTIPLE managed entries (PreToolUse
+    // now has both the scope guard AND the evidence-pin seatbelt). The legacy
+    // scope-pretool command migrates onto the FIRST managed entry's command;
+    // each entry must then be merged independently — only checking eventHooks[0]
+    // would silently drop every entry after the first.
+    const migrationTarget = eventHooks[0]?.hooks?.[0]?.command;
     if (!hooks[event]) {
       hooks[event] = eventHooks;
       changed = true;
@@ -387,15 +394,18 @@ function mergeCodexHooks(existing: any): { updated: any; changed: boolean; incom
     const migrated = migrateHookCommandEntries(
       hooks[event],
       codexHookCommand(LEGACY_SCOPE_PRETOOL_HOOK_FILE),
-      command || '',
+      migrationTarget || '',
     );
     if (migrated.changed) {
       hooks[event] = migrated.entries;
       changed = true;
     }
-    if (command && !hasHookCommand(hooks[event], command)) {
-      hooks[event] = [...hooks[event], ...eventHooks];
-      changed = true;
+    for (const entry of eventHooks) {
+      const command = entry?.hooks?.[0]?.command;
+      if (command && !hasHookCommand(hooks[event], command)) {
+        hooks[event] = [...hooks[event], entry];
+        changed = true;
+      }
     }
   }
 
@@ -1045,6 +1055,8 @@ if (wantsClaude) {
 if (wantsCodex || isGlobalThin) {
   writeExecutable('.codex/hooks/lattice-scope-pretool.cjs', renderCodexPretoolScopeHookScript());
   removeWholeFileIfGenerated('.codex/hooks/scope-pretool.cjs', '.codex/hooks/scope-pretool.cjs', [renderCodexPretoolScopeHookScript()]);
+  // B-1507 CHK-003: fail-open evidence-pin seatbelt on the Codex shell tool.
+  writeExecutable('.codex/hooks/lattice-evidence-pretool.cjs', renderCodexEvidencePretoolHookScript());
 
   const codexHooksPath = join(targetDir, '.codex', 'hooks.json');
   const codexHooks = getCodexHooks();
