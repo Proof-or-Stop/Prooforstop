@@ -428,7 +428,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The validator returns a classification for arbitrary acyclic JSON values and never throws.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Coverage includes empty containers, deeply nested structures, mixed primitive arrays, and objects created with no prototype.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The property is asserted over generated inputs rather than the enumerated failure rows, so it can catch shapes nobody thought to list - the same blind spot that produced this defect.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
