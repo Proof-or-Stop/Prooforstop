@@ -243,44 +243,27 @@ function reopenEventsOf(cwd: string, storyId: string): ProcessEvent[] {
 
 async function assertReopenAuditCrashRecovery(): Promise<void> {
   const { root, storyId, wt } = seedStoryAtInitCheck();
-  const originalCwd = process.cwd();
   try {
     assert.equal(run(wt, 'story_advance', { storyId, phase: 'PLAN' }).code, 0, 'PLAN advance should succeed before the crash drill');
     assert.equal(phaseOf(wt, storyId), 'PLAN', 'story should be at PLAN before the crash-injected reopen');
 
     // ── (1) CRASH in the real path ───────────────────────────────────────────
-    // In-process so the store — the only thing swapped — can fail the append the
-    // way a dead process would. Everything else is production code: same
-    // orchestrator, same locks, same gates, same worktree cwd requirement.
-    const crashStore = new CrashBeforeReopenAuditStore(wt);
-    const ctx: HandlerContext = { root: wt, scanRoot: wt, store: crashStore };
-    process.env.LATTICE_SESSION_ID = SESSION;
-    process.chdir(wt);
-    resetConfigCache();
-    let crashError: unknown;
-    try {
-      await runStoryTransition(ctx, { storyId, phase: 'INIT', reason: CRASH_REOPEN_REASON });
-    } catch (e) {
-      crashError = e;
-    } finally {
-      process.chdir(originalCwd);
-      resetConfigCache();
-    }
-    assert.equal(crashStore.reopenAppendAttempts, 1, 'the drill must have reached (and failed) the reopen audit append exactly once');
-    assert.match(String((crashError as Error | undefined)?.message ?? ''), new RegExp(SIMULATED_CRASH), `the injected crash must be what aborted the transition, not some earlier failure: ${String(crashError)}`);
+    // B-70a6 F-010: this drill used to carry its OWN copy of the crash injection,
+    // duplicating crashInjectReopen (which the F-005/F-006 drills use) — two
+    // implementations of one mechanism that would silently drift apart. It now
+    // calls the SHARED helper, which asserts everything the inline copy did about
+    // the crash itself: the reopen audit append was reached and failed EXACTLY
+    // ONCE, the injected crash (not some earlier failure) is what aborted the
+    // transition, phase=INIT nevertheless COMMITTED, and the durable recovery
+    // record exists carrying the VERBATIM validated reason.
+    const pending = await crashInjectReopen(wt, storyId, CRASH_REOPEN_REASON);
 
-    // The reopen COMMITTED — this is precisely why a missing audit event used to be
-    // unrecoverable rather than merely late.
-    const afterCrash = new StoryStore(wt).readStory(storyId);
-    assert.equal(afterCrash.phase, 'INIT', 'the reopen phase write committed before the crash (the state the finding is about)');
+    // Assertions specific to THIS drill, which is why they cannot move into the
+    // shared helper: only here is the story guaranteed to have NO reopen event yet
+    // (the F-006 drill deliberately runs its crash with one already on disk).
     assert.equal(reopenEventsOf(wt, storyId).length, 0, 'the injected crash must have prevented the audit event — that missing event IS the window under test');
-
-    // RED HERE before the fix: nothing durable carried the validated reason.
-    const pending: PendingReopenAudit | undefined = afterCrash.pendingReopenAudit;
-    assert.ok(pending, 'a crash between the phase write and the audit append must leave a durable recovery record on the story index (same atomic writeStory rename as phase=INIT) — without it the reopen is silently unaudited and unrecoverable');
-    assert.equal(pending!.reason, CRASH_REOPEN_REASON, 'the recovery record must carry the validated reason VERBATIM (a truncated/normalized reason is not the audited one)');
-    assert.equal(pending!.fromPhase, 'PLAN', 'the recovery record must remember the phase the reopen left');
-    assert.ok(pending!.auditId && pending!.auditId.length > 0, 'the recovery record needs an idempotency key so recovery cannot double-emit');
+    assert.equal(pending.fromPhase, 'PLAN', 'the recovery record must remember the phase the reopen left');
+    assert.ok(pending.auditId.length > 0, 'the recovery record needs an idempotency key so recovery cannot double-emit');
 
     // ── (2) RECOVERY on the next real transition (via the real CLI) ──────────
     freezeStory(new StoryStore(wt), storyId);
@@ -292,7 +275,7 @@ async function assertReopenAuditCrashRecovery(): Promise<void> {
     assert.equal(recovered.length, 1, `reconciliation must produce EXACTLY ONE PLAN->INIT audit event for the one interrupted reopen (found ${recovered.length})`);
     assert.equal(recovered[0].transitionType, 'reopen', 'the recovered event must still be marked transitionType=reopen');
     assert.equal(recovered[0].reason, CRASH_REOPEN_REASON, 'the recovered event must carry the VERBATIM validated reason');
-    assert.equal(recovered[0].reopenAuditId, pending!.auditId, 'the recovered event must carry the record idempotency key so a repeat cannot double-emit');
+    assert.equal(recovered[0].reopenAuditId, pending.auditId, 'the recovered event must carry the record idempotency key so a repeat cannot double-emit');
     assert.equal(new StoryStore(wt).readStory(storyId).pendingReopenAudit, undefined, 'the recovery record must be cleared once its event is durably appended');
 
     // ── (3) a crash between the append and the CLEAR must not double-emit ────
@@ -341,7 +324,23 @@ async function assertReopenAuditCrashRecovery(): Promise<void> {
 const DISCARD_REOPEN_REASON = 'Discard drill: this reopen committed but crashed before its audit event, and story_discard must not erase it.';
 const ZOMBIE_REOPEN_REASON = 'Zombie drill: this reopen committed but crashed before its audit event, and the zombie DONE repair must not erase it.';
 
-/** Drive a real reopen through the production path with the audit append crash-injected. */
+/**
+ * Drive a real reopen through the production path with the audit append crash-injected.
+ *
+ * THE ONLY crash-injection implementation in this file (B-70a6 F-010): the F-004
+ * crash-window drill, both F-005 out-of-band drills and the F-006 same-reason drill
+ * all go through here, so how the crash is injected — the store subclass, the
+ * chdir/session dance, what "the crash really happened" means — has one definition
+ * that cannot drift. In-process so the store (the ONLY thing swapped) can fail the
+ * append the way a dead process would; everything else is production code: same
+ * orchestrator, same locks, same gates, same worktree cwd requirement.
+ *
+ * Asserted here, for every caller: the reopen audit append was reached and failed
+ * exactly once, the INJECTED crash is what aborted the transition, the phase write
+ * nevertheless COMMITTED, and the durable recovery record exists carrying the
+ * VERBATIM reason. Anything that varies per drill (how many audit events already
+ * exist, what happens next) stays in the caller.
+ */
 async function crashInjectReopen(wt: string, storyId: string, reason: string): Promise<PendingReopenAudit> {
   const originalCwd = process.cwd();
   const crashStore = new CrashBeforeReopenAuditStore(wt);
@@ -359,12 +358,15 @@ async function crashInjectReopen(wt: string, storyId: string, reason: string): P
     resetConfigCache();
   }
   assert.equal(crashStore.reopenAppendAttempts, 1, 'the drill must have reached (and failed) the reopen audit append exactly once');
-  assert.match(String((crashError as Error | undefined)?.message ?? ''), new RegExp(SIMULATED_CRASH), `the injected crash must be what aborted the transition: ${String(crashError)}`);
+  assert.match(String((crashError as Error | undefined)?.message ?? ''), new RegExp(SIMULATED_CRASH), `the injected crash must be what aborted the transition, not some earlier failure: ${String(crashError)}`);
+  // The reopen COMMITTED — this is precisely why a missing audit event used to be
+  // unrecoverable rather than merely late.
   const afterCrash = new StoryStore(wt).readStory(storyId);
-  assert.equal(afterCrash.phase, 'INIT', 'the reopen phase write committed before the crash (that is why the missing event matters)');
-  const pending = afterCrash.pendingReopenAudit;
-  assert.ok(pending, 'the crashed reopen must leave the durable recovery record (F-004)');
-  assert.equal(pending!.reason, reason, 'the recovery record must carry the validated reason verbatim');
+  assert.equal(afterCrash.phase, 'INIT', 'the reopen phase write committed before the crash (the state the finding is about, and why the missing event matters)');
+  // RED HERE before the F-004 fix: nothing durable carried the validated reason.
+  const pending: PendingReopenAudit | undefined = afterCrash.pendingReopenAudit;
+  assert.ok(pending, 'a crash between the phase write and the audit append must leave a durable recovery record on the story index (same atomic writeStory rename as phase=INIT) — without it the reopen is silently unaudited and unrecoverable');
+  assert.equal(pending!.reason, reason, 'the recovery record must carry the validated reason VERBATIM (a truncated/normalized reason is not the audited one)');
   return pending!;
 }
 
@@ -392,6 +394,12 @@ async function assertReopenAuditSurvivesStoryDiscard(): Promise<void> {
     assert.equal(survived[0].reason, DISCARD_REOPEN_REASON, 'the surviving event must carry the VERBATIM validated reason');
     assert.equal(survived[0].reopenAuditId, pending.auditId, 'the surviving event must carry the doomed record\'s idempotency key');
     assert.match(`${discard.out}${discard.err}`, /interrupted PLAN->INIT reopen/, 'the operator must SEE the rescue — a silent one is what the finding calls out');
+    // B-70a6 F-009: the notice must name WHICH copy held the record. Here it is the
+    // DOOMED worktree copy, the one whose own record is deliberately left uncleared,
+    // so this pointer is what makes a later duplicate event traceable. Matched on the
+    // `.worktrees/<id>` tail rather than the literal path because the handler resolves
+    // it through realpath (/var vs /private/var on macOS).
+    assert.match(`${discard.out}${discard.err}`, new RegExp(`\\[record read from [^\\]]*\\.worktrees[/\\\\]${storyId}\\]`), 'the discard notice must report that the rescued record came from the doomed worktree copy (an unattributed rescue leaves an operator unable to tell which copy still holds an uncleared record)');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -428,6 +436,10 @@ async function assertReopenAuditSurvivesZombieReconcile(): Promise<void> {
     assert.equal(survived[0].reason, ZOMBIE_REOPEN_REASON, 'the surviving event must carry the VERBATIM validated reason');
     assert.equal(survived[0].reopenAuditId, pending.auditId, 'the surviving event must carry the record idempotency key');
     assert.match(`${reconcile.out}${reconcile.err}`, /interrupted PLAN->INIT reopen/, 'the operator must SEE the rescue during the zombie repair');
+    // B-70a6 F-009: the OTHER source branch — here the record rode the merged MAIN
+    // copy, so the notice must attribute it to the surviving index, not to a doomed
+    // root. Two drills, two branches: the field can no longer be write-only.
+    assert.match(`${reconcile.out}${reconcile.err}`, /\[record read from the surviving story index\]/, 'the zombie-repair notice must report that the rescued record was found on the surviving story index');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -574,7 +574,13 @@ export function reconcilePendingReopenAudit(
 export interface OutOfBandReopenAuditReconciliation {
   status: ReopenAuditReconciliationStatus;
   auditId?: string;
-  /** Which copy held the record: the surviving story index, or a doomed root path. */
+  /**
+   * Which copy held the record: the surviving story index, or a doomed root path.
+   * Rendered by `renderOutOfBandReopenAuditNotice` (B-70a6 F-009) — the doomed-copy
+   * path is the one whose record is deliberately left uncleared (see RESIDUALS
+   * below), so an operator chasing a duplicate audit event needs to see WHICH copy
+   * this rescue read.
+   */
   source?: string;
   /** Non-fatal problems. Never thrown: an audit rescue must not block the operation. */
   warnings: string[];
@@ -612,6 +618,10 @@ export interface OutOfBandReopenAuditReconciliation {
  * NEVER BLOCKS. Discarding or reconciling a story is legitimate; refusing it
  * because of an audit record would be a worse failure than the one being fixed.
  * Every failure is captured as a warning for the caller to SURFACE, not thrown.
+ * The ONE deliberate silence (B-70a6 F-008) is a doomed copy that holds no story
+ * metadata at all — StoryStore's typed not-found. That is not a failure: there is
+ * nothing there to rescue. Every other read failure (corrupt index.json, EACCES)
+ * IS warned about, because it may be hiding a record.
  *
  * RESIDUALS (stated, not glossed):
  *   - The doomed copy's record is deliberately NOT cleared. Writing to a worktree
@@ -619,11 +629,15 @@ export interface OutOfBandReopenAuditReconciliation {
  *     worktree dirty and make a non-force discard refuse. If the destructive step
  *     then fails and the worktree survives, its record is reconciled again later
  *     into ITS log; both events carry the SAME auditId, so the failure mode is a
- *     dedupable duplicate, never a lost event.
- *   - `story_discard --purge` deletes the whole story metadata directory,
- *     including the log this event is appended to. That is an explicit erase of
- *     ALL of the story's process events, not a silent audit loss; the caller
- *     surfaces it.
+ *     dedupable duplicate, never a lost event. (`source` names that copy in the
+ *     operator notice so the duplicate is traceable to where it came from.)
+ *   - `story_discard --purge` removes the story metadata directory this event's
+ *     log lives in, so the rescued event does NOT survive a purge. That is an
+ *     explicit erase of ALL of the story's process events, not a silent audit
+ *     loss; the caller surfaces it. Precise scope of that claim (B-70a6 F-012):
+ *     purge's own git rollback may restore an OLDER committed copy of the
+ *     directory, so metadata files can still be on disk afterwards — but that
+ *     older copy predates the rescue and therefore never carries this event.
  */
 export function reconcileReopenAuditBeforeOutOfBandPhaseChange(args: {
   storyId: string;
@@ -636,7 +650,7 @@ export function reconcileReopenAuditBeforeOutOfBandPhaseChange(args: {
   try {
     const own = reconcilePendingReopenAudit(args.store, args.storyId);
     if (own.status !== 'none') {
-      return { status: own.status, auditId: own.auditId, source: 'story index', warnings };
+      return { status: own.status, auditId: own.auditId, source: 'the surviving story index', warnings };
     }
   } catch (e: any) {
     warnings.push(`could not reconcile the pending reopen audit on the story index: ${String(e?.message ?? e)}`);
@@ -646,10 +660,27 @@ export function reconcileReopenAuditBeforeOutOfBandPhaseChange(args: {
     let doomed: StoryInfo | undefined;
     try {
       doomed = new StoryStore(recordRoot).readStory(args.storyId);
-    } catch {
-      // An unreadable/absent doomed copy is the normal case (no worktree, or a
-      // corrupted one). It must never block the operation, and there is nothing
-      // to rescue from it.
+    } catch (e: any) {
+      // B-70a6 F-008: this used to be a bare `catch { continue; }`, which
+      // contradicted the docblock above by swallowing REAL failures.
+      //
+      // ABSENT metadata is not a failure: a doomed root can legitimately hold no
+      // copy of this story (a worktree created before the metadata commit, a
+      // residual directory), and there is genuinely nothing to rescue there —
+      // warning on it would bury the real ones in routine noise. StoryStore
+      // signals exactly that case with its typed not-found error.
+      //
+      // ANY OTHER read failure (corrupt-but-present index.json, EACCES) may be a
+      // record sitting right there, unreadable — precisely the silent loss this
+      // function exists to prevent — so it is surfaced as a warning. Still never
+      // thrown: the caller's discard/repair must not be blocked.
+      //
+      // The not-found error class is private to core/store.ts, so it is matched by
+      // NAME. If it is ever renamed this degrades to an EXTRA warning (loud), never
+      // back to a swallowed failure (silent).
+      if (e?.name !== 'StoryArtifactMissingError') {
+        warnings.push(`could not read the pending reopen audit record from ${recordRoot}: ${String(e?.message ?? e)}`);
+      }
       continue;
     }
     if (!doomed?.pendingReopenAudit) continue;
@@ -678,19 +709,31 @@ export function renderOutOfBandReopenAuditNotice(
   options?: { metadataWillBePurged?: boolean },
 ): string[] {
   const lines: string[] = [];
+  // B-70a6 F-009: `source` names WHICH copy held the record. It matters to the
+  // operator: a doomed-copy rescue deliberately leaves that copy's record in place
+  // (see the rescue's RESIDUALS), so this is the pointer that makes a later
+  // duplicate event traceable instead of mysterious.
+  const from = result.source ? ` [record read from ${result.source}]` : '';
   if (result.status === 'recovered') {
     lines.push(
       `✓ recovered the audit event for an interrupted PLAN->INIT reopen of ${storyId} (${result.auditId}) ` +
-      `before this out-of-band phase change destroyed its record`,
+      `before this out-of-band phase change destroyed its record${from}`,
     );
     if (options?.metadataWillBePurged) {
+      // B-70a6 F-012: says only what is verified. The rescued event does NOT
+      // survive purge (its log is removed, and purge's git rollback can only
+      // restore an OLDER committed copy, which predates the rescue). The earlier
+      // wording also claimed the whole directory reliably disappears, which is
+      // not true in the common case — purgeSafeInitCommit resets only the LATEST
+      // commit, so metadata files can remain on disk afterwards.
       lines.push(
-        `⚠ purge deletes this story's whole metadata directory, including the audit event just recovered ` +
-        `(an explicit erase of ALL its process events, not a silent audit loss)`,
+        `⚠ purge removes this story's metadata directory, so the audit event just recovered will NOT survive it ` +
+        `(an explicit erase of this story's process events, not a silent audit loss); ` +
+        `purge's git rollback may leave an OLDER committed copy of that directory on disk, but it predates this rescue and does not carry the event`,
       );
     }
   } else if (result.status === 'already_audited') {
-    lines.push(`✓ cleared a stale reopen recovery record for ${storyId} (${result.auditId}); its audit event was already durable`);
+    lines.push(`✓ cleared a stale reopen recovery record for ${storyId} (${result.auditId}); its audit event was already durable${from}`);
   }
   for (const warning of result.warnings) {
     lines.push(`⚠ reopen audit rescue: ${warning}`);

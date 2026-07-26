@@ -2730,18 +2730,29 @@ function assertPhaseTransitionReopenAuditContract() {
     "hasOwnProperty.call(normalEvent, 'transitionType'), false",
     "hasOwnProperty.call(normalEvent, 'reason'), false",
     // B-70a6 F-004: the crash window is proven by fault injection into the real
-    // path, not by hand-written fixture state.
+    // path, not by hand-written fixture state. B-70a6 F-010 folded the F-004
+    // drill's own copy of that injection into the SHARED crashInjectReopen helper,
+    // so the same guarantee is now pinned across the two halves: the drill must
+    // inject the crash WITH ITS OWN REASON through the helper, and the helper must
+    // drive the REAL orchestrator and check the record carries that reason verbatim.
     'class CrashBeforeReopenAuditStore extends StoryStore',
-    'await runStoryTransition(ctx, { storyId, phase: \'INIT\', reason: CRASH_REOPEN_REASON })',
+    'await crashInjectReopen(wt, storyId, CRASH_REOPEN_REASON)',
+    'await runStoryTransition(ctx, { storyId, phase: \'INIT\', reason })',
     'assert.ok(pending,',
-    'assert.equal(pending!.reason, CRASH_REOPEN_REASON',
+    'assert.equal(pending!.reason, reason',
+    "assert.equal(pending.fromPhase, 'PLAN'",
     'assert.equal(recovered.length, 1',
     'assert.equal(recovered[0].reason, CRASH_REOPEN_REASON',
-    'assert.equal(recovered[0].reopenAuditId, pending!.auditId',
+    'assert.equal(recovered[0].reopenAuditId, pending.auditId',
   ]) {
     assert(reopenSmokeText.includes(token), `packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: end-to-end reopen audit assertion missing ${token}`);
   }
   assert(/assertReopenAuditCrashRecovery\(\)/.test(reopenSmokeText) && /^await assertReopenAuditCrashRecovery\(\);$/m.test(reopenSmokeText), 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the crash-window recovery drill must actually RUN (a defined-but-uncalled test proves nothing)');
+  // B-70a6 F-010: ONE crash-injection implementation, not two. Every drill goes
+  // through crashInjectReopen, so a change to how the crash is injected cannot be
+  // applied to one copy and silently missed on the other.
+  const crashInjectionSites = reopenSmokeText.split('new CrashBeforeReopenAuditStore(').length - 1;
+  assert(crashInjectionSites === 1, `packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the reopen crash injection must have exactly ONE implementation (the shared crashInjectReopen helper); found ${crashInjectionSites} \`new CrashBeforeReopenAuditStore(\` sites — a second copy is free to drift from the first`);
 }
 
 /**
@@ -2771,6 +2782,12 @@ function assertOutOfBandReopenAuditRescueContract() {
     'never blocks',
     'DUPLICATE event sharing one auditId',
     '--purge',
+    // B-70a6 F-008: the "surfaced, never swallowed" half of that promise, and its
+    // ONE deliberate exception, are declared — not left to the code to imply.
+    'no-op rather than a failure',
+    // B-70a6 F-012: the purge claim stays at the precision that was actually
+    // verified (the rescued event does not survive; the directory may).
+    'predates the rescue',
   ]) {
     assert(phaseTransitionFact?.rationale.includes(token), `${processFactRegistryPath}: phase transition rationale must declare the out-of-band rescue semantics token ${token}`);
   }
@@ -2789,6 +2806,26 @@ function assertOutOfBandReopenAuditRescueContract() {
   assert(doomedRead, `${orchestratorPath}: the rescue must open the DOOMED copy's own store (\`new StoryStore(recordRoot)\`) — story_discard's runtime root is redirected to the MAIN root, so without this it can never SEE the record it is supposed to save`);
   const rescueDoomedDelegation = rescueDelegations[rescueDelegations.length - 1];
   assert(rescueDoomedDelegation && rescueDoomedDelegation.arguments.length === 3, `${orchestratorPath}: the doomed-copy delegation must pass the record READ from the doomed copy while appending to the SURVIVING store (reconcilePendingReopenAudit(store, storyId, doomed))`);
+
+  // (1b) B-70a6 F-008: the rescue's contract is "never thrown, always SURFACED".
+  // The doomed-copy read — the one most likely to hit a permission error or a
+  // corrupted-but-present index.json — was a bare `catch { continue; }` that
+  // silently reported "nothing to rescue" for a real failure, which is the same
+  // operator-invisible loss the rescue exists to prevent. Every catch inside the
+  // rescue must therefore BIND its error and reach a warnings.push; the deliberate
+  // silence for a doomed copy that holds no metadata at all is allowed only as a
+  // guarded branch INSIDE such a catch, never as a bare swallow.
+  const rescueCatchClauses = [];
+  const collectCatchClauses = (n) => {
+    if (ts.isCatchClause(n)) rescueCatchClauses.push(n);
+    ts.forEachChild(n, collectCatchClauses);
+  };
+  if (rescueFn?.body) collectCatchClauses(rescueFn.body);
+  assert(rescueCatchClauses.length >= 2, `${orchestratorPath}: the out-of-band rescue must keep its failure handling for BOTH the surviving-index reconciliation and the doomed-copy read (found ${rescueCatchClauses.length} catch clauses)`);
+  for (const clause of rescueCatchClauses) {
+    assert(clause.variableDeclaration, `${orchestratorPath}: every catch in the out-of-band rescue must BIND its error — a bare \`catch {}\` cannot report what actually went wrong`);
+    assert(collectMemberCalls(clause.block, 'warnings', 'push').length > 0, `${orchestratorPath}: every catch in the out-of-band rescue must push a warning for the caller to surface (a swallowed read failure is indistinguishable from "there was nothing to rescue", which is exactly the silent loss this rescue is about)`);
+  }
 
   // (2) THE TWO CALL SITES: each must run the rescue BEFORE it destroys anything
   // and BEFORE its own phase write. Ordering IS the guarantee.
