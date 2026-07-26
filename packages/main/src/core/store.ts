@@ -4,7 +4,7 @@ import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
   UnderstandingData, DecisionData, StorySummaryData,
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
-  StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
+  StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, StallAdjudicationData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
@@ -546,6 +546,21 @@ export class StoryStore {
 
   writeInitCheck(storyId: string, data: InitCheckData): void {
     this.writeJson(storyId, 'init-check.json', data);
+  }
+
+  // ── Stall Adjudication (B-7813 CHK-002: stall_resolution_set writes the signed
+  // stall-adjudication.json consumed by the DEV→REVIEW convergence-stall mint gate) ──
+
+  readStallAdjudication(storyId: string): StallAdjudicationData | null {
+    try {
+      return this.readJson<StallAdjudicationData>(storyId, 'stall-adjudication.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeStallAdjudication(storyId: string, data: StallAdjudicationData): void {
+    this.writeJson(storyId, 'stall-adjudication.json', data);
   }
 
   // ── Scope Anti-Expansion (B-85ba: INIT→INIT_CHECK boundary freeze gate) ──

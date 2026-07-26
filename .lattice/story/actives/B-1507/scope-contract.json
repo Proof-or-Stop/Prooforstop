@@ -1,0 +1,42 @@
+{
+  "storyId": "B-1507",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/verification.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/evidence-pin-guard.ts",
+    "packages/main/src/handlers/evidence-pin-guard.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/handlers/proofstory.ts"
+  ],
+  "scopeChangeReason": "B-1507 ergonomics+seatbelt source scope (host hook shims .claude/.codex + root config are additionally touched per plan.md/checklist files but omitted here — the path resolver rejects dot-dir paths as ambiguous; this shadow contract satisfies the DEV scope-ambiguity gate and warns only).",
+  "acknowledgements": [],
+  "createdAt": "2026-07-26T04:18:31.481Z",
+  "updatedAt": "2026-07-26T04:18:31.481Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli-init.ts": "packages/main/src/cli-init.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/verification.ts": "packages/main/src/core/verification.ts",
+    "packages/main/src/core/evidence-pin-guard.ts": "packages/main/src/core/evidence-pin-guard.ts",
+    "packages/main/src/handlers/evidence-pin-guard.ts": "packages/main/src/handlers/evidence-pin-guard.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts"
+  }
+}

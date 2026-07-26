@@ -29,7 +29,7 @@ import {
   type DirtyWorktreeCategory,
   type DirtyWorktreeClassification,
 } from '../core/dirty-worktree.js';
-import { createChecklistHandlers } from './checklist.js';
+import { refreshStaleEvidenceMetadataOnly } from './checklist.js';
 import { createVerifierHandlers } from './verifier.js';
 
 /**
@@ -157,10 +157,11 @@ export function createRecoverEvidenceHandlers(ctx: HandlerContext): Record<strin
       }
 
       // 3. In-process refresh (no subprocess; honour ctx contract).
-      const checklistHandlers = createChecklistHandlers(ctx);
+      // B-1507 CHK-002: metadata-only refresh (no command execution) — recover_evidence
+      // refreshes hashes then validates; it must NOT take the re-executing CLI path.
       let refreshTranscript = '';
       try {
-        const refreshOutput = checklistHandlers.verification_evidence_refresh_stale({ storyId });
+        const refreshOutput = refreshStaleEvidenceMetadataOnly(ctx, storyId);
         refreshTranscript = asTranscript(refreshOutput);
       } catch (e: any) {
         refreshTranscript = `verification_evidence_refresh_stale failed: ${e?.message || String(e)}`;

@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Harden the stall detector from advisory to a blocking adjudication at the review-round mint site",
+      "context": "core/review-convergence.ts already computes the stall/trend signal (STALL_MIN_ROUNDS=4, STALL_WINDOW=3 non-improving). handlers/transition-effects.ts:284-289 currently consumes it advisory-only inside a try/catch that never blocks — it only appends output text. Make the stall trigger REFUSE to mint another ordinary review round (block the REVIEW re-entry / new-round transition) until a structured resolution is recorded. Extend the existing detector; do not build a new one. The refusal must carry a structured prompt naming the allowed §3 actions.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add the structured resolution actions that clear the stall block (incl. declare-checklist-item-unreachable)",
+      "context": "On stall, require exactly ONE recorded action to clear the block: (a) human authorizes continuation with a reason + a bounded additional round budget; (b) the story is re-planned / split; (c) a root-cause / architecture escalation is recorded; (d) the blocking findings are explicitly resolved / disproven / deferred, or scope is shrunk; or (e) a checklist item is declared UNREACHABLE (the F-058 case a raw cap never surfaces — declaring it closes the loop instead of spinning). Provide the CLI command(s) + persisted, signed record consumed by the gate; the unreachable declaration must reconcile plan.md/claims (F-059) rather than leave them drifting.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a hard ceiling / privileged override and prevent double-counting with the existing convergence-breaker and story_resume --ack",
+      "context": "core/convergence-breaker.ts (maxAdvance=20, AUTO_RECOVERY_BUDGET=1, cleared by story_resume --ack) counts ADVANCES and is the only current brake; it never bit on review-round runaway. The new review-round adjudication must have a hard upper bound or a privileged override so it cannot be ignored indefinitely, and must NOT double-count review rounds against the convergence-breaker's advance count or conflict with the story_resume --ack recovery path. Verify both brakes coexist and each still fires on its own trigger.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "RED-first smoke: reproduce the stall refusal and the F-058 unreachable-item scenario; register in validate",
+      "context": "RED-first. (1) Drive a story to >= threshold non-improving completed review rounds and assert the Nth ordinary round is MINTED before the fix and REFUSED after, with the structured prompt. (2) Reproduce the F-058 scenario (a checklist item unreachable from the requirement) and assert that declaring it unreachable CLOSES the loop instead of spinning another round. (3) Assert the existing convergence-breaker + story_resume --ack still work and are not double-counted. Register the smoke in lattice.config.json validate.commands + package.json.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

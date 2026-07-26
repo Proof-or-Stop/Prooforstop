@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-1507",
+  "id": "IC-20260726041859",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Deliver the four ergonomics+seatbelt milestones on top of the shipped B-ec67 floor: (M1) verification_run executes a pinned verifier and stamps a receipt; (M2) refresh re-executes-or-leaves-demoted; (M3) fail-open PreToolUse pin-guard on both hosts with the handler remaining the floor; (M4) one RED-first mutation-killing smoke registered in validate. Scope excludes hard-breaking verification_evidence_add (staged), B-3b88's pin-less prose-only refresh guard, and Steps 3/4.",
+  "acceptedInterpretationHash": "sha256:ad65928b2da0b4e3ce912b8e52890f6e0c5c0d295c338b8cbd1a5f4ea9e4173f",
+  "notes": "High-assurance intent confirmed against the 4-row milestone ledger; single accepted interpretation, no competing reading. Codex real-shell-token is the one open empirical unknown, gated on an e2e (never a false green).",
+  "ledgerHashBeforeDecision": "sha256:5bc495cfe4f952c0e7aa99747cb8519fefaca9d416f7e35f0efd4fdb59516737",
+  "confirmedLedgerHash": "sha256:5bc495cfe4f952c0e7aa99747cb8519fefaca9d416f7e35f0efd4fdb59516737",
+  "createdAt": "2026-07-26T04:18:59.756Z",
+  "updatedAt": "2026-07-26T04:18:59.756Z"
+}

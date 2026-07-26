@@ -8,7 +8,18 @@
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/lattice-scope-pretool.cjs\"",
             "timeout": 30,
-            "statusMessage": "Checking Lattice scope"
+            "statusMessage": "Checking Proofbound scope"
+          }
+        ]
+      },
+      {
+        "matcher": "shell|local_shell|exec_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/lattice-evidence-pretool.cjs\"",
+            "timeout": 10,
+            "statusMessage": "Checking Proofbound evidence pin"
           }
         ]
       }

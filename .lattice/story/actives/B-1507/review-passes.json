@@ -1,0 +1,173 @@
+{
+  "passes": [
+    {
+      "id": "B-1507:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review clean: core/evidence-pin-guard.ts verified PURE, verification_run + refresh re-exec verified to reuse enforceAndStampEvidence/runSingleAllowlistedCommand (no duplicated executor), ReexecStamp cannot be minted without a real pass, async split retargeted correctly, smoke run PASS, build clean.",
+      "createdAt": "2026-07-26T06:01:23.724Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-005",
+      "envelopeId": "2a58181c4033e4cca9c10681d1afbd1c405103aa55e9208e844f8ed533675e27",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/hooks/lattice-evidence-pretool.cjs",
+          ".codex/hooks/lattice-evidence-pretool.cjs",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/handlers/recover-evidence.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e543313ece862e9146eb91d0f53844018e96de54764abb6bb9b54cfe75eb7acf"
+    },
+    {
+      "id": "B-1507:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "Reviewed the 3 CHK-001..003 behaviors against userSees/DoneWhen via git diff main...HEAD plus direct code reading plus REAL execution (not just static reading): (1) verification_run resolves intentRef to the owning items pinned verification:{command,selector}, executes it through the shared enforceAndStampEvidence/runSingleAllowlistedCommand boundary, and derives result from the receipt; refuses cleanly with no evidence row written on [intent_ref_unresolved]/[verification_run_no_pin]/[receipt_exit_nonzero]/[receipt_selector_absent] -- confirmed by running the built CHK-004 smoke plus my own mutation-kill (flipping the exit-nonzero refusal to a no-op made assertion A2 fail as expected, then restored). (2) verification_evidence_refresh_stale (async) re-executes only PINNED executable rows outside the lock, and only records a reexecByKey pass-stamp on a real mechanical true plus receipt result; any failure (exit nonzero, selector absent, unavailable or unallowlisted command, resolution error) is caught and silently falls through to the pre-existing demote path -- no laundering path exists. Confirmed pin-less rows are skipped (kept demote-only, B-3b88 coexistence) and that the 3 non-executing in-process callers (evidence_refresh.ts, done-prepare.ts, recover-evidence.ts) were switched to the new synchronous refreshStaleEvidenceMetadataOnly export (verified via diff plus reran done-required-freshness-smoke and lifecycle-orchestrate-smoke, both pass). Ran my own mutation-kill on the reexec loop (short-circuiting it to always continue) and confirmed the CHK-004 smoke B1 assertion fails as expected, then restored. (3) evidence-pin-guard: computeEvidencePinVerdict denies ONLY on an explicit command or selector value mismatch against an existing pin (verification_run always allowed since the caller cannot author a mismatch; unpinned intent always allowed; non-lattice or unparseable command or missing story all fail-open allow). Both cjs shims (Claude Bash matcher plus the Codex candidate-token matcher) fail-open on spawn error, timeout, or signal and only exit 2 when the CLI cleanly returns deny; the Claude shim is the copied source of truth and the Codex shim byte-matches renderCodexEvidencePretoolHookScript exactly (diffed, identical). Adversarial: confirmed via the CHK-004 smoke C9 case that enforceAndStampEvidence (the pre-existing B-ec67 floor, untouched by this diff) still refuses a mismatched command or selector even when the guard or hook path is bypassed entirely -- the seatbelt is genuinely non-load-bearing. Ran my own mutation-kill on computeEvidencePinVerdict (forcing verdict allow on the deny branch) and confirmed C1 fails as expected, then restored. Checked the schema layer too: verificationIntentItemSchema is a strict zod object with no verification field, so a checklist_update or checklist_add caller cannot inject a pin onto a manual or docs intent via the CLI -- the pin invariant (never present on manual or docs intents) holds at the schema layer, not just by handler convention. The Codex real shell tool_name is documented as an accepted pending-real-token limitation per the dispatch prompt, not treated as a blocker here. No functional or behavioral defect found in the three reviewed behaviors. Note: a pre-existing critical concept-reviewer finding (B-1507:F-001, verification_pin_guard_check missing a process-fact-levels.ts entry) is already registered and is outside this behavior lane scope (registry completeness, not functional correctness) -- not duplicated here.",
+      "createdAt": "2026-07-26T06:04:35.945Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-002",
+      "envelopeId": "556e76ac7c58e6c3cdd2fa76edf4144b25f34117c06c372d28a897d024c47cc6",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/verification-context-pack.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37416af47f6f99860dc976484d1ccc7cc40efd453521f0bd38d9d04604b54146"
+    },
+    {
+      "id": "B-1507:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-review of concept/wiring completeness. Verified round-1 fixes (commit eae5eba): (1) verification_pin_guard_check added to process-fact-levels.ts (L0/guard-session-read) with no separate process-fact-registry.ts entry, matching prewrite_guard_check pattern exactly (grep confirms neither appears in the registry maps) -- correct and complete, not a gap. (2) .claude/settings.json Bash matcher for lattice-evidence-pretool.cjs present; lattice check reports .claude:settings.json OK. npm --prefix packages/main run build: clean. lifecycle-registry-contract.js: PASS (0 divergences). lattice check: OK=5; the 4 remaining drift items touch zero files in git diff main...HEAD -- pre-existing/unrelated. Re-scanned the full diff (50 files) for other half-wired residue: verification_run and verification_pin_guard_check are fully wired end-to-end through command-catalog.ts, command-policy.ts, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts (+process-fact-registry.ts for verification_run only, correctly), registry.ts, cli-init.ts+init-assets.ts+managed-assets.ts for both Claude and Codex hosts, and cli-engine.ts MILESTONE_STATUS_APPEND_COMMANDS. The refreshStaleEvidenceMetadataOnly extraction is consistently applied across all three non-executing callers and smoke test call sites, no leftover inline references. Ran pinned-fingerprint-gated tests directly: retired-authority-vocabulary-guard-smoke PASS, scripts/verify-process-fact-contract.mjs PASS, verification-run-and-guard-smoke.js PASS, and confirmed it is registered in lattice.config.json/package.json/packages/main/package.json. Codex real shell tool_name remains documented CANDIDATE-pending (fail-open), not a blocker. No concept-deletion residue and no half-wired residual found this round; F-001/F-002/F-004 confirmed resolved.",
+      "createdAt": "2026-07-26T06:52:50.312Z",
+      "reviewRound": "2026-07-26T06:36:03.008Z",
+      "reviewRunId": "B-1507:RR-014",
+      "envelopeId": "5d392a52be88defede83e9eb7184442036de828a9e7b8cf44b1a67dc28eb184d",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/hooks/lattice-evidence-pretool.cjs",
+          ".claude/settings.json",
+          ".codex/hooks.json",
+          ".codex/hooks/lattice-evidence-pretool.cjs",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/handlers/recover-evidence.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1507/checklist.json",
+          ".lattice/story/actives/B-1507/findings.json",
+          ".lattice/story/actives/B-1507/milestone-ledger.json",
+          ".lattice/story/actives/B-1507/plan.md",
+          ".lattice/story/actives/B-1507/review-passes.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15bb0be6532b65f37c01bc068979f09df9b4189497da6aa26359f1d5b2df5c51"
+    },
+    {
+      "id": "B-1507:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 delta review of fix commit eae5eba (resolves F-001..F-005). No blocking issues found; details below.",
+      "createdAt": "2026-07-26T06:55:07.368Z",
+      "reviewRound": "2026-07-26T06:36:03.008Z",
+      "reviewRunId": "B-1507:RR-015",
+      "envelopeId": "ceca2626d60f526773dec7cfa02329174666c6ef669295bcdf754977e6a938a5",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/settings.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f8040529748e461fe5428b47cb6a4876d8b0b8c5b14676a4da4e507f57bde2a"
+    },
+    {
+      "id": "B-1507:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 re-review: all 3 round-1 test-coverage findings (F-003/F-004/F-005) verified fixed at commit eae5eba and stable through the settle commits (materialHash unchanged, 7e0dd7666...). Cascade smokes lifecycle-registry-contract, red-evidence-target-binding-smoke, retired-authority-vocabulary-guard-smoke, and scripts/verify-process-fact-contract.mjs all PASS. verification-run-and-guard-smoke PASS 10/10 runs, no flake. Confirmed via live mutation test (temporarily disabled the receipt_exit_nonzero refusal check in checklist.ts, rebuilt, smoke FAILED at A2 as expected with the exact expectRejection assertion, reverted+rebuilt, smoke PASS again) that the A2 isolation fixture still genuinely mutation-kills; the assertion was not weakened. All 12 verificationEvidence rows across CHK-001..004 remain covered/passing/mechanical:true (checklist_get totals 3/3/3/3, 0 failing, 0 waivers; milestone_status Risks:none). Note: an earlier concurrent `lattice validate --story=B-1507` run (a separate process, pid 2643, not mine) recorded a transient 'validation command dirtied worktree' FAIL for retired-authority-vocabulary-guard-smoke.js in test-evidence.json (commit d4fb41d731) -- this coincided with my brief live mutation window on the shared tracked file packages/main/src/handlers/checklist.ts (reverted within seconds, git status confirmed clean immediately after). I then ran a fresh isolated `lattice validate --story=B-1507 --json` myself (git status clean start-to-finish) which came back status=pass allPass=true with zero 'dirtied worktree' occurrences, and that clean result is now the current committed test-evidence.json (commit 14e805f0c4, mtime 08:05:04) superseding the transient fail. No blocking findings from the test-coverage lane.",
+      "createdAt": "2026-07-26T07:06:11.063Z",
+      "reviewRound": "2026-07-26T06:36:03.008Z",
+      "reviewRunId": "B-1507:RR-016",
+      "envelopeId": "095aa9694e65633fd82296f66c851f289e10481dbfc2012a36bb7b3017ad2ea7",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1507/background.md",
+          ".lattice/story/actives/B-1507/checklist.json",
+          ".lattice/story/actives/B-1507/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6beb080d4da7c57f468fdffe2c6ef831629f0eac31a43857d364c1633f60c53"
+    }
+  ]
+}
