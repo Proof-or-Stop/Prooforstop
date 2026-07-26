@@ -1,0 +1,369 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-1507",
+    "phaseBasis": "plan",
+    "status": "partial",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:de40baaaba913ab3a7fb4cb2761bb687df3fbd97070f764a38a57583007d2e61",
+          "source-file:packages/main/src/handlers/checklist.ts:sha256:69d9df68f9cf209e83091ca1eea8b917d37d130100bb83d1402659a83c104727",
+          "source-file:packages/main/src/handlers/evidence-pin-guard.ts:sha256:51e8a64451895c318f5c62e81b96642116a54260e9e98cbfbdba4851d6e25561",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:89191c4caf9c6d84b35ada5c453bc235d7c7ebfe56b1bfdae3073c08d7f326ea",
+          "source-file:packages/main/src/registry.ts:sha256:3bad72d6d2a5bd6e1ab42424edf958f713229aefa8ebafd13bf4456c99b5ff73"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:handler_dispatch_inventory:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:packages/main/src/cli-init.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/handlers/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+          ]
+        },
+        "resultDigest": "sha256:b8643458bf178d01a4c45f370808b77892609b9dc3791bc858900e97986f3d4f"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+          "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+          "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+          "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:89191c4caf9c6d84b35ada5c453bc235d7c7ebfe56b1bfdae3073c08d7f326ea",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:027e3e3ae372bbce61fa061d16967d3988472f58eb880ad9a517bf8db8db95a7",
+          "source-file:packages/main/src/registry.ts:sha256:3bad72d6d2a5bd6e1ab42424edf958f713229aefa8ebafd13bf4456c99b5ff73",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:14e369c1ab9ed7233d57cb59eb8fddf89391e77420019cd316c93b62121e716b"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:process_fact_registry:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:packages/main/src/cli-init.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/handlers/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+          ]
+        },
+        "resultDigest": "sha256:d25d41e690daf3b34a63e2f33d9578206402639bfddf8cbe690c141cff9024f5"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+          "runtime-trace:story:B-1507:bounded"
+        ],
+        "asymmetryPolicy": {
+          "kind": "bounded_non_exhaustive",
+          "policyRef": "policy:bounded-runtime:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:packages/main/src/cli-init.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/handlers/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+          ]
+        },
+        "resultDigest": "sha256:41fe4f5440eb4ff189e92fe1eb91445d786d0c609f28e6ebd9f6f49d38ce5a94"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "scope:checklist:CHK-001",
+          "scope:checklist:CHK-002",
+          "scope:checklist:CHK-003",
+          "scope:checklist:CHK-004",
+          "scope:file:packages/main/src/cli-init.ts",
+          "scope:file:packages/main/src/cli/command-catalog.ts",
+          "scope:file:packages/main/src/core/evidence-pin-guard.ts",
+          "scope:file:packages/main/src/core/types.ts",
+          "scope:file:packages/main/src/core/validation-executor.ts",
+          "scope:file:packages/main/src/core/verification.ts",
+          "scope:file:packages/main/src/handlers/checklist.ts",
+          "scope:file:packages/main/src/handlers/evidence-pin-guard.ts",
+          "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:scope_contract:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:packages/main/src/cli-init.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/handlers/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+          ]
+        },
+        "resultDigest": "sha256:15a9b5f94e4bac9955617a6b98a0562df45c6acf78dff0a222daf807cb683c33"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [
+          "path:process-fact:acceptance_basis->consumer:<audit-only>",
+          "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
+        "provenanceRefs": [
+          "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+          "source-file:packages/main/src/cli-init.ts:sha256:399e8dabd3cc094aeafbe9b5b5ec6fce39e2e2e41e0c09b693beadd8e2df2e79",
+          "source-file:packages/main/src/cli/command-catalog.ts:sha256:de40baaaba913ab3a7fb4cb2761bb687df3fbd97070f764a38a57583007d2e61",
+          "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+          "source-file:packages/main/src/core/evidence-pin-guard.ts:sha256:a0bebcf36e2f2be7da0e3d67212e9e72b0bdf9127bbb46c8093725f427c40326",
+          "source-file:packages/main/src/core/types.ts:sha256:804985b99ee3004d924f8053ef09e99a572ed228c6755004a2bef334aa69331f",
+          "source-file:packages/main/src/core/validation-executor.ts:sha256:be9e7d2c028329acb3dde80f347378a168776eafed8e7454d89ebf013e678d64",
+          "source-file:packages/main/src/core/verification.ts:sha256:d71ed26cca5781ccd6f7b0eb1a9a4caf6f6337ca7572fc68ccfeb56452bbe8ee",
+          "source-file:packages/main/src/handlers/checklist.ts:sha256:69d9df68f9cf209e83091ca1eea8b917d37d130100bb83d1402659a83c104727",
+          "source-file:packages/main/src/handlers/evidence-pin-guard.ts:sha256:51e8a64451895c318f5c62e81b96642116a54260e9e98cbfbdba4851d6e25561",
+          "source-file:packages/main/src/handlers/proofstory.ts:sha256:89191c4caf9c6d84b35ada5c453bc235d7c7ebfe56b1bfdae3073c08d7f326ea",
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:027e3e3ae372bbce61fa061d16967d3988472f58eb880ad9a517bf8db8db95a7",
+          "source-file:packages/main/src/tasks/verification-run-and-guard-smoke.ts:sha256:92cc14f09ed47773c1c820c60a4e6b93c7d56e33a0dd33877045739f737351f6",
+          "source-file:scripts/verify-process-fact-contract.mjs:sha256:14e369c1ab9ed7233d57cb59eb8fddf89391e77420019cd316c93b62121e716b"
+        ],
+        "asymmetryPolicy": {
+          "kind": "exhaustive",
+          "policyRef": "policy:static_call_graph:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:packages/main/src/cli-init.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/core/verification.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/handlers/evidence-pin-guard.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+          ]
+        },
+        "resultDigest": "sha256:80e7554020caa1d7a7112c08d78f141926405e0721d450d7ae25898dd6f2fd7f"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:file:packages/main/src/cli-init.ts",
+      "scope:file:packages/main/src/cli/command-catalog.ts",
+      "scope:file:packages/main/src/core/evidence-pin-guard.ts",
+      "scope:file:packages/main/src/core/types.ts",
+      "scope:file:packages/main/src/core/validation-executor.ts",
+      "scope:file:packages/main/src/core/verification.ts",
+      "scope:file:packages/main/src/handlers/checklist.ts",
+      "scope:file:packages/main/src/handlers/evidence-pin-guard.ts",
+      "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+    ],
+    "sourceInventoryRefs": [
+      "artifact:acceptance-basis.json",
+      "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+      "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+      "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+      "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+      "source-file:closure:packages/main/src/cli-init.ts",
+      "source-file:closure:packages/main/src/cli/command-catalog.ts",
+      "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+      "source-file:closure:packages/main/src/core/evidence-pin-guard.ts",
+      "source-file:closure:packages/main/src/core/types.ts",
+      "source-file:closure:packages/main/src/core/validation-executor.ts",
+      "source-file:closure:packages/main/src/core/verification.ts",
+      "source-file:closure:packages/main/src/handlers/checklist.ts",
+      "source-file:closure:packages/main/src/handlers/evidence-pin-guard.ts",
+      "source-file:closure:packages/main/src/handlers/proofstory.ts",
+      "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:closure:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+      "source-file:closure:scripts/verify-process-fact-contract.mjs",
+      "source-file:config:lattice.config.json",
+      "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+      "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+      "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [
+      "path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:fb28713b0aa2f18861f628f99e08c73e3991977dc63c2e4cd01bca9b0bff1aa7",
+      "inventoryDirectoryCount": 21,
+      "sourceSnapshotDigest": "sha256:7354437ca3fe9679bd1d77e6f7367c09c33de9e201c8e1c28f4e866134d4af56",
+      "sourceSnapshotCount": 766,
+      "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+        }
+      ],
+      "sealDigest": "sha256:6b14c6c028e89173d4c76535e0a0bae4b30b982fb231b17c89b29515e9eb816a"
+    },
+    "binding": {
+      "headHash": "f9470bd27faed66232efb82346acc08f6f09f793",
+      "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
+      "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
+      "scopeCheckDigest": "sha256:3a9cb43cc823913f0febc7849f42d80cd3f2fc83bc2d60cd375d1d6cc55fab75",
+      "scopeContractDigest": "sha256:5057e8d7573f36ba5e5e6c6b4c690401c62b30c4059e2eca2841d60dedfd4cd0",
+      "closureFilesHash": "sha256:afdc83340ea147c7f14e4eba772bb17c9b8717c1b32d09c38f65ac0326e9f474"
+    },
+    "receiptRef": "receipt:coverage-basis:B-1507:plan:a083cd090469c604",
+    "basisDigest": "sha256:eb9b1eddd2abd79a9600538b56db55eb881c3a2e9f303452609d35581e1d9714"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-1507:plan:a083cd090469c604",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-1507",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:eb9b1eddd2abd79a9600538b56db55eb881c3a2e9f303452609d35581e1d9714",
+    "topologyDigest": "sha256:c05e62c925c01dd6423adc4169f9861d1a0d9e020cae993a485b8160d5c544bf",
+    "scopeCheckDigest": "sha256:3a9cb43cc823913f0febc7849f42d80cd3f2fc83bc2d60cd375d1d6cc55fab75",
+    "scopeContractDigest": "sha256:5057e8d7573f36ba5e5e6c6b4c690401c62b30c4059e2eca2841d60dedfd4cd0",
+    "headHash": "f9470bd27faed66232efb82346acc08f6f09f793",
+    "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
+    "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
+    "closureFilesHash": "sha256:afdc83340ea147c7f14e4eba772bb17c9b8717c1b32d09c38f65ac0326e9f474",
+    "sealDigest": "sha256:6b14c6c028e89173d4c76535e0a0bae4b30b982fb231b17c89b29515e9eb816a",
+    "workspaceIdentityDigest": "sha256:1f6e07025c3b4e24769cbd885f3d0bc4091115353cc4cdade96bae59dfff4fe2",
+    "signature": "rpm7IHiX5kYcycn7AqH3U0WTlmo+mnriJIihuRTjcMgZ4miV1HL1zR1vWsGj3hd3KDpTF8Bm9XtdKVr4q2pfDg=="
+  }
+}
