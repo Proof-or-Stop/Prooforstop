@@ -1,0 +1,101 @@
+{
+  "passes": [
+    {
+      "id": "B-3783:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept check: replaced full-registry loop (assert every AGENT_DISPATCH_REGISTRY entry schema/runtime-valid) with bidirectional AGENT_DISPATCH_ACCEPTED_TYPES-branched loop. No stale registered-must-be-schema-valid phrasing remains outside historical original-intent-snapshot.json; other files touching AGENT_DISPATCH_REGISTRY (agent-dispatch-registry-smoke.ts, prompt-contract-measurement-smoke.ts, review-run.ts, agent-dispatch-registry.ts) already special-case lattice-review-channel consistently, no conflicting concept; validate.commands has exactly one non-duplicated command-catalog-smoke.js entry with no focus:[fast]; built dist and ran the smoke directly -> exit 0. No residual/dead concept found; no finding filed.",
+      "createdAt": "2026-07-25T22:09:33.519Z",
+      "reviewRound": "2026-07-25T22:07:02.769Z",
+      "reviewRunId": "B-3783:RR-001",
+      "envelopeId": "de21701abeccdf53882d71e2d4859d381814ee815f45da4939da0829787d3faa",
+      "writerSessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3783/background.md",
+          ".lattice/story/actives/B-3783/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-channel.md",
+          ".lattice/story/actives/B-3783/plan.md",
+          "CLAUDE.md",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6340717acf5aa3fd6d1fb11daace41de9c699b1b43dc07173b12f8af17a0406a"
+    },
+    {
+      "id": "B-3783:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed CHK-001/CHK-002: bidirectional branch predicate is correct (Set(AGENT_DISPATCH_ACCEPTED_TYPES).has(canonicalName) exactly identifies the single retired entry), reverse assertion is non-vacuous (verified in isolated scratch worktree: widening ACCEPTED_TYPES to include the retired entry makes the smoke fail; neutering the reverse assertions to a skip-only branch makes it silently pass, confirming the shipped assertions are load-bearing). validate.commands wiring placed on normal (untagged) tier after build, matches other non-fast entries. No dead code, no unsafe any, no swallowed errors. No blocking findings.",
+      "createdAt": "2026-07-25T22:13:16.727Z",
+      "reviewRound": "2026-07-25T22:07:02.769Z",
+      "reviewRunId": "B-3783:RR-002",
+      "envelopeId": "e89ca2fe9a86f5137eb4feb5f8eb538e9abab6ae15a3c31a5ee2410618822993",
+      "writerSessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3783/background.md",
+          ".lattice/story/actives/B-3783/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3783/acceptance-basis.json",
+          ".lattice/story/actives/B-3783/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-3783/decision.json",
+          ".lattice/story/actives/B-3783/index.json",
+          ".lattice/story/actives/B-3783/intent-collision.json",
+          ".lattice/story/actives/B-3783/original-intent-snapshot.json",
+          ".lattice/story/actives/B-3783/process-events.jsonl",
+          ".lattice/story/actives/B-3783/process-metrics.json",
+          ".lattice/story/actives/B-3783/proofstory.json",
+          ".lattice/story/actives/B-3783/red-evidence.json",
+          ".lattice/story/actives/B-3783/review.json",
+          ".lattice/story/actives/B-3783/scope-check.json",
+          ".lattice/story/actives/B-3783/scope-contract.json",
+          ".lattice/story/actives/B-3783/test-evidence.json",
+          ".lattice/story/actives/B-3783/understanding.json",
+          "packages/main/src/core/agent-dispatch-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c697116d08ea3caec7ee2df7603ddd58c8334bb396f1ae182d39be6b942ee5eb"
+    },
+    {
+      "id": "B-3783:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: audited CHK-001 (9 intents) + CHK-002 (6 intents), all 15 must/should intents have concrete, verified evidence. Live-reproduced both mutation proofs (enum widening + registry filter removal) and re-ran the smoke (GREEN, 337 commands) and confirmed the historical validate run executed command-catalog-smoke.js as command 6/52. No blocker.",
+      "createdAt": "2026-07-25T22:14:48.608Z",
+      "reviewRound": "2026-07-25T22:07:02.769Z",
+      "reviewRunId": "B-3783:RR-003",
+      "envelopeId": "6657cbe6fd4e4577c08a92f85787fd3200e649827c662ba1149cc82646cec358",
+      "writerSessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3783/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3783/background.md",
+          ".lattice/story/actives/B-3783/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "898085fac77410781ca32890c807a30aa60cc4ed08d91e009022bffb56673cdc"
+    }
+  ]
+}
