@@ -62,7 +62,7 @@
       "desc": "CHK-003:happy:2 evidence cites an unbound command, packages/main/src/tasks/quorum-submit-smoke.ts:2098-2113: the checklist scope.allowedModify explicitly includes packages/main/src/core/config.ts (DEFAULT_PHASE_TOOLS wiring), and config.ts:362 does add quorum_prune to DEFAULT_PHASE_TOOLS. But the bound checks own comment (~2106-2109) says exercising that wiring is \"outside this storys scope contract\" and is not tested there (only catalog+policy resolution and non-unknown-command dispatch are asserted). The verificationEvidence note for CHK-003:happy:2 instead claims coverage via \"scripts/verify-process-fact-contract.mjs passes with the new fact row and DEFAULT_PHASE_TOOLS entry\" -- but that script is a different, separate command from the one this evidence row is bound to (node packages/main/dist/tasks/quorum-submit-smoke.js), and no verificationEvidence row records that script having been run at this headHash/materialHash. The claimed \"wiring verification across all 5 integration points\" is therefore not actually demonstrated by evidence bound to this storys own smoke command for the config.ts integration point.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T23:01:09.695Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-3144:RR-002",
       "_hash": "ce9fc0f587b21c2bb0d269917930e5a12049f11cdb6b804f6c2d69dc7f8ab814",
       "signatureTag": "missing|unknown|happy-evidence-cites",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The CLI-registration check now asserts DEFAULT_PHASE_TOOLS['*'] contains quorum_prune and isCommandAllowed('quorum_prune','REVIEW') is true, with a negative control (plan_set refused in REVIEW) so the exit-0 is not vacuous. The stale out-of-scope disclaimer comment was removed; config.ts is in the story scope contract. Commit f1bcba3885.",
+      "resolvedAt": "2026-07-26T00:47:21.275Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-005",
