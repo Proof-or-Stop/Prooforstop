@@ -171,6 +171,24 @@
       "resolvedAt": "2026-07-26T06:38:38.557Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-70a6:F-008",
+      "desc": "transition-orchestrator.ts:614 vs :647-654 (reconcileReopenAuditBeforeOutOfBandPhaseChange) — the docblock explicitly promises \"Every failure is captured as a warning for the caller to SURFACE, not thrown\", but the catch block reading the doomed copy (doomed = new StoryStore(recordRoot).readStory(args.storyId)) is a bare catch { continue; } that swallows the error with zero diagnostic — no warning pushed, unlike the sibling catch 9 lines later (line 663-665) which does push a warning. A real failure here (permission error, corrupted-but-existing index.json — not just absent worktree) is silently treated as if there was nothing to rescue, contradicting the functions own stated contract and defeating exactly the operator-visibility guarantee F-005 exists to establish for the other failure path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T06:50:45.498Z",
+      "reviewRound": "2026-07-26T06:38:10.290Z",
+      "reviewRunId": "B-70a6:RR-012",
+      "_hash": "d1ace7191cfb363f22c2c5b92b32a40c9bfd9305fa404b135bb5f0d5b0397ce4",
+      "files": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|ts|transition-orchestrator-reconcilereopenauditbeforeoutofbandphasechange",
+      "signatureTagSource": "auto"
     }
   ]
 }
