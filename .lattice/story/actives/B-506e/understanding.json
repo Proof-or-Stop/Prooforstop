@@ -1,0 +1,47 @@
+{
+  "task": "Land the red-evidence v2 record and chain plane (per-operation field sets, always-present nullable chain fields, head uniqueness, the three integrity checks, the closed transition table, operation keys and deterministic ids, dedupe/replay ordering, mkdir-serialized appends) plus the red_evidence_quarantine and red_evidence_recover commands, while guarding the v1 gate predicate in the same commit so a v2 record never crashes the live enforce gate.",
+  "outcome": "Two new commands exist and the live enforce gate tolerates v2 records. Running quarantine prints a chain receipt and the committed chain smoke prints PASS: $ node bin/lattice.js red_evidence_quarantine --storyId=B-9xxx --acceptanceTargetRef=AT-1 --reason='superseded by the fixed assertion' -> quarantine recorded on chain B-9xxx|AT-1: record q-ab12cd34ef56-2 (head seq 2, prior sha256:....), approvedBy lattice-implementer@main-agent-s2s1-stable-f93ff408f3 ; $ node packages/main/dist/tasks/red-evidence-chain-smoke.js -> chain smoke PASS: v2 union, enforce-gate byte-identical on a v1-only store, chain integrity checks, closed transition table, operation-key plus dedupe plus replay ordering, mkdir-claim race yields one head, full rejection matrix, quarantine plus recover plus binding-freeze.",
+  "facts": [
+    "W2a (B-c054, DONE 0.3.236) shipped the CANON digest at packages/main/src/core/red-evidence/canon.ts and the fail-closed policy; W2b (B-e10d, DONE 0.3.237, merge 00d36be2ea) shipped the target-binding store and red_evidence_binding_set with the 13-point wiring recipe.",
+    "core/proofstory.ts redEvidenceRecordSatisfied at :931 dereferences record.observedFailure.trim() at :932, reached via .some() at :947 from missingRedEvidence at :1196; lattice.config.json sets devGateMode, reviewGateMode and doneGateMode all to enforce, so a v2 record with no observedFailure crashes the live gate today (RED signal A).",
+    "core/store.ts readRedEvidence at :852 and writeRedEvidence at :861 are a plain read-modify-write whose write is atomic only on rename, and the owner lease is explicitly not a same-owner mutex, so two racing red_evidence_quarantine processes drop an append or produce two heads (RED signal B).",
+    "The executable serialization model is acquireMkdirLock at handlers/transition-orchestrator.ts:812-836 (acquire :819, release :859) via core/mkdir-lock.ts:253; the spec §4.1 line-1171 citation is an explanatory comment, not code.",
+    "types.ts RedEvidenceData.records[] at :2700 is a v1-only array today and must widen to a schemaVersion-discriminated mixed v1/v2 array with the same on-disk layout.",
+    "The spec governs schema and ordering: §1.10 (v2 top-level schema and per-operation field sets), §3.1-§3.7 (chain schema, head uniqueness, integrity checks, transition table, operation keys, dedupe ordering, edge cases), §4.1 (quarantine/recover contracts and reference-validation state machine)."
+  ],
+  "constraints": [
+    "The RedEvidenceData widening (types.ts:2700) and the redEvidenceRecordSatisfied v1-skip guard (proofstory.ts:931) MUST land in ONE commit; widening first would crash the live enforce gate for any story holding a v2 record.",
+    "Change NO gate verdict: redEvidenceRecordSatisfied and missingRedEvidence diagnostics stay byte-identical on a v1-only store (CHK-003); this story guards a predicate, it does not rewire the gate.",
+    "approvedBy is DERIVED as <actor>@<sessionId>, never accepted as a caller argument.",
+    "Every chain append is serialized under ONE mkdir claim covering read-head through write; the append pipeline ORDER is mandated: derive key -> dedupe search -> replay short-circuit -> resolve head -> transition legality -> integrity checks -> append.",
+    "Out of scope and fenced to later leaves: envelope/matcher/receipt schemas (W2d/W2e), the disposable-workspace runner that spawns processes (W2e), removal of the legacy v1 create writer, and altering any gate verdict/wiring or the enforcement flip.",
+    "Story artifacts are English-only; commits are authored as lattice-implementer <lattice-implementer@noreply.local>."
+  ],
+  "unknowns": [
+    "FORK-detection rejection (two records sharing one priorRecordDigest) reason-id distinctness from the check-2 prior-digest-mismatch rejection — RESOLVED yes per §3.3 and background: FORK is an independent store-corruption/concurrency detector with its own reason id.",
+    "Which executable lock the mkdir claim models — RESOLVED: acquireMkdirLock at handlers/transition-orchestrator.ts:812-836 via core/mkdir-lock.ts:253, NOT the §4.1 line-1171 comment citation.",
+    "Deterministic record-id counter shape — RESOLVED: <OP>-first12hex(operationKey)-<seq> per §3.4/CHK-006, first12hex over the 64-hex body excluding the sha256: prefix (reusing the W2a helper)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/red-evidence/record-v2.ts",
+    "packages/main/src/core/red-evidence/chain.ts",
+    "packages/main/src/core/red-evidence/operation-key.ts",
+    "packages/main/src/core/red-evidence/append.ts",
+    "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/red-evidence/target-bindings.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-25T10:09:07.481Z"
+}

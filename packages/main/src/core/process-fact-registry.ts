@@ -167,6 +167,12 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   // run PREREQUISITE — deliberately NOT 'gate-evidence' (nothing consumes the
   // binding as a gate in this leaf; chain freeze / green-confirm match are W2c).
   red_evidence_binding_set: ['schema-contract', 'verification-policy'],
+  // W2c (B-506e): the two chain-control commands write schema-bound records and
+  // enforce the §3.3 expectedRedTargets membership policy, but are NOT
+  // 'gate-evidence' — the v1 gate predicate ignores their v2 records and no gate
+  // consumes the chain in this leaf (gate rewiring is W3).
+  red_evidence_quarantine: ['schema-contract', 'verification-policy'],
+  red_evidence_recover: ['schema-contract', 'verification-policy'],
   spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result: ['schema-contract', 'verification-policy', 'gate-evidence'],
