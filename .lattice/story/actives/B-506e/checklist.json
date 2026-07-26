@@ -776,11 +776,11 @@
           "file": "packages/main/src/core/red-evidence/operation-key.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "quarantine/recover operationKey = controlOperationKey (operation-key.ts lines 42-51) = CANON({operation, storyId, acceptanceTargetRef, recoversRecordId, referencedRecordDigest, normalizedReason}) — the 6-field control preimage; chain-smoke section 5 (lines 319-331) derives it and deriveRecordId yields the QUA- (line 330) and REC- (line 331) prefixes.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was operation-key.ts line offsets plus dist line offsets. Durable anchor: the exported function controlOperationKey in operation-key.ts - canonDigest over operation, storyId, acceptanceTargetRef, recoversRecordId, referencedRecordDigest and normalizedReason (normalizeReason applied to the raw reason), the 6-field control preimage declared by ControlOperationKeyInput, whose docblock records that approvedBy is deliberately excluded and stays on the record covered by recordDigest. Section 5 of red-evidence-chain-smoke.ts derives k1 from that function over the base fixture and asserts deriveRecordId(quarantine, k1, 2) starts with QUA- (message: QUA prefix) and that deriveRecordId(recover, k1, 1) starts with REC-.",
+          "headHash": "5cf0f1a0de3504d710d95dd320298bf5fe6c553c",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:49.063Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
