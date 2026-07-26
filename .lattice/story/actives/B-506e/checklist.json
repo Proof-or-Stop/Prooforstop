@@ -51,10 +51,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "v2 union + guards + digests (commit 8727b2db83); smoke section 1 asserts per-op field omission, null chain fields, specDigest, and classifyRedRecordSchema fail-closed on unknown version",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -87,10 +87,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "Fixes F-002: the green-confirm field set is now proven at RUNTIME with the same technique as its siblings, not left to TypeScript type erasure. chain-smoke section 1 hand-builds a SYNTHETIC GreenConfirmRecordV2 draft (the W2e writer is not needed, exactly as for the quarantine and red-assert drafts in the same section) and runs the same 'in'-operator presence/omission loop: confirmsRecordId / confirmsRecordDigest / confirmsAssertionDigest / redBaselineHeadHash / redBaselineMaterialHash are PRESENT, and assertion / policySnapshot are OMITTED; recordDigestMatches confirms the draft seals correctly. Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -287,10 +287,10 @@
           "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
           "result": "pass",
           "note": "Re-bound in round 3. Previously bound to red-w2c-gate-guard.mjs, which compares only missingRedEvidence within one process and never captured a before/after across the change. This artifact asserts what the intent asks: FIVE v1-only scenarios (empty store, satisfying record, blank-observedFailure record, foreign acceptance-target record, mixed store) each driven through the REAL evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(...)) pair; each scenario's satisfied/unsatisfied verdict asserted by name; the FULL ProofStoryDiagnosticReport of all five canonicalized and hashed into ONE sha256 asserted against a pinned constant. REAL digest = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec. The before/after half of the claim was verified by running this same file verbatim against a dist built from the pre-fix tree 8727b2db83 (predicate still opens with record.observedFailure.trim()): it prints the SAME digest. NOTE: the digest cited in the story prose (71c267a0...) is not produced by this or any artifact.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -323,10 +323,10 @@
           "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
           "result": "pass",
           "note": "Re-bound in round 3. Previously bound to red-w2c-gate-guard.mjs, which never constructs a v1 record with an empty observedFailure — the binding was unbacked. Scenario 3 of this artifact ('3-blank-observed-failure') stores a v1 record identical to the satisfying one except observedFailure='   ', drives the REAL diagnostics, and asserts missingRedEvidence is NON-EMPTY, i.e. the v1 predicate still rejects it at record.observedFailure.trim().length === 0. The same file run against a dist built from the pre-fix tree 8727b2db83 yields the identical digest, so the guard did not alter this v1 evaluation path.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -401,10 +401,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "resolveChainHead both conjuncts + three integrity checks with distinct reason ids (fork vs prior-mismatch); chain-smoke section 3 + red-w2c-rejection-matrix (commit 3976bccb2e)",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-004:happy:0",
@@ -567,10 +567,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "closed transition table + transitive cycle-safe effectiveHeadOperation (self+mutual recover terminate); chain-smoke section 4 (commit 3976bccb2e)",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-005:happy:0",
@@ -627,10 +627,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain-smoke section 4 now calls checkGreenConfirmTarget (chain.ts): a green-confirm candidate whose confirmsRecordId names the governing red-assert is ADMITTED (.ok), while a genuine-but-foreign red-assert id (raOther) is REJECTED with reasonId===REASON_ILLEGAL_TRANSITION. Proven on a simple red-assert head AND on a red-assert->quarantine->recover chain whose effective head resolves transitively to the governing red-assert (resolveGoverningRedAssert(...).id===ra.id), so the confirms-match branch holds regardless of chain ordering. Green-confirm WRITER is W2e; this exercises the declared table branch in isolation over a synthetic records[] fixture.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -741,10 +741,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "control operationKey excludes approvedBy + priorRecordDigest/seq; normalizedReason collapses whitespace; deriveRecordId; chain-smoke section 5 (commit 3976bccb2e)",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-006:happy:0",
@@ -895,10 +895,10 @@
           "command": "node packages/main/tests/red/red-w2c-head-consistency.mjs",
           "result": "pass",
           "note": "Fixes F-008: assertStoredControlRecordConsistent ran ONLY on a dedupeHit, so a FRESH (non-replay) append trusted the resolved head's stored recordDigest/operationKey/id without recomputation and chained onto a corrupt head (the handler derives referencedRecordDigest FROM the stored record, so the downstream digest check compared the tampered value against itself and passed). append.ts now recomputes the head BEFORE it is used as the prior link. The test (a) proves non-vacuity — the identical fresh recover on a well-formed head SUCCEEDS; (b) tampers ONLY the stored recordDigest and asserts RedEvidenceChainError/REASON_STORE_CORRUPTION with records.length unchanged; (c) re-seals the record around a tampered operationKey (so recordDigest still recomputes) and asserts the same CONFLICT. The recover key embeds operation=recover so the dedupe branch is provably NOT taken. Verified RED: removing the head recomputation makes (b) fail with 'Missing expected exception'. Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.381Z"
         },
         {
           "intentRef": "CHK-007:happy:0",
@@ -1021,10 +1021,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "scoped dedupe: a quarantined original is excluded so a deliberate replacement is a genuine new record; chain-smoke section 6 (commit 3976bccb2e)",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-008:happy:1",
@@ -1139,10 +1139,10 @@
           "command": "node packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
           "result": "pass",
           "note": "Extends the CHK-009 serialization guarantee to the binding-freeze path (F-009). Previously only the four chain appends were serialized under the per-(story,target) mkdir claim; red_evidence_binding_set read the head and wrote the binding under a DISJOINT binding lock, leaving a real interleaving window. binding_set now takes the same chain claim around its freeze read+write. Part 2 of the test is a genuine 2-process race (binding_set vs recover on a quarantine head) asserting exactly one recover record is appended, the head is unique (never forked), and the observed outcome is one of the two SERIAL outcomes (exit 0 => binding recorded; non-zero => FROZEN and no binding). Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-009:happy:0",
@@ -1187,10 +1187,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "the mkdir claim key is per (storyId, acceptanceTargetRef) (append.ts / mkdir-lock.ts), so independent target chains do not serialize against each other; chain-smoke appends on distinct targets (M1 and CHK-001:happy:0 in section 8, AB-001/AB-002 in section 3) without cross-target contention.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-009:adversarial:1",
@@ -1301,10 +1301,10 @@
           "command": "node packages/main/tests/red/red-w2c-rejection-matrix.mjs",
           "result": "pass",
           "note": "Fixes F-010: spec 4.1 says a free-form approvedBy argument 'is not accepted', but the handler accepted the request and SILENTLY IGNORED it. appendChainControl now REJECTS a defined args.approvedBy with 'approvedBy is derived as <actor>@<sessionId>, not a caller argument'. The rejection-matrix case changed from ignored to REJECTED: it asserts the throw AND that records.length is unchanged (nothing written), then quarantines WITHOUT approvedBy and asserts the stored approvedBy still matches ^lattice-implementer@ (derivation preserved). chain-smoke section 7 mirrors this. Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-010:happy:0",
@@ -1337,10 +1337,10 @@
           "command": "node packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
           "result": "pass",
           "note": "Fixes F-009: the 1.1.3 freeze read+write was serialized only under withBindingLock while chain appends used a DISJOINT chain lock, so a concurrent recover could reinstate a run record between the freeze read and the write. binding_set now holds the SAME per-(story,target) redEvidenceChainLockDir around read+decision+write (binding lock outer, chain lock inner; appends take only the chain lock, so no ordering cycle). Part 1 is a DETERMINISTIC bypass repro (holder child takes the chain lock and reinstates the run record while held) asserting binding_set rejects as FROZEN with nothing bound; part 2 is a genuine 2-process race asserting exactly one of the two serial outcomes and a unique head. Verified RED: pointing binding_set at a disjoint lock dir makes part 1 fail with 'binding_set MUST NOT succeed ... freeze bypass otherwise'. Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-010:happy:3",
@@ -1361,10 +1361,10 @@
           "command": "node packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
           "result": "pass",
           "note": "Fixes F-007: 'binding on an empty chain is ALLOWED' must not be reachable via a CORRUPT chain. resolveChainHead returns null both for an empty chain and for a malformed non-empty chain, and the old check (if head && head.operation !== quarantine) read the latter as 'empty, therefore settable'. binding_set now mirrors the append.ts guard: chain.length > 0 && head === null => corrupt-chain rejection. The test seeds two founding heads (both seq=1, priorRecordDigest=null) on M1, asserts the precondition (chain non-empty AND resolveChainHead === null), then asserts binding_set throws /corrupt-chain|no unique head/ and the bindings file is byte-unchanged. The genuine empty-chain ALLOW path stays proven by chain-smoke section 8. Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
@@ -1385,10 +1385,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "approvedBy serialization is exactly <actor>@<sessionId> and is covered by recordDigest; after the F-010 fix the derivation is the ONLY path (a caller-supplied approvedBy is rejected outright rather than ignored), so the stored value cannot diverge from the derived one. chain-smoke section 7 asserts the stored approvedBy matches ^lattice-implementer@ with no padding on a quarantine issued WITHOUT any approvedBy argument. Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-010:edge:2",
@@ -1527,10 +1527,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "chain smoke registered in lattice.config.json validate.commands; three registry contracts pass with both new commands (commit 31bb8adf2e)",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-011:happy:1",
@@ -1539,10 +1539,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "verify-process-fact-contract (scripts/verify-process-fact-contract.mjs) enumerates the process-fact surfaces (MAIN_TOOLS <-> process-fact-levels/registry <-> command-policy) and passes with red_evidence_quarantine and red_evidence_recover present in all four enumerations; it fails-closed naming any MAIN_TOOLS command missing lifecycle policy (as demonstrated by red-w2b-wiring-contract.mjs).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-011:happy:2",
@@ -1563,10 +1563,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "red-evidence-chain-smoke is the convergence anchor covering all three RED signals in one pass: signal A (byte-identical v1 guard, section 2), signal B (genuine 2-process mkdir-claim race, section 9), and signal C (rejection matrix: distinct fork reason id + seq gap/reuse + recover-of-recover + quarantine-of-non-head + retired byte-identical + self/mutual recover terminate + replay unchanged length + corrupted operationKey CONFLICT, sections 3/4/6/7). The command exits 0.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-011:edge:1",
@@ -1587,10 +1587,10 @@
           "command": "node packages/main/tests/red/red-w2c-wiring-detectability.mjs",
           "result": "pass",
           "note": "Fixes F-001 (b): RE-BOUND to the correct intent. This test's actual scenario is command-catalog/command-policy de-registration, which is exactly this intent ('delete the command-catalog entry for red_evidence_quarantine'); it was previously cross-assigned to adversarial:1. Via an ESM --import loader it non-destructively strips the ONE compiled command-policy entry for red_evidence_quarantine (then red_evidence_recover) and asserts BOTH command-ownership-contract and lifecycle-registry-contract exit non-zero and NAME the removed command, with a green baseline proving non-vacuity; the real registries are never edited. Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-011:adversarial:1",
@@ -1599,10 +1599,10 @@
           "command": "node packages/main/tests/red/red-w2c-validate-registration.mjs",
           "result": "pass",
           "note": "Fixes F-001 (a): RE-BOUND to the test that matches this intent's literal scenario (remove the chain-smoke from validate.commands). red-w2c-validate-registration.mjs parses lattice.config.json, normalizes every validate.commands entry (bare string OR {command,args}) and asserts packages/main/dist/tasks/red-evidence-chain-smoke.js is registered; per-entry NON-VACUITY re-runs the same detector over an in-memory copy with each required entry stripped and requires it to name that command missing; it also asserts every registered dist task entry has a committed src/**.ts source (dangling/typo'd path). Verified RED: physically deleting the chain-smoke entry from lattice.config.json makes it fail with 'these smokes are NOT registered ... red-evidence-chain-smoke.js' (config restored byte-identical). Commit b4fa4bbfad.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         }
       ]
     },
@@ -1656,10 +1656,10 @@
           "command": "node packages/main/tests/red/red-w2c-rejection-matrix.mjs",
           "result": "pass",
           "note": "both commands derive target from referenced record + enforce expectedRedTargets at write time; out-of-topology rejected nothing written; chain-smoke section 7 (commit 31bb8adf2e)",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-012:happy:0",
@@ -1704,10 +1704,10 @@
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
           "note": "membership is enforced only at write time (appendControlRecord / handler section 7); the read paths partitionChain and resolveChainHead take no topology argument and never re-check expectedRedTargets, so a chain whose target later left topology stays queryable (write-time-only membership, no corrupt-chain).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "headHash": "b7a4db3d4cee0aaeb14daf37951663e07804c4eb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:53:10.382Z"
         },
         {
           "intentRef": "CHK-012:adversarial:1",
