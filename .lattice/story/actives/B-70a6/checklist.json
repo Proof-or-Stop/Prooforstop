@@ -66,9 +66,9 @@
       "id": "CHK-003",
       "title": "Clarify the scope of the dev_start worktree prune",
       "context": "pruneWorktreeRegistry (worktree.ts) runs `git worktree prune --expire now`, which cannot remove a live sibling worktree but does clear every currently-missing registration repo-wide, not just the calling story's. Document both facts so callers do not rely on it being story-scoped. Comment-only. Reference: commit 48b82c0.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T01:13:44.613Z",
       "verificationIntent": {
         "happy": [
           {
