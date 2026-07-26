@@ -110,11 +110,11 @@
           "file": "packages/main/src/core/red-evidence/record-v2.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "the v2 record union (record-v2.ts RedEvidenceRecordV2) is a closed per-operation discriminated union, so a field belonging to another operation (runReceipt on a quarantine, trigger on a recover) is rejected at compile time by tsc; chain-smoke section 1 (lines 189-191) asserts the constructed quarantine carries none of the run-record fields.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist section 1 line offsets. Durable anchor: the union declaration in packages/main/src/core/red-evidence/record-v2.ts - RedEvidenceRecordV2 = RedAssertRecordV2 | GreenConfirmRecordV2 | QuarantineRecordV2 | RecoverRecordV2, each member declaring its own closed field set over RedEvidenceRecordV2Base - together with the section 1 omission loop in red-evidence-chain-smoke.ts (templated message: quarantine record OMITS <field>). A field belonging to another operation (runReceipt on a quarantine, trigger on a recover) is not a member of the corresponding interface, so it is a compile-time error; npx tsc --noEmit -p packages/main is clean on this tree. The runtime half that is actually asserted is the omission loop: the constructed quarantine carries none of observedFailure, baselineHeadHash, baselineMaterialHash, greenRelation, specDigest, assertion, policySnapshot or runReceipt. No runtime validator that rejects an extra field is asserted in this file.",
+          "headHash": "842344136aeb3294905fc8b2f9b619d866809891",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:40:25.244Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
