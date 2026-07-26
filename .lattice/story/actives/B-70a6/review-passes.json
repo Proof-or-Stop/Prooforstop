@@ -185,6 +185,37 @@
         "scanEscalationReason": null
       },
       "_hash": "a917ea3e9de3cce656fc414584cd1dd19d03b4cc3bcd412f00e271700ac1cf9e"
+    },
+    {
+      "id": "B-70a6:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 quality re-audit of commit 6d3901f8c6 (F-008/F-009/F-010/F-012 fixes from round 5). F-008: catch(e) in reconcileReopenAuditBeforeOutOfBandPhaseChange doomed-copy read now warns on every failure except e.name==StoryArtifactMissingError; traced StoryStore.readJson (core/store.ts) and confirmed that class is thrown ONLY for absent metadata (existsSync false on all candidate dirs) while JSON.parse/EACCES failures propagate as SyntaxError/system Error, so the exemption is precisely absent-only; the class is not exported from store.ts so name-matching (not instanceof) is the only option in-scope, and a future rename degrades to an extra warning (loud) not a swallow (verified by reading the unchanged, unexported class StoryArtifactMissingError declaration). F-009: source is genuinely consumed (renderOutOfBandReopenAuditNotice renders record read from ..., the only other repo hit for .source is an unrelated story.source field in story-query.ts); both branches have real executable coverage -- assertReopenAuditSurvivesStoryDiscard asserts the doomed .worktrees path regex and assertReopenAuditSurvivesZombieReconcile asserts the literal the surviving story index string, and both ran green. F-010: confirmed exactly one new CrashBeforeReopenAuditStore site remains (grep); confirmed by diffing before/after that no assertion was dropped -- the 3 that could not move into the shared helper (zero-events-yet, fromPhase, auditId-nonempty) are still present verbatim in assertReopenAuditCrashRecovery, and the message-text-only differences were merged to the strictly longer and stronger wording in the shared helper (verified line by line against the commit diff). F-011 (accepted-risk, not fixed): reasoning is sound -- 681-line file, 6 cohesive drills sharing crashInjectReopen and seedStoryAtInitCheck, all module-private; splitting now would need new exports for zero behavioural gain and risks perturbing the exact AST anchors verify-process-fact-contract.mjs points into, for a LOW naming-only nit; correctly non-blocking under round-6 decay (only critical blocks). Ran build clean, test:process-fact-contract verified, plan-init-reopen-roundtrip-smoke all 6 lines pass, flow-stability-smoke pass. No dead code, as-any, or empty-catch regressions found in the round-5-fix diff. No blocker.",
+      "createdAt": "2026-07-26T07:29:18.946Z",
+      "reviewRound": "2026-07-26T07:19:42.046Z",
+      "reviewRunId": "B-70a6:RR-013",
+      "envelopeId": "a74d628ff1e897d85637515438c8373f75799c0fc36c148592520c23796c2418",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "36da75ae70e4fd2c79d26e8b7ffc54e1e1c0428f54a86c0b2e593391083d2f11"
     }
   ]
 }
