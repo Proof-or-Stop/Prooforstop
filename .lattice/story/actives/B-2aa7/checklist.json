@@ -309,7 +309,11 @@
           {
             "desc": "It is landed before the PLAN scope review runs, not at the end of the story.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+              "selector": "DOC_PRECEDES_SCOPE_REVIEW"
+            }
           }
         ],
         "adversarial": [
@@ -347,6 +351,26 @@
           "materialHash": "d260823e94d30123a3246e63ca053e79530e403d62b5973489ef1fff44ff3c62",
           "storyFilesHash": "461fe1b037663d10a0e2e1c498b4bf55e07ff3331aa039e484423591eefa115b",
           "timestamp": "2026-07-26T23:58:11.270Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "result": "pass",
+          "note": "Tool-executed ORDERING receipt rather than an assertion: git rev-list --ancestry-path yields the first scope_check_save commit only if the doc commit is genuinely its ancestor. Had the doc landed after the PLAN scope review the output would be empty and the selector could not match.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b4dcb25307214b3ca2eac9ec1856a5a35b6b876befef589fa4221575abd3118",
+            "outputTail": "DOC_LANDED_WITH_DECISIONS\nDOC_PRECEDES_SCOPE_REVIEW\nSTALE_HEADER_REMOVED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T23:58:12.260Z"
+          },
+          "headHash": "67c0078ffbf850224bdf8955d1041a9a1ddd334a",
+          "materialHash": "d260823e94d30123a3246e63ca053e79530e403d62b5973489ef1fff44ff3c62",
+          "storyFilesHash": "461fe1b037663d10a0e2e1c498b4bf55e07ff3331aa039e484423591eefa115b",
+          "timestamp": "2026-07-26T23:58:12.381Z"
         }
       ]
     },
