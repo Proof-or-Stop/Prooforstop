@@ -5,7 +5,7 @@
       "desc": "CHK-002:happy:0 verificationEvidence command field (transition-orchestrator.ts) records grep -n \"persistClaim = acquireMkdirLock|store.writeChecklist(args.storyId, reopenChecklist)|store.writeStory(args.storyId, story)|persistClaim.release()\" packages/main/src/handlers/transition-orchestrator.ts with a bare | for alternation. Default (BRE) grep treats | as a literal character, not alternation, so running the recorded command verbatim produces ZERO output -- not the four matching lines (859/935/937/940) the note claims. Confirmed by running it verbatim in this worktree (no output) vs with -E added (matches all four lines as described). The underlying factual claims in the note are independently verified TRUE (I re-derived the same line numbers, the single REOPEN assignment site at line 651, PHASE_EVENT_BY_TARGET lacking REOPEN, and store.writeJsonFile tmp+rename at store.ts:133-145), so this is not a coverage gap -- it is a reproducibility/hygiene defect in the recorded command string of an otherwise-adequate docs_check evidence entry.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T02:01:29.760Z",
@@ -16,7 +16,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|ts|happy-verificationevidence-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-recorded CHK-002:happy:0 verificationEvidence with a reproducible command: grep -Fn with one -e per literal (replace-in-place confirmed at checklist.ts:934-937; exactly 1 entry, no duplicate). The stored string was extracted back out of checklist.json and executed verbatim: exit 0, exactly the four claimed lines 859/935/937/940. The reviewer-suggested grep -nE does NOT work here (literals contain unescaped parens = ERE metacharacters; ugrep aborts with empty (sub)expression, exit 2), so -F was used as POSIX-portable. Other cited line numbers re-verified, not copied forward.",
+      "resolvedAt": "2026-07-26T02:28:39.597Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70a6:F-002",
