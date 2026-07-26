@@ -189,6 +189,24 @@
       ],
       "signatureTag": "missing|ts|transition-orchestrator-reconcilereopenauditbeforeoutofbandphasechange",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70a6:F-009",
+      "desc": "transition-orchestrator.ts (OutOfBandReopenAuditReconciliation interface + reconcileReopenAuditBeforeOutOfBandPhaseChange, lines ~587/639/661) — the source field (documented as \"Which copy held the record: the surviving story index, or a doomed root path\") is computed and returned at two call sites (source: story index and source: recordRoot) but has zero consumers repo-wide: renderOutOfBandReopenAuditNotice never reads result.source, neither worktree.ts story_discard nor story-query.ts story_reconcile read it, and the smoke test never asserts it. It is write-only dead data — either surface it in the operator-facing notice (the whole point of this rescue is operator visibility) or drop the field.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T06:50:58.078Z",
+      "reviewRound": "2026-07-26T06:38:10.290Z",
+      "reviewRunId": "B-70a6:RR-012",
+      "_hash": "44b93a7a05cdef7d3d233f12cd0acd4021d3c31f99f86fc9e0ae62142e2d13f0",
+      "files": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "signatureTag": "missing|ts|transition-orchestrator-outofbandreopenauditreconciliation",
+      "signatureTagSource": "auto"
     }
   ]
 }
