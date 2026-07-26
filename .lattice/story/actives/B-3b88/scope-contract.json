@@ -52,10 +52,38 @@
       "phase": "REVIEW",
       "headHash": "2a1ef6d06aacb47ecab4c82e84bc887e859055a0",
       "materialHash": "9e6207ac295e26f027a58d3670b161d9a3ac790a11302947d4bf3d315d942509"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Finding-fix and merge-adaptation scope: core/verification.ts hosts the pure contradiction predicate imported by handlers/checklist.ts; command-catalog.ts, evidence-stale-hint.ts and the two decision docs are the reviewer-identified surfaces describing refresh_stale semantics (F-001..F-004); verification-freshness-smoke.ts and flow-stability-smoke.ts had fixtures whose placeholder command made them command-backed passes that the new guard correctly refuses, so their fixtures were made command-less with all assertions preserved.",
+      "timestamp": "2026-07-26T11:13:53.628Z",
+      "paths": [
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/evidence-stale-hint.ts",
+        "packages/main/src/tasks/verification-freshness-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/evidence-stale-hint.ts",
+        "packages/main/src/tasks/verification-freshness-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "e75ef18808503745c2ec28ada0aa98d79c8deacd",
+      "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6"
     }
   ],
   "createdAt": "2026-07-25T23:20:01.856Z",
-  "updatedAt": "2026-07-25T23:49:15.510Z",
+  "updatedAt": "2026-07-26T11:13:53.628Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -67,6 +95,7 @@
     "packages/main/src/core/evidence-stale-hint.ts": "packages/main/src/core/evidence-stale-hint.ts",
     "packages/main/src/tasks/verification-freshness-smoke.ts": "packages/main/src/tasks/verification-freshness-smoke.ts",
     "docs/requirements/decisions/story-lifecycle.md": "docs/requirements/decisions/story-lifecycle.md",
-    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md"
+    "docs/requirements/decisions/testing-infra.md": "docs/requirements/decisions/testing-infra.md",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
   }
 }
