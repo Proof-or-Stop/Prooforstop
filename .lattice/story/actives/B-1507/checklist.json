@@ -37,7 +37,30 @@
       "context": "Build on B-ec67's demote-on-refresh: when the material changed and the row is a mechanical receipt for an executable intent, re-run the pinned command via the shared executor and stamp a fresh receipt (bound to current material) instead of leaving it demoted. Coordinate with story B-3b88 (interim per-row laundering guard) which also edits the same function — keep the change additive. Do NOT re-introduce laundering: if re-execution fails or the command is unavailable, leave it demoted/non-mechanical.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "after material drift, refresh re-runs the pinned command and re-issues a mechanical receipt bound to current material (not demoted) when it still passes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "if the pinned command is unavailable or fails on re-run, the row is left demoted/non-mechanical — no laundering back to covered",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "re-execution routes through the same enforceAndStampEvidence refusal path (selector must match current output); a row B-3b88 per-row guard would demote is not re-laundered — both guards coexist",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
