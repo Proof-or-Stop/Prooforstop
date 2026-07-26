@@ -46,9 +46,9 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "userSees": "A developer runs the smoke and sees \"material drift under frozen userSees -> FROZEN_CLAIM_DRIFT\", \"userSees text edited -> FROZEN_CLAIM_DRIFT\", \"unrelated file change -> no drift\", and \"userSees with no snapshot -> legacy-unbound\".",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T12:29:26.788Z",
       "verificationIntent": {
         "happy": [
           {
@@ -71,6 +71,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c6ad9e197647c67d60383f957747ecedf82f8733a5554dd442b7813288be4fd8",
+        "storyFilesHash": "21f4f78ba9b446a897708efbd2489ba98b637207acfdc066f42497376030692b",
+        "headHash": "3ca3e137860e872d26fecff5909ae3f148f854ae",
+        "attestedAt": "2026-07-26T12:29:27.169Z",
+        "materialHash": "0c5ea58421075f36d6b587c2a0879a3978f4d996468814befc1d734db1478dfd"
       }
     },
     {
