@@ -193,15 +193,14 @@
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "Re-bound in round 4; this fixes F-012. The previous note claimed an empty-records round-trip case existed in this file; it did not (no records: [] appeared anywhere in it). The claim is now made true by a NEW section 12 (red-evidence-chain-smoke.ts:630-661, appended last): line 652 writes a store with records: [] via store.writeRedEvidence, reads it back through the real store.readRedEvidence, and asserts (a) the value is not null, (b) records is an Array, (c) records.length === 0 so the load-time schema classifier neither synthesizes nor drops entries, (d) JSON.stringify(records) === '[]' i.e. byte-identical after write then read, (e) the file-level schemaVersion is preserved unchanged, and (f) the LIVE evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(...)) does not throw and returns a non-empty missingRedEvidence, i.e. the v1 verdict on an empty array is well-defined (no satisfier) rather than a crash or a silent pass. SCOPE: this is boundary coverage for the mixed v1+v2 union, NOT a differential RED signal — verified by running it against a dist whose redEvidenceRecordSatisfied body was reverted to the pre-fix 8727b2db83 body, where section 12 still passes. Placed last on purpose so no earlier emitted dist line number shifts. Commit 85f60fcbf4.",
-          "headHash": "85f60fcbf4452b3f0641119dd94f4c4c13603884",
+          "note": "F-015 re-anchor: the old note cited red-evidence-chain-smoke.ts line offsets and line offsets. Durable anchor: the section 12 banner (EMPTY records array - the mixed v1+v2 union boundary case, CHK-002:edge:0), the last block in red-evidence-chain-smoke.ts and appended there deliberately. It calls the file-level writeRecords helper with an empty array, reads the store back through the real store.readRedEvidence, and asserts by message: a store written with an empty records array reads back (not null); records round-trips as an ARRAY; records round-trips as an EMPTY array - the load-time classifier neither synthesizes nor drops entries; the empty array is byte-identical after write then read; the file-level schemaVersion survives the empty-array round-trip unchanged. It then runs the live evaluateProofStoryDiagnostics under assert.doesNotThrow (message: the LIVE v1 gate MUST NOT throw on an empty records array) and asserts a non-empty missingRedEvidence (message: an empty records array has no v1 satisfier - the v1 gate verdict is well-defined). Scope is unchanged from the F-012 fix: boundary coverage for the widened union, not a differential RED signal (it also passes against a dist reverted to the pre-fix 8727b2db83 predicate body).",
+          "headHash": "fadfb7b0e35ffc022a56a3569f575ba14d5ea248",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:16:30.311Z"
+          "timestamp": "2026-07-26T01:40:36.112Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
