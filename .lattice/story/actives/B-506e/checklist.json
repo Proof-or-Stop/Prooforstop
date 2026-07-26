@@ -1396,11 +1396,11 @@
           "file": "packages/main/src/handlers/red-evidence.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 8 (lines 510-513) recovers the quarantine then asserts red_evidence_binding_set THROWS /FROZEN/ again — recovery reinstates the run record and re-freezes the binding (1.1.3).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 8 of red-evidence-chain-smoke.ts, its closing block: the quarantine head for target CHK-001:happy:0 is resolved, the registered red_evidence_recover handler is called on it, and red_evidence_binding_set for that target is then asserted to throw matching FROZEN, message (recovery reinstates the freeze, 1.1.3). Because the immediately preceding assertion showed the same call SUCCEEDING while the chain was quarantined, this pins the re-freeze transition rather than a constant refusal.",
+          "headHash": "d29173e7adb5775b41708c56e0e01b86898d87c3",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:31.584Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
