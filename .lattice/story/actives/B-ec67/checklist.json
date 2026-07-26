@@ -273,7 +273,11 @@
           {
             "desc": "a caller-supplied result:pass that contradicts a nonzero exit does not survive — the receipt result overrides the claim",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
           }
         ]
       },
@@ -315,6 +319,25 @@
           "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
           "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
           "timestamp": "2026-07-26T00:27:30.391Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a caller result:pass contradicting a nonzero exit does not survive — the receipt result overrides the claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe204bea200b7a6da44ff06e1cf27778ed38632c64cb6c546b3a0ffd154581d6",
+            "outputTail": "tool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T00:27:34.671Z"
+          },
+          "headHash": "9b05d302134df96199e74ddf45bca12d28c41022",
+          "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
+          "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
+          "timestamp": "2026-07-26T00:27:34.809Z"
         }
       ]
     },
