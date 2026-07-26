@@ -1068,11 +1068,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 6 (line 377) asserts the quarantined red-assert is isRetiredByQuarantine (excluded from the dedupe scope) so a deliberate replacement would be a genuine new append, and section 7 (lines 431-435) asserts the retired record is BYTE-IDENTICAL after quarantine — immutability and scoped dedupe both hold (the replacement red-assert writer is W2d).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets plus dist line offsets. Durable anchor: two blocks of red-evidence-chain-smoke.ts. In section 6, isRetiredByQuarantine over the quarantined red-assert and chain1 is asserted true, message (the red-assert is retired-by-quarantine, excluded from dedupe scope) - that exclusion is what makes a deliberate replacement a genuine new append instead of a swallowed replay. In section 7, beforeBytes is captured with recordCanonicalBytes(ra2) before the quarantine, the stored copy is located in the re-read chain afterwards, and assert.equal of recordCanonicalBytes(storedRa2) against beforeBytes carries the message (the retired record is BYTE-IDENTICAL after quarantine, 4.2 immutability). Not asserted in this story: the replacement red-assert itself with a higher seq linking to the quarantine head, because the red-assert writer is W2d.",
+          "headHash": "c723bf077a0cdbec0a11cc019c6573d3df7e4b32",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:13.948Z"
         },
         {
           "intentRef": "CHK-008:adversarial:1",
