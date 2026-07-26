@@ -38,10 +38,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "Smoke drives a real CLI PLAN->INIT reopen from inside the worktree, then reads the PERSISTED process-events JSONL via StoryStore.readProcessEvents and asserts exactly one PLAN->INIT phase_transition event carrying transitionType=reopen plus the reason verbatim. One shared literal is now used both to send the reopen and to assert what was stored, so verbatim is a real round-trip rather than two literals that merely match. Verified RED: with the call-site fields removed the smoke fails on - the reopen phase_transition event must be marked transitionType=reopen.",
-          "headHash": "ab4475588833b1d184007fef80fb1f6ce7f9622e",
-          "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
-          "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
-          "timestamp": "2026-07-26T01:35:34.795Z"
+          "headHash": "7050de2181401b2c522bb76afd173c9c9b375976",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T03:12:18.558Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,10 +50,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Strict deepEqual pins the builder output for a normal REVIEW->TEST transition to the exact 8-key pre-change object, so neither transitionType nor reason appears when they are not passed. Reinforced end-to-end in plan-init-reopen-roundtrip-smoke, which asserts the PERSISTED INIT_CHECK->PLAN event carries neither key using hasOwnProperty (key presence, so an explicit undefined would also fail). That end-to-end half matters because the builder-level deepEqual calls the builder directly and cannot see a call-site regression: verified RED by removing the eventType===REOPEN gate, which left flow-stability green but failed the persisted-event assertion.",
-          "headHash": "bd9f130d77198c0d9f20f7c94f7b706b926fe781",
-          "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
-          "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
-          "timestamp": "2026-07-26T01:35:43.922Z"
+          "headHash": "7050de2181401b2c522bb76afd173c9c9b375976",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T03:12:18.558Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "A reopen with a MISSING reason is refused (non-zero exit, message cites the reason requirement), the phase is re-read as still PLAN, and the persisted JSONL is then asserted to contain ZERO PLAN->INIT phase_transition events at that point - checked after the refusals and before the real reopen, so any such event found would necessarily be spurious. Previously only the phase half was asserted. Honest scope limit: only the missing-reason branch is driven. A second refusal citing the same reason-requirement message reuses the same failure digest and trips the convergence breaker (gate-repeat 2>=2), which freezes the story and hard-blocks the legitimate reopen; observed directly while attempting to add a too-short case. The too-short branch shares the identical guard expression and error message.",
-          "headHash": "e00c40e2c3360c0a3b54e47218f97ba244fa8151",
-          "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
-          "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
-          "timestamp": "2026-07-26T01:35:52.948Z"
+          "headHash": "7050de2181401b2c522bb76afd173c9c9b375976",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T03:12:18.558Z"
         }
       ]
     },
@@ -119,10 +119,10 @@
           "command": "grep -c \"land together or not at all\" packages/main/src/handlers/transition-orchestrator.ts",
           "result": "pass",
           "note": "Actual output: 0 (grep exit status 1, no match). The overstated phrase is gone from the file entirely, not just from this comment block. npm --prefix packages/main run build exits 0, confirming the comment-only edit did not affect compilation. git diff -U0 of my commit filtered for lines not starting with // returns nothing (exit 1), proving no non-comment line changed.",
-          "headHash": "bf23ad84d8496caded966e92b920251b6d626689",
-          "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
-          "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
-          "timestamp": "2026-07-26T01:42:41.039Z"
+          "headHash": "7050de2181401b2c522bb76afd173c9c9b375976",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T03:12:18.558Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -131,10 +131,10 @@
           "command": "grep -rn \"eventType = .REOPEN.\" packages/main/src/handlers/transition-orchestrator.ts; grep -n -A 13 \"private writeJsonFile\" packages/main/src/core/store.ts",
           "result": "pass",
           "note": "Comment claims NO crash-transactionality: it says verbatim NOT crash-transactional and names the residual window (crash between the checklist.json reset write and the index.json phase write leaves the checklist reset with phase still PLAN). Safe-direction argument independently re-derived, not trusted: eventType = REOPEN is assigned at exactly one site (line 651) gated on args.phase===INIT && story.phase===PLAN, and PHASE_EVENT_BY_TARGET (core/lifecycle-registry.ts:99-107) contains no REOPEN, so REOPEN truly only fires from PLAN and the reset cannot re-run from INIT; because writeStory is ordered last, the dangerous phase=INIT-with-stale-done-item state is unreachable by crash. I also FOUND AND FIXED a residual overstatement the reference commit da13aae271 left behind: it claimed a reset-without-advance is harmless and re-derivable on a retry, which is false - a retry does not re-derive the lost done/in_progress markers, it converges on the intended end state only because the reopen discards them anyway, and if the reopen is abandoned they stay lost. Reworded to that true basis plus the verified bound that store.writeJsonFile (core/store.ts:133-145) uses tmp write + renameSync, so the residual is one of exactly two file-consistent states rather than a torn checklist.",
-          "headHash": "868a49930dc2ae38690c87d7afc9dfacf9330f5d",
-          "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
-          "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
-          "timestamp": "2026-07-26T01:42:52.912Z"
+          "headHash": "7050de2181401b2c522bb76afd173c9c9b375976",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T03:12:18.558Z"
         }
       ]
     },
@@ -176,10 +176,10 @@
           "command": "grep -n \"live sibling\" packages/main/src/handlers/worktree.ts",
           "result": "pass",
           "note": "grep prints line 578: \"NOT the criterion. It therefore CANNOT remove a live sibling worktree: git leaves\" - the comment block at lines 576-584 sits directly above pruneWorktreeRegistry and states the claim. Claim verified independently, not just read: on git 2.50.1 a scratch repo with main + 2 live linked worktrees + 2 missing ones was pruned via `git worktree prune --expire now -v` executed FROM linked worktree wt-live; output removed only worktrees/wt-goneA and worktrees/wt-goneB, and `git worktree list --porcelain` afterwards still showed wt-live and wt-live2 with their directories intact on disk. Live siblings are not prunable.",
-          "headHash": "10455aa7d5dcc88b85aac9d900b3cff71945ef98",
-          "materialHash": "7ba254515e766c7a1ec930e1f8f9488f9f2d7935b2949986be26d68f562ce954",
-          "storyFilesHash": "8f197ceff1a0f186b80b345fc3cebfad2d3a005e4230c48385182db6867c0d3b",
-          "timestamp": "2026-07-26T01:13:20.116Z"
+          "headHash": "7050de2181401b2c522bb76afd173c9c9b375976",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T03:12:18.558Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
