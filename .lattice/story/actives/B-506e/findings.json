@@ -222,6 +222,21 @@
       "_hash": "de91ad4f2f1e06e4de86e76d6229845fb63f96e614e513bde9c02c241792a951",
       "signatureTag": "adversarial|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-012",
+      "desc": "packages/main/.lattice/story/actives/B-506e/checklist.json CHK-002:edge:0 evidence note overclaims: it says the empty-records-array parse/round-trip case this intent names is present and unchanged in packages/main/src/tasks/red-evidence-chain-smoke.ts, but that file contains no writeRecords(store, storyId, []) or any records:[] round-trip anywhere (grep confirmed zero hits); the note text is verbatim copy-pasted from CHK-002:happy:1 and CHK-002:edge:1 (both genuinely backed) without independently checking this sub-case. Predates round 3 (prior binding to core/types.ts said only \"the empty array is its trivial boundary\" with no cited assertion) and survived the round-3 rewrite unfixed. Underlying behavior is correct (independently verified: StoryStore round-trips records:[] fine), so this is an evidence-accuracy gap, not a production risk. Severity: medium — same overclaiming-note pattern this round exists to catch.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:48:25.123Z",
+      "reviewRound": "2026-07-26T00:36:31.301Z",
+      "reviewRunId": "B-506e:RR-017",
+      "_hash": "6210dfe3f22c6472c083fa58ca5a8b7e378f623374e17b2add56e137ecef54cc",
+      "signatureTag": "edge|unknown|packages-main-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
