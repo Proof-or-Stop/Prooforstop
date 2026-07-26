@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Harden the stall detector from advisory to a blocking adjudication at the review-round mint site",
       "context": "core/review-convergence.ts already computes the stall/trend signal (STALL_MIN_ROUNDS=4, STALL_WINDOW=3 non-improving). handlers/transition-effects.ts:284-289 currently consumes it advisory-only inside a try/catch that never blocks — it only appends output text. Make the stall trigger REFUSE to mint another ordinary review round (block the REVIEW re-entry / new-round transition) until a structured resolution is recorded. Extend the existing detector; do not build a new one. The refusal must carry a structured prompt naming the allowed §3 actions.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T07:58:15.958Z",
       "files": {
         "modify": [
           "packages/main/src/core/review-convergence.ts",
