@@ -216,6 +216,39 @@
         "scanEscalationReason": null
       },
       "_hash": "36da75ae70e4fd2c79d26e8b7ffc54e1e1c0428f54a86c0b2e593391083d2f11"
+    },
+    {
+      "id": "B-70a6:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 convergence check on commit f016942fe4 (F-017). (1) Verified both edited in-function comments (ATTACH site line ~1230-1256, CLEAR site line ~1445-1457) against the actual behavior of reconcilePendingReopenAudit/reconcileReopenAuditBeforeOutOfBandPhaseChange/story_discard/story-query.ts zombie repair: every claim (next ORCHESTRATED transition, out-of-band rescue at story_discard + repairing story_reconcile, never on read-only commands, SEQUENTIAL-only guarantee re racing terminal ops) matches the documented and implemented behavior exactly -- no overclaim, no collateral edits elsewhere. (2) assertReopenAuditLockRejectionRationaleContract() is genuinely overloaded: its own docblock (scripts/verify-process-fact-contract.mjs:3042-3069) still describes only the F-014 lock-rejection-rationale concern, but the function body now also enforces F-016 (types.ts docblock qualification) and F-017 (two anchored orchestrator comment sites + whole-file retired-sentence ban), which are about recovery-TIMING accuracy, a related but distinct concern from lock-REJECTION rationale. This is a real but low-severity maintainability nit (misleading function name/docblock scope), not a defect -- each addition is internally commented and independently correct, all three sub-checks are exercised in isolation without shared mutable state beyond a locally recomputed orchestratorText, and this story's own round-6 precedent (F-011, accepted-risk) already established that splitting cohesive AST-anchored guards this late for a naming-only gain risks perturbing exact anchors for zero behavioral benefit. Recommend a follow-up (not blocking): rename to something like assertReopenAuditGuardCorrectionsContract or split into 3 functions in a future low-risk pass. Not filing as a finding since it does not affect correctness. (3) Spot-checked in an isolated rsync copy (scratchpad, node_modules included for typescript): confirmed pristine script passes (exit 0); mutation A (dropped the 'story_discard' token from the ATTACH-site anchored slice) correctly failed with the exact expected per-site error; restored to pristine, re-verified exit 0; mutation B (reinserted the retired sentence 'the next transition performs the (identical) recovery' at the CLEAR site, deliberately line-wrapped across 3 comment lines to test the flattenComments-based whole-file ban) correctly failed on BOTH the whole-file retired-sentence check and the per-site anchored token checks -- confirming the line-wrap-evasion claim in the finding is true, not aspirational. Restored to pristine, re-verified exit 0. (4) Final sweep of git diff main...HEAD (all non-.lattice files: process-fact-registry.ts, types.ts, story-query.ts, transition-orchestrator.ts, worktree.ts, plan-init-reopen-roundtrip-smoke.ts, verify-process-fact-contract.mjs) found no dead code, no unnecessary as-any, no empty catches (the one catch{} match in the diff is itself a guard assertion string, not real code), no contradictory comments, and no assertion that cannot fail (both new f016942fe4 assertions were shown to fire under real mutation in (3)). Ran in the real worktree: npm --prefix packages/main run build (clean), npm run test:process-fact-contract (verified), node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js (all 6 lines pass, exit 0), node packages/main/dist/tasks/flow-stability-smoke.js (pass, exit 0). No blocker. Story has converged.",
+      "createdAt": "2026-07-26T09:51:24.157Z",
+      "reviewRound": "2026-07-26T09:41:13.846Z",
+      "reviewRunId": "B-70a6:RR-016",
+      "envelopeId": "129644854712002ea98db29b04458e2c803a6e6aecfc61c11f2d6c42c5eb3f8c",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70a6/decision.json",
+          ".lattice/story/actives/B-70a6/findings.json",
+          ".lattice/story/actives/B-70a6/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "320d96392ade4d562bbce5a980d3450414effa037326f3d519f04c9f7b45cc3b"
     }
   ]
 }
