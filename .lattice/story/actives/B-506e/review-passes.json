@@ -347,6 +347,47 @@
         "scanEscalationReason": null
       },
       "_hash": "44f2c2ba93939abf8f078bb0c6a5db9d706175b01ed070c4ed115966052c33dd"
+    },
+    {
+      "id": "B-506e:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 evidence-integrity re-review (no production code changed, 4 commits fixing the story own test/evidence). Verified: (1) red-w2c-v1-verdict-invariance.mjs five-scenario digest is deterministic - evaluateProofStoryDiagnostics/proofStoryDiagnosticInput contain no Date.now/random/hostname; currentEvidenceBinding+materialClassification resolve to undefined because the store root is a throwaway non-git TMPDIR path (resolveGitCwd falls back to root, then currentGitHead/currentMaterialHash/currentStoryFilesHash fail silently on a non-repo dir), NOW is a fixed literal, canon() is a local deterministic serializer; reran the digest test 3x, sha256 always 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec matching the pinned constant. (2) The kept vacuous orderings in red-w2c-gate-guard.mjs, red-w2c-schema-failclosed.mjs and red-evidence-chain-smoke.ts Section 2 are clearly inline-labelled (NOTE: on its own this case is vacuous ... kept only as the companion of) - not confusing dead weight. (3) npx tsc --noEmit -p packages/main clean; npm --prefix packages/main run build clean; diffed the two changed .mjs files + smoke.ts, found no new any/swallowed catches/duplicated scaffolding beyond the documented paired orderings; ran all 10 red-w2c-*.mjs (all OK), dist/tasks/red-evidence-chain-smoke.js (OK, RED signals A/B/C), scripts/verify-process-fact-contract.mjs (OK). (4) Diffed b4fa4bbfad..HEAD restricted to the story scope file list: only red-evidence-chain-smoke.ts changed by story work (the documented Section-2 reorder); command-catalog.ts/command-catalog-smoke.ts/lattice.config.json diffs are unrelated main-merge content (B-8b69 PLAN->INIT reopen, B-3783 command-catalog-smoke registration), confirmed via git log b4fa4bbfad..HEAD on those paths. Independently confirmed ancestor 8727b2db83 (genuine ancestor of b4fa4bbfad) still opens redEvidenceRecordSatisfied with unguarded record.observedFailure.trim(), matching commit-message claims. No findings.",
+      "createdAt": "2026-07-26T00:43:24.371Z",
+      "reviewRound": "2026-07-26T00:36:31.301Z",
+      "reviewRunId": "B-506e:RR-020",
+      "envelopeId": "5fb4de0b606ea309014c7330856787ec6556943201f322a91100d223a1a5748a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9d8df0032719b78da0a595badc2ebf6c6a4f0c778e5069a5c0f9a4ee3c10848c"
     }
   ]
 }
