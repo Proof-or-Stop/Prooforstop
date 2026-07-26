@@ -18,6 +18,26 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-command",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1507:F-002",
+      "desc": "concept-cleanup: half-wired host parity for the new fail-open evidence-pin PreToolUse hook (CHK-003, promised on both hosts, Claude Bash side described as fully asserted). init-assets.ts getClaudeHooks() was updated to add a 3rd PreToolUse entry (matcher=Bash -> lattice-evidence-pretool.cjs), and the parallel LIVE Codex asset .codex/hooks.json in this repo WAS regenerated/committed in this same diff to add its matcher entry (shell|local_shell|exec_command -> lattice-evidence-pretool.cjs). But the parallel LIVE Claude asset .claude/settings.json (git-tracked, the actual host config for this self-hosted repo) was NOT updated to add the matching Bash entry -- it still only has 2 PreToolUse entries (scope-pretool, english-only-guard). Verified mechanically: node bin/lattice.js check reports `STALE_SAFE .claude/settings.json: Proofbound Claude hooks are missing from settings.json` (action: merge missing Proofbound hook commands), and this exact STALE_SAFE reason is new/introduced by this diff -- on main, the generator (2 hooks) and settings.json (2 hooks) agree. Net effect: in this exact repo, the new evidence-pin seatbelt hook file (.claude/hooks/lattice-evidence-pretool.cjs) is present on disk but never fires for real Claude Code Bash tool calls until someone runs `lattice check --apply`/`lattice init --upgrade` and commits the result -- the CHK-003 checklist Files.modify list also omits .claude/settings.json (unlike .codex/hooks.json, which IS listed and was updated), suggesting this was an oversight rather than an intentional deferral. The real enforcement floor (enforceAndStampEvidence handler) is unaffected, but the promised early-warning seatbelt layer on the Claude host is not actually installed in this repo as shipped. Fix: run lattice check --apply (or manually merge the 3rd PreToolUse hook entry) and commit the resulting .claude/settings.json alongside this story, mirroring what was already done for .codex/hooks.json.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T06:03:10.563Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-007",
+      "_hash": "5e712a8c37894ee6c71c73028f11aeef0917150f5b7540608693e5bcdf2cf9ee",
+      "files": [
+        ".claude/settings.json",
+        "packages/main/src/init-assets.ts",
+        ".codex/hooks.json"
+      ],
+      "signatureTag": "missing|json|concept-cleanup-half",
+      "signatureTagSource": "auto"
     }
   ]
 }
