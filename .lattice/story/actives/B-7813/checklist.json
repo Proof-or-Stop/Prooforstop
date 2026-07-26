@@ -48,7 +48,43 @@
       "context": "On stall, require exactly ONE recorded action to clear the block: (a) human authorizes continuation with a reason + a bounded additional round budget; (b) the story is re-planned / split; (c) a root-cause / architecture escalation is recorded; (d) the blocking findings are explicitly resolved / disproven / deferred, or scope is shrunk; or (e) a checklist item is declared UNREACHABLE (the F-058 case a raw cap never surfaces — declaring it closes the loop instead of spinning). Provide the CLI command(s) + persisted, signed record consumed by the gate; the unreachable declaration must reconcile plan.md/claims (F-059) rather than leave them drifting.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/stall-adjudication.ts",
+          "packages/main/src/core/stall-adjudication.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "recording any one of the five structured actions (bound to the current stalled round) clears the block so the next ordinary round mints",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "declaring a checklist item unreachable marks it withdrawn (B-1909 withdrawn-disposition semantics), reconciles plan/claims, and closes the loop instead of minting another round",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "an empty / previous-round / unsigned resolution does NOT clear the current-round block (no theater)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
