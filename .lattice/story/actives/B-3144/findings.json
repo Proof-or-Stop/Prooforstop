@@ -261,6 +261,24 @@
       "_hash": "acc132802b36967a98bb359e2b9725ed34b933d75e3134282c5910a248df08ad",
       "signatureTag": "missing|unknown|behavior-mismatch-recurrence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-015",
+      "desc": "packages/main/src/core/config.ts:362 (CHK-003 in-scope file) is a third quorum_prune apply/dryRun prose site exhibiting the exact half-updated-docs pattern F-011/F-013 target, and unlike the two sites F-014 already flagged (quorum-prune.ts:20-32 module comment and quorum-prune.ts:208 formatPruneResult note, both currently correct), this one is CURRENTLY stale right now: the DEFAULT_PHASE_TOOLS inline comment reads \"dry-run default, apply:true backs up + rewrites + commits\" with no mention of the dryRun:false equivalent executor, unchanged since before F-010 introduced dryRun:false as an executor. Neither the F-013 drift guard (which reads only command-catalog.ts, process-fact-levels.ts, command-policy.ts, and the quorum-prune.ts handler - never config.ts) nor any other check in quorum-submit-smoke.ts references this line (grep for the exact phrase and for config.ts source-reading in the smoke file returns zero hits); the guards F-013 fix commit message claims cover the contract are the guards own six-plus-two enumerated sites, not this one, and CHK-003s own verificationEvidence for the config.ts wiring (CHK-003:happy:2) only asserts the behavioral DEFAULT_PHASE_TOOLS array membership, never the comment text. WHY: this is a live, present-tense documentation defect (not a future-drift risk) in a file the checklist explicitly scopes to CHK-003, in the identical bug class this story spent three fix rounds trying to make un-recurrable, and it currently has zero test coverage from any direction.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T04:17:42.819Z",
+      "reviewRound": "2026-07-26T03:58:01.014Z",
+      "reviewRunId": "B-3144:RR-016",
+      "_hash": "de241d3d3a954d9e22c5b12f7d89bd5b33319fb54b58e09708846c9f602af241",
+      "files": [
+        "packages/main/src/core/config.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
