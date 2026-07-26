@@ -1,0 +1,27 @@
+{
+  "storyId": "B-3783",
+  "checkedAt": "2026-07-25T23:02:37.950Z",
+  "headHash": "9a850e78496aa65b989aaad2c44b8273f531ee9f",
+  "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+  "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+  "reviewRound": "2026-07-25T22:07:02.769Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Re-ran node packages/main/dist/tasks/command-catalog-smoke.js directly on delivered code: stdout \"command catalog smoke passed: 337 commands\", exit 0 (verified live by delivery reviewer). Read the full diff of packages/main/src/tasks/command-catalog-smoke.ts: the AGENT_DISPATCH_REGISTRY loop now branches on new Set<string>(AGENT_DISPATCH_ACCEPTED_TYPES).has(entry.canonicalName) (not a hardcoded name). Dispatchable branch preserves the original forward assertions verbatim (schemaAccepts per field === true, then validateAgentDispatchRequest(...).entry === entry), only the assertion-message prefix changed registered->dispatchable. Retired branch (new) asserts schemaAccepts(dispatch, agentType, canonicalName)===false AND assert.throws(validateAgentDispatchRequest(...), /retired|unknown/i). Final success line unchanged: reports MAIN_TOOLS.length (337), not registry length. Cross-checked against test-evidence.json which captured a genuine lattice validate --story=B-3783 --json run at the current materialHash/storyFilesHash (aadd0742.../1e2cc252...) showing overall result pass/allPass:true."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Read git diff of lattice.config.json: adds exactly one new entry {\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/command-catalog-smoke.js\"],\"timeoutMs\":180000} at index 5, placed after the build step (index 0) and capability-list-smoke (index 4), no focus property (so it runs on the normal, non-fast tier). Independently re-parsed the live lattice.config.json and confirmed index 5 is exactly this entry (matches checklist evidence claim of validate.commands[5] / command 6/52). Cross-checked test-evidence.json captured validate output which lists: \"configured validate.commands[5]: node packages/main/dist/tasks/command-catalog-smoke.js\" -> \"command catalog smoke passed: 337 commands\" with a check mark, i.e. genuinely reached and passing under lattice validate, not silently skipped."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery matches promise. Diff vs main is exactly the 2 material files described (command-catalog-smoke.ts + lattice.config.json) plus story metadata; no docs/README/CLI-help promises were added (delivery_context_pack confirms 0 docs-promises), so nothing to cross-check there. Directly re-ran node packages/main/dist/tasks/command-catalog-smoke.js on the delivered code and got exit 0 / \"command catalog smoke passed: 337 commands\", matching the checklist happy-path claim exactly. Confirmed lattice.config.json wiring is a single new entry at validate.commands[5], normal tier (no focus:[fast]), placed after the build step, matching sibling CLI-subprocess smoke entries. Confirmed via test-evidence.json (a genuine captured lattice validate --story=B-3783 --json run, current materialHash/storyFilesHash) that the smoke is reached and passes as command 6/52 under validate, and that overall validate result is pass/allPass:true. Read the full source diff: the bidirectional guard is implemented as promised -- Set membership test against AGENT_DISPATCH_ACCEPTED_TYPES (not hardcoded lattice-review-channel), forward-direction assertions preserved unweakened, reverse-direction assertions newly added (schema-reject + runtime-throw matching /retired|unknown/i), success-message contract (MAIN_TOOLS.length) unchanged. summary.json pitfalls/limitations are honest: it correctly warns against un-retiring lattice-review-channel by adding it to the dispatch enum, and the diff confirms no such enum edit was made (only the smoke and validate.commands changed). No unresolved TODOs found in the diff."
+  },
+  "_hash": "6eb06eca01a9761a4bc2cce92a82bebee323ad45de9030e8155e4f3382415877"
+}

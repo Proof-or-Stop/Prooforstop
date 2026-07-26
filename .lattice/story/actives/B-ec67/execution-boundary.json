@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ec67",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node bin/lattice.js",
+    "npm --prefix packages/main run build",
+    "npx tsc"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice",
+    "node",
+    "tsc"
+  ],
+  "allowedPaths": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks",
+    "packages/main/src/validate.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/handlers/checklist.ts:verification_evidence_refresh_stale"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "TypeScript-only in packages/main. Execute-and-stamp evidence receipts. Do NOT modify verification_evidence_refresh_stale (B-3b88 Step 1 owns it).",
+  "createdAt": "2026-07-25T23:19:27.928Z",
+  "updatedAt": "2026-07-25T23:19:27.928Z",
+  "_hash": "9be52c9e323fdcc3e2348624854d0cac2254755e6afc3f1df08c4c68b033181b"
+}

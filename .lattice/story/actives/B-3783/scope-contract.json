@@ -1,0 +1,30 @@
+{
+  "storyId": "B-3783",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts"
+  ],
+  "scopeChangeReason": "Edit only the smoke source + validate.commands config; command-catalog.ts (enum derivation) and agent-dispatch-registry.ts (channel retirement) are protected and must not change.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-25T21:40:58.634Z",
+  "updatedAt": "2026-07-25T21:41:32.968Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts": "packages/main/src/tasks/command-catalog-smoke.ts",
+    "lattice.config.json": "lattice.config.json"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ec67",
+  "mode": "feature",
+  "allowed": [
+    "Add a RED-first smoke and register it in validate",
+    "Add optional verification:{command,selector} to VerificationIntentItem and pin it immutably on the first evidence write",
+    "Grandfather existing prose-only intents with an explicit auditable escape path",
+    "Keep manual|docs intents attestation-only, non-mechanical, and not scored equal to tool receipts",
+    "Make verification_evidence_add execute the pinned command for automated intents (logic|cli|integration) and refuse on exit-nonzero-but-pass / selector-absent / intentRef-not-resolving / pinned-command-mismatch",
+    "Store a tool-owned receipt (exitCode+outputDigest+outputTail) on the evidence"
+  ],
+  "excluded": [
+    "Any change to verification_evidence_refresh_stale (owned by B-3b88 Step 1 interim + ①b re-execution)",
+    "Step 3 review-budget breaker and Step 4 idempotent verdict writers",
+    "The PreToolUse seatbelt on either host (follow-on ①b)",
+    "The verification_run ergonomic command (follow-on ①b)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved doing ①a→①b→② in sequence (2026-07-26). ①a is the Step 2 enforcement floor only; refresh_stale left to B-3b88 to avoid a two-session collision.",
+  "createdAt": "2026-07-25T23:19:18.218Z",
+  "updatedAt": "2026-07-25T23:19:18.218Z",
+  "_hash": "bc344da007de7df37474d3f373b56ab220f5e67670c89d8ace388e46a2c08a3a"
+}
