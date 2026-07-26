@@ -227,6 +227,21 @@
       "resolvedAt": "2026-07-26T03:24:21.360Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3144:F-013",
+      "desc": "doc-behavior-mismatch (F-011 recurrence, uncaught by its own regression guard): the e306cc7aad commit that added the apply:false+dryRun:false refusal and fixed 5 F-011 prose sites left three MORE apply/dryRun prose locations stale, two of them directly user-facing in the SAME --help block the F-011 fix targeted. (1) packages/main/src/cli/command-catalog.ts:2997 dryRun field describe() still says only \"passing dryRun:true together with apply:true is refused\" -- silent about the apply:false+dryRun:false refusal added in this same commit. (2) packages/main/src/cli/command-catalog.ts:2998 apply field describe() was never touched by either F-010 or F-011: it still reads \"Actually back up, rewrite, and commit; default false = dry-run\" with no mention that dryRun:false is an equivalent executor or that apply:false+dryRun:false conflicts. Live-verified via `lattice quorum_prune --help` (built dist in an isolated scratch worktree): the printed --dryRun and --apply argument lines contradict the correctly-updated top-level description printed 3 lines above them in the identical output block -- the exact internal-inconsistency pattern F-011 was filed against, now recurring one level down. (3) packages/main/src/handlers/quorum-prune.ts:42-49 the QuorumPruneArgs.dryRun JSDoc (a sixth prose site, never in F-011's enumerated list of five) still says \"dryRun:true together with apply:true is refused rather than silently resolved\" with no mention of the F-012 symmetric case. The new regression-guard check added in the same commit (quorum-submit-smoke.ts, check 'every quorum_prune apply/dryRun description states both executors') only reads the catalog top-level description, process-fact-levels.ts, and command-policy.ts -- it never reads the dryRun/apply describe() strings themselves (the actual per-flag help lines shown to operators) nor quorum-prune.ts's own JSDoc, so its stated purpose (\"so this drift cannot silently recur\") does not hold for the two most operator-visible locations, and did not catch this live gap.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T03:29:55.851Z",
+      "reviewRound": "2026-07-26T03:24:04.565Z",
+      "reviewRunId": "B-3144:RR-014",
+      "_hash": "b8c646cd7b740d2c46c1381194ac6f1c7d547cba63566ac0775ecc087a67432c",
+      "signatureTag": "missing|unknown|behavior-mismatch-recurrence",
+      "signatureTagSource": "auto"
     }
   ]
 }
