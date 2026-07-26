@@ -169,6 +169,43 @@ Spec: `docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audi
 - Blank `observedFailure` still yields UNSATISFIED with **no new diagnostic** and is never quarantined (D-5), so scenario 3's report shape is untouched.
 - New tests registered in `lattice.config.json` `validate.commands` beside the existing red-evidence smokes.
 
+## CHK-010: Assert the behaviour this fix must NOT change
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-004
+**Files**
+- Modify / Test: `packages/main/tests/red/red-b2aa7-artifact-validation.mjs`
+
+**Verify**
+- Run pre-fix AND post-fix; both must show the SAME behaviour for these rows. Unlike CHK-001's rows,
+  these must **pass before the fix too** — they pin behaviour that is already correct.
+
+**DoneWhen**
+- **V2**: a valid v2 record is still correctly skipped by the v1 predicate, unchanged. (The v2 union
+  arrived with the B-506e merge, so a read-boundary validator could easily break it by rejecting records
+  it does not recognise.)
+- **E4**: an artifact whose `records` key is **absent** still produces UNSATISFIED via the ordinary
+  not-configured path, and is **not** reclassified as corruption.
+- Absent and malformed stay distinguishable at every consumer — conflating them would regress exactly the
+  distinction this story exists to create.
+
+## CHK-011: Fuzz the validator to prove it is total on arbitrary JSON
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-004
+**Files**
+- Modify / Test: `packages/main/tests/red/red-b2aa7-artifact-validation.mjs`
+
+**Verify**
+- Generate arbitrary **acyclic** JSON values: nested objects and arrays, mixed primitives, empty
+  containers, deep nesting, and objects created with `Object.create(null)`.
+
+**DoneWhen**
+- The validator returns a classification for every generated value and **never throws**.
+- This is asserted as a **property over generated inputs**, not as another enumerated case list. The
+  enumerated rows were written from observed failures, so they prove the known cases and nothing about the
+  unknown ones — which is, in test form, precisely the blind spot that produced this defect.
+
 ## Dependency graph (acyclic)
 
 ```
@@ -176,7 +213,9 @@ CHK-008 (done)
    ├── CHK-001 ──┬── CHK-005 ─────────────┐
    │             └── CHK-004 ──┬── CHK-006 ┤
    ├── CHK-002 ────────────────┤          ├── CHK-007
-   │                           └── CHK-009 ┘
+   │                           ├── CHK-009 ┤
+   │                           ├── CHK-010 ┤
+   │                           └── CHK-011 ┘
    └── CHK-003 (independent)
 ```
 
@@ -184,5 +223,7 @@ CHK-008 (done)
 
 - CHK-001, CHK-002, CHK-003 may run **in parallel** — disjoint write sets, no shared dependency beyond CHK-008.
 - CHK-004 and CHK-005 both follow CHK-001 but touch **different** files (`store.ts` vs `proofstory.ts`), so they may run in parallel.
-- CHK-006 and CHK-009 both follow CHK-004 and touch different files, so they may run in parallel.
+- CHK-006 follows CHK-004 and touches handler files only, so it is parallel-safe with the test-file items.
+- **CHK-009, CHK-010 and CHK-011 all follow CHK-004 and all write the SAME test file, so they must run
+  SERIALLY with respect to each other** — this is the one place the write sets genuinely collide.
 - CHK-007 is last: it must observe the finished state.

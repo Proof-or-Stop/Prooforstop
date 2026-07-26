@@ -1,6 +1,6 @@
 {
   "storyId": "B-2aa7",
-  "checkedAt": "2026-07-26T22:34:56.485Z",
+  "checkedAt": "2026-07-26T22:50:33.701Z",
   "features": [
     {
       "feature": "V1: well-formed legacy v1 record (no per-record schemaVersion) loads and satisfies gate unchanged",
@@ -11,8 +11,8 @@
     },
     {
       "feature": "V2: valid v2 record remains unchanged / correctly skipped by the v1 predicate",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-010",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
@@ -69,14 +69,14 @@
       "feature": "M5: record === null yields typed rejection",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Decision doc §0.0: \"Now FIXED upstream, therefore OUT of this story's scope\" — B-506e already closed this class (typed RedEvidenceSchemaError); no checklist item claims it",
+      "excluded_by": "Decision doc §0.0: \"Now FIXED upstream, therefore OUT of this story's scope\" - B-506e already closed this class (typed RedEvidenceSchemaError); no checklist item claims it",
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
       "feature": "M6: record === a bare string yields typed rejection",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Decision doc §0.0: \"Now FIXED upstream, therefore OUT of this story's scope\" — B-506e already closed this class; no checklist item claims it",
+      "excluded_by": "Decision doc §0.0: \"Now FIXED upstream, therefore OUT of this story's scope\" - B-506e already closed this class; no checklist item claims it",
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
@@ -123,8 +123,8 @@
     },
     {
       "feature": "E4: records absent from the file continues to produce UNSATISFIED (regression guard)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-010",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
@@ -150,14 +150,14 @@
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
-      "feature": "O1: malformed entry first, satisfying after — no crash, corruption reported",
+      "feature": "O1: malformed entry first, satisfying after - no crash, corruption reported",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
-      "feature": "O2: satisfying entry first, malformed after — verdict must not depend on array position (some() short-circuit closed)",
+      "feature": "O2: satisfying entry first, malformed after - verdict must not depend on array position (some() short-circuit closed)",
       "covered_by": "CHK-009",
       "status": "covered",
       "excluded_by": null,
@@ -193,8 +193,8 @@
     },
     {
       "feature": "Safety: the validator itself cannot throw on any JSON shape, verified by fuzzing beyond the fixed M-rows with nested/cyclic-free arbitraries",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-011",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
@@ -206,7 +206,7 @@
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
-      "feature": "D-1: precedence rule — file declares the era, record declares the exception; a versionless record inside a v1-declared file is validated against v1 schema, never assumed to satisfy it",
+      "feature": "D-1: precedence rule - file declares the era, record declares the exception; a versionless record inside a v1-declared file is validated against v1 schema, never assumed to satisfy it",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
@@ -220,14 +220,14 @@
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
-      "feature": "D-3: Axis A — full validation of every mandatory v1 field, not only the dereferenced one",
+      "feature": "D-3: Axis A - full validation of every mandatory v1 field, not only the dereferenced one",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
-      "feature": "D-4: Axis B — quarantine form (records stays clean, malformed entries retained+reported separately; never thrown, never dropped)",
+      "feature": "D-4: Axis B - quarantine form (records stays clean, malformed entries retained+reported separately; never thrown, never dropped)",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
@@ -241,7 +241,7 @@
       "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
     },
     {
-      "feature": "D-6: recoverability — red_evidence_get/add and story_review stay usable on a corrupt artifact",
+      "feature": "D-6: recoverability - red_evidence_get/add and story_review stay usable on a corrupt artifact",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
@@ -432,28 +432,35 @@
   },
   "summary": {
     "total": 42,
-    "covered": 36,
+    "covered": 39,
     "excluded": 3,
-    "gaps": 3,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "bc4f11bb30d981395cecacd47b6abd97a0f7011c073b0cd0df4b4380d5db466e",
+  "_hash": "2e29dbbf917456553be8221c0f0328928c90a4763187c35fd90767d473b3630b",
   "openQuestions": [
     {
-      "id": "OQ-1",
-      "q": "The frozen execution-boundary.json allowedPaths list does not include several files the frozen checklist/plan.md require touching: CHK-004's new file packages/main/src/core/red-evidence-artifact-validation.ts, and three of CHK-006's five modify targets (packages/main/src/handlers/red-evidence.ts, packages/main/src/core/machine.ts, packages/main/src/handlers/phase-gates.ts). Is the execution boundary stale and needs a scope-extension update, or is CHK-004/CHK-006 file scope wrong?",
-      "evidence": "execution-boundary.json allowedPaths: [\"docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md\",\"lattice.config.json\",\"packages/main/src/core/proofstory.ts\",\"packages/main/src/core/store.ts\",\"packages/main/src/core/types.ts\",\"packages/main/src/handlers/proofstory.ts\",\"packages/main/src/handlers/story-review.ts\",\"packages/main/tests/red/\"] with confirmationNote \"Path list is deliberately narrow; widening it requires a scope extension proposal rather than an ad-hoc edit.\" vs checklist.json CHK-004.files.create=[\"packages/main/src/core/red-evidence-artifact-validation.ts\"] and CHK-006.files.modify=[\"packages/main/src/handlers/proofstory.ts\",\"packages/main/src/handlers/red-evidence.ts\",\"packages/main/src/handlers/story-review.ts\",\"packages/main/src/core/machine.ts\",\"packages/main/src/handlers/phase-gates.ts\"]",
+      "id": "OQ-2",
+      "q": "plan.md's CHK-007 section states its own DependsOn as only CHK-004, CHK-005, CHK-006, CHK-009, but the dependency-graph ASCII diagram at the bottom of the same plan.md draws explicit edges from CHK-010 and CHK-011 into CHK-007, and the Parallelism section separately states 'CHK-007 is last: it must observe the finished state.' CHK-010 and CHK-011 both write the same shared test file (red-b2aa7-artifact-validation.mjs) that CHK-007 re-runs for the post-fix invariance digest. Which is authoritative: should CHK-007's DependsOn text be corrected to add CHK-010 and CHK-011 (matching the diagram/prose intent), or is CHK-007 genuinely allowed to run before those two land?",
+      "evidence": "plan.md CHK-007 section: '**DependsOn**: CHK-004, CHK-005, CHK-006, CHK-009'. plan.md dependency graph: 'CHK-004 ...-- CHK-006 -+ / ... +-- CHK-009 -+ / +-- CHK-010 -+ / +-- CHK-011 -+' all feeding into 'CHK-007'. plan.md Parallelism section: 'CHK-007 is last: it must observe the finished state.'",
       "sourcePointers": [
-        ".lattice/story/actives/B-2aa7/scope-boundary.json#allowedScope",
-        ".lattice/story/actives/B-2aa7/execution-boundary.json#allowedPaths",
-        ".lattice/story/actives/B-2aa7/plan.md#CHK-004",
-        ".lattice/story/actives/B-2aa7/plan.md#CHK-006",
-        "packages/main/src/cli-engine.ts#allowedPaths-schema-comment"
-      ],
-      "resolution": "Confirmed as a real discrepancy and its cause is mine: the execution-boundary path list was authored from a consumer inventory that was already stale (it assumed seven readRedEvidence consumers; there are ten), so it omits core/machine.ts, handlers/red-evidence.ts, handlers/phase-gates.ts and the new validation leaf core/red-evidence-artifact-validation.ts. Three findings settle how to treat it. FIRST, execution_boundary_set is INIT-phase-only and was REJECTED when re-run in PLAN, so the artifact cannot be corrected here; correcting it would require reopening to INIT, which resets non-pending checklist items and forces another full INIT review round. SECOND, allowedPaths has NO production enforcement: grepping packages/main/src shows it appears only in a CLI schema comment and in scope-anti-expansion smoke fixtures, never in a runtime write guard, so it is a declarative record of intent consumed by review and audit rather than a gate that would block DEV. THIRD, and decisive, none of the omitted files admits new capability: every one of them is a readRedEvidence consumer or the leaf implementing the read-boundary validation, and both of those are explicitly inside the user-confirmed allowedScope entries covering read-boundary validation of the envelope and records and the surface behaviour of every readRedEvidence consumer. So the scope did not change; only an incomplete projection of it was recorded. This resolution is the correction of record. The blockedPaths entry for packages/main/src/core/red-evidence/ remains accurate and load-bearing - that leaf is owned by the merged sibling story B-506e, which is exactly why the new validation code goes in a sibling file rather than inside that directory - and remote publish stays blocked. DEV must treat plan.md's declared Files sets as the operative path list, and any file outside the union of plan.md's Files sets still requires an explicit scope decision rather than an ad-hoc edit.",
-      "resolvedAt": "2026-07-26T22:36:45.563Z"
+        ".lattice/story/actives/B-2aa7/plan.md#CHK-007",
+        ".lattice/story/actives/B-2aa7/plan.md#Dependency-graph-(acyclic)",
+        ".lattice/story/actives/B-2aa7/plan.md#Parallelism"
+      ]
+    },
+    {
+      "id": "OQ-3",
+      "q": "CHK-010's plan.md section requires 'Run pre-fix AND post-fix; both must show the SAME behaviour for these rows... these must pass before the fix too' for its V2 and E4 regression rows, but CHK-010's own DependsOn is CHK-004 (the fix), so by the time an implementer is dispatched to CHK-010 the working tree already carries CHK-004's fix and there is no natural 'pre-fix' state left to observe. CHK-009 avoids this same problem because its pre-fix pin (row O2) is already written and committed by CHK-001 (dispatched before CHK-004) as part of CHK-001's own SILENT-class DoneWhen rows; no equivalent earlier item pins a pre-fix baseline for V2 (valid-v2-record-skip) or E4 (records-absent-UNSATISFIED). Should CHK-010's V2/E4 pre-fix rows instead be added to CHK-001 (dispatched pre-fix, mirroring how O2 was handled), should CHK-010's DependsOn be changed so it runs before CHK-004, should the implementer use the git-archive-replay technique already documented in red-w2c-v1-verdict-invariance.mjs's header comment, or is citing the decision document's own pre-existing §10.1/§10.2.1 [PROBE] evidence (captured before any of this story's code changed) sufficient to satisfy CHK-010's 'pass before the fix too' requirement without a fresh mechanical re-run?",
+      "evidence": "plan.md CHK-010 section: '**DependsOn**: CHK-004' and 'Run pre-fix AND post-fix; both must show the SAME behaviour for these rows. Unlike CHK-001's rows, these must **pass before the fix too** - they pin behaviour that is already correct.' Compare plan.md CHK-001 DoneWhen, which explicitly lists '(row O2)' as one of its own SILENT-class pre-fix rows, and CHK-009 DependsOn CHK-004 with Verify text 'Pre-fix: satisfying-first-then-malformed returns SATISFIED with no throw - pin this first' referring back to that already-pinned row. No comparable CHK-001 row exists for V2 or E4.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-2aa7/plan.md#CHK-010",
+        ".lattice/story/actives/B-2aa7/plan.md#CHK-001",
+        ".lattice/story/actives/B-2aa7/plan.md#CHK-009",
+        "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs#REPLAY-AGAINST-THE-PRE-FIX-TREE"
+      ]
     }
   ]
 }
