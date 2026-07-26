@@ -5,7 +5,7 @@
       "desc": "stall_resolution_set is unreachable through the real CLI in both phases it is declared for: packages/main/src/core/config.ts DEFAULT_PHASE_TOOLS.DEV and DEFAULT_PHASE_TOOLS.REVIEW (and the global \"*\" bucket) never list stall_resolution_set, even though command-policy.ts declares allowedPhases:[DEV,REVIEW] and command-catalog.ts registers its schema. cli-engine.ts gates every CLI invocation through isCommandAllowed(cmd, activeStory.phase, config.phaseTools) BEFORE dispatch, so lattice stall_resolution_set is rejected with Command not available in <phase> phase in the exact two phases (DEV, REVIEW) the feature exists for. Reproduced live against this very story (B-7813, currently REVIEW): node bin/lattice.js stall_resolution_set {storyId:B-7813,action:authorize_continuation,reason:...} -> exit 1, Command stall_resolution_set is not available in REVIEW phase. The refusal prompt CHK-001 wires into getGuardFailureReason (core/review-convergence.ts buildStallAdjudicationPrompt/buildStallCeilingPrompt) literally tells the operator to run stall_resolution_set, which is a dead end. Root cause of the miss: lifecycle-registry-contract.ts checkCommandDimension only checks that DEFAULT_PHASE_TOOLS is a SUBSET of what command-policy allows (never grants more), never the converse (that every command-policy allowedPhases entry is actually reachable via DEFAULT_PHASE_TOOLS), so node packages/main/dist/tasks/lifecycle-registry-contract.js reports PASS despite this gap. The RED-first smoke (tasks/review-budget-stall-adjudication-smoke.ts) also never catches it because it calls the stall.stall_resolution_set(...) handler function directly, bypassing cli-engine.ts entirely. Fix: add stall_resolution_set to DEFAULT_PHASE_TOOLS.DEV and .REVIEW in packages/main/src/core/config.ts (or the global * bucket), and add a converse cross-check to lifecycle-registry-contract.ts so this direction of drift is caught mechanically going forward.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-26T09:06:20.987Z",
@@ -17,7 +17,11 @@
         "packages/main/src/tasks/lifecycle-registry-contract.ts"
       ],
       "signatureTag": "missing|ts|stall-resolution-unreachable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "a72c3e5308: added stall_resolution_set to DEFAULT_PHASE_TOOLS.DEV and .REVIEW in core/config.ts (peer of scope_shrinkage_decision_set/finding_cluster). Verified: node bin/lattice.js stall_resolution_set against B-7813 in REVIEW is no longer phase-blocked; lifecycle-registry-contract PASS.",
+      "resolvedAt": "2026-07-26T09:26:47.657Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7813:F-002",
