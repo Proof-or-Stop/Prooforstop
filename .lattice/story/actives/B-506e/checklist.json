@@ -338,15 +338,16 @@
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-bound in round 3. Previously bound to red-evidence-chain-smoke.js, which never constructs a malformed hybrid — nothing in the repo did, so the binding was unbacked. red-w2c-gate-guard.mjs now stores ALONE (nothing can short-circuit past it) a record with schemaVersion=proofstory.red_evidence.v2 carrying a COMPLETE valid v1 field set (non-empty observedFailure, failingCommand, both baseline hashes, well-formed greenRelation on the expected target) and asserts missing_red_evidence still fires. Non-vacuity proved by MUTATION, because no crash-path case can distinguish this one: a temp-tree build of HEAD with the schemaVersion discriminant replaced by a field-presence check (typeof record.observedFailure !== 'string') survives every other assertion in the file and is killed by exactly this one.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-run in round 4 after the file changed elsewhere; the malformed-hybrid case backing THIS intent is unchanged. Lines 146-150 store ALONE a record whose schemaVersion is the exact proofstory.red_evidence.v2 literal but which carries a COMPLETE valid v1 field set (non-empty observedFailure, failingCommand, both baseline hashes, a well-formed greenRelation on the expected target M1), and assert missingRedEvidence still fires — so the schemaVersion discriminant, not field presence, governs the skip. Stored alone, nothing can short-circuit past it. Non-vacuity was proved by MUTATION rather than by the pre-fix tree, because no crash-path case can distinguish this one: a build of HEAD with the discriminant replaced by a field-presence check (typeof record.observedFailure !== 'string') survives every other assertion in this file and is killed by exactly this assertion. Commit 85f60fcbf4.",
+          "headHash": "d3c544f31186b4411a7c778e20f1f9803fc258de",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:18:40.473Z"
         }
       ]
     },
