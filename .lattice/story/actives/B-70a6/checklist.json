@@ -98,7 +98,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "grep -n \"persistClaim = acquireMkdirLock|store.writeChecklist(args.storyId, reopenChecklist)|store.writeStory(args.storyId, story)|persistClaim.release()\" packages/main/src/handlers/transition-orchestrator.ts",
+          "result": "pass",
+          "note": "Comment at transition-orchestrator.ts:896-923 now states the guarantee as CONCURRENCY-atomic via the mkdir persist claim, ORDERED so the phase writeStory runs LAST. Each clause independently verified against code, not taken from the reference commit: (1) mkdir-based claim - acquireMkdirLock (core/mkdir-lock.ts:253) acquires via mkdirSync(lockDir) at line 269 with EEXIST treated as held, so it is genuinely a mkdir lock; (2) ordering - grep shows acquire at line 859, reset write store.writeChecklist at 935, phase write store.writeStory at 937, release at 940, so the phase write is last inside the claim; (3) loser abort - the oldPhase re-read guard at lines 878-885 throws before line 935, so a losing concurrent writer never reaches the reset. npm --prefix packages/main run build exits 0.",
+          "headHash": "c1549a78256ec16005f0811549016972dafc8a94",
+          "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
+          "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
+          "timestamp": "2026-07-26T01:42:33.824Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
