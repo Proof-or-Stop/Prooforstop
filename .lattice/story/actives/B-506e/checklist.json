@@ -1174,11 +1174,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 7 issues rejected appends (e.g. quarantine-of-non-head throws, line 427) immediately followed by a successful append (quarantine ra2, line 432) — the mkdir claim is released on the validation-error path (not leaked), so subsequent appends can acquire it.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 7 of red-evidence-chain-smoke.ts. The quarantine-of-a-non-head rejection there (message: quarantine of a non-head record is rejected) is raised INSIDE appendControlRecord, i.e. while the chain claim is held, and it is followed in the same section by a SUCCESSFUL quarantine of ra2 whose byte-identity and derived-approvedBy assertions then pass. A claim leaked on the validation-error path would block that following append, so the error path demonstrably releases it; the release itself is the finally block of withMkdirLock in core/mkdir-lock.ts, which appendControlRecord returns through.",
+          "headHash": "24017dca9ae9d7e6def4aafda7cafb75db68478c",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:20.969Z"
         },
         {
           "intentRef": "CHK-009:edge:1",
