@@ -77,6 +77,24 @@
       ],
       "signatureTag": "missing|ts|lattice-validate-green",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1507:F-005",
+      "desc": "packages/main/src/tasks/verification-run-and-guard-smoke.ts assertion A2 (line ~189-193, `A2: exit-nonzero pin is refused`) failed ONCE inside a live `lattice validate --story=B-1507 --json` run (command 9/54, AssertionError: expected the operation to be REFUSED but it succeeded), on an otherwise-unmutated build -- i.e. lattice validate reported allPass:false partly because of this, independent of the two missing-registry findings I filed separately. I could not reproduce it: 8 sequential standalone runs, 5 runs through the exact runValidationCommand spawn path used by validate (repro script), and 6 concurrent/parallel runs (19 total) all PASSED. Per the CLAUDE.md Debugging Contract I am not claiming a root cause without a repro, but I also cannot silently drop a real exit=1 observed from a fresh validate run of this exact story/build. Flagging as a coverage/reliability gap on the RED-first smoke itself: if verification_run -> enforceAndStampEvidence has any timing sensitivity around child-process exit-code capture under load/contention, the mutation-kill guarantee for A2 is not rock solid. Recommend: rerun `lattice validate --story=B-1507` once or twice more to confirm current stability before relying on this as the sole gate for CHK-001s adversarial intent; if it recurs, that is the repro this contract requires before a fix.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T06:12:17.462Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-004",
+      "_hash": "4e73cb2a63cd2b99e41c374225a5ec3fa21a8c2e7e0e1230e96290a2f9d5b84a",
+      "files": [
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
