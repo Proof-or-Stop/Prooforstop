@@ -1,6 +1,6 @@
 
 import { existsSync } from 'fs';
-import { join } from 'path';
+import { isAbsolute, join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
@@ -684,6 +684,22 @@ function mapEvidenceKindToIntentType(kind: VerificationEvidence['kind']): Verifi
     case 'manual_transcript': return 'manual';
     case 'docs_check': return 'docs';
     default: return 'cli';
+  }
+}
+
+/**
+ * B-1507: inverse of mapEvidenceKindToIntentType — pick the closest evidence kind for an
+ * intent type. verification_run only executes pinned (executable) intents, so in practice
+ * only logic|cli|browser are reachable; manual|docs are mapped for completeness.
+ */
+function intentTypeToEvidenceKind(type: VerificationIntentType): VerificationEvidence['kind'] {
+  switch (type) {
+    case 'logic': return 'logic_test';
+    case 'cli': return 'integration_test';
+    case 'browser': return 'browser_test';
+    case 'manual': return 'manual_transcript';
+    case 'docs': return 'docs_check';
+    default: return 'integration_test';
   }
 }
 
@@ -1446,6 +1462,117 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         store.writeChecklist(args.storyId, cl);
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
         return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}`;
+      });
+    },
+
+    /**
+     * B-1507 CHK-001 — the ergonomic tool-executed verification path. Resolves an
+     * intentRef to its owning item's PINNED verification:{command,selector}, then runs
+     * the PINNED command through the SAME enforceAndStampEvidence enforcement boundary
+     * and the SAME runSingleAllowlistedCommand executor as verification_evidence_add,
+     * writing the receipt-bearing evidence row in one atomic step under the checklist lock.
+     *
+     * The caller NEVER authors the command — it comes exclusively from the immutable pin
+     * (the whole ergonomic point: there is no command parameter to fill in, so the
+     * false-command mistake class has no on-ramp here). The recorded `result` is DERIVED
+     * from the receipt (exit + selector match) inside enforceAndStampEvidence; the schema
+     * exposes no caller result field. The internal `result: 'pass'` below is a FIXED
+     * expectation (verification_run's purpose is to PROVE the pin passes), used only to
+     * trigger the shared helper's honest refusal on a non-zero exit — it is never a
+     * caller-controlled value and never becomes the recorded result on its own.
+     *
+     * REFUSALS (no covered row is ever minted):
+     *   - the intentRef does not resolve to an intent on the story  → [intent_ref_unresolved]
+     *   - the resolved intent has no pinned command/selector to run → [verification_run_no_pin]
+     *   - the pinned command exits non-zero / the selector is absent → the shared helper
+     *     refuses ([receipt_exit_nonzero] / [receipt_selector_absent]); nothing is written.
+     */
+    async verification_run(args: {
+      storyId: string;
+      intentRef: string;
+      itemId?: string;
+      note?: string;
+      cwd?: string;
+    }): Promise<string> {
+      // Resolve the owning item + its pinned verifier OUTSIDE the checklist lock
+      // (execution is async; the lock body is synchronous). The receipt write then
+      // happens atomically inside the lock, mirroring verification_evidence_add.
+      const preCl = store.readChecklist(args.storyId);
+      let preItem: ChecklistItem | undefined;
+      if (args.itemId) {
+        preItem = preCl.items.find(i => i.id === args.itemId);
+        if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
+      } else {
+        // No itemId: find the item whose verificationIntent owns this ref (a custom
+        // intent id can override the CHK-n:lane:i shape, so search rather than parse).
+        preItem = preCl.items.find(i => collectVerificationIntents(i).some(c => c.ref === args.intentRef));
+      }
+      if (!preItem) {
+        throw new Error(
+          `verification_run refused: intentRef ${args.intentRef} does not resolve to a verificationIntent on any checklist item in ${args.storyId} [intent_ref_unresolved]`,
+        );
+      }
+      const itemId = preItem.id;
+      const resolved = resolveIntentForRef(preItem, args.intentRef);
+      if (!resolved) {
+        throw new Error(
+          `verification_run refused: intentRef ${args.intentRef} does not resolve to a verificationIntent on ${itemId} [intent_ref_unresolved]`,
+        );
+      }
+      const pin = resolved.intent.verification;
+      if (!pin) {
+        throw new Error(
+          `verification_run refused: intent ${args.intentRef} (type ${resolved.intent.type}) has no pinned ` +
+          `verification:{command,selector} — there is nothing to execute. Pin it first via verification_evidence_add ` +
+          `(command+selector), or record an audited non-mechanical attestation; verification_run only re-runs an ` +
+          `already-pinned verifier and never mints an unexecuted covered row. [verification_run_no_pin]`,
+        );
+      }
+
+      const gitCwd = resolveStoryGitCwd(args.storyId);
+      const runCwd = args.cwd ? (isAbsolute(args.cwd) ? args.cwd : join(gitCwd, args.cwd)) : gitCwd;
+      const kind = intentTypeToEvidenceKind(resolved.intent.type);
+
+      // Run the PINNED command through the shared enforcement boundary. We pass the pin's
+      // OWN command+selector (never a caller value); result:'pass' is the fixed expectation
+      // so a non-zero exit or absent selector is REFUSED here (no row minted).
+      // enforceAndStampEvidence derives the recorded result from the actual receipt.
+      const stamp = await enforceAndStampEvidence(
+        preItem,
+        { intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
+        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: runCwd },
+      );
+
+      return withChecklistLock(ctx, args.storyId, () => {
+        const cl = store.readChecklist(args.storyId);
+        const item = cl.items.find(i => i.id === itemId);
+        if (!item) throw new Error(`Checklist item ${itemId} not found`);
+        if (stamp.pin) applyVerificationPin(item, stamp.pin); // defensive: pin already existed
+        const hashes = evidenceHashes(gitCwd, root);
+        const note = (args.note && args.note.trim().length >= 5)
+          ? args.note.trim()
+          : `verification_run executed the pinned verifier for ${args.intentRef}`;
+        const evidence = makeEvidence({
+          intentRef: args.intentRef,
+          kind,
+          ...(stamp.evidencePatch.command ? { command: stamp.evidencePatch.command } : {}),
+          ...(stamp.evidencePatch.result ? { result: stamp.evidencePatch.result } : {}),
+          note,
+          ...(stamp.evidencePatch.mechanical !== undefined ? { mechanical: stamp.evidencePatch.mechanical } : {}),
+          ...(stamp.evidencePatch.receipt ? { receipt: stamp.evidencePatch.receipt } : {}),
+          ...hashes,
+        });
+        const existing = item.verificationEvidence || [];
+        const idx = existing.findIndex(e => e.intentRef === args.intentRef);
+        if (idx >= 0) existing[idx] = evidence;
+        else existing.push(evidence);
+        item.verificationEvidence = existing;
+        store.writeChecklist(args.storyId, cl);
+        const receiptNote = evidence.receipt
+          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}`
+          : '';
+        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_run');
+        return `Verification run recorded for ${itemId} → ${args.intentRef} (${kind}, ran pinned command${receiptNote})${commitHint}`;
       });
     },
 
