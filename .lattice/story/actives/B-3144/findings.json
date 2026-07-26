@@ -287,6 +287,21 @@
       "resolvedAt": "2026-07-26T05:02:10.760Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3144:F-016",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2630 (F-014/F-015 discovery-sweep exclusion regex /args\\.apply|args\\.dryRun|throw new Error|^\\s*\\+ '/): the ^\\s*\\+ ' clause unconditionally skips ANY line that is a multi-line string-concatenation continuation, not just lines that are already covered as part of an already-checked message. quorum-prune.ts already has 6 such continuation lines (e.g. lines 232-233, 243), and 3 of them (232, 233, 243) themselves contain the literal 'apply:true' trigger text but are silently excluded from ever entering the `discovered` array, so they never get the dryRun:false pairing check and do not count toward the discovered.length>=6 floor. Confirmed by replicating the exact loop body against a synthetic new throw-message whose first line does not mention apply:true and whose ONLY apply:true mention sits on a `+ '...'` continuation line paired with no dryRun:false anywhere in the message: discovered.length===0, i.e. a genuinely stale apply:true-only claim added on a continuation line (the file's own dominant style for multi-line throw new Error messages) is completely invisible to the sweep. This defeats the stated purpose of the F-014/F-015 fix (\"a new mention anywhere now either satisfies the contract or fails this check; it can no longer be silently missed\") for exactly the failure class that has already recurred three times in this story (F-011/F-013/F-014/F-015): a future edit documenting the apply:true contract on a new prose line the guard does not actually check. WHY: the guard's job is specifically to make this class of regression impossible to reintroduce silently; a demonstrable blind spot in its own exclusion regex reopens exactly that risk. Severity: medium (no live incorrect claim exists in the current tree; this is a hardening gap in the regression guard itself, not a currently-shipped functional defect).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T05:12:15.542Z",
+      "reviewRound": "2026-07-26T05:01:53.110Z",
+      "reviewRunId": "B-3144:RR-017",
+      "_hash": "6716cc3c54ba863e38d6a00d13142f1cf88f8aa2141214e13ba8e31c8c213739",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
