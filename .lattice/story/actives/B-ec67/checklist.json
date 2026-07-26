@@ -22,7 +22,11 @@
           {
             "desc": "verification:{command,selector} is on VerificationIntentItem; the first evidence write for an intentRef pins it onto the intent and it round-trips through read/write",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -44,6 +48,27 @@
         "cwdPolicy pin field (optional refinement from handoff §2a, deferred beyond the enforcement floor)",
         "expectedExit pin field (the floor uses a fixed exit==0 check; a configurable expected exit is a deferred refinement)",
         "specDigest pin field (optional tamper-evidence refinement, deferred)"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "The registered smoke executes and asserts the pin round-trips (first selector-bearing write pins verification, later change refused); the tool ran the command and the selector was present.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe204bea200b7a6da44ff06e1cf27778ed38632c64cb6c546b3a0ffd154581d6",
+            "outputTail": "tool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T00:26:15.827Z"
+          },
+          "headHash": "cedd3a29f3bd3283556a9f44aa023290f4d76394",
+          "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
+          "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
+          "timestamp": "2026-07-26T00:26:16.028Z"
+        }
       ]
     },
     {
