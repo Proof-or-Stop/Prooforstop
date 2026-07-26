@@ -121,7 +121,30 @@
       "userSees": "`lattice validate` runs the new frozen-claim-drift smoke and reports it green among the validate commands; the smoke output shows all five cases including the two false-positive guards passing.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the frozen-claim-drift smoke runs under `node bin/lattice.js validate` and reports green, covering all five cases",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the two false-positive guards (unrelated-file change and whitespace-only edit both produce NO drift) are explicit assertions in the smoke",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the smoke is deterministic and offline (no live network, no live claude -p) so it cannot flake in CI",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
