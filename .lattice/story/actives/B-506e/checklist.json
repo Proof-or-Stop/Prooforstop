@@ -282,15 +282,15 @@
         },
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/core/proofstory.ts",
-          "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
           "result": "pass",
-          "note": "RED signal A byte-identical re-proven AFTER the exhaustive-discrimination fix. Differential proof: the pre-fix tree (git archive HEAD, built to its own dist) and the fixed tree were both run over 5 v1-only scenarios (empty / satisfying / blank-observedFailure / foreign-target / mixed) capturing missingRedEvidence + gaps; the outputs are byte-identical (both sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc). red-w2c-gate-guard.mjs also passes unchanged. The added guard only rejects records that were never valid v1 satisfiers, so no v1 verdict moved. Commit b4fa4bbfad.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.825Z"
+          "note": "Re-bound in round 3. Previously bound to red-w2c-gate-guard.mjs, which compares only missingRedEvidence within one process and never captured a before/after across the change. This artifact asserts what the intent asks: FIVE v1-only scenarios (empty store, satisfying record, blank-observedFailure record, foreign acceptance-target record, mixed store) each driven through the REAL evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(...)) pair; each scenario's satisfied/unsatisfied verdict asserted by name; the FULL ProofStoryDiagnosticReport of all five canonicalized and hashed into ONE sha256 asserted against a pinned constant. REAL digest = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec. The before/after half of the claim was verified by running this same file verbatim against a dist built from the pre-fix tree 8727b2db83 (predicate still opens with record.observedFailure.trim()): it prints the SAME digest. NOTE: the digest cited in the story prose (71c267a0...) is not produced by this or any artifact.",
+          "headHash": "fd22136fe6c953462fb8606e48e6cdd2b8e32a9c",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:32:33.846Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
