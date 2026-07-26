@@ -764,11 +764,11 @@
           "file": "packages/main/src/core/red-evidence/operation-key.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "green-confirm operationKey = greenConfirmOperationKey (operation-key.ts lines 88-99) = CANON({operation:'green-confirm', storyId, acceptanceTargetRef, greenHeadHash, greenMaterialHash, confirmsRecordDigest, confirmsAssertionDigest, specDigest}) — its own 8-field preimage; chain-smoke section 5 (line 338) asserts it renders sha256:<64hex> and deriveRecordId('green-confirm',...) yields the GRN- prefix (line 333).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was operation-key.ts line offsets plus dist line offsets. Durable anchor: the exported function greenConfirmOperationKey in operation-key.ts - canonDigest over operation (the literal green-confirm), storyId, acceptanceTargetRef, greenHeadHash, greenMaterialHash, confirmsRecordDigest, confirmsAssertionDigest and specDigest, its own 8-field preimage, with inputs declared by GreenConfirmOperationKeyInput. Section 5 of red-evidence-chain-smoke.ts asserts assert.match(greenConfirmOperationKey({...}), /^sha256:/) and that deriveRecordId(green-confirm, k1, 1) starts with the GRN- prefix. deriveRecordId composes prefix, first12hex(operationKey) and seq, so the recordId shape for green-confirm follows from those two assertions plus the RECORD_ID_OPERATION_PREFIX table in record-v2.ts.",
+          "headHash": "e304edf00dc404a04822ba78b286648d8f1c9eea",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:47.391Z"
         },
         {
           "intentRef": "CHK-006:happy:2",
