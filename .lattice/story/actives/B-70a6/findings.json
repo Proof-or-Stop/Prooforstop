@@ -23,7 +23,7 @@
       "desc": "plan-init-reopen-roundtrip-smoke.ts:266,299,302,314 use 4 unnecessary `as any` casts ((e as any).fromPhase/.toPhase, reopenEvents[0] as any) on the new reopen-persistence + normal-transition-shape assertions. ProcessEvent (core/types.ts) already declares `[key: string]: unknown`, so `e.fromPhase` / `e.toPhase` / `reopenEvents[0].transitionType` resolve to `unknown` without any cast, and `unknown` compares/assigns fine against string literals in assert.equal/hasOwnProperty.call under this project's strict tsconfig. Verified empirically: in an isolated scratch git-worktree copy (separate from the shared REVIEW worktree/dist per the concurrency-hazard note) I removed all 4 casts, ran `npm --prefix packages/main run build` (tsc, strict) -> 0 errors, and reran `node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js` -> both smoke assertions still pass unchanged. So the casts add no compile-time necessity; they just suppress the (already-weak, index-signature-typed) safety net for no benefit. Low severity: test-only file, no behavior difference, `as any` here does not actually widen acceptance beyond what the index signature already allows (a property-name typo would still silently type-check either way) so this is a minor precision/hygiene cleanup rather than a masked-typo risk.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T02:14:59.744Z",
@@ -50,7 +50,11 @@
         "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
       ],
       "signatureTag": "missing|ts|plan-init-reopen",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed all 4 unnecessary `as any` casts from plan-init-reopen-roundtrip-smoke.ts (266/299/302/314); ProcessEvent already declares [key: string]: unknown so plain property access type-checks under strict tsconfig. Verified on the real tree: grep -n \"as any\" returns nothing, build exits 0, plan-init-reopen-roundtrip-smoke.js and flow-stability-smoke.js both exit 0. Assertions semantically identical.",
+      "resolvedAt": "2026-07-26T02:28:37.137Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
