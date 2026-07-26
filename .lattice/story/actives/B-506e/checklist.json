@@ -220,15 +220,16 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "result": "pass",
-          "note": "Re-run in round 3 after the file changed. Steps 0-3 are unchanged and were already genuine: classifyRedRecordSchemaSafe/classifyRedRecordSchema classify a v3 record as unsupported and fail closed, store.readRedEvidence REJECTS it with a typed RedEvidenceSchemaError (never a bare TypeError, never silently into records[]), and the LIVE gate surfaces that typed error. Step 4 (predicate defense-in-depth past the read gate) was corrected this round: the v3 record is now unshift()ed to the FRONT, because with push() the some() short-circuit meant it was never evaluated — that arrangement does not throw even against a dist built from the pre-fix tree 8727b2db83. A v3-only input case was added, which cannot be short-circuited past at all.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-run in round 4 after the file changed. Steps 0-3 (lines 99-124) back this intent and are unchanged: classifyRedRecordSchemaSafe returns 'unsupported' for a proofstory.red_evidence.v3 record and classifyRedRecordSchema THROWS a typed RedEvidenceSchemaError on it; store.readRedEvidence (line 113) REJECTS a store containing that record with the same typed error rather than admitting it into records[]; and the LIVE gate surfaces that typed error, never a bare TypeError. Round-4 change affecting this file: step 4's second arrangement, which round 3 kept as a labelled vacuous companion ([v1, v3] — some() short-circuits so the v3 record was never evaluated), is REPLACED at lines 155-168 by a mid-array arrangement [non-satisfying v1, v3, satisfying v1] that the predicate genuinely reaches; the v3-first case (line 139) and the v3-only case (line 175) are unchanged. Commit 85f60fcbf4.",
+          "headHash": "cfc0f7b3c629aecc9bb689a18a8e3efa37f798ff",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:17:47.267Z"
         }
       ]
     },
