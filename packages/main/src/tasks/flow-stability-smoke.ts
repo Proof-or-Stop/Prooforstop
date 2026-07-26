@@ -79,7 +79,7 @@ import { formatWorktreePollutionDetails } from '../core/validation-executor.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { createChecklistHandlers } from '../handlers/checklist.js';
+import { refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
 import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
@@ -1763,8 +1763,9 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
     );
     assert.equal(staleCoverage.entries[0]?.status, 'stale', 'story-owned file changes must still stale verification evidence');
 
-    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
-    const refreshResult = handlers.verification_evidence_refresh_stale({ storyId });
+    // B-1507 CHK-002: metadata-only writer (this non-pinned row exercises the same
+    // freshness re-stamp path the re-executing CLI handler falls back to).
+    const refreshResult = refreshStaleEvidenceMetadataOnly({ store, root, scanRoot: root }, storyId);
     assert.match(refreshResult, /Refreshed 1\/1 stale evidence/, 'refresh helper should refresh the stale story-owned evidence');
     const refreshed = store.readChecklist(storyId).items[0]?.verificationEvidence?.[0];
     assert.equal(refreshed?.storyFilesHash, currentStoryFilesHash(root), 'refresh helper must preserve the current storyFilesHash binding');

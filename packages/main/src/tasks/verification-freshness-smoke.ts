@@ -19,7 +19,7 @@ import { buildVerificationCoverage } from '../core/verification.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
-import { createChecklistHandlers } from '../handlers/checklist.js';
+import { createChecklistHandlers, refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
 import { EVIDENCE_STALE_MARKER, findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { decorateResult } from '../handlers/hints.js';
@@ -363,16 +363,23 @@ for (const path of material) {
     );
     assert.equal(before.entries[0]?.status, 'stale', 'material change should stale old evidence');
 
-    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
-    const dryRun = handlers.verification_evidence_refresh_stale({ storyId, dryRun: true });
+    // B-1507 CHK-002: the metadata-only entry is the writer these non-pinned rows
+    // exercise (the re-executing CLI handler is covered by CHK-004's smoke).
+    const smokeCtx = { store, root, scanRoot: root };
+    const dryRun = refreshStaleEvidenceMetadataOnly(smokeCtx, storyId, true);
     assert.match(dryRun, /\[DRY-RUN\] Stale verification evidence/);
     assert.match(dryRun, /npm test/);
 
+<<<<<<< HEAD
     // B-3b88 CHK-002: a command-backed result:pass is REFUSED by refresh (never
     // silently re-certified onto changed material) — it stays stale until it is
     // re-run and re-recorded via verification_evidence_add.
     const result = handlers.verification_evidence_refresh_stale({ storyId });
     assert.match(result, /refused 1 command-backed pass/);
+=======
+    const result = refreshStaleEvidenceMetadataOnly(smokeCtx, storyId);
+    assert.match(result, /Refreshed 1\/1 stale evidence/);
+>>>>>>> main
     const after = buildVerificationCoverage(
       store.readChecklist(storyId),
       head,
@@ -447,8 +454,7 @@ for (const path of material) {
     store.writeStory(storyId, story);
     store.writeChecklist(storyId, checklist);
 
-    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
-    const result = handlers.verification_evidence_refresh_stale({ storyId });
+    const result = refreshStaleEvidenceMetadataOnly({ store, root, scanRoot: root }, storyId);
     assert.match(result, /Refreshed 1\/1 stale evidence/);
 
     const refreshed = store.readChecklist(storyId).items[0].verificationEvidence?.[0];

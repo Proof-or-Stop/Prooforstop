@@ -48,6 +48,7 @@ import {
   verificationIntentTypeSchema,
 } from './command-schemas.js';
 import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.js';
+import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
@@ -480,7 +481,18 @@ Behavior:
       nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape for an executable intent: record a non-mechanical attestation WITHOUT execution. Attributable + gate-visible; never grants coverage.'),
     })).describe('Evidence array; reads and writes the checklist once in the same call.'),
   }},
+<<<<<<< HEAD
   { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale command-less attestation evidence; command-backed result:pass rows are refused and must be re-run + re-recorded via verification_evidence_add (never silently re-certified)', schema: {
+=======
+  { name: 'verification_run', description: 'B-1507: execute an intent\'s PINNED verifier and atomically record the tool-executed receipt (the caller never authors the command)', schema: {
+    storyId: z.string().describe('Story ID'),
+    intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID. Resolved to its owning item\'s pinned verification:{command,selector}; the pinned command is what runs.'),
+    itemId: z.string().optional().describe('Checklist item ID owning the intent; optional — inferred from the intentRef when omitted.'),
+    note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
+    cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
+  }},
+  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence (rerun command)', schema: {
+>>>>>>> main
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},
@@ -2401,6 +2413,21 @@ Behavior:
     })).optional().describe('Open Questions: contradictions/questions reviewers notice in decisions/ but do not classify; main agent must resolve them with scope_question_resolve.'),
   }},
 
+  // B-7813 CHK-002: stall_resolution_set — record one structured, signed,
+  // current-review-round-bound resolution that clears the CHK-001 convergence-stall
+  // mint block for exactly the next ordinary review round. action enum + reason
+  // min length are re-validated at the handler runtime AND at the gate
+  // consumption point (isValidCurrentRoundStallResolution), per the Handler
+  // encoding convention.
+  { name: 'stall_resolution_set', description: 'Record a signed, current-round-bound resolution that clears the convergence-stall mint block (CHK-001) for the next ordinary review round', schema: {
+    storyId: z.string().describe('Story ID'),
+    action: z.enum(STALL_RESOLUTION_ACTIONS as unknown as [string, ...string[]]).describe('Structured stall-resolution action: authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable | override_budget. declare_unreachable additionally withdraws the named checklist item (B-1909 disposition) and closes the loop for it. override_budget (CHK-003) is the PRIVILEGED hard-ceiling override — the ONLY action that clears the mint block once total ordinary review rounds exceed the hard ceiling; an ordinary per-round resolution cannot.'),
+    reason: z.string().min(20, 'reason must be at least 20 characters (why you are consciously clearing the convergence-stall block for this review round).').describe('Why you are consciously clearing the convergence-stall block for this review round (>= 20 chars after trim).'),
+    itemId: z.string().optional().describe('Checklist item ID (CHK-xxx) to withdraw as unreachable; REQUIRED when action=declare_unreachable, ignored otherwise.'),
+    approvedBy: z.string().optional().describe('Optional operator identifier recorded on the resolution (and on the B-1909 decision for declare_unreachable).'),
+    actor: z.string().optional().describe('Optional actor identifier; used for approvedBy attribution when approvedBy is omitted.'),
+  }},
+
   // B-ed3e CHK-003: scope_question_resolve - main agent writes resolution for an OQ raised by reviewer.
   // Design principle: resolution is not included in signed _hash because resolution is a main-agent action and must not pollute the reviewer judgment signature domain.
   { name: 'scope_question_resolve', description: 'Resolve a scope reviewer Open Question in writing (prevents self-approval)', schema: {
@@ -2834,6 +2861,14 @@ Behavior:
     toolInputJson: z.string().optional().describe('JSON-encoded tool input from which target paths are extracted (used when targetPaths is absent)'),
     targetPaths: z.union([z.string(), z.array(z.string())]).optional().describe('Explicit target path(s) to evaluate (overrides tool-input extraction)'),
     cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
+  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a lattice verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s immutable pin; allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
+    provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
+    toolName: z.string().optional().describe('Name of the shell tool being invoked (e.g. Bash on Claude, the Codex shell tool)'),
+    toolInputJson: z.string().optional().describe('JSON-encoded shell tool input; the command string is read from its .command field when commandString is absent'),
+    commandString: z.string().optional().describe('Explicit shell command string to inspect (overrides toolInputJson extraction)'),
+    cwd: z.string().optional().describe('Working directory (informational; the guard resolves the pin from story metadata)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'autopilot_execute', description: 'Execute a bounded unattended Proofbound autopilot loop using local Proofbound commands and local assurance only. Alias: lattice autopilot execute', schema: {

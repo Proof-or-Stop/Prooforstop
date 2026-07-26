@@ -37,6 +37,7 @@ import { createEvaluateHandlers } from './handlers/evaluate.js';
 import { createWorkflowHandlers } from './handlers/workflow.js';
 import { createScopeCheckHandlers } from './handlers/scope-check.js';
 import { createInitCheckHandlers } from './handlers/init-check.js';
+import { createStallAdjudicationHandlers } from './handlers/stall-adjudication.js';
 import { createScopeQuestionResolveHandlers } from './handlers/scope-question-resolve.js';
 import { createStoryDispatchHandlers } from './handlers/story-dispatch.js';
 import { createBackgroundHandlers } from './handlers/background.js';
@@ -112,6 +113,7 @@ import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
 import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
 import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
+import { createEvidencePinGuardHandlers } from './handlers/evidence-pin-guard.js';
 import { createReleaseHandlers } from './handlers/release.js';
 import { createAutopilotHandlers } from './handlers/autopilot.js';
 import { createPlannerHandlers } from './handlers/planner.js';
@@ -201,6 +203,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createScopeCheckHandlers(ctx));
   // B-e71f CHK-003: init_check_set — INIT→INIT_CHECK 硬门槛产物 init-check.json 写入
   registry.registerBatch(createInitCheckHandlers(ctx));
+  registry.registerBatch(createStallAdjudicationHandlers(ctx));
   registry.registerBatch(createScopeQuestionResolveHandlers(ctx));
   registry.registerBatch(createStoryDispatchHandlers(ctx));
   registry.registerBatch(createBackgroundHandlers(ctx));
@@ -412,6 +415,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));
+
+  // B-1507 CHK-003: fail-open evidence-pin seatbelt for shell-tool PreToolUse hooks
+  registry.registerBatch(createEvidencePinGuardHandlers(ctx));
 
   // Remote publish approval is local-only: it writes a one-shot pre-push token,
   // never performs the push itself.

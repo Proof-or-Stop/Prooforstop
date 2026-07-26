@@ -1,5 +1,5 @@
 import type { HandlerContext } from './context.js';
-import { createChecklistHandlers } from './checklist.js';
+import { refreshStaleEvidenceMetadataOnly } from './checklist.js';
 import { checkEvidenceFreshnessForGit } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { collectVerificationIntents } from '../core/verification.js';
@@ -330,7 +330,10 @@ export function createEvidenceRefreshHandlers(ctx: HandlerContext): Record<strin
       // 2. Perform AT MOST ONE refresh pass via the EXISTING writer. We do NOT
       //    add a new mutation primitive and never re-stamp a row twice: this is
       //    a single dryRun:false call that re-stamps every stale-by-hash row.
-      createChecklistHandlers(ctx).verification_evidence_refresh_stale({ storyId: args.storyId });
+      // B-1507 CHK-002: use the SYNCHRONOUS metadata-only entry — evidence_refresh
+      // "never runs a verification command", so it must NOT take the re-executing CLI
+      // path (which would run pinned commands as a side effect).
+      refreshStaleEvidenceMetadataOnly(ctx, args.storyId);
 
       // 3. RE-READ + RECLASSIFY each previously refresh-only row from current
       //    facts. Fresh → refreshed; still-not-fresh → escalate (no loop, no

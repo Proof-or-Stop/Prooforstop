@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Extend the existing trend-based detector into a block/allow gate — one stall-decision surface, never a parallel detector.",
+    "Block at the review-round mint site; the block clears ONLY by a recorded, signed, current-round structured resolution.",
+    "Keep the block decision a pure function of observable state (round count + per-round blocking trend + presence of a current-round resolution); I/O stays in the handler/gate.",
+    "Coexist independently with the advance-counting convergence-breaker — separate accounting, separate clear paths, no double-count.",
+    "Surface ill-posedness early: the declare-unreachable hatch (and plan/claim reconciliation) is the point, not a raw numeric cap."
+  ],
+  "drivers": [
+    "F-058: it took 12 review rounds to discover a checklist item was unreachable; a raw cap would have stopped the spin but never surfaced the unreachability.",
+    "F-059: plan.md claimed delivery from round 4 and was never reconciled — the resolution action must force reconciliation.",
+    "Today the stall signal is advisory-only and was ignored for 20+ rounds.",
+    "convergence-breaker counts ADVANCES (maxAdvance=20) and never bit on review-round runaway (14 finding-bearing rounds passed under it)."
+  ],
+  "options": [
+    {
+      "name": "A: block at REVIEW re-entry via a new pure gate in review-convergence.ts + a signed stall-adjudication record with an action enum + hard ceiling/override + independent breaker coexistence",
+      "pros": [
+        "Blocks where the advisory already lives and where the round is minted",
+        "Reuses the existing trend detector (no false-cap on converging stories)",
+        "One structured-resolution surface incl. the unreachable hatch",
+        "Breaker stays independent"
+      ],
+      "cons": [
+        "Touches the REVIEW transition guard (state-machine change)",
+        "Needs a new persisted+signed record + CLI"
+      ]
+    },
+    {
+      "name": "B: block at review_run_start instead",
+      "pros": [
+        "Closer to the literal per-run mint"
+      ],
+      "cons": [
+        "review_run_start is per-reviewer-lane, not per-round — conflates lane starts with round mints",
+        "The advisory and round increment live at REVIEW entry, so the gate would be split from its signal",
+        "Harder to reason about clear semantics"
+      ]
+    },
+    {
+      "name": "C: just make convergence-breaker count review rounds / lower maxAdvance",
+      "pros": [
+        "Minimal new code"
+      ],
+      "cons": [
+        "Conflates two accounting domains and risks double-count/regression",
+        "A raw cap never surfaces unreachability (fails the F-058 acceptance)",
+        "No structured-resolution or unreachable hatch"
+      ]
+    }
+  ],
+  "chosen": "A: block at REVIEW re-entry via a new pure gate in review-convergence.ts + a signed stall-adjudication record with an action enum + hard ceiling/override + independent breaker coexistence",
+  "rationale": "A blocks at the same site the advisory already lives (REVIEW re-entry / round mint), extends the existing pure trend detector into a block/allow gate so a genuinely converging story is never falsely capped, adds the signed structured-resolution record (including the declare-unreachable hatch that reconciles plan/claims per F-059) that alone clears the block, and keeps the advance-counting breaker on its own counter and story_resume --ack path. B misplaces the gate at per-lane granularity and splits it from its signal; C conflates the two accounting domains, cannot surface unreachability, and omits the resolution hatch — failing the acceptance criteria.",
+  "preMortem": [
+    {
+      "scenario": "The block fires on a HEALTHY converging story and stops legitimate progress",
+      "trigger": "the stall gate uses a raw round ceiling instead of the trend",
+      "consequence": "legitimate review rounds are refused, harming throughput",
+      "mitigation": "reuse the EXISTING trend-based assessReviewConvergence decision (already excludes trailing-clean last==0 and strictly-decreasing windows — not a raw cap); the RED smoke asserts a converging/decreasing-blocker trend is NOT blocked at or beyond STALL_MIN_ROUNDS"
+    },
+    {
+      "scenario": "Double-count / clear-path collision with the advance-counting convergence-breaker",
+      "trigger": "the new gate shares the breaker advance counter or is cleared by story_resume --ack",
+      "consequence": "both brakes freeze together, or --ack wrongly clears the stall block (or vice-versa)",
+      "mitigation": "key the stall adjudication on resolveReviewRoundCount with its OWN signed clear record (stall_resolution_set), independent of advanceBaseline/story_resume --ack; the smoke drives each brake to its own trigger and asserts the other neither fires nor clears"
+    },
+    {
+      "scenario": "The block is trivially bypassable by re-recording an empty resolution every round — the gate becomes theater",
+      "trigger": "a resolution record is accepted without substance or without binding to the current stalled round",
+      "consequence": "unlimited rounds continue, defeating the purpose",
+      "mitigation": "require a signed resolution with a reason (min length) bound to the CURRENT stalled review round (a previous-round record does not clear the current block), and a hard ceiling that caps total ordinary rounds even with resolutions unless a privileged override with its own reason is recorded"
+    },
+    {
+      "scenario": "declare-unreachable closes the loop but plan.md/claims still assert delivery — F-059 drift recurs",
+      "trigger": "the unreachable action does not reconcile the plan/claims",
+      "consequence": "the exact plan-vs-evidence drift the story targets happens again",
+      "mitigation": "the unreachable action marks the checklist item withdrawn/unreachable using B-1909 withdrawn-disposition semantics and requires the plan/claim reconciliation; the smoke asserts the declared item is marked withdrawn and the loop closes rather than minting another round"
+    }
+  ],
+  "timestamp": "2026-07-26T07:35:55.702Z"
+}

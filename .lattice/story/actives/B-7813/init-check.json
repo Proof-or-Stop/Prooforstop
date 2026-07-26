@@ -1,0 +1,52 @@
+{
+  "storyId": "B-7813",
+  "checkedAt": "2026-07-26T07:32:11.410Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "index.json description cites (spec section 4) for the PreToolUse-seatbelt out-of-scope statement (\"The optional PreToolUse seatbelt on review_run_start (spec section 4) is not part of this story's acceptance criteria\"), but docs/evidence-integrity-program-spec.md section 4 is actually \"4. Success metrics (against the observed incidents)\"; the PreToolUse discussion the story means to point at is in section 2, \"Where PreToolUse lands (honestly)\". A reader who follows the citation to verify the scoping decision lands on the wrong section."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Trigger Event section states \"The S3 incident and the B-bf52 burn reached 14 finding-bearing rounds / 46 review runs with no effective brake\" but never defines what the S3 incident is anywhere in background.md / index.json / checklist.json (no story id, date, or one-sentence gloss). A fresh reader cannot tell whether it is a separate incident from the B-bf52 burn or another name for the same thing, and therefore cannot tell whether the cited 14-rounds/46-runs figures (verified accurate for B-bf52 alone via .lattice/story/actives/B-bf52 events/findings/review-runs) describe one incident or a sum of two."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "background.md / index.json describe the F-058 trigger as: a checklist item (CHK-003 of story B-bf52) was unreachable from the requirement text, review spun for 12 rounds before anyone noticed, and the story ended NOT DELIVERED. Verified against .lattice/story/actives/B-bf52/index.json and checklist.json: B-bf52 actually reached phase=DONE and CHK-003 status=done; per findings B-bf52:F-058/F-059, the specific sub-requirement (a substantive-id allowlist) was explicitly proven undeliverable and withdrawn, not left open/unreachable, while the story otherwise completed. The 12-rounds and 14-finding-round/46-review-run figures check out exactly against B-bf52's own data, but the phrase the story ended NOT DELIVERED is ambiguous about what did not ship (one sub-requirement, not the whole story) and could be misread as B-bf52 never reaching DONE."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-26T07:28:01.705Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-26T07:32:11.410Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "index.json description cites (spec section 4) for the PreToolUse-seatbelt out-of-scope statement (\"The optional PreToolUse seatbelt on review_run_start (spec section 4) is not part of this story's acceptance criteria\"), but docs/evidence-integrity-program-spec.md section 4 is actually \"4. Success metrics (against the observed incidents)\"; the PreToolUse discussion the story means to point at is in section 2, \"Where PreToolUse lands (honestly)\". A reader who follows the citation to verify the scoping decision lands on the wrong section."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Trigger Event section states \"The S3 incident and the B-bf52 burn reached 14 finding-bearing rounds / 46 review runs with no effective brake\" but never defines what the S3 incident is anywhere in background.md / index.json / checklist.json (no story id, date, or one-sentence gloss). A fresh reader cannot tell whether it is a separate incident from the B-bf52 burn or another name for the same thing, and therefore cannot tell whether the cited 14-rounds/46-runs figures (verified accurate for B-bf52 alone via .lattice/story/actives/B-bf52 events/findings/review-runs) describe one incident or a sum of two."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "background.md / index.json describe the F-058 trigger as: a checklist item (CHK-003 of story B-bf52) was unreachable from the requirement text, review spun for 12 rounds before anyone noticed, and the story ended NOT DELIVERED. Verified against .lattice/story/actives/B-bf52/index.json and checklist.json: B-bf52 actually reached phase=DONE and CHK-003 status=done; per findings B-bf52:F-058/F-059, the specific sub-requirement (a substantive-id allowlist) was explicitly proven undeliverable and withdrawn, not left open/unreachable, while the story otherwise completed. The 12-rounds and 14-finding-round/46-review-run figures check out exactly against B-bf52's own data, but the phrase the story ended NOT DELIVERED is ambiguous about what did not ship (one sub-requirement, not the whole story) and could be misread as B-bf52 never reaching DONE."
+        }
+      ]
+    }
+  ],
+  "_hash": "2a51ba2d5faa784c6480f221cb762418d0dc6d9e81a79d7bad3e2f2f9ee61a60"
+}

@@ -22,6 +22,7 @@ import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
+import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
 import { evaluateReviewerQuorum } from './reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
 import {
@@ -361,6 +362,40 @@ export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
   const story = context.store.readStory(context.storyId);
   const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
   return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
+}
+
+/**
+ * B-7813 CHK-001: the mint-site stall adjudication for the DEV→REVIEW
+ * (CODE_REVIEW) transition — the site where an ordinary review round is minted.
+ *
+ * Reads the observable round history via the pure-ish store consumer
+ * evaluateReviewMintStallAdjudication (which itself reuses the EXISTING
+ * assessReviewConvergence trend detector — no raw round ceiling here). Returns
+ * the adjudication; the caller refuses the mint when blocked.
+ *
+ * FAIL-OPEN: a guard must never throw (an exception pushes the actor into its
+ * error state). Any store/config read error degrades to { blocked: false } so a
+ * gate/infra error can never strand a legitimate review round. This mirrors the
+ * fail-open discipline of the other DEV-door guards.
+ */
+export function reviewRoundMintStallAdjudication(context: StoryMachineContext): StallAdjudication {
+  try {
+    return evaluateReviewMintStallAdjudication(context.store, context.storyId);
+  } catch {
+    return { blocked: false };
+  }
+}
+
+/**
+ * B-7813 CHK-001: combined guard for the DEV→REVIEW (CODE_REVIEW) mint. The
+ * round is minted only when the checklist/evidence gate passes AND the
+ * convergence-stall adjudication does not block. Order mirrors
+ * getGuardFailureReason's REVIEW branch so the boolean and the rendered reason
+ * cannot drift.
+ */
+export function canMintReviewRoundGuard(context: StoryMachineContext): boolean {
+  if (!checklistAllDoneGuard(context)) return false;
+  return !reviewRoundMintStallAdjudication(context).blocked;
 }
 
 export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
@@ -878,7 +913,10 @@ export function canSendStoryEventWithoutSnapshotCan(
       return (eventType === 'START' && canStartDevGuard(context))
         || (eventType === 'REOPEN' && canReopenToInitGuard(context));
     case 'DEV':
-      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && checklistAllDoneGuard(context));
+      // B-7813 CHK-001: CODE_REVIEW mints a review round — enforce the stall
+      // adjudication here too so the snapshot-can fallback agrees with the
+      // xstate canMintReviewRound guard.
+      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && canMintReviewRoundGuard(context));
     case 'REVIEW':
       // F-006: REVIEW→DEV rollback must consult canReenterDevGuard so this non-xstate path agrees
       // with the machine guard (the parallel block holds on the rollback door too).
@@ -907,6 +945,9 @@ export const storyMachine = setup({
   },
   guards: {
     checklistAllDone: ({ context }) => checklistAllDoneGuard(context),
+    // B-7813 CHK-001: DEV→REVIEW mint gate = checklistAllDone AND not stalled
+    // without a current-round resolution.
+    canMintReviewRound: ({ context }) => canMintReviewRoundGuard(context),
     // B-e71f CHK-006: xstate-side fallback for the INIT→INIT_CHECK hard gate.
     // getGuardFailureReason in phase-gates.ts is only invoked by resolveGuardFailure when actor.can() returns false,
     // so a guard must be attached to the INIT→INIT_CHECK transition here; otherwise can() will always be true and the gate will never fire.
@@ -962,7 +1003,10 @@ export const storyMachine = setup({
       on: {
         CODE_REVIEW: {
           target: 'REVIEW',
-          guard: 'checklistAllDone',
+          // B-7813 CHK-001: mint gate — checklistAllDone + convergence-stall
+          // adjudication (refuses another ordinary round when stalled without a
+          // current-round resolution).
+          guard: 'canMintReviewRound',
         },
         REPLAN: {
           target: 'PLAN',
@@ -1207,6 +1251,20 @@ export function getGuardFailureReason(
     const missingEvidence = getBlockingVerificationEvidenceIssues(cl, undefined, reviewPolicy.profile);
     if (missingEvidence.length > 0) {
       return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ Run verification_evidence_add to record logic/integration/browser/manual evidence, or use waiver to explicitly exempt`;
+    }
+    // B-7813 CHK-001: convergence-stall adjudication at the mint site. Ordered
+    // AFTER the checklist/evidence checks to mirror canMintReviewRoundGuard, so
+    // pending items surface first and the stall reason renders only once the
+    // checklist gate is otherwise clear.
+    const stall = (() => {
+      try {
+        return evaluateReviewMintStallAdjudication(store, storyId);
+      } catch {
+        return { blocked: false } as StallAdjudication;
+      }
+    })();
+    if (stall.blocked && stall.prompt) {
+      return `Cannot enter REVIEW: ${stall.prompt}`;
     }
   }
 

@@ -1,0 +1,146 @@
+{
+  "passes": [
+    {
+      "id": "B-7813:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: all 12 must intents (CHK-001..004 x3) have mechanical evidence pinned to review-budget-stall-adjudication-smoke.js (exit0+selector). Verified smoke drives REAL entry points (evaluateReviewMintStallAdjudication/canMintReviewRoundGuard/getGuardFailureReason, stall_resolution_set handler, enforceConvergenceBreakerGate, real story_resume). Mutation-tested 3 behaviors (stall block, previous-round binding rejection, declare_unreachable withdrawal): each reverted production behavior made the smoke FAIL, then restored byte-for-byte via git checkout. milestone_status shows Risks:none.",
+      "createdAt": "2026-07-26T09:10:48.131Z",
+      "reviewRound": "2026-07-26T09:00:34.758Z",
+      "reviewRunId": "B-7813:RR-003",
+      "envelopeId": "607faabf6d1252010d4d75a8c65c014d4b717460bf5cf5d631fe1330b04d95a6",
+      "writerSessionId": "sess-3be7f62392d8c04c609773a573566f1e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7813/checklist.json",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/stall-adjudication.ts",
+          "packages/main/src/handlers/stall-adjudication.ts",
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7813/background.md",
+          ".lattice/story/actives/B-7813/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/transition-effects.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "374686cf24b5c404bd72c51dc726909aeafa0b8916a17e0987d1b0e6c66db594"
+    },
+    {
+      "id": "B-7813:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of fix commit a72c3e5308 (F-001/F-002/F-003). (1) config.ts: stall_resolution_set added to DEFAULT_PHASE_TOOLS.DEV and .REVIEW, placed adjacent to finding_cluster with the same B-7813 inline-rationale comment style as peer entries; matches command-policy allowedPhases:[DEV,REVIEW] exactly, no other phase bucket touched. (2) lifecycle-registry-contract.ts: new converse check (3) in checkCommandDimension reuses the same resolveDefaultPhaseToolsCommands/lifecycleResolvedCommandsForPhase helpers as the existing check (2), just flips the subset direction (policy-per-phase subset-of phase-tools) -- no new unsafe assumption, symmetric with proven logic. PHASE_TOOLS_REACHABILITY_EXEMPTIONS is a documented ReadonlySet (currently empty) with a paired stale-exemption guard that fails the contract if a seeded exemption becomes reachable everywhere -- adding an exemption is an explicit, reviewable diff line, not a silent runtime bypass, and staleness cannot go unnoticed. (3) partG in the smoke spawns the REAL cli.js via execFileSync across a materialized git worktree checked out on story/<id> (matching detectActiveStory branch-keyed semantics), asserts a positive control (delivery_check_set, a TEST-only command, IS phase-blocked with the exact `Command X is not available in Y phase` string sourced from cli-engine.ts:850) before asserting stall_resolution_set is NOT phase-blocked in DEV/REVIEW -- ruling out a false-green from a detectActiveStory miss; not a tautology. Ran npm --prefix packages/main run build twice (clean, exit 0) and executed dist/tasks/review-budget-stall-adjudication-smoke.js directly (PASS, all parts A-G). Verified via git diff a72c3e5308..HEAD --stat -- packages/main/src that zero source files changed after the fix commit (only story-metadata commits landed concurrently in this shared worktree -- confirmed by identical materialHash 26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479 across RR-005 and RR-007), so core/stall-adjudication.ts, core/review-convergence.ts, core/convergence-breaker.ts and handlers/stall-adjudication.ts are byte-identical to what round-1 quality review already covered clean (purity, ceiling-before-resolution, override re-validation, empty-scope floor, breaker independence all unchanged). No findings.",
+      "createdAt": "2026-07-26T09:35:57.120Z",
+      "reviewRound": "2026-07-26T09:26:17.405Z",
+      "reviewRunId": "B-7813:RR-007",
+      "envelopeId": "3a256d3d3bf281c4645ec834bcdf47819e8d18b8e6f751213427980ec1bbc881",
+      "writerSessionId": "sess-3be7f62392d8c04c609773a573566f1e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7813/background.md",
+          ".lattice/story/actives/B-7813/checklist.json",
+          ".lattice/story/actives/B-7813/plan.md",
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/stall-adjudication.ts",
+          "packages/main/src/handlers/stall-adjudication.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "929f96439dfbdd73d3d21d049725abe77e299fdd2858925c48fe23b6e6db0f18"
+    },
+    {
+      "id": "B-7813:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test-coverage re-review: all 12 must-priority verificationIntent rows (CHK-001..CHK-004 x happy/edge/adversarial) carry valid, mechanical, fresh verificationEvidence (materialHash/storyFilesHash match current story material; headHash drift since capture is metadata-only, confirmed via git show on the intervening commits). Built main + ran review-budget-stall-adjudication-smoke.js 3x: PASS each time. F-002 fix verified by fully reading partG(): a genuine CLI-boundary test (execFileSync spawns real node cli.js against a git-branch-materialized fixture story) with a positive control (TEST-only delivery_check_set IS phase-blocked in DEV/REVIEW, ruling out a false green from a detectActiveStory miss) plus the assertion that stall_resolution_set is NOT phase-blocked in DEV/REVIEW -- not a tautology. Confirmed stall_resolution_set is registered in DEFAULT_PHASE_TOOLS.DEV and .REVIEW at HEAD (core/config.ts, fix commit a72c3e5308 confirmed ancestor of HEAD). Mutation-killed two branches on a scratch copy of review-convergence.ts (A: neutralizing evaluateStallAdjudication -> smoke FAILs at partA; E: disabling the hard-ceiling branch -> smoke FAILs at partE naming review_convergence_stall_ceiling), then restored the file byte-for-byte (git diff empty) and rebuilt to a clean PASS -- proves the smoke is not toothless. milestone_status Risks: none. finding_list shows F-001/F-002/F-003 all resolved with evidenceState=verified and resolveEvidenceStrength=strong. CHK-004 registration verified present in lattice.config.json validate.commands + both package.json. No coverage gap found; no new finding.",
+      "createdAt": "2026-07-26T09:36:59.445Z",
+      "reviewRound": "2026-07-26T09:26:17.405Z",
+      "reviewRunId": "B-7813:RR-008",
+      "envelopeId": "d40ccf333f7cbb347b0df268dc2cb34275a627c323b39a9d97f1fbf410621f50",
+      "writerSessionId": "sess-3be7f62392d8c04c609773a573566f1e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/stall-adjudication.ts",
+          "packages/main/src/handlers/stall-adjudication.ts",
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "45037b5c62e1ec4f8acaab524c841c87c584d160461c36c892833f18d1d91646"
+    },
+    {
+      "id": "B-7813:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review of F-001/F-002/F-003 fix (commit a72c3e5308). Verified read-only: config.ts DEFAULT_PHASE_TOOLS now lists stall_resolution_set in both DEV and REVIEW buckets; lifecycle-registry-contract.js rebuilt+run PASS with 0 divergences and the new converse reachability check active, PHASE_TOOLS_REACHABILITY_EXEMPTIONS confirmed genuinely empty via grep; manually re-ran stall_resolution_set against live B-7813 in REVIEW — not phase-blocked; smoke PASS incl. partG real-CLI-boundary assertion. No concept deletion/replacement in this diff (38 files, +4301/-14); the 14 deletions are a single inline-guard-to-wrapped-call swap in machine.ts (checklistAllDoneGuard still exported/used, grep-confirmed) plus an import-list reflow in store.ts. All four registries (command-catalog/command-policy/process-fact-levels/DEFAULT_PHASE_TOOLS) wired for stall_resolution_set. No residual concept-word cleanup needed this round.",
+      "createdAt": "2026-07-26T09:42:17.999Z",
+      "reviewRound": "2026-07-26T09:26:17.405Z",
+      "reviewRunId": "B-7813:RR-009",
+      "envelopeId": "ddb170b5bca11efca9462473bd5375a2959c7bced01bb1a1579734d5995fc54f",
+      "writerSessionId": "sess-3be7f62392d8c04c609773a573566f1e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7813/background.md",
+          ".lattice/story/actives/B-7813/checklist.json",
+          ".lattice/story/actives/B-7813/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/stall-adjudication.ts",
+          "packages/main/src/handlers/stall-adjudication.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "288d912f40a016e6b01ddb7dbab5e3d7177b3742e748615aa6caf144fd9ec2c2"
+    }
+  ]
+}

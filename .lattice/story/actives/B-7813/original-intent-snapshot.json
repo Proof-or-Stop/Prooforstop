@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7813",
+  "sourceText": "Step 3 of the evidence-integrity program (docs/evidence-integrity-program-spec.md §3, docs/step3-review-budget-breaker-handoff.md): the review-budget circuit breaker. Turn the currently advisory-only review-convergence stall detector into a mandatory blocking adjudication so a story cannot mint unlimited ordinary review rounds without a recorded escalation, re-plan, finding resolution, or unreachable-item declaration. Fixes class ② (runaway review rounds; F-058 took 12 rounds to surface an unreachable item, F-059 plan.md drifted).",
+  "normalizedOutcome": "When REVIEW has stalled (>= STALL_MIN_ROUNDS non-improving), re-entering REVIEW to mint another ordinary round is refused with a structured prompt; the block clears only by a recorded structured action (incl. declare-checklist-item-unreachable, which closes the loop); a hard ceiling/override prevents indefinite ignoring; and the advance-counting convergence-breaker + story_resume --ack still work without double-counting.",
+  "acceptanceClaim": "A stalled story's next ordinary review round is refused until a signed current-round structured resolution is recorded; declaring a checklist item unreachable closes the loop instead of spinning; and the existing convergence-breaker is not double-counted — all proven by one registered RED-first smoke reproducing the stall refusal and the F-058 unreachable scenario.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:4ce811086dbefa9e3ed2d60ef2f6542ea8900212df4b80142287c40134e7d200",
+  "createdAt": "2026-07-26T07:48:05.515Z",
+  "updatedAt": "2026-07-26T07:48:05.515Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-7813",
+  "records": [
+    {
+      "id": "RED-20260726074920",
+      "trigger": "The review-convergence stall detector is advisory-only (transition-effects.ts:284-289 never blocks); a stalled story mints unlimited ordinary review rounds (F-058: 12 rounds to surface an unreachable item; F-059 plan.md drift).",
+      "acceptanceTargetRef": "M1",
+      "baselineHeadHash": "5c36716ef0abcddb41de0e22fe93242b4fc43c16",
+      "baselineMaterialHash": "b8d50b4f3a1fd4e01f71516c7e17b5bf37692ce7ef6e5d951735b03a0b20f942",
+      "observedFailure": "No blocking stall adjudication exists: the REVIEW re-entry does not refuse another ordinary round on a stall, no structured-resolution/declare-unreachable mechanism exists, and there is no registered smoke proving a stalled round is refused.",
+      "failingCommand": "node -e \"const fs=require('fs'); process.exit(fs.existsSync('packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js') ? 0 : 1)\"",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+      "greenRelation": {
+        "targetRef": "M1",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"
+      },
+      "note": "Red now: the deliverable does not exist so the assertion exits 1. Green after CHK-001..004: the registered mutation-killing smoke exists and prints PASS, proving a stalled round is refused and the F-058 unreachable scenario closes the loop.",
+      "createdAt": "2026-07-26T07:49:20.771Z"
+    }
+  ],
+  "createdAt": "2026-07-26T07:49:20.771Z",
+  "updatedAt": "2026-07-26T07:49:20.771Z"
+}
