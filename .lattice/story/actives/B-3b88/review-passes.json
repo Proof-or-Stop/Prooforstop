@@ -152,6 +152,42 @@
         "scanEscalationReason": null
       },
       "_hash": "815baae7c4004e4287f44005575a1780ef3790f714c563a84fbb22a5a6b8822e"
+    },
+    {
+      "id": "B-3b88:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Doc-code consistency re-verified after F-003+F-004 fixes: all 5 refresh_stale doc surfaces (command-catalog.ts:479, story-lifecycle.md:195/265/278, testing-infra.md:166, evidence-stale-hint.ts JSDoc example) now consistently state refresh re-stamps command-less attestation only and refuses+requires re-run for command-backed result:pass rows, matching checklist.ts CHK-002 runtime. Step1 diff symbol extraction (detectEvidenceRowContradiction/commandTargetStem/scriptFileStem/isCommandBackedPass) has 0 doc hits (fallback 2, internal helpers, no doc reference expected). Repo-wide grep of refresh_stale/refreshStale across non-.lattice .md files shows all other hits are execution-plan runbooks describing dry-run+rerun recovery flow, consistent with (not contradicting) the fix. No blockers.",
+      "createdAt": "2026-07-26T00:05:55.501Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-015",
+      "envelopeId": "6ff1b13785ed307ef0b3ab0c91b460c093affee3cdff9919afb37e79e9e084fe",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/findings.json",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": "Narrow diff-anchored scan per role prompt: dispatching agent named 4 specific refresh_stale doc surfaces to re-verify post-fix; repo-wide grep sweep of refresh_stale/refreshStale used to triage remaining .md hits by content, full-read only where the excerpt suggested possible drift."
+      },
+      "_hash": "15a54d3a38056e0f4de8da189ee329a6698d7e4f1633350f631d0b98ca60a77a"
     }
   ]
 }
