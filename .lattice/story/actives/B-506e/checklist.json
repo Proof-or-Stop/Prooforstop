@@ -674,11 +674,11 @@
           "file": "packages/main/src/core/red-evidence/chain.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 4 (lines 285-287) asserts !isTransitionLegal('empty', bad) for each of green-confirm, quarantine, recover — an empty chain admits ONLY red-assert; no governing red-assert exists, so no other transition is possible.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 4 of red-evidence-chain-smoke.ts, the loop over the bad successors green-confirm, quarantine and recover asserting that isTransitionLegal from empty is false for each, with the templated message (empty admits ONLY red-assert, not <bad>); the assertion immediately above it establishes that empty to red-assert IS legal. An empty chain therefore admits red-assert only, because no governing red-assert exists for any other transition to reference.",
+          "headHash": "b47c06b0cd0b7ab3e0d10ffa383d9b49d01f52c7",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:44.199Z"
         }
       ]
     },
