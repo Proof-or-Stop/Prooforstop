@@ -32,13 +32,16 @@
  * StoryStore seeding, freeze + init_check_repair fallback).
  */
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
+import type { PendingReopenAudit, ProcessEvent } from '../core/types.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { runStoryTransition } from '../handlers/transition-orchestrator.js';
 import { buildExecutionBoundary, buildScopeBoundary, evaluateScopeFreeze } from '../core/scope-anti-expansion.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -83,6 +86,14 @@ function run(cwd: string, command: string, args: Record<string, unknown>): { cod
   } catch (e: any) {
     return { code: typeof e?.status === 'number' ? e.status : 1, out: `${e?.stdout ?? ''}\n${e?.stderr ?? e?.message ?? e}` };
   }
+}
+// Same invocation as run(), but keeps BOTH streams on success too. ctx.log writes
+// to stderr (cli-engine.ts), so operator-facing advisories are invisible to run().
+function runBoth(cwd: string, command: string, args: Record<string, unknown>): { code: number; out: string; err: string } {
+  const r = spawnSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
+    cwd, env: { ...process.env, LATTICE_SESSION_ID: SESSION }, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  return { code: typeof r.status === 'number' ? r.status : 1, out: r.stdout ?? '', err: r.stderr ?? '' };
 }
 function phaseOf(cwd: string, storyId: string): string {
   const r = run(cwd, 'story_get', { storyId, detail: true });
@@ -187,6 +198,130 @@ function assertDevStartReuseFromMainAndRebootstrap(): void {
   }
 }
 
+// ── B-70a6 F-004: the crash window between the phase write and the audit append ──
+//
+// THE DEFECT. store.writeStory persists phase=INIT, the persist claim is released,
+// and only THEN is the phase_transition audit event appended — with real git
+// subprocess calls in between. A crash/throw in that window left a reopen that HAD
+// happened with NO audit record, and because REOPEN only fires FROM PLAN the story
+// had already left the only phase that could retry it: the event was UNRECOVERABLE,
+// defeating the durable-audited-reopen guarantee this story exists to establish.
+//
+// WHAT THIS PROVES. The crash is injected into the REAL production path (the store
+// handed to runStoryTransition throws exactly on the reopen audit append), not
+// simulated by hand-editing files, and then:
+//   (1) the crash leaves a RECOVERABLE state — the validated reason is already on
+//       the story index, because it rode the SAME atomic writeStory rename as
+//       phase=INIT — and NO audit event yet;
+//   (2) the next real transition reconciles: EXACTLY ONE audit event with the
+//       VERBATIM reason and the record's idempotency key, record cleared;
+//   (3) re-injecting the record (a crash between the append and the clear) does
+//       NOT produce a second event;
+//   (4) an aborted reopen still leaves neither an event nor a record.
+// RED before the fix at (1): no recovery record exists, so the reopen is
+// unauditable and unrecoverable.
+const SIMULATED_CRASH = 'simulated crash: process died before the reopen audit event was appended';
+const CRASH_REOPEN_REASON = 'Crash-window drill: PLAN scope review flagged the frozen title, so this reopen must stay auditable.';
+
+/** A store that dies exactly where the finding says the window is: on the reopen audit append. */
+class CrashBeforeReopenAuditStore extends StoryStore {
+  reopenAppendAttempts = 0;
+  override appendProcessEvent(storyId: string, event: Omit<ProcessEvent, 'timestamp'>) {
+    if (event.type === 'phase_transition' && (event as Record<string, unknown>).transitionType === 'reopen') {
+      this.reopenAppendAttempts += 1;
+      throw new Error(SIMULATED_CRASH);
+    }
+    return super.appendProcessEvent(storyId, event);
+  }
+}
+
+function reopenEventsOf(cwd: string, storyId: string): ProcessEvent[] {
+  return new StoryStore(cwd).readProcessEvents(storyId).filter(
+    (e) => e.type === 'phase_transition' && e.fromPhase === 'PLAN' && e.toPhase === 'INIT',
+  );
+}
+
+async function assertReopenAuditCrashRecovery(): Promise<void> {
+  const { root, storyId, wt } = seedStoryAtInitCheck();
+  const originalCwd = process.cwd();
+  try {
+    assert.equal(run(wt, 'story_advance', { storyId, phase: 'PLAN' }).code, 0, 'PLAN advance should succeed before the crash drill');
+    assert.equal(phaseOf(wt, storyId), 'PLAN', 'story should be at PLAN before the crash-injected reopen');
+
+    // ── (1) CRASH in the real path ───────────────────────────────────────────
+    // In-process so the store — the only thing swapped — can fail the append the
+    // way a dead process would. Everything else is production code: same
+    // orchestrator, same locks, same gates, same worktree cwd requirement.
+    const crashStore = new CrashBeforeReopenAuditStore(wt);
+    const ctx: HandlerContext = { root: wt, scanRoot: wt, store: crashStore };
+    process.env.LATTICE_SESSION_ID = SESSION;
+    process.chdir(wt);
+    resetConfigCache();
+    let crashError: unknown;
+    try {
+      await runStoryTransition(ctx, { storyId, phase: 'INIT', reason: CRASH_REOPEN_REASON });
+    } catch (e) {
+      crashError = e;
+    } finally {
+      process.chdir(originalCwd);
+      resetConfigCache();
+    }
+    assert.equal(crashStore.reopenAppendAttempts, 1, 'the drill must have reached (and failed) the reopen audit append exactly once');
+    assert.match(String((crashError as Error | undefined)?.message ?? ''), new RegExp(SIMULATED_CRASH), `the injected crash must be what aborted the transition, not some earlier failure: ${String(crashError)}`);
+
+    // The reopen COMMITTED — this is precisely why a missing audit event used to be
+    // unrecoverable rather than merely late.
+    const afterCrash = new StoryStore(wt).readStory(storyId);
+    assert.equal(afterCrash.phase, 'INIT', 'the reopen phase write committed before the crash (the state the finding is about)');
+    assert.equal(reopenEventsOf(wt, storyId).length, 0, 'the injected crash must have prevented the audit event — that missing event IS the window under test');
+
+    // RED HERE before the fix: nothing durable carried the validated reason.
+    const pending: PendingReopenAudit | undefined = afterCrash.pendingReopenAudit;
+    assert.ok(pending, 'a crash between the phase write and the audit append must leave a durable recovery record on the story index (same atomic writeStory rename as phase=INIT) — without it the reopen is silently unaudited and unrecoverable');
+    assert.equal(pending!.reason, CRASH_REOPEN_REASON, 'the recovery record must carry the validated reason VERBATIM (a truncated/normalized reason is not the audited one)');
+    assert.equal(pending!.fromPhase, 'PLAN', 'the recovery record must remember the phase the reopen left');
+    assert.ok(pending!.auditId && pending!.auditId.length > 0, 'the recovery record needs an idempotency key so recovery cannot double-emit');
+
+    // ── (2) RECOVERY on the next real transition (via the real CLI) ──────────
+    freezeStory(new StoryStore(wt), storyId);
+    repairInitCheck(wt, storyId);
+    const recover = runBoth(wt, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    assert.equal(recover.code, 0, `the recovering transition should succeed: ${recover.out}\n${recover.err}`);
+    assert.match(`${recover.out}${recover.err}`, /recovered the audit event for an interrupted PLAN->INIT reopen/, 'the recovery must be visible to the operator, not silent');
+    const recovered = reopenEventsOf(wt, storyId);
+    assert.equal(recovered.length, 1, `reconciliation must produce EXACTLY ONE PLAN->INIT audit event for the one interrupted reopen (found ${recovered.length})`);
+    assert.equal(recovered[0].transitionType, 'reopen', 'the recovered event must still be marked transitionType=reopen');
+    assert.equal(recovered[0].reason, CRASH_REOPEN_REASON, 'the recovered event must carry the VERBATIM validated reason');
+    assert.equal(recovered[0].reopenAuditId, pending!.auditId, 'the recovered event must carry the record idempotency key so a repeat cannot double-emit');
+    assert.equal(new StoryStore(wt).readStory(storyId).pendingReopenAudit, undefined, 'the recovery record must be cleared once its event is durably appended');
+
+    // ── (3) a crash between the append and the CLEAR must not double-emit ────
+    // Re-inject the SAME record while its event is already on disk: the exact
+    // residue of dying after the append. Reconciliation must clear it and append
+    // NOTHING.
+    {
+      const store = new StoryStore(wt);
+      const story = store.readStory(storyId);
+      story.pendingReopenAudit = pending;
+      store.writeStory(storyId, story);
+      const second = run(wt, 'story_advance', { storyId, phase: 'PLAN' });
+      assert.equal(second.code, 0, `the follow-up transition should succeed: ${second.out}`);
+      assert.equal(reopenEventsOf(wt, storyId).length, 1, 'a recovery record whose event is already on disk must be cleared WITHOUT appending a second audit event (exactly one reopen, exactly one event)');
+      assert.equal(new StoryStore(wt).readStory(storyId).pendingReopenAudit, undefined, 'the stale recovery record must be cleared');
+    }
+
+    // ── (4) an aborted reopen leaves neither an event nor a record ───────────
+    const refused = run(wt, 'story_advance', { storyId, phase: 'INIT' });
+    assert.notEqual(refused.code, 0, 'a reopen with no reason must still be refused');
+    assert.equal(reopenEventsOf(wt, storyId).length, 1, 'a refused reopen must not append an event claiming a transition that did not happen');
+    assert.equal(new StoryStore(wt).readStory(storyId).pendingReopenAudit, undefined, 'a refused reopen must not leave a recovery record either (the record only rides a COMMITTED phase write)');
+    assert.equal(phaseOf(wt, storyId), 'PLAN', 'a refused reopen must not move the phase');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+  console.log('✓ reopen audit crash-window recovery passed');
+}
+
 function main(): void {
   const root = initRepo();
   const worktree = join(root, '.worktrees');
@@ -266,6 +401,10 @@ function main(): void {
         (e) => e.type === 'phase_transition' && e.fromPhase === 'PLAN' && e.toPhase === 'INIT',
       );
       assert.equal(spurious.length, 0, `a refused reopen must append no successful PLAN->INIT phase_transition event (found ${spurious.length})`);
+      // B-70a6 F-004: same guarantee for the durable recovery record. It rides the
+      // reopen's writeStory, so a refusal (which throws BEFORE that write) must
+      // leave nothing for reconciliation to later turn into an audit event.
+      assert.equal(new StoryStore(wt).readStory(storyId!).pendingReopenAudit, undefined, 'a refused reopen must leave no reopen recovery record (nothing may later be reconciled into an event for a transition that never happened)');
     }
 
     // ── (F-005) seed a DONE checklist item, mirroring a story that went
@@ -364,3 +503,4 @@ function main(): void {
 main();
 assertDevStartReuseFromMainAndRebootstrap();
 console.log('✓ dev_start from-main reuse + deleted-worktree re-bootstrap passed');
+await assertReopenAuditCrashRecovery();

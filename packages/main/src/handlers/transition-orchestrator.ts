@@ -40,13 +40,15 @@
  */
 
 import { execFileSync } from 'child_process';
+import { randomUUID } from 'crypto';
 import { realpathSync } from 'fs';
 import { hostname } from 'os';
 import { join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
-import type { ChecklistData, ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
+import type { StoryStore } from '../core/store.js';
+import type { ChecklistData, PendingReopenAudit, ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
@@ -427,12 +429,17 @@ export function buildPhaseTransitionProcessEvent(input: {
   materialHash: string;
   storyFilesHash: string;
   reviewRound: string;
-  // B-8b69 follow-up: durable audit of the gated PLAN->INIT reopen. Both are set
-  // ONLY on a REOPEN transition and omitted for every normal transition, so a normal
-  // phase_transition event keeps its exact prior shape (old JSONL readers and the
-  // builder shape test stay green; the fields are strictly additive).
+  // B-8b69 follow-up: durable audit of the gated PLAN->INIT reopen. All three are
+  // set ONLY on a REOPEN transition and omitted for every normal transition, so a
+  // normal phase_transition event keeps its exact prior shape (old JSONL readers and
+  // the builder shape test stay green; the fields are strictly additive).
   transitionType?: string;
   reason?: string;
+  // B-70a6 F-004: the reopen's recovery idempotency key. Carrying it ON the event
+  // is what lets reconciliation tell "my audit event is already on disk" from "it
+  // is missing" without fuzzy-matching on reason text (two reopens of the same
+  // story CAN carry the same reason), so recovery emits exactly one event.
+  reopenAuditId?: string;
 }): Omit<ProcessEvent, 'timestamp'> {
   return {
     type: 'phase_transition',
@@ -445,6 +452,107 @@ export function buildPhaseTransitionProcessEvent(input: {
     reviewRound: input.reviewRound,
     ...(input.transitionType !== undefined ? { transitionType: input.transitionType } : {}),
     ...(input.reason !== undefined ? { reason: input.reason } : {}),
+    ...(input.reopenAuditId !== undefined ? { reopenAuditId: input.reopenAuditId } : {}),
+  };
+}
+
+/** What `reconcilePendingReopenAudit` found and did. */
+export type ReopenAuditReconciliationStatus =
+  /** No recovery record on the index — the overwhelmingly common case, a pure no-op. */
+  | 'none'
+  /** Record present, its event already on disk (crash between append and clear): cleared, nothing appended. */
+  | 'already_audited'
+  /** Record present, event MISSING (crash between phase write and append): the missing event was appended. */
+  | 'recovered';
+
+export interface ReopenAuditReconciliation {
+  status: ReopenAuditReconciliationStatus;
+  /** The story as it stands AFTER reconciliation (recovery record cleared when there was one). */
+  story: StoryInfo;
+  auditId?: string;
+}
+
+/**
+ * B-70a6 F-004: recover a gated PLAN->INIT reopen whose audit event never made it
+ * to disk.
+ *
+ * THE WINDOW THIS CLOSES. `store.writeStory` (phase=INIT) and
+ * `store.appendProcessEvent` (the audit event) are two separate fs operations,
+ * with real git subprocess calls between them. A crash/throw in that window used
+ * to leave a reopen that HAD happened with no audit record — and since REOPEN
+ * only fires from PLAN, the story had already left the only phase that could
+ * retry it, so the event was unrecoverable. Now the reopen's audit facts are
+ * written INSIDE the same atomic `writeStory` rename as phase=INIT (see
+ * StoryInfo.pendingReopenAudit), and this function turns that record back into
+ * the missing event.
+ *
+ * IDEMPOTENT BY CONSTRUCTION. The record's `auditId` is stamped onto the event
+ * as `reopenAuditId`, so "already audited" is an exact identity match, never a
+ * heuristic on reason text. Therefore:
+ *   - crash between phase write and append  -> record present, no matching event -> append (exactly one)
+ *   - crash between append and clear        -> record present, matching event    -> clear only, NO second event
+ *   - normal completion                     -> no record                         -> no-op
+ * The clear happens only AFTER the event is durably on disk, so a crash at any
+ * point simply re-runs the same convergent reconciliation.
+ *
+ * NEVER FABRICATES A TRANSITION. The record can only exist because the phase
+ * write it rode along with committed, so an emitted event always describes a
+ * reopen that really happened. An aborted/refused reopen throws before that
+ * write, leaves no record, and therefore produces no event.
+ *
+ * SCOPE / RESIDUAL (stated, not glossed):
+ *   - The two-write window is not ELIMINATED, it is made RECOVERABLE. After any
+ *     crash the validated reason is already durable on the story index; only the
+ *     event may be late, and no phase transition can run before this heals it.
+ *   - Recovery fires on the next TRANSITION for the story (the only thing that
+ *     can move a story out of INIT), not on arbitrary read-only commands. Until
+ *     then the reason is still durable and visible on the index — deferred, not
+ *     lost.
+ *   - The "already audited" test is a read-then-append, not an atomic CAS. It is
+ *     serialized by the per-story transition lock the caller holds, so it is
+ *     exact under the same software-concurrency threat model as the persist
+ *     claim. It inherits that claim's documented residual (an OS-level freeze
+ *     longer than staleMs); the failure mode there is a DUPLICATE audit event,
+ *     both carrying the same auditId so a reader can dedupe — never a lost one.
+ */
+export function reconcilePendingReopenAudit(
+  store: StoryStore,
+  storyId: string,
+  known?: StoryInfo,
+): ReopenAuditReconciliation {
+  const story = known ?? store.readStory(storyId);
+  const pending = story.pendingReopenAudit;
+  if (!pending) return { status: 'none', story };
+  const alreadyAudited = store.readProcessEvents(storyId).some(
+    (event) => event.type === 'phase_transition'
+      && event.transitionType === 'reopen'
+      && event.reopenAuditId === pending.auditId,
+  );
+  if (!alreadyAudited) {
+    // Rebuilt from the RECORD, not from live state: fromPhase/hashes/reviewRound
+    // are the ones captured with the reopen, so a recovered event matches the one
+    // the crashed run would have appended instead of describing the later tree.
+    store.appendProcessEvent(storyId, buildPhaseTransitionProcessEvent({
+      storyId,
+      fromPhase: pending.fromPhase,
+      toPhase: 'INIT',
+      materialHash: pending.materialHash,
+      storyFilesHash: pending.storyFilesHash,
+      reviewRound: pending.reviewRound,
+      transitionType: 'reopen',
+      reason: pending.reason,
+      reopenAuditId: pending.auditId,
+    }));
+  }
+  // Re-read before clearing so this read-modify-write cannot clobber any other
+  // field written since `known` was read; only the recovery record is dropped.
+  const cleared = store.readStory(storyId);
+  delete cleared.pendingReopenAudit;
+  store.writeStory(storyId, cleared);
+  return {
+    status: alreadyAudited ? 'already_audited' : 'recovered',
+    story: cleared,
+    auditId: pending.auditId,
   };
 }
 
@@ -489,7 +597,28 @@ async function runStoryTransitionInner(
       throw new Error(metaGuardErr);
     }
 
-    const story = store.readStory(args.storyId);
+    // B-70a6 F-004: heal a crash-interrupted reopen BEFORE this transition reads
+    // its own state. Held under the per-story transition lock acquired above, so
+    // it is serialized against concurrent transitions. This is what makes the
+    // recovery record a real recovery rather than a note nobody acts on, and it
+    // yields the load-bearing invariant: NO subsequent phase transition can run
+    // while an unaudited reopen is pending — reconciliation always goes first.
+    // For every ordinary transition `pendingReopenAudit` is absent and this is a
+    // pure no-op that returns the very object just read.
+    const reconciledReopenAudit = reconcilePendingReopenAudit(
+      store,
+      args.storyId,
+      store.readStory(args.storyId),
+    );
+    if (reconciledReopenAudit.status === 'recovered') {
+      ctx.log?.(
+        `✓ recovered the audit event for an interrupted PLAN->INIT reopen of ${args.storyId} ` +
+        `(${reconciledReopenAudit.auditId}); the reason is now in the append-only process-event log`,
+      );
+    }
+    // Read AFTER reconciliation so this transition never carries (and cannot
+    // re-persist) an already-cleared recovery record.
+    const story = reconciledReopenAudit.story;
     const oldPhase: string = story.phase as string;
     const runtimeGateReport = runRuntimeEnforcementPreflight(ctx, story, args.phase);
 
@@ -814,6 +943,49 @@ async function runStoryTransitionInner(
     if (args.phase === 'REVIEW') {
       story.currentReviewRound = now;
     }
+    // B-70a6 F-004: the gated PLAN->INIT reopen's DURABLE audit record.
+    //
+    // The audit facts (validated reason + reopen marker) belong to an append-only
+    // process event, but the phase write and the event append are two separate fs
+    // operations with git subprocess calls in between (resolveGitCwd +
+    // currentMaterialHash/currentStoryFilesHash below), so the window is real, not
+    // theoretical. A crash there used to leave phase=INIT with NO audit record,
+    // and — because REOPEN only fires FROM PLAN — the story had already left the
+    // only phase that could retry it, making the event UNRECOVERABLE.
+    //
+    // Fix: attach the audit facts to the STORY OBJECT here, so the writeStory
+    // below persists them in the SAME tmp-write + renameSync as phase=INIT (see
+    // StoryStore.writeJsonFile). One atomic rename, so the two can never disagree:
+    // either the reopen did not commit, or it committed WITH its reason on disk.
+    // The record is cleared right after the event lands, and any crash in between
+    // is healed by reconcilePendingReopenAudit on the next transition.
+    //
+    // Built BEFORE the persist claim on purpose: its git reads must not run inside
+    // the claim's deliberately short, fully-synchronous critical section. Nothing
+    // is persisted until the writeStory inside the claim, so an abort at the claim
+    // or at the oldPhase re-read guard leaves NO record — an aborted reopen still
+    // produces neither a record nor an event.
+    let reopenAudit: PendingReopenAudit | undefined;
+    if (eventType === 'REOPEN') {
+      if (!transitionGitCwd) {
+        transitionGitCwd = resolveGitCwd({
+          store,
+          storyId: args.storyId,
+          metadataRoot: ctx.root,
+          projectRoot: ctx.root,
+        });
+      }
+      reopenAudit = {
+        auditId: `${args.storyId}:RA-${randomUUID()}`,
+        reason: (args.reason ?? '').trim(),
+        fromPhase: oldPhase,
+        at: now,
+        materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+        storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+        reviewRound: story.currentReviewRound ?? '',
+      };
+      story.pendingReopenAudit = reopenAudit;
+    }
     // B-d877 R3 FIX A: ATOMIC persist claim — the AUTHORITATIVE correctness fence.
     //
     // The R2 fence was a plain read-then-write ("re-read phase, then writeStory"):
@@ -947,23 +1119,43 @@ async function runStoryTransitionInner(
         projectRoot: ctx.root,
       });
     }
+    // B-70a6 F-004: for a REOPEN the evidence-binding facts come from the record
+    // that was just persisted atomically with phase=INIT, so this in-line append
+    // and a crash-recovered append describe the SAME reopen with the SAME values
+    // (modulo the event timestamp) instead of merely being expected to agree. An
+    // ordinary transition has no record, so it computes them exactly as before.
+    const transitionEventFacts = reopenAudit ?? {
+      materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+      storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+      reviewRound: story.currentReviewRound ?? '',
+    };
     store.appendProcessEvent(args.storyId, buildPhaseTransitionProcessEvent({
       storyId: args.storyId,
       fromPhase: oldPhase,
       toPhase: newState,
-      materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
-      storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
-      reviewRound: story.currentReviewRound ?? '',
+      materialHash: transitionEventFacts.materialHash,
+      storyFilesHash: transitionEventFacts.storyFilesHash,
+      reviewRound: transitionEventFacts.reviewRound,
       // B-8b69 follow-up: the gated PLAN->INIT reopen reason is validated above
       // (>= REOPEN_REASON_MIN chars) but was previously dropped here. Persist it —
       // with a transitionType marker distinguishing a reopen from a forward
       // transition — into this append-only, only-on-success phase_transition event
       // so the reopen is durably auditable. Set ONLY for REOPEN; every normal
-      // transition passes neither field and keeps its exact prior event shape.
+      // transition passes none of these fields and keeps its exact prior event shape.
+      // B-70a6 F-004 adds reopenAuditId, the recovery idempotency key.
       ...(eventType === 'REOPEN'
-        ? { transitionType: 'reopen', reason: args.reason?.trim() }
+        ? { transitionType: 'reopen', reason: args.reason?.trim(), reopenAuditId: reopenAudit?.auditId }
         : {}),
     }));
+    // B-70a6 F-004: the reopen is now durably audited, so retire its recovery
+    // record. Deliberately the SAME entry point a later transition uses after a
+    // crash: it re-reads the log, matches THIS auditId, and clears WITHOUT
+    // appending a second event — one code path, so the normal and recovery paths
+    // cannot drift apart. A crash before this line leaves the record on disk and
+    // the next transition performs the (identical) recovery instead.
+    if (reopenAudit) {
+      reconcilePendingReopenAudit(store, args.storyId);
+    }
 
     // ── post effects. B-56d3: non-DONE transition effects in
     // transition-effects.ts; each call site stays in the exact order it ran

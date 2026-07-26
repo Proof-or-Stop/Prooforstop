@@ -900,6 +900,93 @@ function isEmptyObjectLiteral(node) {
   return Boolean(node) && ts.isObjectLiteralExpression(node) && node.properties.length === 0;
 }
 
+// ── B-70a6 F-004 helpers: ordering/atomicity-anchored AST assertions ──
+// The reopen recovery guarantee is not only "these calls exist" but "they happen
+// in THIS order and share ONE atomic write", so these return NODES (for source
+// position comparison) rather than booleans.
+
+/** The first real `<objName>.<propName> = ...` assignment in a subtree. */
+function findMemberAssignment(node, objName, propName) {
+  let found;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isBinaryExpression(n)
+        && n.operatorToken.kind === ts.SyntaxKind.EqualsToken
+        && ts.isPropertyAccessExpression(n.left)
+        && n.left.name.text === propName
+        && ts.isIdentifier(n.left.expression) && n.left.expression.text === objName) { found = n; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** Every real `<objName>.<methodName>(...)` call in a subtree, in source order. */
+function collectMemberCalls(node, objName, methodName) {
+  const calls = [];
+  const walk = (n) => {
+    if (ts.isCallExpression(n) && ts.isPropertyAccessExpression(n.expression)
+        && n.expression.name.text === methodName
+        && ts.isIdentifier(n.expression.expression) && n.expression.expression.text === objName) calls.push(n);
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return calls.sort((a, b) => a.pos - b.pos);
+}
+
+/** Every real `<calleeName>(...)` call in a subtree, in source order. */
+function collectCallExpressionsByName(node, calleeName) {
+  const calls = [];
+  const walk = (n) => {
+    if (ts.isCallExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === calleeName) calls.push(n);
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return calls.sort((a, b) => a.pos - b.pos);
+}
+
+/** The first IfStatement in a subtree satisfying `predicate`. */
+function findIfStatement(node, predicate) {
+  let found;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isIfStatement(n) && predicate(n)) { found = n; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a subtree contains a real `delete <anything>.<propName>` expression. */
+function subtreeDeletesMember(node, propName) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isDeleteExpression(n)
+        && ts.isPropertyAccessExpression(n.expression)
+        && n.expression.name.text === propName) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a subtree contains a real `<anything>.<leftProp> === <rightObj>.<rightProp>` comparison. */
+function subtreeComparesMembers(node, leftProp, rightObj, rightProp) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isBinaryExpression(n)
+        && n.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken
+        && ts.isPropertyAccessExpression(n.left) && n.left.name.text === leftProp
+        && ts.isPropertyAccessExpression(n.right) && n.right.name.text === rightProp
+        && ts.isIdentifier(n.right.expression) && n.right.expression.text === rightObj) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
 // ── B-956f FIX 2 (R5): TypeChecker-anchored delegation assertions ──
 // codex defeated the includes()/name-match AST assertions three ways: (a) a
 // dead-branch call `if (false) buildMaterialClassificationSnapshot();`, (b) a
@@ -2457,6 +2544,16 @@ function assertPhaseTransitionReopenAuditContract() {
     'ONLY on a REOPEN',
     'omit',
     'not gate evidence',
+    // B-70a6 F-004 recovery semantics — the guidance half of the dual-layer
+    // contract for the crash window between the phase write and this append.
+    'pendingReopenAudit',
+    'reopenAuditId',
+    'SAME atomic writeStory rename',
+    'reconcilePendingReopenAudit',
+    'idempotent',
+    'exactly once',
+    'without appending',
+    'neither record nor event',
   ]) {
     assert(phaseTransitionFact?.rationale.includes(token), `${processFactRegistryPath}: phase transition rationale must declare the reopen audit semantics token ${token}`);
   }
@@ -2470,7 +2567,7 @@ function assertPhaseTransitionReopenAuditContract() {
   const builderFn = findFunctionDeclaration(orchestratorSf, 'buildPhaseTransitionProcessEvent');
   assert(builderFn?.body, `${orchestratorPath}: buildPhaseTransitionProcessEvent declaration must exist`);
   const builderSpreads = builderFn?.body ? collectConditionalObjectSpreads(builderFn.body) : [];
-  for (const field of ['transitionType', 'reason']) {
+  for (const field of ['transitionType', 'reason', 'reopenAuditId']) {
     const spread = builderSpreads.find(item => isDefinedCheckOnMember(item.condition, 'input', field));
     assert(spread, `${orchestratorPath}: buildPhaseTransitionProcessEvent must emit ${field} only through a real \`input.${field} !== undefined\` conditional spread (an unconditional property, or a comment, cannot satisfy this)`);
     assert(spread && objectLiteralPropertyInitializer(spread.whenTrue, field), `${orchestratorPath}: buildPhaseTransitionProcessEvent must actually set ${field} in the supplied branch of its conditional spread`);
@@ -2491,7 +2588,9 @@ function assertPhaseTransitionReopenAuditContract() {
   assert(markerInit && ts.isStringLiteralLike(markerInit) && markerInit.text === 'reopen', `${orchestratorPath}: a successful REOPEN must emit the exact marker transitionType: 'reopen' in its phase_transition event`);
   const reasonInit = reopenSpread ? objectLiteralPropertyInitializer(reopenSpread.whenTrue, 'reason') : undefined;
   assert(reasonInit && subtreeReadsMember(reasonInit, 'args', 'reason'), `${orchestratorPath}: a successful REOPEN must persist the validated args.reason next to the marker (a validated-but-dropped reason is not durably auditable)`);
-  assert(reopenSpread && isEmptyObjectLiteral(reopenSpread.whenFalse), `${orchestratorPath}: an ordinary transition must omit BOTH reopen audit fields (the non-REOPEN branch of the call-site spread must stay {})`);
+  const auditIdInit = reopenSpread ? objectLiteralPropertyInitializer(reopenSpread.whenTrue, 'reopenAuditId') : undefined;
+  assert(auditIdInit && subtreeReadsMember(auditIdInit, 'reopenAudit', 'auditId'), `${orchestratorPath}: a successful REOPEN must stamp its recovery record's auditId onto the event (without that key, recovery cannot tell "my event is already on disk" from "it is missing" and can double-emit)`);
+  assert(reopenSpread && isEmptyObjectLiteral(reopenSpread.whenFalse), `${orchestratorPath}: an ordinary transition must omit ALL reopen audit fields (the non-REOPEN branch of the call-site spread must stay {})`);
 
   // (3) The persisted reason is the VALIDATED one: the PLAN->INIT remap that
   // mints eventType='REOPEN' must still reject a missing/too-short reason before
@@ -2507,10 +2606,69 @@ function assertPhaseTransitionReopenAuditContract() {
   assert(reopenRemap && subtreeHasMemberEqualsString(reopenRemap.expression, 'phase', 'INIT') && subtreeHasMemberEqualsString(reopenRemap.expression, 'phase', 'PLAN'), `${orchestratorPath}: the REOPEN remap must stay bound to the PLAN->INIT shape (args.phase === 'INIT' && story.phase === 'PLAN')`);
   assert(reopenRemap && hasIdentifierGuardedThrowingBranch(reopenRemap.thenStatement, 'REOPEN_REASON_MIN'), `${orchestratorPath}: the REOPEN remap must keep the reason requirement fail-closed (an if-condition referencing REOPEN_REASON_MIN whose then-branch throws) so the reason persisted into the audit event is the validated one`);
 
-  // (4) Executable coverage anchors for the same two facts, so the structural
-  // checks above are not the only proof: flow-stability-smoke (routine npm test)
-  // pins the ordinary builder output shape by deepEqual, and the reopen
-  // roundtrip smoke asserts key presence/absence on REAL persisted events.
+  // ── B-70a6 F-004: the audit event must survive a crash between the phase
+  // write and the append. The event is appended AFTER (and outside) the persist
+  // claim, so that window is real; because REOPEN only fires FROM PLAN, a lost
+  // event used to be UNRECOVERABLE. Checks (5)-(7) pin the recovery design:
+  // ATOMIC record, ordered reconciliation, exact-identity idempotency.
+
+  // (5) ATOMICITY: the recovery record must ride the SAME single writeStory
+  // (tmp-write + renameSync) that persists phase=INIT. A record written by its
+  // own second write would simply re-open the same crash window.
+  const persistWrites = transitionFn?.body ? collectMemberCalls(transitionFn.body, 'store', 'writeStory') : [];
+  assert(persistWrites.length === 1, `${orchestratorPath}: runStoryTransitionInner must keep EXACTLY ONE store.writeStory (the single atomic rename the reopen recovery record rides); found ${persistWrites.length}`);
+  const phaseWrite = persistWrites[0];
+  assert(phaseWrite && phaseWrite.arguments.length === 2 && ts.isIdentifier(phaseWrite.arguments[1]) && phaseWrite.arguments[1].text === 'story', `${orchestratorPath}: the phase write must persist the same \`story\` object the reopen recovery record is attached to`);
+  const reopenRecordBranch = transitionFn?.body
+    ? findIfStatement(transitionFn.body, (n) => isIdentifierEqualsStringLiteral(n.expression, 'eventType', 'REOPEN')
+        && Boolean(findMemberAssignment(n.thenStatement, 'story', 'pendingReopenAudit')))
+    : undefined;
+  assert(reopenRecordBranch, `${orchestratorPath}: a REOPEN must attach its durable recovery record via a real \`story.pendingReopenAudit = ...\` assignment under a real \`eventType === 'REOPEN'\` branch — without it a crash before the append leaves an unaudited, unrecoverable reopen`);
+  const recordAssignment = reopenRecordBranch ? findMemberAssignment(reopenRecordBranch.thenStatement, 'story', 'pendingReopenAudit') : undefined;
+  assert(recordAssignment && phaseWrite && recordAssignment.end < phaseWrite.end, `${orchestratorPath}: the recovery record must be attached BEFORE the phase write so both land in the SAME atomic rename (attaching it afterwards persists nothing)`);
+  assert(reopenRecordBranch && collectMemberCalls(reopenRecordBranch.thenStatement, 'store', 'writeStory').length === 0, `${orchestratorPath}: the recovery record must NOT be persisted by a write of its own — a second writeStory re-opens exactly the crash window this record closes`);
+
+  // (6) ORDERED RECONCILIATION: a transition heals a crash-interrupted reopen
+  // BEFORE it touches its own state, and retires the record only AFTER the event
+  // is durable. That ordering is the whole guarantee: no phase change can follow
+  // an unaudited reopen, and no record is dropped before its event exists.
+  const reconcileCalls = transitionFn?.body ? collectCallExpressionsByName(transitionFn.body, 'reconcilePendingReopenAudit') : [];
+  assert(reconcileCalls.length >= 2, `${orchestratorPath}: runStoryTransitionInner must both RECOVER an interrupted reopen at entry and RETIRE its own record after the append (found ${reconcileCalls.length} reconcilePendingReopenAudit call sites)`);
+  const transitionAppends = transitionFn?.body ? collectMemberCalls(transitionFn.body, 'store', 'appendProcessEvent') : [];
+  assert(transitionAppends.length === 1, `${orchestratorPath}: runStoryTransitionInner must keep exactly one phase_transition append site; found ${transitionAppends.length}`);
+  assert(reconcileCalls.length > 0 && phaseWrite && reconcileCalls[0].end < phaseWrite.end, `${orchestratorPath}: the entry reconciliation must run BEFORE this transition's own phase write, so a story can never advance while an unaudited reopen is still pending`);
+  assert(reconcileCalls.length > 0 && transitionAppends.length > 0 && reconcileCalls[reconcileCalls.length - 1].end > transitionAppends[0].end, `${orchestratorPath}: the recovery record must be retired only AFTER its audit event has been appended (clearing it first re-opens the unrecoverable window)`);
+
+  // (7) THE RECOVERY ITSELF: emits the missing event from the RECORD, guarded by
+  // an exact reopenAuditId identity match, and clears only afterwards.
+  const reconcileFn = findFunctionDeclaration(orchestratorSf, 'reconcilePendingReopenAudit');
+  assert(reconcileFn?.body, `${orchestratorPath}: reconcilePendingReopenAudit declaration must exist (the recovery half of the durable-audit guarantee)`);
+  const recoveryBuilderCall = reconcileFn?.body ? findCallExpressionByName(reconcileFn.body, 'buildPhaseTransitionProcessEvent') : undefined;
+  assert(recoveryBuilderCall, `${orchestratorPath}: recovery must rebuild the missing event through the SAME buildPhaseTransitionProcessEvent builder as the in-line append`);
+  const recoveryArg = recoveryBuilderCall?.arguments?.[0];
+  const recoveryMarker = recoveryArg ? objectLiteralPropertyInitializer(recoveryArg, 'transitionType') : undefined;
+  assert(recoveryMarker && ts.isStringLiteralLike(recoveryMarker) && recoveryMarker.text === 'reopen', `${orchestratorPath}: a recovered event must still carry the exact marker transitionType: 'reopen'`);
+  const recoveryReason = recoveryArg ? objectLiteralPropertyInitializer(recoveryArg, 'reason') : undefined;
+  assert(recoveryReason && subtreeReadsMember(recoveryReason, 'pending', 'reason'), `${orchestratorPath}: a recovered event must carry the reason from the RECORD (recomputing or omitting it loses the verbatim operator reason the reopen was gated on)`);
+  const recoveryAuditId = recoveryArg ? objectLiteralPropertyInitializer(recoveryArg, 'reopenAuditId') : undefined;
+  assert(recoveryAuditId && subtreeReadsMember(recoveryAuditId, 'pending', 'auditId'), `${orchestratorPath}: a recovered event must carry the record's auditId so a repeated recovery is a no-op instead of a second event`);
+  assert(reconcileFn?.body && subtreeComparesMembers(reconcileFn.body, 'reopenAuditId', 'pending', 'auditId'), `${orchestratorPath}: "already audited" must be an EXACT reopenAuditId identity match against the record — matching on reason text would mis-handle two reopens sharing a reason and could swallow the second audit event`);
+  const recoveryAppends = reconcileFn?.body ? collectMemberCalls(reconcileFn.body, 'store', 'appendProcessEvent') : [];
+  assert(recoveryAppends.length === 1, `${orchestratorPath}: reconcilePendingReopenAudit must have exactly one append site; found ${recoveryAppends.length}`);
+  const guardedRecoveryAppend = reconcileFn?.body
+    ? findIfStatement(reconcileFn.body, (n) => collectMemberCalls(n.thenStatement, 'store', 'appendProcessEvent').length === 1)
+    : undefined;
+  assert(guardedRecoveryAppend, `${orchestratorPath}: the recovery append must be GUARDED by the already-audited check — an unconditional append would emit a second audit event every time reconciliation runs`);
+  assert(guardedRecoveryAppend && ts.isPrefixUnaryExpression(guardedRecoveryAppend.expression) && guardedRecoveryAppend.expression.operator === ts.SyntaxKind.ExclamationToken, `${orchestratorPath}: the recovery append must be guarded by a NEGATED already-audited condition (append only when no matching event exists)`);
+  assert(reconcileFn?.body && subtreeDeletesMember(reconcileFn.body, 'pendingReopenAudit'), `${orchestratorPath}: reconciliation must actually clear the recovery record (a record that is never cleared makes every later transition re-scan and never converges)`);
+  const recoveryWrites = reconcileFn?.body ? collectMemberCalls(reconcileFn.body, 'store', 'writeStory') : [];
+  assert(recoveryWrites.length === 1 && recoveryAppends.length === 1 && recoveryWrites[0].end > recoveryAppends[0].end, `${orchestratorPath}: the recovery record must be cleared only AFTER its event is durably appended — clearing first would lose the reason if the append then failed`);
+
+  // (8) Executable coverage anchors for the same facts, so the structural checks
+  // above are not the only proof: flow-stability-smoke (routine npm test) pins
+  // the ordinary builder output shape by deepEqual, and the reopen roundtrip
+  // smoke asserts key presence/absence on REAL persisted events plus the
+  // fault-injected crash-window recovery end to end.
   const flowStabilityText = read('packages/main/src/tasks/flow-stability-smoke.ts');
   assert(/assert\.deepEqual\(buildPhaseTransitionProcessEvent\(/.test(flowStabilityText) && !/transitionType/.test(flowStabilityText), 'packages/main/src/tasks/flow-stability-smoke.ts: the ordinary phase_transition builder shape must stay pinned by deepEqual with NO reopen audit keys');
   const reopenSmokeText = read('packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts');
@@ -2519,9 +2677,19 @@ function assertPhaseTransitionReopenAuditContract() {
     'assert.equal(reopenEvent.reason, REOPEN_REASON',
     "hasOwnProperty.call(normalEvent, 'transitionType'), false",
     "hasOwnProperty.call(normalEvent, 'reason'), false",
+    // B-70a6 F-004: the crash window is proven by fault injection into the real
+    // path, not by hand-written fixture state.
+    'class CrashBeforeReopenAuditStore extends StoryStore',
+    'await runStoryTransition(ctx, { storyId, phase: \'INIT\', reason: CRASH_REOPEN_REASON })',
+    'assert.ok(pending,',
+    'assert.equal(pending!.reason, CRASH_REOPEN_REASON',
+    'assert.equal(recovered.length, 1',
+    'assert.equal(recovered[0].reason, CRASH_REOPEN_REASON',
+    'assert.equal(recovered[0].reopenAuditId, pending!.auditId',
   ]) {
     assert(reopenSmokeText.includes(token), `packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: end-to-end reopen audit assertion missing ${token}`);
   }
+  assert(/assertReopenAuditCrashRecovery\(\)/.test(reopenSmokeText) && /^await assertReopenAuditCrashRecovery\(\);$/m.test(reopenSmokeText), 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the crash-window recovery drill must actually RUN (a defined-but-uncalled test proves nothing)');
 }
 
 function isReviewerPrompt(relPath, text) {
