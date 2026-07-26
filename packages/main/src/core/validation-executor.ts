@@ -489,6 +489,122 @@ export function runValidationCommand(
   });
 }
 
+/**
+ * B-ec67: executables a pinned verification command may use. A pinned command is
+ * executable+argv, NEVER a raw shell program — so we constrain the leading token to
+ * this small allowlist of test/runtime launchers. This is the enforcement analogue
+ * of the lattice-dispatch command-authorization boundary (dispatch's per-policy
+ * `commandAllowlist` authorizes whole command STRINGS under an unattended policy and
+ * needs a DispatchPolicy in scope; that surface is not reusable for a synchronous
+ * evidence write, so the pinned-command path keeps its own focused executable
+ * allowlist and never runs an arbitrary shell program).
+ */
+export const VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST: ReadonlySet<string> = new Set([
+  'node',
+  'npx',
+  'npm',
+  'pnpm',
+  'yarn',
+  'tsx',
+  'bun',
+]);
+
+/**
+ * B-ec67: tokenize a pinned command string into executable + argv WITHOUT a shell.
+ * Supports single/double quotes and backslash escapes so a command like
+ * `node -e "console.log('MARKER_OK')"` yields ['node','-e',"console.log('MARKER_OK')"].
+ * Throws on an unterminated quote. No shell metacharacter interpretation happens.
+ */
+export function tokenizeCommandString(command: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  let hasToken = false;
+  let inSingle = false;
+  let inDouble = false;
+  for (let i = 0; i < command.length; i++) {
+    const ch = command[i];
+    if (inSingle) {
+      if (ch === "'") inSingle = false;
+      else current += ch;
+      continue;
+    }
+    if (inDouble) {
+      if (ch === '"') inDouble = false;
+      else if (ch === '\\' && i + 1 < command.length && (command[i + 1] === '"' || command[i + 1] === '\\')) current += command[++i];
+      else current += ch;
+      continue;
+    }
+    if (ch === "'") { inSingle = true; hasToken = true; continue; }
+    if (ch === '"') { inDouble = true; hasToken = true; continue; }
+    if (ch === '\\' && i + 1 < command.length) { current += command[++i]; hasToken = true; continue; }
+    if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
+      if (hasToken) { tokens.push(current); current = ''; hasToken = false; }
+      continue;
+    }
+    current += ch;
+    hasToken = true;
+  }
+  if (inSingle || inDouble) throw new Error(`verification command has an unterminated quote: ${command}`);
+  if (hasToken) tokens.push(current);
+  return tokens;
+}
+
+/**
+ * B-ec67: parse + allowlist-check a pinned command string. Throws when empty or when
+ * the leading executable is not in {@link VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST}.
+ */
+export function parseAllowlistedCommand(command: string): { executable: string; args: string[] } {
+  const tokens = tokenizeCommandString(command);
+  if (tokens.length === 0) throw new Error('verification command is empty');
+  const [executable, ...args] = tokens;
+  if (!VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST.has(executable)) {
+    throw new Error(
+      `verification command executable "${executable}" is not allowlisted ` +
+      `(allowed: ${[...VERIFICATION_COMMAND_EXECUTABLE_ALLOWLIST].join(', ')}); ` +
+      'a pinned verification command must be executable+argv, never a raw shell program [verification_command_not_allowlisted]',
+    );
+  }
+  return { executable, args };
+}
+
+export interface SingleCommandExecutionResult {
+  executable: string;
+  args: string[];
+  code: number;
+  output: string;
+  timedOut: boolean;
+  durationMs: number;
+}
+
+/**
+ * B-ec67: run ONE allowlisted pinned command via the shared {@link runValidationCommand}
+ * spawn path (per-command timeout, output capture, no shell on POSIX). Used by the
+ * evidence-write handler to derive a tool-owned receipt from the actual exit + output.
+ */
+export async function runSingleAllowlistedCommand(
+  command: string,
+  projectRoot: string,
+  options: { cwd?: string; timeoutMs?: number } = {},
+): Promise<SingleCommandExecutionResult> {
+  const { executable, args } = parseAllowlistedCommand(command);
+  const validationCommand: ValidationCommand = {
+    label: 'verification-evidence-command',
+    command: executable,
+    args,
+    ...(options.cwd ? { cwd: options.cwd } : {}),
+    timeoutMs: options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  };
+  const result = await runValidationCommand(validationCommand, projectRoot);
+  return {
+    executable,
+    args,
+    code: result.code,
+    output: result.output,
+    timedOut: Boolean(result.timedOut),
+    durationMs: result.durationMs,
+  };
+}
+
 export async function executeValidationPlan(
   plan: ValidationPlan,
   projectRoot: string,

@@ -6,8 +6,10 @@ import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentType, VerificationLane } from '../core/types.js';
-import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import type { ChecklistData, ChecklistItem, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
+import { buildVerificationCoverage, collectVerificationIntents, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import { runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { createHash } from 'crypto';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
@@ -289,6 +291,17 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
     materialHash: input.materialHash || hashes.materialHash,
     storyFilesHash: input.storyFilesHash || hashes.storyFilesHash,
     ...(input.attestation ? { attestation: input.attestation } : {}),
+    // B-ec67 F-007/F-008: preserve the tool-execution provenance on re-persist so a valid
+    // mechanical receipt or audited attestation survives a checklist_update bulk set
+    // (previously dropped, which silently demoted an already-earned receipt to
+    // mechanical:undefined and re-grandfathered it as covered). NOTE: for the
+    // checklist_update path these fields are UNTRUSTED if caller-supplied — they arrive
+    // here only after carryForwardOnDiskProvenance has replaced them with the PRESERVED
+    // on-disk provenance (or stripped them). verification_evidence_add/_batch_add pass the
+    // freshly enforced/stamped receipt directly. Either way input.* is trusted at this point.
+    ...(input.mechanical !== undefined ? { mechanical: input.mechanical } : {}),
+    ...(input.receipt ? { receipt: input.receipt } : {}),
+    ...(input.nonMechanicalReason ? { nonMechanicalReason: input.nonMechanicalReason } : {}),
   });
 }
 
@@ -297,6 +310,359 @@ function assertEvidenceIsNotAcceptanceMatrixProjection(input: { kind?: string; c
   throw new Error(
     'verification evidence refused: acceptance_matrix output is an L0 read-only projection and cannot satisfy verification or gate authority [acceptance_matrix_non_evidentiary_projection]',
   );
+}
+
+// ── B-ec67: tool-executed, selector-bearing evidence receipts ────────────────
+// One shared enforce-and-stamp helper reached by BOTH verification_evidence_add
+// and verification_evidence_batch_add so neither write path is an unguarded bypass.
+
+const VERIFICATION_OUTPUT_TAIL_CHARS = 4000;
+const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;
+
+function sha256Hex(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+/** Bounded output tail (mirrors done-required-validation.ts:531 WITHOUT importing it). */
+function boundedOutputTail(output: string): string {
+  return output.length <= VERIFICATION_OUTPUT_TAIL_CHARS
+    ? output
+    : output.slice(output.length - VERIFICATION_OUTPUT_TAIL_CHARS);
+}
+
+/** Common shape of a single evidence write for the shared enforcement helper. */
+interface EvidenceWriteInput {
+  intentRef: string;
+  kind: VerificationEvidence['kind'];
+  command?: string;
+  selector?: string;
+  result?: 'pass' | 'fail';
+  nonMechanicalReason?: string;
+}
+
+/**
+ * B-ec67: what the shared helper decides for one evidence write. `evidencePatch`
+ * is merged into the makeEvidence args (result/mechanical/receipt/nonMechanicalReason);
+ * `pin` is set on the intent (immutably) when the executable intent was pinned on this
+ * first selector-bearing write.
+ */
+interface EnforceAndStampResult {
+  evidencePatch: {
+    result?: 'pass' | 'fail';
+    command?: string;
+    mechanical?: boolean;
+    receipt?: VerificationExecutionReceipt;
+    nonMechanicalReason?: string;
+  };
+  pin?: { lane: VerificationLane; index: number; verification: VerificationIntentPin };
+}
+
+/** Resolve intentRef → the intent on THIS item, aligned with the coverage gate's canonical ref. */
+function resolveIntentForRef(
+  item: ChecklistItem,
+  intentRef: string,
+): { lane: VerificationLane; index: number; intent: VerificationIntentItem } | undefined {
+  const hit = collectVerificationIntents(item).find(c => c.ref === intentRef);
+  return hit ? { lane: hit.lane, index: hit.index, intent: hit.intent } : undefined;
+}
+
+/**
+ * B-ec67 F-008: caller-supplied tool-execution provenance is UNTRUSTED BY DESIGN.
+ * The CLI schema (verificationEvidenceSchema, command-schemas.ts) explicitly .strip()s
+ * mechanical / receipt / nonMechanicalReason, so a real `lattice checklist_update` caller
+ * can never inject them (fabricating mechanical:true + a fake receipt to launder an
+ * executable intent as covered = receipt injection). We ALSO drop any caller-supplied
+ * provenance here so the internal fn-call path (which bypasses Zod) is protected the same.
+ *
+ * A tool-execution receipt / audited attestation therefore survives a checklist_update
+ * re-persist (reordering the array, editing note/file/verdict metadata) ONLY by being
+ * carried forward from the EXISTING on-disk evidence for the same intentRef — never from
+ * the incoming row. A mechanical receipt is carried forward only when the caller does not
+ * change the underlying evidence the receipt attests to (same command + same result); if
+ * the caller changes command or result the stale receipt is dropped and the row is re-judged
+ * as fresh (an executable intent then needs a real on-disk receipt or the guard refuses it).
+ * This closes F-008's receipt-loss demotion (a legitimate re-persist previously stripped a
+ * real receipt, silently re-grandfathering it) without opening a caller-receipt injection path.
+ */
+function carryForwardOnDiskProvenance(
+  existing: readonly VerificationEvidence[] | undefined,
+  incoming: VerificationEvidenceInput,
+): VerificationEvidenceInput {
+  // Discard caller-supplied provenance up front (untrusted-by-design).
+  const { mechanical: _callerMechanical, receipt: _callerReceipt, nonMechanicalReason: _callerReason, ...trusted } = incoming;
+  const prior = existing?.find(e => e.intentRef === incoming.intentRef);
+  if (!prior || prior.mechanical === undefined) return trusted; // no prior, or legacy/undefined provenance: nothing to carry
+  if (prior.mechanical === true) {
+    // A receipt is bound to a specific command execution; carry it forward only when the
+    // caller re-persists the SAME command + result (does not change the underlying evidence).
+    const sameCommand = (incoming.command ?? undefined) === (prior.command ?? undefined);
+    const sameResult = (incoming.result ?? undefined) === (prior.result ?? undefined);
+    if (prior.receipt && sameCommand && sameResult) {
+      return { ...trusted, mechanical: true, receipt: prior.receipt };
+    }
+    return trusted; // command/result changed → stale receipt dropped, row re-judged as fresh
+  }
+  // prior.mechanical === false → audited non-mechanical attestation; carry forward the
+  // on-disk reason so a re-persist of an audited-escape row stays attributable (still
+  // demoted by the coverage gate for executable intents).
+  return {
+    ...trusted,
+    mechanical: false,
+    ...(prior.nonMechanicalReason ? { nonMechanicalReason: prior.nonMechanicalReason } : {}),
+  };
+}
+
+/**
+ * B-ec67 F-007: guard for checklist_update's bulk `verificationEvidence` setter — the
+ * THIRD evidence write path, which does NOT run the pinned command. For an EXECUTABLE
+ * intent (logic|cli|browser) it refuses any incoming row that is not already a valid
+ * mechanical receipt (mechanical:true + receipt) or an audited non-mechanical attestation
+ * (mechanical:false + nonMechanicalReason ≥ N), so a raw fabricated result:pass row can
+ * never be laundered as covered through this path. Rows that cannot launder executable
+ * coverage are left alone: non-executable (manual|docs) intents, waivers, explicit fails,
+ * and refs that do not resolve to an intent on this item. Callers with real executable
+ * evidence are directed to verification_evidence_add / verification_evidence_batch_add,
+ * which are the single enforcement boundary that actually executes the command.
+ *
+ * B-ec67 F-008 precision: the `ev` inspected here is the EFFECTIVE row produced by
+ * carryForwardOnDiskProvenance — its mechanical / receipt / nonMechanicalReason reflect the
+ * PRESERVED on-disk provenance for this intentRef, NEVER a caller-supplied value (those are
+ * untrusted-by-design: .strip()ped by the CLI schema and dropped for the internal fn path).
+ * So the accept branch keys off a REAL on-disk receipt and is reachable via the real CLI
+ * only when re-persisting an intent that already earned one; a fabricated caller receipt has
+ * been stripped to undefined here, leaving a raw executable row that is refused below.
+ */
+function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: VerificationEvidenceInput): void {
+  const resolved = resolveIntentForRef(item, ev.intentRef);
+  // A ref that does not resolve to an intent on this item covers nothing at the gate,
+  // and manual|docs intents are attestation-only — neither can launder executable coverage.
+  if (!resolved || !isExecutableIntentType(resolved.intent.type)) return;
+  if (normalizeEvidenceKind(ev.kind) === 'waiver') return; // explicit exemption, tracked separately
+  if (ev.result === 'fail') return;                        // an explicit failure never launders coverage
+  if (ev.mechanical === true) {
+    if (!ev.receipt) {
+      throw new Error(
+        `checklist_update refused: verificationEvidence row for executable intent ${ev.intentRef} claims mechanical:true ` +
+        `but carries no execution receipt. Record it through verification_evidence_add / verification_evidence_batch_add ` +
+        `(which runs the pinned command and stamps the receipt). [checklist_update_evidence_receipt_missing]`,
+      );
+    }
+    return;
+  }
+  if (ev.mechanical === false) {
+    const reason = ev.nonMechanicalReason?.trim() || '';
+    if (reason.length < MIN_NON_MECHANICAL_ESCAPE_REASON) {
+      throw new Error(
+        `checklist_update refused: verificationEvidence row for executable intent ${ev.intentRef} is a non-mechanical ` +
+        `attestation (mechanical:false) but its nonMechanicalReason is missing or < ${MIN_NON_MECHANICAL_ESCAPE_REASON} characters. ` +
+        `[checklist_update_evidence_reason_too_short]`,
+      );
+    }
+    return;
+  }
+  // mechanical === undefined on an executable intent → a raw fabricated pass, OR a caller
+  // receipt that was stripped as untrusted with no preserved on-disk receipt to fall back
+  // on. Refuse: checklist_update does not execute pinned commands, so it cannot mint one.
+  throw new Error(
+    `checklist_update refused: verificationEvidence row for executable intent ${ev.intentRef} (type ${resolved.intent.type}) ` +
+    `is neither a tool-executed receipt (mechanical:true) nor an audited attestation (mechanical:false + nonMechanicalReason). ` +
+    `checklist_update does not execute pinned commands; route executable-intent evidence through verification_evidence_add / ` +
+    `verification_evidence_batch_add so the command is actually run. [checklist_update_executable_evidence_unenforced]`,
+  );
+}
+
+type SingleCommandRunner = (command: string, cwd: string) => Promise<SingleCommandExecutionResult>;
+
+/**
+ * B-ec67 — THE single enforcement boundary for a verification-evidence write, called
+ * by both single and batch handlers. Behavior:
+ *   a. Resolve the intent; refuse if intentRef does not map to an intent on the item.
+ *   b. Determine executable: logic|cli|browser vs attestation-only manual|docs.
+ *   c. Executable + (selector provided OR intent already pinned) → mechanical path:
+ *        PIN (immutable): first write sets verification from command+selector (both
+ *        required); a later write's command must equal the pinned command (else
+ *        receipt-command-mismatch); selector likewise immutable.
+ *        EXECUTE the pinned command; refuse when pass is claimed but exit != 0, or the
+ *        pinned selector is absent from output. Derive result FROM the receipt.
+ *        Stamp the receipt {exitCode,outputDigest,outputTail,selectorMatched,executedAt}.
+ *   d. Executable + audited escape (nonMechanicalReason ≥ 30) → record non-mechanical,
+ *        attributable, no execution (still demoted by the coverage gate).
+ *   e. Executable + no selector + no pin + no escape → REFUSED (B-ec67 F-006): a NEW
+ *        executable write can never mint mechanical:undefined here (which the gate would
+ *        grandfather as covered). The caller must supply a selector or a nonMechanicalReason.
+ *        Pre-mechanism legacy rows keep 'covered' at the GATE only (loaded from disk).
+ *   f. manual|docs intents → attestation-only, mechanical:false, no execution, no refuse.
+ *   g. waiver kind → explicit exemption, no execution.
+ */
+async function enforceAndStampEvidence(
+  item: ChecklistItem,
+  input: EvidenceWriteInput,
+  deps: { runCommand: SingleCommandRunner; cwd: string },
+): Promise<EnforceAndStampResult> {
+  const resolved = resolveIntentForRef(item, input.intentRef);
+  if (!resolved) {
+    throw new Error(
+      `verification evidence refused: intentRef ${input.intentRef} does not resolve to a verificationIntent on ${item.id} [intent_ref_unresolved]`,
+    );
+  }
+  const { lane, index, intent } = resolved;
+  const callerCommand = input.command?.trim() || undefined;
+  const callerSelector = input.selector?.trim() || undefined;
+  const escapeReason = input.nonMechanicalReason?.trim() || undefined;
+
+  // waiver: explicit exemption, never executed
+  if (input.kind === 'waiver') {
+    return { evidencePatch: {} };
+  }
+
+  // attestation-only intent types
+  if (!isExecutableIntentType(intent.type)) {
+    return {
+      evidencePatch: {
+        mechanical: false,
+        ...(input.result ? { result: input.result } : {}),
+        ...(callerCommand ? { command: callerCommand } : {}),
+      },
+    };
+  }
+
+  const existingPin = intent.verification;
+
+  // Audited escape for an executable intent: record non-mechanical WITHOUT execution.
+  if (escapeReason && !existingPin && !callerSelector) {
+    if (escapeReason.length < MIN_NON_MECHANICAL_ESCAPE_REASON) {
+      throw new Error(
+        `verification evidence refused: nonMechanicalReason must be ≥ ${MIN_NON_MECHANICAL_ESCAPE_REASON} characters to record a non-mechanical attestation for executable intent ${input.intentRef} [non_mechanical_reason_too_short]`,
+      );
+    }
+    return {
+      evidencePatch: {
+        mechanical: false,
+        nonMechanicalReason: escapeReason,
+        ...(input.result ? { result: input.result } : {}),
+        ...(callerCommand ? { command: callerCommand } : {}),
+      },
+    };
+  }
+
+  // B-ec67 F-006: an executable intent's NEW evidence write MUST be either a
+  // tool-executed receipt (a selector pins + runs the command → mechanical:true) OR
+  // an audited non-mechanical attestation (nonMechanicalReason ≥ N → mechanical:false).
+  // A write that supplies NEITHER is REFUSED. The old "legacy-shaped" branch returned
+  // an un-flagged patch here, leaving mechanical:undefined — which the coverage gate
+  // grandfathers as 'covered'. That let a caller author command+result:pass for a
+  // never-executed command and be scored identically to a real receipt (the exact
+  // F-045/F-049/F-050/F-061 fabrication class this story exists to eliminate). Refuse
+  // it so the handler can NEVER mint mechanical:undefined for a new executable write.
+  // Genuinely pre-mechanism legacy rows keep their historical 'covered' status at the
+  // GATE only (they are loaded from disk, never re-minted through this write path), so
+  // after this closure `mechanical === undefined` ⟺ genuine pre-B-ec67 legacy data.
+  if (!existingPin && !callerSelector) {
+    throw new Error(
+      `verification evidence refused: executable intent ${input.intentRef} (type ${intent.type}) requires EITHER a selector ` +
+      `(to pin + execute the command, producing a mechanical receipt) OR a nonMechanicalReason ≥ ${MIN_NON_MECHANICAL_ESCAPE_REASON} ` +
+      `characters (an audited non-mechanical attestation). A caller-authored command/result with no execution and no attestation ` +
+      `is not accepted — it would silently grandfather as covered. [executable_intent_requires_selector_or_reason]`,
+    );
+  }
+
+  // Mechanical path: determine the immutable pinned command + selector.
+  let pinCommand: string;
+  let pinSelector: string;
+  let pinToSet: EnforceAndStampResult['pin'];
+  if (existingPin) {
+    if (!callerCommand) {
+      throw new Error(
+        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got <none> (executable intent ${input.intentRef} is pinned; the command must be provided and match) [receipt_command_mismatch]`,
+      );
+    }
+    if (callerCommand !== existingPin.command) {
+      throw new Error(
+        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got ${callerCommand} (the verification pin is immutable) [receipt_command_mismatch]`,
+      );
+    }
+    if (callerSelector && callerSelector !== existingPin.selector) {
+      throw new Error(
+        `verification evidence refused: receipt-selector-mismatch: expected ${existingPin.selector}, got ${callerSelector} (the verification pin is immutable) [receipt_selector_mismatch]`,
+      );
+    }
+    pinCommand = existingPin.command;
+    pinSelector = existingPin.selector;
+  } else {
+    // First selector-bearing write pins the intent; require BOTH command and selector.
+    if (!callerCommand || !callerSelector) {
+      throw new Error(
+        `verification evidence refused: executable intent ${input.intentRef} requires BOTH command and selector to pin verification on the first evidence write [verification_pin_incomplete]`,
+      );
+    }
+    pinCommand = callerCommand;
+    pinSelector = callerSelector;
+    pinToSet = { lane, index, verification: { command: pinCommand, selector: pinSelector } };
+  }
+
+  // Execute the pinned command; the receipt (not the caller) determines result.
+  const run = await deps.runCommand(pinCommand, deps.cwd);
+  const exitOk = run.code === 0 && !run.timedOut;
+  const selectorMatched = run.output.includes(pinSelector);
+
+  // Refuse: a caller cannot claim pass when the command did not exit 0.
+  if (input.result === 'pass' && !exitOk) {
+    throw new Error(
+      `verification evidence refused: pinned command exited ${run.code}${run.timedOut ? ' (timed out)' : ''} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
+    );
+  }
+  // Refuse: the pinned selector must appear in captured output (kills same-command,
+  // wrong/absent-case false passes). Applies regardless of the caller's claimed result.
+  if (!selectorMatched) {
+    throw new Error(
+      `verification evidence refused: pinned selector "${pinSelector}" not found in command output for ${input.intentRef} [receipt_selector_absent]`,
+    );
+  }
+
+  const receipt: VerificationExecutionReceipt = {
+    exitCode: run.code,
+    outputDigest: sha256Hex(run.output),
+    outputTail: boundedOutputTail(run.output),
+    selectorMatched,
+    executedAt: new Date().toISOString(),
+  };
+  const derivedResult: 'pass' | 'fail' = exitOk && selectorMatched ? 'pass' : 'fail';
+
+  return {
+    evidencePatch: {
+      result: derivedResult,
+      command: pinCommand,
+      mechanical: true,
+      receipt,
+    },
+    ...(pinToSet ? { pin: pinToSet } : {}),
+  };
+}
+
+/**
+ * B-ec67: apply a pin decision onto the freshly-read item under the checklist lock,
+ * re-checking immutability so a concurrent writer cannot silently change the pin.
+ */
+function applyVerificationPin(
+  item: ChecklistItem,
+  pin: { lane: VerificationLane; index: number; verification: VerificationIntentPin },
+): void {
+  const laneIntents = item.verificationIntent?.[pin.lane];
+  const intent = laneIntents?.[pin.index];
+  if (!intent) {
+    throw new Error(
+      `verification evidence refused: intent ${item.id}:${pin.lane}:${pin.index} vanished before the pin could be written [verification_pin_target_missing]`,
+    );
+  }
+  if (intent.verification) {
+    if (intent.verification.command !== pin.verification.command || intent.verification.selector !== pin.verification.selector) {
+      throw new Error(
+        `verification evidence refused: receipt-command-mismatch: expected ${intent.verification.command}, got ${pin.verification.command} (the verification pin is immutable) [receipt_command_mismatch]`,
+      );
+    }
+    return;
+  }
+  intent.verification = { command: pin.verification.command, selector: pin.verification.selector };
 }
 
 /**
@@ -752,8 +1118,27 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         results.push(`verificationIntent updated`);
       }
       if (args.verificationEvidence !== undefined) {
-        item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev));
-        results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
+        // B-ec67 F-007: this bulk setter is a THIRD verificationEvidence write path that
+        // does NOT run the pinned command. Refuse an executable intent's row unless it is
+        // already a valid mechanical receipt or an audited non-mechanical attestation, so
+        // it cannot become an unguarded bypass of enforceAndStampEvidence. The
+        // acceptance-matrix projection check runs FIRST (mirroring verification_evidence_add,
+        // which rejects a matrix projection before enforcement) so a matrix-derived row is
+        // rejected as a projection, not merely as an unenforced executable write.
+        //
+        // B-ec67 F-008: snapshot the EXISTING on-disk evidence BEFORE replacing it, then carry
+        // forward each row's trusted provenance (mechanical/receipt/nonMechanicalReason) FROM
+        // DISK — never from the caller — so a legitimate re-persist (reorder / metadata edit)
+        // does not strip an already-earned receipt, while a fabricated caller receipt stays
+        // untrusted and (for a fresh executable intent) is refused (carryForwardOnDiskProvenance).
+        const priorEvidence = item.verificationEvidence;
+        const effectiveEvidence = args.verificationEvidence.map(ev => carryForwardOnDiskProvenance(priorEvidence, ev));
+        for (const ev of effectiveEvidence) {
+          assertEvidenceIsNotAcceptanceMatrixProjection(ev);
+          assertChecklistUpdateEvidenceRowAllowed(item, ev);
+        }
+        item.verificationEvidence = effectiveEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev));
+        results.push(`verificationEvidence updated (${effectiveEvidence.length})`);
       }
 
       if (args.status) {
@@ -885,7 +1270,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       });
     },
 
-    verification_evidence_add(args: {
+    async verification_evidence_add(args: {
       storyId: string;
       itemId: string;
       intentRef: string;
@@ -894,12 +1279,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       waiverType?: VerificationEvidence['waiverType'];
       file?: string;
       command?: string;
+      selector?: string;
       result?: 'pass' | 'fail';
       note: string;
+      nonMechanicalReason?: string;
       attestation?: VerificationEvidence['attestation'];
       actorTrust?: VerificationEvidence['actorTrust'];
       factProvenance?: VerificationEvidence['factProvenance'];
-    }): string {
+    }): Promise<string> {
       // Local-only evidence write: record scoped Proofbound evidence and never POST.
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note must be ≥ 5 characters, explaining why the evidence covers the intent');
@@ -910,11 +1297,26 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
       }
 
+      // B-ec67: run the pinned command / resolve enforcement OUTSIDE the checklist
+      // lock (execution is async; withChecklistLock releases synchronously). The
+      // pin write + evidence write then happen atomically inside the lock.
+      const gitCwd = resolveStoryGitCwd(args.storyId);
+      const preItem = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
+      if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
+      const stamp = await enforceAndStampEvidence(
+        preItem,
+        { intentRef: args.intentRef, kind, command: args.command, selector: args.selector, result: args.result, nonMechanicalReason: args.nonMechanicalReason },
+        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: gitCwd },
+      );
+
       return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-        const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
+        if (stamp.pin) applyVerificationPin(item, stamp.pin);
+        const hashes = evidenceHashes(gitCwd, root);
+        const command = stamp.evidencePatch.command ?? (args.command ? args.command.trim() : undefined);
+        const result = stamp.evidencePatch.result ?? args.result;
 
         const evidence = makeEvidence({
           intentRef: args.intentRef,
@@ -922,9 +1324,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ...(args.verdict ? { verdict: args.verdict } : {}),
           ...(args.waiverType ? { waiverType: args.waiverType } : {}),
           ...(args.file ? { file: args.file } : {}),
-          ...(args.command ? { command: args.command } : {}),
-          ...(args.result ? { result: args.result } : {}),
+          ...(command ? { command } : {}),
+          ...(result ? { result } : {}),
           note: args.note.trim(),
+          ...(stamp.evidencePatch.mechanical !== undefined ? { mechanical: stamp.evidencePatch.mechanical } : {}),
+          ...(stamp.evidencePatch.receipt ? { receipt: stamp.evidencePatch.receipt } : {}),
+          ...(stamp.evidencePatch.nonMechanicalReason ? { nonMechanicalReason: stamp.evidencePatch.nonMechanicalReason } : {}),
           ...(args.attestation ? { attestation: args.attestation } : {}),
           ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
           ...(args.factProvenance ? { factProvenance: args.factProvenance } : {}),
@@ -939,12 +1344,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
         store.writeChecklist(args.storyId, cl);
         const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
+        const receiptNote = evidence.receipt ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}` : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
-        return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote})${commitHint}`;
+        return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote}${receiptNote})${commitHint}`;
       });
     },
 
-    verification_evidence_batch_add(args: {
+    async verification_evidence_batch_add(args: {
       storyId: string;
       evidences: Array<{
         itemId: string;
@@ -954,13 +1360,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         waiverType?: VerificationEvidence['waiverType'];
         file?: string;
         command?: string;
+        selector?: string;
         result?: 'pass' | 'fail';
         note: string;
+        nonMechanicalReason?: string;
         attestation?: VerificationEvidence['attestation'];
         actorTrust?: VerificationEvidence['actorTrust'];
         factProvenance?: VerificationEvidence['factProvenance'];
       }>;
-    }): string {
+    }): Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
         throw new Error('verification_evidence_batch_add: evidences must be a non-empty array');
       }
@@ -980,23 +1388,49 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         normalizedKinds.push(kind);
       }
 
+      // B-ec67: run enforcement (incl. pinned-command execution) for EVERY entry through
+      // the SAME shared helper as the single-add path, OUTSIDE the checklist lock. Any
+      // refusal throws before the all-or-nothing write below, so the batch path is never
+      // an unguarded bypass.
+      const gitCwd = resolveStoryGitCwd(args.storyId);
+      const runCommand: SingleCommandRunner = (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd });
+      const preCl = store.readChecklist(args.storyId);
+      const stamps: EnforceAndStampResult[] = [];
+      for (let i = 0; i < args.evidences.length; i++) {
+        const entry = args.evidences[i];
+        const item = preCl.items.find(it => it.id === entry.itemId);
+        if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+        stamps.push(await enforceAndStampEvidence(
+          item,
+          { intentRef: entry.intentRef, kind: normalizedKinds[i], command: entry.command, selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason },
+          { runCommand, cwd: gitCwd },
+        ));
+      }
+
       return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
-        const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
+        const hashes = evidenceHashes(gitCwd, root);
         let written = 0;
         args.evidences.forEach((entry, i) => {
           const kind = normalizedKinds[i];
+          const stamp = stamps[i];
           const item = cl.items.find(it => it.id === entry.itemId);
           if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+          if (stamp.pin) applyVerificationPin(item, stamp.pin);
+          const command = stamp.evidencePatch.command ?? (entry.command ? entry.command.trim() : undefined);
+          const result = stamp.evidencePatch.result ?? entry.result;
           const evidence = makeEvidence({
             intentRef: entry.intentRef,
             kind,
             ...(entry.verdict ? { verdict: entry.verdict } : {}),
             ...(entry.waiverType ? { waiverType: entry.waiverType } : {}),
             ...(entry.file ? { file: entry.file } : {}),
-            ...(entry.command ? { command: entry.command } : {}),
-            ...(entry.result ? { result: entry.result } : {}),
+            ...(command ? { command } : {}),
+            ...(result ? { result } : {}),
             note: entry.note.trim(),
+            ...(stamp.evidencePatch.mechanical !== undefined ? { mechanical: stamp.evidencePatch.mechanical } : {}),
+            ...(stamp.evidencePatch.receipt ? { receipt: stamp.evidencePatch.receipt } : {}),
+            ...(stamp.evidencePatch.nonMechanicalReason ? { nonMechanicalReason: stamp.evidencePatch.nonMechanicalReason } : {}),
             ...(entry.attestation ? { attestation: entry.attestation } : {}),
             ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
             ...(entry.factProvenance ? { factProvenance: entry.factProvenance } : {}),
@@ -1056,6 +1490,22 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const ev = idx >= 0 ? existing[idx] : entry.evidence;
         lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
         if (args.dryRun || !item || idx < 0 || !ev) continue;
+        // B-ec67 F-001: carry the tool-execution provenance forward so refresh does NOT
+        // launder a demoted / receipt row back to mechanical:undefined (= grandfathered
+        // covered). A mechanical:true receipt is DEMOTED to a non-mechanical attestation
+        // here: refresh only re-stamps freshness hashes and does NOT re-run the pinned
+        // command (re-execution is a follow-on story), so a stale receipt must not keep
+        // covering. Coordinates with B-3b88, which also edits refresh_stale (prose-only
+        // laundering); this change is additive — it only carries/demotes mechanical fields.
+        let refreshedMechanical = ev.mechanical;
+        let refreshedReceipt = ev.receipt;
+        let refreshedReason = ev.nonMechanicalReason;
+        if (ev.mechanical === true) {
+          refreshedMechanical = false;
+          refreshedReceipt = undefined;
+          refreshedReason = ev.nonMechanicalReason
+            ?? 'receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt';
+        }
         existing[idx] = makeEvidence({
           intentRef: ev.intentRef,
           kind: ev.kind,
@@ -1071,6 +1521,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ...(ev.attestation ? { attestation: ev.attestation } : {}),
           ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
           ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
+          ...(refreshedMechanical !== undefined ? { mechanical: refreshedMechanical } : {}),
+          ...(refreshedReceipt ? { receipt: refreshedReceipt } : {}),
+          ...(refreshedReason ? { nonMechanicalReason: refreshedReason } : {}),
         });
         item.verificationEvidence = existing;
         refreshed++;

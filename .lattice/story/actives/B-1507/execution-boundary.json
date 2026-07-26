@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1507",
+  "allowedCommands": [
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "npx",
+    "tsx"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".claude/hooks",
+    ".codex",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/templates"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Execution touches the main package source (handlers/cli/core/tasks), both hosts' hook shims (.claude/hooks + .codex), and the validate registration in lattice.config.json/package.json.",
+  "createdAt": "2026-07-26T03:58:14.427Z",
+  "updatedAt": "2026-07-26T03:58:14.427Z",
+  "_hash": "9098b9922c1f2ed9bd7880433c577ea3a13ceb49c928a3db9dff2a3a87659699"
+}
