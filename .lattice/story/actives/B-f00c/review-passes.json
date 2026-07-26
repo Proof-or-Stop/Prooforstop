@@ -1,0 +1,32 @@
+{
+  "passes": [
+    {
+      "id": "B-f00c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan clean. Old per-commit diff-tree -m union + rev-list evidenceHead..currentHead walk fully removed from both classifier files; both now import classifyMergeLineage from the same shared validation-lineage.ts. Old reject codes empty-descendant-lineage/lineage_empty have zero remaining references. Only surviving -m diff-tree call in src is an explicitly-labeled OLD-behavior reference inside the new smoke test, used for its RED-comparison assertion, not residue. lattice.config.json wires the new smoke in; dist matches source.",
+      "createdAt": "2026-07-26T03:49:04.289Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-004",
+      "envelopeId": "102a545ad3ad9e2e32cdfb9f88362faf4c1899284b4cba5b5ecdfb24fdfc73e5",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7de68e4f72bd777eeab0aaa1c0f23e300ff386513280f3e90817cac44781b11a"
+    }
+  ]
+}
