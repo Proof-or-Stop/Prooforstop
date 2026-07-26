@@ -43,7 +43,7 @@
       "desc": "CHK-002:edge:2 evidence overclaims, packages/main/src/handlers/quorum-submit.ts:519-526 vs packages/main/src/tasks/quorum-submit-smoke.ts:1665-1669: intent requires the refusal message to be verified as naming standing runIds, materialDigest of the standing verdicts, and pointing at review_escalation_status. The production message does contain all of that, but the ONLY assertion against it anywhere in the smoke suite is assert.match(..., /quorum_submit refuses: .*drift-accept/i, ...) at line 1667 (and /drift-accept/i at 1711/1714) -- neither checks for runIds, materialDigest values, or the literal string review_escalation_status. The verificationEvidence note for CHK-002:edge:2 (\"Drift-branch message content asserted via regex; message names standing runIds, older material(s), current storyFilesHash, poisoning consequence, and points at review_escalation_status\") overstates what the bound regex actually verifies -- it is true of the production code, not of the test assertion.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T23:01:09.303Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-3144:RR-002",
       "_hash": "cfde342ccdf7ee460e6fa4397834d2aeb627ab1a9c76834f8a2f1b34ed753c5d",
       "signatureTag": "edge|unknown|edge-evidence-overclaims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The drift-accept refusal check now asserts the message contains all three standing runIds, the older materialDigest, the current storyFilesHash, and the literal review_escalation_status pointer, instead of only matching /drift-accept/. Commit f1bcba3885.",
+      "resolvedAt": "2026-07-26T00:47:20.173Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-004",
