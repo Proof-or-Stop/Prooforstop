@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7813",
+  "changes": "Turns the previously advisory-only review-convergence stall detector into a mandatory BLOCKING adjudication (Step 3 of the evidence-integrity program). core/review-convergence.ts gains a pure evaluateStallAdjudication / store-consuming evaluateReviewMintStallAdjudication that reuses the existing STALL_MIN_ROUNDS=4 / STALL_WINDOW=3 trend signal (no raw round cap — a converging or strictly-decreasing story is never blocked), wired into the machine mint guard (core/machine.ts canMintReviewRound + getGuardFailureReason): when a story is stalled without a current-round resolution, minting another ordinary review round is refused with a structured [review_convergence_stall] prompt naming the allowed actions. A new stall_resolution_set command (core/stall-adjudication.ts pure + handlers/stall-adjudication.ts I/O) records one of six signed, current-round-bound actions (authorize_continuation, replan, escalate_root_cause, resolve_findings, declare_unreachable, override_budget) into a signed stall-adjudication.json that alone clears the block; declare_unreachable marks the checklist item withdrawn by reusing B-1909's scope_shrinkage_decision_set (respecting the empty-scope binding floor, reconciling plan/claims per F-059) and closes the loop instead of spinning. A hard ceiling STALL_HARD_CEILING_ROUNDS=12 is checked before the per-round-resolution clear, so past the ceiling only a privileged override_budget proceeds. The stall adjudication is independent from the advance-counting convergence-breaker (separate counters, files, and clear paths; story_resume --ack clears the breaker but not the stall block). A RED-first mutation-killing smoke (tasks/review-budget-stall-adjudication-smoke.ts, parts A-G) drives all of this through real entry points. Also hardened lifecycle-registry-contract.ts with a converse phase-tools reachability check.",
+  "usage": "When a story's REVIEW has stalled, story_advance to re-enter REVIEW refuses the next ordinary round with a prompt listing the actions. Clear it with lattice stall_resolution_set --storyId=B-xxx --action=<authorize_continuation|replan|escalate_root_cause|resolve_findings|declare_unreachable|override_budget> --reason='<>=20 chars>' [--itemId=CHK-nnn for declare_unreachable]. declare_unreachable withdraws the named checklist item and closes the loop; override_budget proceeds past the hard ceiling for exactly the next round.",
+  "expectedOutcome": "A stalled story cannot silently burn unlimited review rounds: the next ordinary round is refused until a signed current-round structured resolution is recorded; declaring a checklist item unreachable closes the loop instead of spinning; a hard ceiling caps rounds even with resolutions unless a privileged override is recorded; and the existing advance-counting convergence-breaker keeps working without double-counting.",
+  "actualTranscript": "The mint guard refuses a stall ([review_convergence_stall], or [review_convergence_stall_ceiling] past the ceiling) and returns the structured prompt; recording any of the six actions via stall_resolution_set clears the current round; declare_unreachable marks the item withdrawn and closes the loop; empty / previous-round / unsigned / tampered resolutions are refused at both handler and gate. The registered smoke prints 'review-budget-stall-adjudication-smoke: PASS' and mutation-kills (reverting the block, the resolution-clear, the declare-unreachable withdrawal, or the ceiling each fails it). stall_resolution_set is reachable via the real CLI in DEV and REVIEW (partG asserts the CLI boundary with a positive control). lattice validate --story=B-7813 is green.",
+  "outcomeDiff": "No difference. All four milestones (blocking gate, structured resolution actions incl. declare-unreachable, hard ceiling + breaker independence, RED smoke) are delivered and proven by the mutation-killing smoke, the 12 tool-executed dogfood receipts, three reviewer lanes, and the 3x2 quorum.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. The optional early-warning PreToolUse seatbelt on starting another round is its own separate story and was never part of this story's acceptance. The top-level CLAUDE.md REVIEW section does not yet describe the new command; that documentation refresh is a doc-currency item the framework's own periodic audit surfaces, and no CLAUDE.md promise was made in this diff to verify.",
+  "pitfalls": "All three reviewers independently caught one genuine critical bug: stall_resolution_set was registered with allowedPhases DEV/REVIEW but never added to DEFAULT_PHASE_TOOLS in core/config.ts, so cli-engine rejected it in exactly the two phases it exists for, making the block's own remediation prompt a dead end. Fixed in a72c3e5308 by adding it to the phase-tools, adding a real CLI-boundary assertion (partG) to the smoke, and — the systemic root — adding a converse reachability check to lifecycle-registry-contract (a controlled experiment confirmed it flags exactly the two divergences and zero unrelated commands, so the exemption list is empty). Process pitfall for the next person: do NOT ask REVIEW reviewers to run a mutating command (stall_resolution_set) or a full lattice validate as verification — in a shared worktree those auto-commit story metadata, which is headHash drift that stales sibling reviewers' bound review runs (each lane failed its first review_pass_set with a closeout-retention error and had to re-run review_run_start once to rebind; the drift is headHash-only so quorum_submit still bound 3/3 lanes). Scope reviewer verification to read-only checks plus the registered smoke (which can assert the CLI boundary itself via child_process).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 440569
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 76623
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 926891
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 4956761
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2790967
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 889795
+    }
+  },
+  "totalDurationMs": 10082198,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-26T10:13:39.743Z",
+  "updatedAt": "2026-07-26T10:13:39.743Z"
+}
