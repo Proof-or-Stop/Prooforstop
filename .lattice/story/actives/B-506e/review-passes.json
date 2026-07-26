@@ -579,6 +579,44 @@
         "scanEscalationReason": null
       },
       "_hash": "63bfb300fbbb9b9ceb30478579cba2e5747abe0ace9819b816306b288769989c"
+    },
+    {
+      "id": "B-506e:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge (124 commits incl B-ec67) re-confirmation round. Re-ran all 10 red-w2c tests + chain smoke (PASS). checklist.json audited directly: 94/94 verificationEvidence rows command-backed, 0 with a selector, mechanical field absent on all (pre-B-ec67 legacy). Checked B-ec67 verification.ts coverageStatusForCoveredEvidence: mechanical===undefined is explicitly grandfathered as covered so in-flight stories are not hard-broken; the (command,selector) pin + mechanical receipt requirement applies only to NEW writes at verification_evidence_add/_batch_add and to refresh_stale carry-forward, not retroactively. No done-prepare/done-required-evidence/done-oracle files touched by B-ec67. Our 94 rows meet every B-ec67 requirement applicable to them; nothing needs re-running. No cited test files disappeared. Zero blockers.",
+      "createdAt": "2026-07-26T03:57:44.879Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-028",
+      "envelopeId": "14f2d9cca724bf1a8daa293e2faf734bae0f5f0e60f9e8331e886c6a56aea685",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ac1c51a55359cc73812bf880b79145d92c095257434a4392c4c3ff3308fa8a2"
     }
   ]
 }
