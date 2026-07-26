@@ -146,6 +146,35 @@
         "scanEscalationReason": null
       },
       "_hash": "23e6dafb4f6735d881dcf56d10a02357e176cf72f054bb6dd5465dabedf8a85f"
+    },
+    {
+      "id": "B-f00c:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 retry, fast targeted verification (prior attempt timed out on contended full npm test; NOT re-run here per instruction -- relying on 2 already-recorded exit-0 full-suite runs: RP-005 lattice-review-quality at ee50f24927, plus main-agent direct run; HEAD 4f1807821a is materially identical, only 2 metadata-only .lattice commits ahead of ee50f24927 per git show --stat). Ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js directly: exit 0 (validation reuse merge-lineage smoke passed). Ran npm run test:process-fact-contract directly: prints Process fact contract verified (F-003 regression confirmed fixed on current HEAD). Verified npm run build produces zero dist diff (dist in sync with src, so the dist smoke run reflects current source). Coverage check: all 18 must-priority verificationIntent entries (CHK-001 9, CHK-002 9) have a corresponding verificationEvidence entry with result=pass/verdict=success, zero missing, zero fail. Confirmed CHK-001:edge:0 evidence note cites smoke test 7 (grep of validation-reuse-merge-lineage-smoke.ts confirms test 7 asserts kind=diff-failed via injected changedPathsFn on an ancestor-OK scenario, distinct from the not-ancestor catch). Confirmed CHK-001:adversarial:2 evidence is command-backed (command: npm test, headHash e0607fa4=post F-003-fix commit) not a bare assertion. findings.json: all 3 findings (F-001 medium/missing, F-002 low/missing, F-003 high/adversarial) are status=resolved/evidenceState=verified with strong resolveEvidenceStrength and commit-anchored resolvedReason. No new coverage gap found this round.",
+      "createdAt": "2026-07-26T04:55:13.439Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-013",
+      "envelopeId": "6dda27bec059fe9ef9e5a994b9ab450e249b46b0f66780059d7836b58a7b34bc",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/review-passes.json",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d1fa81c04ce4f2bf1073b2a138b4043e12ba49c2879b303e56e5d81b78b8b4f4"
     }
   ]
 }
