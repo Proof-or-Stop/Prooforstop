@@ -143,6 +143,31 @@
         "scanEscalationReason": null
       },
       "_hash": "3f8040529748e461fe5428b47cb6a4876d8b0b8c5b14676a4da4e507f57bde2a"
+    },
+    {
+      "id": "B-1507:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 re-review: all 3 round-1 test-coverage findings (F-003/F-004/F-005) verified fixed at commit eae5eba and stable through the settle commits (materialHash unchanged, 7e0dd7666...). Cascade smokes lifecycle-registry-contract, red-evidence-target-binding-smoke, retired-authority-vocabulary-guard-smoke, and scripts/verify-process-fact-contract.mjs all PASS. verification-run-and-guard-smoke PASS 10/10 runs, no flake. Confirmed via live mutation test (temporarily disabled the receipt_exit_nonzero refusal check in checklist.ts, rebuilt, smoke FAILED at A2 as expected with the exact expectRejection assertion, reverted+rebuilt, smoke PASS again) that the A2 isolation fixture still genuinely mutation-kills; the assertion was not weakened. All 12 verificationEvidence rows across CHK-001..004 remain covered/passing/mechanical:true (checklist_get totals 3/3/3/3, 0 failing, 0 waivers; milestone_status Risks:none). Note: an earlier concurrent `lattice validate --story=B-1507` run (a separate process, pid 2643, not mine) recorded a transient 'validation command dirtied worktree' FAIL for retired-authority-vocabulary-guard-smoke.js in test-evidence.json (commit d4fb41d731) -- this coincided with my brief live mutation window on the shared tracked file packages/main/src/handlers/checklist.ts (reverted within seconds, git status confirmed clean immediately after). I then ran a fresh isolated `lattice validate --story=B-1507 --json` myself (git status clean start-to-finish) which came back status=pass allPass=true with zero 'dirtied worktree' occurrences, and that clean result is now the current committed test-evidence.json (commit 14e805f0c4, mtime 08:05:04) superseding the transient fail. No blocking findings from the test-coverage lane.",
+      "createdAt": "2026-07-26T07:06:11.063Z",
+      "reviewRound": "2026-07-26T06:36:03.008Z",
+      "reviewRunId": "B-1507:RR-016",
+      "envelopeId": "095aa9694e65633fd82296f66c851f289e10481dbfc2012a36bb7b3017ad2ea7",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1507/background.md",
+          ".lattice/story/actives/B-1507/checklist.json",
+          ".lattice/story/actives/B-1507/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6beb080d4da7c57f468fdffe2c6ef831629f0eac31a43857d364c1633f60c53"
     }
   ]
 }
