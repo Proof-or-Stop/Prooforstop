@@ -561,6 +561,24 @@
         "scanEscalationReason": null
       },
       "_hash": "bc04caae16627c5bce2f0631cd88a1988fdd37a62003d636be4de3c9fabd5206"
+    },
+    {
+      "id": "B-506e:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge fresh pass after 124 unrelated commits merged from main (B-ec67/B-3783/B-8b69 etc). Confirmed: (1) this story production sources (append.ts/chain.ts/operation-key.ts/record-v2.ts/target-bindings.ts/handlers/red-evidence.ts) are byte-identical to baseline b4fa4bbfad — zero diff; only red-evidence-chain-smoke.ts changed, and that traces to this story own prior round-3/round-4 fixes (81e88484f8, 85f60fcbf4), not the merge. Collateral diffs in shared files (types.ts, command-catalog.ts, lifecycle-registry.ts, command-catalog-smoke.ts, lattice.config.json) all trace via git log/blame to B-ec67 (VerificationIntentPin/receipt additions to types.ts+command-catalog.ts, unrelated to RedEvidenceData v2), B-3783 (command-catalog-smoke registration), and B-8b69 (lifecycle-registry PLAN->INIT reopen) — none touch red_evidence types or logic; verified merge commit d758f4facd diff vs first-parent shows straightforward union, no manual mis-merge. (2) git log b4fa4bbfad..HEAD for core/proofstory.ts, core/store.ts, core/mkdir-lock.ts returns EMPTY for all three — nothing in the 124 merged commits touches the red-evidence gate predicate, store read path, or mkdir-lock primitives; this story guard and its nested per-(story,target) chain lock are unaffected. (3) Re-ran red-w2c-v1-verdict-invariance.mjs on the merged tree: reproduced pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec exactly (matches RP-013). No code rebuild of pre-fix dists needed (story code unchanged since RP-013). No blocker.",
+      "createdAt": "2026-07-26T03:56:23.273Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-027",
+      "envelopeId": "aa600fb0aa9ff7924d95ca5edb38688a435abcd40ef700f2e18544f7e8f1f9f4",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "63bfb300fbbb9b9ceb30478579cba2e5747abe0ace9819b816306b288769989c"
     }
   ]
 }
