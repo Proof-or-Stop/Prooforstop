@@ -190,6 +190,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
       }
     },
     {
