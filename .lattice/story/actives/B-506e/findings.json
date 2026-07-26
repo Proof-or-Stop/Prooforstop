@@ -237,6 +237,21 @@
       "_hash": "6210dfe3f22c6472c083fa58ca5a8b7e378f623374e17b2add56e137ecef54cc",
       "signatureTag": "edge|unknown|packages-main-lattice",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-013",
+      "desc": "packages/main/.lattice/story/actives/B-506e/checklist.json CHK-011:happy:2 evidence note is stale/inaccurate: it claims packages/main/dist/tasks/command-catalog-smoke.js \"currently exits non-zero on an UNRELATED lattice-review-channel agentType assertion (line 144)\" and binds the intent (\"command-catalog-smoke ... smoke passes\") instead to command-ownership-contract.js as a substitute. Independently re-ran node packages/main/dist/tasks/command-catalog-smoke.js three times on the current post-merge tree: exit 0 every time (\"command catalog smoke passed: 339 commands\"). The unrelated obstacle was fixed on main by commit 18bb6398b0 (story B-3783, landed 2026-07-25T22:53:53Z) before B-506e merged main at b55580cf98 — the same headHash recorded on this evidence row. The literally-named artifact is registered directly in lattice.config.json validate.commands and now passes; the disclosed-substitute pattern is no longer necessary and the note misdescribes current tree state. Severity: low — the underlying claim (catalog wiring correct) is true and independently confirmed via command-ownership-contract.js, but the note is factually wrong about present reality.",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:48:35.963Z",
+      "reviewRound": "2026-07-26T00:36:31.301Z",
+      "reviewRunId": "B-506e:RR-017",
+      "_hash": "b10f2f60534f0fedf2c217db0c23bf5f059af3bd56189cd542cb12762dbb4332",
+      "signatureTag": "happy|unknown|packages-main-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
