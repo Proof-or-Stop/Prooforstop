@@ -393,6 +393,21 @@
       "resolvedAt": "2026-07-26T06:05:40.334Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3144:F-021",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2689-2696 (F-019 fix): the swept-file derivation reads only scope-contract.json allowedModify+allowedCreate, but the story genuinely also modified packages/main/src/cli-engine.ts (11 lines, the B-3144 F-001 quorum_prune codex_cli-append exclusion) via an acknowledged-expansion (scope-contract.json acknowledgements[1], paths:[cli-engine.ts]) rather than a formal allowedModify entry. cli-engine.ts already carries quorum_prune-specific prose (the F-001 comment block) but is invisible to the sweep. Reproduced empirically in an isolated worktree: inserting an identical stale apply:true-without-dryRun:false comment next to the existing quorum_prune exclusion in cli-engine.ts leaves the smoke suite fully green (64/64), while the same probe in lattice-cli.ts is correctly caught. This is the exact F-011..F-020 defect class (stale-enumeration of the sweep source) recurring one field deeper: the fix commit claims the scope contract now enumerates every file this change may touch, but scope-contract.ts:252 isAcknowledged()/its own acknowledgements field is part of what the codebase treats as in-scope, and that field is not unioned into sweptFiles. WHY: any future apply/dryRun-contract prose added to cli-engine.ts (a very plausible place, since it already documents quorum_prune mutation-adjacent behavior) ships unguarded while the guard reports full coverage.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T06:27:44.941Z",
+      "reviewRound": "2026-07-26T06:05:34.564Z",
+      "reviewRunId": "B-3144:RR-020",
+      "_hash": "e57f01ba95934ae7e90d896ef5c0cfddbd057c2364d6821586a6b9dbeb648a58",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
