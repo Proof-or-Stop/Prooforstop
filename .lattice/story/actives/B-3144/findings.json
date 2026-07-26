@@ -302,6 +302,21 @@
       "_hash": "6716cc3c54ba863e38d6a00d13142f1cf88f8aa2141214e13ba8e31c8c213739",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-017",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2622-2642 (DISCOVERY sweep, commit 18e479bd8e, fixing F-014/F-015): the sweep's own claim (\"Adding a new mention anywhere now either satisfies the contract or fails this check; it can no longer be silently missed\") is falsifiable for two concrete, reproducible patterns a future edit is very likely to use, both giving ZERO signal (not even counted toward discovered.length): (1) fusing new stale prose onto a line that also contains a token matched by the exclusion regex /args\\.apply|args\\.dryRun|throw new Error|^\\s*\\+ '/ at line 2630 -- e.g. `if (args.apply) throw new Error('quorum_prune refuses: apply:true required, nothing else needed.')` written as one line -- is dropped from `discovered` entirely, so it never reaches the dryRun:false assertion at line 2636 nor the >=6 floor at line 2639; (2) for the three requireSelfMention files (command-policy.ts, config.ts, process-fact-levels.ts) the self-mention check `line.includes('quorum_prune')` at line 2627 is evaluated on the SAME single line as the apply:true candidate, not over the +/-3-line context window used only for the dryRun:false match (line 2633) -- so a wrapped two-line comment naming quorum_prune on one line and stating a stale apply:true-only claim on the next line is also invisible, which is exactly the multi-line-wrap shape the guard's own comment (line 2631-2632) says it protects against. Verified by extracting the literal candidate/exclusion/window logic (lines 2626,2627,2630,2633,2636) into a standalone script and feeding it synthetic stale lines shaped like both patterns: both yield discovered=[] and failures=[]. A milder third variant: the +/-3-line window is not scoped to one sentence, so two distinct, unrelated apply:true statements placed within 3 lines of each other let a genuinely stale second one borrow the first (correct) one's dryRun:false mention and pass (discovered includes both, failures=[]). None of these are live false negatives against the current 5 files today (real sweep run: discovered.length=12, failures=[], all 12 sites genuinely compliant) -- but they mean the exact failure mode this round exists to close (a new apply:true prose mention silently going unswept, the F-010->F-011->F-013->F-014/F-015 recurrence) can still happen for the two most natural styles of writing a one-line validation-throw or a wrapped two-line comment. WHY: exclusion and self-mention are single-line-granular while only the dryRun:false assertion is window-aware, so the completeness guarantee holds only for lines shaped like the current 12 sites, not for equally plausible future ones.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T05:12:49.305Z",
+      "reviewRound": "2026-07-26T05:01:53.110Z",
+      "reviewRunId": "B-3144:RR-018",
+      "_hash": "729e7d78a48e73fee6c4ef6c3488539806dc70179263d3090bdd3e70c923ab73",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
