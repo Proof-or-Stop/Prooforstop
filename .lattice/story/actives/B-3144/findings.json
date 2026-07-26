@@ -431,6 +431,21 @@
       "resolvedAt": "2026-07-26T07:59:22.778Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3144:F-023",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2748-2772 (namedNearby, F-022 fix commit 687ca32583): the any-ancestor walk stops at the FIRST (outermost) qualifying node (PropertyAssignment/VariableStatement/ExpressionStatement) whose FULL TEXT contains the substring quorum_prune anywhere in its span, preorder from the SourceFile down — not the smallest ancestor that actually names the command near the offset. For every requireSelfMention:true file whose whole command table is ONE top-level statement, that outer statement is the first node visited and its text trivially contains quorum_prune (the entry lives inside it), so namedNearby now returns true for EVERY line in the entire table, including sibling commands the comment two lines above (2679-2682) explicitly says must stay out (\"Scope: sibling commands ... legitimately keep the apply-only convention, so only THIS command's prose is swept\"). Verified with the current implementation copied verbatim: namedNearby(offset of command-policy.ts:479, the quorum_submit sibling entry inside the same COMMAND_POLICIES object as quorum_prune at :480) === true, and namedNearby(offset of command-policy.ts:155, the unrelated story_resume entry) === true; the pre-fix innermost-only implementation correctly returned false for both. Same structural exposure confirmed for config.ts (DEFAULT_PHASE_TOOLS, one statement from :263) and process-fact-levels.ts (PROCESS_FACT_LEVELS, one array from :46) via the same probe. It does not fail the suite today only because no sibling command's reason/description text in these 3 files currently contains apply:true; the first ordinary future edit that adds such phrasing to an unrelated command in these shared tables will either be force-paired against quorum_prune's dryRun:false convention it has nothing to do with (spurious unrelated failure) or, if it happens to satisfy the pairing, validate nothing about quorum_prune. This is the same comment-promises-more-than-code-delivers pattern this exact guard has been fixed for repeatedly (F-011..F-022), now in the opposite direction (too wide instead of too narrow).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T08:14:57.920Z",
+      "reviewRound": "2026-07-26T07:59:09.016Z",
+      "reviewRunId": "B-3144:RR-025",
+      "_hash": "346ecc23d3d2bcec5742f654ed85f8af1c8602777d9558c0ac1973cf3ab36d0f",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
