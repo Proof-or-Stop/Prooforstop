@@ -98,11 +98,11 @@
           "file": "packages/main/src/core/red-evidence/record-v2.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 4 constructs recover records via makeControl (lines 297,301) with linkKind='recovers' (helper line 581) and the control field set (no specDigest, no greenRelation); isControlRecordV2 classifies quarantine and recover identically (section 1 line 188). Recover shares the quarantine control-record shape, differing only in linkKind=recovers.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation named dist line offsets, a helper at line offsets (past the end of the 743-line source) and section 1 line offsets. Durable anchor: the file-level helper makeControl in the trailing helpers block of red-evidence-chain-smoke.ts, and its recover call sites r and r2 in section 4 (closed transition table + transitive, cycle-safe effective head). makeControl builds quarantine and recover from ONE draft literal whose only operation-dependent member is linkKind (quarantines for a quarantine, recovers for a recover); that literal contains the chain fields, storyId, acceptanceTargetRef, recoversRecordId, referencedRecordDigest, linkKind, reason, approvedBy, operationKey and createdAt, and contains no specDigest and no greenRelation. The recover shape is thus the quarantine shape with linkKind flipped, and those recover records are consumed as ordinary chain records by effectiveHeadOperation and checkGreenConfirmTarget in section 4. NOT asserted in this file: an isControlRecordV2 call on a recover record - section 1 asserts isControlRecordV2 only for the quarantine q. Identical classification of the two operations is implemented in core/red-evidence/record-v2.ts isControlRecordV2, which returns true when the record is v2 and its operation is quarantine or recover, and in the ControlRecordV2 interface from which QuarantineRecordV2 and RecoverRecordV2 are both derived.",
+          "headHash": "ce6bda797e6be65191fdb9eaaf95b7076ce3bffb",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:40:22.480Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
