@@ -238,4 +238,97 @@ import type { ChecklistItem, FrozenClaimSnapshot } from '../core/types.js';
 // Do NOT delete this marker; append the new blocks above the final PASS line.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── CHK-004 CASE 3: UNRELATED-CHANGE FALSE-POSITIVE GUARD (DRIFT-level). ─────────
+// An unrelated (non-story-owned) file change does NOT move the story-diff-scoped
+// storyFilesHash. So the CURRENT storyFilesHash equals the snapshot's, and the claim
+// text is untouched → detectDrift MUST return driftKind='none'. Churning an unrelated
+// file (a whole-tree / main-merge change outside the story's owned files) must NEVER
+// manufacture a frozen-claim drift advisory.
+{
+  const CLAIM = 'the report was generated at output/report.pdf';
+  const SFH = '1'.repeat(64); // story-owned material hash, UNCHANGED by unrelated churn
+  const snap: FrozenClaimSnapshot = {
+    normalizedClaimDigest: claimDigest(CLAIM),
+    storyFilesHash: SFH,
+    headHash: 'feedface'.repeat(5),
+    attestedAt: '2026-07-26T00:00:00.000Z',
+  };
+  // Unrelated churn happened elsewhere in the tree, but storyFilesHash is story-scoped,
+  // so it is IDENTICAL to attestation time; the claim text is also unchanged.
+  const v = detectDrift(snap, { currentNormalizedDigest: claimDigest(CLAIM), currentStoryFilesHash: SFH });
+  assert.equal(v.driftKind, 'none', 'unrelated file change → storyFilesHash unchanged → NO drift');
+  assert.equal(v.materialDrifted, false, 'unrelated churn does not set materialDrifted (false-positive guard)');
+  assert.equal(v.claimDrifted, false, 'claim text untouched by unrelated churn');
+  assert.equal(v.classification, 'bound', 'a snapshot-bound claim stays bound');
+  console.log('✓ [false-positive guard] unrelated file change → storyFilesHash unchanged → driftKind=none');
+}
+
+// ── CHK-004 CASE 4: WHITESPACE-ONLY FALSE-POSITIVE GUARD (DRIFT-level). ──────────
+// A userSees re-indented / re-wrapped with extra tabs/newlines/spaces is a whitespace-only
+// edit. Normalization MUST absorb it: the claim digest is unchanged, so a snapshot pinned
+// to the ORIGINAL claim sees driftKind='none'. A cosmetic reflow must NEVER fire claim drift.
+{
+  const original = 'the migration ran and 3 rows were updated';
+  const whitespaceVariant = '  the\tmigration   ran\nand\t3 rows\n\n  were    updated  ';
+  // The whitespace-only variant normalizes to the SAME digest as the original.
+  assert.equal(
+    claimDigest(original),
+    claimDigest(whitespaceVariant),
+    'whitespace-only variant shares the claim digest (normalization absorbs the reflow)',
+  );
+  const SFH = '2'.repeat(64);
+  const snap: FrozenClaimSnapshot = {
+    normalizedClaimDigest: claimDigest(original), // pinned to the ORIGINAL claim
+    storyFilesHash: SFH,
+    headHash: 'baddcafe'.repeat(5),
+    attestedAt: '2026-07-26T00:00:00.000Z',
+  };
+  // "Current" userSees is the whitespace-reflowed variant; storyFilesHash unchanged.
+  const v = detectDrift(snap, { currentNormalizedDigest: claimDigest(whitespaceVariant), currentStoryFilesHash: SFH });
+  assert.equal(v.driftKind, 'none', 'whitespace-only userSees edit → digest unchanged → NO drift');
+  assert.equal(v.claimDrifted, false, 'normalization absorbs the whitespace edit (false-positive guard)');
+  assert.equal(v.materialDrifted, false, 'storyFilesHash unchanged → no material drift');
+  console.log('✓ [false-positive guard] whitespace-only userSees edit → digest unchanged → driftKind=none');
+}
+
+// ── CHK-004 NON-BLOCKING assertion — Phase 1 is detect+report ONLY. ─────────────
+// buildDriftReport surfaces drift, but the advisory NEVER signals a gate failure: the ONLY
+// action it ever demands is re_attestation and no advisory carries a truthy `blocking`
+// directive. This mirrors the read-only handler's hardcoded summary.blocking === false,
+// which stays false even when drift is present.
+{
+  const CURRENT = '9'.repeat(64);
+  const driftedForBlocking: ChecklistItem = Object.freeze({
+    id: 'CHK-BLOCK',
+    title: 'material-drifted item proving the advisory is non-blocking',
+    userSees: 'the artifact was published',
+    userSeesSnapshot: Object.freeze({
+      normalizedClaimDigest: claimDigest('the artifact was published'),
+      storyFilesHash: '8'.repeat(64), // pinned at a DIFFERENT storyFilesHash → material drift
+      headHash: 'deadfeed'.repeat(5),
+      attestedAt: '2026-07-26T00:00:00.000Z',
+    }) as FrozenClaimSnapshot,
+    status: 'done',
+    startTime: null,
+    endTime: null,
+  }) as ChecklistItem;
+
+  const report = buildDriftReport([driftedForBlocking], CURRENT);
+  // Drift IS present — this is the "even when drift is present" precondition.
+  assert.ok(report.length > 0, 'drift IS present (non-empty advisory)');
+  assert.ok(report.some((a) => a.driftKind !== 'none'), 'at least one real drift advisory is present');
+  // The advisory NEVER escalates to a gate failure: the only action is re_attestation.
+  for (const a of report) {
+    assert.equal(a.actionRequired, 're_attestation', 'advisory only ever asks for re_attestation, never a gate failure');
+  }
+  // No advisory carries a truthy `blocking` directive (nothing that could fail a gate).
+  const anyBlocking = report.some((a) => (a as unknown as Record<string, unknown>).blocking === true);
+  assert.equal(anyBlocking, false, 'NON-BLOCKING: no advisory sets blocking=true even when drift is present');
+  // Mirror the read-only handler's summary contract: blocking stays false regardless of drift.
+  const summary = { total: report.length, drifted: report.filter((a) => a.driftKind !== 'none').length, blocking: false };
+  assert.equal(summary.blocking, false, 'the advisory summary is blocking=false even with drift present (never fails a gate)');
+  assert.ok(summary.drifted > 0, 'summary confirms drift is present alongside blocking=false');
+  console.log('✓ [non-blocking] buildDriftReport surfaces drift but the advisory is blocking=false (actionRequired=re_attestation only)');
+}
+
 console.log('frozen-claim-drift-smoke: PASS');
