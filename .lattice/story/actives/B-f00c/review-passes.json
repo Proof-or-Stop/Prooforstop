@@ -27,6 +27,34 @@
         "scanEscalationReason": null
       },
       "_hash": "7de68e4f72bd777eeab0aaa1c0f23e300ff386513280f3e90817cac44781b11a"
+    },
+    {
+      "id": "B-f00c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue re-check after F-001/F-002 fix commit 8f2eaa3208. No concept deletion/replacement beyond round-1 classifier consolidation. Verified: (1) no diff-tree -m residue in packages/main/src except the smoke's explicitly-documented perCommitUnionChanged reference helper used solely for a mutation-resistance assertion; (2) no empty-descendant-lineage/lineage_empty residue in src (only in .lattice story metadata describing the historical bug); (3) both validation-evidence-reuse.ts and validation-evidence-admissibility.ts import classifyMergeLineage from the same ./validation-lineage.js; (4) the new changedPathsFn injectable param defaults to netDiffChangedPaths and is only overridden by the new smoke test 7 (F-001 diff-failed coverage) -- both production call sites pass one arg; (5) the default:{const _exhaustive:never=...} guards added to both MergeLineageClassification.kind switches are the standard exhaustiveness idiom (all 5 kinds already handled), not dead/orphaned code -- tsc build succeeds and node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js passes. No blocker.",
+      "createdAt": "2026-07-26T04:05:22.194Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-007",
+      "envelopeId": "4f731fc34393cb4930e0f10b6f4d366ca4b762289586c4d6f259f0e6e4143af9",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "32a5934f1a78351d1d319ad2cfea176ef1d8bac24a8f54e275342762d7489da0"
     }
   ]
 }
