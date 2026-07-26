@@ -205,14 +205,14 @@
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/types.ts",
+          "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 2 (lines 241-243) writes a store containing only v2 records (records [ra, q], zero v1) and evaluates the diagnostics without crashing (v2Only.length>0), proving a store with only v2 records parses correctly.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.824Z"
+          "note": "Re-run in round 3 after red-evidence-chain-smoke.ts changed. The mixed v1+v2 store in section 2 was written [v1, q]; redEvidenceSatisfied uses Array.prototype.some(), which short-circuits on the satisfying v1 record, so the v2 record was never evaluated and the assert.doesNotThrow there was vacuous. It is now written [q, v1] (v2 first), with the old ordering kept as a labelled companion. Non-vacuity proved by building a temp tree from HEAD with ONLY the two guard lines deleted from redEvidenceRecordSatisfied: the old ordering still passes section 2 there, the new ordering fails at exactly the intended assertion. The mixed-array parse/round-trip and empty-array and v2-only-store cases this intent names are unchanged.",
+          "headHash": "900c4a790306a13c2a863b74ba1edf049b1f1745",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:33:30.213Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
