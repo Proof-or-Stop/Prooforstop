@@ -1,0 +1,27 @@
+{
+  "storyId": "B-f00c",
+  "checkedAt": "2026-07-26T09:04:54.437Z",
+  "headHash": "aea929cee68ce3742c50d90732c2e5c11fddbf87",
+  "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
+  "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+  "reviewRound": "2026-07-26T03:46:02.664Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js -> validation reuse merge-lineage smoke passed (exit 0). Reverse-scanned diff vs merge-base d586a65 confirms classifyMergeLineage (net endpoint diff-tree, -z NUL split, 1GiB maxBuffer, empty-diff-trusted, split ancestry/diff catch) is the sole implementation and BOTH classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts) delegate to it with no residual per-commit -m/rev-list logic in either consumer."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js re-run by delivery reviewer -> exit 0, 7 test blocks: (1) merge of content-unchanged file trusted on shared+reuse+admissibility, with mutation-resistance proof that the old -m union would wrongly flag it; (2) genuine content change still refused on all paths; (3) exact-head fast path; (4) empty net diff between distinct heads trusted; (5) >1500-path diff no ENOBUFS; (6) not-ancestor fails closed; (7) diff-failed distinct from not-ancestor via injectable seam. Smoke is wired into lattice.config.json validate.commands (confirmed by diff). done-required-validation-smoke.ts modify-then-revert block correctly reconciled to the new trusted semantic. scripts/verify-process-fact-contract.mjs token check follows the git-command tokens into the new validation-lineage.ts module (scope-acknowledged in decision.json/scope-contract.json). Pre-recorded lattice validate PASS at material e4b8596b (test-evidence.json) confirmed present; findings F-001/F-002/F-003 all resolved with strong evidence."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery matches promises: one shared classifier (validation-lineage.ts) net-endpoint-diffs instead of per-commit -m union, empty diff trusted, split catch, -z + 1GiB maxBuffer; both reuse and admissibility copies delegate to it with zero old-algorithm residue in src. New RED-first smoke covers happy/negative/edge/adversarial per checklist and is wired into validate.commands; re-ran it live (exit 0). done-required-validation-smoke.ts modify-then-revert block and the process-fact-contract token check were both correctly updated to match the new semantic, with the script edit properly scope-acknowledged (decision.json). No docs/README promises to check. Initial git diff main showed unrelated extra files (evidence-pin-guard.ts, verification-run-and-guard-smoke.ts deletions etc.) but that was confirmed to be local-main drift from 44 unrelated commits merged since this worktree branched (B-1507 etc.) -- diffing against the true merge-base shows exactly the 7 files the story promised, nothing more. No unresolved TODOs."
+  },
+  "_hash": "27351832243611d559a0c9faebf2ae4ba95d548e96a3e59ba4ed044760ef279a"
+}
