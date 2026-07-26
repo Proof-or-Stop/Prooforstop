@@ -76,6 +76,36 @@
         "scanEscalationReason": null
       },
       "_hash": "55ce3e69f9bd462d7c6ddd7d96d372c2d2b63f917da922aad061b2897e167734"
+    },
+    {
+      "id": "B-ec67:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round re-verified after 64bf559611 (F-008 fix): verificationEvidenceSchema now explicitly .strip()s mechanical/receipt/nonMechanicalReason/selector (confirmed via live parse against the real production schema - all 4 fields stripped). carryForwardOnDiskProvenance discards caller-supplied provenance up front and carries the on-disk receipt forward only on matching command+result; live repro confirmed an attacker's fabricated receipt (same command/result as a real seeded one) is rejected and the real on-disk digest survives, a command-changing re-persist drops the stale receipt and refuses, and a metadata-only re-persist preserves the real receipt. Mutation-tested both regressions directly against dist: disabling the receipt-preserve branch breaks smoke case 12c (mutation-killed), and simulating caller-trusted provenance (passthrough-style regression) breaks smoke case 12b's assert.throws (mutation-killed). No caller-receipt-injection path exists via the real CLI. F-006 (critical, prior round) independently reverified as fixed; F-008 (low) independently reverified as fixed. No new findings this round.",
+      "createdAt": "2026-07-26T02:19:28.936Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-008",
+      "envelopeId": "5418de420539613dcf146ae0547d92aeddf32ddf22e98906d330b3cf9b972069",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "da24537dcd0e8b58a9d3b6372133742b47920b1b0bd984e95ae06a77d8d272a7"
     }
   ]
 }
