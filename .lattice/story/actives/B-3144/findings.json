@@ -344,6 +344,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-019",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2668-2674 (contractSources, commit c2e20023e1): the discovery sweep still hand-maintains a manually curated FILE list (5 entries) even though the commit message frames its purpose as replacing hand-maintained enumeration with discovery (\"A hand-maintained site list is the defect... So DISCOVER the sites instead of listing them\"). packages/main/src/handlers/lattice-cli.ts is a CHK-003-declared modify-scope touchpoint for this story (checklist.json CHK-003 files.modify, and the current REVIEW round scope-contract.allowedModify both list it) and already carries quorum_prune-specific prose (lines 529-531: a // comment explaining why quorum_prune is registered via registerBatch alongside createQuorumSubmitHandlers) -- i.e. it is an established, in-scope site for exactly this kind of commentary, not a random unrelated file. It is entirely absent from contractSources, so a future edit adding an apply/dryRun claim there (a very plausible place, since the surrounding comment already narrates quorum_prune-specific behavior) would never enter proseUnitsOf/discovered at all -- zero signal, and the >=10 floor would not move because the site never existed for it. Verified: grep -rln quorum_prune packages/main/src includes handlers/lattice-cli.ts and packages/main/src/cli-engine.ts (also excluded), neither of which appears in the contractSources array. WHY: this reproduces, for FILES rather than LINES, the exact class of bug that already recurred 3 times in this story (F-010/F-011/F-013 stale line, F-014/F-015 stale-list-of-lines) -- a hand-maintained enumeration silently drifts stale as soon as the contract is documented somewhere the list-writer did not anticipate, and the story-declared scope for this very story already names one such place.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T05:47:39.094Z",
+      "reviewRound": "2026-07-26T05:33:47.701Z",
+      "reviewRunId": "B-3144:RR-019",
+      "_hash": "6133e6d041afcf99d6e7a16fb1047de99f237395c673309267db3785c78cf5f0",
+      "files": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/handlers/lattice-cli.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
