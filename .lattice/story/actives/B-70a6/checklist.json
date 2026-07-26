@@ -38,10 +38,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "Smoke drives a real CLI PLAN->INIT reopen from inside the worktree, then reads the PERSISTED process-events JSONL via StoryStore.readProcessEvents and asserts exactly one PLAN->INIT phase_transition event carrying transitionType=reopen plus the reason verbatim. One shared literal is now used both to send the reopen and to assert what was stored, so verbatim is a real round-trip rather than two literals that merely match. Verified RED: with the call-site fields removed the smoke fails on - the reopen phase_transition event must be marked transitionType=reopen.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -50,10 +50,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Strict deepEqual pins the builder output for a normal REVIEW->TEST transition to the exact 8-key pre-change object, so neither transitionType nor reason appears when they are not passed. Reinforced end-to-end in plan-init-reopen-roundtrip-smoke, which asserts the PERSISTED INIT_CHECK->PLAN event carries neither key using hasOwnProperty (key presence, so an explicit undefined would also fail). That end-to-end half matters because the builder-level deepEqual calls the builder directly and cannot see a call-site regression: verified RED by removing the eventType===REOPEN gate, which left flow-stability green but failed the persisted-event assertion.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
           "result": "pass",
           "note": "A reopen with a MISSING reason is refused (non-zero exit, message cites the reason requirement), the phase is re-read as still PLAN, and the persisted JSONL is then asserted to contain ZERO PLAN->INIT phase_transition events at that point - checked after the refusals and before the real reopen, so any such event found would necessarily be spurious. Previously only the phase half was asserted. Honest scope limit: only the missing-reason branch is driven. A second refusal citing the same reason-requirement message reuses the same failure digest and trips the convergence breaker (gate-repeat 2>=2), which freezes the story and hard-blocks the legitimate reopen; observed directly while attempting to add a too-short case. The too-short branch shares the identical guard expression and error message.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         }
       ]
     },
@@ -107,10 +107,10 @@
           "command": "grep -Fn -e \"persistClaim = acquireMkdirLock\" -e \"store.writeChecklist(args.storyId, reopenChecklist)\" -e \"store.writeStory(args.storyId, story)\" -e \"persistClaim.release()\" packages/main/src/handlers/transition-orchestrator.ts",
           "result": "pass",
           "note": "Comment at transition-orchestrator.ts:896-923 states the guarantee as CONCURRENCY-atomic via the mkdir persist claim, ORDERED so the phase writeStory runs LAST. COMMAND RE-RECORDED (fixes F-001): the previously recorded command used bare | alternation, which default BRE grep treats as a literal character, so run verbatim it produced ZERO output (confirmed: exit 1, no lines) instead of the four lines the note claimed. Replaced with the grep -Fn fixed-string form above, one -e per literal; -F rather than -E because the unescaped parens in these literals are ERE metacharacters (the naive -E form errors out with 'empty (sub)expression' on this host's grep). I RAN the new command in this worktree; ACTUAL OUTPUT, exit 0, exactly four lines: '859:      persistClaim = acquireMkdirLock(persistClaimPath, {' / '935:        if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);' / '937:      store.writeStory(args.storyId, story);' / '940:      persistClaim.release();'. Each clause independently re-verified against current code, not taken from the reference commit: (1) mkdir-based claim - acquireMkdirLock (core/mkdir-lock.ts:253) acquires via mkdirSync(lockDir) at line 269 with EEXIST treated as held, so it is genuinely a mkdir lock; (2) ordering - acquire 859 < reset write 935 < phase write 937 < release 940, so the phase write is last inside the claim; (3) loser abort - the oldPhase re-read guard at lines 878-885 (re-read at 878, throw at 879-885) sits before line 935, so a losing concurrent writer never reaches the reset. npm --prefix packages/main run build exits 0.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -119,10 +119,10 @@
           "command": "grep -c \"land together or not at all\" packages/main/src/handlers/transition-orchestrator.ts",
           "result": "pass",
           "note": "Actual output: 0 (grep exit status 1, no match). The overstated phrase is gone from the file entirely, not just from this comment block. npm --prefix packages/main run build exits 0, confirming the comment-only edit did not affect compilation. git diff -U0 of my commit filtered for lines not starting with // returns nothing (exit 1), proving no non-comment line changed.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -131,10 +131,10 @@
           "command": "grep -rn \"eventType = .REOPEN.\" packages/main/src/handlers/transition-orchestrator.ts; grep -n -A 13 \"private writeJsonFile\" packages/main/src/core/store.ts",
           "result": "pass",
           "note": "Comment claims NO crash-transactionality: it says verbatim NOT crash-transactional and names the residual window (crash between the checklist.json reset write and the index.json phase write leaves the checklist reset with phase still PLAN). Safe-direction argument independently re-derived, not trusted: eventType = REOPEN is assigned at exactly one site (line 651) gated on args.phase===INIT && story.phase===PLAN, and PHASE_EVENT_BY_TARGET (core/lifecycle-registry.ts:99-107) contains no REOPEN, so REOPEN truly only fires from PLAN and the reset cannot re-run from INIT; because writeStory is ordered last, the dangerous phase=INIT-with-stale-done-item state is unreachable by crash. I also FOUND AND FIXED a residual overstatement the reference commit da13aae271 left behind: it claimed a reset-without-advance is harmless and re-derivable on a retry, which is false - a retry does not re-derive the lost done/in_progress markers, it converges on the intended end state only because the reopen discards them anyway, and if the reopen is abandoned they stay lost. Reworded to that true basis plus the verified bound that store.writeJsonFile (core/store.ts:133-145) uses tmp write + renameSync, so the residual is one of exactly two file-consistent states rather than a torn checklist.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         }
       ]
     },
@@ -176,10 +176,10 @@
           "command": "grep -n \"live sibling\" packages/main/src/handlers/worktree.ts",
           "result": "pass",
           "note": "grep prints line 578: \"NOT the criterion. It therefore CANNOT remove a live sibling worktree: git leaves\" - the comment block at lines 576-584 sits directly above pruneWorktreeRegistry and states the claim. Claim verified independently, not just read: on git 2.50.1 a scratch repo with main + 2 live linked worktrees + 2 missing ones was pruned via `git worktree prune --expire now -v` executed FROM linked worktree wt-live; output removed only worktrees/wt-goneA and worktrees/wt-goneB, and `git worktree list --porcelain` afterwards still showed wt-live and wt-live2 with their directories intact on disk. Live siblings are not prunable.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -188,10 +188,10 @@
           "command": "grep -Fn -e \"repo-wide, NOT\" -e \"story-scoped: one call clears the currently-missing registrations of every story\" packages/main/src/handlers/worktree.ts",
           "result": "pass",
           "note": "REPLACES a prior evidence entry whose command was the DESTRUCTIVE `git worktree prune --expire now -v`. Running a repo-wide destructive prune as evidence for a docs_check intent is inappropriate in a repo with many active parallel worktrees, and its output is not reproducible. Replaced with a non-destructive grep against the comment text itself. ACTUAL OUTPUT (exit 0): line 579 \"every still-resolving registration alone. Note `--expire now` is repo-wide, NOT\" and line 580 \"story-scoped: one call clears the currently-missing registrations of every story,\" — proving the comment documents repo-wide, non-story-scoped behavior.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -200,10 +200,10 @@
           "command": "grep -Fn -e \"must not rely on it to touch only their own entry\" packages/main/src/handlers/worktree.ts",
           "result": "pass",
           "note": "REPLACES a prior evidence entry whose command was `git diff HEAD~1 -- packages/main/src/handlers/worktree.ts`, a MOVING reference: after later commits HEAD~1 no longer denotes the comment change, so the recorded command silently stops proving the claim. Replaced with a stable grep against the comment text. ACTUAL OUTPUT (exit 0): line 582 \"must not rely on it to touch only their own entry. Caveat on \\\"every missing entry\\\":\" — the comment explicitly warns callers NOT to rely on story-scoped pruning, which is the adversarial claim.",
-          "headHash": "31fd3ce555f9a2228a995cffdb89a55269ce4ebb",
-          "materialHash": "2d14e663833f38b22788732879c7ec7cae04e38c14600b569e508f0006669f40",
-          "storyFilesHash": "5c82273e088a7713e3832d4a838ba01b60248dacc2a8540ebad4725fb50c315b",
-          "timestamp": "2026-07-26T09:54:08.693Z"
+          "headHash": "6c945945af06c850fc0781dbc927597e23cfcb8f",
+          "materialHash": "89da48d15f9640749282dccd7a1d164e94e1d3f56b073cbeefee524affd5355b",
+          "storyFilesHash": "b6d29f568742eebd0d225ea77cd66a7d202da0de14285e33fb0cb6da4bd20e55",
+          "timestamp": "2026-07-26T10:42:13.465Z"
         }
       ]
     }
