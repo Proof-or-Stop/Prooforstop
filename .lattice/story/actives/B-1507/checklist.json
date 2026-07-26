@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a verification_run command that resolves the intent, executes the pinned verifier, and atomically writes the receipt",
+      "context": "New command in cli/command-catalog.ts + a handler; reuse B-ec67's enforceAndStampEvidence / runSingleAllowlistedCommand. lattice verification_run --storyId --intentRef resolves CHK-nnn:lane:index to its pinned verification:{command,selector}, executes it, and writes the receipt-bearing evidence in one step. Ideally verification_evidence_add stops accepting a caller-authored command for automated proof (accepts a generated receipt id instead), staged so callers are not hard-broken.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the stale-evidence refresh re-execute the pinned command and re-issue a real receipt",
+      "context": "Build on B-ec67's demote-on-refresh: when the material changed and the row is a mechanical receipt for an executable intent, re-run the pinned command via the shared executor and stamp a fresh receipt (bound to current material) instead of leaving it demoted. Coordinate with story B-3b88 (interim per-row laundering guard) which also edits the same function — keep the change additive. Do NOT re-introduce laundering: if re-execution fails or the command is unavailable, leave it demoted/non-mechanical.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a fail-open PreToolUse evidence-pin guard hook on both hosts",
+      "context": "Mirror the existing scope guard: .claude/hooks/lattice-scope-pretool.cjs (thin shim) + handlers/prewrite-guard.ts (read-only CLI verdict, e.g. prewrite_guard_check) + tasks/prewrite-guard-smoke.ts. On a verification_evidence_add/verification_run invocation the shim forwards the raw command string; the CLI verdict parses it and denies (exit 2) with a teaching message if --command/--selector does not match the pinned intent, before the write. Fail-open (handler is the floor). Claude matcher adds the shell/Bash tool; Codex .codex hooks add its real shell-tool matcher — gate the Codex side on an e2e test that uses Codex's actual emitted shell-tool name (the current Codex matcher is apply_patch|Edit|Write which does NOT match shell execution, so confirm the real token or the hook never fires).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a RED-first smoke covering verification_run, refresh re-execution, and the guard verdict; register it in validate",
+      "context": "RED-first per CLAUDE.md. Cover: verification_run executes the pinned command and writes a receipt; the stale-evidence refresh re-executes and re-issues a receipt bound to current material (not just demoted); the prewrite guard verdict denies a mismatched command/selector and allows a matching one; the Codex hook e2e uses the real shell-tool name. Register under packages/main/src/tasks + lattice.config.json validate.commands + package.json.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
