@@ -253,7 +253,11 @@
         "happy": [
           {
             "desc": "Call refresh_stale on a stale row with command=\"node dist/tasks/X.js\" and result=pass -> row is left stale (NOT refreshed), output says requires real re-verification; WHY: core behavior change, the exact laundering channel that produced F-045/F-046/F-047",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
           },
           {
             "desc": "Call refresh_stale on a stale attestation row (no command field, result=pass) -> row IS refreshed with new hashes; WHY: attestation-only rows are safe to re-stamp since they have no executable claim",
@@ -309,10 +313,18 @@
           "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
           "result": "pass",
           "note": "refresh-stale-honesty-smoke passes: command-backed pass left stale; command-less attestation refreshed.",
-          "headHash": "0519fb06ff54638e17584e4ac60b8947455121c7",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:11.848Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:52:56.004Z"
+          },
+          "headHash": "11f22bae4a25799e8a62a0975c0cb112ed7efceb",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:52:56.134Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
