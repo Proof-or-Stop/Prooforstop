@@ -24,6 +24,43 @@
         "scanEscalationReason": null
       },
       "_hash": "d5b008ef67275b48dd370cf206575423d9b71acf5c7b91ca8fbe2dd89ce1ebc8"
+    },
+    {
+      "id": "B-3144:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 targeted re-review of F-001 fix + full quorum_prune wiring. Confirmed cli-engine.ts:1224-1232 now has a separate literal `if (entry.command 'quorum_prune') return;` statement (not merged with the pinned quorum_submit line verify-process-fact-contract.mjs checks literally at line 4453). Confirmed all 7 wiring points for quorum_prune are present and mutually consistent with no half-registered leftovers: handlers/quorum-prune.ts (handler + dryRun/apply conflict refusal + keep selector + backup/commit/rollback), handlers/lattice-cli.ts (batch-registered via createQuorumPruneHandlers), cli/command-catalog.ts (schema incl. real dryRun boolean field), core/command-policy.ts (storyScopedMutating, allowedPhases:all, no gateEvidence, matches CHK-003 rationale), core/config.ts (DEFAULT_PHASE_TOOLS[*] lists quorum_prune, consistent with allowedPhases:all), core/process-fact-levels.ts (L2 row), cli-engine.ts (the F-001 exclusion). tsc build compiles clean with zero errors. Directly read cli/flag-parser.ts and confirmed --dryRun resolves generically via the declared schema field (not special-cased). Directly read cli/help-renderer.ts dryRunHelpLine() regex logic and confirmed it correctly derives 'Dry-run: default-on via --dryRun=true' for quorum_prune (matches the dryRun field description text 'Default dry-run:...' and none of the always-on triggers match) instead of the pre-fix inverted 'always-on' claim. No CLAUDE.md/README changes in this diff, so no doc-promise-undelivered surface beyond the already-fixed CHK-003 userSees (F-008/F-009, both resolved). Cross-checked all 9 round-1 findings (F-001..F-009) via finding_list: all status=resolved, evidenceState=verified, resolveEvidenceStrength=strong, each resolvedReason citing commit f1bcba3885 and matching my independent code reading. Attempted full quorum-submit-smoke.js execution multiple times in this sandbox; discovered an unrelated concurrent process from a different session (transient scratch file packages/main/src/tasks/zz-mini-verify.ts appeared then self-deleted mid-review, plus a separate perl-alarm-wrapped smoke invocation in the sibling main repo checkout) sharing this machine and causing resource contention/non-clean kills unrelated to this story's code. All checks that did execute across those attempts (up to 37/62, including the full CHK-002 drift-accept guard suite) passed with zero failures; re-ran review_run_start after the stray file cleared itself and the working tree returned to only my own review-run metadata. No genuine new concept-residue or wiring gap found this round.",
+      "createdAt": "2026-07-26T01:18:14.490Z",
+      "reviewRound": "2026-07-26T00:46:51.875Z",
+      "reviewRunId": "B-3144:RR-010",
+      "envelopeId": "5c7ab3140cc3f248d84cccf6254b9d7f5e75654b711d842d39c7bf7d8e1c41d5",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli/flag-parser.ts",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/test-evidence.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84d06398cfaf3735a0f0e7686e04d9847ddb60d84c8300bbc8653a390eef333d"
     }
   ]
 }
