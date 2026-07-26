@@ -1,0 +1,42 @@
+{
+  "storyId": "B-2296",
+  "checkedAt": "2026-07-26T11:50:18.151Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Solution Tradeoffs section uses the claim 'B-7813 already reconciles plan.md on the declare-unreachable path' to justify excluding plan.md DoneWhen/Verify general drift from this story's scope. Code inspection (packages/main/src/handlers/stall-adjudication.ts withdrawUnreachableChecklistItem, packages/main/src/handlers/proofstory.ts scope_shrinkage_decision_set ~L926-1005) shows the declare_unreachable path only withdraws checklist items and a separate ProofStoryAcceptanceBinding contract artifact (types.ts ~L2626, referencing checklistRefs/verificationIntentRefs/milestoneIds) -- no code path rewrites the literal plan.md markdown file's DoneWhen/Verify prose. B-7813's own background.md uses the same loose framing ('force plan.md/claims to reconcile'), so this may be an accepted paraphrase, but a reader relying on this scope-exclusion rationale could wrongly assume plan.md text itself gets mechanically corrected after a withdrawal, when only checklist.json/proofstory.json metadata is updated."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Trigger Event / Key Insights use the abbreviation 'M1' ('reuse M1's re-attestation once M1 exists. M1 shipped as B-ec67...') without ever spelling out what M1 stands for (Milestone 1 / tool-executed evidence receipts per docs/evidence-integrity-program-spec.md L39-42). A fresh reader without that external spec can infer M1 is some prior milestone tied to enforceAndStampEvidence/VerificationExecutionReceipt from the parenthetical, but the letter-number code itself is never expanded inline, unlike the cross-story references (B-1507/B-3b88) which do get one-clause explanations."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-26T11:44:49.059Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-26T11:50:18.151Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Solution Tradeoffs section uses the claim 'B-7813 already reconciles plan.md on the declare-unreachable path' to justify excluding plan.md DoneWhen/Verify general drift from this story's scope. Code inspection (packages/main/src/handlers/stall-adjudication.ts withdrawUnreachableChecklistItem, packages/main/src/handlers/proofstory.ts scope_shrinkage_decision_set ~L926-1005) shows the declare_unreachable path only withdraws checklist items and a separate ProofStoryAcceptanceBinding contract artifact (types.ts ~L2626, referencing checklistRefs/verificationIntentRefs/milestoneIds) -- no code path rewrites the literal plan.md markdown file's DoneWhen/Verify prose. B-7813's own background.md uses the same loose framing ('force plan.md/claims to reconcile'), so this may be an accepted paraphrase, but a reader relying on this scope-exclusion rationale could wrongly assume plan.md text itself gets mechanically corrected after a withdrawal, when only checklist.json/proofstory.json metadata is updated."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Trigger Event / Key Insights use the abbreviation 'M1' ('reuse M1's re-attestation once M1 exists. M1 shipped as B-ec67...') without ever spelling out what M1 stands for (Milestone 1 / tool-executed evidence receipts per docs/evidence-integrity-program-spec.md L39-42). A fresh reader without that external spec can infer M1 is some prior milestone tied to enforceAndStampEvidence/VerificationExecutionReceipt from the parenthetical, but the letter-number code itself is never expanded inline, unlike the cross-story references (B-1507/B-3b88) which do get one-clause explanations."
+        }
+      ]
+    }
+  ],
+  "_hash": "24f77fc1f121085df8a51847d912af63dafe4b9be0da729598edc0cfb05a01c3"
+}

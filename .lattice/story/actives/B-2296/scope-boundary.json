@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2296",
+  "mode": "feature",
+  "allowed": [
+    "Bind each checklist userSees frozen claim to a snapshot {normalizedClaimDigest, materialHash, headHash, attestedAt} at attestation time",
+    "Classify userSees with no snapshot as legacy-unbound (reported, never errored)",
+    "Detect bidirectional drift: the normalized claim text changes OR the bound material drifts (rename-aware) under a frozen userSees",
+    "Deterministic mechanical claim normalization (trim + collapse whitespace); no semantic diffing",
+    "Edit packages/main runtime source, lattice.config.json, and package.json",
+    "RED-first deterministic smoke registered in lattice.config.json validate.commands and package.json",
+    "Surface a structured NON-blocking FROZEN_CLAIM_DRIFT advisory at a read point (new read-only CLI and/or story_get)"
+  ],
+  "excluded": [
+    "Any change to the M1 receipt or pinning semantics in B-ec67",
+    "Forced re-execution for executable-tied claims (Phase 2)",
+    "legacy-unbound enforcement and migration policy: grandfather DONE stories, require re-attestation on reopen, migrate active stories at next gate (Phase 2)",
+    "plan.md DoneWhen/Verify general drift detection (Phase 2; B-7813 already reconciles plan.md on declare-unreachable)",
+    "Reviewer re-attestation recovery workflow and implementing-agent self-attest prohibition (Phase 2)",
+    "Self-contradictory evidence rows + refresh_stale laundering (owned by B-3b88)",
+    "Turning the advisory into a blocking lifecycle gate (Phase 2)",
+    "verification_run + refresh re-execution + PreToolUse seatbelt (owned by B-1507)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator directed 2026-07-26 to make and record engineering scope calls via the Lattice decision mechanism (decision_set + scope-plan reviewer + cross-host quorum) rather than approval popups. Load-bearing calls: bidirectional binding (materialHash primary + normalized claim-digest secondary) and userSees-only Phase-1 scope. Phase 2 is a tracked follow-on.",
+  "createdAt": "2026-07-26T11:42:12.426Z",
+  "updatedAt": "2026-07-26T11:42:12.426Z",
+  "_hash": "64c204e70b74bc4d1ca576030183845c48b567cb4efb482caf7fac168432f46e"
+}
