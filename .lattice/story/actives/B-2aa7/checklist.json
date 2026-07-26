@@ -108,7 +108,30 @@
       "context": "Every other item cites decisions D-1 through D-8 and section numbers of docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md, which is NOT on main and would otherwise be a dangling reference for anyone reading this story independently, including the PLAN scope reviewer that reads the decisions directory. Recover REV 4 from commit 9583fb95aa2e5d3dda094dfc2341aa6d9e835722 (same path, retrievable from any worktree via git show) and land it in this story's diff. Do this as the LITERAL FIRST action of PLAN, before understanding_set - plan.md DependsOn only orders DEV-phase dispatch and cannot reach back into PLAN-phase timing. Read its section 0.0 FIRST: it records that sibling story B-506e has MERGED into main, which inverted an earlier provenance warning; rev 4 additionally corrects the consumer count to ten, downgrades the E5 row from a crash to a silent misread, and fixes a D-2 row that contradicted section 0.0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The decision document is present at docs/requirements/decisions/ in the story diff and its D-1..D-8 citations resolve.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "It is landed before the PLAN scope review runs, not at the end of the story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The landed copy has no header text contradicting its own section 0.0 about which tree the citations describe.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
