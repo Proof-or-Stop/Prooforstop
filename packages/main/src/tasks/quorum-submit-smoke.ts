@@ -2600,6 +2600,46 @@ try {
         `${label} must not claim apply:true is the only mutation trigger`,
       );
     }
+
+    // F-014/F-015 RED: the enumerated list above went stale TWICE — first missing the per-flag
+    // describe() strings (F-013), then missing the module header, the runtime dry-run note, and a
+    // genuinely stale config.ts comment (F-014/F-015). A hand-maintained site list is the defect:
+    // it silently under-covers every time someone documents this contract somewhere new. So DISCOVER
+    // the sites instead of listing them — every non-test production line that talks about this
+    // command's apply contract must also name dryRun:false. Adding a new mention anywhere now
+    // either satisfies the contract or fails this check; it can no longer be silently missed.
+    // Scope matters: sibling commands (capability_release_backfill and friends) legitimately keep
+    // the apply-only convention, so the sweep must cover THIS command's prose and nothing else.
+    // quorum-prune.ts is entirely about this command; elsewhere the line itself must name it, and
+    // for the catalog only the quorum_prune entry block is in range.
+    const contractSources: Array<{ file: string; text: string; lineOffset: number; requireSelfMention: boolean }> = [
+      { file: 'packages/main/src/cli/command-catalog.ts', text: catalogBlock, lineOffset: catalogSource.slice(0, catalogSource.indexOf("{ name: 'quorum_prune'")).split('\n').length, requireSelfMention: false },
+      { file: 'packages/main/src/core/command-policy.ts', text: policySource, lineOffset: 1, requireSelfMention: true },
+      { file: 'packages/main/src/core/config.ts', text: readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/config.ts'), 'utf8'), lineOffset: 1, requireSelfMention: true },
+      { file: 'packages/main/src/core/process-fact-levels.ts', text: factSource, lineOffset: 1, requireSelfMention: true },
+      { file: 'packages/main/src/handlers/quorum-prune.ts', text: handlerSource, lineOffset: 1, requireSelfMention: false },
+    ];
+    const discovered: string[] = [];
+    for (const { file, text, lineOffset, requireSelfMention } of contractSources) {
+      const lines = text.split('\n');
+      lines.forEach((line, index) => {
+        if (!/apply:true|apply=true/.test(line)) return;
+        if (requireSelfMention && !line.includes('quorum_prune')) return;
+        // Prose only: skip the executable resolution/refusal logic, which necessarily compares
+        // against the literal values it documents.
+        if (/args\.apply|args\.dryRun|throw new Error|^\s*\+ '/.test(line)) return;
+        // Prose wraps, so the paired statement can sit on a neighbouring line of the same comment
+        // or description block; match against the surrounding window rather than the single line.
+        const context = lines.slice(Math.max(0, index - 3), index + 4).join('\n');
+        const where = `${file}:${index + lineOffset}`;
+        discovered.push(where);
+        assert.match(context, /dryRun:false|--dryRun=false/, `${where} documents apply:true without naming dryRun:false as the equivalent executor`);
+      });
+    }
+    assert.ok(
+      discovered.length >= 6,
+      `expected the discovery sweep to find the known contract sites, found ${discovered.length}: ${discovered.join(', ')}`,
+    );
     // Both refusals must be documented wherever the per-flag contract is rendered, so the two
     // --help lines cannot disagree with each other or with the block above them again.
     for (const [label, prose] of [

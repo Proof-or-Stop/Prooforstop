@@ -230,7 +230,8 @@ export function createQuorumPruneHandlers(ctx: HandlerContext) {
         throw new Error(
           'quorum_prune refuses: pass either apply:true or dryRun:true, not both. dryRun:true only '
           + 'projects the duplicate groups (no backup, rewrite, or commit); apply:true backs up, '
-          + 'rewrites, and commits. Omit dryRun (the default) and pass apply:true to actually recover.',
+          + 'rewrites, and commits. To actually recover, pass apply:true with dryRun omitted, or '
+          + 'dryRun:false on its own — the two are equivalent executors.',
         );
       }
       // The symmetric conflict must refuse too, and for the same reason: apply:false says "do not
