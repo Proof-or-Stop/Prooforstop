@@ -766,8 +766,8 @@ type ReexecStamp = { command?: string; result?: 'pass' | 'fail'; mechanical: tru
 type StaleRefreshContext = {
   refreshGitCwd: string;
   headHash: string;
-  materialHash: string;
-  storyFilesHash: string;
+  materialHash: string | undefined;
+  storyFilesHash: string | undefined;
   /** Pre-lock checklist snapshot (used to resolve pins for re-execution). */
   cl: ChecklistData;
   stale: ReturnType<typeof buildVerificationCoverage>['entries'];
