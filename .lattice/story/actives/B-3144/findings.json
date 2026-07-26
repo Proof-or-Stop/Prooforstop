@@ -81,7 +81,7 @@
       "desc": "CHK-002:adversarial:2 evidence overclaims, packages/main/src/tasks/quorum-submit-smoke.ts:1622-1673: intent explicitly requires asserting hostVerdictEventCount, verdictFileCount, AND `git rev-parse HEAD` all unchanged after the drift-accept refusal (does not advance HEAD). The bound check (refuses a redundant re-submit when the standing quorum drift-accepts) captures beforeEvents/beforeVerdicts (lines 1640-1641) and asserts them unchanged (lines 1670-1671), but never captures or re-checks `git rev-parse HEAD` before/after the refusal -- unlike every other refusal-leaks-no-state check in this same file (e.g. lines 1545/1552, 1740/1745, 1877/1890, 1943/1951) which do assert HEAD is unchanged via beforeHead. One of the three required invariants in this adversarial intent is unverified.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T23:01:10.791Z",
@@ -89,7 +89,11 @@
       "reviewRunId": "B-3144:RR-002",
       "_hash": "8dfe8cdc0b421956dd126411a1a7aaef5c6daa29b8cf901b1c566aef448a0adc",
       "signatureTag": "adversarial|unknown|adversarial-evidence-overclaims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The drift-accept refusal check now captures git rev-parse HEAD before the refusal and asserts it unchanged afterwards, matching the sibling refusal-leaks-no-state checks. Commit f1bcba3885.",
+      "resolvedAt": "2026-07-26T00:47:22.294Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-006",
