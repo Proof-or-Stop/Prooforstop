@@ -320,7 +320,11 @@
           {
             "desc": "The landed copy has no header text contradicting its own section 0.0 about which tree the citations describe.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+              "selector": "STALE_HEADER_REMOVED"
+            }
           }
         ]
       },
@@ -371,6 +375,26 @@
           "materialHash": "d260823e94d30123a3246e63ca053e79530e403d62b5973489ef1fff44ff3c62",
           "storyFilesHash": "461fe1b037663d10a0e2e1c498b4bf55e07ff3331aa039e484423591eefa115b",
           "timestamp": "2026-07-26T23:58:12.381Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "result": "pass",
+          "note": "Tool-executed receipt that the stale pre-merge header was rewritten rather than merely supplemented: it prints only if the corrected wording is present AND the old self-contradicting line is absent. A negative control (mutating the condition) was run and confirmed the marker disappears, so the receipt is not vacuous.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b4dcb25307214b3ca2eac9ec1856a5a35b6b876befef589fa4221575abd3118",
+            "outputTail": "DOC_LANDED_WITH_DECISIONS\nDOC_PRECEDES_SCOPE_REVIEW\nSTALE_HEADER_REMOVED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T23:58:13.353Z"
+          },
+          "headHash": "caf3777d36234be5c74f02f9d3549d882c70c3f5",
+          "materialHash": "d260823e94d30123a3246e63ca053e79530e403d62b5973489ef1fff44ff3c62",
+          "storyFilesHash": "461fe1b037663d10a0e2e1c498b4bf55e07ff3331aa039e484423591eefa115b",
+          "timestamp": "2026-07-26T23:58:13.471Z"
         }
       ]
     },
