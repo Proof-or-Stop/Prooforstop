@@ -871,7 +871,15 @@ function writeStaleRefresh(
       let refreshedMechanical = ev.mechanical;
       let refreshedReceipt = ev.receipt;
       let refreshedReason = ev.nonMechanicalReason;
-      if (ev.mechanical === true) {
+      // B-3b88 CHK-002: ANY command-backed result:pass that reaches this path was NOT
+      // re-executed (no fresh receipt above), so it must never be re-stamped as a
+      // still-valid pass. Demote unconditionally — including legacy rows whose
+      // `mechanical` is undefined, which would otherwise pass straight through and be
+      // silently re-certified on new material (the F-045/F-046/F-047 laundering bug).
+      const unexecutedCommandBackedPass = typeof ev.command === 'string'
+        && ev.command.length > 0
+        && ev.result === 'pass';
+      if (ev.mechanical === true || unexecutedCommandBackedPass) {
         refreshedMechanical = false;
         refreshedReceipt = undefined;
         refreshedReason = ev.nonMechanicalReason

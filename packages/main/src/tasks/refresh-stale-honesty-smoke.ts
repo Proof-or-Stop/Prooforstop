@@ -109,9 +109,15 @@ function noLaunderingHolds(store: StoryStore, ref: string): boolean {
   const ev = (item.verificationEvidence || []).find(e => e.intentRef === ref);
   if (!ev) return true;
   const isFresh = !!ev.headHash && ev.headHash !== STALE_HEAD;
-  if (!isFresh) return true;                       // left stale → not laundered
-  if (ev.mechanical === true) return !!ev.receipt; // fresh+mechanical REQUIRES a receipt
-  return true;                                     // demoted to non-mechanical → not laundered
+  if (!isFresh) return true;                        // left stale -> not laundered
+  // Fresh: the row MUST have visibly changed state. Either a real re-execution
+  // receipt (mechanical:true + receipt), or an explicit demotion (mechanical:false).
+  // `mechanical === undefined` on a fresh command-backed row means it passed straight
+  // through untouched — that IS laundering (the reviewer-found regression).
+  if (ev.mechanical === true) return !!ev.receipt;
+  if (ev.mechanical === false) return true;         // explicitly demoted
+  const commandBacked = typeof ev.command === 'string' && ev.command.length > 0 && ev.result === 'pass';
+  return !commandBacked;                            // untouched command-backed pass = laundered
 }
 
 function refreshed(store: StoryStore, ref: string): boolean {
