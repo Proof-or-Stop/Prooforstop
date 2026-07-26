@@ -257,7 +257,11 @@
           {
             "desc": "with the hook bypassed entirely the handler still refuses the mismatch (hook is non-load-bearing), and the Codex hook fires on the real emitted shell-tool name (e2e using the actual token, not apply_patch)",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
           }
         ]
       },
@@ -315,6 +319,25 @@
           "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
           "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
           "timestamp": "2026-07-26T05:33:55.709Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Smoke C9 asserts the enforceAndStampEvidence handler floor still refuses [receipt_command_mismatch] with the hook bypassed (seatbelt non-load-bearing); D2 the Codex shim fires exit-2 for candidate shell tokens (real token PENDING).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T05:34:01.457Z"
+          },
+          "headHash": "4b820b86aef3aa1d16f51a34ea384718099e200e",
+          "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
+          "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
+          "timestamp": "2026-07-26T05:34:01.571Z"
         }
       ]
     },
