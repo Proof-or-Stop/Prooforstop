@@ -206,15 +206,16 @@
         },
         {
           "intentRef": "CHK-002:edge:1",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "Re-run in round 3 after red-evidence-chain-smoke.ts changed. The mixed v1+v2 store in section 2 was written [v1, q]; redEvidenceSatisfied uses Array.prototype.some(), which short-circuits on the satisfying v1 record, so the v2 record was never evaluated and the assert.doesNotThrow there was vacuous. It is now written [q, v1] (v2 first), with the old ordering kept as a labelled companion. Non-vacuity proved by building a temp tree from HEAD with ONLY the two guard lines deleted from redEvidenceRecordSatisfied: the old ordering still passes section 2 there, the new ordering fails at exactly the intended assertion. The mixed-array parse/round-trip and empty-array and v2-only-store cases this intent names are unchanged.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-bound in round 4 (the previous note was copy-pasted from happy:1 and did not describe this case). What backs THIS intent (store with only v2 records, zero v1): red-evidence-chain-smoke.ts:294 writes a store containing exactly two v2 records — the synthetic red-assert ra and the quarantine q, no v1 record at all — reads it back through the real store.readRedEvidence, and runs the LIVE evaluateProofStoryDiagnostics. It asserts missingRedEvidence.length > 0: the v2-only store parses correctly (no throw, no unsupported-schema rejection) and simply has no v1 satisfier, so the gate reports missing red evidence instead of crashing. This case cannot be short-circuited past because there is no satisfying v1 record anywhere in the array. Commit 85f60fcbf4.",
+          "headHash": "eecb6507946b8d119b247bb934580a4e6c2e703d",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:17:07.179Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
