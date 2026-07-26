@@ -256,9 +256,11 @@
       "evidence": "B-3b88 checklist.json CHK-002 context: 'Either re-execute the row's command and refresh only on continued pass, or refuse to refresh result:pass rows and require real re-verification; make the documented (rerun command) semantics honest.' vs. B-1507 understanding.json constraints: 'Coordinate ADDITIVELY with B-3b88 (interim per-row laundering guard) which edits the same refresh_stale function -- do not revert or conflict with its per-row self-contradiction guard' (which frames B-3b88's refresh_stale touch as only the demote/self-contradiction interim, not re-execution).",
       "sourcePointers": [
         ".lattice/story/actives/B-3b88/checklist.json#CHK-002",
-        ".lattice/story/actives/B-1507/understanding.json#constraints",
-        ".lattice/story/actives/B-1507/checklist.json#CHK-002"
-      ]
+        "docs/evidence-integrity-program-spec.md",
+        "docs/step2-evidence-receipts-handoff.md"
+      ],
+      "resolution": "Ownership boundary: B-1507 exclusively owns refresh RE-EXECUTION for rows that carry a pinned verification:{command,selector} (executable intents) — re-run the pin through the shared enforceAndStampEvidence and re-issue a real mechanical receipt on continued pass, leave demoted on failure. B-3b88 CHK-002 should take option (b) for ITS scope: refuse to refresh prose-only result:pass rows that have NO re-runnable pinned command and require real re-verification — those pin-less prose-only rows (F-045/F-046/F-047) are exactly B-3b88s target and do not overlap B-1507s pinned-receipt re-execution. The two are complementary on the same function: B-1507 handles pinned executable rows (re-run+re-issue), B-3b88 handles pin-less prose-only pass rows (refuse). Integration rule for whichever story merges second: the CHK-002 implementer MUST re-read verification_evidence_refresh_stale against current HEAD before editing (already mandated in plan.md CHK-002) and integrate additively onto a SINGLE re-execution implementation rather than duplicating it — if B-3b88 has already landed option (a) re-execution, B-1507 unifies on that implementation and its CHK-002 narrows to the receipt-shape re-issue (B-ec67 mechanism, which B-1507 owns) plus the coexistence smoke, never a second parallel re-run path. This keeps the coordination additive, not conflicting.",
+      "resolvedAt": "2026-07-26T04:15:15.397Z"
     }
   ]
 }
