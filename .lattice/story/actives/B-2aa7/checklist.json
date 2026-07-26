@@ -230,6 +230,19 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
       }
     },
     {
