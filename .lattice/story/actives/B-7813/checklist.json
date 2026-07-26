@@ -133,9 +133,9 @@
       "id": "CHK-004",
       "title": "RED-first smoke: reproduce the stall refusal and the F-058 unreachable-item scenario; register in validate",
       "context": "RED-first. (1) Drive a story to >= threshold non-improving completed review rounds and assert the Nth ordinary round is MINTED before the fix and REFUSED after, with the structured prompt. (2) Reproduce the F-058 scenario (a checklist item unreachable from the requirement) and assert that declaring it unreachable CLOSES the loop instead of spinning another round. (3) Assert the existing convergence-breaker + story_resume --ack still work and are not double-counted. Register the smoke in lattice.config.json validate.commands + package.json.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T08:47:30.869Z",
       "files": {
         "modify": [
           "lattice.config.json",
