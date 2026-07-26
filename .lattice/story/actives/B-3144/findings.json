@@ -246,6 +246,21 @@
       "resolvedAt": "2026-07-26T03:58:16.314Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3144:F-014",
+      "desc": "doc-behavior-mismatch (F-011/F-013 recurrence, still uncaught): F-013 (commit ed50a2591e) claims the regression guard \"covers all six sites\" (packages/main/src/tasks/quorum-submit-smoke.ts:2591-2611, the `every quorum_prune apply/dryRun description states both executors` check), but the guard's six-item list (catalog top-level description, catalog dryRun describe(), catalog apply describe(), process-fact rationale, command-policy reason, QuorumPruneArgs JSDoc) omits two sites that were THEMSELVES edited by the earlier F-011 fix commit (e306cc7aad) as part of its own claimed \"five stale prose sites\": (1) the module header comment in packages/main/src/handlers/quorum-prune.ts:20-32 (\"Containment (decision.json preMortems): dry-run is the DEFAULT ... apply:true, or the equivalent dryRun:false ... apply:false with dryRun:false, is REFUSED\"), and (2) the runtime-rendered dry-run note in formatPruneResult at packages/main/src/handlers/quorum-prune.ts:208 (`note: dry-run only — re-run with apply:true (or dryRun:false) to back up, prune, and commit.`), which is printed on every default quorum_prune invocation (live-verified: `node bin/lattice.js quorum_prune --storyId=B-3144` in an isolated scratch worktree built from HEAD prints exactly that note line). Both currently state the contract correctly, but neither is asserted anywhere in quorum-submit-smoke.ts (grep for the note text and for the module-comment content returns zero matches outside the source file itself), so if either drifts back toward the exact half-updated-docs pattern F-011 and F-013 were filed against, no test would catch it — the same failure mode the guard exists to prevent, now in the guard's own inventory a second time. Severity medium: no live incorrect behavior today, but the coverage claim in the F-013 commit message is factually incomplete and the risk class is identical to the two prior findings on this exact guard.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T04:04:33.199Z",
+      "reviewRound": "2026-07-26T03:58:01.014Z",
+      "reviewRunId": "B-3144:RR-015",
+      "_hash": "acc132802b36967a98bb359e2b9725ed34b933d75e3134282c5910a248df08ad",
+      "signatureTag": "missing|unknown|behavior-mismatch-recurrence",
+      "signatureTagSource": "auto"
     }
   ]
 }
