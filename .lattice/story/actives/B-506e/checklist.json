@@ -1032,11 +1032,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 6 (lines 368-371) retries a quarantine whose original is NOT quarantined and asserts it dedupes (returns the existing record, replay, unchanged length) — the scoping excludes only quarantined records, so a non-quarantined original still dedupes normally.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 6 of red-evidence-chain-smoke.ts, the replay block read for the scoping property this intent names. At the moment of the retry the record it matches - the quarantine appended by the first call - is itself NOT quarantined, so isRetiredByQuarantine is false for it and the scoped dedupe search in appendControlRecord (chain.find requiring a matching operationKey AND not retired by quarantine) still finds it: the handler returns a replay message and the record count is unchanged. The scope therefore excludes only quarantined records; a non-retired original still dedupes normally.",
+          "headHash": "f05d7a2720f41c32a4c691ac0ecec75c61cf99c2",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:08.315Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
