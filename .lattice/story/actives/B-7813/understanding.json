@@ -1,0 +1,36 @@
+{
+  "task": "Turn the currently advisory-only review-convergence stall detector into a mandatory blocking adjudication at the REVIEW round-mint site, so a stalled story cannot mint another ordinary review round until a structured resolution (incl. declaring a checklist item unreachable) is recorded.",
+  "outcome": "When REVIEW has stalled (>= STALL_MIN_ROUNDS with a non-improving trailing window), re-entering REVIEW to mint another ordinary round is REFUSED with a structured prompt naming the allowed resolution actions; the block clears only after one action is recorded (human-authorize+budget, re-plan/split, root-cause escalation, explicit finding resolve/disprove/defer/scope-shrink, or declare-checklist-item-unreachable); a hard ceiling/privileged override prevents indefinite ignoring; and the existing advance-counting convergence-breaker + story_resume --ack keep working without double-counting.",
+  "facts": [
+    "core/review-convergence.ts (B-cfdd) exports STALL_MIN_ROUNDS=4 and STALL_WINDOW=3 and a PURE trend-based decision: stalled = roundCount>=STALL_MIN_ROUNDS AND the last STALL_WINDOW per-round blocking counts are neither trailing-clean (last==0) nor strictly decreasing. assessReviewConvergenceAtEntry(store,storyId) returns {stalled, message} over COMPLETED rounds only.",
+    "handlers/transition-effects.ts (~lines 284-289) consumes assessReviewConvergenceAtEntry on REVIEW entry and only APPENDS convergence.message to output inside a try/catch that never throws and never affects the transition result — this is the advisory-only site to harden.",
+    "core/convergence-breaker.ts is the only hard brake today: it is ADVANCE-counting (BreakerCounters.advanceCount, DEFAULT maxAdvance=20 via LATTICE_CONVERGENCE_MAX_ADVANCE, AUTO_RECOVERY_BUDGET=1, BreakerAction proceed|auto-recover|freeze, advanceBaseline re-baselined on recovery/ack). story_resume --ack clears it. It never bit on review-round runaway because it counts advances, not review rounds.",
+    "resolveReviewRoundCount (core/advisory.ts:105) counts review rounds; review-convergence.ts already uses it. Review-round accounting is a DIFFERENT domain from the breaker advance count.",
+    "INIT-003 correction (verified against .lattice/story/actives/B-bf52): B-bf52 actually reached phase=DONE with CHK-003 status=done; only its specific acceptance binding (AB-003) was WITHDRAWN as undeliverable per F-058/F-059 — NOT the whole story undelivered. This is the withdrawn-disposition case story B-1909 addressed. The stall still cost 12 rounds to surface the unreachable sub-requirement; the 12-rounds and 14-finding-round/46-review-run figures are exact."
+  ],
+  "constraints": [
+    "Extend core/review-convergence.ts + handlers/transition-effects.ts; do NOT build a second stall detector.",
+    "Coexist with core/convergence-breaker.ts without double-counting: the new adjudication keys on review rounds (resolveReviewRoundCount), the breaker keys on advances — keep them independent and do not break story_resume --ack recovery.",
+    "The block must clear ONLY by a recorded, persisted, signed structured-resolution action — never by merely re-running or re-entering.",
+    "Provide a hard ceiling / privileged override so the adjudication itself cannot be ignored indefinitely (todays advisory was ignored for 20+ rounds).",
+    "The declare-unreachable action must reconcile plan.md / claims (F-059), not leave them drifting; declaring an item unreachable closes the loop instead of spinning.",
+    "The blocking decision must remain a pure function of observable state (round count + per-round blocking trend + whether a current resolution record exists); keep I/O in the handler/gate, decision in core."
+  ],
+  "unknowns": [
+    "Exact mint site to block: the REVIEW re-entry transition (where transition-effects currently appends the advisory and where currentReviewRound increments) versus review_run_start. Leaning: block the REVIEW re-entry that mints the next ordinary round, consistent with where the advisory lives.",
+    "Where to persist the structured-resolution record and its signature (a new stall-adjudication.json under the story dir, consumed by the gate), and the exact CLI surface for the five resolution actions (one command with an action enum vs several)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/review-convergence.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks",
+    "lattice.config.json",
+    "package.json"
+  ],
+  "timestamp": "2026-07-26T07:34:58.762Z"
+}

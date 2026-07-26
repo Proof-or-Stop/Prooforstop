@@ -6,7 +6,41 @@
       "context": "core/review-convergence.ts already computes the stall/trend signal (STALL_MIN_ROUNDS=4, STALL_WINDOW=3 non-improving). handlers/transition-effects.ts:284-289 currently consumes it advisory-only inside a try/catch that never blocks — it only appends output text. Make the stall trigger REFUSE to mint another ordinary review round (block the REVIEW re-entry / new-round transition) until a structured resolution is recorded. Extend the existing detector; do not build a new one. The refusal must carry a structured prompt naming the allowed §3 actions.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "a stalled REVIEW (>=STALL_MIN_ROUNDS with a non-improving trailing window) with no current-round resolution refuses to mint another ordinary review round, with a structured prompt naming the allowed actions",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a converging trend (trailing-clean last==0 or strictly-decreasing blocker counts) at or beyond STALL_MIN_ROUNDS is NOT blocked — no false cap on a healthy story",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the block cannot be bypassed by merely re-entering REVIEW / re-running reviewers without a recorded current-round resolution",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
