@@ -6,7 +6,30 @@
       "context": "Must FAIL on current main (CLI 0.3.243, after B-506e merged at 4d417a0c4b) before any fix exists. B-506e already closed ONE class - a record that is null or a bare string now yields a typed RedEvidenceSchemaError - so do NOT include those as RED rows; they would pass and prove nothing. RECORD class still live, each verified by probe: {id:'corrupt'} versionless with no observedFailure, observedFailure of null or 123, and an ARRAY record (typeof [] is 'object', so classifyRedRecordSchemaSafe still returns 'v1' for it). ORDERING: malformed-FIRST-then-satisfying, so Array.prototype.some cannot short-circuit past it. ENVELOPE class, wholly untouched by the merge: records as {} or 42 (non-iterable TypeError) and records as 'x' (which iterates the string's characters and misreports 'a record must be an object'). SILENT class, which is NOT a crash and therefore needs a different assertion: a JSON root of [], 'x', null or 42 returns the raw value and reads as ABSENT evidence everywhere, and an unparseable file lets a raw SyntaxError escape - assert the observable wrong behaviour, not a throw. Drive everything through proofStoryDiagnosticInput then evaluateProofStoryDiagnostics, the pair the live enforce gates call, never the predicate in isolation.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed RED artifact runs on current main and FAILS, proving all three defect classes are live before any fix exists.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rows that B-506e already closed (record is null or a bare string) are absent from the artifact, so no row passes vacuously.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Each class asserts the right shape: CRASH rows assert a bare TypeError escapes, SILENT rows assert a wrong observable value AND no throw, and the unparseable-file row asserts a RAW untyped SyntaxError escapes rather than asserting no throw.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
