@@ -782,7 +782,11 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
             // story_reconcile), while the established order is transitionLock ->
             // mainWriteLock, so acquiring it here would invert that order and let
             // a repair sit on the main write lock waiting for a transition that is
-            // itself fail-fasting on the main write lock. Full reasoning + the
+            // itself fail-fasting on the main write lock. B-70a6 F-014: that
+            // lock-order reason is SPECIFIC TO THIS SITE and must not be carried
+            // over to story_discard, which takes its main write lock only AFTER
+            // its rescue and destruction and so would not invert anything; the
+            // reasons that hold there are different ones. Full reasoning + the
             // follow-up scope live on
             // reconcileReopenAuditBeforeOutOfBandPhaseChange.
             const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({

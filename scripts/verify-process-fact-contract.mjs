@@ -2920,12 +2920,11 @@ function assertOutOfBandReopenAuditRescueContract() {
  * worktree a moment later — leaving neither record nor event. The rescue is still
  * a strict improvement (before it there was no rescue at all), so what was wrong
  * was the STRENGTH OF THE CLAIM, not the code. The engineering decision was to
- * NAME the residual rather than force a lock in: the only per-story mutex is
- * documented as advisory and is disabled outright by an env var a smoke sets, the
- * authoritative persist claim is a 15s fail-fast claim built for a millisecond
- * synchronous section, and story_reconcile's repair already holds the main write
- * lock so a transition lock there would invert this repo's transitionLock ->
- * mainWriteLock order.
+ * NAME the residual rather than force a lock in; the reasons for THAT decision
+ * are asserted separately by assertReopenAuditLockRejectionRationaleContract
+ * below, because B-70a6 F-014 found one of the three originally recorded here
+ * (an argument about the 15s transition-cas persist claim) was aimed at a
+ * primitive nobody proposed using.
  *
  * THIS IS THE MECHANICAL HALF OF THAT DECISION (the F-003 lesson). A narrowed
  * claim that only lives in prose can be silently re-inflated by the next
@@ -3032,6 +3031,124 @@ function assertReopenAuditConcurrencyResidualContract() {
   for (const path of claimSurfaces) {
     const flattened = read(path).replace(/^\s*(?:\/\/|\*)\s?/gm, ' ').replace(/\s+/g, ' ');
     assert(!unqualifiedInvariant.test(flattened), `${path}: states the UNQUALIFIED invariant "no phase change can follow an unaudited reopen". That is false under a concurrent story_discard (B-70a6 F-013): the out-of-band rescue holds no transition lock, so a reopen that records AFTER its scan loses both record and event. Qualify it (e.g. "no ORCHESTRATED phase change ...") and keep the F-013 residual declared`);
+  }
+}
+
+/** Strip comment markers and collapse whitespace so a re-wrapped sentence cannot evade a token check. */
+function flattenComments(text) {
+  return text.replace(/^\s*(?:\/\/|\*)\s?/gm, ' ').replace(/\s+/g, ' ');
+}
+
+/**
+ * B-70a6 F-014: the REASONS recorded for leaving the out-of-band rescue UNLOCKED
+ * must be reasons that actually hold.
+ *
+ * THE FINDING. Three blockers were recorded against giving story_discard the
+ * per-story transition lock. A behavior reviewer verified them independently and
+ * found the middle one MISDIRECTED: it argued about the transition-cas PERSIST
+ * CLAIM (transition-orchestrator.ts — `failFastIfHeld`, `staleMs: 15000`, held
+ * for milliseconds across a fully synchronous section), but that claim was never
+ * the candidate primitive and nobody proposed reusing it. The candidate is
+ * `acquireStoryTransitionLock` (core/story-transition-lock.ts, staleMs 120_000 /
+ * deadline 180_000), whose stale threshold is documented as generously exceeding
+ * any legitimate long transition — and story_discard's body IS fully synchronous
+ * (no `await`; execSync/execFileSync only). The first blocker (advisory lock,
+ * env-disableable, so no guarantee can rest on it) was ACCURATE. The third
+ * (lock-order inversion) was ACCURATE but is SPECIFIC to story_reconcile, whose
+ * repair already runs inside withMainWriteLock; story_discard takes its main
+ * write lock only AFTER the rescue and the destruction, so it inverts nothing.
+ *
+ * WHY THIS IS MECHANISED (the F-003 lesson applied to a rationale rather than to
+ * a behaviour). A residual DECLINED for the wrong reason is as dangerous as one
+ * that is overclaimed: the next reader either re-litigates a settled question or
+ * trusts a decision resting on an argument that does not apply to the site it is
+ * filed at. So the corrected reasons — advisory-lock-therefore-no-guarantee,
+ * recovery-command-must-not-block, and a site-specific lock order — must be
+ * DECLARED in the registry and at both call sites, and the retracted
+ * persist-claim argument must not silently come back. Reverting any of it exits 1.
+ */
+function assertReopenAuditLockRejectionRationaleContract() {
+  const registry = processFactRegistryMap();
+  const rationale = registry.get('runtime:closeout_phase_transition')?.rationale ?? '';
+  for (const token of [
+    // The correction is recorded, not quietly swapped in.
+    'B-70a6 F-014 corrected the reason',
+    'That argument was misdirected',
+    // Reason 2, which REPLACED the misdirected one: story_discard is a recovery
+    // command and the only exposed acquire shape blocks.
+    'recovery command an operator reaches for',
+    'exposes no fail-fast option',
+    // The alternative that WAS available had to be answered, not ignored.
+    'non-blocking try-acquire',
+    // Reason 3 stays accurate only while it is scoped to the site it applies to.
+    'specific to story_reconcile rather than to story_discard',
+  ]) {
+    assert(rationale.includes(token), `${processFactRegistryPath}: the phase transition rationale must declare the CORRECTED lock-rejection reason token ${JSON.stringify(token)} (B-70a6 F-014) — a residual declined for a misdirected reason is an overclaim about the decision itself`);
+  }
+  assert(!rationale.includes('because the authoritative persist claim is a fail-fast 15s claim'), `${processFactRegistryPath}: the phase transition rationale presents the transition-cas persist claim (staleMs 15000) as a REASON the out-of-band rescue is unlocked. B-70a6 F-014: that primitive was never the candidate — acquireStoryTransitionLock (staleMs 120000) is, and it is sized for exactly this kind of long synchronous section. State the reasons that hold`);
+
+  // The same correction must be where a reader of the CODE meets the decision:
+  // on the rescue's own docblock and at both call sites that lean on it.
+  const orchestratorPath = 'packages/main/src/handlers/transition-orchestrator.ts';
+  const orchestratorText = read(orchestratorPath);
+  const rescueDecl = orchestratorText.indexOf('export function reconcileReopenAuditBeforeOutOfBandPhaseChange');
+  assert(rescueDecl !== -1, `${orchestratorPath}: reconcileReopenAuditBeforeOutOfBandPhaseChange must exist`);
+  const rescueDocblock = rescueDecl === -1
+    ? ''
+    : flattenComments(orchestratorText.slice(orchestratorText.lastIndexOf('/**', rescueDecl), rescueDecl));
+  for (const token of [
+    'CORRECTED BY B-70a6 F-014',
+    'RECOVERY COMMAND',
+    // The available alternative had to be ANSWERED, not passed over. `try-acquire`
+    // alone is too weak a token (it recurs in the paragraph, so deleting one
+    // mention leaves it satisfied), hence the verdict phrase alongside it.
+    'try-acquire',
+    'was considered and DECLINED',
+    'SITE-SPECIFIC',
+  ]) {
+    assert(rescueDocblock.includes(token), `${orchestratorPath}: the WHY IT IS NAMED RATHER THAN LOCKED docblock on reconcileReopenAuditBeforeOutOfBandPhaseChange must carry the B-70a6 F-014 correction token ${JSON.stringify(token)} — the decision is read HERE, so a stale reason here is the one that misleads`);
+  }
+  assert(!rescueDocblock.includes('The AUTHORITATIVE fence, the persist claim below'), `${orchestratorPath}: the rescue docblock again gives the transition-cas persist claim as the reason it is unlocked. B-70a6 F-014 retracted that argument: the persist claim was never the candidate primitive (acquireStoryTransitionLock is, and its staleMs is 120000)`);
+
+  const siteTokens = [
+    {
+      path: 'packages/main/src/handlers/worktree.ts',
+      tokens: ['CORRECTED BY B-70a6 F-014', 'RECOVERY COMMAND', 'was considered and declined'],
+      // The exact retracted sentence, flattened, so a re-wrapped revert still bites.
+      forbidden: 'the authoritative persist claim is a 15s fail-fast claim',
+      forbiddenWhy: 'gives the transition-cas persist claim as the reason story_discard is unlocked (B-70a6 F-014 retracted it: that primitive was never the candidate)',
+    },
+    {
+      path: 'packages/main/src/handlers/story-query.ts',
+      // The lock-order reason is TRUE here and FALSE at the discard site; the
+      // comment has to say which, or it gets copied to the site it does not fit.
+      tokens: ['SPECIFIC TO THIS SITE'],
+      forbidden: null,
+      forbiddenWhy: '',
+    },
+  ];
+  for (const site of siteTokens) {
+    const flattened = flattenComments(read(site.path));
+    for (const token of site.tokens) {
+      assert(flattened.includes(token), `${site.path}: must carry the B-70a6 F-014 lock-rejection correction token ${JSON.stringify(token)} — this call site states why it takes no transition lock, so it is a place the misdirected reason has to be corrected`);
+    }
+    if (site.forbidden) {
+      assert(!flattened.includes(site.forbidden), `${site.path}: ${site.forbiddenWhy}`);
+    }
+  }
+
+  // B-70a6 F-016: the PendingReopenAudit docblock's own recovery sentence must be
+  // accurate on its own, not merely corrected by a paragraph appended after it. A
+  // reader who stops at that sentence must not come away with the pre-F-005
+  // "some later transition always heals it" impression.
+  const typesPath = 'packages/main/src/core/types.ts';
+  const typesFlattened = flattenComments(read(typesPath));
+  assert(!/emits the missing event on the next transition/i.test(typesFlattened), `${typesPath}: the PendingReopenAudit docblock again says reconcilePendingReopenAudit "emits the missing event on the next transition", unqualified. B-70a6 F-005/F-013: recovery fires at the next ORCHESTRATED transition and at the two out-of-band sites, under no concurrency guarantee — qualify the sentence itself, not only a paragraph after it`);
+  for (const token of [
+    'ONLY at the points enumerated in the next paragraph',
+    'EDITED IN PLACE',
+  ]) {
+    assert(typesFlattened.includes(token), `${typesPath}: the PendingReopenAudit recovery sentence must carry the B-70a6 F-016 in-place qualification token ${JSON.stringify(token)} (an appended qualifier alone leaves the sentence above it reading as an unconditional promise)`);
   }
 }
 
@@ -7665,6 +7782,7 @@ assertCloseoutTrustBoundary();
 assertPhaseTransitionReopenAuditContract();
 assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
+assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();

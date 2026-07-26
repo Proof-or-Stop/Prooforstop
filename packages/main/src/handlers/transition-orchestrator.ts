@@ -651,31 +651,65 @@ export interface OutOfBandReopenAuditReconciliation {
  * worktree is ALREADY gone. The record only ever lived there, so there is nothing
  * to rescue and no mutex could have changed that.
  *
- * WHY IT IS NAMED RATHER THAN LOCKED (reasons, not excuses):
- *   - `acquireStoryTransitionLock` is documented in core/story-transition-lock.ts
- *     as a "BEST-EFFORT ADVISORY CONTENTION-REDUCER, NOT the correctness
- *     guarantee", and `LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1` turns its
- *     acquire into a no-op (tasks/transition-integrity-smoke.ts sets exactly that
- *     to prove the atomic claim alone serializes a persist). A correctness claim
- *     resting on that lock would be FALSE under that env while every test stayed
- *     green, and making it load-bearing means rewriting that file's contract.
- *   - The AUTHORITATIVE fence, the persist claim below, is `failFastIfHeld` with
- *     `staleMs: 15000`, deliberately held for MILLISECONDS across a fully
- *     synchronous section. story_discard's rescue-through-destruction interval
- *     runs `git status` / `worktree remove` / `branch -D` / prune and takes the
- *     main write lock — routinely longer than 15s — so stretching the claim over
- *     it would let a concurrent transition stale-reclaim it and persist a phase
- *     MID-DESTRUCTION, and would make every concurrent transition abort with a
- *     "concurrent transition already advancing" message that is not true.
- *   - `story_reconcile`'s repair already runs INSIDE `withMainWriteLock`, while
- *     this repo's established order is transitionLock -> mainWriteLock
- *     (runStoryTransitionInner takes the transition lock, then the DONE path
- *     takes the main write lock). Acquiring the transition lock inside that
- *     repair would INVERT that order, so a reconcile would sit on the main write
- *     lock for up to the transition deadline while a DONE holding the transition
- *     lock fail-fasts on the main write lock — turning one rare audit loss into
- *     systematic aborts of DONE / story_create / gap_log / audit, inside the tool
- *     operators run precisely when things are already stuck.
+ * WHY IT IS NAMED RATHER THAN LOCKED (reasons, not excuses).
+ *
+ * CORRECTED BY B-70a6 F-014 — the middle reason previously given here was
+ * MISDIRECTED and is RETRACTED. It argued that the persist claim below
+ * (`failFastIfHeld`, `staleMs: 15000`, held for MILLISECONDS) could not be
+ * stretched across story_discard's git work. That is true and irrelevant: the
+ * persist claim was never the candidate primitive; nobody proposed reusing it
+ * here. The ONLY candidate is the per-story ADVISORY lock
+ * `acquireStoryTransitionLock` (core/story-transition-lock.ts, `staleMs`
+ * 120_000 / deadline 180_000), whose stale threshold is documented as
+ * "generously exceeds any legitimate non-DONE transition" — i.e. it is sized
+ * for exactly this class of long synchronous section, and story_discard IS one
+ * (declared `story_discard(args): string`, no `await` anywhere in its body,
+ * shelling out only through synchronous `execSync` / `execFileSync`). The
+ * accurate reasons are these three:
+ *   1. NO GUARANTEE COULD REST ON IT, so this is a defence-in-depth question and
+ *      never a correctness one. core/story-transition-lock.ts documents
+ *      `acquireStoryTransitionLock` as a
+ *      "BEST-EFFORT ADVISORY CONTENTION-REDUCER, NOT the correctness guarantee",
+ *      and `LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1` turns its acquire
+ *      into a literal no-op (tasks/transition-integrity-smoke.ts sets exactly that to
+ *      prove the atomic claim alone serializes a persist). A correctness claim
+ *      resting on it would be FALSE under that env while every test stayed
+ *      green. Taking it here would NARROW this window; it could not close it,
+ *      and the shipped claim would still have to be SEQUENTIAL.
+ *   2. THIS IS THE RECOVERY COMMAND, AND THE LOCK'S ONLY EXPOSED SHAPE BLOCKS.
+ *      `StoryTransitionLockOptions` exposes only `deadlineMs` / `staleMs` — there
+ *      is no `failFastIfHeld` — so an acquire here POLLS (synchronously, via the
+ *      mkdir lock's `Atomics.wait`) for the 180s deadline and then THROWS. Worse
+ *      for a recovery tool: `classifyTransitionLockHolder` returns `active` for
+ *      ANY same-host holder whose recorded pid is merely alive, and its PID-REUSE
+ *      guard fires only when the recorded pid is THIS process's own, so a leaked
+ *      lock whose pid has since been recycled by an unrelated live process is
+ *      NEVER stale-reclaimed at any age. story_discard would then hang the full
+ *      deadline and fail — putting the command operators reach for when a story
+ *      is ALREADY wedged behind a lock file that only a manual `rm` clears.
+ *      The one shape that dodges that, a NON-BLOCKING try-acquire that proceeds
+ *      UNLOCKED on failure, was considered and DECLINED: it covers only the
+ *      interleaving in which the racing reopen has not yet taken the lock,
+ *      because a reopen that already holds it (it is acquired before its own
+ *      readStory and held for the whole transition) makes the try-acquire fail
+ *      and discard proceed exactly as it does today. That is a partial narrowing
+ *      bought with a mutex that reads to the next maintainer as the
+ *      serialization this function explicitly does NOT have — the precise
+ *      over-reading this story has already been bitten by.
+ *   3. AT THE story_reconcile SITE THE LOCK ORDER ALSO FORBIDS IT. This reason is
+ *      SITE-SPECIFIC and does NOT apply to story_discard; the earlier text
+ *      wrongly lumped the two together. `story_reconcile`'s repair already runs
+ *      INSIDE `withMainWriteLock`, while this repo's established order is
+ *      transitionLock -> mainWriteLock (runStoryTransitionInner takes the
+ *      transition lock, then the DONE path takes the main write lock). Acquiring
+ *      the transition lock inside that repair would INVERT that order, so a
+ *      reconcile would sit on the main write lock for up to the transition
+ *      deadline while a DONE holding the transition lock fail-fasts on the main
+ *      write lock — turning one rare audit loss into systematic aborts of DONE /
+ *      story_create / gap_log / audit. story_discard is NOT in that position: its
+ *      `withReentrantMainWriteLock` calls all come AFTER the rescue and after the
+ *      worktree/branch destruction, so an acquire there would be transitionLock
+ *      -> mainWriteLock, the established order, not an inversion.
  * Hardening this race is a FOLLOW-UP STORY. It is not claimed here.
  *
  * RESIDUALS (stated, not glossed):

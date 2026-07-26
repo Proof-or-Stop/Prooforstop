@@ -1222,13 +1222,25 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       // is ALREADY on disk right now. A PLAN->INIT reopen that commits its record
       // into the worktree AFTER this line still loses it to the removal below,
       // and dies against the removed copy — neither record nor event survives.
-      // Deliberately NOT locked here: the transition lock is documented as
-      // advisory (and is disabled outright by
-      // LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK), the authoritative persist
-      // claim is a 15s fail-fast claim that cannot span the git work below, and
-      // this handler already nests withReentrantMainWriteLock, so the ordering
-      // has to stay transitionLock -> mainWriteLock rather than gain a new
-      // acquisition here. Full reasoning + the follow-up scope live on
+      //
+      // Deliberately NOT locked here. CORRECTED BY B-70a6 F-014 — the earlier
+      // note gave two wrong reasons and is retracted: it argued about the 15s
+      // fail-fast transition-cas persist claim, which was never the candidate
+      // primitive, and it implied this handler's withReentrantMainWriteLock calls
+      // forbid an acquire. They do not — those calls all come AFTER the rescue and
+      // after the destruction, so an acquire here would be transitionLock ->
+      // mainWriteLock, the established order, not an inversion. The real reasons:
+      // (1) the only candidate mutex, acquireStoryTransitionLock, is documented as
+      // advisory and is disabled outright by
+      // LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, so it could narrow this
+      // window but never close it; (2) story_discard is the RECOVERY COMMAND, and
+      // that lock exposes no fail-fast option — an acquire polls the 180s deadline
+      // and then throws, and a leaked lock whose pid was recycled by an unrelated
+      // live process is classified `active` and never stale-reclaimed at any age,
+      // so this command would hang behind a lock file exactly when a story is
+      // already wedged. A non-blocking try-acquire (the one shape without that
+      // hazard) was considered and declined: it covers only a reopen that has not
+      // yet taken the lock. Full reasoning + the follow-up scope live on
       // reconcileReopenAuditBeforeOutOfBandPhaseChange.
       const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({
         storyId: args.storyId,

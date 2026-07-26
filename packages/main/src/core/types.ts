@@ -155,9 +155,15 @@ export interface StoryEvent {
  * tmp-write + `renameSync`, so the record and the new phase land in ONE atomic
  * rename: either the reopen did not happen, or it happened AND the reason is
  * already durably on disk. `reconcilePendingReopenAudit`
- * (handlers/transition-orchestrator.ts) then emits the missing event on the
- * next transition and clears this record; `auditId` is the idempotency key that
- * makes that recovery emit EXACTLY ONE event, never two.
+ * (handlers/transition-orchestrator.ts) then emits the missing event and clears
+ * this record — but ONLY at the points enumerated in the next paragraph, NOT on
+ * every command and under NO concurrency guarantee; `auditId` is the idempotency
+ * key that makes that recovery emit EXACTLY ONE event, never two.
+ *
+ * (B-70a6 F-016: the sentence above used to promise that recovery "on the next
+ * transition", with no qualifier at all. It is EDITED IN PLACE rather than merely
+ * supplemented by the paragraph below, so a reader who stops reading here is not
+ * left with the pre-F-005 impression that some later transition always heals it.)
  *
  * WHAT THAT DOES AND DOES NOT GUARANTEE. Recovery fires on the next ORCHESTRATED
  * transition, and — since B-70a6 F-005 — at the two out-of-band phase writers
