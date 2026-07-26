@@ -68,7 +68,30 @@
       "context": "pruneWorktreeRegistry (worktree.ts) runs `git worktree prune --expire now`, which cannot remove a live sibling worktree but does clear every currently-missing registration repo-wide, not just the calling story's. Document both facts so callers do not rely on it being story-scoped. Comment-only. Reference: commit 48b82c0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The pruneWorktreeRegistry comment documents that git worktree prune --expire now cannot remove a live sibling worktree",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The comment documents that --expire now is repo-wide over every currently-missing registration, not scoped to the calling story",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The comment does not imply callers may rely on the prune touching only their own registration",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
