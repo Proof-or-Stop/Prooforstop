@@ -243,7 +243,7 @@
       "desc": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts has outgrown its filename across this storys four expansions: it started as a single PLAN->INIT reopen round-trip regression (F-003) and now also owns crash-window recovery for the ordinary transition path (F-004), an out-of-band rescue drill for story_discard AND a separate one for story_reconcile (F-005a/b, two different production handlers unrelated to reopen round-tripping per se), and a same-reason idempotency drill (F-006) — 6 drills / 669 lines in one file. A maintainer looking for discard- or zombie-repair-related audit coverage would not find it via this filename. Given the files own F-006 comment argues explicitly for exact-identity over fuzzy matching to avoid silent drift, the same discipline argues for splitting the out-of-band rescue drills (F-005/F-006) into a dedicated file (e.g. reopen-audit-out-of-band-rescue-smoke.ts) that shares the seedStoryAtInitCheck/crashInjectReopen helpers via export, leaving this file scoped to the original round-trip + F-004 crash recovery its name describes.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T06:51:17.213Z",
@@ -254,7 +254,11 @@
         "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED, NOT FIXED, with reasoning recorded so the trade-off is auditable. The finding is fair: plan-init-reopen-roundtrip-smoke.ts has grown from the original PLAN->INIT round-trip to also cover story_discard and story_reconcile audit rescue, so its name under-describes its scope. It was NOT split, for two reasons. (1) Cohesion: all 6 drills exercise one subject - the reopen audit lifecycle from creation through crash recovery to out-of-band rescue - and they share crashInjectReopen plus the seeding harness; splitting would either duplicate that harness or require a new shared module, adding churn for no behavioural gain. (2) Risk timing: this story has already been through five review rounds and four scope expansions; a late structural move of the very file that carries the RED/GREEN proofs for F-004/F-005/F-006 risks silently weakening the assertions at the exact moment their value is highest, and the verifier's AST anchors point into this file. A rename or split is a safe, mechanical follow-up once the behaviour is landed and stable, and is better done as its own change where a reviewer can diff structure against structure rather than against four interleaved fixes.",
+      "resolvedAt": "2026-07-26T07:19:47.798Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-70a6:F-012",
