@@ -286,6 +286,41 @@
         "scanEscalationReason": null
       },
       "_hash": "f83057af988750224751723ea47c953234af64fb9d7cf52a361a04b3b0dbe7f9"
+    },
+    {
+      "id": "B-3144:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 re-audit since round-9 PASS (RP-006 at bab5a21f08). Confirmed via git show that the only two commits since then (687ca32583 F-022, e7d9a961d3 F-023) touch ONLY packages/main/src/tasks/quorum-submit-smoke.ts (namedNearby helper) plus .lattice metadata - no production code changed, matching round-10 8-file sha256 proof (RP-008) and round-11 quality re-verification (RP-009). Re-audited all 25 verificationIntent/verificationEvidence pairs (CHK-001:6, CHK-002:9, CHK-003:10=25): each evidence entry names a specific check in the smoke suite (e.g. quorum_prune dry-run/apply, drift-accept refusal, rollback byte-preservation); none reference namedNearby or the discovery-sweep meta-guard at all, so F-022/F-023 cannot invalidate any of the 25 pairs - coverage integrity holds, 0 must-gaps, 0 waivers. Independently re-verified namedNearby correctness for BOTH directions: extracted the current implementation (quorum-submit-smoke.ts:2748-2776, keyMatch on PropertyAssignment.name===quorum_prune with line-fallback) into a standalone probe using the real typescript package and ran it against the actual story files - command-policy.ts:480 (quorum_prune, owning entry) returns true, :479 (quorum_submit sibling) returns false, :155 (story_resume sibling) returns false, :481 (next sibling) returns false - matching the quality reviewer independent probe exactly. Also built a synthetic fixture reproducing BOTH historical bug shapes simultaneously (a quorum_prune entry reformatted across lines per F-022, plus a sibling quorum_submit entry whose own reason text contains apply:true per F-023) and confirmed the current implementation resolves both directions correctly at once: reformatted-owning-entry lines return true, sibling-with-apply:true-text returns false. Ran the smoke suite to completion in a genuinely isolated scratch worktree (b3144-r11-testcov-iso at c74280d, one process at a time, torn down after) after the shared worktree run stalled under host contention (environmental, consistent with prior rounds RP-006/RP-008 notes) - clean build, then node dist/tasks/quorum-submit-smoke.js printed all 64 individual check lines including quorum_prune dry-run/apply/rollback/backup/CLI-wiring checks, exit 0: quorum_submit smoke passed (64 checks). Verified 64 matches the literal check(...) call-site count in the source (grep count = 64). All 23 findings remain resolved (findings.json: 23/23 status=resolved). Noted config.ts and process-fact-levels.ts protect their quorum_prune prose only via the same-physical-line fallback (no AST key-anchor reaches their name:/comment-adjacent shapes) rather than the keyMatch anchor F-023 added for command-policy.ts - but this is a pre-existing property unchanged since round-9 PASS (not introduced by the two test-only commits under review), is not tied to any of the 25 charted verificationIntent/verificationEvidence pairs, and was already the subject of 13 prior fix rounds (F-011..F-023) hardening this exact test-internal helper; filing a 24th finding against a hypothetical future reformat of files this story does not touch would be exactly the meta-guard iteration this round was told to avoid. CONVERGENCE JUDGEMENT: story remains CONVERGED. PASS.",
+      "createdAt": "2026-07-26T08:52:08.120Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "reviewRunId": "B-3144:RR-028",
+      "envelopeId": "99da31729c51edc6be16b8fa724187a60e33d9563e29810d3e2dbde90c284831",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/review-passes.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/review-runs.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/lattice-cli.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bee07b07d23455c62b21cbd563bc13750fafbab9cefe49a9c9614627ed624483"
     }
   ]
 }
