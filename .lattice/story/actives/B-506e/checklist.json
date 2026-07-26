@@ -788,11 +788,11 @@
           "file": "packages/main/src/core/red-evidence/operation-key.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 5 (lines 321-324) asserts controlOperationKey for a reason with leading/trailing spaces and internal whitespace+tab runs equals the key for 'bad record found', and normalizeReason collapses an internal-run/tab reason to 'a b c' (line 324) — cosmetic whitespace differences derive the SAME operation key (dedupe-safety rule).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 5 of red-evidence-chain-smoke.ts, the key pair k1 and k2: k1 is controlOperationKey over the base fixture with a reason carrying leading and trailing spaces plus an internal multi-space and tab run, k2 is the same fixture with the reason already collapsed, and assert.equal(k1, k2) carries the message (whitespace-only reason differences produce the SAME operation key). The neighbouring assert.equal on normalizeReason pins the collapse rule itself - trim, then internal whitespace runs to single ASCII spaces - as implemented by normalizeReason in operation-key.ts, which is the dedupe-safety rule its docblock names.",
+          "headHash": "2f0a40a45cc9f0aa7145044d88695bcd81332b53",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:51.178Z"
         },
         {
           "intentRef": "CHK-006:edge:1",
