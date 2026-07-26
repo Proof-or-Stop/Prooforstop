@@ -64,7 +64,7 @@
       "desc": "packages/main/src/cli/activity-policy.ts:1-84 (READ_ONLY_COMMANDS) — frozen_claim_drift_check is registered as strictly read-only in every OTHER map (command-policy.ts ownershipClass=readOnly/destructiveRisk=none, process-fact-levels.ts level=L0 rationale=\"Writes no files/evidence, mutates nothing\", config.ts DEFAULT_PHASE_TOOLS comment=\"writes nothing\", and its own handler header comment) but is MISSING from activity-policy.ts READ_ONLY_COMMANDS, the set cli-engine.ts isReadOnlyCommand()/shouldWriteActivityLog()/writeCodexProcessEvent() consult to decide whether to append a process event. Reproduced: LATTICE_ACTIVITY_SOURCE=codex node bin/lattice.js frozen_claim_drift_check storyId=B-2296 appends a codex_cli entry to .lattice/story/actives/B-2296/process-events.jsonl (git status shows the file dirtied) — a real story-metadata mutation for a command documented and classified everywhere else as never mutating anything. Sibling read-only, all-phase diagnostic commands added alongside similar storyFilesHash-drift features (acceptance_topology_check, pre_review_check_read, topology_critic_receipt_check, checklist_get) ARE all present in this set. Fix: add frozen_claim_drift_check to READ_ONLY_COMMANDS in packages/main/src/cli/activity-policy.ts.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-26T22:20:24.782Z",
@@ -73,7 +73,11 @@
       "_hash": "a2e10dfd99fbbd79ac53d2950f3d521c8da51d16cb4e9984cfcf78d2c3945317",
       "signatureTag": "missing|unknown|packages-main-activity",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedReason": "Added frozen_claim_drift_check to READ_ONLY_COMMANDS in packages/main/src/cli/activity-policy.ts (commit 01df7748); the command no longer appends a process-event under LATTICE_ACTIVITY_SOURCE=codex, matching command-policy/process-fact-levels/config classification.",
+      "resolvedAt": "2026-07-26T22:43:45.627Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
