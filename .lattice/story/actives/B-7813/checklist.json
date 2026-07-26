@@ -92,7 +92,40 @@
       "context": "core/convergence-breaker.ts (maxAdvance=20, AUTO_RECOVERY_BUDGET=1, cleared by story_resume --ack) counts ADVANCES and is the only current brake; it never bit on review-round runaway. The new review-round adjudication must have a hard upper bound or a privileged override so it cannot be ignored indefinitely, and must NOT double-count review rounds against the convergence-breaker's advance count or conflict with the story_resume --ack recovery path. Verify both brakes coexist and each still fires on its own trigger.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "a hard ceiling caps total ordinary review rounds even when resolutions are recorded, unless a privileged override with its own reason is recorded",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the review-round stall adjudication and the advance-counting convergence-breaker coexist — each fires only on its own trigger (review rounds vs advances), no double-count",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_resume --ack clears the advance-counting breaker but does NOT clear the stall block, and recording a stall resolution does NOT touch the breaker advance baseline",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
