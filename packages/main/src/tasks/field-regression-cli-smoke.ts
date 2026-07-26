@@ -1596,6 +1596,11 @@ async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> 
       }],
     });
 
+    // B-ec67 F-006: happy:0 (type cli) and edge:0 (type logic) are executable intents, so
+    // an evidence write needs a selector or an audited nonMechanicalReason. This test only
+    // asserts the kind-alias normalization, so it uses the audited escape (which preserves
+    // the normalized kind) rather than pinning + executing a command.
+    const aliasEscape = 'kind-alias regression fixture; execution not applicable, recorded as audited attestation';
     const cliOutput = await runLattice(root, 'verification_evidence_add', {
       storyId,
       itemId: 'CHK-001',
@@ -1603,6 +1608,7 @@ async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> 
       kind: 'cli',
       result: 'pass',
       note: 'CLI alias should persist as manual transcript evidence',
+      nonMechanicalReason: aliasEscape,
     });
     assert.match(cliOutput, /manual_transcript, alias cli/);
 
@@ -1614,6 +1620,7 @@ async function assertVerificationEvidenceKindAliasesCliSurface(): Promise<void> 
         kind: 'logic',
         result: 'pass',
         note: 'Logic alias should persist as logic test evidence',
+        nonMechanicalReason: aliasEscape,
       }],
     });
     assert.match(batchOutput, /1 item intent/);
