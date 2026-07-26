@@ -270,15 +270,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
-          "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Fixes F-003: the skip is now EXHAUSTIVE, not just the exact v2 literal. proofstory.ts redEvidenceRecordSatisfied returns false for ANY record not classified v1 (classifyRedRecordSchemaSafe), so observedFailure.trim() is never reached on a non-v1 record. The test asserts the LIVE gate on a v3 store throws the typed RedEvidenceSchemaError and NOT a bare TypeError, and (defense-in-depth) that a v3 record injected DIRECTLY into the diagnostic input past the read gate does not crash and leaves the verdict byte-identical. Verified RED: pre-fix baseline dist throws TypeError at observedFailure.trim(). Commit b4fa4bbfad.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.825Z"
+          "note": "Re-bound in round 3. Previously bound to red-w2c-schema-failclosed.mjs, which injects a v3 (unsupported-schema) record, NOT the v2 quarantine record this intent names. red-w2c-gate-guard.mjs is the artifact that literally writes a v2 quarantine record with no observedFailure into a story red-evidence.json and runs the REAL gate. Ordering corrected this round so the v2 record is evaluated FIRST ([v2Quarantine, v1]); against a dist built from the pre-fix tree 8727b2db83 the corrected file fails at exactly that assert.doesNotThrow with TypeError: Cannot read properties of undefined (reading 'trim') — RED signal A reproduced.",
+          "headHash": "f04ea7c96f1af6d2ff5a95483df9335797c5e221",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:32:59.693Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
