@@ -40,6 +40,28 @@
         "scanEscalationReason": null
       },
       "_hash": "e543313ece862e9146eb91d0f53844018e96de54764abb6bb9b54cfe75eb7acf"
+    },
+    {
+      "id": "B-1507:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "Reviewed the 3 CHK-001..003 behaviors against userSees/DoneWhen via git diff main...HEAD plus direct code reading plus REAL execution (not just static reading): (1) verification_run resolves intentRef to the owning items pinned verification:{command,selector}, executes it through the shared enforceAndStampEvidence/runSingleAllowlistedCommand boundary, and derives result from the receipt; refuses cleanly with no evidence row written on [intent_ref_unresolved]/[verification_run_no_pin]/[receipt_exit_nonzero]/[receipt_selector_absent] -- confirmed by running the built CHK-004 smoke plus my own mutation-kill (flipping the exit-nonzero refusal to a no-op made assertion A2 fail as expected, then restored). (2) verification_evidence_refresh_stale (async) re-executes only PINNED executable rows outside the lock, and only records a reexecByKey pass-stamp on a real mechanical true plus receipt result; any failure (exit nonzero, selector absent, unavailable or unallowlisted command, resolution error) is caught and silently falls through to the pre-existing demote path -- no laundering path exists. Confirmed pin-less rows are skipped (kept demote-only, B-3b88 coexistence) and that the 3 non-executing in-process callers (evidence_refresh.ts, done-prepare.ts, recover-evidence.ts) were switched to the new synchronous refreshStaleEvidenceMetadataOnly export (verified via diff plus reran done-required-freshness-smoke and lifecycle-orchestrate-smoke, both pass). Ran my own mutation-kill on the reexec loop (short-circuiting it to always continue) and confirmed the CHK-004 smoke B1 assertion fails as expected, then restored. (3) evidence-pin-guard: computeEvidencePinVerdict denies ONLY on an explicit command or selector value mismatch against an existing pin (verification_run always allowed since the caller cannot author a mismatch; unpinned intent always allowed; non-lattice or unparseable command or missing story all fail-open allow). Both cjs shims (Claude Bash matcher plus the Codex candidate-token matcher) fail-open on spawn error, timeout, or signal and only exit 2 when the CLI cleanly returns deny; the Claude shim is the copied source of truth and the Codex shim byte-matches renderCodexEvidencePretoolHookScript exactly (diffed, identical). Adversarial: confirmed via the CHK-004 smoke C9 case that enforceAndStampEvidence (the pre-existing B-ec67 floor, untouched by this diff) still refuses a mismatched command or selector even when the guard or hook path is bypassed entirely -- the seatbelt is genuinely non-load-bearing. Ran my own mutation-kill on computeEvidencePinVerdict (forcing verdict allow on the deny branch) and confirmed C1 fails as expected, then restored. Checked the schema layer too: verificationIntentItemSchema is a strict zod object with no verification field, so a checklist_update or checklist_add caller cannot inject a pin onto a manual or docs intent via the CLI -- the pin invariant (never present on manual or docs intents) holds at the schema layer, not just by handler convention. The Codex real shell tool_name is documented as an accepted pending-real-token limitation per the dispatch prompt, not treated as a blocker here. No functional or behavioral defect found in the three reviewed behaviors. Note: a pre-existing critical concept-reviewer finding (B-1507:F-001, verification_pin_guard_check missing a process-fact-levels.ts entry) is already registered and is outside this behavior lane scope (registry completeness, not functional correctness) -- not duplicated here.",
+      "createdAt": "2026-07-26T06:04:35.945Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-002",
+      "envelopeId": "556e76ac7c58e6c3cdd2fa76edf4144b25f34117c06c372d28a897d024c47cc6",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/verification-context-pack.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37416af47f6f99860dc976484d1ccc7cc40efd453521f0bd38d9d04604b54146"
     }
   ]
 }
