@@ -366,6 +366,69 @@
           "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
         ]
       }
+    },
+    {
+      "id": "CHK-010",
+      "title": "Assert the behaviour this fix must NOT change",
+      "context": "Closes two scope gaps found by the PLAN scope reviewer (decision document acceptance rows V2 and E4), neither of which was owned by any item. V2: a valid v2 record must remain unchanged and continue to be correctly skipped by the v1 predicate - the v2 record union arrived on main with the B-506e merge, so this is live behaviour that a read-boundary validator could easily break by rejecting records it does not recognise. E4: an artifact whose records key is ABSENT must keep producing UNSATISFIED, which is the ordinary not-configured path and must NOT be reclassified as corruption; conflating absent with malformed would regress the very distinction this story exists to create. Both are regression assertions against behaviour that is correct today, not new capability.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-2aa7/background.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid v2 record is still correctly skipped by the v1 predicate and its handling is unchanged from pre-fix.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An artifact whose records key is ABSENT still produces UNSATISFIED via the ordinary not-configured path and is NOT reclassified as corruption.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Absent and malformed remain distinguishable end to end: an absent artifact reports as not configured while a corrupt one reports as corrupt, at every consumer.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-011",
+      "title": "Fuzz the validator to prove it is total on arbitrary JSON",
+      "context": "Closes the third scope gap: decision document section 10.5 requires that the validator ITSELF cannot throw on any JSON shape, and the checklist only pinned the specific enumerated malformed and envelope rows. Those rows were written from observed failures, so they prove the known cases and nothing about the unknown ones - which is the same mistake, in test form, that produced this defect in the first place. Generate arbitrary acyclic JSON values (nested objects and arrays, mixed primitives, empty containers, deeply nested structures, and objects with no prototype) and assert the validator returns a classification for every one of them and never throws. This is a property, not a case list.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-2aa7/background.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ],
   "auditLog": [
@@ -379,6 +442,28 @@
       "reason": "INIT reviewer raised this twice (DRAFT-106 then INIT-002) and it was deferred to PLAN on the explicit condition that it become a real checklist item rather than an optional addition; acceptance section 10.3 row O2 was otherwise covered by no item.",
       "addedTitle": "Prove the gate verdict is order-independent after the fix",
       "addedContext": "Added in PLAN per INIT-002 / DRAFT-106, raised twice by the INIT reviewer and re-verified live on current main. Decision document acceptance section 10.3 requires BOTH ordering rows, and only O1 was covered. O1, malformed entry first, crashes today and is a CHK-001 repro row. O2, a satisfying record FIRST and a malformed entry after, does NOT crash: redEvidenceSatisfied uses Array.prototype.some, which short-circuits on the first satisfying record, so the malformed entry is never examined and the gate returns SATISFIED while the artifact is corrupt. That makes the outcome depend on array position, which is a defect in its own right and cannot be caught by a crash-only test. After the fix, assert that the SAME record set produces the SAME verdict regardless of position, and that a malformed entry is reported even when a satisfying record precedes it."
+    },
+    {
+      "timestamp": "2026-07-26T22:37:05.709Z",
+      "phase": "PLAN",
+      "itemId": "CHK-010",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer classified acceptance rows V2 and E4 as gaps with no owning checklist item; unresolved gaps are a PLAN-to-DEV blocker.",
+      "addedTitle": "Assert the behaviour this fix must NOT change",
+      "addedContext": "Closes two scope gaps found by the PLAN scope reviewer (decision document acceptance rows V2 and E4), neither of which was owned by any item. V2: a valid v2 record must remain unchanged and continue to be correctly skipped by the v1 predicate - the v2 record union arrived on main with the B-506e merge, so this is live behaviour that a read-boundary validator could easily break by rejecting records it does not recognise. E4: an artifact whose records key is ABSENT must keep producing UNSATISFIED, which is the ordinary not-configured path and must NOT be reclassified as corruption; conflating absent with malformed would regress the very distinction this story exists to create. Both are regression assertions against behaviour that is correct today, not new capability."
+    },
+    {
+      "timestamp": "2026-07-26T22:37:06.276Z",
+      "phase": "PLAN",
+      "itemId": "CHK-011",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer classified decision document section 10.5 safety property (validator total on any JSON shape) as a gap; unresolved gaps are a PLAN-to-DEV blocker.",
+      "addedTitle": "Fuzz the validator to prove it is total on arbitrary JSON",
+      "addedContext": "Closes the third scope gap: decision document section 10.5 requires that the validator ITSELF cannot throw on any JSON shape, and the checklist only pinned the specific enumerated malformed and envelope rows. Those rows were written from observed failures, so they prove the known cases and nothing about the unknown ones - which is the same mistake, in test form, that produced this defect in the first place. Generate arbitrary acyclic JSON values (nested objects and arrays, mixed primitives, empty containers, deeply nested structures, and objects with no prototype) and assert the validator returns a classification for every one of them and never throws. This is a property, not a case list."
     }
   ]
 }
