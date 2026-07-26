@@ -99,7 +99,30 @@
       "context": "Decisions D-1 to D-4. Precedence rule D-1 (which source of schema version wins): the FILE declares the era, the RECORD declares the exception, so a versionless record inside a v1-declared file is only CLAIMED v1 and must be validated against the v1 schema, never assumed to satisfy it. Validate the ENVELOPE before the records. Malformed entries are quarantined - records stays clean, malformed surface in a separate reported list - never thrown, never silently dropped. Mandatory v1 fields per the RedEvidenceRecord interface in core/types.ts (locate by symbol; the line range drifted). Cases that are easy to miss: a record missing only trigger / createdAt / id but otherwise complete is currently SATISFIED and is the WITNESS that full validation rather than the rejected narrow option was implemented; a prototype-inherited observedFailure (Object.create(null) and friends) must not be accepted via the prototype chain; and an ARRAY record must be rejected, since the classifier still returns 'v1' for it. Envelope rows from acceptance section 10.2.1: E5, a JSON root that is not an object ([], 'x', null, 42) currently does NOT crash - it flows through as the raw parsed value and every consumer reads it as ABSENT evidence, making a corrupt artifact indistinguishable from a missing one, which a crash-only validator would leave untouched; E6, a missing or unknown FILE-level schemaVersion must not silently degrade to v1; E7, an unparseable file currently lets a raw SyntaxError escape from readJson and must instead produce a typed error naming the path.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A well-formed v1 artifact loads unchanged and its gate verdict is identical to pre-fix.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Envelope rows E5, E6 and E7 each behave as specified: a non-object root is rejected rather than read as absent, a missing or unknown file-level schemaVersion does not degrade to v1, and an unparseable file yields a typed error naming the path instead of a raw SyntaxError.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed entries are quarantined, not dropped: the rejected entry is retained and reported with index, identifying field and reason, and an envelope fault is never reported as a record fault. An array record and a prototype-inherited observedFailure are both rejected.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
