@@ -92,9 +92,9 @@
       "id": "CHK-003",
       "title": "Add a hard ceiling / privileged override and prevent double-counting with the existing convergence-breaker and story_resume --ack",
       "context": "core/convergence-breaker.ts (maxAdvance=20, AUTO_RECOVERY_BUDGET=1, cleared by story_resume --ack) counts ADVANCES and is the only current brake; it never bit on review-round runaway. The new review-round adjudication must have a hard upper bound or a privileged override so it cannot be ignored indefinitely, and must NOT double-count review rounds against the convergence-breaker's advance count or conflict with the story_resume --ack recovery path. Verify both brakes coexist and each still fires on its own trigger.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T08:29:45.172Z",
       "files": {
         "modify": [
           "packages/main/src/core/review-convergence.ts",
