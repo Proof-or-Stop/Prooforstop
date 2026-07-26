@@ -111,6 +111,18 @@
           "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
           "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
           "timestamp": "2026-07-26T01:42:33.824Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "grep -c \"land together or not at all\" packages/main/src/handlers/transition-orchestrator.ts",
+          "result": "pass",
+          "note": "Actual output: 0 (grep exit status 1, no match). The overstated phrase is gone from the file entirely, not just from this comment block. npm --prefix packages/main run build exits 0, confirming the comment-only edit did not affect compilation. git diff -U0 of my commit filtered for lines not starting with // returns nothing (exit 1), proving no non-comment line changed.",
+          "headHash": "bf23ad84d8496caded966e92b920251b6d626689",
+          "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
+          "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
+          "timestamp": "2026-07-26T01:42:41.039Z"
         }
       ]
     },
