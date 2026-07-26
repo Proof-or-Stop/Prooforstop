@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "One shared merge-lineage classifier (net endpoint diff, -z, maxBuffer, empty-diff means trusted, split catch) routes both the reuse and admissibility copies",
       "context": "Extract a shared helper (netDiffChangedPaths(evidenceHead,currentHead,gitCwd) + a shared lineage classifier) and route BOTH classifyTrustedValidationLineage (packages/main/src/core/validation-evidence-reuse.ts:251) and validationHeadLineage (packages/main/src/core/validation-evidence-admissibility.ts:42) through it. Net diff: git diff-tree -r --no-commit-id --name-only --no-renames -z <E> <C> with maxBuffer 1024*1024*1024; split on NUL. Empty net diff means trusted (remove the changed.length===0 -> rejected/empty-descendant-lineage/lineage_empty push). Split the try/catch so only merge-base --is-ancestor stays in the ancestry catch and a netDiffChangedPaths failure surfaces a distinct reason instead of mislabeling as not-ancestor. Keep the exact-head fast-path, the ancestor gate, and the isStoryMetadataPath untrusted filter unchanged; do not touch the other 8 reuse factors.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-26T03:31:41.059Z",
-      "endTime": null,
+      "endTime": "2026-07-26T03:43:44.977Z",
       "verificationIntent": {
         "happy": [
           {
