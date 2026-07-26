@@ -662,6 +662,43 @@
         "scanEscalationReason": null
       },
       "_hash": "4095f4c04d9a540461d10ae35d98953c90494fb6a16285cee5c784088d4fc78e"
+    },
+    {
+      "id": "B-506e:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge fresh pass (124 commits from main: B-ec67, B-3783, B-8b69). (1) All W2c production sources (proofstory.ts, red-evidence/{append,record-v2}.ts, store.ts, handlers/red-evidence.ts) byte-identical to b4fa4bbfad; only red-evidence-chain-smoke.ts + red-w2c-schema-failclosed.mjs differ, and those diffs trace to this story's own already-reviewed round-3/round-4 commits (ad3e39941b, fd22136fe6, 85f60fcbf4), not the merge. Every other diffstat file (checklist.ts, validation-executor.ts, verification.ts, types.ts, worktree.ts, transition-orchestrator.ts, machine.ts, lifecycle-registry.ts, command-catalog*.ts, plan-init-reopen-roundtrip-smoke.ts, tool-executed-evidence-receipt-smoke.ts, proofstory-{acceptance-topology,pre-review-check}-smoke.ts) traces cleanly to B-ec67 (evidence-write contract) or B-8b69 (PLAN->INIT reopen) commits; the proofstory-*-smoke.ts touches are pure call-site migrations to nonMechanicalReason, no schema/concept changes. (2) 71c267a0 inventory re-confirmed post-correction: 15 lines across 6 files (summary.json, delivery-check.json x4, findings.json x3, review-passes.json x4, checklist.json x1, test-evidence.json x2) -- every occurrence is either the named RETRACTION text or a historical TEST-phase reviewer note quoting the old value; summary.json#limitations and F-005 resolvedReason now assert the real digest sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec with an explicit retraction of 71c267a0..., matching the briefing. Spot-checked by re-running red-w2c-v1-verdict-invariance.mjs directly: it reproduces sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec live, confirming the correction is genuine not merely claimed. (3) No naming/concept collision from the merge: grepped classifyRedRecordSchema/RedEvidenceSchemaError/red_evidence.v2/redEvidence across all merge-touched files -- zero hits outside W2c's own files; B-ec67's checklist.ts changes are evidence-contract-only (coverageStatusForCoveredEvidence etc.), no red-evidence schema surface touched. No blocker.",
+      "createdAt": "2026-07-26T03:58:07.541Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-025",
+      "envelopeId": "06c80e35cb4bff0697a90ebab7c74fff0b966f9f0249b40e5b18e6decc424140",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/test-evidence.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "39007f9dfbf03c7057270d58b6ddedd51b848b44fc9875f095181a7f0140ec14"
     }
   ]
 }
