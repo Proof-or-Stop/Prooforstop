@@ -2,9 +2,10 @@ import type {
   ChecklistData,
   ChecklistItem,
   VerificationCoverageEntry,
-  VerificationCoverageReport,
   VerificationEvidence,
   VerificationIntentItem,
+  VerificationIntentType,
+  VerificationCoverageReport,
   VerificationLane,
   VerificationPriority,
 } from './types.js';
@@ -45,6 +46,44 @@ export function collectVerificationIntents(item: ChecklistItem): Array<{
 
 export function evidenceMatches(evidence: VerificationEvidence, ref: string): boolean {
   return evidence.intentRef === ref;
+}
+
+/**
+ * B-ec67: the command-executable verification intent types. logic|cli|browser can be
+ * proven by running a pinned command; manual|docs are attestation-only.
+ */
+const EXECUTABLE_INTENT_TYPES: ReadonlySet<VerificationIntentType> = new Set<VerificationIntentType>(['logic', 'cli', 'browser']);
+
+export function isExecutableIntentType(type: VerificationIntentType): boolean {
+  return EXECUTABLE_INTENT_TYPES.has(type);
+}
+
+/**
+ * B-ec67 CHK-004 — the GATE-side escape-hatch closure. Given an executable intent's
+ * evidence that would otherwise be scored 'covered', decide whether it truly covers:
+ *
+ *  - mechanical === true  → an executed receipt; covers ONLY when the receipt proves
+ *    it (selectorMatched && exitCode === 0). Anything else is non-mechanical.
+ *  - mechanical === false → an explicit non-mechanical attestation (manual|docs
+ *    recorded against an executable intent, or the audited escape). NEVER covers —
+ *    this is what stops `type:manual` from being a universal bypass at the gate.
+ *  - mechanical === undefined → legacy prose-only evidence written before B-ec67.
+ *    Grandfathered: keeps its historical 'covered' status so in-flight stories do
+ *    not hard-break.
+ *
+ * Non-executable (manual|docs) intents are unaffected and stay 'covered'.
+ */
+function coverageStatusForCoveredEvidence(
+  type: VerificationIntentType,
+  evidence: VerificationEvidence,
+): VerificationCoverageEntry['status'] {
+  if (!isExecutableIntentType(type)) return 'covered';
+  if (evidence.mechanical === true) {
+    const receipt = evidence.receipt;
+    return receipt && receipt.selectorMatched && receipt.exitCode === 0 ? 'covered' : 'non_mechanical';
+  }
+  if (evidence.mechanical === false) return 'non_mechanical';
+  return 'covered'; // mechanical === undefined → legacy grandfather
 }
 
 /**
@@ -129,7 +168,11 @@ export function buildVerificationCoverage(
           !headMatches(evidence.headHash, currentHead) &&
           !(isEvidenceFresh?.(evidence.headHash, evidence) ?? false)
         ) status = 'stale';
-        else status = 'covered';
+        // B-ec67 CHK-004: an executable intent is 'covered' ONLY by an executed
+        // receipt (or grandfathered legacy evidence); a non-mechanical attestation
+        // is demoted to 'non_mechanical'. Lives HERE in the coverage gate — not only
+        // in the write handler — so recording type:manual cannot bypass execution.
+        else status = coverageStatusForCoveredEvidence(collected.intent.type, evidence);
 
         // Evidence quality classification (balanced: warning, strict: blocking)
         if (status === 'covered' && qualityProfile !== 'light') {

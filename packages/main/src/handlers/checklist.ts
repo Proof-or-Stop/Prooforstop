@@ -6,8 +6,10 @@ import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationIntent, VerificationIntentType, VerificationLane } from '../core/types.js';
-import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import type { ChecklistData, ChecklistItem, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
+import { buildVerificationCoverage, collectVerificationIntents, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import { runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
+import { createHash } from 'crypto';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
@@ -297,6 +299,243 @@ function assertEvidenceIsNotAcceptanceMatrixProjection(input: { kind?: string; c
   throw new Error(
     'verification evidence refused: acceptance_matrix output is an L0 read-only projection and cannot satisfy verification or gate authority [acceptance_matrix_non_evidentiary_projection]',
   );
+}
+
+// ── B-ec67: tool-executed, selector-bearing evidence receipts ────────────────
+// One shared enforce-and-stamp helper reached by BOTH verification_evidence_add
+// and verification_evidence_batch_add so neither write path is an unguarded bypass.
+
+const VERIFICATION_OUTPUT_TAIL_CHARS = 4000;
+const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;
+
+function sha256Hex(value: string): string {
+  return createHash('sha256').update(value).digest('hex');
+}
+
+/** Bounded output tail (mirrors done-required-validation.ts:531 WITHOUT importing it). */
+function boundedOutputTail(output: string): string {
+  return output.length <= VERIFICATION_OUTPUT_TAIL_CHARS
+    ? output
+    : output.slice(output.length - VERIFICATION_OUTPUT_TAIL_CHARS);
+}
+
+/** Common shape of a single evidence write for the shared enforcement helper. */
+interface EvidenceWriteInput {
+  intentRef: string;
+  kind: VerificationEvidence['kind'];
+  command?: string;
+  selector?: string;
+  result?: 'pass' | 'fail';
+  nonMechanicalReason?: string;
+}
+
+/**
+ * B-ec67: what the shared helper decides for one evidence write. `evidencePatch`
+ * is merged into the makeEvidence args (result/mechanical/receipt/nonMechanicalReason);
+ * `pin` is set on the intent (immutably) when the executable intent was pinned on this
+ * first selector-bearing write.
+ */
+interface EnforceAndStampResult {
+  evidencePatch: {
+    result?: 'pass' | 'fail';
+    command?: string;
+    mechanical?: boolean;
+    receipt?: VerificationExecutionReceipt;
+    nonMechanicalReason?: string;
+  };
+  pin?: { lane: VerificationLane; index: number; verification: VerificationIntentPin };
+}
+
+/** Resolve intentRef → the intent on THIS item, aligned with the coverage gate's canonical ref. */
+function resolveIntentForRef(
+  item: ChecklistItem,
+  intentRef: string,
+): { lane: VerificationLane; index: number; intent: VerificationIntentItem } | undefined {
+  const hit = collectVerificationIntents(item).find(c => c.ref === intentRef);
+  return hit ? { lane: hit.lane, index: hit.index, intent: hit.intent } : undefined;
+}
+
+type SingleCommandRunner = (command: string, cwd: string) => Promise<SingleCommandExecutionResult>;
+
+/**
+ * B-ec67 — THE single enforcement boundary for a verification-evidence write, called
+ * by both single and batch handlers. Behavior:
+ *   a. Resolve the intent; refuse if intentRef does not map to an intent on the item.
+ *   b. Determine executable: logic|cli|browser vs attestation-only manual|docs.
+ *   c. Executable + (selector provided OR intent already pinned) → mechanical path:
+ *        PIN (immutable): first write sets verification from command+selector (both
+ *        required); a later write's command must equal the pinned command (else
+ *        receipt-command-mismatch); selector likewise immutable.
+ *        EXECUTE the pinned command; refuse when pass is claimed but exit != 0, or the
+ *        pinned selector is absent from output. Derive result FROM the receipt.
+ *        Stamp the receipt {exitCode,outputDigest,outputTail,selectorMatched,executedAt}.
+ *   d. Executable + audited escape (nonMechanicalReason ≥ 30) → record non-mechanical,
+ *        attributable, no execution (still demoted by the coverage gate).
+ *   e. Executable + no selector + no pin + no escape → LEGACY-shaped write: stored as-is,
+ *        mechanical left undefined (grandfathered), no execution.
+ *   f. manual|docs intents → attestation-only, mechanical:false, no execution, no refuse.
+ *   g. waiver kind → explicit exemption, no execution.
+ */
+async function enforceAndStampEvidence(
+  item: ChecklistItem,
+  input: EvidenceWriteInput,
+  deps: { runCommand: SingleCommandRunner; cwd: string },
+): Promise<EnforceAndStampResult> {
+  const resolved = resolveIntentForRef(item, input.intentRef);
+  if (!resolved) {
+    throw new Error(
+      `verification evidence refused: intentRef ${input.intentRef} does not resolve to a verificationIntent on ${item.id} [intent_ref_unresolved]`,
+    );
+  }
+  const { lane, index, intent } = resolved;
+  const callerCommand = input.command?.trim() || undefined;
+  const callerSelector = input.selector?.trim() || undefined;
+  const escapeReason = input.nonMechanicalReason?.trim() || undefined;
+
+  // waiver: explicit exemption, never executed
+  if (input.kind === 'waiver') {
+    return { evidencePatch: {} };
+  }
+
+  // attestation-only intent types
+  if (!isExecutableIntentType(intent.type)) {
+    return {
+      evidencePatch: {
+        mechanical: false,
+        ...(input.result ? { result: input.result } : {}),
+        ...(callerCommand ? { command: callerCommand } : {}),
+      },
+    };
+  }
+
+  const existingPin = intent.verification;
+
+  // Audited escape for an executable intent: record non-mechanical WITHOUT execution.
+  if (escapeReason && !existingPin && !callerSelector) {
+    if (escapeReason.length < MIN_NON_MECHANICAL_ESCAPE_REASON) {
+      throw new Error(
+        `verification evidence refused: nonMechanicalReason must be ≥ ${MIN_NON_MECHANICAL_ESCAPE_REASON} characters to record a non-mechanical attestation for executable intent ${input.intentRef} [non_mechanical_reason_too_short]`,
+      );
+    }
+    return {
+      evidencePatch: {
+        mechanical: false,
+        nonMechanicalReason: escapeReason,
+        ...(input.result ? { result: input.result } : {}),
+        ...(callerCommand ? { command: callerCommand } : {}),
+      },
+    };
+  }
+
+  // Legacy-shaped write for an executable intent (no selector, no pin) → grandfather.
+  // Enforcement is opt-in via a selector on the first write, then mandatory (the pin
+  // is immutable). This is what keeps in-flight stories and legacy fixtures loadable.
+  if (!existingPin && !callerSelector) {
+    return {
+      evidencePatch: {
+        ...(input.result ? { result: input.result } : {}),
+        ...(callerCommand ? { command: callerCommand } : {}),
+      },
+    };
+  }
+
+  // Mechanical path: determine the immutable pinned command + selector.
+  let pinCommand: string;
+  let pinSelector: string;
+  let pinToSet: EnforceAndStampResult['pin'];
+  if (existingPin) {
+    if (!callerCommand) {
+      throw new Error(
+        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got <none> (executable intent ${input.intentRef} is pinned; the command must be provided and match) [receipt_command_mismatch]`,
+      );
+    }
+    if (callerCommand !== existingPin.command) {
+      throw new Error(
+        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got ${callerCommand} (the verification pin is immutable) [receipt_command_mismatch]`,
+      );
+    }
+    if (callerSelector && callerSelector !== existingPin.selector) {
+      throw new Error(
+        `verification evidence refused: receipt-selector-mismatch: expected ${existingPin.selector}, got ${callerSelector} (the verification pin is immutable) [receipt_selector_mismatch]`,
+      );
+    }
+    pinCommand = existingPin.command;
+    pinSelector = existingPin.selector;
+  } else {
+    // First selector-bearing write pins the intent; require BOTH command and selector.
+    if (!callerCommand || !callerSelector) {
+      throw new Error(
+        `verification evidence refused: executable intent ${input.intentRef} requires BOTH command and selector to pin verification on the first evidence write [verification_pin_incomplete]`,
+      );
+    }
+    pinCommand = callerCommand;
+    pinSelector = callerSelector;
+    pinToSet = { lane, index, verification: { command: pinCommand, selector: pinSelector } };
+  }
+
+  // Execute the pinned command; the receipt (not the caller) determines result.
+  const run = await deps.runCommand(pinCommand, deps.cwd);
+  const exitOk = run.code === 0 && !run.timedOut;
+  const selectorMatched = run.output.includes(pinSelector);
+
+  // Refuse: a caller cannot claim pass when the command did not exit 0.
+  if (input.result === 'pass' && !exitOk) {
+    throw new Error(
+      `verification evidence refused: pinned command exited ${run.code}${run.timedOut ? ' (timed out)' : ''} but result:pass was claimed for ${input.intentRef} [receipt_exit_nonzero]`,
+    );
+  }
+  // Refuse: the pinned selector must appear in captured output (kills same-command,
+  // wrong/absent-case false passes). Applies regardless of the caller's claimed result.
+  if (!selectorMatched) {
+    throw new Error(
+      `verification evidence refused: pinned selector "${pinSelector}" not found in command output for ${input.intentRef} [receipt_selector_absent]`,
+    );
+  }
+
+  const receipt: VerificationExecutionReceipt = {
+    exitCode: run.code,
+    outputDigest: sha256Hex(run.output),
+    outputTail: boundedOutputTail(run.output),
+    selectorMatched,
+    executedAt: new Date().toISOString(),
+  };
+  const derivedResult: 'pass' | 'fail' = exitOk && selectorMatched ? 'pass' : 'fail';
+
+  return {
+    evidencePatch: {
+      result: derivedResult,
+      command: pinCommand,
+      mechanical: true,
+      receipt,
+    },
+    ...(pinToSet ? { pin: pinToSet } : {}),
+  };
+}
+
+/**
+ * B-ec67: apply a pin decision onto the freshly-read item under the checklist lock,
+ * re-checking immutability so a concurrent writer cannot silently change the pin.
+ */
+function applyVerificationPin(
+  item: ChecklistItem,
+  pin: { lane: VerificationLane; index: number; verification: VerificationIntentPin },
+): void {
+  const laneIntents = item.verificationIntent?.[pin.lane];
+  const intent = laneIntents?.[pin.index];
+  if (!intent) {
+    throw new Error(
+      `verification evidence refused: intent ${item.id}:${pin.lane}:${pin.index} vanished before the pin could be written [verification_pin_target_missing]`,
+    );
+  }
+  if (intent.verification) {
+    if (intent.verification.command !== pin.verification.command || intent.verification.selector !== pin.verification.selector) {
+      throw new Error(
+        `verification evidence refused: receipt-command-mismatch: expected ${intent.verification.command}, got ${pin.verification.command} (the verification pin is immutable) [receipt_command_mismatch]`,
+      );
+    }
+    return;
+  }
+  intent.verification = { command: pin.verification.command, selector: pin.verification.selector };
 }
 
 /**
@@ -885,7 +1124,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       });
     },
 
-    verification_evidence_add(args: {
+    async verification_evidence_add(args: {
       storyId: string;
       itemId: string;
       intentRef: string;
@@ -894,12 +1133,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       waiverType?: VerificationEvidence['waiverType'];
       file?: string;
       command?: string;
+      selector?: string;
       result?: 'pass' | 'fail';
       note: string;
+      nonMechanicalReason?: string;
       attestation?: VerificationEvidence['attestation'];
       actorTrust?: VerificationEvidence['actorTrust'];
       factProvenance?: VerificationEvidence['factProvenance'];
-    }): string {
+    }): Promise<string> {
       // Local-only evidence write: record scoped Proofbound evidence and never POST.
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note must be ≥ 5 characters, explaining why the evidence covers the intent');
@@ -910,11 +1151,26 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
       }
 
+      // B-ec67: run the pinned command / resolve enforcement OUTSIDE the checklist
+      // lock (execution is async; withChecklistLock releases synchronously). The
+      // pin write + evidence write then happen atomically inside the lock.
+      const gitCwd = resolveStoryGitCwd(args.storyId);
+      const preItem = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
+      if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
+      const stamp = await enforceAndStampEvidence(
+        preItem,
+        { intentRef: args.intentRef, kind, command: args.command, selector: args.selector, result: args.result, nonMechanicalReason: args.nonMechanicalReason },
+        { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: gitCwd },
+      );
+
       return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-        const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
+        if (stamp.pin) applyVerificationPin(item, stamp.pin);
+        const hashes = evidenceHashes(gitCwd, root);
+        const command = stamp.evidencePatch.command ?? (args.command ? args.command.trim() : undefined);
+        const result = stamp.evidencePatch.result ?? args.result;
 
         const evidence = makeEvidence({
           intentRef: args.intentRef,
@@ -922,9 +1178,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ...(args.verdict ? { verdict: args.verdict } : {}),
           ...(args.waiverType ? { waiverType: args.waiverType } : {}),
           ...(args.file ? { file: args.file } : {}),
-          ...(args.command ? { command: args.command } : {}),
-          ...(args.result ? { result: args.result } : {}),
+          ...(command ? { command } : {}),
+          ...(result ? { result } : {}),
           note: args.note.trim(),
+          ...(stamp.evidencePatch.mechanical !== undefined ? { mechanical: stamp.evidencePatch.mechanical } : {}),
+          ...(stamp.evidencePatch.receipt ? { receipt: stamp.evidencePatch.receipt } : {}),
+          ...(stamp.evidencePatch.nonMechanicalReason ? { nonMechanicalReason: stamp.evidencePatch.nonMechanicalReason } : {}),
           ...(args.attestation ? { attestation: args.attestation } : {}),
           ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
           ...(args.factProvenance ? { factProvenance: args.factProvenance } : {}),
@@ -939,12 +1198,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
 
         store.writeChecklist(args.storyId, cl);
         const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
+        const receiptNote = evidence.receipt ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}` : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
-        return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote})${commitHint}`;
+        return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote}${receiptNote})${commitHint}`;
       });
     },
 
-    verification_evidence_batch_add(args: {
+    async verification_evidence_batch_add(args: {
       storyId: string;
       evidences: Array<{
         itemId: string;
@@ -954,13 +1214,15 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         waiverType?: VerificationEvidence['waiverType'];
         file?: string;
         command?: string;
+        selector?: string;
         result?: 'pass' | 'fail';
         note: string;
+        nonMechanicalReason?: string;
         attestation?: VerificationEvidence['attestation'];
         actorTrust?: VerificationEvidence['actorTrust'];
         factProvenance?: VerificationEvidence['factProvenance'];
       }>;
-    }): string {
+    }): Promise<string> {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
         throw new Error('verification_evidence_batch_add: evidences must be a non-empty array');
       }
@@ -980,23 +1242,49 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         normalizedKinds.push(kind);
       }
 
+      // B-ec67: run enforcement (incl. pinned-command execution) for EVERY entry through
+      // the SAME shared helper as the single-add path, OUTSIDE the checklist lock. Any
+      // refusal throws before the all-or-nothing write below, so the batch path is never
+      // an unguarded bypass.
+      const gitCwd = resolveStoryGitCwd(args.storyId);
+      const runCommand: SingleCommandRunner = (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd });
+      const preCl = store.readChecklist(args.storyId);
+      const stamps: EnforceAndStampResult[] = [];
+      for (let i = 0; i < args.evidences.length; i++) {
+        const entry = args.evidences[i];
+        const item = preCl.items.find(it => it.id === entry.itemId);
+        if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+        stamps.push(await enforceAndStampEvidence(
+          item,
+          { intentRef: entry.intentRef, kind: normalizedKinds[i], command: entry.command, selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason },
+          { runCommand, cwd: gitCwd },
+        ));
+      }
+
       return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
-        const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
+        const hashes = evidenceHashes(gitCwd, root);
         let written = 0;
         args.evidences.forEach((entry, i) => {
           const kind = normalizedKinds[i];
+          const stamp = stamps[i];
           const item = cl.items.find(it => it.id === entry.itemId);
           if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+          if (stamp.pin) applyVerificationPin(item, stamp.pin);
+          const command = stamp.evidencePatch.command ?? (entry.command ? entry.command.trim() : undefined);
+          const result = stamp.evidencePatch.result ?? entry.result;
           const evidence = makeEvidence({
             intentRef: entry.intentRef,
             kind,
             ...(entry.verdict ? { verdict: entry.verdict } : {}),
             ...(entry.waiverType ? { waiverType: entry.waiverType } : {}),
             ...(entry.file ? { file: entry.file } : {}),
-            ...(entry.command ? { command: entry.command } : {}),
-            ...(entry.result ? { result: entry.result } : {}),
+            ...(command ? { command } : {}),
+            ...(result ? { result } : {}),
             note: entry.note.trim(),
+            ...(stamp.evidencePatch.mechanical !== undefined ? { mechanical: stamp.evidencePatch.mechanical } : {}),
+            ...(stamp.evidencePatch.receipt ? { receipt: stamp.evidencePatch.receipt } : {}),
+            ...(stamp.evidencePatch.nonMechanicalReason ? { nonMechanicalReason: stamp.evidencePatch.nonMechanicalReason } : {}),
             ...(entry.attestation ? { attestation: entry.attestation } : {}),
             ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
             ...(entry.factProvenance ? { factProvenance: entry.factProvenance } : {}),
