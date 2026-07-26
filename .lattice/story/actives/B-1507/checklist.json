@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add a verification_run command that resolves the intent, executes the pinned verifier, and atomically writes the receipt",
       "context": "New command in cli/command-catalog.ts + a handler; reuse B-ec67's enforceAndStampEvidence / runSingleAllowlistedCommand. lattice verification_run --storyId --intentRef resolves CHK-nnn:lane:index to its pinned verification:{command,selector}, executes it, and writes the receipt-bearing evidence in one step. Ideally verification_evidence_add stops accepting a caller-authored command for automated proof (accepts a generated receipt id instead), staged so callers are not hard-broken.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T04:36:50.334Z",
       "verificationIntent": {
         "happy": [
           {

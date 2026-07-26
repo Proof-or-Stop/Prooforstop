@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-1507",
+  "sourceText": "Follow-on to B-ec67 (tool-executed evidence-receipts enforcement floor). Add the ergonomics + seatbelt layer so the correct action is the path of least resistance: (1) a first-class verification_run command that resolves an intent and executes its pinned verifier so a caller never hand-authors a pass command; (2) make the stale-evidence refresh re-execute the pinned command and re-issue a real receipt instead of only demoting; (3) a fail-open PreToolUse early-warning guard hook on both hosts; (4) a RED-first smoke. Per docs/evidence-integrity-program-spec.md and docs/step2-evidence-receipts-handoff.md.",
+  "normalizedOutcome": "A caller proves an executable intent by running lattice verification_run (never authoring a pass command); a stale mechanical receipt whose material changed is re-run and re-issued (not just demoted) when the pinned command still passes; and a mismatched evidence-write command is denied early with a teaching message on both hosts while the B-ec67 handler stays the real floor.",
+  "acceptanceClaim": "verification_run executes a pinned verifier and stamps a receipt, refresh re-executes-or-leaves-demoted, and a fail-open guard denies a pin-mismatched evidence write on both hosts — all proven by one registered RED-first mutation-killing smoke.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:8717fe98baadb1181eb625f3dfeb4219c23952206e10ce330ab3297b768b9611",
+  "createdAt": "2026-07-26T04:18:02.495Z",
+  "updatedAt": "2026-07-26T04:18:02.495Z"
+}
