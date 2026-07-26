@@ -321,6 +321,38 @@
         "scanEscalationReason": null
       },
       "_hash": "bee07b07d23455c62b21cbd563bc13750fafbab9cefe49a9c9614627ed624483"
+    },
+    {
+      "id": "B-3144:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 11: no concept deletion/replacement this round. Verified the two commits since round 9 (687ca32583 F-022, e7d9a961d3 F-023) touch only quorum-submit-smoke.ts test-internal namedNearby scoping helper plus .lattice metadata (index.json/process-events.jsonl/process-metrics.json) -- zero production-code lines changed, matching the round-10 8-file sha256 finding. Diffed all 6 quorum_prune wiring points (cli-engine.ts commit-transaction exclusion, command-catalog.ts schema, command-policy.ts ownershipClass, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts L2 entry, lattice-cli.ts createQuorumPruneHandlers registration) against main: all present, mutually consistent, no half-registered leftovers. Grepped whole repo for quorum_prune outside story metadata: every hit is either the handler itself, one of the 6 wiring points, or the smoke test -- no stray/orphaned references. Checked README.md/CLAUDE.md/docs for any newly-promised lattice quorum_prune examples: none touched this story, so no doc-promise-undelivered risk. Confirmed all 23 findings (F-001..F-023) resolved in findings.json. Rebuilt and ran quorum-submit-smoke.ts alone in an isolated sibling worktree (.worktrees/b3144-r11-concept-iso, detached at HEAD cd38e5bb6c) to avoid the concurrent lane already running on this host: 64/64 checks green, exit 0. Not iterating further on the test-internal namedNearby meta-guard per test-coverage lane convergence.",
+      "createdAt": "2026-07-26T09:05:48.429Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "reviewRunId": "B-3144:RR-029",
+      "envelopeId": "1bafbe704c5f60254b6e09c2e0e1b3717dcb5d4bb066ab36b1f51f698b75cb9f",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e8941a1a46478ce05007c805b30434b2099cd9f5a75d2aeda2da60682abe6f6"
     }
   ]
 }
