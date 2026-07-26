@@ -121,9 +121,9 @@
       "id": "CHK-002",
       "title": "Make verification_evidence_add execute the pinned command for automated intents and refuse on mismatch",
       "context": "packages/main/src/handlers/checklist.ts:888 verification_evidence_add AND :947 verification_evidence_batch_add (parallel entry point with the same defect — BOTH must reach the same enforcement boundary). VerificationIntentType is logic|cli|browser|manual|docs; the command-executable set is logic|cli|browser. For those, stop trusting caller command+result; run the pinned command via packages/main/src/core/validation-executor.ts executeValidationPlan (spawn:394) and refuse when (a) exit!=0 but pass claimed, (b) selector absent from output, (c) intentRef does not resolve to an intent on the item (today silently accepted), (d) pinned command != command to run (receipt-command-mismatch: expected X, got Y from done-required-validation.ts:701).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T00:28:47.789Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/checklist.ts",
