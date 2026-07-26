@@ -1,0 +1,45 @@
+{
+  "passes": [
+    {
+      "id": "B-1507:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review clean: core/evidence-pin-guard.ts verified PURE, verification_run + refresh re-exec verified to reuse enforceAndStampEvidence/runSingleAllowlistedCommand (no duplicated executor), ReexecStamp cannot be minted without a real pass, async split retargeted correctly, smoke run PASS, build clean.",
+      "createdAt": "2026-07-26T06:01:23.724Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-005",
+      "envelopeId": "2a58181c4033e4cca9c10681d1afbd1c405103aa55e9208e844f8ed533675e27",
+      "writerSessionId": "sess-61f8045562558a1aa3ceaa9f485d3597",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/hooks/lattice-evidence-pretool.cjs",
+          ".codex/hooks/lattice-evidence-pretool.cjs",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/handlers/recover-evidence.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e543313ece862e9146eb91d0f53844018e96de54764abb6bb9b54cfe75eb7acf"
+    }
+  ]
+}
