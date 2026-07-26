@@ -162,7 +162,11 @@
           {
             "desc": "an empty / previous-round / unsigned resolution does NOT clear the current-round block (no theater)",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
           }
         ]
       },
@@ -204,6 +208,25 @@
           "materialHash": "743ab750ca8e55312cc1ec4ddf883f683a164aa213678c7ea4f97dcd19259e09",
           "storyFilesHash": "1cd33c946ecbebbb85acd49e21ff90511c1ed5df742192dedbaadf590583e06c",
           "timestamp": "2026-07-26T08:49:32.166Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke C: empty-reason / previous-round / unsigned / tampered resolutions are refused at BOTH handler and gate (no theater).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T08:49:36.955Z"
+          },
+          "headHash": "90c103a0e979896db5b3499fa3d7f95d4129bf15",
+          "materialHash": "743ab750ca8e55312cc1ec4ddf883f683a164aa213678c7ea4f97dcd19259e09",
+          "storyFilesHash": "1cd33c946ecbebbb85acd49e21ff90511c1ed5df742192dedbaadf590583e06c",
+          "timestamp": "2026-07-26T08:49:37.176Z"
         }
       ]
     },
