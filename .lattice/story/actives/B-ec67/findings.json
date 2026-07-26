@@ -5,7 +5,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:1347-1362 verification_evidence_refresh_stale rewrites stale evidence via makeEvidence() without copying evidence.mechanical / evidence.receipt / evidence.nonMechanicalReason (it only preserves verdict/waiverType/file/command/result/attestation/actorTrust/factProvenance). Empirically reproduced: record an audited non-mechanical escape (mechanical:false + nonMechanicalReason) against an executable (cli/logic/browser) intent -> buildVerificationCoverage correctly demotes it to status=non_mechanical (blocking, missingRequired=1). Advance HEAD so the evidence goes stale (normal after any further commit). Call verification_evidence_refresh_stale (the documented `done_prepare --refreshStale` path per CLAUDE.md DONE convergence guidance) -> the rewritten evidence row has mechanical=undefined, nonMechanicalReason=undefined, receipt=undefined. Re-running buildVerificationCoverage at the same head now returns status=covered, missingRequired=0 -- the audited non-mechanical escape silently gets promoted to full coverage with zero re-execution. This directly reopens the gate bypass that CHK-004s adversarial verificationIntent claims is closed (recording an executable intent as type:manual cannot bypass execution at the coverage gate, the escape hatch is closed) and is a NEW gap introduced by this stors mechanical/non_mechanical distinction (pre-B-ec67 there was no tiered trust to launder). Modifying verification_evidence_refresh_stale itself is explicitly out of scope per scope-check.json (owned by B-3b88 per decision.json/understanding.json), so this is not a scope violation by the implementer, but the resulting live bypass is real, reachable via a routine documented operation, and undocumented as a residual risk anywhere in this stors artifacts. Same silent field-drop also destroys mechanical:true receipts (exitCode/outputDigest/outputTail/executedAt all lost on refresh) though that case does not flip the status. Recommend: either (a) have refresh_stale copy forward ev.mechanical/ev.receipt/ev.nonMechanicalReason unchanged (narrow, does not change what gets re-certified, just stops dropping already-recorded fields), or (b) add an explicit handoff/scope note for B-3b88 flagging this exact reachable bypass so it is not silently inherited.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-26T00:36:12.104Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/verification.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "e040952697: verification_evidence_refresh_stale now carries mechanical/receipt/nonMechanicalReason forward and DEMOTES a refreshed mechanical:true receipt to mechanical:false (drops the receipt) so a refresh cannot launder an un-re-executed receipt to covered. Additive, coordinates with B-3b88 (noted in-code). Verified by focused repro.",
+      "resolvedAt": "2026-07-26T01:26:16.765Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ec67:F-002",

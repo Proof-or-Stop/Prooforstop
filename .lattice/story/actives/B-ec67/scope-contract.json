@@ -22,9 +22,26 @@
     "packages/main/src/core/done-required-validation.ts"
   ],
   "scopeChangeReason": "done-required-validation.ts is referenced (reuse sha256/outputTail + receipt-command-mismatch convention) but NOT modified. verification_evidence_refresh_stale is owned by B-3b88 (Step 1) and must not change.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "F-001 (concept, high): my new mechanical/receipt fields created a laundering surface in verification_evidence_refresh_stale (which I had declared excluded, owned by B-3b88). Closing MY own guarantee hole requires a MINIMAL, additive touch to refresh_stale — carry forward mechanical/receipt/nonMechanicalReason and demote a refreshed receipt to non-mechanical (no re-execution here; that is a follow-on story). Complementary to B-3b88 prose-only laundering fix; reconcile at merge.",
+      "timestamp": "2026-07-26T00:43:43.912Z",
+      "paths": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "f8979dc195bc481f55f0adf234122c7af9d3c8c9",
+      "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391"
+    }
+  ],
   "createdAt": "2026-07-25T23:37:48.943Z",
-  "updatedAt": "2026-07-25T23:37:48.943Z",
+  "updatedAt": "2026-07-26T00:43:43.912Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
