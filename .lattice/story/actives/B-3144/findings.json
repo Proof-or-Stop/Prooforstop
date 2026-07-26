@@ -331,7 +331,7 @@
       "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2650-2661 (proseUnitsOf comment-merge, commit c2e20023e1): the merge that turns contiguous // lines into ONE prose unit is pure line-contiguity, not sentence-scoped, so pairing can still silently borrow a correct dryRun:false from an unrelated sentence in the same merged block -- the exact escape class (3) this commit claims to have closed (\"pairing is judged INSIDE the prose unit ... a claim cannot borrow a neighbour wording\"), just relocated from the old +-3-line window to the comment-merge boundary. Reproduced with the exact extracted proseUnitsOf/scan logic: a 2-line adjacent // comment (\"// First sentence: apply:true executes and dryRun:false is equivalent.\" followed immediately by \"// Second sentence, same paragraph, contiguous line: apply:true is the only trigger here.\") merges into ONE unit and produces discovered=[handlers/quorum-prune.ts:2] with failures=[] -- the stale second sentence is silently marked compliant because the merged blob also contains the first, unrelated sentences dryRun:false. This is not hypothetical: running the real sweep against the live packages/main/src/handlers/quorum-prune.ts:13-32 comment shows it is ALREADY a single 20-line merged unit spanning many distinct sentences (containment rationale, backup naming, transaction machinery, floor semantics) that happens to be self-consistent today only because SOME sentence in the block mentions dryRun:false -- any future edit adding a stale apply:true-only sentence anywhere in that block, or any other multi-sentence // block in the swept files, would produce zero failure signal and would not depress the discovered count. WHY: a stale-claim escape inside a merged block is invisible to both the per-site assertion and the >=10 floor (discovered.length is unaffected since the site still counts as one compliant unit), reproducing the un-gameable RED scenario this story exists to prevent.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T05:47:25.092Z",
@@ -343,7 +343,11 @@
         "packages/main/src/handlers/quorum-prune.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit b22f5b890c. Merging contiguous // lines into one unit only relocated the borrowing escape from the old plus-minus-3-line window to the comment-block boundary, and quorum-prune.ts lines 13-32 is exactly such a multi-sentence block. Comment units are now split back apart by SENTENCE after the contiguity merge, so each claim is judged against the sentence that makes it and cannot borrow a sibling sentence dryRun:false. apply:true and dryRun:false contain no sentence-ending period, so splitting on period-plus-whitespace cannot bisect a claim. Smoke 64 green, process-fact contract verified, npm test clean.",
+      "resolvedAt": "2026-07-26T06:05:38.889Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-019",
