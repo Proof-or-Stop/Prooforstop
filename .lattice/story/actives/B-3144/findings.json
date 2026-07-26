@@ -176,7 +176,7 @@
       "desc": "doc-promise-undelivered: CHK-003 userSees (.lattice/story/actives/B-3144/checklist.json) still literally claims `lattice quorum_prune --storyId=... --dryRun lists...; without --dryRun it backs up, removes them, commits, and the escalation floor returns to the pre-poisoning assurance level.` Empirically re-verified live against the CURRENT committed code (post f1bcba3885, dist rebuilt): `node bin/lattice.js quorum_prune --storyId=B-3144` (no --dryRun flag at all, exactly the without-dryRun case userSees describes) and `quorum_prune {\"storyId\":\"B-3144\",\"dryRun\":false}` BOTH still print `mode: dry-run (no mutation)` and do NOT back up/remove/commit. In packages/main/src/handlers/quorum-prune.ts:214-221, the mutating apply path is gated SOLELY by explicit `apply:true` (`const apply = args.apply === true;` ... `if (!apply) { ...dryRun:true... }`); the newly-added `dryRun` field (F-008 fix) only participates in the apply+dryRun conflict-refusal check, it never itself flips execution into the apply branch. F-008/F-009 fixed the swallowed-flag and inverted --help wording, but did not correct this specific userSees clause, which still conflates omitting --dryRun with passing --apply=true. Live CLI output (`note: dry-run only — re-run with apply:true...`) does self-correct an attentive operator, so this is not a safety inversion like the original F-009, but the story checklist itself still documents a behavior the current code does not deliver.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-26T01:18:51.112Z",
@@ -184,7 +184,11 @@
       "reviewRunId": "B-3144:RR-005",
       "_hash": "01ea6dbd61f069b0a26891568a68a735ce577cdf67d015172e8d0f62e42c5b61",
       "signatureTag": "happy|unknown|promise-undelivered-usersees",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 7eb91080fd by making the behavior match the frozen userSees rather than editing the promise. An explicit dryRun:false now executes exactly like apply:true (quorum-prune.ts: apply = args.apply === true || args.dryRun === false), so the flag is no longer a silent no-op. Omitting dryRun still defaults to the safe projection, and apply:true + dryRun:true is still refused, so neither the safety default nor the repo convention (capability_release_backfill) was weakened. New smoke check quorum_prune dryRun:false executes instead of being a silent no-op asserts both directions: omitted = no commit and no backup; explicit false = commit + backup + 6 removed verdicts + clean tree. Smoke 61 to 62 green, process-fact contract verified, npm test exit 0.",
+      "resolvedAt": "2026-07-26T02:51:56.213Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
