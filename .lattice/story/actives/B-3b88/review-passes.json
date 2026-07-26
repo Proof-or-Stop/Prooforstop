@@ -329,6 +329,45 @@
         "scanEscalationReason": null
       },
       "_hash": "92efaedfd70eef2113e822f015c8bec8a57573b5b7de155bef2fd551f1ee8e5d"
+    },
+    {
+      "id": "B-3b88:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation at current material after main-merge (B-ec67) + F-001..F-004 fixes; no concept deletion/replacement this round. Reviewed full diff main...HEAD (code+doc files), confirmed detectEvidenceRowContradiction wired into add+batch_add, refresh_stale command-backed-pass refusal, all 4 describing surfaces consistent, both new/updated smokes rebuilt+PASS.",
+      "createdAt": "2026-07-26T11:17:22.236Z",
+      "reviewRound": "2026-07-26T11:14:01.717Z",
+      "reviewRunId": "B-3b88:RR-019",
+      "envelopeId": "a20670dbec7b176a13f8676cabc98df094d04190c1e9dbc7064d4769a8dcab72",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/evidence-plan.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/handlers/recover-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ba31f4557f70634d5b3b5678e557874b2cba1d6df5515f7ba89e182bd7258dd3"
     }
   ]
 }
