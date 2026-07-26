@@ -38,6 +38,25 @@
       ],
       "signatureTag": "missing|json|concept-cleanup-half",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1507:F-003",
+      "desc": "lattice validate is NOT green for this story: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1436-1443 pins packages/main/src/cli-engine.ts to a whole-file AST fingerprint (48ca6562b1...) via PINNED_EXECUTABLE_SOURCE_FINGERPRINTS (line 362). CHK-001 modified cli-engine.ts (added the verification_run entry to MILESTONE_STATUS_APPEND_COMMANDS at line ~515), which changes the fingerprint, so the previously-approved import(`file://${initPath}`) call site in runCli() is now flagged unapproved. Reproduced deterministically: `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` FAILS with `AssertionError: the exact registered cli-engine non-literal loader call site must remain allowed`. This is not an edge case in my mutation testing -- it also failed as command 3/54 in a fresh `lattice validate --story=B-1507 --json` run, well before any experiment I ran. Fix: recompute canonicalAstFingerprint for the new cli-engine.ts content and update the PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T06:11:49.367Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-004",
+      "_hash": "69814e291982dc728eafa5f610ba9a936dc1e1c08ed72566c19a803a09d8a178",
+      "files": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|lattice-validate-green",
+      "signatureTagSource": "auto"
     }
   ]
 }
