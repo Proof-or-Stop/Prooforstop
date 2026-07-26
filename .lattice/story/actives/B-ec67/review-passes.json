@@ -193,6 +193,37 @@
         "scanEscalationReason": null
       },
       "_hash": "757daa806d3fcf92c1155e182d74b92dcc35dbbdce0acc02a666b5e0f1fbaf84"
+    },
+    {
+      "id": "B-ec67:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Pure re-bind after RP-005 went material-stale (stale_run_hash) due to the 18 verificationEvidence rows being re-recorded; smoke/code unchanged since RP-005 (git diff 64bf559611..HEAD for smoke.ts/checklist.ts/command-schemas.ts is empty). Re-ran node dist/tasks/tool-executed-evidence-receipt-smoke.js -> PASS/exit0 on current head. No new analysis needed per coordinator; prior mutation-kill verification (F-002..F-005 in RP-002, F-008 in RP-005, both directions) still stands unchanged.",
+      "createdAt": "2026-07-26T03:09:39.504Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-011",
+      "envelopeId": "e812f7149bdf5cba2c67146c3938e70a758528c54bde95b877eff9d0922b91dc",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-ec67/background.md",
+          ".lattice/story/actives/B-ec67/checklist.json",
+          ".lattice/story/actives/B-ec67/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "290977d4e545f9820254483649394a336116227849e2ae1f92050f62a7757b35"
     }
   ]
 }
