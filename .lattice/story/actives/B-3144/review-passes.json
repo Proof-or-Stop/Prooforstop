@@ -1,0 +1,29 @@
+{
+  "passes": [
+    {
+      "id": "B-3144:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 targeted re-review. F-002/F-007 (round-1 backup-naming leftover-dirt bug) verified genuinely fixed: writeUniqueBackup (handlers/quorum-prune.ts:145-155) now names backups process-events.jsonl.<stamp>.bak with the collision counter placed BEFORE the .bak extension, so every candidate matches .gitignore:32 *.bak. Confirmed neither assertCleanPruneBaseline (quorum-prune.ts:124-135) nor assertCleanQuorumBaseline (quorum-submit.ts:219-227) was weakened -- both still run the identical unscoped git status --porcelain=v1 --untracked-files=all with zero file-specific exemption; the fix is purely nominal (matching the pre-existing ignore rule), not a predicate carve-out. Independently reproduced the exact regression scenario live in an isolated scratch git worktree (built dist copied read-only from the shared worktree, never modified) driving the real production CLI: quorum_prune apply then git status --porcelain clean with NO intervening git command then quorum_prune apply again immediately then reaches the correct semantic nothing-to-prune refusal (not the F-002 worktree/index-must-be-clean false refusal). Also live-verified F-008/F-009 (quorum_prune --help now prints Dry-run: default-on via --dryRun=true instead of the inverted always-on claim; --dryRun is a real schema field, honored, and refused when combined with apply:true). Read the full diffs of cli-engine.ts (F-001 quorum_prune exclusion, matches process-fact-contract pinned quorum_submit line), command-catalog.ts/command-policy.ts/config.ts/process-fact-levels.ts/lattice-cli.ts wiring, quorum-prune.ts in full, the quorum-submit.ts guard block, and the full quorum-submit-smoke.ts diff (roughly 1500 new lines: drift-accept refusal message content assertions for F-003, HEAD-unchanged assertion for F-005, independent storyOwnedDiffBlobs witness for F-006, DEFAULT_PHASE_TOOLS wiring with a negative control for F-004, plus the new twice-apply-no-intervening-git and production-CLI-under-codex checks for F-001/F-002/F-007). No dead code, no new unsafe as-any beyond the files pre-existing JSON-result-casting convention, no empty catches (the two catches in quorum-prune.ts are documented best-effort cleanup paths with comments, matching existing repo style), no I/O-shell-isolation violations, no new doc-promise-undelivered gaps (schema/help/handler tri-checked live against the real CLI). No genuine new findings in the round-2 diff. Note: the shared machine had heavy concurrent process load (up to 53 node processes observed) during this review, which made the full quorum-submit-smoke.js suite unreliable to run to completion in the shared worktree (killed/timed out at varying, unrelated pre-existing checks across attempts, never at a check touched by this diff); this is treated as environmental flakiness, not evidence of a regression, and the independent isolated-worktree live repro above substitutes for a full suite run for the specific finding under re-review.",
+      "createdAt": "2026-07-26T01:17:53.956Z",
+      "reviewRound": "2026-07-26T00:46:51.875Z",
+      "reviewRunId": "B-3144:RR-009",
+      "envelopeId": "dcabd83d78578a9df85b22ed167ee4049343cd373c0b7fc3fdb10cf785ba2528",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5b008ef67275b48dd370cf206575423d9b71acf5c7b91ca8fbe2dd89ce1ebc8"
+    }
+  ]
+}
