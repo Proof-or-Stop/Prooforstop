@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1507",
+  "mode": "feature",
+  "allowed": [
+    "Add a fail-open PreToolUse evidence-pin guard hook on both the Claude and Codex hosts (thin shim + read-only CLI verdict + smoke)",
+    "Add a RED-first smoke covering verification_run, refresh re-execution, and the guard verdict, and register it in validate",
+    "Add a verification_run CLI command that resolves a pinned intent, executes its verifier via the shared allowlisted runner, and atomically writes the tool-owned receipt",
+    "Make the stale-evidence refresh re-execute the pinned command and re-issue a real receipt bound to current material when material changed"
+  ],
+  "excluded": [
+    "Altering the already-shipped B-ec67 enforcement-floor refusal conditions, pin immutability, or receipt schema",
+    "Any work belonging to Step 4 of the evidence-integrity program",
+    "Implementing the per-row self-contradiction laundering guard owned by story B-3b88"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Ergonomics+seatbelt follow-on to B-ec67; scope = verification_run command + re-executing stale refresh + fail-open PreToolUse guard on both hosts + RED-first smoke.",
+  "createdAt": "2026-07-26T03:58:05.620Z",
+  "updatedAt": "2026-07-26T03:58:05.620Z",
+  "_hash": "49d6b52060b37aa633dd51f9396e167b72c821cbaaedbfccd9922a7fefa354f7"
+}
