@@ -115,6 +115,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ec67:F-007",
+      "desc": "packages/main/src/handlers/checklist.ts:993-995 (checklist_update handler) is a THIRD verificationEvidence write path that completely bypasses the entire B-ec67 enforcement mechanism (enforceAndStampEvidence / runSingleAllowlistedCommand / pin / selector / receipt). checklist_update accepts args.verificationEvidence: VerificationEvidenceInput[] and does `item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(...))` -- normalizeEvidence (line 277) only ever passes through the pre-existing fields (verdict/waiverType/file/command/result/note/headHash/materialHash/storyFilesHash/attestation); it never calls enforceAndStampEvidence, never resolves/executes the pinned command, and never sets mechanical/receipt. Empirically reproduced (dist build): created a checklist item with an executable (type:cli, priority:must) intent, then called handlers.checklist_update({storyId,itemId,verificationEvidence:[{intentRef,kind:logic_test,command:\"this-command-does-not-even-exist --lies\",result:\"pass\",note:\"trust me\"}]}) directly -- succeeded, wrote evidence with mechanical=undefined/receipt=undefined/result=pass/command=<fabricated nonexistent command>, and buildVerificationCoverage reported status=covered, missingRequired=0 with ZERO command execution. This is precisely the class of bug (F-045/F-049/F-050/F-061, caller-authored command+result trusted at face value) that this entire story exists to eliminate, reproduced through a pre-existing, always-reachable, ordinarily-permitted command (checklist_update is allowed in INIT/PLAN/DEV per command-policy) with no special/audited escape needed. Unlike the verification_evidence_refresh_stale exclusion (explicitly documented in scope-check.json/decision.json/understanding.json as owned by B-3b88), checklist_update.verificationEvidence is NOT mentioned anywhere in this stors decision.json, understanding.json, plan.md, or scope-check.json excludedScope -- it was never considered during PLAN, so this is an unacknowledged gap rather than a ratified exclusion. It also means the CLI-facing schema for this path (verificationEvidenceSchema in packages/main/src/cli/command-schemas.ts:94-104) was never updated with a selector/mechanical/nonMechanicalReason field, so even a well-intentioned caller using checklist_update has no way to opt into the new mechanism -- every write through this path is silently legacy-shaped and grandfathered as covered forever, for OLD and NEW evidence alike. Fix: route checklist_update.verificationEvidence writes (at minimum for executable-intent entries) through the same enforceAndStampEvidence helper used by verification_evidence_add/batch_add, or explicitly close this path (reject execute-intent evidence writes via checklist_update, directing callers to verification_evidence_add/batch_add) so there is exactly one enforcement boundary instead of three.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T00:39:02.259Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-001",
+      "_hash": "98f0e094160328f46e15748f8ac108f65b1bf830314c3533486f5af8c7f34414",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
