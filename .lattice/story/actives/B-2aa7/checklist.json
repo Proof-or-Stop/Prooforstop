@@ -298,7 +298,11 @@
           {
             "desc": "The decision document is present at docs/requirements/decisions/ in the story diff and its D-1..D-8 citations resolve.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+              "selector": "DOC_LANDED_WITH_DECISIONS"
+            }
           }
         ],
         "edge": [
@@ -322,7 +326,29 @@
           "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "result": "pass",
+          "note": "Tool-executed receipt: the marker prints only if the decision record is BOTH present in commit b8c458422e (this story's diff) AND actually contains the D-8 decision row, so the citations threaded through the other ten items resolve for an independent reader.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b4dcb25307214b3ca2eac9ec1856a5a35b6b876befef589fa4221575abd3118",
+            "outputTail": "DOC_LANDED_WITH_DECISIONS\nDOC_PRECEDES_SCOPE_REVIEW\nSTALE_HEADER_REMOVED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T23:58:11.119Z"
+          },
+          "headHash": "e970860f55325ad81cd6567341bb6b327a8756f3",
+          "materialHash": "d260823e94d30123a3246e63ca053e79530e403d62b5973489ef1fff44ff3c62",
+          "storyFilesHash": "461fe1b037663d10a0e2e1c498b4bf55e07ff3331aa039e484423591eefa115b",
+          "timestamp": "2026-07-26T23:58:11.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
