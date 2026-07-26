@@ -48,9 +48,9 @@
       "id": "CHK-002",
       "title": "Add the structured resolution actions that clear the stall block (incl. declare-checklist-item-unreachable)",
       "context": "On stall, require exactly ONE recorded action to clear the block: (a) human authorizes continuation with a reason + a bounded additional round budget; (b) the story is re-planned / split; (c) a root-cause / architecture escalation is recorded; (d) the blocking findings are explicitly resolved / disproven / deferred, or scope is shrunk; or (e) a checklist item is declared UNREACHABLE (the F-058 case a raw cap never surfaces — declaring it closes the loop instead of spinning). Provide the CLI command(s) + persisted, signed record consumed by the gate; the unreachable declaration must reconcile plan.md/claims (F-059) rather than leave them drifting.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T08:17:36.144Z",
       "files": {
         "modify": [
           "packages/main/src/cli/command-catalog.ts",
