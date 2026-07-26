@@ -1,0 +1,43 @@
+{
+  "passes": [
+    {
+      "id": "B-2296:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-verification of F-004 fix + full re-scan: frozen_claim_drift_check added to READ_ONLY_COMMANDS in activity-policy.ts, consistently classified read-only across command-policy.ts, process-fact-levels.ts, config.ts, command-catalog.ts, and wired in registry.ts. Reproduced LATTICE_ACTIVITY_SOURCE=codex frozen_claim_drift_check: process-events.jsonl byte-identical before/after (zero new lines). npm run build clean; both new smokes (frozen-claim-drift-smoke.js, frozen-claim-snapshot-hook-smoke.js) run green directly and are registered in lattice.config.json + package.json. git diff main...HEAD re-scanned: this story is purely additive (new types/module/handler/smokes + one hook wired into checklist.ts); no concept deleted or renamed, so no residue surface exists. All 4 round-1 findings independently confirmed resolved. No new findings.",
+      "createdAt": "2026-07-26T22:47:13.834Z",
+      "reviewRound": "2026-07-26T22:42:46.012Z",
+      "reviewRunId": "B-2296:RR-004",
+      "envelopeId": "735f1e54af8d83b1afc36137f09922009a081c777ed0ef7164f6c37e7d7236e0",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-2296/background.md",
+          "docs/story/actives/B-2296/plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-2296/checklist.json",
+          "docs/story/actives/B-2296/decision.json",
+          "docs/story/actives/B-2296/findings.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2cb399bd8ecdb1deb4a532ac86e498214dcce867c60da245471fe162b9640895"
+    }
+  ]
+}
