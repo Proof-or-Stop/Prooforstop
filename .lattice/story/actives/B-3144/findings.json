@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/cli-engine.ts:1216-1221 (writeCodexProcessEvent) excludes ONLY entry.command===\"quorum_submit\" from the generic post-handler codex_cli process-event append, with a comment stating this is because quorum_submit \"owns one exact immutable process-events transaction inside its handler\" and a generic append \"would make that canonical commit dirty again\". quorum_prune (packages/main/src/handlers/quorum-prune.ts:20-22,338-365) commits process-events.jsonl through the IDENTICAL captureLifecycleMetadataTransaction/commitLifecycleMetadataTransaction machinery and its own header comment explicitly claims parity (\"committed through the SAME lifecycle-metadata transaction machinery quorum_submit uses so the pre-dirty refusal, exact-content verification, and rollback all hold\") — a claim also repeated in command-policy.ts:480 and process-fact-levels.ts:209, both touched by this diff. cli-engine.ts was NOT updated to add the matching exclusion for quorum_prune. Live repro (built dist, temp git fixture, LATTICE_ACTIVITY_SOURCE=codex): `lattice quorum_prune --apply` succeeds and commits cleanly (HEAD advances, applied:true), but immediately after, `git status --porcelain` shows `M .lattice/story/actives/<id>/process-events.jsonl` — the exact file quorum_prune just atomically committed is re-dirtied by the unguarded generic codex_cli append, which is the precise poisoning mode the sibling comment for quorum_submit exists to prevent. This leftover dirty state then makes quorum_prune/quorum_submit pre-dirty-refuse on the very next call for reasons unrelated to genuine story changes. No test in packages/main/src/tasks/quorum-submit-smoke.ts exercises `quorum_prune --apply` through the real CLI (runFixtureCli, which sets LATTICE_ACTIVITY_SOURCE=codex) with a post-command git-status-clean assertion (unlike the existing quorum_submit CLI test at line ~939 which does assert `git status --porcelain=v1===`), so this gap is untested. WHY: the diff repeatedly promises quorum_prune has transactional parity with quorum_submit including pre-dirty-refusal integrity, but the one cross-file wiring point that actually protects that guarantee under Codex-driven sessions was left half-registered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-25T22:53:26.982Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-3144:RR-004",
       "_hash": "b40d8757cf7d371e30aef191b4302030d208c63da377792fcc24a6bb3e402584",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "cli-engine.ts now excludes quorum_prune from the generic codex_cli process-event append, kept as its own literal statement because verify-process-fact-contract.mjs pins the quorum_submit line. New smoke check runs quorum_prune --apply through the built CLI under LATTICE_ACTIVITY_SOURCE=codex and asserts git status --porcelain=v1 --untracked-files=all is empty. RED-verified: patching the exclusion out of the built dist made the check fail with exactly 'M .lattice/story/actives/B-quorum-smoke/process-events.jsonl'. Commit f1bcba3885.",
+      "resolvedAt": "2026-07-26T00:47:17.740Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-002",
