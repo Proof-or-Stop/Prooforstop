@@ -28,7 +28,7 @@
       "desc": "CHK-003:edge:0 (must) overclaims: evidence note says the smoke asserts outputDigest == sha256(captured output) and outputTail is bounded, but tool-executed-evidence-receipt-smoke.ts:114 only regex-checks the digest looks like a 64-hex string (/^[0-9a-f]{64}$/) and never recomputes sha256 of the actual captured output to compare equality; no test ever produces output longer than VERIFICATION_OUTPUT_TAIL_CHARS (4000, checklist.ts:308) to prove outputTail is actually truncated/bounded rather than just full output. Demonstrated by mutation: patched dist/handlers/checklist.js sha256Hex(value) (src checklist.ts:311-313) to hash a constant wrong string instead of run.output, then reran node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js — it still printed PASS/exit 0. A broken digest computation (or truncation bound) would go undetected by this must-intent evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T00:36:29.002Z",
@@ -40,7 +40,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|ts|edge-overclaims-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "cb4f966371: smoke now recomputes sha256(captured output) and asserts receipt.outputDigest equals it, and drives a long output to prove the outputTail bound. Mutation-killed (sha256-constant mutation now fails the smoke).",
+      "resolvedAt": "2026-07-26T01:26:18.074Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ec67:F-003",
