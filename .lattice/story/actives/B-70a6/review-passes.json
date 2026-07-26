@@ -136,6 +136,35 @@
         "scanEscalationReason": null
       },
       "_hash": "2cb85192de132cac5626784536bc0053b3b6a71c72d8f38105b252bf4f24dd2b"
+    },
+    {
+      "id": "B-70a6:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 test-coverage review: independently reproduced 2 of the 7 claimed mutations against the new process-fact assertion in an isolated scratch copy (never touching this shared worktree); both fail as claimed with a clean tsc compile. All 9 must-intents (3 items x happy/edge/adversarial) still have exactly 1 passing verificationEvidence, 0 failing, 0 waivers. No blocker.",
+      "createdAt": "2026-07-26T04:18:36.412Z",
+      "reviewRound": "2026-07-26T04:00:24.255Z",
+      "reviewRunId": "B-70a6:RR-008",
+      "envelopeId": "de0de15f1581939f7a9c5cf1b87c147ccd45deb308f5109df7f11f268eac0f76",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72af34e4096b1666c2bc77d8d4177c19359aa5f010f5b7ecfdbf4f6d73fed43b"
     }
   ]
 }
