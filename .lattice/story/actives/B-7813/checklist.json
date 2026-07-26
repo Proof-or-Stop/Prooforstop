@@ -140,7 +140,11 @@
           {
             "desc": "recording any one of the five structured actions (bound to the current stalled round) clears the block so the next ordinary round mints",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -157,7 +161,28 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke C: recording any of the actions via the real stall_resolution_set handler flips the current round blocked→allowed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T08:49:26.172Z"
+          },
+          "headHash": "dcd57c6d56fe9bbfa665d728b248291f698250c1",
+          "materialHash": "743ab750ca8e55312cc1ec4ddf883f683a164aa213678c7ea4f97dcd19259e09",
+          "storyFilesHash": "1cd33c946ecbebbb85acd49e21ff90511c1ed5df742192dedbaadf590583e06c",
+          "timestamp": "2026-07-26T08:49:26.394Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
