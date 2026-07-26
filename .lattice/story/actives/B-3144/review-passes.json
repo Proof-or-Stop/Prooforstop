@@ -193,6 +193,42 @@
         "scanEscalationReason": null
       },
       "_hash": "f9c880dd8ce6ff4df3db90dbd1648d07dacd6c91e53f25abb146d4afe08b42bd"
+    },
+    {
+      "id": "B-3144:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-9 concept/wiring re-review at head 9432f4d. This story is additive (widen quorum_submit guard + new quorum_prune command), not a concept deletion/replacement, so no mass-residue grep was applicable -- confirmed by reading the full diff (git diff main...HEAD --stat + per-file diffs of handlers/quorum-submit.ts, cli-engine.ts, cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, handlers/lattice-cli.ts). Verified all quorum_prune wiring points intact and mutually consistent, no half-registered leftovers: handler, lattice-cli.ts batch-registration, command-catalog.ts schema entry, command-policy.ts policy row, config.ts DEFAULT_PHASE_TOOLS, process-fact-levels.ts L2 row, plus the cli-engine.ts process-event-append exclusion (F-001). Confirmed both config.ts and cli-engine.ts entered scope through properly recorded scope-contract.json acknowledgements[] (acknowledged-expansion, with reasons tracing directly to my own prior F-001 finding and to a legitimate 6th-wiring-point discovery), not scope violations. Repo-wide grep confirms the specific stale concept this round's guard-churn eliminated (the apply:true-required-to-mutate sole-trigger claim) has zero residue in production code; all prose sites (catalog description, dryRun/apply describe(), process-fact rationale, command-policy reason, quorum-prune.ts module comment/JSDoc/refusal messages) consistently name dryRun:false as an equivalent executor. Read the new AST-based prose-consistency guard in quorum-submit-smoke.ts in full (roughly lines 2557-2790): it derives its swept-file set from the story's own signed scope-contract.json unioned with acknowledgements[].paths (matching core/scope-contract.ts isAcknowledged), parses real TypeScript ASTs (ts is a genuine existing devDependency, not a stray import) folding string concatenations into one prose unit and splitting comment blocks by sentence, and anchors self-mention scoping to the enclosing syntactic entry (PropertyAssignment/VariableStatement/ExpressionStatement) rather than a fixed line-window. All F-013..F-021 RED narration in comments is correctly framed as past-tense incident history, not a misleading claim about current behavior. Read background.md and plan.md in full; the implemented guard-predicate alignment (CHK-002) and quorum_prune recovery command (CHK-003) match the plan's chosen tradeoff and root-cause analysis exactly, with no undocumented deviation. No CLAUDE.md/README changes in this diff, so no new doc-promise-undelivered surface (only the story's own plan.md changed among markdown files). Attempted a full live smoke run repeatedly: killed one stray leftover quorum-submit-smoke.js process (plus its zsh wrapper) left over from a prior session; then ran one-at-a-time in a freshly built isolated scratch clone at HEAD, per instructions. System is under heavy multi-tenant load this round (roughly 55-58 concurrent node/Electron processes from sibling review/dev sessions across other stories, load average about 3-4, well under 1GB free) and every attempt (worktree + three isolated-clone attempts) was silently terminated partway through (61/64, 21/64, 20/64, 14/64 checks) with zero assertion failures and no error or stack trace on any check that did execute -- consistent with external OOM or contention, not a code defect, and consistent with the identical pattern already documented by this same concept lane in round 2 (RP-002 at RR-010) on this same story. Corroborating evidence: git diff bab5a21f08..9432f4d0cc --stat -- packages/main/src is EMPTY (only metadata bookkeeping commits landed since), and RP-005 (behavior lane, RR-022) and RP-006 (test-coverage lane, RR-021) both independently completed a full isolated 64/64-green run at that byte-identical source, with RP-006 additionally running a positive adversarial probe (planted stale prose at cli-engine.ts, confirmed the guard fails with the exact expected message, restored the file, reran 64/64 green). No genuine operator-facing defect found this round; only diminishing-return hardening of a self-test guard since F-013. PASS.",
+      "createdAt": "2026-07-26T07:34:49.150Z",
+      "reviewRound": "2026-07-26T06:50:49.241Z",
+      "reviewRunId": "B-3144:RR-023",
+      "envelopeId": "3eb53d274706f8cdc4b5e38089d0ee747bf050504af6f938387b24b850cc0c4a",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/review-passes.json",
+          ".lattice/story/actives/B-3144/scope-contract.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/index.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b712c35f18c2632beb4f504f896424c4d4b2ffb6cc09aa4bd5de07ec4e517e8"
     }
   ]
 }
