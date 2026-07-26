@@ -1,10 +1,9 @@
-import { execFileSync } from 'node:child_process';
 import {
   currentGitHead,
   currentMaterialHash,
   currentStoryFilesHash,
-  isStoryMetadataPath,
 } from './evidence-freshness.js';
+import { classifyMergeLineage } from './validation-lineage.js';
 import type { TestEvidenceData } from './types.js';
 
 export type ValidationEvidenceLineage = 'exact-head' | 'trusted-story-metadata-descendant' | 'rejected';
@@ -45,30 +44,21 @@ function validationHeadLineage(args: {
   gitCwd: string;
   metadataRoot: string;
 }): { lineage: ValidationEvidenceLineage; reason?: string; code?: string } {
-  if (args.evidenceHead === args.currentHead) return { lineage: 'exact-head' };
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', args.evidenceHead, args.currentHead], {
-      cwd: args.gitCwd,
-      stdio: ['ignore', 'ignore', 'pipe'],
-    });
-    const commits = execFileSync('git', ['rev-list', '--reverse', `${args.evidenceHead}..${args.currentHead}`], {
-      cwd: args.gitCwd,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }).split('\n').map(value => value.trim()).filter(Boolean);
-    const changed = [...new Set(commits.flatMap(commit => execFileSync(
-      'git',
-      ['diff-tree', '--root', '--no-commit-id', '--name-only', '--no-renames', '-r', '-m', commit],
-      { cwd: args.gitCwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
-    ).split('\n').map(value => value.trim()).filter(Boolean)))];
-    if (changed.length === 0) return { lineage: 'rejected', code: 'lineage_empty', reason: 'validation evidence descendant lineage is empty' };
-    const untrusted = changed.filter(path => !isStoryMetadataPath(path, args.metadataRoot));
-    if (untrusted.length > 0) {
-      return { lineage: 'rejected', code: 'lineage_untrusted', reason: `validation evidence descendant lineage includes non-story-metadata path(s): ${untrusted.slice(0, 5).join(', ')}` };
-    }
-    return { lineage: 'trusted-story-metadata-descendant' };
-  } catch {
-    return { lineage: 'rejected', code: 'lineage_not_ancestor', reason: 'validation evidence head is not an ancestor of current HEAD' };
+  const classification = classifyMergeLineage(args);
+  switch (classification.kind) {
+    case 'exact-head':
+      return { lineage: 'exact-head' };
+    case 'trusted-descendant':
+      // An empty net diff (byte-identical endpoint trees) is trusted: the
+      // validation ran against identical content. A merge that re-touches a
+      // content-unchanged file no longer surfaces here.
+      return { lineage: 'trusted-story-metadata-descendant' };
+    case 'untrusted':
+      return { lineage: 'rejected', code: 'lineage_untrusted', reason: `validation evidence descendant lineage includes non-story-metadata path(s): ${classification.untrustedPaths.slice(0, 5).join(', ')}` };
+    case 'not-ancestor':
+      return { lineage: 'rejected', code: 'lineage_not_ancestor', reason: 'validation evidence head is not an ancestor of current HEAD' };
+    case 'diff-failed':
+      return { lineage: 'rejected', code: 'lineage_diff_failed', reason: `validation evidence lineage diff failed: ${classification.error}` };
   }
 }
 
