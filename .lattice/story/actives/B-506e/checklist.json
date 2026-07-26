@@ -966,11 +966,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "the append pipeline short-circuits on a dedupe hit BEFORE head resolution and any run (3.5 order, append.ts); chain-smoke section 6 (lines 368-371) proves a replay returns the existing record with unchanged length and no new write, so a run-record replay can never reach nonce/receipt generation or a spawned process (the red-assert/green-confirm run writers are W2d/W2e, downstream of this dedupe gate).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets plus a bare file reference. Durable anchor: the body of appendControlRecord in core/red-evidence/append.ts, where the dedupe search returns the existing record with replayed true immediately - before resolveChainHead, before the reference and transition checks, and before the draft and write block - which is exactly the order declared in that file header. Section 6 of red-evidence-chain-smoke.ts exercises the short-circuit for a control record (messages: a same-key quarantine replays; replay does NOT change records.length). A run-record replay therefore cannot reach nonce or receipt generation or spawn a process, because the run-record writers (red-assert in W2d, green-confirm in W2e) sit downstream of this same dedupe gate. Not asserted in this story: an end-to-end run-record replay, since no run-record writer exists yet.",
+          "headHash": "80bdabc58c3b0862e718d2ee8e5f3819cb96cc6c",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:06.872Z"
         }
       ]
     },
