@@ -388,6 +388,45 @@
         "scanEscalationReason": null
       },
       "_hash": "9d8df0032719b78da0a595badc2ebf6c6a4f0c778e5069a5c0f9a4ee3c10848c"
+    },
+    {
+      "id": "B-506e:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 confirmation. F-011 genuinely closed: F-005 resolvedReason asserts real sha256 2d584cc157... (verified: red-w2c-v1-verdict-invariance.mjs prints this exact digest on this tree) and RETRACTS sha256 71c267a0... as unbacked, not deleted. checklist.json CHK-003 note and delivery-check.json already flag 71c267a0 as fabricated/OVERCLAIM. Remaining occurrences: summary.json#limitations (orchestrators TEST-phase job) and test-evidence.json (timestamped 00:03 snapshot, predates the round-4 fix, historical not live). Production sources byte-identical to b4fa4bbfad (proofstory.ts/types.ts/store.ts/mkdir-lock.ts sha256 match); other production diffs since b4fa4bbfad trace to B-8b69 main-merge, not this story. Round-4 commit 85f60fcbf4 (F-014 mid-array reorder + F-012 empty-records section) reviewed in full: docstrings consistent, no stale vacuous/companion language, no dead helpers. F-015 spot-check: 0/94 checklist notes match a file:line citation pattern. F-013 spot-check: ran dist/tasks/command-catalog-smoke.js directly, exit 0. Ran all ten red-w2c-*.mjs: all OK including digest match. No blockers.",
+      "createdAt": "2026-07-26T02:09:00.671Z",
+      "reviewRound": "2026-07-26T01:55:38.498Z",
+      "reviewRunId": "B-506e:RR-022",
+      "envelopeId": "0ab06e5f4b3f178bd0a16a926b5f53da9d39368d2b78b68b2f804655a0ac40d1",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          ".lattice/story/actives/B-506e/test-evidence.json",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/index.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          ".lattice/story/actives/B-506e/process-metrics.json",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a250b99b545bb5fa93e0971a690c93a071ef64c89b7421b5080f112b6e145d80"
     }
   ]
 }
