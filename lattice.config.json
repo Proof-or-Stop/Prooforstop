@@ -101,7 +101,8 @@
       { "command": "node", "args": ["packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/red-evidence-target-binding-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"], "timeoutMs": 180000 },
-      "node packages/main/dist/tasks/frozen-claim-drift-smoke.js"
+      "node packages/main/dist/tasks/frozen-claim-drift-smoke.js",
+      "node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
     ]
   },
   "doneRequiredCommands": [

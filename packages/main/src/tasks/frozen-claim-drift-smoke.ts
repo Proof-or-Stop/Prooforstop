@@ -13,6 +13,9 @@
  */
 
 import { strict as assert } from 'node:assert';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { normalizeClaim, claimDigest, detectDrift } from '../core/frozen-claim-drift.js';
 import { buildDriftReport } from '../handlers/frozen-claim-drift-check.js';
 import type { ChecklistItem, FrozenClaimSnapshot } from '../core/types.js';
@@ -329,6 +332,123 @@ import type { ChecklistItem, FrozenClaimSnapshot } from '../core/types.js';
   assert.equal(summary.blocking, false, 'the advisory summary is blocking=false even with drift present (never fails a gate)');
   assert.ok(summary.drifted > 0, 'summary confirms drift is present alongside blocking=false');
   console.log('✓ [non-blocking] buildDriftReport surfaces drift but the advisory is blocking=false (actionRequired=re_attestation only)');
+}
+
+// ── F-001 (CHK-004:adversarial:0): DETERMINISM + OFFLINE proof. ──────────────────
+// The adversarial intent promised the smoke is deterministic and offline (cannot
+// flake). This assertion proves it DIRECTLY: (1) running the pure report/detect Fns
+// twice on byte-identical constructed input yields byte-identical serialized output
+// (no time/random/ordering nondeterminism), and (2) the drift module performs NO
+// network / fs / git I/O — its source imports only crypto (via digest) + types, so
+// there is nothing that could talk to the network or the filesystem to make it flake.
+{
+  // (a) Byte-identical output on repeated runs — the core determinism guarantee.
+  const CURRENT_SFH = '3'.repeat(64);
+  const buildItems = (): readonly ChecklistItem[] => [
+    Object.freeze({
+      id: 'CHK-DET-1',
+      title: 'material-drifted item for the determinism replay',
+      userSees: 'the file report.pdf was generated',
+      userSeesSnapshot: Object.freeze({
+        normalizedClaimDigest: claimDigest('the file report.pdf was generated'),
+        storyFilesHash: 'a'.repeat(64), // pinned at a different SFH → material drift
+        headHash: 'deadbeef'.repeat(5),
+        attestedAt: '2026-07-26T00:00:00.000Z',
+      }) as FrozenClaimSnapshot,
+      status: 'done',
+      startTime: null,
+      endTime: null,
+    }) as ChecklistItem,
+    Object.freeze({
+      id: 'CHK-DET-2',
+      title: 'legacy-unbound item for the determinism replay',
+      userSees: 'a pre-feature promise with no snapshot',
+      status: 'done',
+      startTime: null,
+      endTime: null,
+    }) as ChecklistItem,
+  ];
+  const runA = JSON.stringify(buildDriftReport(buildItems(), CURRENT_SFH));
+  const runB = JSON.stringify(buildDriftReport(buildItems(), CURRENT_SFH));
+  assert.equal(runA, runB, 'buildDriftReport is deterministic: identical input → byte-identical serialized output');
+  // detectDrift is likewise byte-stable across repeated calls on identical input.
+  const snap: FrozenClaimSnapshot = {
+    normalizedClaimDigest: claimDigest('the migration ran'),
+    storyFilesHash: '5'.repeat(64),
+    headHash: 'facefeed'.repeat(5),
+    attestedAt: '2026-07-26T00:00:00.000Z',
+  };
+  const dA = JSON.stringify(detectDrift(snap, { currentNormalizedDigest: claimDigest('the migration ran'), currentStoryFilesHash: '6'.repeat(64) }));
+  const dB = JSON.stringify(detectDrift(snap, { currentNormalizedDigest: claimDigest('the migration ran'), currentStoryFilesHash: '6'.repeat(64) }));
+  assert.equal(dA, dB, 'detectDrift is deterministic: identical input → byte-identical serialized verdict');
+
+  // (b) No network / fs / git I/O: the drift module imports only crypto (via ./digest)
+  // + types. Statically prove it by scanning the module (and its one digest dep) source
+  // for any fs / child_process / network import — there must be NONE. Reading a
+  // checked-in source file is a deterministic, offline local read (no network, no git).
+  const here = dirname(fileURLToPath(import.meta.url)); // packages/main/dist/tasks
+  const coreDir = resolve(here, '../../src/core');
+  const driftSrc = readFileSync(resolve(coreDir, 'frozen-claim-drift.ts'), 'utf8');
+  const digestSrc = readFileSync(resolve(coreDir, 'digest.ts'), 'utf8');
+  const FORBIDDEN_IO = [
+    "'node:fs'", '"node:fs"', "'fs'", '"fs"',
+    "'node:child_process'", '"node:child_process"', "'child_process'", '"child_process"',
+    "'node:net'", "'node:http'", "'node:https'", "'node:dns'", "'node:tls'",
+    'execSync', 'execFileSync', 'spawnSync', 'spawn(',
+  ];
+  for (const needle of FORBIDDEN_IO) {
+    assert.ok(!driftSrc.includes(needle), `frozen-claim-drift.ts must perform NO fs/git/network I/O (found: ${needle})`);
+    assert.ok(!digestSrc.includes(needle), `digest.ts (drift's only dep) must perform NO fs/git/network I/O (found: ${needle})`);
+  }
+  // Positive: the drift module's only runtime import is the crypto-backed digest helper.
+  assert.match(driftSrc, /from '\.\/digest\.js'/, 'drift module imports the crypto-backed digest helper (its only runtime dep)');
+  assert.match(digestSrc, /from 'node:crypto'/, 'digest helper is backed only by node:crypto');
+  console.log('✓ [determinism] buildDriftReport/detectDrift replay byte-identically; drift module does NO network/fs/git I/O (crypto+types only)');
+}
+
+// ── F-002 (CHK-003:happy:0): CLEAN-BRANCH report path. ───────────────────────────
+// CHK-003:happy promised an advisory for a drifted story AND "a clean report for a
+// clean story", but only the drifted branch was previously exercised. This asserts the
+// clean branch directly: buildDriftReport over ONLY clean, snapshot-bound items (no
+// drift, no legacy-unbound) returns ZERO advisories — the clean-story report is empty.
+{
+  const CURRENT_SFH = '7'.repeat(64);
+  // Two snapshot-bound items pinned at the CURRENT storyFilesHash with unchanged claims
+  // → both clean (driftKind=none, bound) → both omitted → zero advisories.
+  const cleanA: ChecklistItem = Object.freeze({
+    id: 'CHK-CLEAN-1',
+    title: 'clean, snapshot-bound item A',
+    userSees: 'the config file was written to disk',
+    userSeesSnapshot: Object.freeze({
+      normalizedClaimDigest: claimDigest('the config file was written to disk'),
+      storyFilesHash: CURRENT_SFH, // equals current → no material drift
+      headHash: 'cafebabe'.repeat(5),
+      attestedAt: '2026-07-26T00:00:00.000Z',
+    }) as FrozenClaimSnapshot,
+    status: 'done',
+    startTime: null,
+    endTime: null,
+  }) as ChecklistItem;
+  const cleanB: ChecklistItem = Object.freeze({
+    id: 'CHK-CLEAN-2',
+    title: 'clean, snapshot-bound item B',
+    userSees: 'the archive was extracted to output/',
+    userSeesSnapshot: Object.freeze({
+      normalizedClaimDigest: claimDigest('the archive was extracted to output/'),
+      storyFilesHash: CURRENT_SFH, // equals current → no material drift
+      headHash: 'feedbeef'.repeat(5),
+      attestedAt: '2026-07-26T00:00:00.000Z',
+    }) as FrozenClaimSnapshot,
+    status: 'done',
+    startTime: null,
+    endTime: null,
+  }) as ChecklistItem;
+
+  const report = buildDriftReport([cleanA, cleanB], CURRENT_SFH);
+  assert.equal(report.length, 0, 'a clean story (only un-drifted snapshot-bound items) yields ZERO advisories');
+  assert.equal(report.filter((a) => a.driftKind !== 'none').length, 0, 'no drift advisories on a clean story');
+  assert.equal(report.filter((a) => a.classification === 'legacy-unbound').length, 0, 'no legacy-unbound advisories on a clean story');
+  console.log('✓ [clean-branch] buildDriftReport over only clean bound items → zero advisories (clean-story report is empty)');
 }
 
 console.log('frozen-claim-drift-smoke: PASS');
