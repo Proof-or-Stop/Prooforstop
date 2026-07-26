@@ -189,6 +189,21 @@
       "resolvedAt": "2026-07-26T02:51:56.213Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3144:F-011",
+      "desc": "doc-behavior-mismatch: F-010 (commit 7eb91080fd) made dryRun:false an executor equal to apply:true, and updated ONLY command-catalog.ts:2997 (the dryRun field describe()) and the function-local comment at quorum-prune.ts:208-218 to say so. Five other prose locations describing the exact same apply/dryRun semantics were left stale, still claiming apply:true is required/the only way to mutate: (1) quorum-prune.ts:20 module comment \"dry-run is the default (no mutation without explicit apply:true...)\"; (2) quorum-prune.ts:198 user-facing dry-run note \"re-run with apply:true to back up, prune, and commit\" (never mentions dryRun:false); (3) command-catalog.ts:2994 the TOP-LEVEL tool description shown first in `lattice quorum_prune --help` output — \"list (dry-run by default) and, with apply:true, remove duplicate host_verdict events\" — inconsistent with the correctly-updated --dryRun flag description three lines below it in the SAME --help output; (4) process-fact-levels.ts:209 rationale \"apply:true required to mutate\"; (5) command-policy.ts:480 reason \"apply:true required to mutate\". Verified live: `node bin/lattice.js quorum_prune --help` prints the stale top-level description at line 1 and the corrected --dryRun description a few lines later, an internal inconsistency visible in the same output block. Before F-010 these five statements were true; the F-010 commit made them false without updating them. No test asserts command-catalog.ts:2994, process-fact-levels.ts:209, or command-policy.ts:480 text, so nothing catches this. Not a broken user promise (apply:true still works) but a genuine half-updated-documentation defect: an operator or auditor reading only the top-level description or the policy/process-fact rationale forms an incorrect mental model of the mutation trigger.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T03:03:42.275Z",
+      "reviewRound": "2026-07-26T02:51:47.378Z",
+      "reviewRunId": "B-3144:RR-012",
+      "_hash": "f95d4f44a5882427eccb82a1188d7434b8c950794f7449934fcb2b4dadc9e0fe",
+      "signatureTag": "missing|unknown|behavior-mismatch-commit",
+      "signatureTagSource": "auto"
     }
   ]
 }
