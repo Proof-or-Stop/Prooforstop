@@ -279,15 +279,16 @@ try {
     }, 'the live gate MUST NOT throw on a v2 quarantine record (no observedFailure) evaluated BEFORE any satisfying v1 record');
     assert.equal(after, before, 'the v1 gate verdict is BYTE-IDENTICAL with a v2 record added (v2 ignored)');
 
-    // The reverse ordering too. NOTE: on its own this case is vacuous (some()
-    // short-circuits on the satisfying v1 record and never sees the v2 record);
-    // it is kept only as the companion of the v2-first case above.
-    writeRecords(store, storyId, [v1, q]);
-    let afterV1First = '';
-    assert.doesNotThrow(() => {
-      afterV1First = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
-    }, 'the live gate MUST NOT throw with the v2 quarantine record after the v1 record either');
-    assert.equal(afterV1First, before, 'the v1 gate verdict is BYTE-IDENTICAL in either record order');
+    // MID-ARRAY: the leading record is a GENUINE v1 record with a non-empty
+    // observedFailure but a foreign acceptanceTargetRef, so the v1 predicate
+    // returns false for it and some() CANNOT short-circuit — the v2 record that
+    // follows is really evaluated (pre-fix: TypeError), and the trailing v1
+    // record keeps the verdict well-defined. Not a vacuous companion.
+    writeRecords(store, storyId, [{ id: 'RED-v1-unsat', trigger: 'unrelated', acceptanceTargetRef: 'M-not-a-declared-target', baselineHeadHash: 'base-head', baselineMaterialHash: 'base-mat', failingCommand: 'npm test', observedFailure: 'a different failure', greenRelation: { targetRef: 'M-not-a-declared-target', relation: 'same_acceptance', greenHeadHash: 'green-head', greenMaterialHash: 'green-mat' }, createdAt: NOW }, q, v1]);
+    let afterMid = '';
+    assert.doesNotThrow(() => { afterMid = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence); },
+      'the live gate MUST NOT throw on a v2 quarantine record placed MID-ARRAY behind a NON-satisfying v1 record (some() cannot short-circuit, so the v2 record IS evaluated)');
+    assert.equal(afterMid, before, 'the v1 gate verdict is BYTE-IDENTICAL with the v2 record mid-array: it is skipped and the verdict still comes from the trailing satisfying v1 record');
 
     // v2-only store: missingRedEvidence fires (no v1 satisfier), no crash.
     writeRecords(store, storyId, [ra, q]);
@@ -625,7 +626,45 @@ try {
     assert.equal(okCount, 1, `exactly one child won; the loser reported a structured non-zero abort (exit codes ${exitCodes.join(',')})`);
   }
 
-  console.log('red-evidence-chain-smoke: OK — v2 union + §0.4 omission/nullability; enforce-gate byte-identical v1 guard (RED signal A); chain head both conjuncts + three integrity checks with distinct reason ids; closed transition table + transitive cycle-safe effective head; operation-key + normalizedReason + deterministic id; dedupe/replay ordering + scoped dedupe + CONFLICT; full rejection matrix + retired byte-identical + forged approvedBy rejected + CHK-012 membership; §1.1.3 binding-freeze/unfreeze/re-freeze; genuine 2-process mkdir-claim race → one head (RED signal B).');
+  // ════════════════════════════════════════════════════════════════════════
+  // 12. EMPTY records array — the mixed v1+v2 union boundary case (CHK-002:edge:0)
+  //
+  // A store that has no evidence yet: records: []. It must round-trip through
+  // writeRedEvidence → readRedEvidence as a STILL-EMPTY array (the widened union
+  // and the §6.4 load-time classifier must neither synthesize nor drop entries,
+  // and must not reject an empty array), and the LIVE v1 gate verdict on it must
+  // be WELL-DEFINED — no v1 satisfier, so the missing-red-evidence diagnostic
+  // fires — rather than a crash or a silent pass.
+  //
+  // Placement note: this block is appended LAST deliberately, so adding it does
+  // not renumber any earlier line in the emitted dist/tasks/red-evidence-chain-
+  // smoke.js that other evidence notes cite.
+  //
+  // Scope note: unlike sections 2-11 this is NOT a guard-regression signal — it
+  // pins a boundary behaviour that holds on the pre-fix tree too. It exists
+  // because CHK-002:edge:0 names the empty-array round-trip and nothing in this
+  // file asserted it (B-506e F-012).
+  // ════════════════════════════════════════════════════════════════════════
+  {
+    const root = freshRoot('empty');
+    const storyId = 'B-empty';
+    const store = seedRedStory(root, storyId);
+    writeRecords(store, storyId, []);
+    const readBack = store.readRedEvidence(storyId);
+    assert.notEqual(readBack, null, 'a store written with an empty records array reads back (not null)');
+    const roundTripped = readBack as RedEvidenceData;
+    assert.ok(Array.isArray(roundTripped.records), 'records round-trips as an ARRAY');
+    assert.equal(roundTripped.records.length, 0, 'records round-trips as an EMPTY array — the load-time classifier neither synthesizes nor drops entries');
+    assert.equal(JSON.stringify(roundTripped.records), '[]', 'the empty array is byte-identical after write → read');
+    assert.equal(roundTripped.schemaVersion, RED_EVIDENCE_FILE_SCHEMA_VERSION, 'the file-level schemaVersion survives the empty-array round-trip unchanged');
+    let emptyVerdict: unknown[] = [];
+    assert.doesNotThrow(() => {
+      emptyVerdict = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence;
+    }, 'the LIVE v1 gate MUST NOT throw on an empty records array');
+    assert.ok(emptyVerdict.length > 0, 'an empty records array has no v1 satisfier → the v1 gate verdict is well-defined: missing_red_evidence fires (not a crash, not a silent pass)');
+  }
+
+  console.log('red-evidence-chain-smoke: OK — v2 union + §0.4 omission/nullability; enforce-gate byte-identical v1 guard (RED signal A); chain head both conjuncts + three integrity checks with distinct reason ids; closed transition table + transitive cycle-safe effective head; operation-key + normalizedReason + deterministic id; dedupe/replay ordering + scoped dedupe + CONFLICT; full rejection matrix + retired byte-identical + forged approvedBy rejected + CHK-012 membership; §1.1.3 binding-freeze/unfreeze/re-freeze; genuine 2-process mkdir-claim race → one head (RED signal B); empty-records-array round-trip + well-defined v1 verdict.');
 } finally {
   for (const dir of roots) rmSync(dir, { recursive: true, force: true });
 }

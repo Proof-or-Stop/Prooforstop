@@ -14,9 +14,11 @@
  * `Array.prototype.some()`, which SHORT-CIRCUITS on the first satisfying record.
  * A non-v1 record placed AFTER an already-satisfying v1 record is therefore never
  * handed to the predicate, and asserting on that arrangement proves nothing — it
- * does not throw even on the pre-fix tree. Every case below that claims to
- * exercise the guard puts the non-v1 record FIRST (or uses a store with no
- * satisfying v1 record).
+ * does not throw even on the pre-fix tree. NO such arrangement appears below.
+ * Every case here reaches the guard: the non-v1 record is placed FIRST, or
+ * MID-ARRAY behind a v1 record that does NOT satisfy the predicate (so some()
+ * cannot short-circuit before it), or in a store with no satisfying v1 record at
+ * all. Each one fails against a dist built from the pre-fix tree 8727b2db83.
  *
  * After the guard: (1) the diagnostic on a v1-only store is BYTE-IDENTICAL to the
  * run WITH a v2 record added (v2 records are invisible to the v1 predicate); and
@@ -105,15 +107,28 @@ assert.doesNotThrow(() => {
 }, 'RED signal A: the LIVE enforce gate MUST NOT throw on a v2 quarantine record evaluated BEFORE any satisfying v1 record (no observedFailure)');
 assert.equal(after, before, 'the v1 gate verdict is BYTE-IDENTICAL with a v2 record added (v2 records are ignored)');
 
-// The reverse ordering too, so the skip is order-independent. NOTE: on its own
-// this case is vacuous (some() short-circuits on v1 and never sees the v2
-// record); it is kept only as the companion of the v2-first case above.
-writeRecords(store, storyId, [v1, v2Quarantine]);
-let afterV1First;
+// MID-ARRAY PLACEMENT: the v2 record is neither first nor short-circuited past.
+// v1Unsatisfying is a GENUINE v1 record (no schemaVersion) that carries a
+// non-empty observedFailure — so it does NOT throw on the pre-fix tree — but
+// names an acceptanceTargetRef outside expectedTargets, so the v1 predicate
+// returns FALSE for it and some() does NOT short-circuit. The v2 record that
+// follows is therefore genuinely handed to the predicate from a non-leading
+// position, and the satisfying v1 record at the tail keeps the verdict
+// well-defined. Against the pre-fix tree (8727b2db83) this ordering throws a
+// TypeError at record.observedFailure.trim() exactly as the v2-first case does.
+const v1Unsatisfying = {
+  id: 'RED-v1-unsat', trigger: 'unrelated', acceptanceTargetRef: 'M-not-a-declared-target',
+  baselineHeadHash: 'base-head', baselineMaterialHash: 'base-mat',
+  failingCommand: 'npm test', observedFailure: 'a different failure',
+  greenRelation: { targetRef: 'M-not-a-declared-target', relation: 'same_acceptance', greenHeadHash: 'green-head', greenMaterialHash: 'green-mat' },
+  createdAt: NOW,
+};
+writeRecords(store, storyId, [v1Unsatisfying, v2Quarantine, v1]);
+let afterMid;
 assert.doesNotThrow(() => {
-  afterV1First = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
-}, 'the LIVE enforce gate MUST NOT throw with the v2 quarantine record after the v1 record either');
-assert.equal(afterV1First, before, 'the v1 gate verdict is BYTE-IDENTICAL in either record order');
+  afterMid = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
+}, 'the LIVE enforce gate MUST NOT throw on a v2 quarantine record placed MID-ARRAY behind a non-satisfying v1 record (some() does not short-circuit, so the v2 record IS evaluated)');
+assert.equal(afterMid, before, 'the v1 gate verdict is BYTE-IDENTICAL when the v2 record sits mid-array: it is skipped and the verdict still comes from the trailing satisfying v1 record');
 
 // A MALFORMED HYBRID: a v2 record that DOES carry every v1 field, including a
 // non-empty observedFailure and a well-formed greenRelation, so it would satisfy
@@ -140,4 +155,4 @@ writeRecords(store, storyId, [v2Quarantine]);
 const v2Only = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence;
 assert.ok(v2Only.length > 0, 'a v2-only store has no v1 satisfier → missing_red_evidence fires (not a crash)');
 
-console.log('red-w2c-gate-guard: OK (live enforce gate does not throw on a v2 record ordered BEFORE any satisfying v1 record; v1 verdict byte-identical in either order; a v2 record with a complete valid v1 field set still does not satisfy the v1 predicate; v2-only store reports missing not crash)');
+console.log('red-w2c-gate-guard: OK (live enforce gate does not throw on a v2 record ordered BEFORE any satisfying v1 record, nor on one placed MID-ARRAY behind a non-satisfying v1 record; the v1 verdict is byte-identical in both placements; a v2 record with a complete valid v1 field set still does not satisfy the v1 predicate; v2-only store reports missing not crash)');

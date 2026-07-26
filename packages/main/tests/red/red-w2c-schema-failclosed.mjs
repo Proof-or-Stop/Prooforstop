@@ -28,8 +28,11 @@
  * with `Array.prototype.some()`, which SHORT-CIRCUITS on the first satisfying
  * record, so a v3 record appended AFTER a satisfying v1 record is never handed to
  * the predicate and asserting on that arrangement proves nothing (it does not
- * throw even on the pre-fix tree). Step 4 therefore injects the v3 record FIRST,
- * and additionally covers a v3-only input that cannot be short-circuited past.
+ * throw even on the pre-fix tree). NO such arrangement appears in step 4: it
+ * injects the v3 record FIRST, then MID-ARRAY behind a v1 record that does NOT
+ * satisfy the predicate (so some() cannot short-circuit before it), then as a
+ * v3-only input that cannot be short-circuited past. Each arrangement fails
+ * against a dist built from the pre-fix tree 8727b2db83.
  */
 import { strict as assert } from 'node:assert';
 import { fileURLToPath } from 'node:url';
@@ -140,16 +143,29 @@ assert.doesNotThrow(() => {
 }, 'the gate predicate MUST NOT crash on a non-v1 record evaluated BEFORE any satisfying v1 record (never reaches observedFailure.trim())');
 assert.equal(injected, before, 'the v1 gate verdict is BYTE-IDENTICAL with a v3 record injected first (v3 is invisible to the v1 predicate)');
 
-// The reverse ordering too. NOTE: on its own this case is vacuous (some()
-// short-circuits on the satisfying v1 record and never sees the v3 record); it is
-// kept only as the companion of the v3-first case above.
-const inputV1First = proofStoryDiagnosticInput(store, storyId, root);
-inputV1First.redEvidence.records.push(v3);
-let injectedV1First;
+// MID-ARRAY PLACEMENT: the v3 record is neither first nor short-circuited past.
+// v1Unsatisfying is a GENUINE v1 record (no schemaVersion) carrying a non-empty
+// observedFailure — so it does NOT throw on the pre-fix tree — that names an
+// acceptanceTargetRef outside expectedTargets, so the v1 predicate returns FALSE
+// for it and some() does NOT short-circuit. The v3 record that follows is
+// therefore genuinely handed to the predicate from a non-leading position, and
+// the satisfying v1 record at the tail keeps the verdict well-defined. Against
+// the pre-fix tree (8727b2db83) this ordering throws a bare TypeError at
+// record.observedFailure.trim() exactly as the v3-first case does.
+const v1Unsatisfying = {
+  id: 'RED-v1-unsat', trigger: 'unrelated', acceptanceTargetRef: 'M-not-a-declared-target',
+  baselineHeadHash: 'base-head', baselineMaterialHash: 'base-mat',
+  failingCommand: 'npm test', observedFailure: 'a different failure',
+  greenRelation: { targetRef: 'M-not-a-declared-target', relation: 'same_acceptance', greenHeadHash: 'green-head', greenMaterialHash: 'green-mat' },
+  createdAt: NOW,
+};
+const inputMid = proofStoryDiagnosticInput(store, storyId, root);
+inputMid.redEvidence.records = [v1Unsatisfying, v3, v1];
+let injectedMid;
 assert.doesNotThrow(() => {
-  injectedV1First = JSON.stringify(evaluateProofStoryDiagnostics(inputV1First).missingRedEvidence);
-}, 'the gate predicate MUST NOT crash with the v3 record after the v1 record either');
-assert.equal(injectedV1First, before, 'the v1 gate verdict is BYTE-IDENTICAL in either record order');
+  injectedMid = JSON.stringify(evaluateProofStoryDiagnostics(inputMid).missingRedEvidence);
+}, 'the gate predicate MUST NOT crash on a v3 record placed MID-ARRAY behind a non-satisfying v1 record (some() does not short-circuit, so the v3 record IS evaluated)');
+assert.equal(injectedMid, before, 'the v1 gate verdict is BYTE-IDENTICAL when the v3 record sits mid-array: it is skipped and the verdict still comes from the trailing satisfying v1 record');
 
 // A v3-only input: the predicate must reach the v3 record with NO satisfying v1
 // record anywhere, report missing_red_evidence, and still not crash. This case
