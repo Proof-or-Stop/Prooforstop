@@ -295,15 +295,14 @@
         {
           "intentRef": "CHK-003:happy:1",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-bound in round 4; this fixes F-014 for this intent. The round-3 note ended with 'the old ordering is retained as an explicit companion case, labelled vacuous on its own' and claimed byte-identity 'in BOTH orderings' — that companion could not fail and has been REMOVED. red-w2c-gate-guard.mjs now covers the mixed store in two ways that both genuinely reach the predicate: (a) lines 103-108, [v2Quarantine, v1] — the v2 record leads; (b) lines 119-131, [non-satisfying v1, v2Quarantine, v1] — the leading record is a real v1 record with a non-empty observedFailure but a foreign acceptanceTargetRef, so redEvidenceRecordSatisfied returns false for it, Array.prototype.some() cannot short-circuit, the v2 record IS evaluated from a non-leading position, and the trailing satisfying v1 record keeps the verdict well-defined. Each asserts the LIVE gate does not throw and that JSON.stringify(missingRedEvidence) equals the v1-only baseline from line 94. Non-vacuity of (b) executed, not argued: against a dist built from git archive 8727b2db83 (with case (a) stripped so (b) is reached), the run FAILS at exactly assertion (b) with TypeError: Cannot read properties of undefined (reading 'trim'). Commit 85f60fcbf4.",
-          "headHash": "3f8fe21aa177363dd7e52897e20ebdfb747e534c",
+          "note": "F-015 re-anchor: the old note cited line offsets and a baseline at line offsets. Durable anchor: red-w2c-gate-guard.mjs, where the baseline named before is captured from the v1-only store immediately after the comment (Baseline: v1-only diagnostic). Two mixed-store arrangements then assert byte-identity against that baseline: assert.equal(after, before) with the message (the v1 gate verdict is BYTE-IDENTICAL with a v2 record added - v2 records are ignored) for the store [v2Quarantine, v1], and assert.equal(afterMid, before) with the message (the v1 gate verdict is BYTE-IDENTICAL when the v2 record sits mid-array - it is skipped and the verdict still comes from the trailing satisfying v1 record) for the store [v1Unsatisfying, v2Quarantine, v1], where v1Unsatisfying is a genuine v1 record carrying a non-empty observedFailure but naming a foreign acceptanceTargetRef so the predicate returns false for it and some() cannot short-circuit. Each arrangement also asserts the live gate does not throw. The vacuous companion removed under F-014 has not returned to this file.",
+          "headHash": "e0a84b2247df4c50cd485e5527742505b39c7386",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:18:00.831Z"
+          "timestamp": "2026-07-26T01:40:50.664Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
