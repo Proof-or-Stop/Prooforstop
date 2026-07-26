@@ -1056,11 +1056,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 6 (line 369) retries the SAME quarantine operation and it dedupes against the existing quarantine record (replay, unchanged length) — quarantine records ARE in scope for quarantine-operation dedupe.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 6 of red-evidence-chain-smoke.ts, the second quarantine call - identical storyId, recordId and reason to the first - whose returned message is asserted to match replay and after which the record count is asserted unchanged. It matches the stored QUARANTINE record by operationKey, not the red-assert it references, because controlOperationKey embeds the operation in the preimage. Quarantine records are therefore in scope for quarantine-operation dedupe.",
+          "headHash": "0a270f139b5a6d45ce2faca2fe89c6b123692192",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:12.153Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
