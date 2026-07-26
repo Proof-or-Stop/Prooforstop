@@ -257,7 +257,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the fix, the same record set produces the same verdict regardless of the position of the malformed entry.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A malformed entry is reported even when a satisfying record precedes it, so Array.prototype.some short-circuiting can no longer hide it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The pre-fix behaviour is pinned first: satisfying-first-then-malformed returns SATISFIED today with no throw, proving the assertion is not vacuous.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
