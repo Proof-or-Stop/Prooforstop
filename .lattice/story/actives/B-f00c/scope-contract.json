@@ -4,6 +4,7 @@
   "allowedModify": [
     "packages/main/src/core/validation-evidence-reuse.ts",
     "packages/main/src/core/validation-evidence-admissibility.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
     "lattice.config.json"
   ],
   "allowedCreate": [
@@ -11,17 +12,18 @@
     "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
   ],
   "allowedTest": [
-    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts"
   ],
   "protectedFiles": [
     "packages/main/src/handlers/verdict.ts",
     "packages/main/src/core/phase-gates.ts"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "Shared classifier + its two consumers + a new smoke + validate.commands wiring; verdict.ts and phase-gates.ts only consume the corrected classifier and must not change.",
+  "scopeChangeReason": "Add done-required-validation-smoke.ts to allowedModify (scope reviewer OQ-1): its modify-then-revert block (lines 698-723) encodes the OLD per-commit -m semantic (reusable=false for byte-identical endpoints) which the net-diff fix intentionally corrects to trusted; the block will be updated to assert the new semantic plus a retained genuine-change negative case.",
   "acknowledgements": [],
   "createdAt": "2026-07-26T03:17:26.125Z",
-  "updatedAt": "2026-07-26T03:17:26.125Z",
+  "updatedAt": "2026-07-26T03:25:21.580Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -31,6 +33,7 @@
     "packages/main/src/core/validation-lineage.ts": "packages/main/src/core/validation-lineage.ts",
     "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
     "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts",
-    "packages/main/src/core/phase-gates.ts": "packages/main/src/core/phase-gates.ts"
+    "packages/main/src/core/phase-gates.ts": "packages/main/src/core/phase-gates.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts"
   }
 }

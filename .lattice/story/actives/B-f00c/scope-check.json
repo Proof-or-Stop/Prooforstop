@@ -1,6 +1,6 @@
 {
   "storyId": "B-f00c",
-  "checkedAt": "2026-07-26T03:22:45.325Z",
+  "checkedAt": "2026-07-26T03:30:45.180Z",
   "features": [
     {
       "feature": "Extract one shared net-endpoint-diff helper (netDiffChangedPaths + a shared lineage classifier) and route BOTH classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts) through it, replacing each copy's independent per-commit `diff-tree -m` union",
@@ -101,11 +101,11 @@
       "source": "proposal sec 3, sec 9 Q5; grep confirms both call the exported function directly"
     },
     {
-      "feature": "The GREEN test suite must not regress: an existing pre-fix smoke assertion in packages/main/src/tasks/done-required-validation-smoke.ts (lines ~698-721, 'modify-then-revert material history is still untrusted') directly encodes the OLD per-commit-union semantics that this story's own decision.json risk table explicitly and intentionally overturns ('Net diff is the correct semantic' for change-then-revert) -- this file is wired into lattice.config.json validate.commands (line 64) and will fail once CHK-001 lands, but it is NOT in scope-contract.json's allowedModify/allowedCreate/allowedTest lists",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "RESOLVED (was blocking gap in round 1): the pre-existing done-required-validation-smoke.ts:698-723 modify-then-revert assertion encoded the OLD per-commit-union semantics contradicted by this story's own decision.json risk table (row 1: net diff is the correct semantic for change-then-revert). scope-contract.json has now been amended (verified via scope_contract_show) to add this file to allowedModify AND allowedTest, with an explicit scopeChangeReason directing the block to be updated to assert reusable=true/trusted for the byte-identical modify-then-revert-and-rename-round-trip case, while a genuine non-metadata content change still refuses reuse -- that negative-case protection is independently and adequately covered by validation-evidence-reuse-smoke.ts:1463 (classifyTrustedValidationLineage on baseHead->codeHead with a genuinely new/changed source.ts asserts lineage 'rejected' + untrusted-lineage-path:source.ts), confirmed present and unaffected by this amendment. Verified: no other pre-existing test file encodes the old modify-then-revert-must-stay-untrusted semantic (grepped done-required-validation-smoke.ts, validation-evidence-reuse-smoke.ts, review-escalation-smoke.ts, evidence-refresh-smoke.ts for revert/round-trip patterns -- only the one block at 698-723 matches, and the adjacent single-mutation-no-revert block at 600-622 already uses a lineage-agnostic regex and needs no change). Proposal sec 6 row 1 independently corroborates the intended semantic.",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/tasks/done-required-validation-smoke.ts:698-721; decision.json preMortem/risk table row 1; scope-contract.json allowedModify (omits this file)"
+      "source": "scope-contract.json scopeChangeReason (verified via scope_contract_show); packages/main/src/tasks/done-required-validation-smoke.ts:698-723; packages/main/src/tasks/validation-evidence-reuse-smoke.ts:1461-1463; docs/done-validation-reuse-merge-lineage-fix-proposal.md sec 6 row 1; decision.json preMortem"
     }
   ],
   "readManifest": {
@@ -113,46 +113,34 @@
       ".lattice/story/actives/B-f00c/background.md",
       ".lattice/story/actives/B-f00c/checklist.json",
       ".lattice/story/actives/B-f00c/decision.json",
+      ".lattice/story/actives/B-f00c/index.json",
+      ".lattice/story/actives/B-f00c/process-events.jsonl",
+      ".lattice/story/actives/B-f00c/review.json",
       ".lattice/story/actives/B-f00c/scope-boundary.json",
       ".lattice/story/actives/B-f00c/scope-contract.json",
-      ".lattice/story/actives/B-f00c/understanding.json",
-      "docs/done-validation-reuse-merge-lineage-fix-proposal.md",
-      "packages/main/src/core/validation-evidence-admissibility.ts",
-      "packages/main/src/core/validation-evidence-reuse.ts"
+      ".lattice/story/actives/B-f00c/scope-freeze-check.json",
+      ".lattice/story/actives/B-f00c/understanding.json"
     ],
     "filesTriagedByName": [
       "lattice.config.json",
       "packages/main/src/core/done-prepare-validation-reuse.ts",
+      "packages/main/src/core/validation-evidence-admissibility.ts",
+      "packages/main/src/core/validation-evidence-reuse.ts",
       "packages/main/src/handlers/phase-gates.ts",
       "packages/main/src/handlers/verdict.ts",
-      "packages/main/src/handlers/verifier.ts",
-      "packages/main/src/tasks/done-required-validation-smoke.ts",
-      "packages/main/src/tasks/review-escalation-smoke.ts",
-      "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+      "packages/main/src/handlers/verifier.ts"
     ],
-    "scanEscalationReason": "Grepped the full packages/main/src tree for every consumer of classifyTrustedValidationLineage / evaluateDoneRequiredPreRunReuse / validationHeadLineage / evaluateValidationEvidenceAdmissibility and for lineage reason-code strings (untrusted-lineage-path, lineage_empty, empty-descendant-lineage, evidence-head-is-not-current-ancestor, revert/restore patterns) to verify no other pre-existing smoke/test file encodes assumptions the net-diff fix would break; targeted-read the matching line ranges in done-required-validation-smoke.ts (580-725) and validation-evidence-reuse-smoke.ts (1400-1480) to confirm content."
+    "scanEscalationReason": "Re-review after scope amendment: confirmed via `scope_contract_show` (not just file read) that done-required-validation-smoke.ts is now in allowedModify+allowedTest with an explicit scopeChangeReason. Targeted-read done-required-validation-smoke.ts:595-745 (the flagged 698-723 block plus its neighbors 600-622 and 726-745) to confirm it is the ONLY block encoding the old per-commit-union semantic; grepped the whole packages/main/src tree for untrusted-lineage-path/lineage_untrusted/lineage_empty/classifyTrustedValidationLineage/validationHeadLineage consumers and grepped for revert/round-trip patterns in done-required-validation-smoke.ts, validation-evidence-reuse-smoke.ts, review-escalation-smoke.ts, evidence-refresh-smoke.ts to confirm no other pre-existing test encodes the contradicted semantic. Targeted-read validation-evidence-reuse-smoke.ts:1420-1490 to independently confirm the retained genuine-content-change negative case at line 1463 is unaffected. Targeted-read docs/done-validation-reuse-merge-lineage-fix-proposal.md sec 5-9 (risk table row 1, test plan) to corroborate the intended net-diff semantic against the amended scope."
   },
   "summary": {
     "total": 15,
-    "covered": 10,
+    "covered": 12,
     "excluded": 3,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "ae2bf11370381446c985b72a0a8f89cb9f5f7e534dd268c05baf2238d09d76c0",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "done-required-validation-smoke.ts modify-then-revert assertion contradicts the intended net-diff fix and is outside allowedModify -- how should it be reconciled?",
-      "evidence": "packages/main/src/tasks/done-required-validation-smoke.ts:698-721 asserts a modify-then-revert of README.md across intervening commits still refuses reuse (untrusted-lineage-path:README.md), matching today's per-commit-union behavior. decision.json's own risk table (row 1, 'A transient change->revert within the range that mattered') explicitly says the net-diff fix makes this TRUSTED (content-identity at the endpoints) -- this is the intended, audited behavior change, not a bug. This file is wired into lattice.config.json validate.commands (line 64) so it runs on every GREEN validation, but it is not in scope-contract.json's allowedModify/allowedCreate/allowedTest lists.",
-      "sourcePointers": [
-        "packages/main/src/tasks/done-required-validation-smoke.ts:698-721",
-        ".lattice/story/actives/B-f00c/decision.json#preMortem[0]",
-        ".lattice/story/actives/B-f00c/scope-contract.json#allowedModify",
-        "lattice.config.json:64"
-      ]
-    }
-  ]
+  "_hash": "717a0967bb8f30ea3c74906d42dff72aa94d7200d06196c1e8faa438673df049",
+  "openQuestions": []
 }
