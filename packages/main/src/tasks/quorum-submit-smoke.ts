@@ -2686,11 +2686,26 @@ try {
     // lines to files. The story's own signed scope contract already enumerates every file this
     // change may touch, so read THAT instead of restating it: a file entering the story's scope
     // now enters the sweep automatically, and a hand-edited list can no longer drift behind it.
+    // F-021 RED: deriving from allowedModify+allowedCreate alone was still too narrow. A file can
+    // also enter the story's real scope through an acknowledged expansion — cli-engine.ts did
+    // exactly that for the F-001 fix, carries quorum_prune prose, and a stale claim planted there
+    // left the suite fully green. The codebase's own isAcknowledged() (core/scope-contract.ts)
+    // treats acknowledged paths as in-scope, so the sweep must union them too: "in this story's
+    // scope" has one meaning, and this guard now uses the same one the scope checker does.
     const scopeContract = JSON.parse(readFileSync(
       join(IMPLEMENTATION_REPO_ROOT, '.lattice/story/actives/B-3144/scope-contract.json'),
       'utf8',
-    )) as { allowedModify?: string[]; allowedCreate?: string[]; allowedTest?: string[] };
-    const sweptFiles = [...(scopeContract.allowedModify ?? []), ...(scopeContract.allowedCreate ?? [])]
+    )) as {
+      allowedModify?: string[];
+      allowedCreate?: string[];
+      allowedTest?: string[];
+      acknowledgements?: Array<{ paths?: string[] }>;
+    };
+    const sweptFiles = [...new Set([
+      ...(scopeContract.allowedModify ?? []),
+      ...(scopeContract.allowedCreate ?? []),
+      ...(scopeContract.acknowledgements ?? []).flatMap(ack => ack.paths ?? []),
+    ])]
       .filter(path => path.endsWith('.ts') && !(scopeContract.allowedTest ?? []).includes(path))
       .sort();
     assert.ok(sweptFiles.length >= 6, `scope contract yielded too few production files to sweep: ${sweptFiles.join(', ')}`);
