@@ -274,6 +274,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ]
       }
     },
     {
