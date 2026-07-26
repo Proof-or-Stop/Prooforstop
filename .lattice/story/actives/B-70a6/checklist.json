@@ -54,6 +54,18 @@
           "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
           "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
           "timestamp": "2026-07-26T01:35:43.922Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "A reopen with a MISSING reason is refused (non-zero exit, message cites the reason requirement), the phase is re-read as still PLAN, and the persisted JSONL is then asserted to contain ZERO PLAN->INIT phase_transition events at that point - checked after the refusals and before the real reopen, so any such event found would necessarily be spurious. Previously only the phase half was asserted. Honest scope limit: only the missing-reason branch is driven. A second refusal citing the same reason-requirement message reuses the same failure digest and trips the convergence breaker (gate-repeat 2>=2), which freezes the story and hard-blocks the legitimate reopen; observed directly while attempting to add a too-short case. The too-short branch shares the identical guard expression and error message.",
+          "headHash": "e00c40e2c3360c0a3b54e47218f97ba244fa8151",
+          "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
+          "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
+          "timestamp": "2026-07-26T01:35:52.948Z"
         }
       ]
     },
