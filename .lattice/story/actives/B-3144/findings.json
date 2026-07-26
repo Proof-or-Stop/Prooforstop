@@ -204,6 +204,21 @@
       "_hash": "f95d4f44a5882427eccb82a1188d7434b8c950794f7449934fcb2b4dadc9e0fe",
       "signatureTag": "missing|unknown|behavior-mismatch-commit",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-012",
+      "desc": "packages/main/src/handlers/quorum-prune.ts:219-226 (F-010 fix): the conflict refusal only catches apply:true && dryRun:true. It does not catch the symmetric conflict apply:false && dryRun:false — verified live: with args={apply:false,dryRun:false}, `const apply = args.apply === true || args.dryRun === false` evaluates to true, so the command silently EXECUTES (backs up, rewrites, commits) even though the caller explicitly passed apply:false. This breaks the code's own stated design philosophy (comment at line ~211-218 and the existing apply:true+dryRun:true refusal): an explicitly conflicting combination should be REFUSED, not silently resolved toward the more dangerous (mutating) outcome. Reachable via both programmatic args and CLI (--apply=false --dryRun=false parses to {apply:false,dryRun:false} per cli/flag-parser.ts coerce()). Fix: extend the refusal check to `(args.apply === true && args.dryRun === true) || (args.apply === false && args.dryRun === false)`, or otherwise treat an explicit apply:false as an unconditional veto regardless of dryRun.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-26T03:05:43.560Z",
+      "reviewRound": "2026-07-26T02:51:47.378Z",
+      "reviewRunId": "B-3144:RR-011",
+      "_hash": "d47b1cb93e91aced1f2248827bcb25abf67d2edef92f755db7cd26f93808cf55",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
