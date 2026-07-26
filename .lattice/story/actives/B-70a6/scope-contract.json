@@ -4,11 +4,14 @@
   "allowedModify": [
     "packages/main/src/handlers/transition-orchestrator.ts",
     "packages/main/src/handlers/worktree.ts",
-    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "allowedCreate": [],
   "allowedTest": [
-    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "protectedFiles": [
     "packages/main/src/core/machine.ts",
@@ -21,7 +24,7 @@
     "package.json",
     "packages/main/package.json"
   ],
-  "scopeChangeReason": "Derived from plan.md CHK-001/002/003 Files sections and scope-boundary.json. Exactly three material files may change: the transition orchestrator (audit-event persistence + atomicity comment), worktree.ts (prune comment), and the reopen round-trip smoke (regression assertion). machine.ts / version-bump.ts / process-events.ts / types.ts are protected because this story must not alter transition legality, the release path, or the shared event schema; the version sync points are excluded because bumpVersionOnDoneMerge owns them mechanically at DONE merge.",
+  "scopeChangeReason": "EXPANSION driven by cross-host review B-70a6-xhr-r1/r2: independent host codex-host-b returned fail with a MAJOR finding (tracked as B-70a6:F-003) that this story adds new durable process-fact semantics (transitionType/reason on PLAN->INIT phase_transition events) without registering them in the process-fact registry or asserting them in the contract verifier. Per the CLAUDE.md dual-layer process-fact contract, a process fact needs prompt guidance PLUS a hardcoded mechanical fallback; without this the audit guarantee can be silently refactored away while the mechanical contract still passes. Adding exactly two files to allowedModify: packages/main/src/core/process-fact-registry.ts (declare the reopen marker + reason semantics) and scripts/verify-process-fact-contract.mjs (mechanically assert REOPEN emits them and ordinary transitions omit them). No other scope change; the four protected files stay protected and the version sync points stay excluded.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -41,7 +44,7 @@
     }
   ],
   "createdAt": "2026-07-26T01:06:42.704Z",
-  "updatedAt": "2026-07-26T01:46:08.429Z",
+  "updatedAt": "2026-07-26T03:46:23.601Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -55,6 +58,8 @@
     "docs/requirements/decisions/plan-init-reopen.md": "docs/requirements/decisions/plan-init-reopen.md",
     "package.json": "package.json",
     "packages/main/package.json": "packages/main/package.json",
-    ".lattice/story/actives/B-70a6/init-self-check.json": ".lattice/story/actives/B-70a6/init-self-check.json"
+    ".lattice/story/actives/B-70a6/init-self-check.json": ".lattice/story/actives/B-70a6/init-self-check.json",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
   }
 }
