@@ -2647,7 +2647,13 @@ try {
         node.forEachChild(visit);
       };
       visit(sf);
-      // Merge adjacent single-line comments into one block: a wrapped `//` paragraph is one unit.
+      // F-018 RED: merging contiguous `//` lines into one block only moved the borrowing escape
+      // from the old ±3-line window to the comment-block boundary — a stale sentence could still
+      // borrow an unrelated sentence's `dryRun:false` from the same block, and quorum-prune.ts's
+      // 20-line header is exactly such a multi-sentence block. Comments are therefore joined by
+      // line-contiguity and then split back apart by SENTENCE, so each claim is judged against
+      // the sentence that makes it. `apply:true`/`dryRun:false` contain no sentence-ending
+      // period, so splitting on `.` followed by whitespace cannot cut a claim in half.
       units.sort((a, b) => a.line - b.line);
       const merged: Array<{ text: string; line: number }> = [];
       for (const unit of units) {
@@ -2658,20 +2664,52 @@ try {
         if (contiguousComment) previous.text += `\n${unit.text}`;
         else merged.push({ ...unit });
       }
-      return merged;
+      return merged.flatMap((unit) => {
+        if (!unit.text.startsWith('//') && !unit.text.startsWith('/*')) return [unit];
+        const sentences = unit.text.split(/(?<=\.)\s+/).filter(sentence => sentence.trim().length > 0);
+        if (sentences.length <= 1) return [unit];
+        let consumed = 0;
+        return sentences.map((sentence) => {
+          const line = unit.line + unit.text.slice(0, consumed).split('\n').length - 1;
+          consumed += sentence.length + 1;
+          return { text: sentence, line };
+        });
+      });
     };
     // Scope: sibling commands (capability_release_backfill and friends) legitimately keep the
     // apply-only convention, so only THIS command's prose is swept. quorum-prune.ts is entirely
     // about this command; the catalog is narrowed to the quorum_prune entry; elsewhere the prose
     // unit itself must name the command — now judged per UNIT, not per line, closing escape (2).
+    // F-019 RED: the file list was still hand-maintained, so lattice-cli.ts — a CHK-003 scope
+    // touchpoint that already carries quorum_prune prose — was permanently invisible to the
+    // sweep. That is the same stale-enumeration pattern as F-013/F-014/F-015, just moved up from
+    // lines to files. The story's own signed scope contract already enumerates every file this
+    // change may touch, so read THAT instead of restating it: a file entering the story's scope
+    // now enters the sweep automatically, and a hand-edited list can no longer drift behind it.
+    const scopeContract = JSON.parse(readFileSync(
+      join(IMPLEMENTATION_REPO_ROOT, '.lattice/story/actives/B-3144/scope-contract.json'),
+      'utf8',
+    )) as { allowedModify?: string[]; allowedCreate?: string[]; allowedTest?: string[] };
+    const sweptFiles = [...(scopeContract.allowedModify ?? []), ...(scopeContract.allowedCreate ?? [])]
+      .filter(path => path.endsWith('.ts') && !(scopeContract.allowedTest ?? []).includes(path))
+      .sort();
+    assert.ok(sweptFiles.length >= 6, `scope contract yielded too few production files to sweep: ${sweptFiles.join(', ')}`);
+    // The catalog is one giant multi-command file, so only the quorum_prune entry is in range;
+    // quorum-prune.ts is entirely this command's, and everything else must name it nearby.
+    const catalogRelPath = 'packages/main/src/cli/command-catalog.ts';
+    const handlerRelPath = 'packages/main/src/handlers/quorum-prune.ts';
     const catalogBlockStart = catalogSource.indexOf("{ name: 'quorum_prune'");
-    const contractSources: Array<{ file: string; source: string; requireSelfMention: boolean; range?: [number, number] }> = [
-      { file: 'packages/main/src/cli/command-catalog.ts', source: catalogSource, requireSelfMention: false, range: [catalogBlockStart, catalogBlockStart + catalogBlock.length] },
-      { file: 'packages/main/src/core/command-policy.ts', source: policySource, requireSelfMention: true },
-      { file: 'packages/main/src/core/config.ts', source: readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/config.ts'), 'utf8'), requireSelfMention: true },
-      { file: 'packages/main/src/core/process-fact-levels.ts', source: factSource, requireSelfMention: true },
-      { file: 'packages/main/src/handlers/quorum-prune.ts', source: handlerSource, requireSelfMention: false },
-    ];
+    const contractSources: Array<{ file: string; source: string; requireSelfMention: boolean; range?: [number, number] }> = sweptFiles.map((file) => {
+      const source = file === catalogRelPath ? catalogSource
+        : file === handlerRelPath ? handlerSource
+          : readFileSync(join(IMPLEMENTATION_REPO_ROOT, file), 'utf8');
+      return {
+        file,
+        source,
+        requireSelfMention: file !== catalogRelPath && file !== handlerRelPath,
+        ...(file === catalogRelPath ? { range: [catalogBlockStart, catalogBlockStart + catalogBlock.length] as [number, number] } : {}),
+      };
+    });
     const discovered: string[] = [];
     for (const { file, source, requireSelfMention, range } of contractSources) {
       const inRange = (line: number): boolean => {
@@ -2687,8 +2725,25 @@ try {
       // than inside it (`'quorum_prune', // <comment>`, or a `quorum_prune: {` key above a reason
       // string), so it is answered over the surrounding lines. Wide scoping under-skips; strict
       // pairing prevents escapes. Getting these backwards is what F-017 flagged.
-      const namedNearby = (line: number): boolean =>
-        sourceLines.slice(Math.max(0, line - 4), line + 3).some(candidate => candidate.includes('quorum_prune'));
+      // F-020 RED: a fixed ±N-line window is not anchored to anything real, so a claim written
+      // more than N lines from the `quorum_prune` key silently leaves the sweep. Anchor to the
+      // enclosing syntactic entry instead — the property assignment, array element, or statement
+      // the prose belongs to — so however that entry is formatted, prose inside it stays in range.
+      const scopeSf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
+      const namedNearby = (line: number): boolean => {
+        const offset = scopeSf.getPositionOfLineAndCharacter(Math.max(0, line - 1), 0);
+        let enclosing: ts.Node | undefined;
+        const visit = (node: ts.Node): void => {
+          if (node.getFullStart() > offset || node.getEnd() < offset) return;
+          if (ts.isPropertyAssignment(node) || ts.isVariableStatement(node) || ts.isExpressionStatement(node)) enclosing = node;
+          node.forEachChild(visit);
+        };
+        visit(scopeSf);
+        if (enclosing && enclosing.getText().includes('quorum_prune')) return true;
+        // Array-element style (`'quorum_prune', // comment`) has no per-entry node, so fall back
+        // to the physical line, which is where that form always puts the name.
+        return (sourceLines[line - 1] ?? '').includes('quorum_prune');
+      };
       for (const unit of proseUnitsOf(file, source)) {
         if (!/apply:true|apply=true/.test(unit.text)) continue;
         if (!inRange(unit.line)) continue;
