@@ -224,6 +224,32 @@
         "scanEscalationReason": null
       },
       "_hash": "290977d4e545f9820254483649394a336116227849e2ae1f92050f62a7757b35"
+    },
+    {
+      "id": "B-ec67:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Pure re-bind, fresh REVIEW round after B-ec67 was reopened. Confirmed git diff of the four reviewed files (packages/main/src/handlers/checklist.ts, core/verification.ts, core/types.ts, cli/command-schemas.ts) against my last verified commit 64bf559611 is empty (0 lines) and git status is clean -- source is byte-identical to what was verified in RP-001/RP-003/RP-006. Only story metadata / verification-evidence rows were re-recorded at new material. No new analysis needed: F-001 (verification_evidence_refresh_stale laundering), F-007 (checklist_update third write path bypass), and F-008 (caller-supplied receipt injection via checklist_update re-persist) all remain fixed as previously verified (empirically re-reproduced and confirmed refused/demoted in prior rounds against this exact source). No new concept-completeness gaps found. Re-binding this pass to current material.",
+      "createdAt": "2026-07-26T03:20:27.206Z",
+      "reviewRound": "2026-07-26T03:19:27.125Z",
+      "reviewRunId": "B-ec67:RR-013",
+      "envelopeId": "7d748555e844da535ea93fbc489f03b96c89078a91db7e7e8238533c33c5053d",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d4c92cc447108ddada1c67739047d95bd4929d6d0aa40e4a8a76563cff2cebce"
     }
   ]
 }
