@@ -216,15 +216,15 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "file": "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "result": "pass",
-          "note": "Fixes F-004/F-005: classifyRedRecordSchema is now wired into the PRODUCTION read path (store.ts readRedEvidence classifies every record at load). The test writes a schemaVersion=proofstory.red_evidence.v3 record into a real store and asserts store.readRedEvidence FAILS CLOSED with a typed RedEvidenceSchemaError naming schemaVersion (never silently accepted into records[]), and that the error is NOT a bare TypeError. Also unit-asserts the discriminant is exhaustive (v1 | v2 | unsupported; non-object => unsupported). Verified RED: against the pre-fix baseline dist the same v3 record yields TypeError: Cannot read properties of undefined (reading trim). Commit b4fa4bbfad.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.824Z"
+          "note": "Re-run in round 3 after the file changed. Steps 0-3 are unchanged and were already genuine: classifyRedRecordSchemaSafe/classifyRedRecordSchema classify a v3 record as unsupported and fail closed, store.readRedEvidence REJECTS it with a typed RedEvidenceSchemaError (never a bare TypeError, never silently into records[]), and the LIVE gate surfaces that typed error. Step 4 (predicate defense-in-depth past the read gate) was corrected this round: the v3 record is now unshift()ed to the FRONT, because with push() the some() short-circuit meant it was never evaluated — that arrangement does not throw even against a dist built from the pre-fix tree 8727b2db83. A v3-only input case was added, which cannot be short-circuited past at all.",
+          "headHash": "2719994b7bd8d9eed4c463db0f794d0554e3be75",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:33:26.838Z"
         }
       ]
     },
