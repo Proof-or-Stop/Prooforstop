@@ -153,7 +153,7 @@
       "desc": "CHK-001/002/003 must-intent verificationEvidence (all 9 entries) still records headHash bbd64539e1 / materialHash 8de4ee0c0e / storyFilesHash 8b722220c6, captured 2026-07-26T04:31:40Z, BEFORE the F-004 fix commit 9ead1958c8 which further modified 2 of the referenced files (transition-orchestrator.ts, plan-init-reopen-roundtrip-smoke.ts). The underlying assertions were only extended, not altered, so the evidence descriptions remain behaviorally accurate, but the recorded hashes are now stale; lattice validate --story=B-70a6 --json (run at the start of this review) reported refusalReasons including story-files-hash-changed-or-missing and material-hash-changed-or-missing, confirming staleness. Separately, the new F-004 crash-recovery behaviour (reconcilePendingReopenAudit / pendingReopenAudit) has no checklist-level verificationIntent of its own -- its only record is the finding resolvedReason prose, unlike the schema-validated verification_evidence_add entries backing the original 3 checklist items. Recommend a verification_evidence_refresh_stale pass before DONE (already done twice earlier in this story) and, optionally, a dedicated CHK-001 verificationIntent/evidence entry for the crash-recovery guarantee for future traceability.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T05:55:10.270Z",
@@ -166,7 +166,11 @@
         ".lattice/story/actives/B-70a6/checklist.json"
       ],
       "signatureTag": "missing|ts|intent-verificationevidence-entries",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "PARTIALLY MITIGATED, and the unmitigated half is stated plainly rather than papered over. F-007 had two halves. (a) STALE EVIDENCE HASHES: resolved mechanically by re-running every one of the 9 must-intent evidence commands at current HEAD and then verification_evidence_refresh_stale - not by blind rebinding. (b) MISSING verificationIntent FOR THE CRASH-RECOVERY BEHAVIOUR: NOT added, and it could not be added by any legitimate route. The implementer tried and was refused at every door: checklist_update rejects verificationIntent edits after DEV ('after DEV you can only append verificationEvidence or use a finding to request going back to PLAN'); verification_evidence_add with a custom ref fails intent_ref_unresolved; verification_intent_repair reports nothing to repair and is a legacy backfill tool. Appending to CHK-001:happy:0 would have OVERWRITTEN F-001's carefully rebuilt evidence, so the implementer wrote nothing rather than fake a record - the correct call. ACCEPTED BASIS FOR CLOSING: the crash-recovery behaviour is not actually unverified; it is covered by executable fault-injection drills in plan-init-reopen-roundtrip-smoke.ts (6 drills, injecting a throw on the real runStoryTransition path, RED before each fix and GREEN after) plus AST-anchored assertions in verify-process-fact-contract.mjs where 11 of 11 mutations bite and two compile clean under tsc. That is materially STRONGER evidence than a checklist verificationIntent line, which is a planning artifact rather than a proof. The only thing missing is the metadata record, not the verification. DELIBERATE DECISION NOT TAKEN: the story could have used its own new feature - reopen to PLAN - to add the intent properly, which would be elegant; it was rejected because reopening resets checklist item status and would cost another full REVIEW/TEST/floor cycle for a LOW advisory metadata gap, which is disproportionate. Recorded here so the trade-off is auditable rather than silent.",
+      "resolvedAt": "2026-07-26T06:38:38.557Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
