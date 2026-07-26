@@ -471,6 +471,43 @@
         "scanEscalationReason": null
       },
       "_hash": "b0ae42e407e4861631e3c614434ca08f58e3c5d04471227a8f720ef7d1dfc3b9"
+    },
+    {
+      "id": "B-506e:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 final evidence-integrity confirmation. (1) Production behavior unchanged: zero diff vs b4fa4bbfad on core/proofstory.ts, core/store.ts, core/types.ts, core/red-evidence/*, handlers/red-evidence.ts; other production-file deltas (lifecycle-registry.ts, machine.ts, checklist.ts, worktree.ts, transition-orchestrator.ts, command-catalog.ts, command-catalog-smoke.ts, flow-stability-smoke.ts, plan-init-reopen-roundtrip-smoke.ts) trace entirely to merged-in B-8b69/B-3783 commits and version bumps, not B-506e commits (git log per-file verified). (2) F-014 independently non-vacuity-verified with my OWN repro, not on trust: built a fresh dist from git archive 8727b2db83 + tsc under a scratch dir, wrote an independent script constructing [non-satisfying-v1, v2-record, satisfying-v1]; confirmed the leading non-satisfying v1 record ALONE does not crash the pre-fix predicate (observedFailure non-empty), while the mid-array placement genuinely crashes with TypeError: Cannot read properties of undefined (reading 'trim') -- exactly the claimed crux; same fixtures on the current dist do not throw and the verdict is byte-identical to the v1-only baseline. (3) Five-scenario digest re-reproduced by direct execution: sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec (red-w2c-v1-verdict-invariance.mjs, exit 0); chain smoke with the new empty-records section 12 passes (exit 0) and the claimed-unperturbed dist line citations (244/283/506 in red-evidence-chain-smoke.js) verified correct. F-013: command-catalog-smoke.js exits 0 (339 commands), CHK-011:happy:2 correctly re-bound. F-015: 0/94 checklist verificationEvidence notes still match a bare file:line citation pattern. NON-BLOCKING: summary.json#limitations still contains the retracted/fabricated digest 71c267a0...; F-011's own resolvedReason defers this specific correction to the orchestrator's TEST-phase summary_set call (summary_set is allowedPhases:'all' so this is a process choice, not a technical gate) -- must actually be corrected before DONE or the shipped narrative repeats a debunked evidentiary claim. No new finding filed since this is already tracked (F-011) and was independently flagged as the same non-blocker by the concurrent round-4 review-passes note. Clean.",
+      "createdAt": "2026-07-26T02:15:14.368Z",
+      "reviewRound": "2026-07-26T01:55:38.498Z",
+      "reviewRunId": "B-506e:RR-023",
+      "envelopeId": "47cdf75fb8e8ff05506bc1c73b19d57f3a936a5afdf12ca67f335a4cf067b3a0",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/index.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e996e106db516b9341753a6911e02e424932164139fcfcb7048ab5cb9c0f4b73"
     }
   ]
 }
