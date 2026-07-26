@@ -185,13 +185,13 @@
           "intentRef": "CHK-003:edge:0",
           "kind": "docs_check",
           "file": "packages/main/src/handlers/worktree.ts",
-          "command": "git worktree prune --expire now -v",
+          "command": "grep -Fn -e \"repo-wide, NOT\" -e \"story-scoped: one call clears the currently-missing registrations of every story\" packages/main/src/handlers/worktree.ts",
           "result": "pass",
-          "note": "Comment lines 579-582 state: \"`--expire now` is repo-wide, NOT story-scoped: one call clears the currently-missing registrations of every story, not just this one\". Verified empirically on git 2.50.1: one prune invoked from worktree wt-live removed BOTH unrelated missing registrations (wt-goneA and wt-goneB), neither belonging to the caller - proving repo-wide, not caller-scoped. git docs agree (\"run git worktree prune in the main or any linked worktree to clean up any stale administrative files\"). I also CORRECTED the prior wording: the reference commit 5cb5914 claimed it clears EVERY currently-missing registration, which is false - a `git worktree lock`ed worktree survived two `--expire now` prunes with its directory deleted, so the comment now carries that caveat.",
-          "headHash": "d1077ef7e851799f1e0b9b14fd7d6c66ad31d12a",
-          "materialHash": "7ba254515e766c7a1ec930e1f8f9488f9f2d7935b2949986be26d68f562ce954",
-          "storyFilesHash": "8f197ceff1a0f186b80b345fc3cebfad2d3a005e4230c48385182db6867c0d3b",
-          "timestamp": "2026-07-26T01:13:28.015Z"
+          "note": "REPLACES a prior evidence entry whose command was the DESTRUCTIVE `git worktree prune --expire now -v`. Running a repo-wide destructive prune as evidence for a docs_check intent is inappropriate in a repo with many active parallel worktrees, and its output is not reproducible. Replaced with a non-destructive grep against the comment text itself. ACTUAL OUTPUT (exit 0): line 579 \"every still-resolving registration alone. Note `--expire now` is repo-wide, NOT\" and line 580 \"story-scoped: one call clears the currently-missing registrations of every story,\" — proving the comment documents repo-wide, non-story-scoped behavior.",
+          "headHash": "7305aeda347c519480222292dda7a7660cf15b40",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T03:12:02.951Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
