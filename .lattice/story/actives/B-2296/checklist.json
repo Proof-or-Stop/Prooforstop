@@ -12,7 +12,30 @@
       "userSees": "A developer runs the new smoke and sees \"normalizeClaim collapses whitespace deterministically\" and \"snapshot record binds {normalizedClaimDigest, materialHash, headHash}\" among the passing assertions.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "normalizeClaim collapses arbitrary whitespace (tabs, repeated spaces, leading/trailing) to a canonical form deterministically",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "empty or whitespace-only userSees normalizes to empty and yields a stable digest without throwing",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "two userSees differing only in whitespace yield an IDENTICAL digest (no false drift); differing by one non-whitespace char yields a DIFFERENT digest",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

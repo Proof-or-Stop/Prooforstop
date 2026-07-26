@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "Reuse the shipped freshness machinery (materialHash / storyFilesHash + demote-on-drift), never a parallel drift model.",
+    "Mechanical determinism over semantic cleverness: normalization and drift are byte-level and reproducible; human semantic judgment lives only in Phase-2 re-attestation.",
+    "Stay advisory in Phase 1: never block a gate, because a block without a recovery path wedges stories.",
+    "Minimize false positives by binding to the narrowest material that still covers the claim; a false-positive-noisy advisory trains operators to ignore it.",
+    "Grandfather, do not break: userSees with no snapshot are legacy-unbound and reported, never errored."
+  ],
+  "drivers": [
+    "F-027/F-060/F-059: frozen claims silently outlived the code they asserted about -- the failure this story detects.",
+    "Operator false-positive tolerance is low (memory fa1777b: an advisory operators learn to ignore has no effect); the material binding must resist unrelated churn.",
+    "package.json / main-merge drift is the dominant unrelated-drift source (memory e5bcf07); binding to whole-tree material would fire on every sibling merge."
+  ],
+  "options": [
+    {
+      "name": "A: whole-tree materialHash",
+      "pros": [
+        "Catches every code change under a frozen claim",
+        "Simplest to compute (reuses currentMaterialHash directly)"
+      ],
+      "cons": [
+        "Extreme false positives: any unrelated file change or main-merge stales every userSees",
+        "Trains operators to ignore the advisory, poisoning Phase 2's eventual gate",
+        "Directly contradicts driver 3 (main-merge churn)"
+      ]
+    },
+    {
+      "name": "B: storyFilesHash (story-diff-scoped)",
+      "pros": [
+        "Covers exactly the files this story delivers -- the claim's actual support",
+        "Excludes unrelated main-merge churn by construction (B-5a9a), addressing the top false-positive source",
+        "Reuses the B-5a9a/B-d243/B-edf1 machinery this story already extends",
+        "A userSees asserts THIS story's delivery, so its supporting code is in the story diff"
+      ],
+      "cons": [
+        "Will not flag drift in a file the claim depends on that is outside the story diff (rare; the claim is delivered by the story's own diff)",
+        "storyFilesHash includes package.json when the story wires npm scripts, so a DONE auto-bump can move it -- expected and asserted in the smoke"
+      ]
+    },
+    {
+      "name": "C: per-CHK-item file set",
+      "pros": [
+        "Most precise: binds each userSees to only the files that delivered it",
+        "Lowest theoretical false-positive rate"
+      ],
+      "cons": [
+        "Requires per-item file provenance (from plan.md Files or the delivering commit) that does not exist today",
+        "Over-engineered for a non-blocking detect-only Phase 1 (YAGNI)",
+        "More surface for its own bugs before the value is validated"
+      ]
+    }
+  ],
+  "chosen": "B: storyFilesHash (story-diff-scoped)",
+  "rationale": "storyFilesHash covers exactly the files this story delivers (the claim's support) and by construction excludes unrelated main-merge churn -- the dominant false-positive source (memory e5bcf07) -- so it satisfies drivers 2 and 3 while reusing the B-5a9a/B-d243/B-edf1 machinery instead of a parallel model (principle 1). Option C is more precise but its per-item provenance is unjustified for a non-blocking detect-only milestone (principle 4 / YAGNI); option A is the false-positive swamp that gets the advisory ignored. The normalized claim-digest remains a co-equal secondary trigger, so an edited userSees is caught regardless of the material choice (bidirectional binding). The known package.json / DONE-bump interaction is acknowledged: the smoke asserts an unrelated in-tree change produces NO drift and a story-owned change DOES, and the false-positive rate is to be measured on real stories before Phase 2 hardens this into a gate.",
+  "preMortem": [
+    {
+      "scenario": "The advisory fires on nearly every story (high false-positive noise), operators learn to ignore it, and Phase 2's eventual gate inherits a distrusted signal.",
+      "trigger": "Material bound to whole-tree materialHash, or a binding that counts unrelated main-merge / package.json churn as drift.",
+      "consequence": "The feature becomes worse than nothing -- it normalizes ignoring evidence-integrity advisories.",
+      "mitigation": "Bind to storyFilesHash (option B). The smoke asserts an unrelated in-tree change AND a whitespace-only claim edit both produce NO drift; the false-positive rate is measured on a sample of real stories before Phase 2 hardens it into a gate."
+    },
+    {
+      "scenario": "Phase 1 accidentally blocks a story.",
+      "trigger": "The drift check is wired into an existing gate's pass/fail (review guard, delivery-check, or DONE) instead of a standalone read-only path.",
+      "consequence": "Every story with a drifted or legacy-unbound userSees wedges with no recovery command until Phase 2 ships.",
+      "mitigation": "Expose only a read-only command plus an optional story_get field; the smoke asserts the advisory never changes any gate verdict; no edit to canPassReview / delivery / DONE gate logic in this story."
+    },
+    {
+      "scenario": "The snapshot is captured at the wrong moment, so drift is never detected or is always detected.",
+      "trigger": "The attestation hook fires before the userSees is actually delivered (snapshots pre-delivery material) or re-snapshots on every read (never goes stale).",
+      "consequence": "False negatives (real drift missed) or a self-healing snapshot that silently defeats the purpose.",
+      "mitigation": "Capture the snapshot once, at a well-defined delivery point (checklist_update status=done), immutable thereafter (mirror the B-ec67 pin-once model). The smoke drives status=done, then mutates material and asserts drift, and asserts that re-running the check does NOT re-snapshot."
+    },
+    {
+      "scenario": "Someone edits userSees after delivery to match the new behavior and the old attestation silently keeps passing.",
+      "trigger": "Claim-digest omitted from the drift signal (material-only binding).",
+      "consequence": "A frozen-field promise is quietly rewritten with no re-attestation -- the exact F-027 class this story exists to close.",
+      "mitigation": "Bidirectional binding: the normalized claim-digest is a co-equal trigger; editing userSees changes the digest -> drift -> re_attestation. The smoke asserts a non-whitespace claim-text edit is detected."
+    }
+  ],
+  "timestamp": "2026-07-26T11:57:45.395Z"
+}
