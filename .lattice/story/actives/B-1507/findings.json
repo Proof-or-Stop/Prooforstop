@@ -5,7 +5,7 @@
       "desc": "concept-cleanup: new command verification_pin_guard_check was added to command-policy.ts (readOnly gate for the B-1507 evidence-pin hook) but has NO entry in process-fact-levels.ts PROCESS_FACT_LEVELS. packages/main/src/tasks/lifecycle-registry-contract.ts checkProcessFactLifecycle() asserts every command-policy command has a process-fact level entry; this contract task is registered in lattice.config.json validate.commands, i.e. it runs as part of lattice validate. Verified by direct execution: node packages/main/dist/tasks/lifecycle-registry-contract.js on this branch prints lifecycle-registry consistency: FAIL with [process-fact-lifecycle] command verification_pin_guard_check is in the registry command dimension (command-policy) but has no process-fact lifecycle level entry. Same task built from main PASSes with 0 divergences (main has no verification_pin_guard_check string in process-fact-levels.ts at all), confirming this is a regression introduced by this diff. verification_run (the other new command in this story) IS correctly present in process-fact-levels.ts/process-fact-registry.ts, and its sibling readOnly guard prewrite_guard_check IS present in process-fact-levels.ts at L0 -- so the omission is specific to verification_pin_guard_check. Fix: add a PROCESS_FACT_LEVELS entry for verification_pin_guard_check (e.g. level L0, category guard-session-read, matching the prewrite_guard_check precedent).",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-26T06:02:54.008Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-command",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "eae5eba: registered verification_pin_guard_check in process-fact-levels.ts (L0, guard-session-read); registry auto-derives from PROCESS_FACT_LEVELS. Verified lifecycle-registry-contract PASS (was FAIL), red-evidence-target-binding OK.",
+      "resolvedAt": "2026-07-26T06:36:52.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1507:F-002",
