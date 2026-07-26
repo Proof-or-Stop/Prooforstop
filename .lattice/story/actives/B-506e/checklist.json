@@ -836,11 +836,11 @@
           "file": "packages/main/src/core/red-evidence/operation-key.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "the operation-key preimages (operation-key.ts) take only the normative fields; createdAt and note are not inputs to any key function, so non-key metadata cannot influence deduplication; chain-smoke section 5 computes keys from preimage-only inputs and asserts the key body is stable across seq/prior variation (lines 327-329).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: the three preimage input interfaces in operation-key.ts. None of ControlOperationKeyInput, RedAssertOperationKeyInput or GreenConfirmOperationKeyInput declares createdAt (or approvedBy), and each key function canonicalizes only its declared members, so record metadata outside the preimage cannot reach the digest and therefore cannot influence deduplication. The observable consequence asserted in section 5 of red-evidence-chain-smoke.ts is that the derived key body is stable while chain placement varies (idAt2 and idAt5 share their body). This intent rests on those declarations plus that stability assertion; the smoke does not construct two records differing only in createdAt and compare their keys.",
+          "headHash": "996a5474ee09b2f927ce2ad433cdda71d487ca58",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:57.790Z"
         }
       ]
     },
