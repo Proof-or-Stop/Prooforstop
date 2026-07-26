@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Commit a repro-first RED artifact proving both crash classes on main",
+      "context": "Must FAIL on main @ 1847b3af6d before any fix exists. RECORD class (audit 2.3): {id:'corrupt'}, observedFailure missing / null / 123, a null record, a string record, an array record (typeof [] is 'object', so a naive non-object guard misses it), and malformed-FIRST-then-satisfying so the Array.prototype.some at proofstory.ts:947 cannot short-circuit past it. ENVELOPE class (audit 2.4): records as {}, 'x', 42, and a non-object file root. Note main carries NO partial fix, so null and string records crash here too - do NOT assume the typed-error behaviour that exists only in the unmerged B-506e worktree. Drive everything through proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics, the pair the live enforce gates call, never the predicate in isolation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Port the five-scenario invariance harness to main and pin the pre-fix baseline digest",
+      "context": "Must happen BEFORE the fix lands - it is the pre-fix baseline. The harness pattern imports only core/store.js, core/proofstory.js and handlers/phase-gates.js, all of which exist on main. Five v1-only scenarios: empty store, satisfying record, blank-observedFailure record, foreign-acceptance-target record, mixed store. Canonicalize the FULL diagnostic report of each, sha256 the concatenation, and pin whatever main prints. Do NOT import 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec (a value belonging to the unmerged B-506e tree) and absolutely not 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc (audit 7.1: produced by no artifact at all). Anchor each scenario's v1 semantics by name so the digest cannot later be re-pinned silently to a different verdict.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run the mandatory migration scan over real story red-evidence artifacts and record the result",
+      "context": "Decision D-7. Full validation was chosen, so 'no valid verdict moved' is an assumption until this scan proves it - and the pinned digest CANNOT detect the difference, because all five of its scenarios are well-formed. Enumerate every reachable red-evidence.json in real story directories; for each record compute (current verdict, verdict under full v1 validation). The story may merge only if the differing set is empty, or every entry is individually justified in the story record. Report the count even when zero: 'scanned N artifacts, 0 affected' is the evidence; silence is not.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add fail-closed full v1 artifact validation at the read boundary with quarantine",
+      "context": "Decisions D-1 to D-4. Authority rule D-1: the FILE declares the era, the RECORD declares the exception, so a versionless record inside a v1-declared file is only CLAIMED v1 and must be validated against the v1 schema, never assumed to satisfy it. Validate the ENVELOPE before the records. Malformed entries are quarantined - records stays clean, malformed surface in a separate reported list - never thrown, never silently dropped. Mandatory v1 fields per core/types.ts:2678-2698. Two cases the reviewer flagged as easy to miss: a record missing only trigger / createdAt / id but otherwise complete is currently SATISFIED and is the WITNESS that full validation (not the rejected narrow option) was actually implemented; and a prototype-inherited observedFailure (Object.create(null) and friends) must not be accepted via the prototype chain. Diagnostics must name the artifact path, the record index or id, and the offending field, and an envelope fault must never be reported as a record fault. Two further envelope rows from acceptance section 10.2.1 must also be covered and are easy to overlook: E6, a missing or unknown FILE-level schemaVersion must not silently degrade to v1 (this is decision D-1's authority rule in its sharpest form), and E7, an unparseable red-evidence.json must produce a typed error naming the artifact path rather than a raw SyntaxError escaping from store.ts:121.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Keep the gate predicate total as defense-in-depth",
+      "context": "Decision D-2. Read-boundary validation is primary; the predicate is the second layer, so redEvidenceRecordSatisfied never throws on arbitrary input even when a malformed record is injected directly into the diagnostic input, bypassing the read path. On main there is no prior two-layer idiom to mirror - this story establishes it. The audit verified observedFailure is the ONLY unguarded per-record dereference (every other check at proofstory.ts:933-940 is a truthiness test or a short-circuited read), so do not widen this into a rewrite of the other checks.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Make every readRedEvidence consumer surface corruption instead of aborting or degrading",
+      "context": "There are SEVEN call sites, not the four originally claimed - the first inventory was a truncated grep: core/machine.ts:167, handlers/phase-gates.ts:149, handlers/proofstory.ts:358, :1094, :1109, handlers/story-review.ts:297 and :802. red_evidence_get (:1109) must DISPLAY the corruption rather than abort; red_evidence_add (:1094) reads before appending, so it must repair-by-append or refuse with an actionable message rather than making the artifact unrepairable through the CLI; and handlers/story-review.ts:802, whose catch at :808 renders 'ProofStory Diagnostics (advisory only): unavailable (<message>)', must not let corruption read as 'feature not configured'. That last site is the one that would otherwise let the fix look complete while a real store degrades silently.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Assert the derived baseline digest is unchanged post-fix and register the regressions in validate",
+      "context": "Depends on the baseline pinned earlier. Re-run the ported harness after the fix and assert the digest is byte-identical to the pre-fix value - that is the 'no valid v1 verdict moved' proof, scoped per decision D-3 to records that are well-formed under the legacy v1 schema. Decision D-5: a blank observedFailure ('' or whitespace) is legacy-tolerated - it must keep producing UNSATISFIED with NO new diagnostic and must never be quarantined, because scenario 3 of the harness depends on that exact report shape; this is the single sub-case where quarantine is overridden. Register the new tests in lattice.config.json validate.commands alongside the existing red-evidence smokes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Land the decision document in docs/requirements/decisions/ so the story's own citations resolve",
+      "context": "Every other item cites decisions D-1 through D-8 and section numbers of docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md, but that file is NOT on main and would otherwise be a dangling reference for anyone reading this story independently, including the PLAN scope reviewer which reads the decisions directory. Recover it from commit 06525adac046008b51c2266780fffcfcc9a5424c (path docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md, retrievable from any worktree via git show) and land it in this story's diff. Do this EARLY - before the PLAN scope review, not at the end. Read its section 0.0 first: it records which artifacts named elsewhere in the document exist only on the unmerged story/B-506e branch and are absent from main.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
