@@ -33,6 +33,26 @@
         "packages/main/src/core/story-dispatch.ts",
         "packages/main/src/handlers/story-review.ts"
       ]
+    },
+    {
+      "id": "B-META-framework-audit:F-003",
+      "desc": "CONCURRENCY HARDENING FOLLOW-UP owed by B-70a6 (tracked owner for a residual that story deliberately did NOT fix and now documents honestly). B-70a6 made the gated PLAN->INIT reopen reason durably auditable and added an out-of-band rescue so story_discard / repairing story_reconcile emit a pending reopen audit event before destroying the worktree that holds it. That guarantee is SEQUENTIAL ONLY. Independent host codex-host-b (cross-host round B-70a6-xhr-final1) proved the racing interleaving still loses the audit entirely: story_discard's rescue scan runs without any per-story fence, so a concurrent PLAN->INIT reopen can pass the scan before pendingReopenAudit is written, persist it into the worktree, and then have discard remove that worktree before the reopen appends its phase_transition event - leaving neither record nor event. B-70a6 rejected the obvious fix after verifying three blockers in-tree: (1) acquireStoryTransitionLock is documented (core/story-transition-lock.ts:26-44) as a best-effort ADVISORY contention-reducer, explicitly not a correctness guarantee, and LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1 makes acquire a no-op (transition-integrity-smoke.ts:661,710 sets it), so a guarantee resting on it would be false while all tests stayed green; (2) the authoritative persist claim is failFastIfHeld with staleMs 15000 and designed for millisecond synchronous holds, while story_discard's rescue-to-destruction interval runs git status / worktree remove / branch -D / prune and takes the main write lock, routinely exceeding 15s - holding it there would let a concurrent transition stale-reclaim it and persist a phase MID-DESTRUCTION, worse than the bug; (3) the repairing story_reconcile already runs inside withMainWriteLock (story-query.ts:878), so adding a transition lock there inverts the established transitionLock-then-mainWriteLock order (transition-orchestrator.ts:777 then :928) and would systematically abort DONE / story_create / gap_log / audit. A second, lock-INDEPENDENT case also exists that no mutex could fix: story_discard --force when the worktree is already gone, since the record only ever lived there. WHAT IS NEEDED: a NON-ADVISORY per-story fence, plausibly the deferred persist-claim fencing-token work, plus a deterministic concurrency test that pauses a reopen at its pending-record write, starts discard/reconcile, and proves the terminal operation cannot destroy the record before the audit event is recovered. This deserves its own story with a real PLAN and preMortem - the same discipline the original main-write-lock / story-owner-lease rollout received - not a bolt-on. B-70a6's code, process-fact registry and mechanical verifier now all state the narrowed sequential-only claim, and re-inflating the wording makes verify-process-fact-contract exit 1, so the gap is honestly declared rather than silently overclaimed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-26T08:26:55.395Z",
+      "reviewRound": "",
+      "_hash": "aa8bd5e0073d26599118ebe8d4e27d7348e0dc777d1053359f137721a0c5f23d",
+      "files": [
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/story-transition-lock.ts"
+      ],
+      "signatureTag": "missing|ts|concurrency-hardening-follow",
+      "signatureTagSource": "auto"
     }
   ]
 }

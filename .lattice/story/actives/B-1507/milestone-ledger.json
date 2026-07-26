@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-1507",
+  "state": "confirmed",
+  "ledgerHash": "sha256:5bc495cfe4f952c0e7aa99747cb8519fefaca9d416f7e35f0efd4fdb59516737",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "verification_run command executes a pinned verifier and stamps a receipt in one step",
+      "doneMeans": "lattice verification_run --intentRef resolves the pin, runs it via the shared enforceAndStampEvidence, writes a mechanical receipt on pass, refuses on no-pin; result derived from the receipt not the caller",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "stale-evidence refresh re-executes the pinned command and re-issues a real receipt (or leaves demoted)",
+      "doneMeans": "verification_evidence_refresh_stale re-runs the pin through enforceAndStampEvidence and re-stamps a receipt bound to current material on continued pass; leaves demoted on failure/unavailable; coexists additively with B-3b88",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "fail-open PreToolUse evidence-pin guard on both Claude and Codex hosts",
+      "doneMeans": "verification_pin_guard_check denies a pin-mismatched evidence-write command and allows a match; Claude Bash shim + Codex real-shell-token hook wired fail-open; handler still refuses when hook bypassed",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-001",
+      "claim": "RED-first mutation-killing smoke covering all three, registered in validate",
+      "doneMeans": "the registered smoke prints PASS, drives all three through real entry points, mutation-kills, and is wired in lattice.config.json + package.json",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-26T04:18:48.341Z",
+  "updatedAt": "2026-07-26T04:18:59.756Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260726041859",
+    "acceptedInterpretationHash": "sha256:ad65928b2da0b4e3ce912b8e52890f6e0c5c0d295c338b8cbd1a5f4ea9e4173f",
+    "acceptedAt": "2026-07-26T04:18:59.756Z"
+  }
+}

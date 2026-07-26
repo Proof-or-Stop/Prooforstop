@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7813",
+  "mode": "feature",
+  "allowed": [
+    "Add a hard ceiling / privileged override and prevent double-counting with the existing convergence-breaker (advance count, max 20) and story_resume --ack",
+    "Add a RED-first smoke reproducing the stall refusal and the F-058 unreachable-item scenario, registered in validate",
+    "Add the structured resolution actions that clear the stall block: human-authorize-continuation with reason+bounded budget, re-plan/split, root-cause escalation, explicit finding resolve/disprove/defer/scope-shrink, and declare-checklist-item-unreachable (F-058)",
+    "Harden the stall detector from advisory to a blocking adjudication at the review-round mint site (extend core/review-convergence.ts + handlers/transition-effects.ts so a stall refuses to mint another ordinary review round)"
+  ],
+  "excluded": [
+    "Any other step of the evidence-integrity program",
+    "Changing the existing convergence-breaker advance-count semantics or its maxAdvance=20 threshold",
+    "The optional PreToolUse early-warning seatbelt on review_run_start (spec section 4) — its own separate follow-on, not in this story acceptance"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Step 3 evidence-integrity program: harden the review-convergence stall detector into a blocking adjudication + structured resolution actions (incl. unreachable-item) + hard ceiling/no-double-count + RED smoke.",
+  "createdAt": "2026-07-26T07:26:33.478Z",
+  "updatedAt": "2026-07-26T07:26:33.478Z",
+  "_hash": "e7ec3c6e44ee52f02001bed6b504fb464488f9f6c581ce452983f1003c25988a"
+}
