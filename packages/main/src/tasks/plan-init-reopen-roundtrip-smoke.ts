@@ -150,7 +150,10 @@ function seedStoryAtInitCheck(): { root: string; storyId: string; wt: string } {
   repairInitCheck(root, storyId!);
   git(root, ['add', '.lattice/story/actives']);
   git(root, ['commit', '-m', 'seed devstart reuse story']);
-  assert.equal(run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }).code, 0, 'INIT_CHECK advance should succeed');
+  // Surface the CLI output on failure like every other assertion in this file; a bare
+  // "1 !== 0" here is undiagnosable when this seeding step fails.
+  const seedAdvance = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+  assert.equal(seedAdvance.code, 0, `INIT_CHECK advance should succeed: ${seedAdvance.out}`);
   const wt = join(root, '.worktrees', storyId!);
   assert.equal(existsSync(wt), true, 'worktree should exist after INIT_CHECK');
   return { root, storyId: storyId!, wt };
@@ -190,6 +193,10 @@ function main(): void {
   try {
     const ORIGINAL = 'Original frozen title that scope review will flag';
     const CORRECTED = 'Corrected title naming the real deliverable';
+    // B-8b69 follow-up: ONE literal, used both to SEND the reopen and to assert what was
+    // PERSISTED. Two separately-declared copies would only look like a verbatim round-trip;
+    // this binds the assertion to the exact bytes the CLI was given.
+    const REOPEN_REASON = 'PLAN scope review flagged the frozen title; it must name the real deliverable.';
     const background = [
       '## Trigger Event',
       '2026-07-25 B-0000 reopen round-trip smoke needs enough trigger detail to satisfy background validation.',
@@ -218,7 +225,8 @@ function main(): void {
     git(root, ['commit', '-m', 'seed reopen smoke story']);
 
     const wt = join(worktree, storyId!);
-    assert.equal(run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }).code, 0, 'INIT_CHECK advance should succeed');
+    const firstInitCheck = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    assert.equal(firstInitCheck.code, 0, `INIT_CHECK advance should succeed: ${firstInitCheck.out}`);
     assert.equal(existsSync(wt), true, 'worktree should exist on disk');
 
     // ── (F-003) reopen is a PLAN-only backward edge: refused from a non-PLAN phase ──
@@ -239,6 +247,27 @@ function main(): void {
     assert.match(noReason.out, /reason of at least \d+ characters is required/i, 'refusal must cite the reason requirement');
     assert.equal(phaseOf(wt, storyId!), 'PLAN', 'a rejected reopen must not move the phase');
 
+    // ── (B-8b69 follow-up, adversarial) a REFUSED reopen must append NO event claiming a
+    //    successful PLAN->INIT transition. phase_transition is append-only and written only
+    //    AFTER a successful writeStory, so an audit reader must never see a reopen that did
+    //    not happen. Checked here — after the two refusals above and BEFORE the real reopen
+    //    — so any PLAN->INIT event found at this point is necessarily spurious.
+    //
+    //    NOTE (why there is no second "too short" refusal here): the convergence breaker
+    //    counts REPEATED IDENTICAL gate failures per story and trips at 2 of the same
+    //    digest. A second refusal citing the same "reason of at least N characters"
+    //    message reuses that digest, trips the breaker, and hard-blocks the legitimate
+    //    reopen below with "Convergence breaker FROZEN". So the missing-reason branch is
+    //    the one this story drives; the too-short branch shares its code path and message
+    //    (`!args.reason || args.reason.trim().length < REOPEN_REASON_MIN`). ─────────────
+    {
+      const eventsAfterRefusals = new StoryStore(wt).readProcessEvents(storyId!);
+      const spurious = eventsAfterRefusals.filter(
+        (e) => e.type === 'phase_transition' && (e as any).fromPhase === 'PLAN' && (e as any).toPhase === 'INIT',
+      );
+      assert.equal(spurious.length, 0, `a refused reopen must append no successful PLAN->INIT phase_transition event (found ${spurious.length})`);
+    }
+
     // ── (F-005) seed a DONE checklist item, mirroring a story that went
     //    DEV -> REPLAN -> PLAN. Reopening must reset it to pending so the changed
     //    requirement cannot stay "done" with a retitled, code-decoupled definition.
@@ -251,7 +280,7 @@ function main(): void {
     }
 
     // ── (RED target 2) the gated PLAN->INIT reopen from inside the worktree ───
-    const reopen = run(wt, 'story_advance', { storyId, phase: 'INIT', reason: 'PLAN scope review flagged the frozen title; it must name the real deliverable.' });
+    const reopen = run(wt, 'story_advance', { storyId, phase: 'INIT', reason: REOPEN_REASON });
     assert.equal(reopen.code, 0, `reopen to INIT should succeed: ${reopen.out}`);
     assert.match(reopen.out, /advanced to INIT\b/, 'reopen output should report advancement to INIT');
     assert.equal(phaseOf(wt, storyId!), 'INIT', 'story should be back at INIT after the reopen');
@@ -265,14 +294,28 @@ function main(): void {
     //    transitionType marker so a reopen is distinguishable from a forward
     //    transition when auditing history. ─────────────────────────────────────
     {
-      const REOPEN_REASON = 'PLAN scope review flagged the frozen title; it must name the real deliverable.';
       const events = new StoryStore(wt).readProcessEvents(storyId!);
-      const reopenEvent = events.find(
+      const reopenEvents = events.filter(
         (e) => e.type === 'phase_transition' && (e as any).fromPhase === 'PLAN' && (e as any).toPhase === 'INIT',
       );
-      assert.ok(reopenEvent, 'the reopen must append a PLAN->INIT phase_transition process event');
-      assert.equal((reopenEvent as any).transitionType, 'reopen', 'the reopen phase_transition event must be marked transitionType=reopen');
-      assert.equal((reopenEvent as any).reason, REOPEN_REASON, 'the reopen reason must be persisted verbatim in the phase_transition audit event (validated-but-dropped is not auditable)');
+      assert.equal(reopenEvents.length, 1, `exactly one PLAN->INIT phase_transition event must be appended by the one successful reopen (found ${reopenEvents.length})`);
+      const reopenEvent = reopenEvents[0] as any;
+      assert.equal(reopenEvent.transitionType, 'reopen', 'the reopen phase_transition event must be marked transitionType=reopen');
+      assert.equal(reopenEvent.reason, REOPEN_REASON, 'the reopen reason must be persisted verbatim in the phase_transition audit event (validated-but-dropped is not auditable)');
+
+      // The mirror image, on a REAL persisted event rather than the builder: a NORMAL
+      // transition must carry NEITHER key. The flow-stability deepEqual shape test proves
+      // the builder omits them when not passed; only this proves the CALL SITE actually
+      // gates on eventType === 'REOPEN'. Key PRESENCE is asserted (not just the value), so
+      // an explicit `transitionType: undefined` would still fail. INIT_CHECK->PLAN is used
+      // because that advance ran from inside the worktree, so its event is certain to be in
+      // the worktree's own JSONL.
+      const normalEvent = events.find(
+        (e) => e.type === 'phase_transition' && (e as any).fromPhase === 'INIT_CHECK' && (e as any).toPhase === 'PLAN',
+      );
+      assert.ok(normalEvent, 'the INIT_CHECK->PLAN advance must have appended a phase_transition event');
+      assert.equal(Object.prototype.hasOwnProperty.call(normalEvent, 'transitionType'), false, 'a normal transition event must not carry a transitionType key (the reopen fields are additive, set only on REOPEN)');
+      assert.equal(Object.prototype.hasOwnProperty.call(normalEvent, 'reason'), false, 'a normal transition event must not carry a reason key (the reopen fields are additive, set only on REOPEN)');
     }
 
     // ── title is editable ONLY at INIT — edit it now ─────────────────────────
