@@ -305,6 +305,21 @@
       "resolvedAt": "2026-07-26T08:26:27.429Z",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70a6:F-014",
+      "desc": "transition-orchestrator.ts reconcileReopenAuditBeforeOutOfBandPhaseChange docblock (WHY IT IS NAMED RATHER THAN LOCKED) + worktree.ts:1220-1232 — rejection of a lock-based fix is overstated for the story_discard call site specifically. Blocker #2 as written addresses only the UNRELATED 15s transition-CAS persist claim (transition-orchestrator.ts ~1274-1298, staleMs=15000); nobody proposes reusing that lock here. The real candidate is the per-story ADVISORY transition lock (core/story-transition-lock.ts, staleMs=120000/deadline=180000), explicitly documented as sized for any legitimate non-DONE transition including a slow REVIEW->TEST validate gate — i.e. built for exactly this class of longer synchronous section. Verified in-tree: story_discard (worktree.ts:1185-1497) has ZERO await in its body and uses only execSync/execFileSync (worktree.ts:244,299,318), so the same no-JS-preemption-between-acquire-and-release property the persist claim relies on for its 15s staleMs holds at least as well across story_discard's synchronous rescue-scan-through-worktree/branch-destruction span. Crucially, story_discard does not acquire withReentrantMainWriteLock until MUCH LATER (worktree.ts:1442,1458,1486, only in the --purge/commit-metadata tail), well after the rescue scan (line 1233) and worktree/branch destruction (~1247-1416) — so acquiring acquireStoryTransitionLock at the top of story_discard and releasing it BEFORE those later withReentrantMainWriteLock calls would be a genuinely sequential acquire-then-release that does NOT invert the transitionLock->mainWriteLock order, unlike story_reconcile where blocker #3 IS valid because withMainWriteLock is already held around the entire repair (story-query.ts:890) before the rescue call ever runs. Blocker #1's best-effort-advisory framing does not by itself justify rejection either: the same caveat (bypassed only by the test-only LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK) already applies to this lock's existing accepted use for double-mint contention reduction, and not-airtight is not the bar the shipped SEQUENTIAL guarantee itself meets either. Independently reproduced the concrete data-loss interleaving in an isolated StoryStore-level scratch harness (no repo files touched) confirming the residual is genuinely real; grep confirms zero existing references to acquireStoryTransitionLock in worktree.ts or story-query.ts. Net: at least the story_discard half of F-013 appears closeable within the stated lock-order discipline, and the given reasoning does not establish otherwise.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-26T08:45:58.497Z",
+      "reviewRound": "2026-07-26T08:26:24.151Z",
+      "reviewRunId": "B-70a6:RR-014",
+      "_hash": "e8045535a73a02600d3788a1d1fe7fded7671027ff52fca924e9cff00318a9dd",
+      "signatureTag": "adversarial|unknown|transition-orchestrator-reconcilereopenauditbeforeoutofbandphasechange",
+      "signatureTagSource": "auto"
     }
   ]
 }
