@@ -942,11 +942,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 6 appends a quarantine (line 360) then a recover (line 378) — two appends with DIFFERENT operationKeys both proceed through the full pipeline, the second seeing the first as head; distinct keys mean no dedupe interference and both succeed.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets. Durable anchor: section 6 of red-evidence-chain-smoke.ts: the registered quarantine handler is called on the red-assert head, and later the registered recover handler is called on the resulting quarantine head (head1.id). The two requests derive DIFFERENT operationKeys, because controlOperationKey embeds the operation and the referenced record id and digest, so neither dedupes against the other; both run the full pipeline. The assertion after the recover - isRetiredByQuarantine over chain2 re-read from the store, message (after recover the original is back in the dedupe scope) - observes the second appended record, which is only reachable if that second append resolved the first record as head and completed.",
+          "headHash": "cbd16acd1ad67282ba5282c3272db349cf5a1f59",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:03.816Z"
         },
         {
           "intentRef": "CHK-007:adversarial:1",
