@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3783",
+  "id": "IC-20260725214058",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fix the smoke guard (not the command catalog) to assert bidirectional consistency: dispatchable agents accepted by the dispatch schema + runtime, retired agents (lattice-review-channel) rejected by both; wire the smoke into validate.commands normal tier. Do not un-retire lattice-review-channel.",
+  "acceptedInterpretationHash": "sha256:6321ecda560c97cddf4a9346eb2fc1cfe6173ae8434b1fa1d8653a292f8ec82d",
+  "notes": "Single-deliverable chore; no milestone ledger required (within threshold). Interpretation matches user's bidirectional-consistency steer.",
+  "createdAt": "2026-07-25T21:40:58.097Z",
+  "updatedAt": "2026-07-25T21:40:58.097Z"
+}

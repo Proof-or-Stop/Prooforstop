@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-3783",
+  "records": [
+    {
+      "id": "RED-20260725214047",
+      "trigger": "command-catalog-smoke asserts every AGENT_DISPATCH_REGISTRY entry is dispatch-schema-valid, but lattice-review-channel is deliberately retired, so the smoke fails on clean main.",
+      "acceptanceTargetRef": "sha256:229a2702e9686643009bf750bee896c0aa741ab906f1def7396036b679343e1d",
+      "baselineHeadHash": "bb5b1460950c78040993f0d05c8fcb799c73de8f",
+      "baselineMaterialHash": "8c873445333d13a6e44cdfbf25a6f788a70e7e4390b97ca615a571faf0606f87",
+      "observedFailure": "node packages/main/dist/tasks/command-catalog-smoke.js exits 1 with AssertionError: registered lattice-review-channel example field agentType must be schema-valid (false !== true), at command-catalog-smoke.js:141.",
+      "failingCommand": "node packages/main/dist/tasks/command-catalog-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/command-catalog-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:229a2702e9686643009bf750bee896c0aa741ab906f1def7396036b679343e1d",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/command-catalog-smoke.js"
+      },
+      "note": "RED reproduced in worktree at HEAD bb5b146095 (exit 1). GREEN: same command exits 0 after the bidirectional-consistency fix.",
+      "createdAt": "2026-07-25T21:40:47.296Z"
+    }
+  ],
+  "createdAt": "2026-07-25T21:40:47.296Z",
+  "updatedAt": "2026-07-25T21:40:47.296Z"
+}

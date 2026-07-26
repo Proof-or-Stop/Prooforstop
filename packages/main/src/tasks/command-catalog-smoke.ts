@@ -152,20 +152,45 @@ for (const identifier of ['itemId', 'findingId', 'clusterId'] as const) {
   assert.equal(schemaAccepts('dispatch', identifier, null), false, `dispatch.${identifier} must omit absent values instead of accepting null`);
   assert.match(schemaDescription('dispatch', identifier), /story-only|mutually exclusive|registered/, `dispatch.${identifier} must explain conditional cardinality`);
 }
+// The dispatch agentType enum is derived from AGENT_DISPATCH_ACCEPTED_TYPES, which
+// deliberately omits agents that are retired from runtime dispatch (e.g.
+// lattice-review-channel, kept in the registry only for historical classification).
+// Guard bidirectional consistency between the public schema and that registry so
+// neither a stale non-dispatchable agent leaks into the enum, nor a retired lane is
+// wrongly accepted.
+const dispatchableCanonicalNames = new Set<string>(AGENT_DISPATCH_ACCEPTED_TYPES);
 for (const entry of AGENT_DISPATCH_REGISTRY) {
+  const dispatchable = dispatchableCanonicalNames.has(entry.canonicalName);
   const example = {
     storyId: 'B-example',
     agentType: entry.canonicalName,
     ...(entry.targetCardinality === 'exactly-one' ? { [entry.identifierKinds[0]]: 'EXAMPLE-001' } : {}),
   };
-  for (const [key, value] of Object.entries(example)) {
-    assert.equal(schemaAccepts('dispatch', key, value), true, `registered ${entry.canonicalName} example field ${key} must be schema-valid`);
+  if (dispatchable) {
+    // Forward direction: a dispatchable registry entry's canonical example must be
+    // accepted by the public dispatch schema AND satisfy the shared runtime contract.
+    for (const [key, value] of Object.entries(example)) {
+      assert.equal(schemaAccepts('dispatch', key, value), true, `dispatchable ${entry.canonicalName} example field ${key} must be schema-valid`);
+    }
+    assert.equal(
+      validateAgentDispatchRequest({ ...example, phase: entry.allowedPhases[0] }).entry,
+      entry,
+      `public ${entry.canonicalName} example must also satisfy the shared runtime contract`,
+    );
+  } else {
+    // Reverse direction: a registry entry retired from dispatch must be rejected by
+    // BOTH the public dispatch agentType schema AND the shared runtime contract.
+    assert.equal(
+      schemaAccepts('dispatch', 'agentType', entry.canonicalName),
+      false,
+      `retired ${entry.canonicalName} must be rejected by the dispatch agentType schema`,
+    );
+    assert.throws(
+      () => validateAgentDispatchRequest({ ...example, phase: entry.allowedPhases[0] }),
+      /retired|unknown/i,
+      `retired ${entry.canonicalName} must be rejected by the shared runtime contract`,
+    );
   }
-  assert.equal(
-    validateAgentDispatchRequest({ ...example, phase: entry.allowedPhases[0] }).entry,
-    entry,
-    `public ${entry.canonicalName} example must also satisfy the shared runtime contract`,
-  );
 }
 
 for (const retiredCommand of [
