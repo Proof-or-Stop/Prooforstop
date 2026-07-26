@@ -123,6 +123,18 @@
           "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
           "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
           "timestamp": "2026-07-26T01:42:41.039Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "grep -rn \"eventType = .REOPEN.\" packages/main/src/handlers/transition-orchestrator.ts; grep -n -A 13 \"private writeJsonFile\" packages/main/src/core/store.ts",
+          "result": "pass",
+          "note": "Comment claims NO crash-transactionality: it says verbatim NOT crash-transactional and names the residual window (crash between the checklist.json reset write and the index.json phase write leaves the checklist reset with phase still PLAN). Safe-direction argument independently re-derived, not trusted: eventType = REOPEN is assigned at exactly one site (line 651) gated on args.phase===INIT && story.phase===PLAN, and PHASE_EVENT_BY_TARGET (core/lifecycle-registry.ts:99-107) contains no REOPEN, so REOPEN truly only fires from PLAN and the reset cannot re-run from INIT; because writeStory is ordered last, the dangerous phase=INIT-with-stale-done-item state is unreachable by crash. I also FOUND AND FIXED a residual overstatement the reference commit da13aae271 left behind: it claimed a reset-without-advance is harmless and re-derivable on a retry, which is false - a retry does not re-derive the lost done/in_progress markers, it converges on the intended end state only because the reopen discards them anyway, and if the reopen is abandoned they stay lost. Reworded to that true basis plus the verified bound that store.writeJsonFile (core/store.ts:133-145) uses tmp write + renameSync, so the residual is one of exactly two file-consistent states rather than a torn checklist.",
+          "headHash": "868a49930dc2ae38690c87d7afc9dfacf9330f5d",
+          "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
+          "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
+          "timestamp": "2026-07-26T01:42:52.912Z"
         }
       ]
     },
