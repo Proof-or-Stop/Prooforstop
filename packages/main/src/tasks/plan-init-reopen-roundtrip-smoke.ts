@@ -263,7 +263,7 @@ function main(): void {
     {
       const eventsAfterRefusals = new StoryStore(wt).readProcessEvents(storyId!);
       const spurious = eventsAfterRefusals.filter(
-        (e) => e.type === 'phase_transition' && (e as any).fromPhase === 'PLAN' && (e as any).toPhase === 'INIT',
+        (e) => e.type === 'phase_transition' && e.fromPhase === 'PLAN' && e.toPhase === 'INIT',
       );
       assert.equal(spurious.length, 0, `a refused reopen must append no successful PLAN->INIT phase_transition event (found ${spurious.length})`);
     }
@@ -296,10 +296,10 @@ function main(): void {
     {
       const events = new StoryStore(wt).readProcessEvents(storyId!);
       const reopenEvents = events.filter(
-        (e) => e.type === 'phase_transition' && (e as any).fromPhase === 'PLAN' && (e as any).toPhase === 'INIT',
+        (e) => e.type === 'phase_transition' && e.fromPhase === 'PLAN' && e.toPhase === 'INIT',
       );
       assert.equal(reopenEvents.length, 1, `exactly one PLAN->INIT phase_transition event must be appended by the one successful reopen (found ${reopenEvents.length})`);
-      const reopenEvent = reopenEvents[0] as any;
+      const reopenEvent = reopenEvents[0];
       assert.equal(reopenEvent.transitionType, 'reopen', 'the reopen phase_transition event must be marked transitionType=reopen');
       assert.equal(reopenEvent.reason, REOPEN_REASON, 'the reopen reason must be persisted verbatim in the phase_transition audit event (validated-but-dropped is not auditable)');
 
@@ -311,7 +311,7 @@ function main(): void {
       // because that advance ran from inside the worktree, so its event is certain to be in
       // the worktree's own JSONL.
       const normalEvent = events.find(
-        (e) => e.type === 'phase_transition' && (e as any).fromPhase === 'INIT_CHECK' && (e as any).toPhase === 'PLAN',
+        (e) => e.type === 'phase_transition' && e.fromPhase === 'INIT_CHECK' && e.toPhase === 'PLAN',
       );
       assert.ok(normalEvent, 'the INIT_CHECK->PLAN advance must have appended a phase_transition event');
       assert.equal(Object.prototype.hasOwnProperty.call(normalEvent, 'transitionType'), false, 'a normal transition event must not carry a transitionType key (the reopen fields are additive, set only on REOPEN)');
