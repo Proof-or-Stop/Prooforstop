@@ -971,6 +971,58 @@ function subtreeDeletesMember(node, propName) {
   return found;
 }
 
+// ── B-70a6 F-005 helpers: the out-of-band phase writers are object-literal
+// METHODS (story_discard / story_reconcile), not top-level functions, so the
+// F-004 helpers cannot reach them.
+
+/** Locate a function-like node by name: declaration, object-literal method, or `const x = () => {}`. */
+function findFunctionLike(sf, name) {
+  let found;
+  const named = (node) => {
+    if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) return node.name && ts.isIdentifier(node.name) && node.name.text === name;
+    if (ts.isPropertyAssignment(node)) {
+      return (ts.isIdentifier(node.name) || ts.isStringLiteral(node.name)) && node.name.text === name
+        && (ts.isFunctionExpression(node.initializer) || ts.isArrowFunction(node.initializer));
+    }
+    if (ts.isVariableDeclaration(node)) {
+      return ts.isIdentifier(node.name) && node.name.text === name && node.initializer
+        && (ts.isFunctionExpression(node.initializer) || ts.isArrowFunction(node.initializer));
+    }
+    return false;
+  };
+  const visit = (node) => {
+    if (found) return;
+    if (named(node)) {
+      found = ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) ? node : node.initializer;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  ts.forEachChild(sf, visit);
+  return found;
+}
+
+/** True when an object literal carries the named property, shorthand (`{ store }`) included. */
+function objectLiteralHasProperty(node, propName) {
+  if (!node || !ts.isObjectLiteralExpression(node)) return false;
+  return node.properties.some(prop =>
+    (ts.isPropertyAssignment(prop) || ts.isShorthandPropertyAssignment(prop))
+    && (ts.isIdentifier(prop.name) || ts.isStringLiteral(prop.name))
+    && prop.name.text === propName);
+}
+
+/** The first `new <ctorName>(...)` expression in a subtree. */
+function findNewExpressionByName(node, ctorName) {
+  let found;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isNewExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === ctorName) { found = n; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
 /** True when a subtree contains a real `<anything>.<leftProp> === <rightObj>.<rightProp>` comparison. */
 function subtreeComparesMembers(node, leftProp, rightObj, rightProp) {
   let found = false;
@@ -2690,6 +2742,132 @@ function assertPhaseTransitionReopenAuditContract() {
     assert(reopenSmokeText.includes(token), `packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: end-to-end reopen audit assertion missing ${token}`);
   }
   assert(/assertReopenAuditCrashRecovery\(\)/.test(reopenSmokeText) && /^await assertReopenAuditCrashRecovery\(\);$/m.test(reopenSmokeText), 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the crash-window recovery drill must actually RUN (a defined-but-uncalled test proves nothing)');
+}
+
+/**
+ * B-70a6 F-005: OUT-OF-BAND phase mutations must rescue a pending reopen audit
+ * BEFORE they destroy the record that carries it.
+ *
+ * F-004's reconciliation sits at the top of runStoryTransitionInner, which only
+ * covers phase changes that GO THROUGH the orchestrator. story_discard and the
+ * story_reconcile zombie repair write story.phase directly, land the story in a
+ * TERMINAL phase, and (for discard) force-delete the worktree + branch that hold
+ * the record — so the loss there was permanent, not deferred. This is the
+ * hardcoded mechanical half of that guarantee: the checks are AST-anchored and
+ * ORDERING-anchored, so moving either rescue after the destructive steps, or
+ * dropping the doomed-copy search that makes it work at all, exits 1.
+ */
+function assertOutOfBandReopenAuditRescueContract() {
+  const registry = processFactRegistryMap();
+  const phaseTransitionFact = registry.get('runtime:closeout_phase_transition');
+  for (const token of [
+    'OUT-OF-BAND PHASE MUTATIONS',
+    'story_discard',
+    'story_reconcile',
+    'reconcileReopenAuditBeforeOutOfBandPhaseChange',
+    'BEFORE their destructive steps',
+    'DOOMED copy',
+    'SURVIVING store',
+    'never blocks',
+    'DUPLICATE event sharing one auditId',
+    '--purge',
+  ]) {
+    assert(phaseTransitionFact?.rationale.includes(token), `${processFactRegistryPath}: phase transition rationale must declare the out-of-band rescue semantics token ${token}`);
+  }
+
+  // (1) THE RESCUE ITSELF: it must delegate to the one reconciliation function,
+  // never grow an append site of its own (two append sites = two idempotency
+  // rules that can drift), and must not throw the caller's operation away.
+  const orchestratorPath = 'packages/main/src/handlers/transition-orchestrator.ts';
+  const orchestratorSf = parseSourceFile(orchestratorPath);
+  const rescueFn = findFunctionDeclaration(orchestratorSf, 'reconcileReopenAuditBeforeOutOfBandPhaseChange');
+  assert(rescueFn?.body, `${orchestratorPath}: reconcileReopenAuditBeforeOutOfBandPhaseChange must exist — it is what makes the "no unaudited reopen" invariant hold for phase writes that bypass the orchestrator`);
+  const rescueDelegations = rescueFn?.body ? collectCallExpressionsByName(rescueFn.body, 'reconcilePendingReopenAudit') : [];
+  assert(rescueDelegations.length >= 2, `${orchestratorPath}: the out-of-band rescue must delegate to reconcilePendingReopenAudit for BOTH the surviving-store record and the doomed-copy record (found ${rescueDelegations.length} delegations)`);
+  assert(rescueFn?.body && collectMemberCalls(rescueFn.body, 'store', 'appendProcessEvent').length === 0, `${orchestratorPath}: the out-of-band rescue must NOT append the audit event itself — a second append site would let its idempotency rule drift from reconcilePendingReopenAudit's`);
+  const doomedRead = rescueFn?.body ? findNewExpressionByName(rescueFn.body, 'StoryStore') : undefined;
+  assert(doomedRead, `${orchestratorPath}: the rescue must open the DOOMED copy's own store (\`new StoryStore(recordRoot)\`) — story_discard's runtime root is redirected to the MAIN root, so without this it can never SEE the record it is supposed to save`);
+  const rescueDoomedDelegation = rescueDelegations[rescueDelegations.length - 1];
+  assert(rescueDoomedDelegation && rescueDoomedDelegation.arguments.length === 3, `${orchestratorPath}: the doomed-copy delegation must pass the record READ from the doomed copy while appending to the SURVIVING store (reconcilePendingReopenAudit(store, storyId, doomed))`);
+
+  // (2) THE TWO CALL SITES: each must run the rescue BEFORE it destroys anything
+  // and BEFORE its own phase write. Ordering IS the guarantee.
+  const outOfBandSites = [
+    {
+      path: 'packages/main/src/handlers/worktree.ts',
+      fn: 'story_discard',
+      phase: 'DISCARDED',
+      // Every call that can destroy the copy holding the record.
+      destructive: ['worktreeRemoveWithRetry', 'removePathWithTimeout', 'rmSync', 'pruneWorktreeRegistry'],
+    },
+    {
+      path: 'packages/main/src/handlers/story-query.ts',
+      fn: 'story_reconcile',
+      phase: 'DONE',
+      destructive: ['rmSync'],
+    },
+  ];
+  for (const site of outOfBandSites) {
+    const sf = parseSourceFile(site.path);
+    const fnNode = findFunctionLike(sf, site.fn);
+    assert(fnNode?.body, `${site.path}: ${site.fn} must exist (it is one of the two out-of-band story.phase writers)`);
+    const rescueCalls = collectCallExpressionsByName(fnNode.body, 'reconcileReopenAuditBeforeOutOfBandPhaseChange');
+    assert(rescueCalls.length === 1, `${site.path}: ${site.fn} must call reconcileReopenAuditBeforeOutOfBandPhaseChange exactly once before mutating story.phase; found ${rescueCalls.length}`);
+    // `assert` ACCUMULATES failures here rather than throwing, so every check
+    // below must survive a missing call site (otherwise a deleted rescue reports
+    // a TypeError instead of the finding it is supposed to name).
+    const rescueCall = rescueCalls[0];
+    if (!rescueCall) continue;
+    const rescueArg = rescueCall.arguments?.[0];
+    assert(rescueArg && objectLiteralHasProperty(rescueArg, 'store'), `${site.path}: ${site.fn} must hand the rescue the SURVIVING store (that is where the audit event has to land)`);
+    const recordRootsArg = rescueArg ? objectLiteralPropertyInitializer(rescueArg, 'recordRoots') : undefined;
+    assert(recordRootsArg && ts.isArrayLiteralExpression(recordRootsArg) && recordRootsArg.elements.length > 0, `${site.path}: ${site.fn} must pass a non-empty recordRoots array (the doomed worktree copy) — dropping it silently reduces the rescue to a no-op for exactly the case the finding reproduced`);
+
+    const phaseAssignment = findMemberAssignment(fnNode.body, 'story', 'phase');
+    assert(phaseAssignment, `${site.path}: ${site.fn} must still contain the out-of-band \`story.phase = '${site.phase}'\` assignment this contract is about`);
+    assert(Boolean(phaseAssignment) && rescueCall.end < phaseAssignment.pos, `${site.path}: ${site.fn} must rescue the pending reopen audit BEFORE it writes the terminal phase — after it, the record is already unreachable and the reopen is unaudited forever`);
+    const phaseWrites = collectMemberCalls(fnNode.body, 'store', 'writeStory');
+    assert(phaseWrites.length > 0 && rescueCall.end < phaseWrites[0].pos, `${site.path}: ${site.fn} must rescue the pending reopen audit BEFORE its own store.writeStory`);
+    for (const destructive of site.destructive) {
+      for (const call of collectCallExpressionsByName(fnNode.body, destructive)) {
+        assert(rescueCall.end < call.pos, `${site.path}: ${site.fn} must rescue the pending reopen audit BEFORE the destructive \`${destructive}\` call — that call can delete the only copy holding the record`);
+      }
+    }
+    // The rescue must be SURFACED. A silent rescue repeats the finding's core
+    // complaint (silent loss) in a nicer costume.
+    assert(collectCallExpressionsByName(fnNode.body, 'renderOutOfBandReopenAuditNotice').length === 1, `${site.path}: ${site.fn} must surface the rescue to the operator through renderOutOfBandReopenAuditNotice`);
+  }
+
+  // (3) EXECUTABLE COVERAGE: the ordering checks above are structural, so the
+  // end-to-end drills must exist AND run. Each destroys the record-holding copy
+  // for real and then asserts the event survived in the surviving log.
+  const reopenSmokeText = read('packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts');
+  for (const token of [
+    // F-005a: the reviewer's exact repro (force discard from inside the worktree).
+    "runBoth(wt, 'story_discard', { storyId, force: true",
+    'assert.equal(existsSync(wt), false',
+    'assert.equal(survived[0].reopenAuditId, pending.auditId',
+    // F-005b: the second out-of-band site.
+    "runBoth(root, 'story_reconcile', { dryRun: false }",
+    "assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE'",
+    // F-006: idempotency by auditId identity is NOT idempotency by reason text.
+    'const SHARED_REOPEN_REASON',
+    'assert.equal(events.length, 2',
+    'assert.equal(new Set(events.map(e => e.reopenAuditId)).size, 2',
+  ]) {
+    assert(reopenSmokeText.includes(token), `packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: out-of-band / same-reason drill assertion missing ${token}`);
+  }
+  for (const drill of [
+    'assertReopenAuditSurvivesStoryDiscard',
+    'assertReopenAuditSurvivesZombieReconcile',
+    'assertSameReasonReopensAreAuditedSeparately',
+  ]) {
+    assert(new RegExp(`^await ${drill}\\(\\);$`, 'm').test(reopenSmokeText), `packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the ${drill} drill must actually RUN (a defined-but-uncalled test proves nothing)`);
+  }
+  // A discard/reconcile that a rescue could BLOCK would be a worse regression
+  // than the audit loss, so both drills pin the success exit code too.
+  assert(/assert\.equal\(discard\.code, 0/.test(reopenSmokeText), 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the discard drill must assert story_discard still SUCCEEDS (the rescue must never block a legitimate discard)');
+  assert(/assert\.equal\(reconcile\.code, 0/.test(reopenSmokeText), 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the zombie drill must assert story_reconcile still SUCCEEDS (the rescue must never block a legitimate repair)');
 }
 
 function isReviewerPrompt(relPath, text) {
@@ -7320,6 +7498,7 @@ assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
 assertPhaseTransitionReopenAuditContract();
+assertOutOfBandReopenAuditRescueContract();
 assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();

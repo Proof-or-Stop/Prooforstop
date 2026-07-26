@@ -26,6 +26,13 @@ import {
   renderAuxiliaryClassification,
   scanAuxiliaryWorktreeResidues,
 } from '../core/auxiliary-worktree-cleanup.js';
+// B-70a6 F-005: the zombie repair below writes a TERMINAL phase out of band, so it
+// must rescue any pending reopen audit first. handlers/transition-orchestrator.ts
+// does not import this module, so the dependency stays one-directional.
+import {
+  reconcileReopenAuditBeforeOutOfBandPhaseChange,
+  renderOutOfBandReopenAuditNotice,
+} from './transition-orchestrator.js';
 import { summarizeChecklist } from './checklist.js';
 import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
@@ -757,8 +764,25 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           }
 
           if (repair) {
+            // B-70a6 F-005: this repair writes the TERMINAL phase DONE directly
+            // (see below) — it never routes through runStoryTransitionInner, so
+            // the reopen-audit reconciliation that runs there never runs here,
+            // and after DONE there is no transition left to heal a crashed
+            // reopen. The worktree removal a few lines down can also destroy the
+            // copy holding the record. Rescue the audit event FIRST, into the
+            // surviving store's log, and only THEN read the story object that the
+            // phase write persists (reading it earlier would resurrect a record
+            // the rescue just cleared). Never throws: the repair is legitimate.
+            const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({
+              storyId: z.storyId,
+              store,
+              recordRoots: [z.worktreePath],
+            });
             const story = store.readStory(z.storyId);
             const actions: string[] = [];
+            for (const notice of renderOutOfBandReopenAuditNotice(z.storyId, reopenAuditRescue)) {
+              lines.push(`    ${notice}`);
+            }
 
             // Clean up worktree directory
             if (z.worktreeExists && z.worktreePath) {

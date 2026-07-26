@@ -322,6 +322,166 @@ async function assertReopenAuditCrashRecovery(): Promise<void> {
   console.log('✓ reopen audit crash-window recovery passed');
 }
 
+// ── B-70a6 F-005: OUT-OF-BAND phase mutations must not destroy the record ────
+//
+// THE DEFECT. F-004's reconciliation runs at the top of runStoryTransitionInner,
+// which yields the invariant "no phase change can follow an unaudited reopen"
+// ONLY for phase changes that go through the orchestrator. Two production sites
+// mutate story.phase directly with store.writeStory and never reconcile:
+// story_discard (handlers/worktree.ts) and the story_reconcile zombie DONE
+// repair (handlers/story-query.ts). Both also DESTROY the copy that holds the
+// record (the worktree + branch), and both land the story in a TERMINAL phase,
+// so nothing can ever reconcile afterwards: the loss is PERMANENT, not deferred.
+//
+// EXTRA TWIST that a naive "just call reconcile at the top" fix does NOT handle:
+// cli/runtime-root.ts redirects story_discard's runtime root from the worktree
+// to the MAIN root, so the handler's own store CANNOT SEE the record — it lives
+// in the doomed worktree copy. The event must be read from the doomed copy and
+// appended to the SURVIVING log.
+const DISCARD_REOPEN_REASON = 'Discard drill: this reopen committed but crashed before its audit event, and story_discard must not erase it.';
+const ZOMBIE_REOPEN_REASON = 'Zombie drill: this reopen committed but crashed before its audit event, and the zombie DONE repair must not erase it.';
+
+/** Drive a real reopen through the production path with the audit append crash-injected. */
+async function crashInjectReopen(wt: string, storyId: string, reason: string): Promise<PendingReopenAudit> {
+  const originalCwd = process.cwd();
+  const crashStore = new CrashBeforeReopenAuditStore(wt);
+  const ctx: HandlerContext = { root: wt, scanRoot: wt, store: crashStore };
+  process.env.LATTICE_SESSION_ID = SESSION;
+  process.chdir(wt);
+  resetConfigCache();
+  let crashError: unknown;
+  try {
+    await runStoryTransition(ctx, { storyId, phase: 'INIT', reason });
+  } catch (e) {
+    crashError = e;
+  } finally {
+    process.chdir(originalCwd);
+    resetConfigCache();
+  }
+  assert.equal(crashStore.reopenAppendAttempts, 1, 'the drill must have reached (and failed) the reopen audit append exactly once');
+  assert.match(String((crashError as Error | undefined)?.message ?? ''), new RegExp(SIMULATED_CRASH), `the injected crash must be what aborted the transition: ${String(crashError)}`);
+  const afterCrash = new StoryStore(wt).readStory(storyId);
+  assert.equal(afterCrash.phase, 'INIT', 'the reopen phase write committed before the crash (that is why the missing event matters)');
+  const pending = afterCrash.pendingReopenAudit;
+  assert.ok(pending, 'the crashed reopen must leave the durable recovery record (F-004)');
+  assert.equal(pending!.reason, reason, 'the recovery record must carry the validated reason verbatim');
+  return pending!;
+}
+
+// (F-005a) story_discard — the reviewer's exact repro, from INSIDE the worktree.
+async function assertReopenAuditSurvivesStoryDiscard(): Promise<void> {
+  const { root, storyId, wt } = seedStoryAtInitCheck();
+  try {
+    assert.equal(run(wt, 'story_advance', { storyId, phase: 'PLAN' }).code, 0, 'PLAN advance should succeed before the discard drill');
+    const pending = await crashInjectReopen(wt, storyId, DISCARD_REOPEN_REASON);
+    assert.equal(reopenEventsOf(wt, storyId).length, 0, 'the crash must have prevented the audit event in the worktree log');
+    assert.equal(reopenEventsOf(root, storyId).length, 0, 'and the SURVIVING main-root log does not have it either — that is the loss this drill is about');
+
+    // The reviewer's repro verbatim: force-discard from inside the worktree. This
+    // deletes the worktree AND the branch — the only copy holding the record.
+    const discard = runBoth(wt, 'story_discard', { storyId, force: true, reason: 'drill: discard a story whose reopen crashed' });
+    assert.equal(discard.code, 0, `story_discard must still SUCCEED — discarding is legitimate and must never be BLOCKED by a pending audit record: ${discard.out}${discard.err}`);
+    assert.equal(existsSync(wt), false, 'the drill must really destroy the copy that held the record, otherwise it proves nothing');
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'DISCARDED', 'the discard must still reach its terminal phase');
+
+    // RED HERE before the fix: zero events — the reopen genuinely happened and is
+    // now unauditable forever (DISCARDED is terminal, so no later transition can heal it).
+    const survived = reopenEventsOf(root, storyId);
+    assert.equal(survived.length, 1, `the audit event for a reopen that COMMITTED must survive an out-of-band discard in the surviving story log (found ${survived.length})`);
+    assert.equal(survived[0].transitionType, 'reopen', 'the surviving event must still be marked transitionType=reopen');
+    assert.equal(survived[0].reason, DISCARD_REOPEN_REASON, 'the surviving event must carry the VERBATIM validated reason');
+    assert.equal(survived[0].reopenAuditId, pending.auditId, 'the surviving event must carry the doomed record\'s idempotency key');
+    assert.match(`${discard.out}${discard.err}`, /interrupted PLAN->INIT reopen/, 'the operator must SEE the rescue — a silent one is what the finding calls out');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+  console.log('✓ reopen audit survives story_discard passed');
+}
+
+// (F-005b) story_reconcile's zombie DONE repair — the second out-of-band site.
+// Fixture: the story branch is merged into main by hand (so the record now rides
+// the MAIN copy) and its worktree is removed, which is exactly the zombie shape
+// story_reconcile exists for. The repair then writes the TERMINAL phase DONE.
+async function assertReopenAuditSurvivesZombieReconcile(): Promise<void> {
+  const { root, storyId, wt } = seedStoryAtInitCheck();
+  try {
+    assert.equal(run(wt, 'story_advance', { storyId, phase: 'PLAN' }).code, 0, 'PLAN advance should succeed before the zombie drill');
+    const pending = await crashInjectReopen(wt, storyId, ZOMBIE_REOPEN_REASON);
+
+    git(wt, ['add', '-A']);
+    git(wt, ['commit', '-m', 'crashed reopen metadata']);
+    git(root, ['merge', '--no-ff', `story/${storyId}`, '-m', 'manual merge of the story branch']);
+    git(root, ['worktree', 'remove', '--force', wt]);
+    const beforeRepair = new StoryStore(root).readStory(storyId);
+    assert.equal(beforeRepair.phase, 'INIT', 'the merged main copy must carry the crashed reopen phase');
+    assert.equal(beforeRepair.pendingReopenAudit?.auditId, pending.auditId, 'the merged main copy must carry the pending recovery record');
+    assert.equal(reopenEventsOf(root, storyId).length, 0, 'no audit event exists yet — the crash prevented it');
+
+    const reconcile = runBoth(root, 'story_reconcile', { dryRun: false });
+    assert.equal(reconcile.code, 0, `story_reconcile must still SUCCEED (the repair must never be blocked): ${reconcile.out}${reconcile.err}`);
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'the zombie repair must still reach its terminal phase');
+
+    // RED HERE before the fix: the record is overwritten into a terminal phase and
+    // no event is ever produced.
+    const survived = reopenEventsOf(root, storyId);
+    assert.equal(survived.length, 1, `the audit event must survive the out-of-band zombie DONE repair (found ${survived.length})`);
+    assert.equal(survived[0].reason, ZOMBIE_REOPEN_REASON, 'the surviving event must carry the VERBATIM validated reason');
+    assert.equal(survived[0].reopenAuditId, pending.auditId, 'the surviving event must carry the record idempotency key');
+    assert.match(`${reconcile.out}${reconcile.err}`, /interrupted PLAN->INIT reopen/, 'the operator must SEE the rescue during the zombie repair');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+  console.log('✓ reopen audit survives zombie story_reconcile passed');
+}
+
+// ── B-70a6 F-006: idempotency is by auditId IDENTITY, never by reason text ───
+//
+// The code comment and the AST contract both say two reopens may legitimately
+// share one reason, but nothing EXECUTABLE distinguished the two rules: mutating
+// the already-audited match to `event.reason === pending.reason` left every smoke
+// green. It only bites when a SECOND same-reason reopen crashes before its append
+// — reason-matching then finds the FIRST reopen's event, declares the second one
+// "already audited", drops its record and swallows its audit event forever.
+const SHARED_REOPEN_REASON = 'Same-reason drill: both reopens carry this exact reason text, so only the auditId can tell their audit events apart.';
+
+async function assertSameReasonReopensAreAuditedSeparately(): Promise<void> {
+  const { root, storyId, wt } = seedStoryAtInitCheck();
+  try {
+    // ── reopen #1: completes normally, event on disk ────────────────────────
+    assert.equal(run(wt, 'story_advance', { storyId, phase: 'PLAN' }).code, 0, 'PLAN advance should succeed before the first reopen');
+    assert.equal(run(wt, 'story_advance', { storyId, phase: 'INIT', reason: SHARED_REOPEN_REASON }).code, 0, 'the first reopen should succeed');
+    const first = reopenEventsOf(wt, storyId);
+    assert.equal(first.length, 1, 'the first reopen must have produced exactly one audit event');
+
+    // ── back to PLAN so a SECOND reopen is legal ────────────────────────────
+    freezeStory(new StoryStore(wt), storyId);
+    repairInitCheck(wt, storyId);
+    assert.equal(run(wt, 'story_advance', { storyId, phase: 'INIT_CHECK' }).code, 0, 'INIT_CHECK re-advance should succeed');
+    assert.equal(run(wt, 'story_advance', { storyId, phase: 'PLAN' }).code, 0, 'PLAN re-advance should succeed');
+
+    // ── reopen #2: SAME reason text, crash-injected before its audit append ──
+    const pending = await crashInjectReopen(wt, storyId, SHARED_REOPEN_REASON);
+    assert.equal(pending.reason, first[0].reason, 'the drill is only meaningful if BOTH reopens carry the same reason text');
+    assert.notEqual(pending.auditId, first[0].reopenAuditId, 'the two reopens must still have DISTINCT audit ids — that identity is the real idempotency key');
+    assert.equal(reopenEventsOf(wt, storyId).length, 1, 'the second reopen crashed before its own audit event');
+
+    // ── recovery must emit the SECOND event, not mistake #1 for it ──────────
+    freezeStory(new StoryStore(wt), storyId);
+    repairInitCheck(wt, storyId);
+    const recover = runBoth(wt, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    assert.equal(recover.code, 0, `the recovering transition should succeed: ${recover.out}${recover.err}`);
+    const events = reopenEventsOf(wt, storyId);
+    assert.equal(events.length, 2, `two reopens sharing ONE reason text must yield TWO audit events (found ${events.length}) — matching "already audited" on reason text swallows the second reopen's event`);
+    assert.equal(new Set(events.map(e => e.reopenAuditId)).size, 2, 'the two audit events must carry DISTINCT reopenAuditIds');
+    assert.equal(events[1].reason, SHARED_REOPEN_REASON, 'the recovered second event must carry the shared reason verbatim');
+    assert.equal(events[1].reopenAuditId, pending.auditId, 'the recovered second event must carry the SECOND record\'s auditId');
+    assert.equal(new StoryStore(wt).readStory(storyId).pendingReopenAudit, undefined, 'the second recovery record must be cleared once its event is durable');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+  console.log('✓ same-reason reopens are audited separately passed');
+}
+
 function main(): void {
   const root = initRepo();
   const worktree = join(root, '.worktrees');
@@ -504,3 +664,6 @@ main();
 assertDevStartReuseFromMainAndRebootstrap();
 console.log('✓ dev_start from-main reuse + deleted-worktree re-bootstrap passed');
 await assertReopenAuditCrashRecovery();
+await assertReopenAuditSurvivesStoryDiscard();
+await assertReopenAuditSurvivesZombieReconcile();
+await assertSameReasonReopensAreAuditedSeparately();
