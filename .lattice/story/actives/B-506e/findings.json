@@ -271,6 +271,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host-round",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-506e:F-015",
+      "desc": "[orchestrator, same class as F-012] 35 of the 94 verificationEvidence notes cite BARE LINE NUMBERS of the COMPILED artifact (packages/main/dist/tasks/red-evidence-chain-smoke.js), and 0 cite a source location. Those citations are already stale on HEAD independently of any round-4 edit — verified: CHK-004:edge:0 cites line 254 but checkChainIntegrity([], null is at 244; CHK-001:edge:1 cites 297 (now 283) and a 'helper line 581' that exceeds the 580-line file; CHK-012:adversarial:1 cites 470 (now 451); CHK-009:adversarial:1 cites 541 (now 504). This is the F-012 defect class (a note pointing at something that is not there), and citing compiled-output lines is structurally wrong because every rebuild re-stales them. Fix: re-anchor each note to a STABLE reference — the SOURCE file plus its section name, helper/function name, or the assertion message — instead of a compiled line number. Each note must describe only what its own cited assertion does (copy-paste between notes is what produced F-012).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-26T01:22:34.125Z",
+      "reviewRound": "2026-07-26T00:36:31.301Z",
+      "_hash": "b172fedcb0c83e3fdf5f89e9de92e271a8e3bfbf5d5b660d448d8ed060a9d7f2",
+      "files": [
+        ".lattice/story/actives/B-506e/checklist.json"
+      ],
+      "signatureTag": "adversarial|json|orchestrator-same-class",
+      "signatureTagSource": "auto"
     }
   ]
 }
