@@ -304,6 +304,49 @@
         "scanEscalationReason": null
       },
       "_hash": "245aaa46dc61217bb7b0ec17437443c958de85c3658ab364c29790707a9b3399"
+    },
+    {
+      "id": "B-506e:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round-3 evidence-integrity re-review. Confirmed via git diff b4fa4bbfad..HEAD that NO production source changed (core/proofstory.ts, core/store.ts, core/mkdir-lock.ts, core/red-evidence/*, handlers/red-evidence.ts, core/types.ts all byte-identical); the only src diffs are the round-3 ordering fix in tasks/red-evidence-chain-smoke.ts (matches story summary) plus unrelated B-8b69/B-3783 lifecycle files pulled in by the clean merge of main, none of which touch the gate/store/lock paths. Independently verified the central claim with my OWN repro (distinct fixtures from the story test files): built two fresh dist trees via git archive+npm run build (HEAD and pre-fix 8727b2db83). My 5-scenario full-diagnostic-report sha256 was IDENTICAL across both trees (7aeb1c18...), confirming the v1 gate verdict did not move. A hand-built v2 quarantine record (no observedFailure) placed FIRST in records[] genuinely reached the guard on HEAD (does not throw, missingRedEvidence correctly still satisfied by the v1 record, v2 ignored) while the identical scenario THREW TypeError at record.observedFailure.trim() on the pre-fix dist -- proving the guard is real and non-vacuous. Also confirmed a v2-only store reports missing_red_evidence (length>0) rather than crashing or silently satisfying. Also ran the storys own committed artifacts (red-w2c-gate-guard.mjs, red-w2c-schema-failclosed.mjs, red-w2c-v1-verdict-invariance.mjs) against both my independently-built dist trees: all three pass on HEAD with the exact pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; the v1-verdict-invariance file reproduces the SAME pinned digest verbatim against the pre-fix dist; the gate-guard file fails at exactly its intended assert.doesNotThrow on the pre-fix dist with the cited TypeError (RED signal A genuinely reproduces). All 10 prior findings (F-001..F-010) remain resolved; checklist all 12 items done. No new findings this round.",
+      "createdAt": "2026-07-26T00:42:58.838Z",
+      "reviewRound": "2026-07-26T00:36:31.301Z",
+      "reviewRunId": "B-506e:RR-018",
+      "envelopeId": "5d0f4f6a341fc53d3824e099af67e9f1050e207007b64caab2fc018c7c84688d",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44f2c2ba93939abf8f078bb0c6a5db9d706175b01ed070c4ed115966052c33dd"
     }
   ]
 }
