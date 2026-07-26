@@ -205,15 +205,14 @@
         {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "Re-bound in round 4 (the previous note was copy-pasted from happy:1 and did not describe this case). What backs THIS intent (store with only v2 records, zero v1): red-evidence-chain-smoke.ts:294 writes a store containing exactly two v2 records — the synthetic red-assert ra and the quarantine q, no v1 record at all — reads it back through the real store.readRedEvidence, and runs the LIVE evaluateProofStoryDiagnostics. It asserts missingRedEvidence.length > 0: the v2-only store parses correctly (no throw, no unsupported-schema rejection) and simply has no v1 satisfier, so the gate reports missing red evidence instead of crashing. This case cannot be short-circuited past because there is no satisfying v1 record anywhere in the array. Commit 85f60fcbf4.",
-          "headHash": "eecb6507946b8d119b247bb934580a4e6c2e703d",
+          "note": "F-015 re-anchor: the old note cited red-evidence-chain-smoke.ts line offsets. Durable anchor: section 2 of red-evidence-chain-smoke.ts, the sub-case introduced by the comment (v2-only store: missingRedEvidence fires, no v1 satisfier, no crash). writeRecords stores exactly two records - the synthetic red-assert ra and the sealed quarantine q - with no v1 record at all, the store is read back through the real store.readRedEvidence, and the live evaluateProofStoryDiagnostics is run on it. The assertion message is: a v2-only store has no v1 satisfier so missing_red_evidence fires. The v2-only array parses with no throw and no unsupported-schema rejection; nothing can short-circuit past the v2 records because no satisfying v1 record exists anywhere in the array.",
+          "headHash": "2c970e66bdb6656e69e5c01cc5d66a937b996b45",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:17:07.179Z"
+          "timestamp": "2026-07-26T01:40:40.085Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
