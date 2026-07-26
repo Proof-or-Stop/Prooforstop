@@ -169,15 +169,14 @@
         {
           "intentRef": "CHK-002:happy:1",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "Re-bound in round 4 (the previous note was copy-pasted across happy:1/edge:0/edge:1 — that copy-paste is what produced F-012). What section 2 asserts FOR THIS INTENT (mixed v1 + v2 array): red-evidence-chain-smoke.ts:287 writes ONE store holding three records — a non-satisfying v1 record, a real v2 quarantine record sealed by computeRecordDigest, and a satisfying v1 record — and that store is read back through the real store.readRedEvidence inside proofStoryDiagnosticInput. Both discriminators parse: the v2 record is accepted by the load-time classifier (not rejected as unsupported) and is skipped by the v1 predicate, while the v1 records are still evaluated field-by-field and the trailing one satisfies. The resulting JSON.stringify(missingRedEvidence) is asserted equal to the v1-only baseline captured at line 271, i.e. the v1 records were neither widened nor rewritten by the presence of a v2 record in the same array. Commit 85f60fcbf4.",
-          "headHash": "45627578ab73fa090f00dfd6dfe1eab88198adbf",
+          "note": "F-015 re-anchor: the old note cited red-evidence-chain-smoke.ts line offsets and a baseline at line offsets - bare line numbers with no durable locator. Durable anchor: section 2 banner (enforce-gate BYTE-IDENTICAL v1 guard, RED signal A, CHK-002 + CHK-003) of red-evidence-chain-smoke.ts, its MID-ARRAY writeRecords call - the one storing the RED-v1-unsat record, then the sealed v2 quarantine q, then the satisfying v1 record - and the two assertions that follow it: assert.doesNotThrow (message: the live gate MUST NOT throw on a v2 quarantine record placed MID-ARRAY behind a NON-satisfying v1 record - some() cannot short-circuit, so the v2 record IS evaluated) and assert.equal of afterMid against before (message: the v1 gate verdict is BYTE-IDENTICAL with the v2 record mid-array - it is skipped and the verdict still comes from the trailing satisfying v1 record). The baseline before is captured earlier in the same section from the v1-only store, read back through the real store.readRedEvidence. Both discriminators therefore parse in one array: the v2 record is admitted by the load-time classifier and skipped by the v1 predicate, while the v1 records are still evaluated field by field and the trailing one satisfies.",
+          "headHash": "3eab74020221da197d32c4b7c807f92c0ba76dae",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:16:55.198Z"
+          "timestamp": "2026-07-26T01:40:32.369Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
