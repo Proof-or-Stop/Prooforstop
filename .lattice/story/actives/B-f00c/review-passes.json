@@ -113,6 +113,39 @@
         "scanEscalationReason": null
       },
       "_hash": "ff28af8d21683e49c64ff0aa799fd47577730d22b46e5eb45734d276818d00b8"
+    },
+    {
+      "id": "B-f00c:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 final re-verify. Re-read background.md + checklist.json + full task-context; git diff main...HEAD --name-only for changed src files (validation-lineage.ts new, validation-evidence-reuse.ts, validation-evidence-admissibility.ts, done-required-validation-smoke.ts, validation-reuse-merge-lineage-smoke.ts, lattice.config.json, scripts/verify-process-fact-contract.mjs). Verified commit 72ab8ff83f (F-003 fix) correctly moves the process-fact-contract static token check to read the 4 canonical lineage git-command tokens (merge-base, --is-ancestor, diff-tree, isStoryMetadataPath) from the new shared module validation-lineage.ts, and legitimately drops rev-list (no longer used by the net-endpoint diff algorithm) -- guard intent preserved, no weakening. Confirmed no stale references to the dropped rev-list/lineage_empty tokens anywhere in src/scripts/docs. Ran full npm test (background, exit code 0) plus targeted direct runs: node scripts/verify-process-fact-contract.mjs (exit 0, contract verified), node dist/tasks/validation-reuse-merge-lineage-smoke.js (exit 0), node dist/tasks/done-required-validation-smoke.js (exit 0). Independently re-derived the security property in an isolated scratch worktree outside this repo using the built classifyMergeLineage directly: a merge re-listing a story's own content-unchanged file classifies trusted-descendant (false positive fixed), and a genuine non-metadata content change landing on main and merged in still classifies untrusted with the changed path listed (protection preserved). Re-confirmed round-2 items (exhaustive switch via an assigned never variable in both consumer switches; injectable changedPathsFn used only by the smoke test, never by a production call site) remain correctly fixed in the current diff. Quality check: no dead code, no unused imports (execFileSync and isStoryMetadataPath cleanly removed from both consumer files after extraction), no unsafe any casts, no empty-catch swallowing beyond the pre-existing not-ancestor pattern that returns a distinct classification kind. No README or CLAUDE.md changes in this diff, so no doc-promise-undelivered risk. No new quality issues found. PASS, no blockers.",
+      "createdAt": "2026-07-26T04:52:06.993Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-011",
+      "envelopeId": "da33a39bda5c258e27c46b6cbbe947cd44caf5b4b4db2ec58c12cfad8ef601ee",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/index.json",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "23e6dafb4f6735d881dcf56d10a02357e176cf72f054bb6dd5465dabedf8a85f"
     }
   ]
 }
