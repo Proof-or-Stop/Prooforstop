@@ -199,7 +199,7 @@
       "desc": "transition-orchestrator.ts (OutOfBandReopenAuditReconciliation interface + reconcileReopenAuditBeforeOutOfBandPhaseChange, lines ~587/639/661) — the source field (documented as \"Which copy held the record: the surviving story index, or a doomed root path\") is computed and returned at two call sites (source: story index and source: recordRoot) but has zero consumers repo-wide: renderOutOfBandReopenAuditNotice never reads result.source, neither worktree.ts story_discard nor story-query.ts story_reconcile read it, and the smoke test never asserts it. It is write-only dead data — either surface it in the operator-facing notice (the whole point of this rescue is operator visibility) or drop the field.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T06:50:58.078Z",
@@ -210,7 +210,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|ts|transition-orchestrator-outofbandreopenauditreconciliation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6d3901f8c6 by WIRING the field in rather than deleting it, justified by the rescue's own declared residual: the doomed copy's record is deliberately left uncleared, so a later duplicate event is only traceable if the operator was told WHICH copy was read. The notice now renders '[record read from ...]'. Both branches have executable coverage - the discard drill asserts the doomed .worktrees/<id> path and the zombie drill asserts 'the surviving story index' - so the field is no longer write-only. Mutations dropping either attribution make the smoke exit 1.",
+      "resolvedAt": "2026-07-26T07:19:45.605Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70a6:F-010",
