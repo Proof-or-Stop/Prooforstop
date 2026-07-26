@@ -1,0 +1,38 @@
+{
+  "storyId": "B-7813",
+  "name": "review-budget-stall-adjudication",
+  "title": "Turn the advisory review-convergence stall detector into a mandatory blocking adjudication so a story cannot mint unlimited ordinary review rounds without a recorded escalation, re-plan, finding resolution, or unreachable-item declaration",
+  "description": "Step 3 of the evidence-integrity program (docs/evidence-integrity-program-spec.md §3): the review-budget circuit breaker. Today a story's review can balloon to 20+ rounds with no effective brake — the S3 incident and the B-bf52 burn (14 finding-bearing rounds / 46 review runs) — and worse, it took 12 rounds to discover a task was ill-posed (F-058: CHK-003 was unreachable from the message text; the story ended NOT DELIVERED), while F-059 shows plan.md claimed items delivered from round 4 onward and was never corrected. A numeric cap alone would not surface unreachability; a forced adjudication point would.\n\nExtend, do NOT rebuild: core/review-convergence.ts already has a stall/trend detector (STALL_MIN_ROUNDS=4, STALL_WINDOW=3 non-improving window), but handlers/transition-effects.ts:284-289 consumes it advisory-only inside a try/catch that never blocks the transition — it only appends text. core/convergence-breaker.ts is the only hard brake today, but it counts ADVANCES (maxAdvance=20, AUTO_RECOVERY_BUDGET=1, cleared by story_resume --ack), so 14 review rounds passed under it. This story hardens the stall detector into a blocking decision point at the review-round mint site, adds the structured resolution actions that clear it (including declaring a checklist item unreachable — the F-058 case), and adds a hard ceiling / privileged override that does not double-count with the existing convergence-breaker or story_resume --ack. The optional PreToolUse seatbelt on review_run_start (spec §4) is not part of this story's acceptance criteria and is left to its own follow-on.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "convergence",
+    "review",
+    "stall",
+    "breaker",
+    "adjudication",
+    "gate",
+    "budget"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "incident"
+    }
+  ],
+  "createdAt": "2026-07-26T07:25:37.545Z",
+  "startedAt": "2026-07-26T07:25:37.545Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-26T07:25:38.137Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-bc61e97261770da4871e0bb5892b5d28",
+      "agent": "main"
+    }
+  ]
+}
