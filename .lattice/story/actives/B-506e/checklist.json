@@ -1555,15 +1555,16 @@
         },
         {
           "intentRef": "CHK-011:happy:2",
-          "kind": "manual_transcript",
-          "file": "packages/main/src/cli/command-catalog.ts",
-          "command": "node packages/main/dist/tasks/command-ownership-contract.js",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
           "result": "pass",
-          "note": "command-ownership-contract enumerates the full MAIN_TOOLS catalog (339 CLI commands) and confirms red_evidence_quarantine and red_evidence_recover are present with a valid ownershipClass and a dispatchable handler; both are declared as the trailing catalog commands in command-catalog-smoke.ts (lines 111-114). NOTE: command-catalog-smoke.js itself currently exits non-zero on an UNRELATED lattice-review-channel agentType assertion (line 144), not on the red_evidence ordering.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-bound in round 4; this fixes F-013. The previous binding cited command-ownership-contract.js as a substitute and stated that command-catalog-smoke.js 'currently exits non-zero on an UNRELATED lattice-review-channel agentType assertion (line 144)'. That statement is no longer true of this tree: the fix landed on main in 18bb6398b0 ('command-catalog-smoke asserts bidirectional dispatch/registry consistency', 2026-07-25), which is now an ancestor of this branch, and the smoke exits 0 printing 'command catalog smoke passed: 339 commands' (re-run just now). The intent is therefore bound directly to the smoke that names it. What it asserts for this intent: command-catalog-smoke.ts:102-114 does assert.deepEqual(toolNames.slice(-9), [...]) against a literal list whose last two entries are 'red_evidence_quarantine' then 'red_evidence_recover', immediately after 'red_evidence_binding_set' — so the two new commands must be present, in that relative order, and in that trailing catalog position; any omission, reordering or extra trailing command fails the deepEqual. Commit 85f60fcbf4.",
+          "headHash": "35a9a8c1f570942f6068804412ff07a2ad6be377",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:19:21.870Z"
         },
         {
           "intentRef": "CHK-011:edge:0",
