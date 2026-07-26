@@ -91,6 +91,22 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli-init.ts",
+          ".codex/hooks.json"
+        ],
+        "create": [
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          ".claude/hooks/lattice-evidence-pretool.cjs",
+          ".codex/hooks/lattice-evidence-pretool.cjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ]
       }
     },
     {
