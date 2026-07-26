@@ -65,9 +65,9 @@
       "id": "CHK-002",
       "title": "RED-first smoke reproduces the merge false-positive on both reuse and admissibility paths, with negative and robustness tests",
       "context": "New smoke (pattern per packages/main/src/tasks/evidence-refresh-smoke.ts: mkdtemp + git init + seed). (a) RED on unfixed code: merge a main branch lacking the story's committed source file, then assert classifyTrustedValidationLineage AND validationHeadLineage return rejected with untrusted-lineage-path/lineage_untrusted despite identical material/storyFiles/identity. (b) GREEN after fix: both return trusted; evaluateRoutineValidationReuse reusable=true and admissibility ok. (c) NEGATIVE (protection preserved): a genuine content change to a non-metadata file at the endpoint STILL refuses on both paths. (d) empty-net-diff between distinct heads means trusted; and a large-diff case exercising maxBuffer does not throw ENOBUFS. Wire the smoke into lattice.config.json validate.commands normal tier.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T03:44:06.713Z",
       "verificationIntent": {
         "happy": [
           {
