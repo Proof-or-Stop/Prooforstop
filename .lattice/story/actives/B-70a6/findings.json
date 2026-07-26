@@ -221,7 +221,7 @@
       "desc": "plan-init-reopen-roundtrip-smoke.ts:244-284 (assertReopenAuditCrashRecovery) duplicates, near-verbatim, the crash-injection setup (new CrashBeforeReopenAuditStore, ctx construction, process.chdir/resetConfigCache dance, the reopenAppendAttempts/crashError assertions, and the afterCrash.phase/pendingReopenAudit checks) that the very same commit later extracts into the shared crashInjectReopen helper at lines 345-369 and reuses for the F-005a/F-005b/F-006 drills. The original F-004 drill was never refactored to call crashInjectReopen, so this file now has two independent implementations of the identical crash-injection mechanism; a future change to how the crash is injected (e.g. the store subclass or the chdir/session dance) must be updated in both places or they silently drift apart. This is a concrete instance of the pile-of-patches risk this review was asked to check for.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T06:51:07.010Z",
@@ -232,7 +232,11 @@
         "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
       ],
       "signatureTag": "missing|ts|plan-init-reopen",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6d3901f8c6. assertReopenAuditCrashRecovery now calls the shared crashInjectReopen helper; exactly one 'new CrashBeforeReopenAuditStore(' site remains in the file, and the verifier gained an assertion enforcing exactly one crash-injection implementation (a second site makes it exit 1 with 'found 2'). Nothing was force-merged: the two were NOT equivalent, so three assertions the helper lacked stayed in the drill (reopenEventsOf === 0, pending.fromPhase === 'PLAN', non-empty auditId). The event-count assertion CANNOT move into the helper because the F-006 drill deliberately crash-injects with one reopen event already on disk. Where message text differed the stronger inline wording was merged into the helper, so all four drills gained it. Proven still biting: dropping the recovery-record attachment makes the smoke exit 1 at the original F-004 RED message, now raised from crashInjectReopen called by assertReopenAuditCrashRecovery.",
+      "resolvedAt": "2026-07-26T07:19:46.354Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70a6:F-011",
