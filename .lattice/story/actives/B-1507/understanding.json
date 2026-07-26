@@ -1,0 +1,35 @@
+{
+  "task": "Add the ergonomics + seatbelt layer on top of B-ec67 tool-executed evidence receipts: a verification_run command, re-execution in the stale-evidence refresh, and a fail-open PreToolUse evidence-pin guard hook on both hosts.",
+  "outcome": "A caller can prove an executable intent by running lattice verification_run (never hand-authoring a pass command); a stale mechanical receipt whose material changed is re-run and re-issued (not just demoted) when the pinned command still passes; and a mismatched evidence-write command is denied early with a teaching message on both Claude and Codex, while the B-ec67 handler remains the real floor.",
+  "facts": [
+    "B-ec67 (DONE, CLI 0.3.240) shipped the enforcement floor: enforceAndStampEvidence (checklist.ts:497) + runSingleAllowlistedCommand (validation-executor.ts) execute a pinned verification:{command,selector} and stamp a receipt {exitCode,outputDigest,outputTail,selectorMatched,executedAt}; called by verification_evidence_add (checklist.ts:1306) and verification_evidence_batch_add (:1403).",
+    "verification_evidence_refresh_stale (checklist.ts:1452) today only re-stamps freshness hashes and DEMOTES a mechanical:true receipt to non-mechanical (lines 1500-1508); it does NOT re-run the pinned command. Its own comment says it coordinates with B-3b88 which also edits this function.",
+    "prewrite-guard.ts (230 lines) is the guard template: a thin Claude shim (.claude/hooks/lattice-scope-pretool.cjs) matching WRITE_TOOLS {Edit,Write,MultiEdit,NotebookEdit} spawns prewrite_guard_check (command-catalog.ts:2830), exit 0 pass / exit 2 deny, fail-open on any error.",
+    "Evidence writes are lattice CLI invocations run through the SHELL tool (Bash on Claude), NOT the Edit/Write tools — so an evidence-pin guard must match the shell tool, not the file-write tools.",
+    "The Codex PreToolUse matcher in .codex/hooks.json is apply_patch|Edit|Write, which the INIT reviewer confirmed does NOT match shell/command execution."
+  ],
+  "constraints": [
+    "Reuse B-ec67 enforceAndStampEvidence + runSingleAllowlistedCommand; do NOT add a second command executor.",
+    "Coordinate ADDITIVELY with B-3b88 (interim per-row laundering guard) which edits the same refresh_stale function — do not revert or conflict with its per-row self-contradiction guard.",
+    "Do NOT re-introduce laundering: if refresh re-execution fails or the command is unavailable, leave the row demoted/non-mechanical (never re-mint a covered receipt without a real pass).",
+    "The PreToolUse hook is fail-open by design (the B-ec67 handler is the real floor); a hook failure must never block legitimate work.",
+    "Do not alter B-ec67 refusal conditions, pin immutability, or receipt schema."
+  ],
+  "unknowns": [
+    "The real emitted shell-tool name for the Codex host (the current apply_patch|Edit|Write matcher does not match shell execution) — the Codex hook must be gated on an e2e test that uses the actual token or it never fires.",
+    "Whether verification_evidence_add should stop accepting a caller-authored command for automated proof now (consume a generated receipt id) or stage that migration so in-flight callers are not hard-broken — lean staged."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/prewrite-guard.ts",
+    "packages/main/src/core/prewrite-guard.ts",
+    ".claude/hooks/lattice-scope-pretool.cjs",
+    ".codex/hooks.json",
+    "packages/main/src/tasks",
+    "lattice.config.json",
+    "package.json"
+  ],
+  "timestamp": "2026-07-26T04:00:47.810Z"
+}

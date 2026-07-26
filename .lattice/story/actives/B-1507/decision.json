@@ -1,0 +1,83 @@
+{
+  "principles": [
+    "Reuse the B-ec67 floor executor (enforceAndStampEvidence + runSingleAllowlistedCommand); add no parallel enforcement path.",
+    "Ergonomics over validation: the easiest path must be the correct one (a first-class verification_run).",
+    "Fail-open at the seatbelt, fail-closed at the floor — the handler is the only load-bearing gate.",
+    "Never launder: absent a real pass (exit 0 + selector match on current output), a row must not be covered.",
+    "Coordinate additively with B-3b88 on the shared refresh_stale function; never revert its per-row guard."
+  ],
+  "drivers": [
+    "The F-045/F-049/F-050/F-061 false-pass family came from hand-authored pass commands; remove the ergonomic on-ramp for that mistake.",
+    "A demoted-but-still-passing row currently blocks work until manually re-proven; re-execution keeps it honestly green.",
+    "B-3b88 edits the same refresh_stale function in parallel — conflict and silent-revert risk.",
+    "The Codex PreToolUse matcher apply_patch|Edit|Write does not match shell execution, so an evidence-pin hook there never fires unless gated on the real token."
+  ],
+  "options": [
+    {
+      "name": "A: verification_run + refresh re-execution + fail-open guard on both hosts, reusing the floor; add-path kept (staged)",
+      "pros": [
+        "Clean ergonomic on-ramp",
+        "Seatbelt without touching the floor",
+        "No hard break to in-flight callers",
+        "Single enforcement surface"
+      ],
+      "cons": [
+        "Two evidence-write entry points during the staged window",
+        "Codex hook correctness depends on an empirical token"
+      ]
+    },
+    {
+      "name": "B: only tighten verification_evidence_add to re-run on every add; no new command",
+      "pros": [
+        "One command",
+        "No migration"
+      ],
+      "cons": [
+        "No clean run-vs-record separation",
+        "Conflates recording with executing",
+        "Harder to guard a single overloaded command",
+        "Weaker ergonomic on-ramp"
+      ]
+    },
+    {
+      "name": "C: hard-break verification_evidence_add to consume only a generated receipt id now",
+      "pros": [
+        "Removes the caller-command surface immediately"
+      ],
+      "cons": [
+        "Breaks in-flight callers including B-3b88 and other sessions",
+        "High blast radius mid-program",
+        "Violates staged-migration safety"
+      ]
+    }
+  ],
+  "chosen": "A: verification_run + refresh re-execution + fail-open guard on both hosts, reusing the floor; add-path kept (staged)",
+  "rationale": "A delivers the ergonomic on-ramp and the early-warning seatbelt while leaving the B-ec67 floor untouched and not hard-breaking any in-flight caller; the staged migration de-risks the add-path change; reusing enforceAndStampEvidence avoids a second enforcement surface that could drift from the floor. B is rejected for conflating record-with-run and weakening the on-ramp; C is rejected for an unacceptable mid-program blast radius.",
+  "preMortem": [
+    {
+      "scenario": "Codex hook never fires because the real emitted shell tool_name differs from our matcher",
+      "trigger": "matcher token guessed wrong (apply_patch|Edit|Write already proven not to match shell)",
+      "consequence": "Codex users get no early teaching message (floor still enforces, so no false pass) but the seatbelt is silently dead",
+      "mitigation": "gate Codex correctness on an e2e that uses the real emitted shell-tool name; ship the Claude Bash-matcher regardless; if the token cannot be confirmed in-env, document the candidate and mark the e2e pending rather than asserting a false green"
+    },
+    {
+      "scenario": "refresh re-execution collides with B-3b88 editing the same refresh_stale function",
+      "trigger": "both stories mutate verification_evidence_refresh_stale",
+      "consequence": "one story silently reverts the other guard (double-demote or lost re-exec)",
+      "mitigation": "additive-only edits, re-read the function at DEV time against current HEAD, and a smoke that asserts BOTH the re-execution path and B-3b88 per-row guard coexist"
+    },
+    {
+      "scenario": "refresh re-execution launders a false pass on drifted material",
+      "trigger": "re-run trusts a too-loose selector or stale command that now passes for the wrong reason",
+      "consequence": "false coverage survives a refresh and re-earns mechanical:true",
+      "mitigation": "re-execution goes through the SAME enforceAndStampEvidence refusal path (selector must appear in current output, exit 0, command matches the pin); on ANY failure or unavailable command leave the row demoted/non-mechanical"
+    },
+    {
+      "scenario": "fail-open hook masks a real mismatch and creates a false sense of protection",
+      "trigger": "a bug in the hook error path swallows a true deny",
+      "consequence": "operator believes they are guarded when only the floor is",
+      "mitigation": "the hook is explicitly non-load-bearing; a smoke asserts the handler refuses the same mismatch even with the hook bypassed, and the docs state the floor is the handler not the hook"
+    }
+  ],
+  "timestamp": "2026-07-26T04:02:04.621Z"
+}
