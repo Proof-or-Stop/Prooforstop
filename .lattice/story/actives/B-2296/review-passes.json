@@ -38,6 +38,37 @@
         "scanEscalationReason": null
       },
       "_hash": "2cb399bd8ecdb1deb4a532ac86e498214dcce867c60da245471fe162b9640895"
+    },
+    {
+      "id": "B-2296:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2: verified fix commit 01df7748 resolves F-001 and F-002 with additive-only changes (pinned selectors + final PASS byte-unchanged); all 12 must-intents have valid pass receipts; both smokes re-run PASS/exit 0.",
+      "createdAt": "2026-07-26T22:54:11.051Z",
+      "reviewRound": "2026-07-26T22:42:46.012Z",
+      "reviewRunId": "B-2296:RR-006",
+      "envelopeId": "d0676e68c9a8eb83e4f07dc06eafa423e78cfaea3bfbf42e4f097f6d490ad0d1",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2296/checklist.json",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2296/background.md",
+          ".lattice/story/actives/B-2296/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68672e98d089e00b5596871b6746278734ce09aa845965befd2701faac44fa51"
     }
   ]
 }
