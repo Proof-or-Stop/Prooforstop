@@ -1198,11 +1198,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/tests/red/red-w2c-quarantine-race.mjs",
           "result": "pass",
-          "note": "red-w2c-quarantine-race.mjs (RED signal B) races two OS processes on the same chain head and asserts records.length===before+1 (exactly one record, line 104), quarantines.length===1 (line 105) and resolveChainHead is unique (line 106) — the race produces exactly the sequential store state (also chain-smoke section 9 lines 541-543).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was red-w2c-quarantine-race.mjs line offsets plus chain-smoke dist line offsets. Durable anchor: the four closing assertions of packages/main/tests/red/red-w2c-quarantine-race.mjs, after Promise.all over two spawned worker processes that both call the registered red_evidence_quarantine on the SAME chain head: the record count equals the pre-race count plus one (message: the 2-process race appends EXACTLY one record, with the observed delta interpolated), the quarantine records in the partitioned chain number exactly one (message: exactly one quarantine record exists after the race), resolveChainHead over that chain is truthy (message: the chain head is UNIQUE after the race), and exactly one child exited zero (message: exactly one child won; the loser reported a structured non-zero abort). The same race is repeated inside red-evidence-chain-smoke.ts section 9 (banner: genuine TWO-PROCESS mkdir-claim race, RED signal B, CHK-009). The post-race store state is therefore identical to a single sequential append.",
+          "headHash": "34290224c6baef4cb6bb71a3ee37c88318fda19e",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:22.639Z"
         },
         {
           "intentRef": "CHK-009:adversarial:2",
