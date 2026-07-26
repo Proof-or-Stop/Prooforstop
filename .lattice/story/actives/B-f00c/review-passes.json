@@ -55,6 +55,35 @@
         "scanEscalationReason": null
       },
       "_hash": "32a5934f1a78351d1d319ad2cfea176ef1d8bac24a8f54e275342762d7489da0"
+    },
+    {
+      "id": "B-f00c:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-verify of F-001/F-002 fixes (commit 8f2eaa3208). (a) Exhaustiveness guards confirmed via tsc --noEmit in an isolated scratch copy: adding a hypothetical 6th MergeLineageClassification kind causes TS2322 at both switch sites. (b) Injectable changedPathsFn: both production call sites call classifyMergeLineage with a single args object, so default netDiffChangedPaths is always used in production; 2nd param only exercised by smoke test 7 (diff-failed injection) -- no bypass. (c) Security property: NEGATIVE smoke (genuine non-metadata content change) still rejected on both classifyTrustedValidationLineage and admissibility path; verified via green smokes. (d) Other 8 reuse factors in evaluateRoutineValidationReuse are outside the changed diff hunk, byte-unchanged. Also ran tsc --noEmit clean (no dist mutation) plus done-required-freshness-smoke.js and done-required-head-drift-proof.js green. No findings this round.",
+      "createdAt": "2026-07-26T04:07:31.123Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-008",
+      "envelopeId": "741dde30604ba06c3e6f37b8adaa4979ebd6fd67c2799b7416386223ba931724",
+      "writerSessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2ef26391a82b316feeb6e6e12c356557cda71374f20dbeee2988c205d26e39fa"
     }
   ]
 }
