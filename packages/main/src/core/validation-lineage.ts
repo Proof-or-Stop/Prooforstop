@@ -43,12 +43,17 @@ export type MergeLineageClassification =
  * The ancestry check and the net-diff computation are caught separately so a
  * diff failure is never mislabeled as a non-ancestor.
  */
-export function classifyMergeLineage(args: {
-  evidenceHead: string;
-  currentHead: string;
-  gitCwd: string;
-  metadataRoot: string;
-}): MergeLineageClassification {
+export function classifyMergeLineage(
+  args: {
+    evidenceHead: string;
+    currentHead: string;
+    gitCwd: string;
+    metadataRoot: string;
+  },
+  // Injected only so the diff-failure branch (ancestry OK, diff throws) can be
+  // exercised at runtime by tests; production callers use the default.
+  changedPathsFn: (evidenceHead: string, currentHead: string, gitCwd: string) => string[] = netDiffChangedPaths,
+): MergeLineageClassification {
   if (args.evidenceHead === args.currentHead) return { kind: 'exact-head' };
   try {
     execFileSync('git', ['merge-base', '--is-ancestor', args.evidenceHead, args.currentHead], {
@@ -60,7 +65,7 @@ export function classifyMergeLineage(args: {
   }
   let changed: string[];
   try {
-    changed = netDiffChangedPaths(args.evidenceHead, args.currentHead, args.gitCwd);
+    changed = changedPathsFn(args.evidenceHead, args.currentHead, args.gitCwd);
   } catch (error) {
     return { kind: 'diff-failed', error: error instanceof Error ? error.message : String(error) };
   }

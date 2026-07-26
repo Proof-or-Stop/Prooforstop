@@ -149,4 +149,18 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
+// 7) diff-failed is DISTINCT from not-ancestor: with ancestry OK, a throwing diff
+//    surfaces {kind:'diff-failed'} (split-catch guarantee), not not-ancestor.
+{
+  const { root, H1, H2 } = buildMergeRepo({ genuineChange: false });
+  try {
+    const classified = classifyMergeLineage(
+      { evidenceHead: H1, currentHead: H2, gitCwd: root, metadataRoot: root },
+      () => { throw new Error('simulated diff failure'); },
+    );
+    assert.equal(classified.kind, 'diff-failed', 'ancestry-OK diff throw is diff-failed, not not-ancestor');
+    assert.equal(classified.kind === 'diff-failed' && classified.error.includes('simulated diff failure'), true, 'diff-failed carries the underlying error');
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
 process.stdout.write('validation reuse merge-lineage smoke passed\n');

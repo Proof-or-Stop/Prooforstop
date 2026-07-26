@@ -59,6 +59,10 @@ function validationHeadLineage(args: {
       return { lineage: 'rejected', code: 'lineage_not_ancestor', reason: 'validation evidence head is not an ancestor of current HEAD' };
     case 'diff-failed':
       return { lineage: 'rejected', code: 'lineage_diff_failed', reason: `validation evidence lineage diff failed: ${classification.error}` };
+    default: {
+      const _exhaustive: never = classification;
+      return _exhaustive;
+    }
   }
 }
 

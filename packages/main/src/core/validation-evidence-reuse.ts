@@ -274,6 +274,10 @@ export function classifyTrustedValidationLineage(args: {
       return { lineage: 'rejected', reasons: ['evidence-head-is-not-current-ancestor'] };
     case 'diff-failed':
       return { lineage: 'rejected', reasons: [`lineage-diff-failed:${classification.error}`] };
+    default: {
+      const _exhaustive: never = classification;
+      return _exhaustive;
+    }
   }
 }
 
