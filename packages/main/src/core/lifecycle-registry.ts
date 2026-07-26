@@ -648,6 +648,11 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   'proofstory.json',
   'intent-collision.json',
   'scope-shrinkage-decision.json',
+  // B-7813 CHK-002: signed stall-adjudication record written by store.ts
+  // (readStallAdjudication/writeStallAdjudication) and by stall_resolution_set.
+  // Consumed by the DEV→REVIEW convergence-stall mint gate
+  // (core/review-convergence.ts hasCurrentRoundStallResolution).
+  'stall-adjudication.json',
   'red-evidence.json',
   // W2b (B-e10d): the per-story target-binding store written by StoryStore
   // (readRedTargetBindings/writeRedTargetBindings) and by red_evidence_binding_set.

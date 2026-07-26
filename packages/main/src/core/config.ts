@@ -461,6 +461,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance',
     // B-a4e3 CHK-005: removed dead story_dispatch / finding_dispatch alias entries; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
+    'stall_resolution_set', // B-7813: owner-driven signed structured resolution that clears the convergence-stall DEV→REVIEW mint block; command-policy declares allowedPhases:['DEV','REVIEW'] so both phase buckets must list it
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
     'scope_shrinkage_decision_set',
@@ -479,6 +480,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'understanding_get', 'decision_get',
     // B-a4e3 CHK-005: removed dead finding_dispatch alias entry; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
+    'stall_resolution_set', // B-7813: owner-driven signed structured resolution that clears the convergence-stall DEV→REVIEW mint block; command-policy declares allowedPhases:['DEV','REVIEW'] so both phase buckets must list it
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',

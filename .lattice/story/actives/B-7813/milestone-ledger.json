@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-7813",
+  "state": "confirmed",
+  "ledgerHash": "sha256:2859b71d82adc72c062c92b7b94be639e8d0b79577685e5a209df8e67d7b8922",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "the stall detector blocks minting another ordinary review round when stalled without a current-round resolution",
+      "doneMeans": "transition-effects/machine refuse the REVIEW re-entry mint on a stall (>=STALL_MIN_ROUNDS non-improving) with a structured prompt; a converging trend is not blocked",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-001",
+      "claim": "structured resolution actions (incl. declare-unreachable) clear the block; an empty/stale one does not",
+      "doneMeans": "stall_resolution_set records one of five signed current-round actions that clears the block; declare_unreachable marks the item withdrawn (B-1909) and closes the loop; a previous-round/empty/unsigned resolution is refused",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-001",
+      "claim": "a hard ceiling/override caps rounds and the adjudication does not double-count with the convergence-breaker",
+      "doneMeans": "beyond the ceiling ordinary rounds are refused unless a privileged override is recorded; stall adjudication (review-round) and breaker (advances) each fire only on their own trigger; story_resume --ack clears the breaker not the stall block",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-001",
+      "claim": "a RED-first mutation-killing smoke reproduces the stall refusal + F-058 unreachable scenario + breaker non-interference, registered in validate",
+      "doneMeans": "the registered smoke prints PASS, drives real gate/handler entry points, mutation-kills, and is wired in lattice.config.json + package.json",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-26T07:48:25.492Z",
+  "updatedAt": "2026-07-26T07:48:26.134Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260726074826",
+    "acceptedInterpretationHash": "sha256:2ee8d3753d4f130205b6790bf0985518fe3e6a000a0bd8e1f62f0b49e407b3d0",
+    "acceptedAt": "2026-07-26T07:48:26.134Z"
+  }
+}

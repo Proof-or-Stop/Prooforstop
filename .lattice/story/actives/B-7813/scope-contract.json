@@ -1,0 +1,43 @@
+{
+  "storyId": "B-7813",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/core/review-convergence.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/checklist.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/stall-adjudication.ts",
+    "packages/main/src/handlers/stall-adjudication.ts",
+    "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "B-7813 Step 3 stall-adjudication source scope (root config lattice.config.json/package.json additionally touched per plan.md/checklist files but omitted here as the path resolver rejects ambiguous root paths; shadow contract satisfies the DEV scope-ambiguity gate).",
+  "acknowledgements": [],
+  "createdAt": "2026-07-26T07:48:05.987Z",
+  "updatedAt": "2026-07-26T07:48:05.987Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/review-convergence.ts": "packages/main/src/core/review-convergence.ts",
+    "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/core/advisory.ts": "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/guard-utils.ts": "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/stall-adjudication.ts": "packages/main/src/core/stall-adjudication.ts",
+    "packages/main/src/handlers/stall-adjudication.ts": "packages/main/src/handlers/stall-adjudication.ts",
+    "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts": "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+  }
+}
