@@ -157,7 +157,7 @@
       "desc": "doc-promise-undelivered (same root cause as F-008): because quorum_prune has no `dryRun` schema field, packages/main/src/cli/help-renderer.ts:150-151 dryRunHelpLine() falls through its no-dryRun-field branch, matches /dry-run/i against the tool description text, and prints `Dry-run: always-on. This command only projects guidance and does not execute the side-effect path.` in `node bin/lattice.js quorum_prune --help` — empirically verified live. This is actively wrong: `apply:true` performs a real mutating side effect (writes a timestamped backup, rewrites the committed process-events.jsonl, and creates a git commit via captureLifecycleMetadataTransaction/commitLifecycleMetadataTransaction in packages/main/src/handlers/quorum-prune.ts:338-366). For a recovery command whose entire safety design (plan.md Risks section) rests on dry-run-by-default + explicit apply, the auto-generated --help text tells operators the opposite of the truth about when it mutates state.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-25T23:05:58.338Z",
@@ -165,7 +165,11 @@
       "reviewRunId": "B-3144:RR-001",
       "_hash": "8ceb0a9a2412f554fb8e9bf3f647994e54b367ae5274dc5c1bc66f839b085c96",
       "signatureTag": "adversarial|unknown|promise-undelivered-same",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the same dryRun schema field: help-renderer now derives the default-on branch, so --help prints 'Dry-run: default-on via --dryRun=true ... Default true unless apply=true; passing dryRun:true together with apply:true is refused' instead of the inverted 'Dry-run: always-on. This command only projects guidance and does not execute the side-effect path.' Commit f1bcba3885.",
+      "resolvedAt": "2026-07-26T00:47:27.102Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
