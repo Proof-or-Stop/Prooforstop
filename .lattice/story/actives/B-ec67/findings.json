@@ -56,6 +56,25 @@
       ],
       "signatureTag": "missing|ts|happy-overclaims-result",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ec67:F-004",
+      "desc": "CHK-004:happy:0 (must) overclaims \"manual|docs evidence is stored as attestation, marked explicitly non-mechanical, with no command execution attempted\": the smoke never calls verification_evidence_add/batch_add against an intent whose type is literally 'manual' or 'docs' (the genuine attestation-only branch at checklist.ts:400-409, `if (!isExecutableIntentType(intent.type))`). The only 'manual' coverage in the smoke is (a) block 7a which uses kind:manual_transcript against an intent of type 'cli' (an EXECUTABLE type) via the separate audited-escape branch (checklist.ts:413-428), and (b) block 7c which calls buildVerificationCoverage directly on a hand-built fixture, bypassing the handler entirely. Demonstrated by mutation: changed `if (!isExecutableIntentType(intent.type))` to `if (false)` in dist/handlers/checklist.js, disabling the entire attestation-only branch, and reran the smoke — still PASS/exit 0. The actual handler code path for a genuinely manual/docs-typed intent is exercised by zero assertions in this smoke despite being claimed as covered.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:36:53.304Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-003",
+      "_hash": "b23ea904cc6e8c22f8531cb9bffad72d9daa42715a9b96dfaaa937b6f722987f",
+      "files": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|happy-overclaims-manual",
+      "signatureTagSource": "auto"
     }
   ]
 }
