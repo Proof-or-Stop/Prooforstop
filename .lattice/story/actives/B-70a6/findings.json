@@ -81,6 +81,26 @@
       "resolvedAt": "2026-07-26T04:01:03.707Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70a6:F-004",
+      "desc": "Cross-host review round B-70a6-xhr-r3: independent host codex-host-b returned decision=fail with a second MAJOR finding (recorded by the main agent for tracking; the authoritative verdict is the host_verdict process event). Finding: 'Reopen state is persisted before its required audit event' at packages/main/src/handlers/transition-orchestrator.ts:950. VERIFIED against source: store.writeStory persists phase=INIT at line 937, the persist claim is released in the finally at line 940, and store.appendProcessEvent runs at line 950 OUTSIDE the claim. If the append throws or the process dies in that window, the reopen HAS happened but no transitionType/reason audit record exists - and because REOPEN can only fire from PLAN, the story has already left the only phase that could retry it, so the event is UNRECOVERABLE. This defeats the durable audited-reopen guarantee that is the entire point of this story. It also matches the requester's own stated acceptance standard: a successful PLAN->INIT transition must produce exactly one audit event containing the full reason, and a failed transition must leave no event claiming success. NOTE ON PROCESS: the main agent previously argued this concern was merely a pre-existing universal property of all transitions and excluded it from scope. That reasoning was WRONG - the mechanism is universal but the unrecoverability is specific to REOPEN, because the transition moves the story out of its only valid source phase. Fix direction (per the requester's prescribed remedy of prepared/committed state plus failure recovery): persist the reopen reason ATOMICALLY with the phase write via the story index single tmp-write+rename, then append the event, then clear the record; reconcile a missing event on a later read/transition so a crash leaves a recoverable state rather than an unaudited reopen. Update the process-fact registry and verifier to cover the recovery semantics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-26T05:07:01.583Z",
+      "reviewRound": "2026-07-26T04:00:24.255Z",
+      "_hash": "2fe0a05f23c04aa55b15e5330d8010766a4071eb088d630348943029b25a933f",
+      "files": [
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|cross-host-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
