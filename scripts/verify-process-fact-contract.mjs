@@ -3150,6 +3150,56 @@ function assertReopenAuditLockRejectionRationaleContract() {
   ]) {
     assert(typesFlattened.includes(token), `${typesPath}: the PendingReopenAudit recovery sentence must carry the B-70a6 F-016 in-place qualification token ${JSON.stringify(token)} (an appended qualifier alone leaves the sentence above it reading as an unconditional promise)`);
   }
+
+  // B-70a6 F-017: the SAME retired wording, at the two IN-FUNCTION comment sites
+  // the check above cannot see because it reads types.ts only. Both sat inside
+  // runStoryTransitionInner still saying, unqualified, that "the next transition"
+  // heals / performs the recovery — the identical over-claim about the identical
+  // crash window, untouched by F-005/F-013/F-016 precisely because nothing
+  // mechanised them. Recovery is ALSO performed out of band (story_discard, the
+  // repairing story_reconcile) and is SEQUENTIAL only, so the unqualified sentence
+  // promises more than the code delivers wherever it appears.
+  const orchestratorFlattened = flattenComments(orchestratorText);
+  for (const retired of [
+    'is healed by reconcilePendingReopenAudit on the next transition',
+    'the next transition performs the (identical) recovery',
+  ]) {
+    assert(!orchestratorFlattened.includes(retired), `${orchestratorPath}: the retired unqualified sentence ${JSON.stringify(retired)} is back (B-70a6 F-017). Recovery fires at the next ORCHESTRATED transition AND at the out-of-band rescue (story_discard, the repairing story_reconcile), and only SEQUENTIALLY — a reopen racing a concurrent terminal operation is not recovered at all`);
+  }
+
+  // Anchored to each comment's OWN statement, so the qualification has to live at
+  // the site a maintainer actually reads, not somewhere else in a 1600-line file.
+  const recoveryTimingSites = [
+    {
+      what: 'the reopen-audit record ATTACH comment (the write that makes a crashed reopen recoverable)',
+      from: "// B-70a6 F-004: the gated PLAN->INIT reopen's DURABLE audit record.",
+      to: 'let reopenAudit: PendingReopenAudit | undefined;',
+    },
+    {
+      what: 'the reopen-audit record CLEAR comment (the in-line twin of the recovery path)',
+      from: '// B-70a6 F-004: the reopen is now durably audited',
+      to: 'if (reopenAudit) {',
+    },
+  ];
+  for (const site of recoveryTimingSites) {
+    const from = orchestratorText.indexOf(site.from);
+    const to = from === -1 ? -1 : orchestratorText.indexOf(site.to, from);
+    assert(from !== -1 && to > from, `${orchestratorPath}: could not locate ${site.what} (anchors ${JSON.stringify(site.from)} .. ${JSON.stringify(site.to)}). B-70a6 F-017 guards the recovery-timing wording there — if the code moved, move the anchors with it instead of dropping the guard`);
+    if (from === -1 || to <= from) continue;
+    // Comment markers stripped and whitespace collapsed FIRST: a raw `includes`
+    // over the source walks straight through a comment that merely re-wraps the
+    // sentence across two lines (an earlier round of this story hit exactly that).
+    const slice = flattenComments(orchestratorText.slice(from, to));
+    for (const token of [
+      'next ORCHESTRATED transition',
+      'reconcileReopenAuditBeforeOutOfBandPhaseChange',
+      'story_discard',
+      'RACING a concurrent terminal operation is not recovered',
+    ]) {
+      assert(slice.includes(token), `${orchestratorPath}: ${site.what} must carry the B-70a6 F-017 recovery-timing token ${JSON.stringify(token)} — recovery is not "on the next transition": it is the next ORCHESTRATED transition OR the out-of-band rescue at story_discard / the repairing story_reconcile, and the guarantee is SEQUENTIAL only`);
+    }
+    assert(!/\bthe next transition\b/i.test(slice), `${orchestratorPath}: ${site.what} again says "the next transition", unqualified (B-70a6 F-017). Write "the next ORCHESTRATED transition" and name the out-of-band rescue, so the sentence is true on its own rather than corrected by a paragraph elsewhere`);
+  }
 }
 
 function isReviewerPrompt(relPath, text) {

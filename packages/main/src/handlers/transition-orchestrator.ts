@@ -1241,8 +1241,19 @@ async function runStoryTransitionInner(
     // below persists them in the SAME tmp-write + renameSync as phase=INIT (see
     // StoryStore.writeJsonFile). One atomic rename, so the two can never disagree:
     // either the reopen did not commit, or it committed WITH its reason on disk.
-    // The record is cleared right after the event lands, and any crash in between
-    // is healed by reconcilePendingReopenAudit on the next transition.
+    // The record is cleared right after the event lands. A crash in between leaves
+    // the reopen RECOVERABLE — NOT automatically healed by whatever transition
+    // happens to run next, which is a stronger promise than the code keeps (B-70a6
+    // F-017 retired that unqualified wording here, as F-016 did in the
+    // StoryInfo.pendingReopenAudit docblock).
+    // reconcilePendingReopenAudit re-emits the missing event at the next
+    // ORCHESTRATED transition, OR reconcileReopenAuditBeforeOutOfBandPhaseChange
+    // does it at the two out-of-band phase writers — story_discard and the
+    // repairing story_reconcile — before they destroy the copy holding the record;
+    // never on an arbitrary read-only command. And the guarantee is SEQUENTIAL
+    // (B-70a6 F-013): a record ALREADY on disk when one of those runs is recovered,
+    // while a reopen RACING a concurrent terminal operation is not recovered at all.
+    // Until one of them runs the validated reason is still durable and visible here.
     //
     // Built BEFORE the persist claim on purpose: its git reads must not run inside
     // the claim's deliberately short, fully-synchronous critical section. Nothing
@@ -1432,11 +1443,18 @@ async function runStoryTransitionInner(
         : {}),
     }));
     // B-70a6 F-004: the reopen is now durably audited, so retire its recovery
-    // record. Deliberately the SAME entry point a later transition uses after a
+    // record. Deliberately the SAME entry point EVERY recovery path uses after a
     // crash: it re-reads the log, matches THIS auditId, and clears WITHOUT
     // appending a second event — one code path, so the normal and recovery paths
-    // cannot drift apart. A crash before this line leaves the record on disk and
-    // the next transition performs the (identical) recovery instead.
+    // cannot drift apart. A crash before this line leaves the record on disk, and
+    // the (identical) recovery is performed at the next ORCHESTRATED transition, or
+    // by reconcileReopenAuditBeforeOutOfBandPhaseChange at the out-of-band phase
+    // writers story_discard / the repairing story_reconcile (B-70a6 F-005) — never
+    // on an arbitrary read-only command, and only SEQUENTIALLY (B-70a6 F-013): a
+    // reopen RACING a concurrent terminal operation is not recovered at all.
+    // (B-70a6 F-017: this used to promise the recovery unqualified, as if whatever
+    // transition ran next always performed it — the retired over-claim F-016 fixed
+    // in the StoryInfo.pendingReopenAudit docblock.)
     if (reopenAudit) {
       reconcilePendingReopenAudit(store, args.storyId);
     }
