@@ -484,11 +484,11 @@
           "file": "packages/main/src/core/red-evidence/chain.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 3 (line 261) asserts checkChainIntegrity([ra1], ra1, {seq:1, prior:ra1.recordDigest}).reasonId===REASON_SEQ_INVALID — a seq reuse (append seq=1 over head.seq=1) is rejected by check 1 (also red-w2c-rejection-matrix line 91).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets plus red-w2c-rejection-matrix line offsets. Durable anchor: section 3 of red-evidence-chain-smoke.ts, the call under the comment (Seq reuse): checkChainIntegrity([ra1], ra1, { seq: 1, priorRecordDigest: ra1.recordDigest }).reasonId is asserted equal to REASON_SEQ_INVALID - the appended seq repeats the head seq (head.seq 1, append seq 1) rather than advancing, so check 1 rejects it. Committed regression: red-w2c-rejection-matrix.mjs, matrix item 2, assertion message: seq reuse rejected.",
+          "headHash": "4428c61828900171eb401d7efddfc6293bf6eb01",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:15.130Z"
         },
         {
           "intentRef": "CHK-004:adversarial:3",
