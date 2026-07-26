@@ -291,10 +291,14 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
     materialHash: input.materialHash || hashes.materialHash,
     storyFilesHash: input.storyFilesHash || hashes.storyFilesHash,
     ...(input.attestation ? { attestation: input.attestation } : {}),
-    // B-ec67 F-007: preserve the tool-execution provenance on re-persist so a valid
+    // B-ec67 F-007/F-008: preserve the tool-execution provenance on re-persist so a valid
     // mechanical receipt or audited attestation survives a checklist_update bulk set
     // (previously dropped, which silently demoted an already-earned receipt to
-    // mechanical:undefined and re-grandfathered it as covered).
+    // mechanical:undefined and re-grandfathered it as covered). NOTE: for the
+    // checklist_update path these fields are UNTRUSTED if caller-supplied — they arrive
+    // here only after carryForwardOnDiskProvenance has replaced them with the PRESERVED
+    // on-disk provenance (or stripped them). verification_evidence_add/_batch_add pass the
+    // freshly enforced/stamped receipt directly. Either way input.* is trusted at this point.
     ...(input.mechanical !== undefined ? { mechanical: input.mechanical } : {}),
     ...(input.receipt ? { receipt: input.receipt } : {}),
     ...(input.nonMechanicalReason ? { nonMechanicalReason: input.nonMechanicalReason } : {}),
@@ -363,6 +367,52 @@ function resolveIntentForRef(
 }
 
 /**
+ * B-ec67 F-008: caller-supplied tool-execution provenance is UNTRUSTED BY DESIGN.
+ * The CLI schema (verificationEvidenceSchema, command-schemas.ts) explicitly .strip()s
+ * mechanical / receipt / nonMechanicalReason, so a real `lattice checklist_update` caller
+ * can never inject them (fabricating mechanical:true + a fake receipt to launder an
+ * executable intent as covered = receipt injection). We ALSO drop any caller-supplied
+ * provenance here so the internal fn-call path (which bypasses Zod) is protected the same.
+ *
+ * A tool-execution receipt / audited attestation therefore survives a checklist_update
+ * re-persist (reordering the array, editing note/file/verdict metadata) ONLY by being
+ * carried forward from the EXISTING on-disk evidence for the same intentRef — never from
+ * the incoming row. A mechanical receipt is carried forward only when the caller does not
+ * change the underlying evidence the receipt attests to (same command + same result); if
+ * the caller changes command or result the stale receipt is dropped and the row is re-judged
+ * as fresh (an executable intent then needs a real on-disk receipt or the guard refuses it).
+ * This closes F-008's receipt-loss demotion (a legitimate re-persist previously stripped a
+ * real receipt, silently re-grandfathering it) without opening a caller-receipt injection path.
+ */
+function carryForwardOnDiskProvenance(
+  existing: readonly VerificationEvidence[] | undefined,
+  incoming: VerificationEvidenceInput,
+): VerificationEvidenceInput {
+  // Discard caller-supplied provenance up front (untrusted-by-design).
+  const { mechanical: _callerMechanical, receipt: _callerReceipt, nonMechanicalReason: _callerReason, ...trusted } = incoming;
+  const prior = existing?.find(e => e.intentRef === incoming.intentRef);
+  if (!prior || prior.mechanical === undefined) return trusted; // no prior, or legacy/undefined provenance: nothing to carry
+  if (prior.mechanical === true) {
+    // A receipt is bound to a specific command execution; carry it forward only when the
+    // caller re-persists the SAME command + result (does not change the underlying evidence).
+    const sameCommand = (incoming.command ?? undefined) === (prior.command ?? undefined);
+    const sameResult = (incoming.result ?? undefined) === (prior.result ?? undefined);
+    if (prior.receipt && sameCommand && sameResult) {
+      return { ...trusted, mechanical: true, receipt: prior.receipt };
+    }
+    return trusted; // command/result changed → stale receipt dropped, row re-judged as fresh
+  }
+  // prior.mechanical === false → audited non-mechanical attestation; carry forward the
+  // on-disk reason so a re-persist of an audited-escape row stays attributable (still
+  // demoted by the coverage gate for executable intents).
+  return {
+    ...trusted,
+    mechanical: false,
+    ...(prior.nonMechanicalReason ? { nonMechanicalReason: prior.nonMechanicalReason } : {}),
+  };
+}
+
+/**
  * B-ec67 F-007: guard for checklist_update's bulk `verificationEvidence` setter — the
  * THIRD evidence write path, which does NOT run the pinned command. For an EXECUTABLE
  * intent (logic|cli|browser) it refuses any incoming row that is not already a valid
@@ -373,6 +423,14 @@ function resolveIntentForRef(
  * and refs that do not resolve to an intent on this item. Callers with real executable
  * evidence are directed to verification_evidence_add / verification_evidence_batch_add,
  * which are the single enforcement boundary that actually executes the command.
+ *
+ * B-ec67 F-008 precision: the `ev` inspected here is the EFFECTIVE row produced by
+ * carryForwardOnDiskProvenance — its mechanical / receipt / nonMechanicalReason reflect the
+ * PRESERVED on-disk provenance for this intentRef, NEVER a caller-supplied value (those are
+ * untrusted-by-design: .strip()ped by the CLI schema and dropped for the internal fn path).
+ * So the accept branch keys off a REAL on-disk receipt and is reachable via the real CLI
+ * only when re-persisting an intent that already earned one; a fabricated caller receipt has
+ * been stripped to undefined here, leaving a raw executable row that is refused below.
  */
 function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: VerificationEvidenceInput): void {
   const resolved = resolveIntentForRef(item, ev.intentRef);
@@ -402,8 +460,9 @@ function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: Verifi
     }
     return;
   }
-  // mechanical === undefined on an executable intent → a raw fabricated pass. Refuse:
-  // checklist_update does not execute pinned commands, so it cannot mint a receipt.
+  // mechanical === undefined on an executable intent → a raw fabricated pass, OR a caller
+  // receipt that was stripped as untrusted with no preserved on-disk receipt to fall back
+  // on. Refuse: checklist_update does not execute pinned commands, so it cannot mint one.
   throw new Error(
     `checklist_update refused: verificationEvidence row for executable intent ${ev.intentRef} (type ${resolved.intent.type}) ` +
     `is neither a tool-executed receipt (mechanical:true) nor an audited attestation (mechanical:false + nonMechanicalReason). ` +
@@ -1066,12 +1125,20 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         // acceptance-matrix projection check runs FIRST (mirroring verification_evidence_add,
         // which rejects a matrix projection before enforcement) so a matrix-derived row is
         // rejected as a projection, not merely as an unenforced executable write.
-        for (const ev of args.verificationEvidence) {
+        //
+        // B-ec67 F-008: snapshot the EXISTING on-disk evidence BEFORE replacing it, then carry
+        // forward each row's trusted provenance (mechanical/receipt/nonMechanicalReason) FROM
+        // DISK — never from the caller — so a legitimate re-persist (reorder / metadata edit)
+        // does not strip an already-earned receipt, while a fabricated caller receipt stays
+        // untrusted and (for a fresh executable intent) is refused (carryForwardOnDiskProvenance).
+        const priorEvidence = item.verificationEvidence;
+        const effectiveEvidence = args.verificationEvidence.map(ev => carryForwardOnDiskProvenance(priorEvidence, ev));
+        for (const ev of effectiveEvidence) {
           assertEvidenceIsNotAcceptanceMatrixProjection(ev);
           assertChecklistUpdateEvidenceRowAllowed(item, ev);
         }
-        item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev));
-        results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
+        item.verificationEvidence = effectiveEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev));
+        results.push(`verificationEvidence updated (${effectiveEvidence.length})`);
       }
 
       if (args.status) {

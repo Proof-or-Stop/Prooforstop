@@ -438,12 +438,16 @@ const SELECTOR = 'MARKER_OK';
   } finally { cleanup(env); }
 }
 
-// ── 12. F-007: checklist_update's bulk verificationEvidence setter refuses a fabricated
-//        executable pass, but re-persists a valid receipt / manual attestation. ────────
+// ── 12. F-007 + F-008: checklist_update's bulk verificationEvidence setter. Caller-supplied
+//        receipt fields are UNTRUSTED (stripped); a receipt survives a re-persist ONLY by
+//        being carried forward from REAL on-disk evidence recorded via the enforced path.
+//        This exercises the CLI-REACHABLE behavior (the CLI schema .strip()s the provenance
+//        fields, and carryForwardOnDiskProvenance drops them on the internal fn path too),
+//        NOT a caller-trusted receipt that no real `lattice checklist_update` caller can send. ──
 {
   const env = makeEnv([{ ref: 'INT-EXEC', type: 'logic' }, { ref: 'INT-MAN2', type: 'manual' }]);
   try {
-    // 12a: a raw fabricated executable pass (mechanical undefined) is REFUSED.
+    // 12a: a raw fabricated executable pass (no receipt) via checklist_update is REFUSED.
     assert.throws(
       () => env.handlers.checklist_update({
         storyId: env.storyId, itemId: 'CHK-001',
@@ -454,25 +458,57 @@ const SELECTOR = 'MARKER_OK';
     );
     assert.equal(env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? undefined, undefined, 'refused checklist_update write persisted nothing');
 
-    // 12b: a VALID mechanical receipt + a manual attestation are re-persisted verbatim
-    //      (proves the guard does not over-restrict legitimate re-persist).
-    const receipt: VerificationExecutionReceipt = {
-      exitCode: 0, outputDigest: sha256Hex('MARKER_OK\n'), outputTail: 'MARKER_OK\n', selectorMatched: true, executedAt: new Date().toISOString(),
+    // 12b: a caller-supplied FABRICATED mechanical receipt is UNTRUSTED (F-008). With no real
+    //      on-disk receipt for INT-EXEC, the caller's receipt/mechanical are stripped to
+    //      undefined and the executable row is REFUSED — caller receipt injection cannot
+    //      launder coverage. (Breaking carryForwardOnDiskProvenance so it TRUSTS the caller
+    //      receipt makes this write succeed instead of throwing → the assert.throws fails →
+    //      the injection regression is mutation-killed.)
+    const fabricated: VerificationExecutionReceipt = {
+      exitCode: 0, outputDigest: sha256Hex('LIE\n'), outputTail: 'LIE\n', selectorMatched: true, executedAt: new Date().toISOString(),
     };
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{ intentRef: 'INT-EXEC', kind: 'logic_test', command: 'never-run --lies', result: 'pass', note: 'fake caller receipt', mechanical: true, receipt: fabricated }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'F-008 caller-supplied fabricated receipt is stripped/untrusted and refused',
+    );
+    assert.equal(env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? undefined, undefined, 'fabricated-receipt checklist_update persisted nothing');
+
+    // Seed a GENUINE on-disk receipt for INT-EXEC through the ENFORCED path (runs PASS_CMD).
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-EXEC', kind: 'logic_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'real tool-executed receipt',
+    });
+    const seeded = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.find(e => e.intentRef === 'INT-EXEC');
+    assert.equal(seeded?.mechanical, true, 'seed: genuine receipt recorded as mechanical:true');
+    assert.ok(seeded?.receipt, 'seed: genuine receipt present on disk');
+    const seededDigest = seeded.receipt.outputDigest;
+
+    // 12c: a LEGITIMATE re-persist (metadata edit only — SAME on-disk command+result, caller
+    //      supplies NO receipt) preserves the REAL on-disk receipt (carried forward from disk,
+    //      not from the caller) and stays covered. INT-MAN2 is a manual (attestation-only)
+    //      intent, covered by a plain manual_transcript row. (Breaking carryForwardOnDiskProvenance
+    //      so it DROPS the on-disk receipt makes this row a raw executable pass → the guard
+    //      throws checklist_update_executable_evidence_unenforced → the smoke fails: the
+    //      receipt-preserve logic is mutation-killed.)
     env.handlers.checklist_update({
       storyId: env.storyId, itemId: 'CHK-001',
       verificationEvidence: [
-        { intentRef: 'INT-EXEC', kind: 'logic_test', command: PASS_CMD, result: 'pass', note: 're-persist an already-earned receipt', mechanical: true, receipt },
-        { intentRef: 'INT-MAN2', kind: 'manual_transcript', result: 'pass', note: 're-persist a manual attestation', mechanical: false },
+        { intentRef: 'INT-MAN2', kind: 'manual_transcript', result: 'pass', note: 'manual attestation for an attestation-only intent' },
+        { intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: seeded.result, note: 'legitimate re-persist: metadata edit only, no receipt supplied' },
       ],
     });
     const cl = env.store.readChecklist(env.storyId);
     const exec = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-EXEC');
-    assert.equal(exec?.mechanical, true, 'valid receipt survives re-persist as mechanical:true');
-    assert.ok(exec?.receipt, 'receipt is carried forward, not dropped, by normalizeEvidence');
-    assert.equal(exec.receipt.exitCode, 0, 'carried-forward receipt keeps its exit code');
+    assert.equal(exec?.mechanical, true, 'on-disk receipt is carried forward as mechanical:true on re-persist');
+    assert.ok(exec?.receipt, 'on-disk receipt survives the re-persist (not stripped)');
+    assert.equal(exec.receipt.outputDigest, seededDigest, 'carried-forward receipt is the REAL on-disk one (same digest), not a caller fabrication');
+    assert.equal(exec.note, 'legitimate re-persist: metadata edit only, no receipt supplied', 're-persist applied the metadata edit');
     const cov = buildVerificationCoverage(cl);
-    assert.equal(cov.missingRequired, 0, 'a re-persisted valid receipt + manual attestation cover both intents');
+    assert.equal(cov.missingRequired, 0, 'a re-persisted intent with its preserved real receipt + manual attestation cover both intents');
   } finally { cleanup(env); }
 }
 
