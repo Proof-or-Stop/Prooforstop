@@ -127,7 +127,7 @@ Spec: `docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audi
 **Owner**: lattice-implementer
 **DependsOn**: CHK-004
 **Files**
-- Modify: `packages/main/src/handlers/proofstory.ts`, `packages/main/src/handlers/red-evidence.ts`, `packages/main/src/handlers/story-review.ts`
+- Modify: `packages/main/src/handlers/proofstory.ts`, `packages/main/src/handlers/red-evidence.ts`, `packages/main/src/handlers/story-review.ts`, `packages/main/src/core/machine.ts`, `packages/main/src/handlers/phase-gates.ts` (matches `checklist.json` CHK-006.files.modify, which is the source of truth)
 
 **Verify**
 - **Re-derive the call-site list by symbol first.** The count was 7, then 10; treat any number in the checklist as unverified.
@@ -156,7 +156,7 @@ Spec: `docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audi
 ## CHK-007: Post-fix invariance + registration
 
 **Owner**: lattice-implementer
-**DependsOn**: CHK-004, CHK-005, CHK-006, CHK-009
+**DependsOn**: CHK-004, CHK-005, CHK-006, CHK-009, CHK-010, CHK-011 — every writer of the shared test file (resolves OQ-2)
 **Files**
 - Modify: `lattice.config.json`
 
@@ -172,13 +172,17 @@ Spec: `docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audi
 ## CHK-010: Assert the behaviour this fix must NOT change
 
 **Owner**: lattice-implementer
-**DependsOn**: CHK-004
+**DependsOn**: CHK-001 — **pre-fix, not post-fix** (resolves OQ-3)
 **Files**
 - Modify / Test: `packages/main/tests/red/red-b2aa7-artifact-validation.mjs`
 
 **Verify**
-- Run pre-fix AND post-fix; both must show the SAME behaviour for these rows. Unlike CHK-001's rows,
-  these must **pass before the fix too** — they pin behaviour that is already correct.
+- These rows must **PASS before the fix** — they pin behaviour that is already correct. That is only
+  observable if this item is authored while the pre-fix tree still exists, which is why it depends on
+  CHK-001 rather than CHK-004. Dispatching it after the fix would make its own premise unverifiable.
+- CHK-007 re-runs them post-fix; unchanged behaviour there is the actual regression proof. Same
+  pre-pin / post-assert pairing as CHK-002 → CHK-007.
+- Shares a file with CHK-001, so it is serialised after it.
 
 **DoneWhen**
 - **V2**: a valid v2 record is still correctly skipped by the v1 predicate, unchanged. (The v2 union
@@ -212,9 +216,9 @@ Spec: `docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audi
 CHK-008 (done)
    ├── CHK-001 ──┬── CHK-005 ─────────────┐
    │             └── CHK-004 ──┬── CHK-006 ┤
-   ├── CHK-002 ────────────────┤          ├── CHK-007
+   │             └── CHK-010 (pre-fix pin) ─┤
+   ├── CHK-002 ────────────────────────────┤
    │                           ├── CHK-009 ┤
-   │                           ├── CHK-010 ┤
    │                           └── CHK-011 ┘
    └── CHK-003 (independent)
 ```
@@ -224,6 +228,11 @@ CHK-008 (done)
 - CHK-001, CHK-002, CHK-003 may run **in parallel** — disjoint write sets, no shared dependency beyond CHK-008.
 - CHK-004 and CHK-005 both follow CHK-001 but touch **different** files (`store.ts` vs `proofstory.ts`), so they may run in parallel.
 - CHK-006 follows CHK-004 and touches handler files only, so it is parallel-safe with the test-file items.
-- **CHK-009, CHK-010 and CHK-011 all follow CHK-004 and all write the SAME test file, so they must run
-  SERIALLY with respect to each other** — this is the one place the write sets genuinely collide.
+- **CHK-001, CHK-009, CHK-010 and CHK-011 all write the SAME test file
+  (`red-b2aa7-artifact-validation.mjs`), so they must run SERIALLY with respect to each other** — this is
+  the one place the write sets genuinely collide. Order: CHK-001 → CHK-010 (both pre-fix) → then, after
+  CHK-004 lands, CHK-009 → CHK-011.
+- Note the two items write rows with OPPOSITE pre-fix expectations into that one file: CHK-001's rows must
+  FAIL pre-fix, CHK-010's must PASS pre-fix. Keep them in clearly separated, labelled blocks so a reader
+  can tell which expectation applies to which row.
 - CHK-007 is last: it must observe the finished state.

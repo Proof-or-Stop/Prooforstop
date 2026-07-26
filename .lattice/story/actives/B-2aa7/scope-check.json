@@ -447,9 +447,10 @@
       "evidence": "plan.md CHK-007 section: '**DependsOn**: CHK-004, CHK-005, CHK-006, CHK-009'. plan.md dependency graph: 'CHK-004 ...-- CHK-006 -+ / ... +-- CHK-009 -+ / +-- CHK-010 -+ / +-- CHK-011 -+' all feeding into 'CHK-007'. plan.md Parallelism section: 'CHK-007 is last: it must observe the finished state.'",
       "sourcePointers": [
         ".lattice/story/actives/B-2aa7/plan.md#CHK-007",
-        ".lattice/story/actives/B-2aa7/plan.md#Dependency-graph-(acyclic)",
-        ".lattice/story/actives/B-2aa7/plan.md#Parallelism"
-      ]
+        ".lattice/story/actives/B-2aa7/plan.md#dependency-graph"
+      ],
+      "resolution": "Accepted and corrected in plan.md. CHK-007 is the post-fix invariance assertion and must observe the finished state, so it has to wait on EVERY writer of the shared test file. Its DependsOn now reads CHK-004, CHK-005, CHK-006, CHK-009, CHK-010, CHK-011, which matches both the dependency diagram and the Parallelism section's statement that CHK-007 is last. The omission was an authoring slip from adding CHK-010 and CHK-011 after the graph was first drawn, not a deliberate scheduling choice.",
+      "resolvedAt": "2026-07-26T22:51:54.664Z"
     },
     {
       "id": "OQ-3",
