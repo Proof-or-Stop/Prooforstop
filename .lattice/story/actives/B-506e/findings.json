@@ -98,8 +98,8 @@
       "_hash": "5f0f6394701a59e528178980469175dd913fde0c16712a5370d6fbde1490818a",
       "signatureTag": "edge|unknown|schemaversion-discriminant-exhaustive",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed in b4fa4bbfad (one defect with F-003/F-004): the discriminant is exhaustive at all production call sites. v1-only gate diagnostic verified BYTE-IDENTICAL across 5 scenarios (sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc), so no gate verdict moved.",
-      "resolvedAt": "2026-07-25T22:34:24.094Z",
+      "resolvedReason": "CORRECTED (round 4): the discriminant is exhaustive at all production call sites. The v1-only gate diagnostic invariance is proven by the committed test packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs, which runs five v1-only scenarios through the real diagnostics and hashes the concatenated canonicalized full reports to sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; the pre-fix tree produces the SAME digest, so no v1 verdict moved. NOTE: an earlier version of this resolution cited sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc, which was reported by a subagent and is produced by NOTHING in the repository. That was an unbacked claim; it is retracted here and replaced by the reproducible digest above.",
+      "resolvedAt": "2026-07-26T01:56:46.254Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
