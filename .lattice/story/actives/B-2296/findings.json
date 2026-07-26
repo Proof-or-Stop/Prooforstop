@@ -5,7 +5,7 @@
       "desc": "packages/main/src/tasks/frozen-claim-drift-smoke.ts:294-332 (CHK-004:adversarial:0) — the must-intent claims the smoke is deterministic/offline so it cannot flake in CI, but its recorded verificationEvidence reuses the IDENTICAL selector string frozen-claim-drift-smoke: PASS already bound to CHK-004:happy:0 (checklist.json). No assertion in the smoke distinctly verifies determinism/offline-ness (e.g. running the smoke twice and diffing outputDigest, or asserting no network/child_process import) — the selector is a rubber-stamp duplicate, not a distinguishing check for this specific must-intent.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T22:12:41.401Z",
@@ -17,7 +17,11 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedReason": "Added a distinct [determinism] assertion to frozen-claim-drift-smoke.ts (commit 01df7748): buildDriftReport/detectDrift run twice on identical input asserted byte-identical, plus a static scan proving the drift module imports only crypto+types (no fs/child_process/network). Existing pinned selector lines byte-unchanged (B-ec67 pins immutable); the determinism behavior is now genuinely gated by the PASS line the evidence pins to.",
+      "resolvedAt": "2026-07-26T22:43:47.018Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-2296:F-002",
