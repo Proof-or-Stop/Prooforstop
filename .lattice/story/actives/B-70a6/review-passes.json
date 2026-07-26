@@ -80,6 +80,35 @@
         "scanEscalationReason": null
       },
       "_hash": "0c4acbe815e2f0ee7fdfe52d77b8d620753fd0730b9b9a52abc2d9cf845e3c87"
+    },
+    {
+      "id": "B-70a6:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2: verified F-001 fix (re-recorded CHK-002:happy:0 grep -Fn command) reproduces verbatim, exit 0, exact 4 claimed lines. Confirmed exactly one evidence entry per intent (no duplicate left by re-record, grep -c=1). Re-audited all 9 must-intents: all still concrete, non-tautological, evidence commands independently re-run and match claims. Verified F-002 as-any cast removal (plan-init-reopen-roundtrip-smoke.ts) is a semantics-preserving cleanup: ProcessEvent index signature already types as unknown so plain property access type-checks under strict tsc; diff touches only cast expressions, no assertion values changed. Ran npm --prefix packages/main run build (clean), node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js (both success lines, exit 0), node packages/main/dist/tasks/flow-stability-smoke.js (pass, exit 0), and npm run test:process-fact-contract (verified) myself. No blocker.",
+      "createdAt": "2026-07-26T02:39:29.805Z",
+      "reviewRound": "2026-07-26T02:28:17.084Z",
+      "reviewRunId": "B-70a6:RR-005",
+      "envelopeId": "bf8a93dc49660639829f98740c1a52d8435374d9efe474b2e30debcf83087bd8",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94475d1e5603bfda8879bf1d78d6f6c4bae1d639bf048e23a59fe8cba000bab7"
     }
   ]
 }
