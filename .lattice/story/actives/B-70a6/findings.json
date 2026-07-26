@@ -320,6 +320,21 @@
       "_hash": "e8045535a73a02600d3788a1d1fe7fded7671027ff52fca924e9cff00318a9dd",
       "signatureTag": "adversarial|unknown|transition-orchestrator-reconcilereopenauditbeforeoutofbandphasechange",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70a6:F-015",
+      "desc": "doc-promise-undelivered: F-013 resolvedReason (and the round-7 review dispatch brief) claim the deliberately-deferred concurrency hardening is tracked as B-META-framework-audit:F-003. Verified directly against .lattice/story/actives/B-META-framework-audit/findings.json on both this story branch HEAD and local main (848f68e577): it contains only F-001 and F-002, no F-003. The claimed durable cross-story tracking artifact for this explicitly-deferred correctness gap does not exist yet, so right now the only thing preventing this residual from being silently dropped is the in-code comments/registry tokens, which assertReopenAuditConcurrencyResidualContract anchors for wording only, not for cross-story follow-up tracking. Create the B-META finding (or correct the tracked-as claim) before treating this round as closed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-26T08:46:08.359Z",
+      "reviewRound": "2026-07-26T08:26:24.151Z",
+      "reviewRunId": "B-70a6:RR-014",
+      "_hash": "5a0cd8c9f9f2aff8e6cdd05971ef4f8165faffc6c63690d2732eb94438c53612",
+      "signatureTag": "missing|unknown|promise-undelivered-resolvedreason",
+      "signatureTagSource": "auto"
     }
   ]
 }
