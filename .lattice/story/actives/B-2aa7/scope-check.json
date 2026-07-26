@@ -1,0 +1,455 @@
+{
+  "storyId": "B-2aa7",
+  "checkedAt": "2026-07-26T22:34:56.485Z",
+  "features": [
+    {
+      "feature": "V1: well-formed legacy v1 record (no per-record schemaVersion) loads and satisfies gate unchanged",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "V2: valid v2 record remains unchanged / correctly skipped by the v1 predicate",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "V3: blank (empty/whitespace) observedFailure stays legacy-tolerated: UNSATISFIED with no new diagnostic, never quarantined",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "V4: record with foreign acceptanceTargetRef remains a non-satisfier, unchanged",
+      "covered_by": "CHK-002/CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "V5: five-scenario FULL diagnostic digest derived on pre-fix main and pinned as this story's own baseline (not the B-506e-tree 2d584cc1 value, not the phantom 71c267a0 value)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M1: record {id:\"corrupt\"} (versionless, no observedFailure) fails closed instead of crashing",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M2: record with observedFailure missing entirely fails closed instead of crashing",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M3: record with observedFailure: null fails closed instead of crashing",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M4: record with observedFailure: 123 fails closed instead of crashing",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M5: record === null yields typed rejection",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decision doc §0.0: \"Now FIXED upstream, therefore OUT of this story's scope\" — B-506e already closed this class (typed RedEvidenceSchemaError); no checklist item claims it",
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M6: record === a bare string yields typed rejection",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decision doc §0.0: \"Now FIXED upstream, therefore OUT of this story's scope\" — B-506e already closed this class; no checklist item claims it",
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M7: record is an array (typeof [] === \"object\") is rejected rather than classified v1 and crashing",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M8: Object.create(null)/prototype-inherited observedFailure is rejected, not accepted via the prototype chain",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "M9: record missing only trigger/createdAt/id (never dereferenced, currently SATISFIED) flips to schema-invalid under full validation, and the flip is enumerated/justified by the migration scan",
+      "covered_by": "CHK-004/CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "E1: records: {} rejected as a fail-closed envelope fault, not a TypeError crash",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "E2: records: \"x\" rejected as an envelope fault, not misattributed to a nonexistent record",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "E3: records: 42 rejected as a fail-closed envelope fault, not a TypeError crash",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "E4: records absent from the file continues to produce UNSATISFIED (regression guard)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "E5: non-object JSON file root ([]/\"x\"/null/42) is rejected rather than silently read as absent evidence",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "E6: missing/unknown file-level schemaVersion does not silently degrade to v1",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "E7: unparseable file yields a typed error naming the path instead of a raw SyntaxError",
+      "covered_by": "CHK-001/CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "O1: malformed entry first, satisfying after — no crash, corruption reported",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "O2: satisfying entry first, malformed after — verdict must not depend on array position (some() short-circuit closed)",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "C1: red_evidence_get displays corruption instead of aborting",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "C2: red_evidence_add repairs-by-append or refuses with an actionable message, never leaves the artifact unrepairable",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "C3: story_review advisory path renders corruption distinctly from \"unavailable\"/not-configured",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "Safety: malformed data can never satisfy the red-evidence predicate",
+      "covered_by": "CHK-004/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "Safety: the validator itself cannot throw on any JSON shape, verified by fuzzing beyond the fixed M-rows with nested/cyclic-free arbitraries",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "Safety: an unknown future schemaVersion still does not degrade into v1 (must not regress B-506e's property)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-1: precedence rule — file declares the era, record declares the exception; a versionless record inside a v1-declared file is validated against v1 schema, never assumed to satisfy it",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-2: read-boundary validation as primary layer + predicate guard as defense-in-depth, extending the existing two-layer idiom to the envelope and the residual v1 class",
+      "covered_by": "CHK-004/CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-3: Axis A — full validation of every mandatory v1 field, not only the dereferenced one",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-4: Axis B — quarantine form (records stays clean, malformed entries retained+reported separately; never thrown, never dropped)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-5: blank observedFailure is legacy-tolerated and is the one sub-case where quarantine (D-4) is overridden",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-6: recoverability — red_evidence_get/add and story_review stay usable on a corrupt artifact",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-7: mandatory migration scan over real story red-evidence artifacts, re-runnable at merge time, every affected record dispositioned before merge",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "D-8: scope is the whole artifact (envelope + records), not record-only",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "OPEN-3: whether B-506e's phantom-digest prose warrants a B-META finding against the delivery-check gate",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded[]: \"OPEN-3: whether B-506e prose citing a sha256 no artifact produces warrants a B-META finding against the delivery-check gate - a process defect in another subsystem\"; decision doc §12 marks it OPEN and out of this story's scope",
+      "source": "decisions:red-evidence-legacy-v1-record-validation-audit.md"
+    },
+    {
+      "feature": "Controlled failure names the artifact path, offending record index/id, and offending field (instead of an unnamed crash)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Operator can still inspect and repair the artifact through the CLI after corruption is detected",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Operator can tell corruption apart from a simply absent artifact",
+      "covered_by": "CHK-004/CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "No valid v1 verdict changes as a result of the fix",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 42,
+    "covered": 36,
+    "excluded": 3,
+    "gaps": 3,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bc4f11bb30d981395cecacd47b6abd97a0f7011c073b0cd0df4b4380d5db466e",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "The frozen execution-boundary.json allowedPaths list does not include several files the frozen checklist/plan.md require touching: CHK-004's new file packages/main/src/core/red-evidence-artifact-validation.ts, and three of CHK-006's five modify targets (packages/main/src/handlers/red-evidence.ts, packages/main/src/core/machine.ts, packages/main/src/handlers/phase-gates.ts). Is the execution boundary stale and needs a scope-extension update, or is CHK-004/CHK-006 file scope wrong?",
+      "evidence": "execution-boundary.json allowedPaths: [\"docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md\",\"lattice.config.json\",\"packages/main/src/core/proofstory.ts\",\"packages/main/src/core/store.ts\",\"packages/main/src/core/types.ts\",\"packages/main/src/handlers/proofstory.ts\",\"packages/main/src/handlers/story-review.ts\",\"packages/main/tests/red/\"] with confirmationNote \"Path list is deliberately narrow; widening it requires a scope extension proposal rather than an ad-hoc edit.\" vs checklist.json CHK-004.files.create=[\"packages/main/src/core/red-evidence-artifact-validation.ts\"] and CHK-006.files.modify=[\"packages/main/src/handlers/proofstory.ts\",\"packages/main/src/handlers/red-evidence.ts\",\"packages/main/src/handlers/story-review.ts\",\"packages/main/src/core/machine.ts\",\"packages/main/src/handlers/phase-gates.ts\"]",
+      "sourcePointers": [
+        ".lattice/story/actives/B-2aa7/execution-boundary.json#allowedPaths",
+        ".lattice/story/actives/B-2aa7/checklist.json#CHK-004.files",
+        ".lattice/story/actives/B-2aa7/checklist.json#CHK-006.files"
+      ]
+    }
+  ]
+}
