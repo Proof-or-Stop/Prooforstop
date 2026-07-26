@@ -232,7 +232,7 @@
       "desc": "packages/main/.lattice/story/actives/B-506e/checklist.json CHK-002:edge:0 evidence note overclaims: it says the empty-records-array parse/round-trip case this intent names is present and unchanged in packages/main/src/tasks/red-evidence-chain-smoke.ts, but that file contains no writeRecords(store, storyId, []) or any records:[] round-trip anywhere (grep confirmed zero hits); the note text is verbatim copy-pasted from CHK-002:happy:1 and CHK-002:edge:1 (both genuinely backed) without independently checking this sub-case. Predates round 3 (prior binding to core/types.ts said only \"the empty array is its trivial boundary\" with no cited assertion) and survived the round-3 rewrite unfixed. Underlying behavior is correct (independently verified: StoryStore round-trips records:[] fine), so this is an evidence-accuracy gap, not a production risk. Severity: medium — same overclaiming-note pattern this round exists to catch.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T00:48:25.123Z",
@@ -240,7 +240,11 @@
       "reviewRunId": "B-506e:RR-017",
       "_hash": "6210dfe3f22c6472c083fa58ca5a8b7e378f623374e17b2add56e137ecef54cc",
       "signatureTag": "edge|unknown|packages-main-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by making the claim TRUE rather than re-pointing the note: red-evidence-chain-smoke.ts gains a new final section that writes a store with an empty records array, reads it back through the real store.readRedEvidence, and asserts the empty-array round-trip, byte-identity, schemaVersion preservation, and a well-defined non-crashing v1 verdict. It is appended last on purpose so no other note's citations shift. CHK-002:edge:0 re-bound with a note describing only that assertion. Verified it also passes on a guard-less dist, so the note calls it boundary coverage rather than a RED signal.",
+      "resolvedAt": "2026-07-26T01:57:41.298Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-013",
