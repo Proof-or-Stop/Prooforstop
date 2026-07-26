@@ -192,15 +192,16 @@
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "Re-run in round 3 after red-evidence-chain-smoke.ts changed. The mixed v1+v2 store in section 2 was written [v1, q]; redEvidenceSatisfied uses Array.prototype.some(), which short-circuits on the satisfying v1 record, so the v2 record was never evaluated and the assert.doesNotThrow there was vacuous. It is now written [q, v1] (v2 first), with the old ordering kept as a labelled companion. Non-vacuity proved by building a temp tree from HEAD with ONLY the two guard lines deleted from redEvidenceRecordSatisfied: the old ordering still passes section 2 there, the new ordering fails at exactly the intended assertion. The mixed-array parse/round-trip and empty-array and v2-only-store cases this intent names are unchanged.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-bound in round 4; this fixes F-012. The previous note claimed an empty-records round-trip case existed in this file; it did not (no records: [] appeared anywhere in it). The claim is now made true by a NEW section 12 (red-evidence-chain-smoke.ts:630-661, appended last): line 652 writes a store with records: [] via store.writeRedEvidence, reads it back through the real store.readRedEvidence, and asserts (a) the value is not null, (b) records is an Array, (c) records.length === 0 so the load-time schema classifier neither synthesizes nor drops entries, (d) JSON.stringify(records) === '[]' i.e. byte-identical after write then read, (e) the file-level schemaVersion is preserved unchanged, and (f) the LIVE evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(...)) does not throw and returns a non-empty missingRedEvidence, i.e. the v1 verdict on an empty array is well-defined (no satisfier) rather than a crash or a silent pass. SCOPE: this is boundary coverage for the mixed v1+v2 union, NOT a differential RED signal — verified by running it against a dist whose redEvidenceRecordSatisfied body was reverted to the pre-fix 8727b2db83 body, where section 12 still passes. Placed last on purpose so no earlier emitted dist line number shifts. Commit 85f60fcbf4.",
+          "headHash": "85f60fcbf4452b3f0641119dd94f4c4c13603884",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:16:30.311Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
