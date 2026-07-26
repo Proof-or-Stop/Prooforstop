@@ -192,7 +192,30 @@
       "context": "Depends on the baseline recorded in CHK-002. Re-run packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs after the fix and assert it still passes with the SAME pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec - that is the 'no valid v1 verdict moved' proof, scoped per decision D-3 to records that are well-formed under the legacy v1 schema. If that digest moves, the fix changed a verdict it was not permitted to change; do not re-pin the constant to make it pass. Decision D-5: a blank observedFailure (empty or whitespace) is legacy-tolerated - it must keep producing UNSATISFIED with NO new diagnostic and must never be quarantined, because scenario 3 of that harness depends on exactly that report shape; this is the single sub-case where quarantine is overridden. Register the new tests in lattice.config.json validate.commands alongside the existing red-evidence smokes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red-w2c-v1-verdict-invariance.mjs passes post-fix with the SAME pinned digest as the CHK-002 baseline.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A blank observedFailure still produces UNSATISFIED with no new diagnostic and is never quarantined, so scenario 3's report shape is unchanged.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the digest moves, it is treated as a defect in the fix; the constant is not re-pinned to make the test pass.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
