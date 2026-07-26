@@ -573,12 +573,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }
   }
 
-  // `git worktree prune --expire now` only drops registry entries whose working
-  // tree is already missing/stale; it CANNOT remove a live sibling worktree (git
-  // refuses to prune one whose directory still exists and resolves). Note `--expire
-  // now` is repo-wide: it clears EVERY currently-missing registration, not just this
-  // story's — safe here (a missing registration is already dead) but not scoped to a
-  // single story, so callers must not rely on it to touch only their own entry.
+  // `git worktree prune --expire now` only drops registry entries whose recorded gitdir
+  // path (`<worktree>/.git`) no longer resolves — the directory merely being present is
+  // NOT the criterion. It therefore CANNOT remove a live sibling worktree: git leaves
+  // every still-resolving registration alone. Note `--expire now` is repo-wide, NOT
+  // story-scoped: one call clears the currently-missing registrations of every story,
+  // not just this one — safe here (a missing registration is already dead), but callers
+  // must not rely on it to touch only their own entry. Caveat on "every missing entry":
+  // a worktree explicitly `git worktree lock`ed is never pruned even when its directory
+  // is gone, so this is not an absolute guarantee that the registry ends up clean.
   function pruneWorktreeRegistry(cwd: string = root): void {
     git('worktree prune --expire now', cwd);
   }
