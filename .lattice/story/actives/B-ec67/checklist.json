@@ -374,7 +374,11 @@
           {
             "desc": "in buildVerificationCoverage a manual/docs attestation does NOT satisfy an executable intent (logic|cli|browser) required coverage — it is not scored equal to an executed receipt",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -404,6 +408,25 @@
           "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
           "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
           "timestamp": "2026-07-26T00:27:39.582Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts buildVerificationCoverage does NOT let a manual/docs attestation cover an executable (logic|cli|browser) intent (non_mechanical status).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe204bea200b7a6da44ff06e1cf27778ed38632c64cb6c546b3a0ffd154581d6",
+            "outputTail": "tool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T00:27:45.060Z"
+          },
+          "headHash": "6a46b3a53ac632e9337a1885b643f588236ead7c",
+          "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
+          "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
+          "timestamp": "2026-07-26T00:27:45.293Z"
         }
       ]
     },
