@@ -261,7 +261,7 @@
       "desc": "transition-orchestrator.ts renderOutOfBandReopenAuditNotice() ~line 692: the operator warning \"purge deletes this story's whole metadata directory, including the audit event just recovered\" overstates what story_discard --purge actually does in the common case. Independently reproduced in an isolated scratch copy (story_create -> INIT_CHECK -> PLAN always lands >=2 story-scoped commits on main before purge): purgeSafeInitCommit (worktree.ts:646) does `git reset --hard HEAD~1`, which only undoes the LATEST commit; when a second commit (e.g. the INIT_CHECK-metadata commit) sits on top of the true init commit -- the normal case, since INIT_CHECK always adds one -- the reset restores the OLDER committed tree instead of removing the directory, so background.md/checklist.json/index.json/etc all survive on disk (verified: after --purge, .lattice/story/actives/<id>/ still exists with 9 files). This is a PRE-EXISTING, unrelated purgeSafeInitCommit heuristic gap -- independently reproduced with zero reopen/rescue involvement (a plain story, no crash injection, still leaves residue after purge) -- so it is NOT a B-70a6 regression and I am not asking it be fixed as part of this story. What IS attributable to this story is the new warning text's precision: the load-bearing part of the claim (the rescued reopen audit event itself does not survive purge) IS independently verified true -- the residual process-events.jsonl after purge contains only the pre-existing init_check_fallback event, never the rescued phase_transition/reopen event -- but the broader phrase \"deletes this story's whole metadata directory\" is not literally true in the common case. Suggested fix (low-severity, cosmetic, in the spirit of this story's own CHK-002/CHK-003 overstated-comment corrections): narrow the warning to state only the verified claim, e.g. \"purge may not fully remove this story's metadata (see purgeSafeInitCommit); the rescued reopen audit event will not survive it regardless\", rather than implying the whole directory reliably disappears.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-26T06:55:35.206Z",
@@ -273,7 +273,11 @@
         "packages/main/src/handlers/worktree.ts"
       ],
       "signatureTag": "edge|ts|transition-orchestrator-renderoutofbandreopenauditnotice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6d3901f8c6. The notice is narrowed to exactly what was verified: purge removes the log so the rescued event does not survive, while its git rollback MAY leave an older committed copy of the directory that predates the rescue. The identical overstatement was carried in the orchestrator docblock residual and the registry rationale; both were corrected too, and restoring the overstated wording makes the verifier exit 1. The pre-existing purgeSafeInitCommit reset bug that the reviewer independently discovered (git reset --hard HEAD~1 undoes only the latest commit, so with INIT_CHECK's second story-scoped commit the reset restores an older tree rather than removing the directory, leaving files behind) was deliberately NOT fixed here - it is unrelated to this story, reproduces with zero reopen/rescue involvement, and deserves its own story.",
+      "resolvedAt": "2026-07-26T07:19:47.081Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
