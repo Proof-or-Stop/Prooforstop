@@ -159,6 +159,40 @@
         "scanEscalationReason": null
       },
       "_hash": "cf3c7e43802d0d18b7a29ca1979809d74642b83053aa149349853be47e1e284f"
+    },
+    {
+      "id": "B-3144:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-021 fix verified by independent positive probe in an isolated scratch worktree: sweptFiles now unions scope-contract.json acknowledgements[].paths with allowedModify/allowedCreate, matching core/scope-contract.ts isAcknowledged (also keys off ack.paths, confirmed no field-name mismatch remains). Probe: planted a stale apply:true-only comment at cli-engine.ts:1232 (an acknowledged-scope file) -> smoke failed with the exact claimed message 'cli-engine.ts:1232 documents apply:true without naming dryRun:false as the equivalent executor'; restored the file, rebuilt, reran -> 64/64 green exit 0. Ran ONE PROCESS AT A TIME in a fresh git worktree at HEAD bab5a21 to avoid the resource-contention stall seen when the shared worktree ran validate concurrently (that stall/exit-1 was environmental, confirmed by the clean isolated rerun succeeding). Also reran scripts/verify-process-fact-contract.mjs in the same isolated worktree: verified, exit 0. CHK-001/002/003: all 25 verificationIntent entries have valid integration_test evidence naming the correct command and specific check name; the core deliverable (quorum-submit.ts drift-accept guard predicate, LOCKSTEP-commented against review-escalation.ts eventsWithStoryFilesHashDowngrade; quorum-prune.ts recovery command) is unchanged since round 1, unchallenged this round, and was read directly this round and confirmed sound. CONVERGENCE JUDGEMENT: F-011..F-021 are one family hardening a secondary documentation-consistency regression guard (the discovery sweep pairing apply:true with dryRun:false across the contract files). The two functional bugs it surfaced (F-010 silent no-op, F-012 dangerous apply:false+dryRun:false silent execution) are fixed and tested. Everything since F-013 has tested the test (site-list completeness, AST-parsing edges, scope-derivation completeness) rather than finding new operator-facing defects. I specifically looked for the next plausible escape (field-name mismatch between the sweep's ack.paths and the real isAcknowledged) and found none. No further iteration finding filed; this guard has converged. Coverage: 25/25 verificationIntent entries have valid pass evidence across CHK-001 (6), CHK-002 (9), CHK-003 (10); 0 must-gaps, 0 waivers. Smoke 64/64 green (isolated verification), process-fact contract verified.",
+      "createdAt": "2026-07-26T07:16:38.974Z",
+      "reviewRound": "2026-07-26T06:50:49.241Z",
+      "reviewRunId": "B-3144:RR-021",
+      "envelopeId": "e918658b8fba2173d6713c602276939bbb51e589b2561ba0c492a001ca625026",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          ".lattice/story/actives/B-3144/scope-contract.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f9c880dd8ce6ff4df3db90dbd1648d07dacd6c91e53f25abb146d4afe08b42bd"
     }
   ]
 }
