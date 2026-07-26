@@ -48,6 +48,7 @@ import {
   verificationIntentTypeSchema,
 } from './command-schemas.js';
 import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.js';
+import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
@@ -2406,6 +2407,21 @@ Behavior:
       evidence: z.string(),
       sourcePointers: z.array(z.string()),
     })).optional().describe('Open Questions: contradictions/questions reviewers notice in decisions/ but do not classify; main agent must resolve them with scope_question_resolve.'),
+  }},
+
+  // B-7813 CHK-002: stall_resolution_set — record one structured, signed,
+  // current-review-round-bound resolution that clears the CHK-001 convergence-stall
+  // mint block for exactly the next ordinary review round. action enum + reason
+  // min length are re-validated at the handler runtime AND at the gate
+  // consumption point (isValidCurrentRoundStallResolution), per the Handler
+  // encoding convention.
+  { name: 'stall_resolution_set', description: 'Record a signed, current-round-bound resolution that clears the convergence-stall mint block (CHK-001) for the next ordinary review round', schema: {
+    storyId: z.string().describe('Story ID'),
+    action: z.enum(STALL_RESOLUTION_ACTIONS as unknown as [string, ...string[]]).describe('Structured stall-resolution action: authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable. declare_unreachable additionally withdraws the named checklist item (B-1909 disposition) and closes the loop for it.'),
+    reason: z.string().min(20, 'reason must be at least 20 characters (why you are consciously clearing the convergence-stall block for this review round).').describe('Why you are consciously clearing the convergence-stall block for this review round (>= 20 chars after trim).'),
+    itemId: z.string().optional().describe('Checklist item ID (CHK-xxx) to withdraw as unreachable; REQUIRED when action=declare_unreachable, ignored otherwise.'),
+    approvedBy: z.string().optional().describe('Optional operator identifier recorded on the resolution (and on the B-1909 decision for declare_unreachable).'),
+    actor: z.string().optional().describe('Optional actor identifier; used for approvedBy attribution when approvedBy is omitted.'),
   }},
 
   // B-ed3e CHK-003: scope_question_resolve - main agent writes resolution for an OQ raised by reviewer.

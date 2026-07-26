@@ -1840,6 +1840,55 @@ export interface InitCheckData {
   _hash: string;
 }
 
+// ── Stall Adjudication (B-7813 CHK-002: stall_resolution_set writes a signed
+// stall-adjudication.json consumed by the DEV→REVIEW mint gate) ──
+
+/**
+ * B-7813: the five structured actions an operator may record to clear the
+ * convergence-stall block (CHK-001). Kept in lock-step with the canonical
+ * STALL_RESOLUTION_ACTIONS tuple in core/review-convergence.ts — that tuple is
+ * the runtime source of truth for membership validation; this union is the
+ * compile-time mirror.
+ */
+export type StallResolutionActionName =
+  | 'authorize_continuation'
+  | 'replan'
+  | 'escalate_root_cause'
+  | 'resolve_findings'
+  | 'declare_unreachable';
+
+/**
+ * B-7813 CHK-002: the signed stall-adjudication record persisted at
+ * .lattice/story/actives/<id>/stall-adjudication.json. It authorizes clearing
+ * the convergence-stall mint block for EXACTLY the review round it is bound to
+ * (reviewRound === story.currentReviewRound at record time). Consumed on read by
+ * the CHK-001 seam (hasCurrentRoundStallResolution) which re-validates reason
+ * length + current-round binding + signature — a stale/previous-round/empty/
+ * unsigned record never clears the block.
+ */
+export interface StallAdjudicationData {
+  storyId: string;
+  /** One of StallResolutionActionName (validated at runtime against STALL_RESOLUTION_ACTIONS). */
+  action: StallResolutionActionName;
+  /** Why the operator is consciously clearing the block (trim().length >= STALL_RESOLUTION_REASON_MIN). */
+  reason: string;
+  /** Snapshot of story.currentReviewRound the resolution is bound to (ISO 8601). Part of the signature domain. */
+  reviewRound: string;
+  /** Required only for action=declare_unreachable: the checklist item withdrawn as unreachable. Part of the signature domain. */
+  itemId?: string;
+  /** Audit-only: who recorded the resolution (operator/actor). Not part of the signature domain. */
+  approvedBy?: string;
+  /** ISO 8601 write timestamp. Not part of the signature domain. */
+  recordedAt: string;
+  /** Audit link stamped when declare_unreachable withdrew the item (the B-1909 scope-shrinkage decisionId). Not part of the signature domain. */
+  withdrawalDecisionRef?: string;
+  /**
+   * Signature: sha256(`${storyId}:${action}:${sha256(reason)}:${reviewRound}:${itemId ?? ''}:${STALL_ADJUDICATION_SALT}`)
+   * Computed by signStallAdjudication. approvedBy / recordedAt / withdrawalDecisionRef are audit fields, NOT in the signature domain.
+   */
+  _hash: string;
+}
+
 // ── Scope Anti-Expansion (B-85ba: INIT→INIT_CHECK boundary freeze gate) ──
 
 export type ScopeBoundaryMode = 'correctness_fix' | 'feature' | 'maintenance' | 'custom';

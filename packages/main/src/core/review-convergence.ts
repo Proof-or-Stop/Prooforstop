@@ -18,6 +18,10 @@
 import { resolveReviewRoundCount, isFindingBlocking } from './advisory.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
+// B-7813 CHK-002 fills the CHK-001 seam: read the signed stall-adjudication.json
+// and re-validate it. Function-scoped usage only (never at module-init), so the
+// mutual review-convergence ↔ stall-adjudication import edge is ESM-safe.
+import { isValidCurrentRoundStallResolution } from './stall-adjudication.js';
 import type { StoryStore } from './store.js';
 import type { Finding } from './types.js';
 
@@ -436,20 +440,37 @@ function buildStallAdjudicationPrompt(assessment: ReviewConvergenceAssessment): 
 }
 
 /**
- * SEAM for CHK-002. Presence of a signed, current-round-bound structured
- * resolution record (stall-adjudication.json) for the CURRENTLY stalled round.
+ * CHK-002 (fills the CHK-001 seam). Presence of a signed, current-round-bound
+ * structured resolution record (stall-adjudication.json) for the CURRENTLY
+ * stalled round.
  *
- * Until CHK-002 lands the stall_resolution_set command + persisted+signed
- * record, no resolution can exist, so this is UNCONDITIONALLY false — the block
- * is real and unclearable-by-text today. CHK-002 replaces this body with a read
- * of the persisted record RE-VALIDATED against the current stalled round (reason
- * min length + current-round binding + signature); a stale/previous-round/empty
- * record must still return false here. This is one of the two consumption points
- * (this gate + the CHK-002 handler) that must both re-validate the record.
+ * Reads the persisted record and RE-VALIDATES it against the current stalled
+ * round via the pure isValidCurrentRoundStallResolution predicate (reason min
+ * length + current-round binding + signature). Returns true ONLY when a valid,
+ * current-review-round, signed resolution exists — a previous-round / empty /
+ * unsigned / tampered record returns false and does NOT clear the block. This is
+ * one of the two consumption points (this gate + the stall_resolution_set
+ * handler) that must both re-validate the record; neither trusts the other.
+ *
+ * Pure-ish store consumer (same discipline as collectReviewConvergenceInputs):
+ * reads only, no writes, no transition side effects. Fail-closed on any read
+ * error — an infra/read failure means "no valid resolution", so the block holds
+ * (it never silently clears the stall).
  */
-export function hasCurrentRoundStallResolution(_store: StoryStore, _storyId: string): boolean {
-  // CHK-002 seam: no persisted resolution record exists yet.
-  return false;
+export function hasCurrentRoundStallResolution(store: StoryStore, storyId: string): boolean {
+  try {
+    const record = store.readStallAdjudication(storyId);
+    if (!record) return false;
+    let currentReviewRound = '';
+    try {
+      currentReviewRound = store.readStory(storyId).currentReviewRound || '';
+    } catch {
+      return false;
+    }
+    return isValidCurrentRoundStallResolution(record, currentReviewRound);
+  } catch {
+    return false;
+  }
 }
 
 /**

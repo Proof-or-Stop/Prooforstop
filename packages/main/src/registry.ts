@@ -37,6 +37,7 @@ import { createEvaluateHandlers } from './handlers/evaluate.js';
 import { createWorkflowHandlers } from './handlers/workflow.js';
 import { createScopeCheckHandlers } from './handlers/scope-check.js';
 import { createInitCheckHandlers } from './handlers/init-check.js';
+import { createStallAdjudicationHandlers } from './handlers/stall-adjudication.js';
 import { createScopeQuestionResolveHandlers } from './handlers/scope-question-resolve.js';
 import { createStoryDispatchHandlers } from './handlers/story-dispatch.js';
 import { createBackgroundHandlers } from './handlers/background.js';
@@ -202,6 +203,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createScopeCheckHandlers(ctx));
   // B-e71f CHK-003: init_check_set — INIT→INIT_CHECK 硬门槛产物 init-check.json 写入
   registry.registerBatch(createInitCheckHandlers(ctx));
+  registry.registerBatch(createStallAdjudicationHandlers(ctx));
   registry.registerBatch(createScopeQuestionResolveHandlers(ctx));
   registry.registerBatch(createStoryDispatchHandlers(ctx));
   registry.registerBatch(createBackgroundHandlers(ctx));
