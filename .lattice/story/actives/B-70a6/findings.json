@@ -207,6 +207,24 @@
       ],
       "signatureTag": "missing|ts|transition-orchestrator-outofbandreopenauditreconciliation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70a6:F-010",
+      "desc": "plan-init-reopen-roundtrip-smoke.ts:244-284 (assertReopenAuditCrashRecovery) duplicates, near-verbatim, the crash-injection setup (new CrashBeforeReopenAuditStore, ctx construction, process.chdir/resetConfigCache dance, the reopenAppendAttempts/crashError assertions, and the afterCrash.phase/pendingReopenAudit checks) that the very same commit later extracts into the shared crashInjectReopen helper at lines 345-369 and reuses for the F-005a/F-005b/F-006 drills. The original F-004 drill was never refactored to call crashInjectReopen, so this file now has two independent implementations of the identical crash-injection mechanism; a future change to how the crash is injected (e.g. the store subclass or the chdir/session dance) must be updated in both places or they silently drift apart. This is a concrete instance of the pile-of-patches risk this review was asked to check for.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T06:51:07.010Z",
+      "reviewRound": "2026-07-26T06:38:10.290Z",
+      "reviewRunId": "B-70a6:RR-012",
+      "_hash": "85cbae05fa5b025481fdb7b58176476004930e3fc7bd38dd6b6d07a3ead0f1d3",
+      "files": [
+        "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|plan-init-reopen",
+      "signatureTagSource": "auto"
     }
   ]
 }
