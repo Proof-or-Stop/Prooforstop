@@ -37,7 +37,30 @@
       "context": "The reset (writeChecklist) and the phase write (writeStory) are two separate fs writes under a mkdir persist claim: concurrency-atomic and ordered so the phase write lands last, but not crash-transactional. Reword 'land together or not at all' to state the real guarantee and why the residual failure direction is the safe one. Comment-only. Reference: commit de46617.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The REOPEN checklist-reset comment states the real guarantee: concurrency-atomic via the mkdir persist claim, ordered so the phase write lands last",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The phrase 'land together or not at all' no longer appears in that comment",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The comment does not claim crash-transactionality anywhere, and explicitly names the residual crash window as the safe direction",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
