@@ -313,15 +313,16 @@
         },
         {
           "intentRef": "CHK-003:edge:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-run in round 3 after the file changed. This case was already genuine and is unchanged: a store containing ONLY the v2 quarantine record has no v1 satisfier, so some() cannot short-circuit past it; the assertion is that missingRedEvidence is non-empty and the gate does not crash. Against a dist built from the pre-fix tree 8727b2db83 this same case throws TypeError at record.observedFailure.trim() instead.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-run in round 4 after the file changed elsewhere; the case backing THIS intent is itself unchanged and was never vacuous. Lines 154-156 store ONLY the v2 quarantine record, so there is no satisfying v1 record for some() to short-circuit on; the assertion is that missingRedEvidence is non-empty — the gate reports missing red evidence rather than crashing. Against a dist built from git archive 8727b2db83 this same case throws TypeError at record.observedFailure.trim() instead of returning a verdict. Commit 85f60fcbf4.",
+          "headHash": "a3184745fe6c6b53ba7e5cde4177b9a56491251e",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:18:19.506Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
