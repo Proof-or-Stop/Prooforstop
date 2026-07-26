@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Persist the reopen reason into the phase_transition audit event",
       "context": "buildPhaseTransitionProcessEvent (transition-orchestrator.ts) gains optional transitionType/reason appended only when defined; the call site passes { transitionType: 'reopen', reason: args.reason?.trim() } only when eventType === 'REOPEN'. Normal transitions must keep a byte-identical event shape so the flow-stability deepEqual shape test and all phase_transition consumers stay green. Reference: commit 05385c9.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T01:36:03.953Z",
       "verificationIntent": {
         "happy": [
           {
