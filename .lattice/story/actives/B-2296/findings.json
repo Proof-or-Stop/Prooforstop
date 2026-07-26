@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-2296:F-001",
+      "desc": "packages/main/src/tasks/frozen-claim-drift-smoke.ts:294-332 (CHK-004:adversarial:0) — the must-intent claims the smoke is deterministic/offline so it cannot flake in CI, but its recorded verificationEvidence reuses the IDENTICAL selector string frozen-claim-drift-smoke: PASS already bound to CHK-004:happy:0 (checklist.json). No assertion in the smoke distinctly verifies determinism/offline-ness (e.g. running the smoke twice and diffing outputDigest, or asserting no network/child_process import) — the selector is a rubber-stamp duplicate, not a distinguishing check for this specific must-intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T22:12:41.401Z",
+      "reviewRound": "2026-07-26T22:07:48.977Z",
+      "reviewRunId": "B-2296:RR-002",
+      "_hash": "273047c47fb426ab0aeca795decc996bc2f7b06201acbca983274ea9552433eb",
+      "files": [
+        "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
