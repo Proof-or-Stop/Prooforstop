@@ -295,14 +295,14 @@
         {
           "intentRef": "CHK-003:happy:1",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/proofstory.ts",
+          "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "red-w2c-gate-guard.mjs writes a mixed store [v1, v2Quarantine] where the v1 record satisfies the gate, and asserts the diagnostic does not throw and equals the v1-only verdict (line 92) — v2 records are silently skipped and invisible to the v1 predicate.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.825Z"
+          "note": "Re-bound in round 3: the proof CHANGED. The mixed-store case previously wrote [v1, v2Quarantine]; redEvidenceSatisfied iterates with Array.prototype.some(), which short-circuits on the satisfying v1 record, so the v2 record was never handed to redEvidenceRecordSatisfied and the assertion was vacuous (verified: that arrangement does NOT throw even against a dist built from the pre-fix tree 8727b2db83). The store is now written [v2Quarantine, v1] so the v2 record is evaluated FIRST, and the corrected file run verbatim against the pre-fix dist fails at exactly this assertion with TypeError: Cannot read properties of undefined (reading 'trim'). The old ordering is retained as an explicit companion case, labelled vacuous on its own. What is asserted: the LIVE gate does not throw, and JSON.stringify(missingRedEvidence) is byte-identical to the v1-only baseline in BOTH orderings.",
+          "headHash": "6c56cfc0beaba81ccee834c6b8352d0c60c14576",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:32:46.368Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
