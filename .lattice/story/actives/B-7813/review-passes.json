@@ -101,6 +101,46 @@
         "scanEscalationReason": null
       },
       "_hash": "45037b5c62e1ec4f8acaab524c841c87c584d160461c36c892833f18d1d91646"
+    },
+    {
+      "id": "B-7813:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review of F-001/F-002/F-003 fix (commit a72c3e5308). Verified read-only: config.ts DEFAULT_PHASE_TOOLS now lists stall_resolution_set in both DEV and REVIEW buckets; lifecycle-registry-contract.js rebuilt+run PASS with 0 divergences and the new converse reachability check active, PHASE_TOOLS_REACHABILITY_EXEMPTIONS confirmed genuinely empty via grep; manually re-ran stall_resolution_set against live B-7813 in REVIEW — not phase-blocked; smoke PASS incl. partG real-CLI-boundary assertion. No concept deletion/replacement in this diff (38 files, +4301/-14); the 14 deletions are a single inline-guard-to-wrapped-call swap in machine.ts (checklistAllDoneGuard still exported/used, grep-confirmed) plus an import-list reflow in store.ts. All four registries (command-catalog/command-policy/process-fact-levels/DEFAULT_PHASE_TOOLS) wired for stall_resolution_set. No residual concept-word cleanup needed this round.",
+      "createdAt": "2026-07-26T09:42:17.999Z",
+      "reviewRound": "2026-07-26T09:26:17.405Z",
+      "reviewRunId": "B-7813:RR-009",
+      "envelopeId": "ddb170b5bca11efca9462473bd5375a2959c7bced01bb1a1579734d5995fc54f",
+      "writerSessionId": "sess-3be7f62392d8c04c609773a573566f1e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7813/background.md",
+          ".lattice/story/actives/B-7813/checklist.json",
+          ".lattice/story/actives/B-7813/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/stall-adjudication.ts",
+          "packages/main/src/handlers/stall-adjudication.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "288d912f40a016e6b01ddb7dbab5e3d7177b3742e748615aa6caf144fd9ec2c2"
     }
   ]
 }
