@@ -330,7 +330,7 @@
       "desc": "doc-promise-undelivered: F-013 resolvedReason (and the round-7 review dispatch brief) claim the deliberately-deferred concurrency hardening is tracked as B-META-framework-audit:F-003. Verified directly against .lattice/story/actives/B-META-framework-audit/findings.json on both this story branch HEAD and local main (848f68e577): it contains only F-001 and F-002, no F-003. The claimed durable cross-story tracking artifact for this explicitly-deferred correctness gap does not exist yet, so right now the only thing preventing this residual from being silently dropped is the in-code comments/registry tokens, which assertReopenAuditConcurrencyResidualContract anchors for wording only, not for cross-story follow-up tracking. Create the B-META finding (or correct the tracked-as claim) before treating this round as closed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-26T08:46:08.359Z",
@@ -338,7 +338,11 @@
       "reviewRunId": "B-70a6:RR-014",
       "_hash": "5a0cd8c9f9f2aff8e6cdd05971ef4f8165faffc6c63690d2732eb94438c53612",
       "signatureTag": "missing|unknown|promise-undelivered-resolvedreason",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by the main agent in main-repo commit b5842ec40d. The reviewer was RIGHT and the failure was mine: I wrote 'tracked as B-META-framework-audit:F-003' into F-013's resolution while the B-META findings.json change was still only in main's WORKING TREE, uncommitted. The reviewer checked committed state (branch HEAD and local main at 848f68e577), correctly found only F-001 and F-002, and flagged the tracking claim as not corresponding to reality - an uncommitted tracking record is not durable tracking, and that is exactly the overclaim pattern this story has been bitten by repeatedly. Verified after committing: `git show HEAD:.lattice/story/actives/B-META-framework-audit/findings.json` now lists F-001, F-002 and F-003, so the concurrency-hardening residual owed by this story has a durable, checked-in owner. Note for future readers: an initial `git add` of the path emitted an ignored-path warning for the DIRECTORY while still staging the tracked file; `git check-ignore -v` matched no rule for either the file or the directory, so the warning was about the untracked-directory form of the add, not the file.",
+      "resolvedAt": "2026-07-26T09:15:42.086Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70a6:F-016",
