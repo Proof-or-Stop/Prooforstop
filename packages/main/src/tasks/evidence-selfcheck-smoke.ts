@@ -84,43 +84,53 @@ const batchAdd = reg.get('verification_evidence_batch_add')!;
 
 let n = 0;
 function row(over: Record<string, unknown>): Record<string, unknown> {
-  return { storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass', note: `case ${++n} — contradiction guard scenario`, ...over };
+  // B-ec67 requires executable-intent evidence to carry a selector (mechanical
+  // receipt) or a nonMechanicalReason. These synthetic rows exist only to exercise
+  // the CHK-001 contradiction guard, so they are explicitly non-mechanical.
+  return {
+    storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'logic_test',
+    result: 'pass', note: `case ${++n} — contradiction guard scenario`,
+    nonMechanicalReason: 'synthetic fixture row for the contradiction-guard unit smoke; not a mechanical proof',
+    ...over,
+  };
 }
-function expectRefused(over: Record<string, unknown>, label: string): void {
-  assert.throws(() => add(row(over)), CONTRADICTION_RE, label);
+// B-ec67 made verification_evidence_add / _batch_add async (they may execute a
+// pinned command), so refusals surface as rejected promises.
+async function expectRefused(over: Record<string, unknown>, label: string): Promise<void> {
+  await assert.rejects(async () => add(row(over)), CONTRADICTION_RE, label);
 }
-function expectAccepted(over: Record<string, unknown>, label: string): void {
-  assert.doesNotThrow(() => add(row(over)), label);
+async function expectAccepted(over: Record<string, unknown>, label: string): Promise<void> {
+  await assert.doesNotReject(async () => add(row(over)), label);
 }
 
 // happy:0 — F-049 reproduction: contradictory stems refused.
-expectRefused({ command: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' }, 'happy:0 F-049 contradictory');
+await expectRefused({ command: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' }, 'happy:0 F-049 contradictory');
 // happy:1 — same stem across dist/src + .js/.ts accepted.
-expectAccepted({ command: 'node packages/main/dist/tasks/convergence-breaker-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' }, 'happy:1 same stem normalized');
+await expectAccepted({ command: 'node packages/main/dist/tasks/convergence-breaker-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' }, 'happy:1 same stem normalized');
 // happy:2 — no-stem command + any file accepted.
-expectAccepted({ command: 'npm test', file: 'packages/main/src/tasks/foo.ts' }, 'happy:2 npm test no-stem');
+await expectAccepted({ command: 'npm test', file: 'packages/main/src/tasks/foo.ts' }, 'happy:2 npm test no-stem');
 // edge:0 — command with no file-like argument at all accepted.
-expectAccepted({ command: 'lattice validate', file: 'some-file.ts' }, 'edge:0 lattice validate no file-arg');
+await expectAccepted({ command: 'lattice validate', file: 'some-file.ts' }, 'edge:0 lattice validate no file-arg');
 // edge:1 — command present, file absent accepted.
-expectAccepted({ command: 'node packages/main/dist/tasks/foo.js', file: undefined }, 'edge:1 command only');
+await expectAccepted({ command: 'node packages/main/dist/tasks/foo.js', file: undefined }, 'edge:1 command only');
 // edge:2 — file present, command absent accepted.
-expectAccepted({ command: undefined, file: 'packages/main/src/tasks/foo.ts' }, 'edge:2 file only');
+await expectAccepted({ command: undefined, file: 'packages/main/src/tasks/foo.ts' }, 'edge:2 file only');
 // edge:3 — same stem, .js vs .cjs accepted (normalized).
-expectAccepted({ command: 'node packages/main/dist/tasks/foo.js', file: 'packages/main/src/tasks/foo.cjs' }, 'edge:3 .js/.cjs same stem');
+await expectAccepted({ command: 'node packages/main/dist/tasks/foo.js', file: 'packages/main/src/tasks/foo.cjs' }, 'edge:3 .js/.cjs same stem');
 // edge:4 — multi-arg: last script arg (alpha) differs from file (beta) → refused, not the intermediate setup.js.
-expectRefused({ command: 'node --require setup.js packages/main/dist/tasks/alpha.js', file: 'packages/main/src/tasks/beta.ts' }, 'edge:4 multi-arg last target');
+await expectRefused({ command: 'node --require setup.js packages/main/dist/tasks/alpha.js', file: 'packages/main/src/tasks/beta.ts' }, 'edge:4 multi-arg last target');
 // adversarial:1 — shell pipe obfuscation: primary target A vs file B → refused.
-expectRefused({ command: 'node packages/main/dist/tasks/A.js | tee log', file: 'packages/main/src/tasks/B.ts' }, 'adversarial:1 shell pipe');
+await expectRefused({ command: 'node packages/main/dist/tasks/A.js | tee log', file: 'packages/main/src/tasks/B.ts' }, 'adversarial:1 shell pipe');
 // adversarial:2 — path traversal in command: basename alpha vs file beta → refused.
-expectRefused({ command: 'node packages/main/dist/tasks/../tasks/alpha.js', file: 'packages/main/src/tasks/beta.ts' }, 'adversarial:2 path traversal');
+await expectRefused({ command: 'node packages/main/dist/tasks/../tasks/alpha.js', file: 'packages/main/src/tasks/beta.ts' }, 'adversarial:2 path traversal');
 // adversarial:3 — empty-string command + real file accepted without crashing.
-expectAccepted({ command: '', file: 'packages/main/src/tasks/foo.ts' }, 'adversarial:3 empty command no crash');
+await expectAccepted({ command: '', file: 'packages/main/src/tasks/foo.ts' }, 'adversarial:3 empty command no crash');
 
 // adversarial:0 — batch_add with one contradictory entry must ALSO be refused (bypass closed).
-assert.throws(
-  () => batchAdd({ storyId: STORY_ID, evidences: [
-    { itemId: 'CHK-001', intentRef: 'CHK-001:edge:0', kind: 'logic_test', result: 'pass', note: 'batch benign entry ok', command: 'npm test', file: 'packages/main/src/tasks/foo.ts' },
-    { itemId: 'CHK-001', intentRef: 'CHK-001:adversarial:0', kind: 'logic_test', result: 'pass', note: 'batch contradictory entry must refuse', command: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' },
+await assert.rejects(
+  async () => batchAdd({ storyId: STORY_ID, evidences: [
+    { itemId: 'CHK-001', intentRef: 'CHK-001:edge:0', kind: 'logic_test', result: 'pass', note: 'batch benign entry ok', nonMechanicalReason: 'synthetic batch fixture row for the contradiction-guard unit smoke', command: 'npm test', file: 'packages/main/src/tasks/foo.ts' },
+    { itemId: 'CHK-001', intentRef: 'CHK-001:adversarial:0', kind: 'logic_test', result: 'pass', note: 'batch contradictory entry must refuse', nonMechanicalReason: 'synthetic batch fixture row for the contradiction-guard unit smoke', command: 'node packages/main/dist/tasks/gate-repeat-block-smoke.js', file: 'packages/main/src/tasks/convergence-breaker-smoke.ts' },
   ] }),
   CONTRADICTION_RE,
   'adversarial:0 batch_add contradictory entry refused',

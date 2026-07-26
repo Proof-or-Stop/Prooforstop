@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-ec67",
+  "id": "IC-20260725233748",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Enforcement FLOOR: pin verification:{command,selector} immutably on first evidence write; both verification_evidence_add and verification_evidence_batch_add execute the pinned command via one shared helper and refuse on exit!=0-but-pass / selector-absent / intentRef-unresolved / command-mismatch; stamp a receipt with result derived from exit; demote manual|docs in buildVerificationCoverage; grandfather legacy evidence. Five countable milestones M1-M5 (M2 spans CHK-002+CHK-003).",
+  "acceptedInterpretationHash": "sha256:1d01132a8280fa1b86285043516b12d9f049c9c205c4629236e8abd1e0766152",
+  "notes": "Re-bind confirmed ledger hash after reducing to 5 rows (under the high_assurance threshold).",
+  "ledgerHashBeforeDecision": "sha256:e5dfb68483b3375ee4b38bc269652ece2f1eda8d371faacecf04f7ac5ec9a968",
+  "confirmedLedgerHash": "sha256:e5dfb68483b3375ee4b38bc269652ece2f1eda8d371faacecf04f7ac5ec9a968",
+  "createdAt": "2026-07-25T23:37:48.344Z",
+  "updatedAt": "2026-07-25T23:58:46.908Z"
+}

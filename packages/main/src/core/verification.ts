@@ -2,9 +2,10 @@ import type {
   ChecklistData,
   ChecklistItem,
   VerificationCoverageEntry,
-  VerificationCoverageReport,
   VerificationEvidence,
   VerificationIntentItem,
+  VerificationIntentType,
+  VerificationCoverageReport,
   VerificationLane,
   VerificationPriority,
 } from './types.js';
@@ -92,6 +93,56 @@ export function detectEvidenceRowContradiction(row: { command?: string; file?: s
 }
 
 /**
+ * B-ec67: the command-executable verification intent types. logic|cli|browser can be
+ * proven by running a pinned command; manual|docs are attestation-only.
+ */
+const EXECUTABLE_INTENT_TYPES: ReadonlySet<VerificationIntentType> = new Set<VerificationIntentType>(['logic', 'cli', 'browser']);
+
+export function isExecutableIntentType(type: VerificationIntentType): boolean {
+  return EXECUTABLE_INTENT_TYPES.has(type);
+}
+
+/**
+ * B-ec67 CHK-004 — the GATE-side escape-hatch closure. Given an executable intent's
+ * evidence that would otherwise be scored 'covered', decide whether it truly covers:
+ *
+ *  - mechanical === true  → an executed receipt; covers ONLY when the receipt proves
+ *    it (selectorMatched && exitCode === 0). Anything else is non-mechanical.
+ *  - mechanical === false → an explicit non-mechanical attestation (manual|docs
+ *    recorded against an executable intent, or the audited escape). NEVER covers —
+ *    this is what stops `type:manual` from being a universal bypass at the gate.
+ *  - mechanical === undefined → legacy prose-only evidence written before B-ec67.
+ *    Grandfathered: keeps its historical 'covered' status so in-flight stories do
+ *    not hard-break. This is SAFE (not a bypass) because after B-ec67 F-006/F-007/F-001
+ *    NO write path can mint mechanical:undefined for a NEW executable-intent write:
+ *      - verification_evidence_add / _batch_add refuse an executable write that provides
+ *        neither a selector (→ mechanical:true receipt) nor a nonMechanicalReason
+ *        (→ mechanical:false attestation) [executable_intent_requires_selector_or_reason];
+ *      - checklist_update's bulk setter refuses a fabricated executable pass row
+ *        [checklist_update_executable_evidence_unenforced];
+ *      - verification_evidence_refresh_stale carries mechanical/receipt/nonMechanicalReason
+ *        forward (and demotes a refreshed receipt to mechanical:false) instead of dropping
+ *        them.
+ *    So `mechanical === undefined` on an executable intent ⟺ genuinely pre-mechanism legacy
+ *    data loaded from disk. Do NOT globally demote undefined here — that would hard-break
+ *    every in-flight story's grandfathered prose evidence (the migration break).
+ *
+ * Non-executable (manual|docs) intents are unaffected and stay 'covered'.
+ */
+function coverageStatusForCoveredEvidence(
+  type: VerificationIntentType,
+  evidence: VerificationEvidence,
+): VerificationCoverageEntry['status'] {
+  if (!isExecutableIntentType(type)) return 'covered';
+  if (evidence.mechanical === true) {
+    const receipt = evidence.receipt;
+    return receipt && receipt.selectorMatched && receipt.exitCode === 0 ? 'covered' : 'non_mechanical';
+  }
+  if (evidence.mechanical === false) return 'non_mechanical';
+  return 'covered'; // mechanical === undefined → legacy grandfather
+}
+
+/**
  * B-4e06 CHK-002: the canonical command name that repairs the legacy
  * "evidence exists but verificationIntent missing" state. Referenced by both
  * story_review and validate diagnostics so they cannot drift on the next step.
@@ -173,7 +224,11 @@ export function buildVerificationCoverage(
           !headMatches(evidence.headHash, currentHead) &&
           !(isEvidenceFresh?.(evidence.headHash, evidence) ?? false)
         ) status = 'stale';
-        else status = 'covered';
+        // B-ec67 CHK-004: an executable intent is 'covered' ONLY by an executed
+        // receipt (or grandfathered legacy evidence); a non-mechanical attestation
+        // is demoted to 'non_mechanical'. Lives HERE in the coverage gate — not only
+        // in the write handler — so recording type:manual cannot bypass execution.
+        else status = coverageStatusForCoveredEvidence(collected.intent.type, evidence);
 
         // Evidence quality classification (balanced: warning, strict: blocking)
         if (status === 'covered' && qualityProfile !== 'light') {

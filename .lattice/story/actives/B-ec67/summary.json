@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ec67",
+  "changes": "Makes a false verification-evidence pass mechanically impossible for automated intents (Step 2 / M1 of the evidence-integrity program). core/types.ts: VerificationIntentItem gains verification:{command,selector} (pinned on the first selector-bearing write, immutable); VerificationEvidence gains a tool-owned receipt {exitCode,outputDigest,outputTail,selectorMatched,executedAt} and a mechanical flag. handlers/checklist.ts: a shared enforceAndStampEvidence helper, called by BOTH verification_evidence_add AND verification_evidence_batch_add, resolves the intent, executes the pinned command via a new allowlisted single-command runner (validation-executor.ts, executable+argv only, no raw shell), and refuses on exit-nonzero-but-pass, selector-absent, intentRef-unresolved, or pinned-command-mismatch; result is derived from the receipt, not the caller. A new executable-intent write with neither a selector nor an audited nonMechanicalReason is refused (never mints an unexecuted covered row). checklist_update's bulk evidence setter runs the same per-row guard, and its schema strips caller-supplied receipts so a fabricated receipt cannot be injected; a re-persist carries the existing on-disk receipt forward. core/verification.ts: buildVerificationCoverage demotes manual|docs and any non-mechanical evidence so it cannot cover an executable intent; genuinely pre-mechanism legacy rows are grandfathered (provably legacy-only, since no write path re-mints an unexecuted executable row). A RED-first smoke drives both entry points and every refusal case.",
+  "usage": "lattice verification_evidence_add --storyId=B-xxx --itemId=CHK-nnn --intentRef=CHK-nnn:happy:0 --kind=logic --command='node path/to/test.js' --selector='THE_ASSERTION_MARKER' --note='...' — for an executable intent the tool now RUNS the command, checks the selector is in the output and the exit code, and stamps a receipt; a mismatch or a fabricated pass is refused. A non-executable case uses --nonMechanicalReason (audited, does not grant coverage).",
+  "expectedOutcome": "Recording evidence for an executable intent (logic|cli|browser) executes the pinned command and is refused unless exit==0 and the selector appears in captured output and the intentRef resolves and the command matches the pin; the stored result comes from the receipt; both the single and batch write paths and the bulk checklist_update setter enforce identically; a manual|docs attestation cannot cover an executable intent; a fabricated caller receipt cannot be injected.",
+  "actualTranscript": "The registered smoke prints PASS and each assertion mutation-kills (breaking the behavior makes the smoke fail): a fresh no-selector no-reason executable write is refused; selector-absent / exit-nonzero-but-pass / intentRef-unresolved / pinned-command-mismatch are refused through both entry points and the bulk setter; the receipt outputDigest equals sha256 of the captured output and result is derived from the exit; a manual attestation does not cover an executable intent; a fabricated caller receipt is stripped and refused while a legitimate re-persist preserves the real on-disk receipt. B-ec67 dogfoods the mechanism: its own 18 evidence rows are tool-executed receipts (exit 0, selector matched). The earlier RED reproduction that accepted a false pass now correctly refuses it (red to green).",
+  "outcomeDiff": "No difference — every observable is asserted by the passing mutation-killed smoke and the 18 tool-executed dogfood receipts; three reviewer lanes plus the 3x2 quorum verified the fixes, each independently reproducing the closed bypasses.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered. All 6 checklist items delivered. The optional pin fields cwdPolicy/expectedExit/specDigest were declared out of the enforcement floor (the floor pins command+selector and checks exit==0). The follow-on ergonomic command, the early-warning hook, and re-execution on stale-evidence refresh are their own separate stories.",
+  "pitfalls": "Reviewers caught THREE genuine false-pass bypasses via live mutation testing (a new executable intent recorded without a selector, the checklist_update bulk setter, and the stale-evidence refresh dropping the receipt) plus a receipt-strip precision bug — all closed at the write paths with legacy grandfather kept provably narrow. Gate-chain sequencing that bit hard: (1) record ALL verification evidence BEFORE the reviewers pass — evidence rows are reviewed material, so re-recording after a pass stales the run and blocks REVIEW->TEST with prompt_envelope/stale_run errors; re-run each reviewer to re-bind afterward. (2) This story's own receipts get DEMOTED by refresh_stale, so after material drift re-record them by re-executing, do not refresh. (3) The DEV gate needs red-evidence + a confirmed milestone ledger of at most 5 rows (re-run intent_collision after each ledger write). (4) story_advance TEST runs the full ~52-command validate and needs LATTICE_MAX_TIMEOUT_MS raised on a loaded host.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 809850
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 64597
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1556821
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1835210
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 9754717
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 357944
+    }
+  },
+  "totalDurationMs": 14382175,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-26T03:18:00.137Z",
+  "updatedAt": "2026-07-26T03:18:00.137Z"
+}

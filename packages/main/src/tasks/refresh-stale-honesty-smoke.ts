@@ -155,7 +155,8 @@ function refreshed(store: StoryStore, ref: string): boolean {
   const { store, ctx } = run([cmdRow('CHK-001:happy:0')]);
   assert.equal(refreshed(store, 'CHK-001:happy:0'), false, 'adversarial:2 refused first');
   const add = createMainRegistry(ctx).get('verification_evidence_add')!;
-  assert.doesNotThrow(() => add({ storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass', command: 'node packages/main/dist/tasks/x.js', note: 'genuine re-run after refusal' }), 'adversarial:2 re-verification accepted');
+  // B-ec67 made verification_evidence_add async — await it before asserting the row.
+  await assert.doesNotReject(async () => add({ storyId: STORY_ID, itemId: 'CHK-001', intentRef: 'CHK-001:happy:0', kind: 'logic_test', result: 'pass', command: 'node packages/main/dist/tasks/x.js', note: 'genuine re-run after refusal', nonMechanicalReason: 'synthetic re-verification row for the refresh-honesty unit smoke' }), 'adversarial:2 re-verification accepted');
   assert.equal(refreshed(store, 'CHK-001:happy:0'), true, 'adversarial:2 re-verify freshens the row');
 }
 // adversarial:3 — per-row independence: same item, only the attestation row refreshes.
