@@ -225,6 +225,24 @@
       ],
       "signatureTag": "missing|ts|plan-init-reopen",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70a6:F-011",
+      "desc": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts has outgrown its filename across this storys four expansions: it started as a single PLAN->INIT reopen round-trip regression (F-003) and now also owns crash-window recovery for the ordinary transition path (F-004), an out-of-band rescue drill for story_discard AND a separate one for story_reconcile (F-005a/b, two different production handlers unrelated to reopen round-tripping per se), and a same-reason idempotency drill (F-006) — 6 drills / 669 lines in one file. A maintainer looking for discard- or zombie-repair-related audit coverage would not find it via this filename. Given the files own F-006 comment argues explicitly for exact-identity over fuzzy matching to avoid silent drift, the same discipline argues for splitting the out-of-band rescue drills (F-005/F-006) into a dedicated file (e.g. reopen-audit-out-of-band-rescue-smoke.ts) that shares the seedStoryAtInitCheck/crashInjectReopen helpers via export, leaving this file scoped to the original round-trip + F-004 crash recovery its name describes.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T06:51:17.213Z",
+      "reviewRound": "2026-07-26T06:38:10.290Z",
+      "reviewRunId": "B-70a6:RR-012",
+      "_hash": "42912bfb1f9bbd1f6f6a445a34292194be16410bdce7cf37e8da9b06d98ee152",
+      "files": [
+        "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
