@@ -51,6 +51,7 @@
       "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/production-test-seam-guard.js"], "focus": ["fast"] },
       "node packages/main/dist/tasks/capability-list-smoke.js",
+      { "command": "node", "args": ["packages/main/dist/tasks/command-catalog-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f00c",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Extract a shared merge-lineage classifier (netDiffChangedPaths + classifyMergeLineage) and route both classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts) through it: net endpoint diff with -z + maxBuffer, empty-net-diff means trusted, split ancestry-vs-diff catch",
+    "RED-first smoke reproducing the merge false-positive on both the reuse and admissibility paths plus negative/robustness tests, wired into lattice.config.json validate.commands"
+  ],
+  "excluded": [
+    "Changing refresh_stale laundering behavior (B-3b88 domain)",
+    "Changing the review assurance floor or round counts",
+    "Modifying verdict.ts autopilot hard-throw or phase-gates logic beyond consuming the corrected classifier",
+    "Relaxing the genuine-receipt gate isReusableCommandPass or the material/storyFiles/identity hash factors in evaluateRoutineValidationReuse"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Implements audited rev-2 proposal docs/done-validation-reuse-merge-lineage-fix-proposal.md (Claude CLI + Agy CLI both SOUND-WITH-CHANGES). 2026-07-26.",
+  "createdAt": "2026-07-26T03:09:42.216Z",
+  "updatedAt": "2026-07-26T03:09:42.216Z",
+  "_hash": "a84b0da41ce82731165940577519001c1c5e96ca1cbc8bb84ce69d39ffdda944"
+}
