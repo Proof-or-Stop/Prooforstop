@@ -163,6 +163,36 @@
         "scanEscalationReason": null
       },
       "_hash": "cde47965073c664440d8b141382676be28e4ab5d1d0c808fc1cb482641d467ae"
+    },
+    {
+      "id": "B-ec67:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Pure re-bind: prior review run staled by 18 verification-evidence rows re-recorded after RP-004 (stale_run_hash); confirmed via `git diff 64bf559611 HEAD -- packages/main/src lattice.config.json package.json packages/main/package.json` that source is byte-identical to the commit already independently verified (schema .strip(), carryForwardOnDiskProvenance, mutation-killed smoke). No new analysis needed, no code changed. Re-affirming prior verdict: F-006 (critical) and F-008 (low) both fixed and independently verified; no new findings.",
+      "createdAt": "2026-07-26T03:09:33.748Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-010",
+      "envelopeId": "281319d14593a0e2dfc0f44ca850f20db115da4e2f541a499731f5596ac3a653",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "757daa806d3fcf92c1155e182d74b92dcc35dbbdce0acc02a666b5e0f1fbaf84"
     }
   ]
 }
