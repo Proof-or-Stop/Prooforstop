@@ -254,6 +254,38 @@
         "scanEscalationReason": null
       },
       "_hash": "1a6402e73016246d06ea01a4c3e59be084afeed5ac78ee3848ac4a2533ac1b94"
+    },
+    {
+      "id": "B-3144:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 11: independently re-verified F-023 (RR-025 finding, resolved by e7d9a961d3). Confirmed via git show that both e7d9a961d3 (F-023) and 687ca32583 (F-022) touch only packages/main/src/tasks/quorum-submit-smoke.ts plus .lattice metadata -- no production code changed, consistent with round-10 RP-008 8-file sha256 proof. Read the current namedNearby implementation (quorum-submit-smoke.ts:2748-2776): it walks ancestors for a ts.isPropertyAssignment node whose name equals quorum_prune (owning-KEY match), falling back to a physical-line check for array-element style. Extracted this exact function and ran it standalone (node, real typescript package) against the story files: command-policy.ts:155 (story_resume, keyed entry) -> false, :479 (quorum_submit, keyed entry) -> false, :480 (quorum_prune, keyed entry) -> true; config.ts DEFAULT_PHASE_TOOLS array-element style: line 340 sibling -> false, 361 quorum_submit -> false, 362 quorum_prune -> true, 363 sibling -> false; process-fact-levels.ts array-of-objects style: line 208 quorum_submit -> false, 209 quorum_prune -> true, 400 unrelated L4 fact -> false. Also directly reproduced the four probe shapes from the commit message (owned reason after cross-line reformat, unrelated sibling story_resume, sibling quorum_submit, array-element style) using a synthetic fixture, matching the keyMatch column claimed in the commit message. All 4 exact sites named in the F-023 finding text now behave as claimed. Ran the built smoke directly (node packages/main/dist/tasks/quorum-submit-smoke.js after npm run build): 64/64 checks green including the discovery-sweep assertions this fix protects. Ran scripts/verify-process-fact-contract.mjs: passed. Reviewed handlers/quorum-submit.ts drift-accept guard diff (CHK-002) and handlers/quorum-prune.ts (CHK-003, 455 lines) end-to-end: dry-run default, apply/dryRun contradiction refusals, backup-before-rewrite, group-by-(runId,hostId,sessionId,keyId) with newest/oldest-material selector, lifecycle-metadata transaction reuse, rollback-on-failure restoring exact pre-prune bytes -- matches checklist CHK-002/CHK-003 verificationIntent. Reviewed wiring diffs in cli-engine.ts (quorum_prune exclusion from generic codex_cli append, mirrors quorum_submit exclusion), lattice-cli.ts (createQuorumPruneHandlers spread into registry.registerBatch), command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts -- all 5 CHK-003 integration points wired consistently. No dead code, no unsafe as-any, no empty catch swallowing errors found in the reviewed diff (catch blocks in quorum-prune.ts are documented best-effort with comments explaining why). No proof/receipt/job.metadata/run.metadata dual-surface concern applies to this diff. Working tree left clean except this review run's own metadata writes. No blocking defect found; all 23 prior findings remain resolved.",
+      "createdAt": "2026-07-26T08:41:52.132Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "reviewRunId": "B-3144:RR-027",
+      "envelopeId": "dea9652bdda5098a31f2f5f93aaa95868756e67cfb07e2e981a0afe05d719d23",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/findings.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f83057af988750224751723ea47c953234af64fb9d7cf52a361a04b3b0dbe7f9"
     }
   ]
 }
