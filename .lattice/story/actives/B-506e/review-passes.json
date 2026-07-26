@@ -617,6 +617,51 @@
         "scanEscalationReason": null
       },
       "_hash": "3ac1c51a55359cc73812bf880b79145d92c095257434a4392c4c3ff3308fa8a2"
+    },
+    {
+      "id": "B-506e:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge confirmation pass (124 commits from main merged: B-ec67/B-3783/B-8b69/etc). tsc --noEmit -p packages/main clean. Diffed every story-scope + dependency file against reference b4fa4bbfad: append.ts/chain.ts/operation-key.ts/record-v2.ts/target-bindings.ts/store.ts/proofstory.ts/handlers/red-evidence.ts/mkdir-lock.ts/canon.ts all byte-identical (0-line diff) — merge touched none of this story production code or dependency APIs (withMkdirLock/acquireMkdirLock, readRedEvidence/writeRedEvidence, CANON helpers unchanged). Non-zero diffs vs b4fa4bbfad (lattice.config.json, command-catalog.ts, lifecycle-registry.ts, types.ts, command-catalog-smoke.ts) trace entirely to B-8b69/B-ec67/B-3783 via git log per-file; none reference red-evidence/mkdir-lock symbols. red-evidence-chain-smoke.ts diff is this story own round-3/4 fixes already reviewed at RP-012. Ran all 10 red-w2c-*.mjs fixtures fresh on merged+rebuilt tree: all OK. Re-ran pinned five-scenario v1-verdict digest twice: sha256=2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec both times. Ran red-evidence-chain-smoke.js from rebuilt dist: OK. No API drift found.",
+      "createdAt": "2026-07-26T03:57:51.701Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-026",
+      "envelopeId": "5f1c7b8328ede3c68e8cd2f8ec225a56ca24725156513d3af35a49e8fec2ea3a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4095f4c04d9a540461d10ae35d98953c90494fb6a16285cee5c784088d4fc78e"
     }
   ]
 }
