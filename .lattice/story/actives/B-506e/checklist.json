@@ -307,14 +307,14 @@
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/proofstory.ts",
+          "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "red-w2c-gate-guard.mjs (lines 95-97) writes a v2-only store and asserts missingRedEvidence fires (v2Only.length>0) with no crash — a v2-only store has no v1 satisfier and must report missing rather than throw.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.825Z"
+          "note": "Re-run in round 3 after the file changed. This case was already genuine and is unchanged: a store containing ONLY the v2 quarantine record has no v1 satisfier, so some() cannot short-circuit past it; the assertion is that missingRedEvidence is non-empty and the gate does not crash. Against a dist built from the pre-fix tree 8727b2db83 this same case throws TypeError at record.observedFailure.trim() instead.",
+          "headHash": "767382add6e2b5b2878082aecf15446f4497e6cc",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:32:47.528Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
