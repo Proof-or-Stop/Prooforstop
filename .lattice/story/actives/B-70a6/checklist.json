@@ -29,7 +29,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+          "result": "pass",
+          "note": "Smoke drives a real CLI PLAN->INIT reopen from inside the worktree, then reads the PERSISTED process-events JSONL via StoryStore.readProcessEvents and asserts exactly one PLAN->INIT phase_transition event carrying transitionType=reopen plus the reason verbatim. One shared literal is now used both to send the reopen and to assert what was stored, so verbatim is a real round-trip rather than two literals that merely match. Verified RED: with the call-site fields removed the smoke fails on - the reopen phase_transition event must be marked transitionType=reopen.",
+          "headHash": "ab4475588833b1d184007fef80fb1f6ce7f9622e",
+          "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
+          "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
+          "timestamp": "2026-07-26T01:35:34.795Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
