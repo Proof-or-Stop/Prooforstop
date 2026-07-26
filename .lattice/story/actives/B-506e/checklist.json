@@ -217,15 +217,14 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "result": "pass",
-          "note": "Re-run in round 4 after the file changed. Steps 0-3 (lines 99-124) back this intent and are unchanged: classifyRedRecordSchemaSafe returns 'unsupported' for a proofstory.red_evidence.v3 record and classifyRedRecordSchema THROWS a typed RedEvidenceSchemaError on it; store.readRedEvidence (line 113) REJECTS a store containing that record with the same typed error rather than admitting it into records[]; and the LIVE gate surfaces that typed error, never a bare TypeError. Round-4 change affecting this file: step 4's second arrangement, which round 3 kept as a labelled vacuous companion ([v1, v3] — some() short-circuits so the v3 record was never evaluated), is REPLACED at lines 155-168 by a mid-array arrangement [non-satisfying v1, v3, satisfying v1] that the predicate genuinely reaches; the v3-first case (line 139) and the v3-only case (line 175) are unchanged. Commit 85f60fcbf4.",
-          "headHash": "cfc0f7b3c629aecc9bb689a18a8e3efa37f798ff",
+          "note": "F-015 re-anchor: the old note cited line offsets. Durable anchor: the step banners of red-w2c-schema-failclosed.mjs and the module-level v3 const (a record whose schemaVersion is proofstory.red_evidence.v3 and which carries no observedFailure). Step banner 0 (classifier is EXHAUSTIVE, unit) asserts classifyRedRecordSchemaSafe(v3) is unsupported (message: v3 becomes unsupported, not silently v1) and that classifyRedRecordSchema(v3) throws a RedEvidenceSchemaError (message: classifyRedRecordSchema fails CLOSED on v3). Step banner 2 (READ PATH fails closed on a v3 record) stores the v1 and v3 records and asserts store.readRedEvidence throws (message: store.readRedEvidence MUST fail closed on an unsupported schemaVersion, not silently accept it), that the thrown value is not a bare TypeError, that it is a RedEvidenceSchemaError, and that its message names schemaVersion. Step banner 3 asserts the live gate surfaces that same typed error rather than a bare TypeError. An unknown per-record schemaVersion is therefore rejected at load time with a diagnostic and never enters records.",
+          "headHash": "5cae2ff5780d18958763d755d8a3c0e2dfc3456c",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:17:47.267Z"
+          "timestamp": "2026-07-26T01:40:44.778Z"
         }
       ]
     },
