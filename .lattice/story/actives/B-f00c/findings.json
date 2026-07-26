@@ -42,6 +42,26 @@
       "resolvedAt": "2026-07-26T04:02:34.539Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f00c:F-003",
+      "desc": "npm run test:process-fact-contract (scripts/verify-process-fact-contract.mjs:3994-3999, invoked by red-evidence-target-binding-smoke.js step 47/53 of npm test / lattice validate) FAILS on current worktree state: 5 assertion failures — shared routine validation reuse contract missing --is-ancestor, diff-tree, isStoryMetadataPath, merge-base, rev-list. The static contract reads packages/main/src/core/validation-evidence-reuse.ts raw text and requires these literal git-command tokens to be present there; CHK-001 extracted the merge-lineage classifier (including all of merge-base/--is-ancestor/rev-list/diff-tree/isStoryMetadataPath) into the new shared module validation-lineage.ts, so validation-evidence-reuse.ts no longer contains any of these tokens (grep confirms zero matches except the untrusted-lineage-path: reasons string). Confirmed this passed at the story merge-base with main (1848e37a4c) and fails now on HEAD 9d7987d — a real regression caused by this story, not pre-existing. This directly contradicts CHK-001:adversarial:2 verificationEvidence (logic_test, no command, claims \"no collateral regression\" based only on a git-diff read of the other 8 reuse factors) — that evidence never ran the full test suite / this specific contract check, so the collateral regression went undetected. scripts/verify-process-fact-contract.mjs is NOT in the story scope allowedModify list, so fixing this needs either a scope amendment (add the script) or a design change that keeps the tokens discoverable (e.g. re-export/comment) so the shared-classifier extraction does not silently break this pre-existing regression gate. Blocks DONE: npm test currently fails.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T04:18:45.386Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-009",
+      "_hash": "b008321d20cdaaf5b09e88fc4579d6f8fc2a439c55ee8e0c8dcd5a8b1b567412",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/validation-evidence-reuse.ts",
+        "packages/main/src/core/validation-lineage.ts"
+      ],
+      "signatureTag": "adversarial|mjs|test-process-fact",
+      "signatureTagSource": "auto"
     }
   ]
 }
