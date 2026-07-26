@@ -38,7 +38,30 @@
       "context": "Decision D-2. SUPERSEDES the earlier framing that main had no two-layer idiom to mirror: since the B-506e merge, main already classifies at the read boundary in store.ts and skips non-v1 records in the predicate. This story EXTENDS that shape rather than establishing it. The remaining hole is that the 'v1' class is RESIDUAL, not validated - classifyRedRecordSchemaSafe returns 'v1' for any object lacking a schemaVersion member without checking the legacy v1 shape, and it returns 'v1' for arrays too. So redEvidenceRecordSatisfied must never throw on arbitrary input even when a malformed record is injected directly into the diagnostic input, bypassing the read path. The audit verified observedFailure is the ONLY unguarded per-record dereference - every other check in the predicate is a truthiness test or a short-circuited read - so do not widen this into a rewrite of those checks.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The gate predicate returns a verdict for every well-formed input exactly as before.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The predicate never throws even when a malformed record is injected DIRECTLY into the diagnostic input, bypassing the read boundary entirely.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The other per-record checks are unchanged; only the missing shape guard is added, verified by diffing the predicate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
@@ -63,6 +86,30 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Prove the gate verdict is order-independent after the fix",
+      "context": "Added in PLAN per INIT-002 / DRAFT-106, raised twice by the INIT reviewer and re-verified live on current main. Decision document acceptance section 10.3 requires BOTH ordering rows, and only O1 was covered. O1, malformed entry first, crashes today and is a CHK-001 repro row. O2, a satisfying record FIRST and a malformed entry after, does NOT crash: redEvidenceSatisfied uses Array.prototype.some, which short-circuits on the first satisfying record, so the malformed entry is never examined and the gate returns SATISFIED while the artifact is corrupt. That makes the outcome depend on array position, which is a defect in its own right and cannot be caught by a crash-only test. After the fix, assert that the SAME record set produces the SAME verdict regardless of position, and that a malformed entry is reported even when a satisfying record precedes it.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-2aa7/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-26T22:22:19.997Z",
+      "phase": "PLAN",
+      "itemId": "CHK-009",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "INIT reviewer raised this twice (DRAFT-106 then INIT-002) and it was deferred to PLAN on the explicit condition that it become a real checklist item rather than an optional addition; acceptance section 10.3 row O2 was otherwise covered by no item.",
+      "addedTitle": "Prove the gate verdict is order-independent after the fix",
+      "addedContext": "Added in PLAN per INIT-002 / DRAFT-106, raised twice by the INIT reviewer and re-verified live on current main. Decision document acceptance section 10.3 requires BOTH ordering rows, and only O1 was covered. O1, malformed entry first, crashes today and is a CHK-001 repro row. O2, a satisfying record FIRST and a malformed entry after, does NOT crash: redEvidenceSatisfied uses Array.prototype.some, which short-circuits on the first satisfying record, so the malformed entry is never examined and the gate returns SATISFIED while the artifact is corrupt. That makes the outcome depend on array position, which is a defect in its own right and cannot be caught by a crash-only test. After the fix, assert that the SAME record set produces the SAME verdict regardless of position, and that a malformed entry is reported even when a satisfying record precedes it."
     }
   ]
 }
