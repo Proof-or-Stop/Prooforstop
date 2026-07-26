@@ -1,0 +1,41 @@
+{
+  "storyId": "B-2aa7",
+  "name": "red-evidence-artifact-validation",
+  "title": "Validate the legacy v1 red-evidence artifact before enforce-gate evaluation",
+  "description": "On main @ 1847b3af6d a malformed record OR a malformed file envelope in a story's red-evidence.json crashes the LIVE dev/review/done enforce gate with a bare TypeError instead of failing closed, because store.readRedEvidence is a bare JSON.parse-and-cast with no validation between parse and the typed domain. Pre-existing, not a regression. Fix per the settled decisions in docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md: full v1 validation at the read boundary covering envelope and records, malformed entries quarantined rather than thrown, the gate predicate kept total as defense-in-depth, and a mandatory migration scan proving no valid verdict moved. The invariance baseline is derived on main by this story, never imported from another tree. NOTE: all line citations in this story and in the decision document were verified against main @ 1847b3af6d; main has since advanced (CLI 0.3.239 -> 0.3.242) and a few line numbers have drifted by unrelated commits (for example core/machine.ts:167 and core/types.ts:2678-2698). Semantics are unaffected - re-locate by symbol, not by line, and trust the symbol.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "red-evidence",
+    "proofstory",
+    "gate",
+    "schema-validation",
+    "fail-closed",
+    "quarantine"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "machine.ts"
+    }
+  ],
+  "createdAt": "2026-07-26T11:59:09.669Z",
+  "startedAt": "2026-07-26T11:59:09.669Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-26T11:59:10.785Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    }
+  ]
+}
