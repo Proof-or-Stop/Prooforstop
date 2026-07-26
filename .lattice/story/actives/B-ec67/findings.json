@@ -75,6 +75,26 @@
       ],
       "signatureTag": "missing|ts|happy-overclaims-manual",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ec67:F-005",
+      "desc": "CHK-005:edge:0/adversarial:0 (must) overclaim per CLAUDE.md handler convention (Zod min/max must be re-validated at handler entry AND tested via a bypass path): command-catalog.ts:465,480 Zod-enforce nonMechanicalReason.min(30); checklist.ts:309 MIN_NON_MECHANICAL_ESCAPE_REASON=30 re-validates it at handler entry (checklist.ts:414-419, throws non_mechanical_reason_too_short) — matching the convention. But no smoke case ever exercises a sub-30-char nonMechanicalReason through the internal fn-call path (env.handlers.verification_evidence_add bypasses Zod entirely already); the smoke only uses one long reason string (line 264, ~78 chars). Demonstrated by mutation: changed `const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;` to `= 0;` in dist/handlers/checklist.js (fully disabling the runtime re-validation this checklist item exists to guarantee) and reran the smoke — still PASS/exit 0. This is exactly the F-005/F-006/F-019 pattern CLAUDE.md calls out: a runtime constraint with zero test proving the bypass path is still enforced.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:37:05.459Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-003",
+      "_hash": "5a4a89244d7ea3cb56503be9906071de4676dff371b283a7937c5093eb55af26",
+      "files": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "adversarial|ts|edge-adversarial-overclaim",
+      "signatureTagSource": "auto"
     }
   ]
 }
