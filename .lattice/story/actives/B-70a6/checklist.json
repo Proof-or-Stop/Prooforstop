@@ -116,6 +116,18 @@
           "materialHash": "7ba254515e766c7a1ec930e1f8f9488f9f2d7935b2949986be26d68f562ce954",
           "storyFilesHash": "8f197ceff1a0f186b80b345fc3cebfad2d3a005e4230c48385182db6867c0d3b",
           "timestamp": "2026-07-26T01:13:28.015Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/worktree.ts",
+          "command": "git diff HEAD~1 -- packages/main/src/handlers/worktree.ts",
+          "result": "pass",
+          "note": "The comment explicitly forbids the reliance rather than merely omitting it: \"callers must not rely on it to touch only their own entry\" (line 582), preceded by \"repo-wide, NOT story-scoped\". It further blocks the opposite over-reliance (assuming the registry ends up fully clean) with the locked-worktree caveat at lines 583-584. Cross-checked the sole nearby call-site comment at line 996, which correctly attributes story-scoping to removeStaleWorktreeAdminDirs and says only that the prune leaves live siblings untouched - no contradictory story-scoped claim about the prune remains in the file. Diff is comment-only: the body `git(\"worktree prune --expire now\", cwd)` is byte-identical, and `npm --prefix packages/main run build` (tsc) exited clean with no output.",
+          "headHash": "54ff7bd77f6c36d171ee5a66d8bc6028bcaa0f35",
+          "materialHash": "7ba254515e766c7a1ec930e1f8f9488f9f2d7935b2949986be26d68f562ce954",
+          "storyFilesHash": "8f197ceff1a0f186b80b345fc3cebfad2d3a005e4230c48385182db6867c0d3b",
+          "timestamp": "2026-07-26T01:13:36.406Z"
         }
       ]
     }
