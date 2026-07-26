@@ -102,14 +102,16 @@
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "packages/main/src/core/validation-lineage.ts",
-          "note": "classifyMergeLineage catches merge-base --is-ancestor separately (returns not-ancestor) from netDiffChangedPaths (returns diff-failed with the error message), so a diff/ENOBUFS failure is never mislabeled as not-ancestor; smoke test 6 exercises the not-ancestor branch.",
-          "headHash": "91396c5a8d6000104ee5d906741b7562c5c0d9c5",
-          "materialHash": "ca148989f578a88967605f6a7beb88e604330afec934db7aa7aca038968908a3",
-          "storyFilesHash": "f9c14203078b83b24b2556fa121992f5c0a65db302b9d9b6febe0e0b0f086711",
-          "timestamp": "2026-07-26T03:45:33.994Z"
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "Smoke test 7 injects a throwing changedPathsFn on an ancestor scenario (merge-base OK) and asserts classifyMergeLineage returns {kind:'diff-failed'} with the underlying error - runtime proof the diff-failure catch is DISTINCT from the not-ancestor catch (split-catch). Exit 0.",
+          "headHash": "8f2eaa32089b1685c8fed4cb601d1f83ce48f96c",
+          "materialHash": "87c617f937b42c2bd22d43227c5340984039be3e54b473210f4cfbf48595dde0",
+          "storyFilesHash": "35d409457486052b2393b5ef564a95a6ce9aade528db68b62e54042580cb003e",
+          "timestamp": "2026-07-26T04:02:23.176Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
