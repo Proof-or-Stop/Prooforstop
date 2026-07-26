@@ -334,14 +334,16 @@
         },
         {
           "intentRef": "CHK-002:adversarial:1",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
-          "note": "The NEGATIVE assertion (smoke test 2, genuine change -> untrusted on both paths) is required; removing it would let a real content change be silently reused and is a detectable coverage loss because the genuine-change scenario would no longer be asserted anywhere in this smoke.",
-          "headHash": "37b571f7df5911129b6193b7c2760f714ef0dc17",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "Smoke test 2 (NEGATIVE) asserts a genuine content change stays untrusted on both paths; it is load-bearing — removing it would let a real change be silently reused with no other assertion catching it. Exit 0.",
+          "headHash": "25618f397378dc7c0bfa92dfcf4a86b19884272a",
           "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
           "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
-          "timestamp": "2026-07-26T05:06:55.557Z"
+          "timestamp": "2026-07-26T05:09:04.524Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
