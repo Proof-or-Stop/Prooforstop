@@ -2747,14 +2747,26 @@ try {
       const scopeSf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
       const namedNearby = (line: number): boolean => {
         const offset = scopeSf.getPositionOfLineAndCharacter(Math.max(0, line - 1), 0);
-        let enclosing: ts.Node | undefined;
+        // F-022 RED: keeping only the INNERMOST enclosing node broke the guarantee this comment
+        // makes. Reformat `quorum_prune: { reason: '...apply:true...' }` across lines and the
+        // innermost enclosing PropertyAssignment becomes `reason:` itself, whose text does not
+        // contain the command name (the key is a sibling on another line) — so both this check
+        // and the line fallback failed and the site left the sweep silently. Any ANCESTOR naming
+        // the command puts the prose in range, which is what "however that entry is formatted"
+        // has to mean: the `quorum_prune:` key always encloses the reason string it owns.
+        let named = false;
         const visit = (node: ts.Node): void => {
+          if (named) return;
           if (node.getFullStart() > offset || node.getEnd() < offset) return;
-          if (ts.isPropertyAssignment(node) || ts.isVariableStatement(node) || ts.isExpressionStatement(node)) enclosing = node;
+          if ((ts.isPropertyAssignment(node) || ts.isVariableStatement(node) || ts.isExpressionStatement(node))
+            && node.getText().includes('quorum_prune')) {
+            named = true;
+            return;
+          }
           node.forEachChild(visit);
         };
         visit(scopeSf);
-        if (enclosing && enclosing.getText().includes('quorum_prune')) return true;
+        if (named) return true;
         // Array-element style (`'quorum_prune', // comment`) has no per-entry node, so fall back
         // to the physical line, which is where that form always puts the name.
         return (sourceLines[line - 1] ?? '').includes('quorum_prune');
