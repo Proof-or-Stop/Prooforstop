@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-3b88",
+  "status": "FAIL",
+  "startedAt": "2026-07-26T02:46:58.158Z",
+  "endedAt": "2026-07-26T02:48:07.357Z",
+  "durationMs": 69199,
+  "headHash": "3c8fc225881235580a08004f1d55dfbcf7c9375b",
+  "materialHash": "f4345247a6dd29edbcac066b7a0943eb1778b0c17f33a8a488a72f041999651a",
+  "storyFilesHash": "e86de7b40843e37e6c0e8c75f6f736c9f829f80409b29a5cefcb9b6e6912d54e",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3b88",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3b88",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 23758,
+      "outputDigest": "752206b9d411365d111cf234d6761f3a0732753cd39a96aa39c2b868a4d47278",
+      "outputTail": "\n> @lattice/core@0.3.239 build\n> tsc\n\n",
+      "startedAt": "2026-07-26T02:46:58.159Z",
+      "endedAt": "2026-07-26T02:47:21.917Z",
+      "effectiveEnvironmentDigest": "f1adc6545c11b52683fcc1e6ed6080c5a8fc239e5f730c0d8cefad4c8021f6e4",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3c8fc225881235580a08004f1d55dfbcf7c9375b",
+      "materialHash": "f4345247a6dd29edbcac066b7a0943eb1778b0c17f33a8a488a72f041999651a",
+      "storyFilesHash": "e86de7b40843e37e6c0e8c75f6f736c9f829f80409b29a5cefcb9b6e6912d54e"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3b88",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-3b88",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 45002,
+      "outputDigest": "23dbf299eeb084c74494dd55827aa9740559db500d6a143b145d211a1ce205b5",
+      "outputTail": "nly open listed\n  ✓ deriveLatestLoopRecord: returns last record for loopId\n  ✓ deriveLatestLoopRecord: unknown loopId → undefined\n  ✓ deriveLoopStatus: open start → open\n  ✓ deriveLoopStatus: resolved close → resolved\n  ✓ validateTriggerRefs: empty trigger is rejected\n  ✓ validateTriggerRefs: finding refs → accepted\n  ✓ validateResolvedCloseInvariant: resolved close requires evidence refs\n  ✓ validateResolvedCloseInvariant: resolved close requires current material hash\n  ✓ validateResolvedCloseInvariant: resolved close accepts fresh evidence refs\n  ✓ validateResolvedCloseInvariant: blocked close does not require resolved evidence refs\n\n[2] runReviewLoopGate gate behavior\n  ✓ gate passes when no loops exist\n  ✓ gate throws for start record (open loop)\n  ✓ gate message includes loopId\n  ✓ gate message includes decision and nextAction when iteration is latest\n  ✓ gate passes after resolved close\n  ✓ gate passes after blocked close (loop gate clears; other gates still apply separately)\n  ✓ gate passes after escalated close (loop gate clears; other gates still apply separately)\n  ✓ gate throws for open loop even if a different loop is resolved\n  ✓ gate fails closed when review loop records are unreadable\n\n[3] getGuardFailureReason TEST phase with open loop\n  ✓ returns Cannot enter TEST message with open_review_loop tag\n  ✓ shared verdict preserves iteration decision and nextAction diagnostics\n  ✓ returns null (no loop blocker) after resolved close — reviewer gate then controls\n  ✓ blocked close also clears loop gate message\n  ✓ returns fail-closed reason when review loop records are unreadable\n\n[4] Authority/receipt/production field absence\n  ✓ ReviewLoopStart has no authority/receipt/production fields\n  ✓ ReviewLoopIteration has no authority/receipt/production fields\n  ✓ ReviewLoopClose has no authority/receipt/production fields\n\n[5] Reflection context isolation\n  ✓ reusableLearning is stored in reflection only, not at top-level or in evaluation\n  ✓ DEFAULT_REVIEW_LOOP_POLICY has no auto-execution flags set true\n\n[6] Handler projection and duplicate loopId safety\n  ✓ review_loop_status JSON exposes active and latest fields\n  ✓ review_loop_start rejects duplicate explicit loopId\n  ✓ review_loop_start rejects placeholder rollbackRef hashes\n\nreview-loop-smoke: 39 passed, 0 failed\n\n> lattice@0.3.239 test:delivery-context-pack-smoke\n> npm --prefix packages/main run test:delivery-context-pack-smoke\n\n\n> @lattice/core@0.3.239 test:delivery-context-pack-smoke\n> node dist/tasks/delivery-context-pack-smoke.js\n\ndelivery_context_pack smoke passed\n\n> lattice@0.3.239 test:flow-stability-smoke\n> npm --prefix packages/main run test:flow-stability-smoke\n\n\n> @lattice/core@0.3.239 test:flow-stability-smoke\n> node dist/tasks/flow-stability-smoke.js\n\nnode:internal/modules/run_main:122\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: refresh helper should refresh the stale story-owned evidence\n    at assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-3b88/packages/main/dist/tasks/flow-stability-smoke.js:1352:16)\n    at file:///Users/jek/Documents/Work/proofbound/.worktrees/B-3b88/packages/main/dist/tasks/flow-stability-smoke.js:4006:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 'Stale verification evidence for B-smoke: 1\\n' +\n    '  - CHK-001:happy:0: synthetic → REFUSED (command-backed pass; re-run to re-verify — refresh will not re-certify)\\n' +\n    'Refreshed 0/1 stale evidence item(s), refused 1 command-backed pass row(s) — re-run to re-verify (refresh does not re-certify). Re-run lattice validate --story=B-smoke --json',\n  expected: /Refreshed 1\\/1 stale evidence/,\n  operator: 'match'\n}\n\nNode.js v22.13.0\n",
+      "startedAt": "2026-07-26T02:47:22.152Z",
+      "endedAt": "2026-07-26T02:48:07.154Z",
+      "effectiveEnvironmentDigest": "f1adc6545c11b52683fcc1e6ed6080c5a8fc239e5f730c0d8cefad4c8021f6e4",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3c8fc225881235580a08004f1d55dfbcf7c9375b",
+      "materialHash": "f4345247a6dd29edbcac066b7a0943eb1778b0c17f33a8a488a72f041999651a",
+      "storyFilesHash": "e86de7b40843e37e6c0e8c75f6f736c9f829f80409b29a5cefcb9b6e6912d54e"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
