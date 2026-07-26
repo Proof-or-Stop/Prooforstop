@@ -90,6 +90,37 @@
         "scanEscalationReason": null
       },
       "_hash": "db6e93240830c3f3213a2fc725e77e66f756e349f43bcafccf08603023d9d2b7"
+    },
+    {
+      "id": "B-3b88:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 (post F-001/F-002/F-003 doc-drift fixes): re-verified test coverage genuineness. CHK-001 12/12 + CHK-002 11/11 intents each bind to a distinct assertion in evidence-selfcheck-smoke.ts / refresh-stale-honesty-smoke.ts. checklist.ts and both smoke files are byte-identical to their last content commit (a9036147af); git diff a9036147af..HEAD on these 3 paths is empty. All F-001/F-002/F-003 fixes were doc/CLI-help/hint-text only (docs/requirements/decisions/story-lifecycle.md, testing-infra.md, command-catalog.ts, evidence-stale-hint.ts) plus unrelated checklist.json metadata churn from concurrent lanes -- none touch CHK-001/CHK-002 test files or intents. Rebuilt packages/main fresh and ran both smokes directly against current dist: both PASS. No coverage gaps found.",
+      "createdAt": "2026-07-26T00:00:03.927Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-011",
+      "envelopeId": "0a637e23c5e810ff24e5457151a64514c8a99cab6d61af61d86ac4fa541c3c31",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef654793914bd5e8760cc659f2e3f23cb321e4d3927e6ce174150c72f6b3c850"
     }
   ]
 }
