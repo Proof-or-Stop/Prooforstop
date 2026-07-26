@@ -251,7 +251,11 @@
           {
             "desc": "stored evidence for an executable intent carries a receipt (exitCode + outputDigest + outputTail) and the result field is derived from the actual exit code, not the caller",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -268,7 +272,28 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts stored evidence carries receipt {exitCode,outputDigest,outputTail,selectorMatched} and result is derived from the actual exit, not the caller.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe204bea200b7a6da44ff06e1cf27778ed38632c64cb6c546b3a0ffd154581d6",
+            "outputTail": "tool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T00:27:25.602Z"
+          },
+          "headHash": "40719fdf16c079e75f373a1d1108c1c544f9dba6",
+          "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
+          "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
+          "timestamp": "2026-07-26T00:27:25.732Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
