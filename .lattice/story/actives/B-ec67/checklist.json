@@ -233,9 +233,9 @@
       "id": "CHK-003",
       "title": "Store a tool-owned receipt (exitCode + outputDigest + outputTail) on the evidence",
       "context": "Model on packages/main/src/core/done-required-validation.ts:892-895 (exitCode/outputDigest=sha256(output)/outputTail helper:531). Reviewers must see real numbers, killing the claimed-N-actually-M counting errors; the receipt is the tool's proof, not the agent's prose.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T00:28:48.916Z",
       "files": {
         "modify": [
           "packages/main/src/handlers/checklist.ts",
