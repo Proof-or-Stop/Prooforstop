@@ -424,11 +424,11 @@
           "file": "packages/main/src/core/red-evidence/chain.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 3 (lines 273-277) partitions a store with targets AB-001 (2 records) and AB-002 (1 record) via partitionChain and resolves each head; resolveChainHead returns the maximal-seq head and AB-002's head is unaffected by AB-001 — multi-record head resolution + per-target partitioning.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets, and it also claimed each head was resolved there, which section 3 does not do. Durable anchor: the partitioning block of section 3 in red-evidence-chain-smoke.ts, over the array [ra1, child, ab2]: partitionChain for target AB-001 is asserted to hold 2 records and for AB-002 to hold 1, and resolveChainHead of the AB-002 partition is asserted to be ab2 (message: AB-002 head unaffected by AB-001). Head resolution over a chain of three or more records is asserted in section 7 (rejection matrix via handlers) instead: there resolveChainHead over the 3-record chain of red-assert, second red-assert and the appended quarantine returns the quarantine as qHead (which the following double-quarantine and recover cases then use), and after the recover append resolveChainHead over the 4-record chain returns the seq-4 record under the assertion message: recover is head. Section 3 itself does not resolve the head of the 2-record AB-001 partition.",
+          "headHash": "abb035e2d4f642b96b570d70ead1bf5e9562e522",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:02.162Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
