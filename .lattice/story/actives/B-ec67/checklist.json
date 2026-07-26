@@ -600,7 +600,11 @@
           {
             "desc": "RED-first: a selector-absent row is REFUSED after the fix and (demonstrably) was accepted before it",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -630,6 +634,25 @@
           "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
           "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
           "timestamp": "2026-07-26T00:28:14.939Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "RED-first: the smoke shows a selector-absent row is refused after the fix (the ec67-red demo flipped from exit 1 pre-fix to exit 0 post-fix).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fe204bea200b7a6da44ff06e1cf27778ed38632c64cb6c546b3a0ffd154581d6",
+            "outputTail": "tool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T00:28:19.207Z"
+          },
+          "headHash": "919a3668ef53316dc2fc334bb1e1345d3bfeca6c",
+          "materialHash": "756d83e021d9dad257892c79de68cd040682ca3c6e0a24f1711da38eb0044391",
+          "storyFilesHash": "58bade14c4d4ca08d712b9324179e431ec8640c721e6b9ea13b3229b36b4016f",
+          "timestamp": "2026-07-26T00:28:19.381Z"
         }
       ]
     }
