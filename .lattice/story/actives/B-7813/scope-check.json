@@ -293,10 +293,11 @@
       "q": "Handoff §3 design notes say the breaker 'should also consider whether the same root cause recurs' (in addition to whether blockers are decreasing and whether new material genuinely requires another round) — does this require the stall gate to track root-cause identity/recurrence as a distinct signal beyond the existing STALL_WINDOW non-improving blocking-count trend that CHK-001 reuses, or is reusing the existing trend signal sufficient to satisfy this design note?",
       "evidence": "\"A raw absolute cap alone is too crude — the breaker should also consider whether blockers are decreasing, whether the same root cause recurs, and whether new material genuinely requires another round.\" (docs/step3-review-budget-breaker-handoff.md §3). CHK-001's context and verificationIntent only reuse the existing STALL_MIN_ROUNDS/STALL_WINDOW blocking-count trend (\"Reuses the existing assessReviewConvergence trend logic\"); no checklist item or plan.md section mentions tracking root-cause identity across rounds as a separate signal.",
       "sourcePointers": [
-        "docs/step3-review-budget-breaker-handoff.md#3-the-fix----stall-becomes-a-mandatory-adjudication-not-a-warning",
-        ".lattice/story/actives/B-7813/checklist.json#CHK-001",
-        ".lattice/story/actives/B-7813/plan.md#CHK-001"
-      ]
+        "docs/step3-review-budget-breaker-handoff.md#section-3",
+        "docs/step3-review-budget-breaker-handoff.md#section-5"
+      ],
+      "resolution": "Design rationale, not a binding requirement. The handoff §3 sentence (the breaker SHOULD also consider whether blockers are decreasing, whether the same root cause recurs, and whether new material requires another round) is explicitly framed as design NOTES; the binding contract is the §5 acceptance criteria, none of which require root-cause-identity recurrence tracking. This story reuses the existing STALL_WINDOW non-improving-blocker-count trend (review-convergence.ts) as the operative stall signal, which already captures the observable symptom the recurrence note targets (blockers persistently not decreasing across the trailing window). Tracking distinct finding root-cause IDENTITY across rounds is a separate, heavier cross-round mechanism that is (a) absent from §5 acceptance, (b) not required to satisfy the stall-refusal + declare-unreachable + no-double-count criteria, and (c) a possible future refinement of the trend signal. So CHK-001 trend-reuse satisfies the requirement; root-cause-recurrence is a non-binding future refinement, not in this story scope.",
+      "resolvedAt": "2026-07-26T07:45:58.060Z"
     }
   ]
 }
