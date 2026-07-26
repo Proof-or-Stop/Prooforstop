@@ -130,7 +130,7 @@
       "desc": "packages/main/src/handlers/transition-orchestrator.ts reconcilePendingReopenAudit: the exact-auditId-vs-reason-text idempotency distinction (code comment states two reopens MAY legitimately share a reason) is enforced only by the AST contract check in verify-process-fact-contract.mjs, not by any executable test. Independently verified in an isolated scratch clone: mutating the already-audited match from event.reopenAuditId===pending.auditId to event.reason===pending.reason keeps build clean and both plan-init-reopen-roundtrip-smoke.js and flow-stability-smoke.js fully GREEN (only test:process-fact-contract catches it). No drill exercises two reopens on the same story sharing an identical reason with different auditIds, so the documented same-reason edge case has zero executable regression coverage.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T05:54:52.469Z",
@@ -142,7 +142,11 @@
         "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 7bb11db45b. The implementer first established that the PLAIN two-reopen case does NOT bite the reviewer's mutation - both the auditId and reason-text variants dedupe identically there - so a naive test would have been decorative. The drill therefore performs reopen #1 normally, then crash-injects a SECOND reopen sharing the SAME reason text: unmutated code yields 2 events, reason-text matching yields 1. Verified by applying the reviewer's exact mutation in an isolated scratch copy, which produced the failure 'two reopens sharing ONE reason text must yield TWO audit events (found 1)'. This closes the gap where idempotency-by-auditId versus idempotency-by-reason-text had no executable discriminator.",
+      "resolvedAt": "2026-07-26T06:38:13.366Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70a6:F-007",
