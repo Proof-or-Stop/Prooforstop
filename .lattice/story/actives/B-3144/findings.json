@@ -100,7 +100,7 @@
       "desc": "CHK-001:edge:0 evidence reuses happy:1 assertion, packages/main/src/tasks/quorum-submit-smoke.ts:1622-1673 (lines 1633-1636): the intent explicitly states storyFilesHash equality is necessary but not sufficient and requires an independent check that commitMainDrift touches zero story-owned file blobs. The bound evidence reuses the exact same storyHashBefore===storyHashAfter assertion already used for CHK-001:happy:1 -- no distinct file-level/diff-based assertion exists anywhere in the suite verifying commitMainDrift only ever touches main-drift.ts; this is proven only by the note (\"commitMainDrift helper commits only ... - no story-diff file is touched\"), which is a claim about the helpers hardcoded implementation, not an independent runtime check as the intent explicitly demanded.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-25T23:01:11.933Z",
@@ -108,7 +108,11 @@
       "reviewRunId": "B-3144:RR-002",
       "_hash": "3bec506560623652305f258778ca699c2b85147370588925152c86cb2046c1a4",
       "signatureTag": "edge|unknown|edge-evidence-reuses",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "New storyOwnedDiffBlobs() helper reads git diff --raw (path, status, destination blob id) between merge-base(main,HEAD) and HEAD filtered by isMaterialExcludedPath. CHK-001:edge:0 now asserts that set is non-empty, deepEqual across the drift, and never contains main-drift.ts, while a whole-tree diff proves the drift really landed main-drift.ts. Shares no code with the storyFilesHash digest. Commit f1bcba3885.",
+      "resolvedAt": "2026-07-26T00:47:23.346Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-3144:F-007",
