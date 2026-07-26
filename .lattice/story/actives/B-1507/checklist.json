@@ -364,7 +364,11 @@
           {
             "desc": "the smoke is RED-first: each assertion mutation-kills — reverting any of the three behaviors makes the smoke fail",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -405,6 +409,25 @@
           "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
           "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
           "timestamp": "2026-07-26T05:34:07.406Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Mutation-kill demonstrated: clearing reexecByKey flips B1 to FAIL; forcing the guard verdict deny->allow flips C1 to FAIL — the smoke is RED-first.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T05:34:13.095Z"
+          },
+          "headHash": "7818e10dde2b6f1153f745a76c0130f944f7ba79",
+          "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
+          "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
+          "timestamp": "2026-07-26T05:34:13.206Z"
         }
       ]
     }
