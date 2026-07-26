@@ -376,7 +376,11 @@
           {
             "desc": "RED-first: each assertion mutation-kills — reverting the block, the resolution-clear, the unreachable-close, or the breaker coexistence makes the smoke fail",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -406,6 +410,25 @@
           "materialHash": "743ab750ca8e55312cc1ec4ddf883f683a164aa213678c7ea4f97dcd19259e09",
           "storyFilesHash": "1cd33c946ecbebbb85acd49e21ff90511c1ed5df742192dedbaadf590583e06c",
           "timestamp": "2026-07-26T08:49:55.735Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Mutation-kill demonstrated: reverting the block (A), disabling withdrawUnreachable (D), and disabling the ceiling branch (E) each make the smoke FAIL — RED-first.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T08:50:00.080Z"
+          },
+          "headHash": "589eaaeaf705f042d1719729d712e0b80f78c5c8",
+          "materialHash": "743ab750ca8e55312cc1ec4ddf883f683a164aa213678c7ea4f97dcd19259e09",
+          "storyFilesHash": "1cd33c946ecbebbb85acd49e21ff90511c1ed5df742192dedbaadf590583e06c",
+          "timestamp": "2026-07-26T08:50:00.306Z"
         }
       ]
     }
