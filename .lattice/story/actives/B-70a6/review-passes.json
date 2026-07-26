@@ -1,0 +1,33 @@
+{
+  "passes": [
+    {
+      "id": "B-70a6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. All 3 items are additive (optional transitionType/reason fields on phase_transition, gated on eventType===REOPEN so normal-transition shape is byte-identical, verified against flow-stability-smoke deepEqual test) or comment-only corrections. Grepped land-together-or-not-at-all (0 hits in code) and confirmed live-sibling comment landed in worktree.ts. No stale references, no promised-but-undelivered CLAUDE.md/README/schema claims.",
+      "createdAt": "2026-07-26T01:50:32.437Z",
+      "reviewRound": "2026-07-26T01:46:45.517Z",
+      "reviewRunId": "B-70a6:RR-001",
+      "envelopeId": "cac10cb17a1f199c10b925af200d6ac3c60716e56aee27a46e3f5e922a082445",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/index.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2755f5b1395206f7cf58543604b302180ecbc13c35fec582658722736c7f7bfc"
+    }
+  ]
+}
