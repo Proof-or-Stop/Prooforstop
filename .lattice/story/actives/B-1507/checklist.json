@@ -6,7 +6,30 @@
       "context": "New command in cli/command-catalog.ts + a handler; reuse B-ec67's enforceAndStampEvidence / runSingleAllowlistedCommand. lattice verification_run --storyId --intentRef resolves CHK-nnn:lane:index to its pinned verification:{command,selector}, executes it, and writes the receipt-bearing evidence in one step. Ideally verification_evidence_add stops accepting a caller-authored command for automated proof (accepts a generated receipt id instead), staged so callers are not hard-broken.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verification_run resolves a pinned intent, executes its verifier via the shared allowlisted runner, and writes a receipt (exit 0 + selector present)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verification_run on an intent with no pinned command/selector refuses with a clear error and never mints an unexecuted covered row",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verification_run derives result from the receipt not the caller: exit!=0 or selector-absent is refused, a caller-claimed pass cannot override a real failure",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
