@@ -229,6 +229,31 @@
         "scanEscalationReason": null
       },
       "_hash": "7b712c35f18c2632beb4f504f896424c4d4b2ffb6cc09aa4bd5de07ec4e517e8"
+    },
+    {
+      "id": "B-3144:RP-008",
+      "agent": "lattice-review-behavior",
+      "note": "Round 10: verified since round-9 pass (RP-005 @ bab5a21f08) exactly one commit landed (687ca32583, F-022) touching ONLY packages/main/src/tasks/quorum-submit-smoke.ts plus .lattice metadata. git diff --stat bab5a21f08..31cd054bb0 confirmed zero production files changed; byte-for-byte sha256 comparison of all 8 production files in scope (quorum-submit.ts, quorum-prune.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, cli-engine.ts) confirmed IDENTICAL at both heads. The F-022 change only widens the smoke test's own internal namedNearby AST helper (used by a meta-check that pairs documented apply:true with dryRun:false prose) from innermost-enclosing-node to any-ancestor-naming-the-command — test-tooling logic, not user-facing CLI behavior. All 3 checklist items (CHK-001/002/003) remain done with unchanged userSees; all 22 findings remain resolved. Rebuilt from a fresh isolated scratch worktree (b3144-r10-behavior-iso) after killing stray leftover quorum-submit-smoke.js processes (own orphaned prior attempts); ran the smoke test ONE AT A TIME to completion: full run tail confirms `✓ quorum_submit smoke passed (64 checks)` with zero assertion errors, 64 individual ✓ lines. No genuine behavioral defect found; user-facing quorum_submit/quorum_prune CLI behavior at the new head is unchanged from the already-verified round-9 truth table.",
+      "createdAt": "2026-07-26T08:12:19.549Z",
+      "reviewRound": "2026-07-26T07:59:09.016Z",
+      "reviewRunId": "B-3144:RR-026",
+      "envelopeId": "c69cdbc7beb7c42e8f353165f5c7ea81f9e21df7591e405b965e23ba7e6e51b0",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1a6402e73016246d06ea01a4c3e59be084afeed5ac78ee3848ac4a2533ac1b94"
     }
   ]
 }
