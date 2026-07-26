@@ -259,6 +259,38 @@
         "scanEscalationReason": null
       },
       "_hash": "65ed8edc3535766e943cb3d6feb8ca1b22e54de8c0584465cc6f094944bfaf15"
+    },
+    {
+      "id": "B-3b88:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh round (RR-018, head 0ec2738, post F-003/F-004 doc-drift fixes). CHK-001 12/12 + CHK-002 11/11 verificationIntent entries each bind to exactly one distinct, non-padded verificationEvidence row (checklist.json bijection verified: zero missing/extra/duplicate refs, zero failing rows). Read verification.ts (detectEvidenceRowContradiction/commandTargetStem/scriptFileStem) and checklist.ts CHK-002 refresh_stale guard (isCommandBackedPass) and confirmed each smoke assertion exercises genuine, distinct implementation behavior (stem normalization dist/src+.js/.ts/.cjs/.mjs, path-traversal/shell-pipe/multi-arg stem extraction, whitespace-command-backed classification, per-row independence, dryRun no-mutation). Rebuilt dist fresh and ran both smokes directly: evidence-selfcheck-smoke.js PASS, refresh-stale-honesty-smoke.js PASS. Confirmed F-003 (story-lifecycle.md:265) and F-004 (evidence-stale-hint.ts JSDoc) are pure doc/comment-text diffs with zero touch on CHK-001/CHK-002 test files, checklist.ts logic, or verification.ts logic (git show both commits: 1 line changed each, doc/comment only). Prior RP-004 correctly treated as invalid/superseded (bound to stale head 682e1dfd1a before F-003/F-004 landed); this is a genuine fresh full-context round, not a rebind. No blocker.",
+      "createdAt": "2026-07-26T00:15:13.191Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-018",
+      "envelopeId": "b0cbb901de3c8e53d4ee575792778662934ea441722bdbb3a0981fcdfec80f02",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f0a23c2c193c7e78c81b18c22967856cc95ef74c5a4455f337d0cbcc9247da32"
     }
   ]
 }
