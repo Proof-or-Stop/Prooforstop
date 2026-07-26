@@ -1150,11 +1150,11 @@
           "file": "packages/main/src/core/red-evidence/append.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "the registered quarantine handler serializes read-head -> dedupe -> validate -> write under one mkdir claim (append.ts, modeled on acquireMkdirLock); chain-smoke section 6 (lines 360-361) asserts a single append acquires the claim, writes exactly one record with correct chain fields, and completes (claim released).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets plus a bare file reference. Durable anchor: appendControlRecord in core/red-evidence/append.ts, which wraps its entire body - store read, partitionChain, dedupe search, head resolution, reference and transition checks, integrity checks and store.writeRedEvidence - in ONE withMkdirLock call over the lockDir returned by redEvidenceChainLockDir, and withMkdirLock in core/mkdir-lock.ts releases in a finally block. Section 6 of red-evidence-chain-smoke.ts drives one such append through the registered handler and asserts the record count rose by exactly one (message: quarantine appends exactly one record) and that the appended record is the new head (message: quarantine is the new head); the later calls in that same section succeed, which is only possible once the claim has been released.",
+          "headHash": "b4294497b093690b401c6acc32ec7d9ef17d2c32",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:17.536Z"
         },
         {
           "intentRef": "CHK-009:happy:1",
