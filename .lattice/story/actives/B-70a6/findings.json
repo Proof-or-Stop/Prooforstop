@@ -177,7 +177,7 @@
       "desc": "transition-orchestrator.ts:614 vs :647-654 (reconcileReopenAuditBeforeOutOfBandPhaseChange) — the docblock explicitly promises \"Every failure is captured as a warning for the caller to SURFACE, not thrown\", but the catch block reading the doomed copy (doomed = new StoryStore(recordRoot).readStory(args.storyId)) is a bare catch { continue; } that swallows the error with zero diagnostic — no warning pushed, unlike the sibling catch 9 lines later (line 663-665) which does push a warning. A real failure here (permission error, corrupted-but-existing index.json — not just absent worktree) is silently treated as if there was nothing to rescue, contradicting the functions own stated contract and defeating exactly the operator-visibility guarantee F-005 exists to establish for the other failure path.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T06:50:45.498Z",
@@ -188,7 +188,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|ts|transition-orchestrator-reconcilereopenauditbeforeoutofbandphasechange",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6d3901f8c6. The doomed-copy read failure now pushes a warning, matching the sibling catch and the docblock. One substantive judgement recorded rather than hidden: StoryStore.readJson throws a TYPED StoryArtifactMissingError for 'no metadata here' versus a plain SyntaxError/EACCES for 'present but unreadable'; warning on both would spam every discard of a story whose worktree simply has no metadata copy, so absent stays a silent no-op and everything else warns - exactly the cases the finding named. The error class is private to core/store.ts (outside scope, so it could not be exported), hence an e?.name match; a rename degrades to an EXTRA warning (loud), never back to a swallow. The docblock now states that single exception instead of over-promising. Verifier gained an assertion that every catch in the rescue must bind and surface its error; restoring a bare catch makes it exit 1.",
+      "resolvedAt": "2026-07-26T07:19:44.848Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-70a6:F-009",
