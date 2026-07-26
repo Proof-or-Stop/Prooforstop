@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-7813",
+  "phase": "TEST",
+  "generatedAt": "2026-07-26T10:15:24.530Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "00f160843389e8f1468ee4951d09aedd1811eebf00d6210c5a5a505b6c5a6c5a",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:2859b71d82adc72c062c92b7b94be639e8d0b79577685e5a209df8e67d7b8922"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "fd9b5cdc98799f28ca460af9f05e5fde2d3adc59",
+    "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+    "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "the stall detector blocks minting another ordinary review round when stalled without a current-round resolution",
+      "acceptance": "transition-effects/machine refuse the REVIEW re-entry mint on a stall (>=STALL_MIN_ROUNDS non-improving) with a structured prompt; a converging trend is not blocked",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke A: a stall [3,3,3,3]/[0,2,2,2] with no resolution → the real mint gate refuses with [review_convergence_stall] naming the 5 actions.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke B: converging clean-tail [3,2,1,0] / strictly-decreasing [4,3,2,1] / below-threshold [3,3,3] are NOT blocked (no false cap).",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke C: the block is not bypassable by re-entry without a recorded current-round resolution; re-validated at guard + gate."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "structured resolution actions (incl. declare-unreachable) clear the block; an empty/stale one does not",
+      "acceptance": "stall_resolution_set records one of five signed current-round actions that clears the block; declare_unreachable marks the item withdrawn (B-1909) and closes the loop; a previous-round/empty/unsigned resolution is refused",
+      "evidence": [
+        "CHK-002:happy:0 [pass/manual_transcript] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke C: recording any of the actions via the real stall_resolution_set handler flips the current round blocked→allowed.",
+        "CHK-002:edge:0 [pass/manual_transcript] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke D: declare_unreachable marks the checklist item withdrawn (B-1909) and closes the loop; respects the empty-scope binding floor.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke C: empty-reason / previous-round / unsigned / tampered resolutions are refused at BOTH handler and gate (no theater)."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "a hard ceiling/override caps rounds and the adjudication does not double-count with the convergence-breaker",
+      "acceptance": "beyond the ceiling ordinary rounds are refused unless a privileged override is recorded; stall adjudication (review-round) and breaker (advances) each fire only on their own trigger; story_resume --ack clears the breaker not the stall block",
+      "evidence": [
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke E: past STALL_HARD_CEILING_ROUNDS even a per-round resolution is refused with [review_convergence_stall_ceiling]; only override_budget proceeds.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke F: the stall adjudication (review rounds) and the convergence-breaker (advances) each fire only on their own trigger — no double-count.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Smoke F: story_resume --ack clears the breaker but NOT the stall block; recording a stall resolution leaves the breaker advanceBaseline untouched."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "a RED-first mutation-killing smoke reproduces the stall refusal + F-058 unreachable scenario + breaker non-interference, registered in validate",
+      "acceptance": "the registered smoke prints PASS, drives real gate/handler entry points, mutation-kills, and is wired in lattice.config.json + package.json",
+      "evidence": [
+        "CHK-004:happy:0 [pass/manual_transcript] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=The registered smoke prints review-budget-stall-adjudication-smoke: PASS exit 0 and is wired in lattice.config.json + both package.json.",
+        "CHK-004:edge:0 [pass/manual_transcript] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=Mutation-kill demonstrated: reverting the block (A), disabling withdrawUnreachable (D), and disabling the ceiling branch (E) each make the smoke FAIL — RED-first.",
+        "CHK-004:adversarial:0 [pass/manual_transcript] node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js note=The smoke drives REAL entry points (evaluateReviewMintStallAdjudication, machine guard, stall_resolution_set, enforceConvergenceBreakerGate, real story_resume), not reimplemented logic."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
