@@ -331,15 +331,14 @@
         {
           "intentRef": "CHK-003:adversarial:1",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-run in round 4 after the file changed elsewhere; the malformed-hybrid case backing THIS intent is unchanged. Lines 146-150 store ALONE a record whose schemaVersion is the exact proofstory.red_evidence.v2 literal but which carries a COMPLETE valid v1 field set (non-empty observedFailure, failingCommand, both baseline hashes, a well-formed greenRelation on the expected target M1), and assert missingRedEvidence still fires — so the schemaVersion discriminant, not field presence, governs the skip. Stored alone, nothing can short-circuit past it. Non-vacuity was proved by MUTATION rather than by the pre-fix tree, because no crash-path case can distinguish this one: a build of HEAD with the discriminant replaced by a field-presence check (typeof record.observedFailure !== 'string') survives every other assertion in this file and is killed by exactly this assertion. Commit 85f60fcbf4.",
-          "headHash": "d3c544f31186b4411a7c778e20f1f9803fc258de",
+          "note": "F-015 re-anchor: the old note cited line offsets. Durable anchor: the const v2Hybrid in red-w2c-gate-guard.mjs - a spread of v2Quarantine plus trigger, failingCommand, a non-empty observedFailure, both baseline hashes and a well-formed greenRelation on the expected target M1 - stored ALONE, with the assertion message (a v2 record carrying a complete, valid v1 field set MUST NOT satisfy the v1 predicate - the schemaVersion discriminant governs the skip, not field presence). Stored alone, nothing can short-circuit past it, so missingRedEvidence firing proves the record was skipped on its schemaVersion rather than accepted on its fields. Non-vacuity was proved by MUTATION rather than by the pre-fix tree, since no crash-path case can distinguish this one: a build of HEAD whose discriminant is replaced by a field-presence check on observedFailure survives every other assertion in this file and is killed by exactly this assertion.",
+          "headHash": "3ae3f50be28a4669aaa400e79c2ba1c3168ae84c",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:18:40.473Z"
+          "timestamp": "2026-07-26T01:40:57.544Z"
         }
       ]
     },
