@@ -162,7 +162,6 @@ const intent = (id: string, type: VerificationIntentType, pin?: { command: strin
 async function partA(): Promise<void> {
   const env = makeEnv('B-runA', [
     intent('INT-RUN-OK', 'cli', { command: PASS_CMD, selector: SELECTOR }),
-    intent('INT-RUN-FAIL', 'cli', { command: NONZERO_CMD, selector: SELECTOR }),
     intent('INT-NOPIN', 'cli'), // executable intent, no pin
   ]);
   try {
@@ -184,14 +183,6 @@ async function partA(): Promise<void> {
     const okEntry = cov.entries.find(e => e.intentRef === 'INT-RUN-OK');
     assert.equal(okEntry?.status, 'covered', 'A1: the executed receipt covers the executable intent');
 
-    // A2: REFUSE — the pinned command exits non-zero while verification_run's fixed
-    //     internal expectation is pass → [receipt_exit_nonzero]; NOTHING is minted.
-    await expectRejection(
-      env.handlers.verification_run({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-RUN-FAIL', note: 'nonzero pin' }),
-      /receipt_exit_nonzero/, 'A2: exit-nonzero pin is refused',
-    );
-    assert.equal(findEvidence(env, 'INT-RUN-FAIL'), undefined, 'A2: no covered row is minted for the refused nonzero pin');
-
     // A3: REFUSE — the intent has no pin → [verification_run_no_pin] (never mints an unexecuted row).
     await expectRejection(
       env.handlers.verification_run({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-NOPIN', note: 'no pin to run' }),
@@ -204,6 +195,51 @@ async function partA(): Promise<void> {
       env.handlers.verification_run({ storyId: env.storyId, intentRef: 'CHK-001:happy:99', note: 'unresolved ref' }),
       /intent_ref_unresolved/, 'A4: unresolved intentRef is refused',
     );
+  } finally { cleanup(env); }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// A2 (isolated). exit-nonzero pin → [receipt_exit_nonzero]; NOTHING is minted.
+//
+// B-1507 F-005 hardening — fixture-state isolation + flake analysis. A2 failed
+// ONCE in a live `validate` and was NOT reproducible in isolation (0/19 repro
+// attempts by the reviewer). It runs in its OWN fresh temp repo + story here,
+// carrying NO state from A1 (A1 does a real verification_run that stamps a
+// receipt AND auto-commits story metadata — a git write that moves HEAD on the
+// shared env). That carried mutation is the only cross-assertion coupling A2
+// ever had; giving A2 a dedicated env removes it as a variable.
+//
+// What was checked (why the refusal reason itself is deterministic and robust,
+// so the residual flake could only originate OUTSIDE the modeled refusal path):
+//   • enforceAndStampEvidence evaluates the exit check (checklist.ts, `input.result
+//     === 'pass' && !exitOk → [receipt_exit_nonzero]`) BEFORE the selector check
+//     (`!selectorMatched → [receipt_selector_absent]`). verification_run pins
+//     result:'pass', so [receipt_exit_nonzero] wins whenever the command does not
+//     cleanly exit 0.
+//   • runValidationCommand's Promise always RESOLVES, never rejects: a nonzero
+//     exit (code=3), a timeout (normalized code=124), and a spawn 'error'
+//     (runnerFailure → finish(null) → code=1) ALL yield !exitOk. So process-exit
+//     race, subprocess timeout, and EAGAIN/EMFILE spawn failure under concurrent
+//     validate load each still surface as [receipt_exit_nonzero] — the marker is
+//     invariant to the node-command outcome.
+//   • resolveStoryGitCwd cannot throw (try/catch → projectRoot fallback) and the
+//     evidenceHashes git probe is inside the post-refusal lock, so neither can
+//     inject a foreign rejection message ahead of enforceAndStampEvidence.
+// Conclusion: the assertion's semantics are correct and were NOT weakened; the
+// only remaining nondeterminism is transient host-level subprocess/FS pressure
+// during a busy validate, which per-assertion fixture isolation now insulates.
+async function partA2Refusal(): Promise<void> {
+  const env = makeEnv('B-runA2', [
+    intent('INT-RUN-FAIL', 'cli', { command: NONZERO_CMD, selector: SELECTOR }),
+  ]);
+  try {
+    // The pinned command exits non-zero while verification_run's fixed internal
+    // expectation is pass → [receipt_exit_nonzero]; NOTHING is minted.
+    await expectRejection(
+      env.handlers.verification_run({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-RUN-FAIL', note: 'nonzero pin' }),
+      /receipt_exit_nonzero/, 'A2: exit-nonzero pin is refused',
+    );
+    assert.equal(findEvidence(env, 'INT-RUN-FAIL'), undefined, 'A2: no covered row is minted for the refused nonzero pin');
   } finally { cleanup(env); }
 }
 
@@ -453,6 +489,7 @@ async function partD(): Promise<string> {
 // ── Runner ──
 (async () => {
   await partA();
+  await partA2Refusal();
   await partB();
   await partC();
   const codexNote = await partD();
