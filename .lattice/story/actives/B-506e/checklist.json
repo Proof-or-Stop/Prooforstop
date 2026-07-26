@@ -182,15 +182,14 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "command": "node packages/main/tests/red/red-w2c-schema-failclosed.mjs",
           "result": "pass",
-          "note": "Re-run in round 4 after the file changed again (the round-3 vacuous companion in step 4 was replaced by a mid-array case; F-014). The steps that back THIS intent are untouched by that edit and are re-asserted: step 1 (lines 107-108) writes a v1-only store, reads it back through the real store.readRedEvidence and captures JSON.stringify(missingRedEvidence) from the LIVE evaluateProofStoryDiagnostics as the baseline; step 5 (lines 183-185) rewrites the same v1-only store at the end of the run and asserts the verdict string equals that baseline — v1 records round-trip unrewritten and unwidened by the exhaustive-discrimination change. NOT asserted here: any hash over the full diagnostic report; that is red-w2c-v1-verdict-invariance.mjs. Supersedes the note posted minutes earlier in this same round, which mis-cited step 5 as lines 178-180. Commit 85f60fcbf4.",
-          "headHash": "0f0103c16f4655375598a87dee3f22bca035ac75",
+          "note": "F-015 re-anchor: the old note cited step 1 at line offsets and step 5 at line offsets. Durable anchor: the numbered step banners of packages/main/tests/red/red-w2c-schema-failclosed.mjs. Step banner 1 (v1-only baseline verdict, well-defined, satisfied) writes a store holding only the module-level v1 const, reads it back through the real store.readRedEvidence inside proofStoryDiagnosticInput and captures JSON.stringify(missingRedEvidence) from the live evaluateProofStoryDiagnostics into the baseline named before. Step banner 5 (v1-only store stays byte-identical end-to-end) rewrites that same v1-only store at the end of the run and asserts the verdict string equals the baseline, under the message: a v1-only store verdict is unchanged by the exhaustive-discrimination fix. That is the v1 round-trip claim - a v1 record survives write, read and evaluation unrewritten and unwidened. Not asserted here: any hash over the full diagnostic report, which is red-w2c-v1-verdict-invariance.mjs.",
+          "headHash": "512508d814a723b5238d9ebae735d6a30beb880c",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:17:36.436Z"
+          "timestamp": "2026-07-26T01:40:29.985Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
