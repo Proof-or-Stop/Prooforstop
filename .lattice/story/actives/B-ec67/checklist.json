@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add optional verification:{command,selector} to VerificationIntentItem and pin it immutably on the first evidence write",
       "context": "packages/main/src/core/types.ts:203-212 (VerificationIntentItem; precedent plannedPathDeclarations:211). The pair is not required at PLAN (intent frozen from DEV, impl absent at PLAN); pin on the FIRST verification_evidence_add for that intentRef, refuse any later write that changes it. selector = test id / case name / assertion string that MUST appear in captured output; command = executable + argv, not a raw shell program.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T00:28:46.548Z",
       "files": {
         "modify": [
           "packages/main/src/core/types.ts",
