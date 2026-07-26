@@ -91,7 +91,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/handlers/worktree.ts",
+          "command": "grep -n \"live sibling\" packages/main/src/handlers/worktree.ts",
+          "result": "pass",
+          "note": "grep prints line 578: \"NOT the criterion. It therefore CANNOT remove a live sibling worktree: git leaves\" - the comment block at lines 576-584 sits directly above pruneWorktreeRegistry and states the claim. Claim verified independently, not just read: on git 2.50.1 a scratch repo with main + 2 live linked worktrees + 2 missing ones was pruned via `git worktree prune --expire now -v` executed FROM linked worktree wt-live; output removed only worktrees/wt-goneA and worktrees/wt-goneB, and `git worktree list --porcelain` afterwards still showed wt-live and wt-live2 with their directories intact on disk. Live siblings are not prunable.",
+          "headHash": "10455aa7d5dcc88b85aac9d900b3cff71945ef98",
+          "materialHash": "7ba254515e766c7a1ec930e1f8f9488f9f2d7935b2949986be26d68f562ce954",
+          "storyFilesHash": "8f197ceff1a0f186b80b345fc3cebfad2d3a005e4230c48385182db6867c0d3b",
+          "timestamp": "2026-07-26T01:13:20.116Z"
+        }
+      ]
     }
   ]
 }

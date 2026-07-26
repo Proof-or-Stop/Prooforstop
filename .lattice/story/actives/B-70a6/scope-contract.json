@@ -1,0 +1,42 @@
+{
+  "storyId": "B-70a6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/core/process-events.ts",
+    "packages/main/src/core/types.ts"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/decisions/plan-init-reopen.md",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "scopeChangeReason": "Derived from plan.md CHK-001/002/003 Files sections and scope-boundary.json. Exactly three material files may change: the transition orchestrator (audit-event persistence + atomicity comment), worktree.ts (prune comment), and the reopen round-trip smoke (regression assertion). machine.ts / version-bump.ts / process-events.ts / types.ts are protected because this story must not alter transition legality, the release path, or the shared event schema; the version sync points are excluded because bumpVersionOnDoneMerge owns them mechanically at DONE merge.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-26T01:06:42.704Z",
+  "updatedAt": "2026-07-26T01:07:00.105Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts",
+    "packages/main/src/core/process-events.ts": "packages/main/src/core/process-events.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "docs/requirements/decisions/plan-init-reopen.md": "docs/requirements/decisions/plan-init-reopen.md",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json"
+  }
+}

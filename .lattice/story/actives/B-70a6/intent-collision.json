@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-70a6",
+  "id": "IC-20260726010641",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Persist the reopen reason into the EXISTING append-only phase_transition process event (with a transitionType='reopen' marker), rather than adding a mutable reopenReason field on the story index or minting a new dedicated audit event type. This interpretation was chosen because the user's stated acceptance standard is that a successful transition produce exactly one audit event containing the full reason while a failed transition leaves no event claiming success: the phase_transition event is already append-only and already emitted only after a successful writeStory, so it satisfies both halves without a second write that could diverge from the phase write. Repeated reopens therefore each leave their own record instead of overwriting one another. The user's broader wish list (actor and eventId provenance) is explicitly NOT part of the accepted interpretation for this story and is recorded as excluded in scope-boundary.json, because the user answered 'no preference' when asked directly and the finding is LOW severity.",
+  "acceptedInterpretationHash": "sha256:8dfea4b3d0077f9f324e921418d0fb66cec2f6c21fefff5c083d937af355ab7f",
+  "notes": "No competing interpretation survived: option mutable-story-index-field loses history on a second reopen, and option dedicated-reopen-audit-event introduces a second independent write that can diverge from the phase write -- the exact transition/audit inconsistency the reviewer warned about. See decision.json for the full option comparison and 4 preMortem entries.",
+  "createdAt": "2026-07-26T01:06:41.315Z",
+  "updatedAt": "2026-07-26T01:06:41.315Z"
+}
