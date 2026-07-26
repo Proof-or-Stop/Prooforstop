@@ -1408,11 +1408,11 @@
           "file": "packages/main/src/handlers/red-evidence.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 7 (lines 450-451) attempts red_evidence_recover on a recover head and asserts it throws (/head operation|not one of|transition/) — recover targets quarantine heads only, so recover-of-a-recover is rejected by the 4.1 reference-validation state machine (also red-w2c-rejection-matrix line 154).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets plus red-w2c-rejection-matrix line offsets. Durable anchor: section 7 of red-evidence-chain-smoke.ts: with recHead.operation asserted to be recover, a second red_evidence_recover targeting recHead is asserted to throw matching head operation or not one of or transition, under the message (recover-of-a-recover is rejected). The refusal text comes from the requiredHeadOperations branch of appendControlRecord, which the recover dispatch in handlers/red-evidence.ts calls with a head set containing quarantine only. Committed regression: packages/main/tests/red/red-w2c-rejection-matrix.mjs matrix item 3, message: recover-of-a-recover rejected.",
+          "headHash": "1a1dfa4f1877b672cd2a0de5fed2b8e7a9f1e497",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:42:33.530Z"
         },
         {
           "intentRef": "CHK-010:adversarial:1",
