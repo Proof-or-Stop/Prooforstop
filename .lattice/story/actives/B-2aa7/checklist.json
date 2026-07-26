@@ -69,7 +69,30 @@
       "context": "There are TEN production call sites on current main, not the seven this story originally claimed - the B-506e merge added three more, and the count has now been wrong TWICE from a stale inventory, so re-derive it yourself before starting. Pre-existing seven: core/machine.ts, handlers/phase-gates.ts, handlers/proofstory.ts (three sites), handlers/story-review.ts (two sites). Added by the merge, verified absent at 1847b3af6d: core/red-evidence/append.ts, and TWO sites in handlers/red-evidence.ts (that file had zero such calls before the merge). Requirements: red_evidence_get must DISPLAY the corruption rather than abort; red_evidence_add reads before appending, so it must repair-by-append or refuse with an actionable message rather than making the artifact unrepairable through the CLI; the story_review advisory path, whose catch renders 'ProofStory Diagnostics (advisory only): unavailable (<message>)', must not let corruption read as 'feature not configured'; and the three merge-added consumers must be held to the same standard. Locate all of them by symbol, never by line number.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red_evidence_get displays the corruption instead of aborting, on a store carrying a malformed artifact.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "red_evidence_add can still repair the artifact by appending, or refuses with an actionable message naming what is wrong; it never leaves the artifact unrepairable through the CLI.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "All ten consumers are re-derived by symbol at implementation time and each renders corruption distinctly from absence; in particular the story_review advisory path does not let corruption read as 'feature not configured'.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
