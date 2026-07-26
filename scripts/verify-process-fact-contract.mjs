@@ -763,6 +763,143 @@ function bodyHasObjectPropertyNamed(body, propName) {
   return found;
 }
 
+/** True when a subtree reads the exact member `<objName>.<propName>`. */
+function subtreeReadsMember(node, objName, propName) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isPropertyAccessExpression(n) && n.name.text === propName
+        && ts.isIdentifier(n.expression) && n.expression.text === objName) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a subtree references the identifier `name` (a comment mentioning it does not count). */
+function subtreeReferencesIdentifier(node, name) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isIdentifier(n) && n.text === name) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a subtree contains an `if` whose CONDITION references the identifier and whose then-branch throws. */
+function hasIdentifierGuardedThrowingBranch(node, identifierName) {
+  let ok = false;
+  const walk = (n) => {
+    if (ok) return;
+    if (ts.isIfStatement(n)
+        && subtreeReferencesIdentifier(n.expression, identifierName)
+        && subtreeThrows(n.thenStatement)) {
+      ok = true;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return ok;
+}
+
+/** True when a subtree contains a real `<anything>.<propName> === '<value>'` comparison. */
+function subtreeHasMemberEqualsString(node, propName, value) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isBinaryExpression(n)
+        && n.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken
+        && ts.isPropertyAccessExpression(n.left) && n.left.name.text === propName
+        && ts.isStringLiteralLike(n.right) && n.right.text === value) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a subtree assigns the string literal `value` to the identifier `name`. */
+function subtreeAssignsIdentifierString(node, name, value) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isBinaryExpression(n)
+        && n.operatorToken.kind === ts.SyntaxKind.EqualsToken
+        && ts.isIdentifier(n.left) && n.left.text === name
+        && ts.isStringLiteralLike(n.right) && n.right.text === value) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** Locate the first CallExpression whose callee is the identifier `calleeName`. */
+function findCallExpressionByName(node, calleeName) {
+  let found;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isCallExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === calleeName) { found = n; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** Every conditional object spread `...(cond ? A : B)` in a subtree, as { condition, whenTrue, whenFalse }. */
+function collectConditionalObjectSpreads(node) {
+  const spreads = [];
+  const walk = (n) => {
+    if (ts.isSpreadAssignment(n)) {
+      let expr = n.expression;
+      while (ts.isParenthesizedExpression(expr)) expr = expr.expression;
+      if (ts.isConditionalExpression(expr)) {
+        spreads.push({ condition: expr.condition, whenTrue: expr.whenTrue, whenFalse: expr.whenFalse });
+      }
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return spreads;
+}
+
+/** True when the expression is a real `<objName>.<propName> !== undefined` check. */
+function isDefinedCheckOnMember(expr, objName, propName) {
+  return Boolean(expr)
+    && ts.isBinaryExpression(expr)
+    && expr.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
+    && ts.isPropertyAccessExpression(expr.left)
+    && expr.left.name.text === propName
+    && ts.isIdentifier(expr.left.expression) && expr.left.expression.text === objName
+    && ts.isIdentifier(expr.right) && expr.right.text === 'undefined';
+}
+
+/** True when the expression is a real `<identifierName> === '<value>'` comparison. */
+function isIdentifierEqualsStringLiteral(expr, identifierName, value) {
+  return Boolean(expr)
+    && ts.isBinaryExpression(expr)
+    && expr.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken
+    && ts.isIdentifier(expr.left) && expr.left.text === identifierName
+    && ts.isStringLiteralLike(expr.right) && expr.right.text === value;
+}
+
+/** The initializer of the named object-literal property, or undefined. */
+function objectLiteralPropertyInitializer(node, propName) {
+  if (!node || !ts.isObjectLiteralExpression(node)) return undefined;
+  for (const prop of node.properties) {
+    if (ts.isPropertyAssignment(prop)
+        && (ts.isIdentifier(prop.name) || ts.isStringLiteral(prop.name))
+        && prop.name.text === propName) return prop.initializer;
+  }
+  return undefined;
+}
+
+/** True when the node is an object literal with ZERO properties (`{}`). */
+function isEmptyObjectLiteral(node) {
+  return Boolean(node) && ts.isObjectLiteralExpression(node) && node.properties.length === 0;
+}
+
 // ── B-956f FIX 2 (R5): TypeChecker-anchored delegation assertions ──
 // codex defeated the includes()/name-match AST assertions three ways: (a) a
 // dead-branch call `if (false) buildMaterialClassificationSnapshot();`, (b) a
@@ -2292,6 +2429,99 @@ function assertCloseoutTrustBoundary() {
   }
   const packageText = read('package.json');
   assert(packageText.includes('test:closeout-trust') && /"test"[^\n]+npm run test:closeout-trust/.test(packageText), 'package.json: closeout trust handler/replay smoke must remain in routine npm test');
+}
+
+// ── B-70a6 F-003 (cross-host MAJOR): PLAN->INIT reopen audit semantics ──
+// B-8b69 made `transitionType: 'reopen'` and the validated `reason` DURABLE
+// semantics of the append-only phase_transition process event, but only the
+// registry prose (the guidance half of the CLAUDE.md dual-layer process-fact
+// contract) described the event at all — a later refactor could silently drop
+// the reopen marker or the reason and this contract still passed, defeating the
+// exact audit guarantee the change exists to establish. This is the hardcoded
+// mechanical half. Every production check is AST-anchored on the CURRENT SOURCE
+// (comments are not AST nodes, and this verifier is source-first by design so a
+// stale dist cannot hide drift): deleting the `eventType === 'REOPEN'` gate at
+// the call site, dropping the reason, renaming the marker, or making an ordinary
+// transition emit either field makes this exit 1.
+function assertPhaseTransitionReopenAuditContract() {
+  const registry = processFactRegistryMap();
+  const phaseTransitionFact = registry.get('runtime:closeout_phase_transition');
+  assert(phaseTransitionFact?.level === 'L4', `${processFactRegistryPath}: phase transition convergence fact must remain L4`);
+  assert(phaseTransitionFact?.producer === 'handlers/transition-orchestrator', `${processFactRegistryPath}: phase transition fact must identify the transition-orchestrator producer that emits the reopen audit fields`);
+  for (const token of [
+    'PLAN->INIT',
+    'transitionType: "reopen"',
+    'reason',
+    'REOPEN_REASON_MIN',
+    'append-only',
+    'ONLY on a REOPEN',
+    'omit',
+    'not gate evidence',
+  ]) {
+    assert(phaseTransitionFact?.rationale.includes(token), `${processFactRegistryPath}: phase transition rationale must declare the reopen audit semantics token ${token}`);
+  }
+
+  const orchestratorPath = 'packages/main/src/handlers/transition-orchestrator.ts';
+  const orchestratorSf = parseSourceFile(orchestratorPath);
+
+  // (1) BUILDER: both audit fields are emitted only when the caller supplies
+  // them, and the else branch stays `{}` — an explicit `field: undefined` would
+  // add a key and change every ordinary transition's event shape.
+  const builderFn = findFunctionDeclaration(orchestratorSf, 'buildPhaseTransitionProcessEvent');
+  assert(builderFn?.body, `${orchestratorPath}: buildPhaseTransitionProcessEvent declaration must exist`);
+  const builderSpreads = builderFn?.body ? collectConditionalObjectSpreads(builderFn.body) : [];
+  for (const field of ['transitionType', 'reason']) {
+    const spread = builderSpreads.find(item => isDefinedCheckOnMember(item.condition, 'input', field));
+    assert(spread, `${orchestratorPath}: buildPhaseTransitionProcessEvent must emit ${field} only through a real \`input.${field} !== undefined\` conditional spread (an unconditional property, or a comment, cannot satisfy this)`);
+    assert(spread && objectLiteralPropertyInitializer(spread.whenTrue, field), `${orchestratorPath}: buildPhaseTransitionProcessEvent must actually set ${field} in the supplied branch of its conditional spread`);
+    assert(spread && isEmptyObjectLiteral(spread.whenFalse), `${orchestratorPath}: buildPhaseTransitionProcessEvent must OMIT ${field} entirely when the caller passes none (the else branch must stay {}; an explicit \`${field}: undefined\` key would change the ordinary transition event shape)`);
+  }
+
+  // (2) CALL SITE: a successful REOPEN emits BOTH fields; every ordinary
+  // transition emits NEITHER. Only the call-site gate decides that — the builder
+  // above emits whatever it is handed.
+  const transitionFn = findFunctionDeclaration(orchestratorSf, 'runStoryTransitionInner');
+  assert(transitionFn?.body, `${orchestratorPath}: runStoryTransitionInner declaration must exist`);
+  const builderCall = transitionFn?.body ? findCallExpressionByName(transitionFn.body, 'buildPhaseTransitionProcessEvent') : undefined;
+  assert(builderCall, `${orchestratorPath}: runStoryTransitionInner must append the phase_transition event through buildPhaseTransitionProcessEvent`);
+  const callSpreads = builderCall?.arguments?.[0] ? collectConditionalObjectSpreads(builderCall.arguments[0]) : [];
+  const reopenSpread = callSpreads.find(item => isIdentifierEqualsStringLiteral(item.condition, 'eventType', 'REOPEN'));
+  assert(reopenSpread, `${orchestratorPath}: the phase_transition call site must gate the reopen audit fields on a real \`eventType === 'REOPEN'\` condition — without that gate either every ordinary transition carries the reopen marker or no reopen does`);
+  const markerInit = reopenSpread ? objectLiteralPropertyInitializer(reopenSpread.whenTrue, 'transitionType') : undefined;
+  assert(markerInit && ts.isStringLiteralLike(markerInit) && markerInit.text === 'reopen', `${orchestratorPath}: a successful REOPEN must emit the exact marker transitionType: 'reopen' in its phase_transition event`);
+  const reasonInit = reopenSpread ? objectLiteralPropertyInitializer(reopenSpread.whenTrue, 'reason') : undefined;
+  assert(reasonInit && subtreeReadsMember(reasonInit, 'args', 'reason'), `${orchestratorPath}: a successful REOPEN must persist the validated args.reason next to the marker (a validated-but-dropped reason is not durably auditable)`);
+  assert(reopenSpread && isEmptyObjectLiteral(reopenSpread.whenFalse), `${orchestratorPath}: an ordinary transition must omit BOTH reopen audit fields (the non-REOPEN branch of the call-site spread must stay {})`);
+
+  // (3) The persisted reason is the VALIDATED one: the PLAN->INIT remap that
+  // mints eventType='REOPEN' must still reject a missing/too-short reason before
+  // the REOPEN event can be sent, so no under-length reason can reach the event.
+  let reopenRemap;
+  const findRemap = (n) => {
+    if (reopenRemap) return;
+    if (ts.isIfStatement(n) && subtreeAssignsIdentifierString(n.thenStatement, 'eventType', 'REOPEN')) { reopenRemap = n; return; }
+    ts.forEachChild(n, findRemap);
+  };
+  if (transitionFn?.body) findRemap(transitionFn.body);
+  assert(reopenRemap, `${orchestratorPath}: the gated PLAN->INIT reopen remap (a real \`eventType = 'REOPEN'\` assignment) must exist`);
+  assert(reopenRemap && subtreeHasMemberEqualsString(reopenRemap.expression, 'phase', 'INIT') && subtreeHasMemberEqualsString(reopenRemap.expression, 'phase', 'PLAN'), `${orchestratorPath}: the REOPEN remap must stay bound to the PLAN->INIT shape (args.phase === 'INIT' && story.phase === 'PLAN')`);
+  assert(reopenRemap && hasIdentifierGuardedThrowingBranch(reopenRemap.thenStatement, 'REOPEN_REASON_MIN'), `${orchestratorPath}: the REOPEN remap must keep the reason requirement fail-closed (an if-condition referencing REOPEN_REASON_MIN whose then-branch throws) so the reason persisted into the audit event is the validated one`);
+
+  // (4) Executable coverage anchors for the same two facts, so the structural
+  // checks above are not the only proof: flow-stability-smoke (routine npm test)
+  // pins the ordinary builder output shape by deepEqual, and the reopen
+  // roundtrip smoke asserts key presence/absence on REAL persisted events.
+  const flowStabilityText = read('packages/main/src/tasks/flow-stability-smoke.ts');
+  assert(/assert\.deepEqual\(buildPhaseTransitionProcessEvent\(/.test(flowStabilityText) && !/transitionType/.test(flowStabilityText), 'packages/main/src/tasks/flow-stability-smoke.ts: the ordinary phase_transition builder shape must stay pinned by deepEqual with NO reopen audit keys');
+  const reopenSmokeText = read('packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts');
+  for (const token of [
+    "assert.equal(reopenEvent.transitionType, 'reopen'",
+    'assert.equal(reopenEvent.reason, REOPEN_REASON',
+    "hasOwnProperty.call(normalEvent, 'transitionType'), false",
+    "hasOwnProperty.call(normalEvent, 'reason'), false",
+  ]) {
+    assert(reopenSmokeText.includes(token), `packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: end-to-end reopen audit assertion missing ${token}`);
+  }
 }
 
 function isReviewerPrompt(relPath, text) {
@@ -6921,6 +7151,7 @@ assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
+assertPhaseTransitionReopenAuditContract();
 assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();

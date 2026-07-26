@@ -1374,7 +1374,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     level: 'L4',
     producer: 'handlers/transition-orchestrator',
     consumerGate: 'done_prepare convergence acceptance',
-    rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived.',
+    rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived. The gated PLAN->INIT reopen records two further durable audit semantics on the same append-only, appended-only-on-success event: transitionType: "reopen" marks the backward reopen so it is distinguishable from a forward transition, and reason carries the operator reason already validated at the REOPEN remap (non-blank, at least REOPEN_REASON_MIN characters), so a validated reason is never dropped. Both fields are strictly additive and are set ONLY on a REOPEN; every ordinary transition must omit them and keep its exact prior event shape. They are audit-only history, not gate evidence: no gate consumes them, and the convergence counters above stay derived from the typed from/to phases.',
   },
   {
     name: 'runtime:closeout_reviewer_reattestation_boundary',
