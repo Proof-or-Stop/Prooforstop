@@ -226,6 +226,39 @@
         "scanEscalationReason": null
       },
       "_hash": "52faeae7e9299a4b49f4e121c59c4ce9770906e9786d03bca89ffd0441b90ac3"
+    },
+    {
+      "id": "B-3b88:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass at RR-017 (head 0ec2738). Verified detectEvidenceRowContradiction + checklist.ts wiring (CHK-001) and the refresh_stale command-backed-pass refusal guard (CHK-002) are byte-identical to prior implementation commits (bf718f50ee, a9036147af) via git log on those files; only doc/help/comment text and verification-freshness-smoke fixture adjustments changed since round 1, matching F-001..F-004 doc-drift findings all resolved. tsc --noEmit clean; full tsc build clean; evidence-selfcheck-smoke.js and refresh-stale-honesty-smoke.js both PASS, covering all CHK-001/CHK-002 happy/edge/adversarial verificationIntent slots exhaustively. Confirmed via merge-base checkout (e998a8d) that the unrelated verification-freshness-smoke.js crash (pre_review_check requires verifier-owned PLAN acceptance basis) pre-exists before this story's changes — out of scope. No dead code, no new as any, no empty catch blocks, no shell/bridge I/O concerns. Evidence rows for both checklist items are self-consistent (command/file same stem). Working tree clean. No blockers.",
+      "createdAt": "2026-07-26T00:11:28.833Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-017",
+      "envelopeId": "7e5b1817aaf45b1935c4e1036f7371e24ae7e1355dbdcc755edb226438c11940",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/findings.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "65ed8edc3535766e943cb3d6feb8ca1b22e54de8c0584465cc6f094944bfaf15"
     }
   ]
 }
