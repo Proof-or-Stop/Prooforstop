@@ -91,6 +91,18 @@ export const verificationEvidenceKindSchema = z.enum([
   'logic',
 ]).describe('Evidence type; aliases: cli to manual_transcript, logic to logic_test.');
 
+// B-ec67 F-008: caller-supplied tool-execution provenance is UNTRUSTED BY DESIGN.
+// This nested schema deliberately omits mechanical / receipt / nonMechanicalReason /
+// selector and .strip()s any such caller-supplied keys. Letting a checklist_update
+// caller submit a receipt would be receipt injection — fabricate mechanical:true + a
+// fake receipt to launder an executable intent as covered — so stripping caller
+// receipts is a SAFETY feature, not an oversight. A real tool-executed receipt is
+// minted only by verification_evidence_add / verification_evidence_batch_add (which
+// actually run the pinned command and stamp the receipt); such a receipt survives a
+// checklist_update re-persist ONLY by being carried forward from on-disk state
+// (handlers/checklist.ts carryForwardOnDiskProvenance), NEVER from the incoming row.
+// .strip() is made explicit here (rather than relying on Zod's default) to document
+// this contract; do NOT switch it to .passthrough() (that would reopen injection).
 export const verificationEvidenceSchema = z.object({
   intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID.'),
   kind: verificationEvidenceKindSchema,
@@ -103,7 +115,7 @@ export const verificationEvidenceSchema = z.object({
   headHash: z.string().optional().describe('git HEAD when evidence was recorded.'),
   materialHash: z.string().optional().describe('Non-story-metadata material file hash when evidence was recorded.'),
   timestamp: z.string().optional().describe('Recorded time.'),
-});
+}).strip();
 
 export const reviewLoopDecisionSchema = z.enum([
   'continue',

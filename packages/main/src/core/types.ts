@@ -210,6 +210,18 @@ export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceV
   return verdict.replaceAll('_', '-');
 }
 
+/**
+ * B-ec67: the tool-executed proof unit pinned onto an executable verification
+ * intent. `command` is the executable+argv string the evidence writer runs;
+ * `selector` is the string that MUST appear in captured output to prove the
+ * intent. Pinned on the FIRST selector-bearing evidence write and IMMUTABLE
+ * thereafter (a later write with a different command/selector is refused).
+ */
+export interface VerificationIntentPin {
+  command: string;
+  selector: string;
+}
+
 export interface VerificationIntentItem {
   /** Optional stable id. If absent, Proofbound derives CHK-001:happy:0 from lane/index. */
   id?: string;
@@ -219,6 +231,12 @@ export interface VerificationIntentItem {
   priority?: VerificationPriority;
   /** PLAN-only, verification-intent-owned declarations for paths DEV will add. */
   plannedPathDeclarations?: VerificationPlannedPathDeclarationV1[];
+  /**
+   * B-ec67: tool-executed evidence proof unit for an executable intent
+   * (logic|cli|browser). Absent until the first selector-bearing evidence write
+   * pins it; immutable once set. Never present on manual|docs intents.
+   */
+  verification?: VerificationIntentPin;
 }
 
 export type VerificationPlannedPathArtifactKind = 'source_file' | 'handler' | 'dispatch' | 'process_fact';
@@ -674,12 +692,46 @@ export interface FactProvenanceMetadata {
   conflictingSources?: string[];
 }
 
+/**
+ * B-ec67: tool-owned execution receipt. Stamped by the evidence-write handler when
+ * it runs the intent's pinned command, so a reviewer/gate reads the ACTUAL exit +
+ * output digest instead of a caller-authored prose number.
+ */
+export interface VerificationExecutionReceipt {
+  /** Real exit code of the pinned command. */
+  exitCode: number;
+  /** sha256 of the full captured stdout+stderr. */
+  outputDigest: string;
+  /** Bounded tail of the captured output for human inspection. */
+  outputTail: string;
+  /** Whether the pinned selector string appeared in the captured output. */
+  selectorMatched: boolean;
+  /** ISO timestamp when the command was executed. */
+  executedAt: string;
+}
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
   kind: VerificationEvidenceKind;
   /** Human-facing classification; does not override result/pass/fail gate semantics. */
   verdict?: VerificationEvidenceVerdict;
+  /**
+   * B-ec67: true when this evidence is a tool-executed receipt (the write handler ran
+   * the pinned command and derived `result` from the actual exit + selector match);
+   * false when it is a non-mechanical attestation (manual|docs intent, or an explicit
+   * audited escape). Undefined on legacy evidence written before B-ec67 (grandfathered).
+   */
+  mechanical?: boolean;
+  /** B-ec67: tool-owned execution receipt, present only when mechanical === true. */
+  receipt?: VerificationExecutionReceipt;
+  /**
+   * B-ec67: attributable, gate-visible reason recorded when an executable intent is
+   * deliberately covered by a non-mechanical attestation via the audited escape path
+   * (execution impossible in this environment). Never grants coverage — the gate still
+   * demotes non-mechanical evidence on executable intents.
+   */
+  nonMechanicalReason?: string;
   /** Deferred waivers are temporary gate-self-test receipts and must be replaced by real evidence before TEST. */
   waiverType?: 'permanent' | 'deferred_gate_evidence';
   file?: string;
@@ -1334,7 +1386,12 @@ export interface VerificationCoverageEntry {
   desc: string;
   type: VerificationIntentType;
   priority: VerificationPriority;
-  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale' | 'weak';
+  /**
+   * B-ec67: `non_mechanical` — an executable intent (logic|cli|browser) whose evidence
+   * is an explicit non-mechanical attestation (mechanical === false). It is NOT covered:
+   * only an executed receipt (or grandfathered legacy evidence) covers an executable intent.
+   */
+  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale' | 'weak' | 'non_mechanical';
   evidence?: VerificationEvidence;
 }
 

@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "Make the error impossible, not merely caught: the tool executes the pinned command and derives the result, so a false command cannot be authored.",
+    "The proof unit is (command, selector): the selector (a string that must appear in captured output) is what distinguishes intents sharing one command.",
+    "No unguarded bypass: every write entry point (single and batch) reaches the identical enforcement boundary via one shared helper.",
+    "Immutable pin without PLAN foreknowledge: pin on the first evidence write and freeze thereafter, since the implementation does not exist at PLAN.",
+    "Don't hard-break in flight: grandfather existing prose-only evidence behind an explicit, attributable, gate-visible escape."
+  ],
+  "drivers": [
+    "The defect is an interface defect (no command/selector on the intent, intentRef-equality is the only binding), so the fix must be at the interface, not in discipline.",
+    "16/19 burn rows shared one command; only a free-text case name distinguished them — a bare expectedCommand field would not have caught F-045/F-061.",
+    "All machinery exists (executor, receipt shape, allowlist), so reuse beats reinvention.",
+    "manual|docs cannot execute, so an un-demoted attestation path would be a trivial escape hatch around the whole mechanism.",
+    "B-3b88 owns refresh_stale, so the write path (add/batch_add) is the only surface this story may harden."
+  ],
+  "options": [
+    {
+      "name": "A: Execute-and-stamp in the write handlers; pin on the intent; shared helper; gate demotes manual/docs",
+      "pros": [
+        "A false pass is impossible for executable intents — the tool runs the command and derives result/receipt",
+        "The selector-in-output check kills F-045/F-049/F-050/F-061 directly",
+        "One shared helper guarantees single + batch parity (closes the batch bypass both reviewers flagged)",
+        "Reuses the existing executor + receipt shape + allowlist",
+        "Pin-on-first-write needs no PLAN foreknowledge and freezes drift"
+      ],
+      "cons": [
+        "Touches the intent-freeze logic (must allow ADD-verification while forbidding change)",
+        "Coverage gate must learn executed-receipt vs attestation (manual/docs demotion) — a behavior change other gates read",
+        "Executing a command inside an evidence write adds latency and an allowlist/timeout surface"
+      ]
+    },
+    {
+      "name": "B: Add a bare expectedCommand string field and validate equality (no execution)",
+      "pros": [
+        "Small change; no executor coupling"
+      ],
+      "cons": [
+        "Still trusts caller result:pass — a lie about the outcome survives",
+        "Would not catch F-045/F-061 (same command, wrong/absent case) — the burn proved a bare command field insufficient",
+        "No receipt, so reviewers still read prose numbers"
+      ]
+    },
+    {
+      "name": "C: Ship only a separate verification_run command now; leave add/batch_add trusting the caller",
+      "pros": [
+        "Clean new command; no change to existing handlers"
+      ],
+      "cons": [
+        "The trusted add-path stays open — the floor is exactly the add-path, so this defers the actual fix",
+        "verification_run is the ergonomics layer (follow-on ①b), not the enforcement floor",
+        "Leaves batch_add fully unguarded"
+      ]
+    }
+  ],
+  "chosen": "A: Execute-and-stamp in the write handlers; pin on the intent; shared helper; gate demotes manual/docs",
+  "rationale": "Only Option A moves the enforcement to the interface and makes a false pass impossible rather than discouraged, and it is the enforcement FLOOR the program spec names as Step 2's core. B is insufficient (proven by the burn: a bare command field misses the case-name confusions and still trusts result). C defers the real fix to the ergonomics layer and leaves both write paths trusting the caller. A reuses the existing executor/receipt/allowlist, and a single shared enforce-and-stamp helper closes the batch bypass both INIT reviewers flagged. The two accepted costs — a controlled exception to the intent freeze (ADD-only pin) and teaching the coverage gate to distinguish executed receipts from attestation — are exactly what makes the mechanism sound, and both are covered by the RED-first smoke.",
+  "preMortem": [
+    {
+      "scenario": "verification_evidence_add is guarded but verification_evidence_batch_add is left trusting the caller, so evidence still gets in via the batch path.",
+      "trigger": "The implementer factors the enforcement into verification_evidence_add only; batch_add has independent construction and is easy to miss.",
+      "consequence": "The whole mechanism is bypassable — the exact defect, just via a second door; both INIT reviewers pre-flagged this.",
+      "mitigation": "One shared enforce-and-stamp helper called by BOTH handlers; the CHK-006 smoke asserts a selector-absent row is refused through the BATCH path too; plan.md CHK-002 DoneWhen requires both entry points routed through the same helper."
+    },
+    {
+      "scenario": "manual|docs stays attestation but the coverage gate keeps scoring it equal to an executed receipt, so an automatable intent is recorded as type:manual to skip execution.",
+      "trigger": "buildVerificationCoverage treats any result==='pass' as covered; the demotion is added to the handler but not to the gate.",
+      "consequence": "type:manual becomes a universal escape hatch and the mechanism is voluntary.",
+      "mitigation": "Demote in the coverage function itself (verification.ts): an executable intent (logic|cli|browser) is only 'covered' by an executed receipt; a manual/docs attestation is marked non-mechanical and cannot cover an executable intent. Smoke asserts a manual attestation does NOT satisfy an executable intent's coverage."
+    },
+    {
+      "scenario": "The pin-on-first-write mutation collides with the intent freeze — either it is rejected (can't pin at all past DEV) or it is allowed too loosely (the pin can be changed later, defeating immutability).",
+      "trigger": "verificationIntentProtectedPhases blocks the write, or the ADD-verification exception also permits overwrite.",
+      "consequence": "Either evidence can never be recorded for executable intents in DEV+ (hard break), or the pin is mutable and drift returns.",
+      "mitigation": "A narrow, explicit exception: the evidence-write path may SET verification only when absent, never change it; a second write with a different command/selector is refused with receipt-command-mismatch. Smoke covers: first write pins; second write with a different command refused; second write with the same command re-executes and passes."
+    },
+    {
+      "scenario": "The migration hard-breaks in-flight stories that already have prose-only evidence with no pinned (command,selector), stranding them mid-lifecycle.",
+      "trigger": "The new refuse-on-missing-pin fires on legacy evidence written before this story.",
+      "consequence": "Every active story with prior prose-only evidence cannot advance until manually repaired — a repo-wide stall.",
+      "mitigation": "Grandfather: legacy evidence rows without a pin remain valid (flagged non-mechanical); the execute-and-refuse enforcement applies to NEW writes for executable intents. Provide an explicit, attributable, gate-visible escape (policy mode / audited repair). Smoke loads a legacy evidence row (no verification pin) and asserts it still reads without throwing."
+    }
+  ],
+  "timestamp": "2026-07-25T23:34:38.830Z"
+}

@@ -1,0 +1,316 @@
+{
+  "passes": [
+    {
+      "id": "B-ec67:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 independent verification of F-001/F-007 fixes (commits e040952697+f8de35a0fd): rebuilt dist and re-ran my original adversarial repro scripts. F-007: checklist_update now refuses a fabricated executable-intent result:pass row via assertChecklistUpdateEvidenceRowAllowed [checklist_update_executable_evidence_unenforced]; confirmed thrown. F-001: verification_evidence_refresh_stale now carries mechanical/receipt/nonMechanicalReason forward and demotes a refreshed mechanical:true receipt to mechanical:false (receipt dropped, reason auto-filled); confirmed coverage stays non_mechanical/blocking (missingRequired=1) instead of laundering to covered on both the escape-evidence case and the real-receipt-demotion case. Ran tool-executed-evidence-receipt-smoke.js and proofstory-acceptance-topology-smoke.js (which now asserts the F-007 refusal) end to end: both PASS. Reviewed the migrated collateral smokes (field-regression-cli, proofstory-pre-review-check) that switched executable-intent writes to the audited nonMechanicalReason escape — consistent with the new contract, no new concept gaps. verification.ts coverageStatusForCoveredEvidence is comment-only changed (legacy-grandfather logic unchanged) and is now provably safe since no write path can mint mechanical:undefined for a new executable-intent write. No blocking findings this round.",
+      "createdAt": "2026-07-26T01:30:13.558Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-006",
+      "envelopeId": "165caefb99c4a78e3523b193cc04405afa60f8ce87c765ae34ffc171df253373",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "da74cc2dc538d99244260830f324890eb51eb1b8838cc2324b72faf3bb13d854"
+    },
+    {
+      "id": "B-ec67:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-verification: F-002..F-005 fixed in cb4f966371. Rebuilt clean, ran node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js and npm run test:tool-executed-evidence-receipt-smoke, both print PASS/exit0. Mutation-killed all four independently (sha256-constant swap, caller-echo of result, MIN_NON_MECHANICAL_ESCAPE_REASON=0, disabled manual/docs attestation branch) against compiled dist -> smoke now fails each time as claimed, then restored+rebuilt clean. F-006/F-007 regression cases and case-8 replacement also reviewed; consistent with CHK-001/005 legacy-read semantics (new-write grandfather closed, existing-row read/coverage grandfather unchanged). No new gaps found this round.",
+      "createdAt": "2026-07-26T01:31:46.691Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-005",
+      "envelopeId": "47aecd4da1aea0f593a32355efb24c4ed1c85fa8e47f848215bcd505027d0384",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-ec67/background.md",
+          ".lattice/story/actives/B-ec67/plan.md",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-ec67/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "151dbe8f7e03ca9250487d000040746a6d13d06f09ebe903ea50c97878c7e300"
+    },
+    {
+      "id": "B-ec67:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 verification of F-008 (commit 64bf559611), orthogonal precision fix landed after RP-001. Confirmed: (1) verificationEvidenceSchema now explicit .strip()s mechanical/receipt/nonMechanicalReason -- via the real CLI (spawned lattice checklist_update binary, JSON payload including a fabricated mechanical:true+fake receipt) the fields are stripped before the handler runs and the resulting raw executable row is refused with checklist_update_executable_evidence_unenforced, nothing persisted. (2) carryForwardOnDiskProvenance also strips caller-supplied provenance on the INTERNAL fn-call path (bypassing Zod entirely, calling handlers.checklist_update directly with mechanical:true+fabricated receipt and no prior on-disk evidence for the intentRef) -- still refused, nothing persisted, coverage stays missing. (3) re-ran my original F-007 fabricated-command repro -- still refused, unchanged. (4) re-ran tool-executed-evidence-receipt-smoke.js end to end (rewritten test 12 exercises exactly this: fabricated caller receipt refused; genuine on-disk receipt seeded via verification_evidence_add then re-persisted via checklist_update with no receipt in the payload survives via on-disk carry-forward, stays covered) -- PASS. F-008 closes a genuine precision gap (a legitimate metadata-only re-persist of an already-earned receipt was previously vulnerable to silent loss because the pre-F-008 CLI schema never declared these fields, so Zod default-stripped them on any real CLI call even though the round-2 fix worked when tested by calling the handler in-process) without reopening caller-receipt injection. F-001 and F-007 both remain fixed; no new concept-completeness gaps found.",
+      "createdAt": "2026-07-26T02:17:51.008Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-007",
+      "envelopeId": "addd822367eedfef47de45d5ec94b2d4ecc9f9faf49a15715a406170030b1780",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "55ce3e69f9bd462d7c6ddd7d96d372c2d2b63f917da922aad061b2897e167734"
+    },
+    {
+      "id": "B-ec67:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round re-verified after 64bf559611 (F-008 fix): verificationEvidenceSchema now explicitly .strip()s mechanical/receipt/nonMechanicalReason/selector (confirmed via live parse against the real production schema - all 4 fields stripped). carryForwardOnDiskProvenance discards caller-supplied provenance up front and carries the on-disk receipt forward only on matching command+result; live repro confirmed an attacker's fabricated receipt (same command/result as a real seeded one) is rejected and the real on-disk digest survives, a command-changing re-persist drops the stale receipt and refuses, and a metadata-only re-persist preserves the real receipt. Mutation-tested both regressions directly against dist: disabling the receipt-preserve branch breaks smoke case 12c (mutation-killed), and simulating caller-trusted provenance (passthrough-style regression) breaks smoke case 12b's assert.throws (mutation-killed). No caller-receipt-injection path exists via the real CLI. F-006 (critical, prior round) independently reverified as fixed; F-008 (low) independently reverified as fixed. No new findings this round.",
+      "createdAt": "2026-07-26T02:19:28.936Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-008",
+      "envelopeId": "5418de420539613dcf146ae0547d92aeddf32ddf22e98906d330b3cf9b972069",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "da24537dcd0e8b58a9d3b6372133742b47920b1b0bd984e95ae06a77d8d272a7"
+    },
+    {
+      "id": "B-ec67:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 re-verification: F-008 (commit 64bf559611) fixed. Rebuilt clean, node dist/tasks/tool-executed-evidence-receipt-smoke.js and npm run test:tool-executed-evidence-receipt-smoke both PASS/exit0 across repeated runs, git status clean (no tracked diff). Independently mutation-tested test 12 in both directions against compiled dist: (1) disabled the carryForwardOnDiskProvenance preserve branch (prior.receipt&&sameCommand&&sameResult -> false) -> legitimate re-persist now throws checklist_update_executable_evidence_unenforced, smoke fails as claimed; (2) reopened the injection path (stopped destructuring/stripping caller mechanical/receipt/nonMechanicalReason) -> the fabricated-receipt-is-refused assertion now fails (Missing expected exception), smoke fails as claimed. Restored + rebuilt clean after each. F-002..F-005 unchanged and still hold (verified in RP-002). No new gaps found.",
+      "createdAt": "2026-07-26T02:23:19.878Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-009",
+      "envelopeId": "916bf97a79cbd7cc7a43268888de27960c14be4885014bfd62958fc658fbe424",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-ec67/background.md",
+          ".lattice/story/actives/B-ec67/checklist.json",
+          ".lattice/story/actives/B-ec67/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "00d60ce11fbdaef29471daba614ee3a11b7c34d7930a491df1bbf72d220b867b"
+    },
+    {
+      "id": "B-ec67:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Pure re-bind after RP-003 (round-3 F-008 verification). Confirmed via git log/status that packages/main/src/handlers/checklist.ts, core/verification.ts, cli/command-schemas.ts, core/types.ts, and core/validation-executor.ts are unchanged since commit 64bf559611 (the F-008 fix already verified in RP-003) -- only .lattice/story/actives/B-ec67 metadata (checklist.json evidence rows re-executed/re-recorded, prompt-envelopes.json, review-runs.json) changed, which is what staled the prior review run (stale_run_hash). No source/logic changed, so no new analysis is needed: F-001 (refresh_stale laundering) and F-007 (checklist_update third write path bypass) both remain fixed and F-008 (receipt injection via caller-supplied provenance) remains closed, exactly as verified in RP-001/RP-003. Re-binding this pass to current material.",
+      "createdAt": "2026-07-26T03:09:29.320Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-012",
+      "envelopeId": "80d2048f40c3b84eeef024ac47a78874bd846c5485c2a6e90260d165e2facdea",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cde47965073c664440d8b141382676be28e4ab5d1d0c808fc1cb482641d467ae"
+    },
+    {
+      "id": "B-ec67:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Pure re-bind: prior review run staled by 18 verification-evidence rows re-recorded after RP-004 (stale_run_hash); confirmed via `git diff 64bf559611 HEAD -- packages/main/src lattice.config.json package.json packages/main/package.json` that source is byte-identical to the commit already independently verified (schema .strip(), carryForwardOnDiskProvenance, mutation-killed smoke). No new analysis needed, no code changed. Re-affirming prior verdict: F-006 (critical) and F-008 (low) both fixed and independently verified; no new findings.",
+      "createdAt": "2026-07-26T03:09:33.748Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-010",
+      "envelopeId": "281319d14593a0e2dfc0f44ca850f20db115da4e2f541a499731f5596ac3a653",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "757daa806d3fcf92c1155e182d74b92dcc35dbbdce0acc02a666b5e0f1fbaf84"
+    },
+    {
+      "id": "B-ec67:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Pure re-bind after RP-005 went material-stale (stale_run_hash) due to the 18 verificationEvidence rows being re-recorded; smoke/code unchanged since RP-005 (git diff 64bf559611..HEAD for smoke.ts/checklist.ts/command-schemas.ts is empty). Re-ran node dist/tasks/tool-executed-evidence-receipt-smoke.js -> PASS/exit0 on current head. No new analysis needed per coordinator; prior mutation-kill verification (F-002..F-005 in RP-002, F-008 in RP-005, both directions) still stands unchanged.",
+      "createdAt": "2026-07-26T03:09:39.504Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-011",
+      "envelopeId": "e812f7149bdf5cba2c67146c3938e70a758528c54bde95b877eff9d0922b91dc",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-ec67/background.md",
+          ".lattice/story/actives/B-ec67/checklist.json",
+          ".lattice/story/actives/B-ec67/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "290977d4e545f9820254483649394a336116227849e2ae1f92050f62a7757b35"
+    },
+    {
+      "id": "B-ec67:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Pure re-bind, fresh REVIEW round after B-ec67 was reopened. Confirmed git diff of the four reviewed files (packages/main/src/handlers/checklist.ts, core/verification.ts, core/types.ts, cli/command-schemas.ts) against my last verified commit 64bf559611 is empty (0 lines) and git status is clean -- source is byte-identical to what was verified in RP-001/RP-003/RP-006. Only story metadata / verification-evidence rows were re-recorded at new material. No new analysis needed: F-001 (verification_evidence_refresh_stale laundering), F-007 (checklist_update third write path bypass), and F-008 (caller-supplied receipt injection via checklist_update re-persist) all remain fixed as previously verified (empirically re-reproduced and confirmed refused/demoted in prior rounds against this exact source). No new concept-completeness gaps found. Re-binding this pass to current material.",
+      "createdAt": "2026-07-26T03:20:27.206Z",
+      "reviewRound": "2026-07-26T03:19:27.125Z",
+      "reviewRunId": "B-ec67:RR-013",
+      "envelopeId": "7d748555e844da535ea93fbc489f03b96c89078a91db7e7e8238533c33c5053d",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d4c92cc447108ddada1c67739047d95bd4929d6d0aa40e4a8a76563cff2cebce"
+    },
+    {
+      "id": "B-ec67:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Pure re-bind: fresh REVIEW round after B-ec67 returned to REVIEW (config merge only, evidence re-recorded). git diff against my last verified commit shows zero changes to tool-executed-evidence-receipt-smoke.ts / checklist.ts / command-schemas.ts. Re-ran node dist/tasks/tool-executed-evidence-receipt-smoke.js on current HEAD -> PASS/exit0. No new analysis needed; prior independent mutation-kill verification stands: F-002..F-005 (RP-002), F-008 both directions (RP-005).",
+      "createdAt": "2026-07-26T03:20:30.921Z",
+      "reviewRound": "2026-07-26T03:19:27.125Z",
+      "reviewRunId": "B-ec67:RR-015",
+      "envelopeId": "1d097b417548b7a323ffd9fcba8bf8b7e5cacf6d6eda8e00fe1455e66d19fb97",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-ec67/background.md",
+          ".lattice/story/actives/B-ec67/checklist.json",
+          ".lattice/story/actives/B-ec67/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "666bc973352c1b9495210fa882afa0a87b0f181ee4c7b85f3e2c695773d898b0"
+    },
+    {
+      "id": "B-ec67:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fresh REVIEW round after story rolled back from TEST; re-dispatched and re-bound. Confirmed via `git diff 64bf559611 HEAD -- packages/main/src/handlers/checklist.ts packages/main/src/core/verification.ts packages/main/src/core/validation-executor.ts packages/main/src/cli/command-catalog.ts packages/main/src/cli/command-schemas.ts packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts packages/main/src/core/types.ts` that all 7 reviewed files remain byte-identical to the commit already independently verified (schema .strip(), carryForwardOnDiskProvenance carry-forward-on-match + drop-on-mismatch, mutation-killed smoke test 12b/12c, live repro of attacker-receipt-rejected / real-receipt-preserved). Only story evidence/metadata changed (18 verification-evidence rows re-recorded), not source. Re-affirming prior verdict: F-006 (critical) and F-008 (low) both fixed and independently verified; no new findings.",
+      "createdAt": "2026-07-26T03:20:36.179Z",
+      "reviewRound": "2026-07-26T03:19:27.125Z",
+      "reviewRunId": "B-ec67:RR-014",
+      "envelopeId": "9241d1f94cb2f503917b140241183dfa3e918fc8581f981048ebe7f9a8b4e381",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd50f5ff6d6f7cb0ed0b0a0dd4f513667d8b7ac5447de842a9e0454d4ee17663"
+    }
+  ]
+}

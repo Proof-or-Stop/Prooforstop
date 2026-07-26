@@ -4,49 +4,680 @@
       "id": "CHK-001",
       "title": "Add optional verification:{command,selector} to VerificationIntentItem and pin it immutably on the first evidence write",
       "context": "packages/main/src/core/types.ts:203-212 (VerificationIntentItem; precedent plannedPathDeclarations:211). The pair is not required at PLAN (intent frozen from DEV, impl absent at PLAN); pin on the FIRST verification_evidence_add for that intentRef, refuse any later write that changes it. selector = test id / case name / assertion string that MUST appear in captured output; command = executable + argv, not a raw shell program.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T00:28:46.548Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verification:{command,selector} is on VerificationIntentItem; the first evidence write for an intentRef pins it onto the intent and it round-trips through read/write",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a legacy intent/evidence with no pinned verification loads and reads without throwing (grandfathered)",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a second evidence write that changes the pinned command or selector is refused (pin immutable), while a second write with the same command re-executes",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "excludes": [
+        "cwdPolicy pin field (optional refinement from handoff §2a, deferred beyond the enforcement floor)",
+        "expectedExit pin field (the floor uses a fixed exit==0 check; a configurable expected exit is a deferred refinement)",
+        "specDigest pin field (optional tamper-evidence refinement, deferred)"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Re-record post-merge: the smoke executes and asserts the pin round-trips.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:02.968Z"
+          },
+          "headHash": "15eca6216a2c527b8ec13671900f4fab7ff362af",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:03.102Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a legacy intent/evidence with no pinned verification loads and reads without throwing (grandfather).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:08.962Z"
+          },
+          "headHash": "86b6e5bcb72bdd483feee482762c545339f50821",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:09.080Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a second write changing the pinned command/selector is refused (receipt_command_mismatch) while same-command re-executes.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:14.938Z"
+          },
+          "headHash": "e606b82f4273827d09f4c455ca30809568fdf2a7",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:15.060Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Make verification_evidence_add execute the pinned command for automated intents and refuse on mismatch",
       "context": "packages/main/src/handlers/checklist.ts:888 verification_evidence_add AND :947 verification_evidence_batch_add (parallel entry point with the same defect — BOTH must reach the same enforcement boundary). VerificationIntentType is logic|cli|browser|manual|docs; the command-executable set is logic|cli|browser. For those, stop trusting caller command+result; run the pinned command via packages/main/src/core/validation-executor.ts executeValidationPlan (spawn:394) and refuse when (a) exit!=0 but pass claimed, (b) selector absent from output, (c) intentRef does not resolve to an intent on the item (today silently accepted), (d) pinned command != command to run (receipt-command-mismatch: expected X, got Y from done-required-validation.ts:701).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T00:28:47.789Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "for an executable intent (logic|cli|browser) verification_evidence_add runs the pinned command via the shared enforce-and-stamp helper and writes a receipt when exit==0 and the selector is present",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verification_evidence_batch_add enforces identically through the same shared helper: a selector-absent row is refused through the batch path too",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the write is refused on each of exit!=0-but-pass-claimed, selector-absent-from-output, intentRef-not-resolving-to-an-intent-on-the-item, and pinned-command != command-to-run (receipt-command-mismatch)",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts an executable intent runs the pinned command via the shared enforceAndStampEvidence helper and writes a receipt on exit==0 + selector present.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:20.765Z"
+          },
+          "headHash": "5385cfede3a559dd8f3307028d85562127443a81",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:20.884Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts verification_evidence_batch_add enforces identically through the same helper: a selector-absent row is refused via the batch path too.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:26.569Z"
+          },
+          "headHash": "568aae00c9f3f74c734051d798fa2843a1f7b5f3",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:26.688Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts refusal on each of exit!=0-but-pass, selector-absent, intentRef-not-resolving, and pinned-command-mismatch.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:32.282Z"
+          },
+          "headHash": "c2e626dd164e33659c0742335ed9f33673de075d",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:32.413Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Store a tool-owned receipt (exitCode + outputDigest + outputTail) on the evidence",
       "context": "Model on packages/main/src/core/done-required-validation.ts:892-895 (exitCode/outputDigest=sha256(output)/outputTail helper:531). Reviewers must see real numbers, killing the claimed-N-actually-M counting errors; the receipt is the tool's proof, not the agent's prose.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T00:28:48.916Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "stored evidence for an executable intent carries a receipt (exitCode + outputDigest + outputTail) and the result field is derived from the actual exit code, not the caller",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "outputDigest == sha256(captured output) and outputTail is bounded to the tail of the output",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a caller-supplied result:pass that contradicts a nonzero exit does not survive — the receipt result overrides the claim",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts stored evidence carries receipt {exitCode,outputDigest,outputTail,selectorMatched} and result is derived from the actual exit, not the caller.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:38.064Z"
+          },
+          "headHash": "6bbd3f1fdeb278d53fc6b059dbdbc33f6f56afae",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:38.189Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts outputDigest == sha256(output) and outputTail is bounded.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:43.812Z"
+          },
+          "headHash": "db5522717a3b88584ad4c2c083e881c3834bb465",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:43.934Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts a caller result:pass contradicting a nonzero exit does not survive — the receipt result overrides the claim.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:49.742Z"
+          },
+          "headHash": "1512db6b93d4b2fadbc0f27aa91649ff39eeea42",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:49.862Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Keep manual|docs intents attestation-only, explicitly non-mechanical, and not scored equal to tool receipts",
       "context": "type manual|docs cannot auto-execute. Mark them non-mechanical human attestation and ensure the coverage/gate does NOT treat them as equivalent to an executed receipt, so type:manual cannot become an escape hatch that bypasses execution for an automatable intent.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T00:28:49.982Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "manual|docs evidence is stored as attestation, marked explicitly non-mechanical, with no command execution attempted",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "in buildVerificationCoverage a manual/docs attestation does NOT satisfy an executable intent (logic|cli|browser) required coverage — it is not scored equal to an executed receipt",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "recording an executable intent as type:manual cannot bypass execution at the coverage gate (the escape hatch is closed)",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts manual|docs evidence is stored as attestation, marked non-mechanical, with no execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:14:55.651Z"
+          },
+          "headHash": "e5df47496ff3b4dc19ce9c1ebb9ce356d6138be8",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:14:55.783Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts buildVerificationCoverage does NOT let a manual/docs attestation cover an executable (logic|cli|browser) intent (non_mechanical status).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:15:40.521Z"
+          },
+          "headHash": "8176c4408bfce3cd53107e75517bb07459eb3956",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:15:40.711Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts recording an executable intent as type:manual cannot bypass execution at the coverage gate.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:15:48.394Z"
+          },
+          "headHash": "90411770e9ac552b071d9e29158796d6a807024b",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:15:48.636Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Grandfather existing prose-only intents and provide an explicit, attributable escape path",
       "context": "Do not hard-break in-flight stories that already have prose-only evidence without a pinned (command,selector). Provide grandfathering / an audited repair path / a policy mode; emergency overrides must be explicit, attributable, and visible to gates. Per CLAUDE.md handler convention, re-validate every new constraint at Zod + handler entry + consuming gate, and test the internal-call path that bypasses Zod.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T00:28:51.448Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "legacy evidence rows written before this story (no pinned verification) remain valid and readable — no hard break of in-flight stories",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the explicit escape/grandfather path (policy mode or audited repair) is attributable and visible to gates, not a silent bypass",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the internal fn-call path bypassing Zod is still enforced because the handler and the consuming coverage gate re-validate the pin/receipt",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts legacy evidence rows without a pin (mechanical undefined) remain valid and readable — no hard break.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:15:56.549Z"
+          },
+          "headHash": "a90b2622f48a702d673cb27d7c13315176546694",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:15:56.799Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke/handler asserts the nonMechanicalReason escape is attributable and gate-visible and never grants coverage.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:16:03.897Z"
+          },
+          "headHash": "f72f2439a02b6b2a2a08bcf1f1ad6952b13e7f0f",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:16:04.090Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts the internal fn-call path bypassing Zod is still enforced (handler + coverage gate re-validate).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:16:10.759Z"
+          },
+          "headHash": "70c513a07b23ab9df2fe7550da6772a2f97811a2",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:16:10.898Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Add a RED-first smoke proving the mechanism and register it in validate",
       "context": "RED first: an evidence row whose selector is absent from output must be REFUSED after the fix and (demonstrably) was accepted before. Cover BOTH verification_evidence_add and verification_evidence_batch_add: selector-absent refused; intentRef-not-resolving refused; pinned-command-mismatch refused; exit!=0-but-pass refused; happy path (selector present, exit 0) writes a receipt with real exitCode/outputDigest/outputTail; pin immutability (second write changing command/selector refused); manual intent stays attestation-only and is not scored as a receipt. Register under packages/main/src/tasks and lattice.config.json validate.commands + package.json.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T00:28:53.033Z",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "positive: selector present + exit 0 through both verification_evidence_add and verification_evidence_batch_add writes a receipt; the smoke prints PASS and is registered in lattice.config.json validate.commands",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "RED-first: a selector-absent row is REFUSED after the fix and (demonstrably) was accepted before it",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "every refusal case (exit!=0-but-pass, selector-absent, intentRef-unresolved, command-mismatch, pin-change) is refused through BOTH the single and batch entry points",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+              "selector": "tool-executed-evidence-receipt-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "The registered smoke: selector present + exit 0 through both add and batch_add writes a receipt; prints PASS; registered in lattice.config.json validate.commands.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:16:17.377Z"
+          },
+          "headHash": "a5985e9f5a71219e65fcecdb99e7f61c1e3391b4",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:16:17.525Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "RED-first: the smoke shows a selector-absent row is refused after the fix (the ec67-red demo flipped from exit 1 pre-fix to exit 0 post-fix).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:16:23.963Z"
+          },
+          "headHash": "026694957c44c69b1a2df98423a6ae7254c4ac3f",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:16:24.094Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+          "result": "pass",
+          "note": "The smoke exercises every refusal case through BOTH the single and batch entry points.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7017f122e4b62a99ab901162964f94929436da90f4f3ec38643fa28b374363a1",
+            "outputTail": "↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:16:30.542Z"
+          },
+          "headHash": "11cada83368c20da4bf5b86d2ae92122f0a5161d",
+          "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+          "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+          "timestamp": "2026-07-26T03:16:30.678Z"
+        }
+      ]
     }
   ]
 }
