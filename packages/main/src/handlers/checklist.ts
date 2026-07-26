@@ -291,6 +291,13 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
     materialHash: input.materialHash || hashes.materialHash,
     storyFilesHash: input.storyFilesHash || hashes.storyFilesHash,
     ...(input.attestation ? { attestation: input.attestation } : {}),
+    // B-ec67 F-007: preserve the tool-execution provenance on re-persist so a valid
+    // mechanical receipt or audited attestation survives a checklist_update bulk set
+    // (previously dropped, which silently demoted an already-earned receipt to
+    // mechanical:undefined and re-grandfathered it as covered).
+    ...(input.mechanical !== undefined ? { mechanical: input.mechanical } : {}),
+    ...(input.receipt ? { receipt: input.receipt } : {}),
+    ...(input.nonMechanicalReason ? { nonMechanicalReason: input.nonMechanicalReason } : {}),
   });
 }
 
@@ -355,6 +362,56 @@ function resolveIntentForRef(
   return hit ? { lane: hit.lane, index: hit.index, intent: hit.intent } : undefined;
 }
 
+/**
+ * B-ec67 F-007: guard for checklist_update's bulk `verificationEvidence` setter — the
+ * THIRD evidence write path, which does NOT run the pinned command. For an EXECUTABLE
+ * intent (logic|cli|browser) it refuses any incoming row that is not already a valid
+ * mechanical receipt (mechanical:true + receipt) or an audited non-mechanical attestation
+ * (mechanical:false + nonMechanicalReason ≥ N), so a raw fabricated result:pass row can
+ * never be laundered as covered through this path. Rows that cannot launder executable
+ * coverage are left alone: non-executable (manual|docs) intents, waivers, explicit fails,
+ * and refs that do not resolve to an intent on this item. Callers with real executable
+ * evidence are directed to verification_evidence_add / verification_evidence_batch_add,
+ * which are the single enforcement boundary that actually executes the command.
+ */
+function assertChecklistUpdateEvidenceRowAllowed(item: ChecklistItem, ev: VerificationEvidenceInput): void {
+  const resolved = resolveIntentForRef(item, ev.intentRef);
+  // A ref that does not resolve to an intent on this item covers nothing at the gate,
+  // and manual|docs intents are attestation-only — neither can launder executable coverage.
+  if (!resolved || !isExecutableIntentType(resolved.intent.type)) return;
+  if (normalizeEvidenceKind(ev.kind) === 'waiver') return; // explicit exemption, tracked separately
+  if (ev.result === 'fail') return;                        // an explicit failure never launders coverage
+  if (ev.mechanical === true) {
+    if (!ev.receipt) {
+      throw new Error(
+        `checklist_update refused: verificationEvidence row for executable intent ${ev.intentRef} claims mechanical:true ` +
+        `but carries no execution receipt. Record it through verification_evidence_add / verification_evidence_batch_add ` +
+        `(which runs the pinned command and stamps the receipt). [checklist_update_evidence_receipt_missing]`,
+      );
+    }
+    return;
+  }
+  if (ev.mechanical === false) {
+    const reason = ev.nonMechanicalReason?.trim() || '';
+    if (reason.length < MIN_NON_MECHANICAL_ESCAPE_REASON) {
+      throw new Error(
+        `checklist_update refused: verificationEvidence row for executable intent ${ev.intentRef} is a non-mechanical ` +
+        `attestation (mechanical:false) but its nonMechanicalReason is missing or < ${MIN_NON_MECHANICAL_ESCAPE_REASON} characters. ` +
+        `[checklist_update_evidence_reason_too_short]`,
+      );
+    }
+    return;
+  }
+  // mechanical === undefined on an executable intent → a raw fabricated pass. Refuse:
+  // checklist_update does not execute pinned commands, so it cannot mint a receipt.
+  throw new Error(
+    `checklist_update refused: verificationEvidence row for executable intent ${ev.intentRef} (type ${resolved.intent.type}) ` +
+    `is neither a tool-executed receipt (mechanical:true) nor an audited attestation (mechanical:false + nonMechanicalReason). ` +
+    `checklist_update does not execute pinned commands; route executable-intent evidence through verification_evidence_add / ` +
+    `verification_evidence_batch_add so the command is actually run. [checklist_update_executable_evidence_unenforced]`,
+  );
+}
+
 type SingleCommandRunner = (command: string, cwd: string) => Promise<SingleCommandExecutionResult>;
 
 /**
@@ -371,8 +428,10 @@ type SingleCommandRunner = (command: string, cwd: string) => Promise<SingleComma
  *        Stamp the receipt {exitCode,outputDigest,outputTail,selectorMatched,executedAt}.
  *   d. Executable + audited escape (nonMechanicalReason ≥ 30) → record non-mechanical,
  *        attributable, no execution (still demoted by the coverage gate).
- *   e. Executable + no selector + no pin + no escape → LEGACY-shaped write: stored as-is,
- *        mechanical left undefined (grandfathered), no execution.
+ *   e. Executable + no selector + no pin + no escape → REFUSED (B-ec67 F-006): a NEW
+ *        executable write can never mint mechanical:undefined here (which the gate would
+ *        grandfather as covered). The caller must supply a selector or a nonMechanicalReason.
+ *        Pre-mechanism legacy rows keep 'covered' at the GATE only (loaded from disk).
  *   f. manual|docs intents → attestation-only, mechanical:false, no execution, no refuse.
  *   g. waiver kind → explicit exemption, no execution.
  */
@@ -427,16 +486,25 @@ async function enforceAndStampEvidence(
     };
   }
 
-  // Legacy-shaped write for an executable intent (no selector, no pin) → grandfather.
-  // Enforcement is opt-in via a selector on the first write, then mandatory (the pin
-  // is immutable). This is what keeps in-flight stories and legacy fixtures loadable.
+  // B-ec67 F-006: an executable intent's NEW evidence write MUST be either a
+  // tool-executed receipt (a selector pins + runs the command → mechanical:true) OR
+  // an audited non-mechanical attestation (nonMechanicalReason ≥ N → mechanical:false).
+  // A write that supplies NEITHER is REFUSED. The old "legacy-shaped" branch returned
+  // an un-flagged patch here, leaving mechanical:undefined — which the coverage gate
+  // grandfathers as 'covered'. That let a caller author command+result:pass for a
+  // never-executed command and be scored identically to a real receipt (the exact
+  // F-045/F-049/F-050/F-061 fabrication class this story exists to eliminate). Refuse
+  // it so the handler can NEVER mint mechanical:undefined for a new executable write.
+  // Genuinely pre-mechanism legacy rows keep their historical 'covered' status at the
+  // GATE only (they are loaded from disk, never re-minted through this write path), so
+  // after this closure `mechanical === undefined` ⟺ genuine pre-B-ec67 legacy data.
   if (!existingPin && !callerSelector) {
-    return {
-      evidencePatch: {
-        ...(input.result ? { result: input.result } : {}),
-        ...(callerCommand ? { command: callerCommand } : {}),
-      },
-    };
+    throw new Error(
+      `verification evidence refused: executable intent ${input.intentRef} (type ${intent.type}) requires EITHER a selector ` +
+      `(to pin + execute the command, producing a mechanical receipt) OR a nonMechanicalReason ≥ ${MIN_NON_MECHANICAL_ESCAPE_REASON} ` +
+      `characters (an audited non-mechanical attestation). A caller-authored command/result with no execution and no attestation ` +
+      `is not accepted — it would silently grandfather as covered. [executable_intent_requires_selector_or_reason]`,
+    );
   }
 
   // Mechanical path: determine the immutable pinned command + selector.
@@ -991,6 +1059,17 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         results.push(`verificationIntent updated`);
       }
       if (args.verificationEvidence !== undefined) {
+        // B-ec67 F-007: this bulk setter is a THIRD verificationEvidence write path that
+        // does NOT run the pinned command. Refuse an executable intent's row unless it is
+        // already a valid mechanical receipt or an audited non-mechanical attestation, so
+        // it cannot become an unguarded bypass of enforceAndStampEvidence. The
+        // acceptance-matrix projection check runs FIRST (mirroring verification_evidence_add,
+        // which rejects a matrix projection before enforcement) so a matrix-derived row is
+        // rejected as a projection, not merely as an unenforced executable write.
+        for (const ev of args.verificationEvidence) {
+          assertEvidenceIsNotAcceptanceMatrixProjection(ev);
+          assertChecklistUpdateEvidenceRowAllowed(item, ev);
+        }
         item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(resolveStoryGitCwd(args.storyId), root, ev));
         results.push(`verificationEvidence updated (${args.verificationEvidence.length})`);
       }
@@ -1344,6 +1423,22 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const ev = idx >= 0 ? existing[idx] : entry.evidence;
         lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
         if (args.dryRun || !item || idx < 0 || !ev) continue;
+        // B-ec67 F-001: carry the tool-execution provenance forward so refresh does NOT
+        // launder a demoted / receipt row back to mechanical:undefined (= grandfathered
+        // covered). A mechanical:true receipt is DEMOTED to a non-mechanical attestation
+        // here: refresh only re-stamps freshness hashes and does NOT re-run the pinned
+        // command (re-execution is a follow-on story), so a stale receipt must not keep
+        // covering. Coordinates with B-3b88, which also edits refresh_stale (prose-only
+        // laundering); this change is additive — it only carries/demotes mechanical fields.
+        let refreshedMechanical = ev.mechanical;
+        let refreshedReceipt = ev.receipt;
+        let refreshedReason = ev.nonMechanicalReason;
+        if (ev.mechanical === true) {
+          refreshedMechanical = false;
+          refreshedReceipt = undefined;
+          refreshedReason = ev.nonMechanicalReason
+            ?? 'receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt';
+        }
         existing[idx] = makeEvidence({
           intentRef: ev.intentRef,
           kind: ev.kind,
@@ -1359,6 +1454,9 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           ...(ev.attestation ? { attestation: ev.attestation } : {}),
           ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
           ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
+          ...(refreshedMechanical !== undefined ? { mechanical: refreshedMechanical } : {}),
+          ...(refreshedReceipt ? { receipt: refreshedReceipt } : {}),
+          ...(refreshedReason ? { nonMechanicalReason: refreshedReason } : {}),
         });
         item.verificationEvidence = existing;
         refreshed++;

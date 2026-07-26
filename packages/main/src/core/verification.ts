@@ -69,7 +69,19 @@ export function isExecutableIntentType(type: VerificationIntentType): boolean {
  *    this is what stops `type:manual` from being a universal bypass at the gate.
  *  - mechanical === undefined → legacy prose-only evidence written before B-ec67.
  *    Grandfathered: keeps its historical 'covered' status so in-flight stories do
- *    not hard-break.
+ *    not hard-break. This is SAFE (not a bypass) because after B-ec67 F-006/F-007/F-001
+ *    NO write path can mint mechanical:undefined for a NEW executable-intent write:
+ *      - verification_evidence_add / _batch_add refuse an executable write that provides
+ *        neither a selector (→ mechanical:true receipt) nor a nonMechanicalReason
+ *        (→ mechanical:false attestation) [executable_intent_requires_selector_or_reason];
+ *      - checklist_update's bulk setter refuses a fabricated executable pass row
+ *        [checklist_update_executable_evidence_unenforced];
+ *      - verification_evidence_refresh_stale carries mechanical/receipt/nonMechanicalReason
+ *        forward (and demotes a refreshed receipt to mechanical:false) instead of dropping
+ *        them.
+ *    So `mechanical === undefined` on an executable intent ⟺ genuinely pre-mechanism legacy
+ *    data loaded from disk. Do NOT globally demote undefined here — that would hard-break
+ *    every in-flight story's grandfathered prose evidence (the migration break).
  *
  * Non-executable (manual|docs) intents are unaffected and stay 'covered'.
  */
