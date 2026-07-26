@@ -331,3 +331,152 @@ function buildStallMessage(roundCount: number, recentCounts: number[]): string {
     '  - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.',
   ].join('\n');
 }
+
+/* -------------------------------------------------------------------------- */
+/* B-7813 CHK-001: stall adjudication (advisory trend signal -> BLOCK).        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The five structured resolution actions that (once CHK-002 lands the
+ * stall_resolution_set command + signed, current-round-bound record) clear the
+ * stall block for EXACTLY the next ordinary review round. Named here so the
+ * blocking prompt and the future CHK-002 action enum share ONE source and can
+ * never drift. Order is stable for grep/test.
+ */
+export const STALL_RESOLUTION_ACTIONS = [
+  'authorize_continuation',
+  'replan',
+  'escalate_root_cause',
+  'resolve_findings',
+  'declare_unreachable',
+] as const;
+
+export type StallResolutionAction = (typeof STALL_RESOLUTION_ACTIONS)[number];
+
+/** Stable machine-readable tag surfaced in the guard-failure message. */
+export const STALL_ADJUDICATION_CODE = 'review_convergence_stall';
+
+export interface StallAdjudicationInputs {
+  /**
+   * The EXISTING trend signal, i.e. the output of assessReviewConvergence over
+   * the mint-site round history. This is the ONLY convergence surface — the
+   * adjudication reuses it verbatim and adds no raw round ceiling (the ceiling
+   * is CHK-003).
+   */
+  assessment: ReviewConvergenceAssessment;
+  /**
+   * Whether a signed, current-round-bound structured resolution record exists
+   * for the CURRENTLY stalled round. CHK-002 populates this from a validated
+   * stall-adjudication.json (reason min length + current-round binding +
+   * signature). Until then it is always false, so a genuine stall is blocked
+   * and cannot be cleared by prose — only by the future signed record.
+   */
+  hasCurrentRoundResolution: boolean;
+}
+
+export interface StallAdjudication {
+  /** True => minting another ordinary review round is REFUSED. */
+  blocked: boolean;
+  /** Structured English prompt naming the allowed §3 actions; only when blocked. */
+  prompt?: string;
+  /** Stable machine-readable code for the gate-failure tag; only when blocked. */
+  code?: string;
+}
+
+/**
+ * PURE decision function. No I/O, no store, no clock — a deterministic function
+ * of observable state only (the trend assessment + the resolution boolean).
+ *
+ * Decision table:
+ *   - assessment.stalled === false            -> ALLOW (converging or too-few rounds)
+ *   - stalled && hasCurrentRoundResolution     -> ALLOW (a current-round resolution clears exactly the next round)
+ *   - stalled && !hasCurrentRoundResolution    -> BLOCK (mint refused; carry the structured prompt)
+ *
+ * It deliberately does NOT re-derive the stall — it consumes assessReviewConvergence's
+ * verdict — so a genuinely converging story (trailing-clean last==0, or strictly
+ * decreasing) is NEVER blocked, even at/beyond STALL_MIN_ROUNDS.
+ */
+export function evaluateStallAdjudication(inputs: StallAdjudicationInputs): StallAdjudication {
+  if (!inputs.assessment.stalled) {
+    return { blocked: false };
+  }
+  if (inputs.hasCurrentRoundResolution) {
+    return { blocked: false };
+  }
+  return {
+    blocked: true,
+    code: STALL_ADJUDICATION_CODE,
+    prompt: buildStallAdjudicationPrompt(inputs.assessment),
+  };
+}
+
+/**
+ * Builds the structured, English-only block prompt. Leads with a stable marker
+ * ([review_convergence_stall]) for grep/test, echoes the advisory trend detail
+ * (assessment.message, when present), and NAMES the five allowed resolution
+ * actions the operator must record (via CHK-002's stall_resolution_set) to mint
+ * another round or close the loop.
+ */
+function buildStallAdjudicationPrompt(assessment: ReviewConvergenceAssessment): string {
+  const lines = [
+    `Cannot mint another ordinary REVIEW round: convergence has stalled and no current-round resolution is recorded. [${STALL_ADJUDICATION_CODE}]`,
+  ];
+  if (assessment.message) {
+    lines.push(assessment.message);
+  }
+  lines.push(
+    '→ This mint is refused until you record ONE structured resolution bound to the current stalled round (CHK-002 stall_resolution_set). Allowed actions:',
+    '  - authorize_continuation: consciously allow one more ordinary round (with a reason).',
+    '  - replan: return to PLAN and re-decompose the checklist/decision.',
+    '  - escalate_root_cause: escalate the design/architecture instead of patching another round (Debugging Contract: 3+ non-converging fix attempts).',
+    '  - resolve_findings: dismiss the advisory-level findings that keep re-rounding (finding_dismiss + reason) rather than re-rounding.',
+    '  - declare_unreachable: mark the offending checklist item withdrawn/unreachable (B-1909 withdrawn-disposition) and close the loop.',
+  );
+  return lines.join('\n');
+}
+
+/**
+ * SEAM for CHK-002. Presence of a signed, current-round-bound structured
+ * resolution record (stall-adjudication.json) for the CURRENTLY stalled round.
+ *
+ * Until CHK-002 lands the stall_resolution_set command + persisted+signed
+ * record, no resolution can exist, so this is UNCONDITIONALLY false — the block
+ * is real and unclearable-by-text today. CHK-002 replaces this body with a read
+ * of the persisted record RE-VALIDATED against the current stalled round (reason
+ * min length + current-round binding + signature); a stale/previous-round/empty
+ * record must still return false here. This is one of the two consumption points
+ * (this gate + the CHK-002 handler) that must both re-validate the record.
+ */
+export function hasCurrentRoundStallResolution(_store: StoryStore, _storyId: string): boolean {
+  // CHK-002 seam: no persisted resolution record exists yet.
+  return false;
+}
+
+/**
+ * CHK-001: store-consuming mint-site gate. Reads the observable round history
+ * from the store, runs the EXISTING trend detector over the COMPLETED rounds
+ * visible at the mint site, and returns the pure adjudication.
+ *
+ * Round-count semantics at the MINT site (vs assessReviewConvergenceAtEntry):
+ *   The mint gate runs while the story is still at DEV, BEFORE the new round's
+ *   REVIEW/advance event is written — so every round resolveReviewRoundCount
+ *   counts here is a COMPLETED round whose reviewers have run. Therefore, unlike
+ *   the render-time advisory (which drops the just-entered, not-yet-reviewed
+ *   current round), this gate feeds the FULL dense per-round array to
+ *   assessReviewConvergence with NO trailing drop. The advisory entry point
+ *   (assessReviewConvergenceAtEntry) is intentionally left untouched.
+ *
+ * Pure-ish: only reads via the store, no writes, no transition side effects;
+ * evaluateStallAdjudication stays PURE.
+ */
+export function evaluateReviewMintStallAdjudication(
+  store: StoryStore,
+  storyId: string,
+): StallAdjudication {
+  const { roundCount, perRoundBlockingCounts } = collectReviewConvergenceInputs(store, storyId);
+  const assessment = assessReviewConvergence(roundCount, perRoundBlockingCounts);
+  return evaluateStallAdjudication({
+    assessment,
+    hasCurrentRoundResolution: hasCurrentRoundStallResolution(store, storyId),
+  });
+}
