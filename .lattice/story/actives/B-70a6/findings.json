@@ -139,6 +139,26 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70a6:F-007",
+      "desc": "CHK-001/002/003 must-intent verificationEvidence (all 9 entries) still records headHash bbd64539e1 / materialHash 8de4ee0c0e / storyFilesHash 8b722220c6, captured 2026-07-26T04:31:40Z, BEFORE the F-004 fix commit 9ead1958c8 which further modified 2 of the referenced files (transition-orchestrator.ts, plan-init-reopen-roundtrip-smoke.ts). The underlying assertions were only extended, not altered, so the evidence descriptions remain behaviorally accurate, but the recorded hashes are now stale; lattice validate --story=B-70a6 --json (run at the start of this review) reported refusalReasons including story-files-hash-changed-or-missing and material-hash-changed-or-missing, confirming staleness. Separately, the new F-004 crash-recovery behaviour (reconcilePendingReopenAudit / pendingReopenAudit) has no checklist-level verificationIntent of its own -- its only record is the finding resolvedReason prose, unlike the schema-validated verification_evidence_add entries backing the original 3 checklist items. Recommend a verification_evidence_refresh_stale pass before DONE (already done twice earlier in this story) and, optionally, a dedicated CHK-001 verificationIntent/evidence entry for the crash-recovery guarantee for future traceability.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T05:55:10.270Z",
+      "reviewRound": "2026-07-26T05:36:59.895Z",
+      "reviewRunId": "B-70a6:RR-010",
+      "_hash": "b88b2a3636bc0f315f7bfee58a1db2975b02fe36668a0806a31dec054020e6d6",
+      "files": [
+        "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        ".lattice/story/actives/B-70a6/checklist.json"
+      ],
+      "signatureTag": "missing|ts|intent-verificationevidence-entries",
+      "signatureTagSource": "auto"
     }
   ]
 }
