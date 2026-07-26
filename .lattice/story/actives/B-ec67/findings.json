@@ -162,6 +162,26 @@
       "resolvedAt": "2026-07-26T01:26:24.737Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-008",
+      "desc": "packages/main/src/cli/command-schemas.ts:94-104 (verificationEvidenceSchema, used by checklist_update's verificationEvidence array field) still does NOT declare mechanical/receipt/nonMechanicalReason/selector. Verified against the ACTUAL production Zod schema (not a synthetic example): parsing `{storyId,itemId,verificationEvidence:[{intentRef,kind:'logic_test',note:'n',result:'pass',mechanical:true,receipt:{exitCode:0,outputDigest:'fake',outputTail:'fake',selectorMatched:true,executedAt:'now'}}]}` through `z.object(MAIN_TOOLS.find(t=>t.name==='checklist_update').schema).strict()` silently STRIPS mechanical/receipt (top-level .strict() does not recurse into the nested per-element verificationEvidenceSchema, which has no .strict()/.passthrough()). Consequence: through the real CLI, `mechanical`/`receipt`/`nonMechanicalReason` can NEVER arrive at assertChecklistUpdateEvidenceRowAllowed (checklist.ts:378-412) — every executable-intent verificationEvidence row submitted via the real `lattice checklist_update` will always see mechanical===undefined and hit the final throw branch, regardless of caller intent. This is NOT a live security bypass (I confirmed no other internal caller invokes handlers.checklist_update directly with attacker-shaped fields, so the fabricated-receipt path I hypothesized is unreachable via any real production entry point), and it is consistent with one of the two remediations the ORIGINAL finding this round fixes (B-ec67:F-007) itself proposed ('or explicitly close this path'). But it does mean: (1) the accept branches in assertChecklistUpdateEvidenceRowAllowed (mechanical===true-with-receipt, mechanical===false-with-reason) are dead code from the real CLI's perspective — reachable only by an internal fn-call that bypasses Zod entirely; (2) the story's own smoke (tool-executed-evidence-receipt-smoke.ts case 12b, comment 'proves the guard does not over-restrict legitimate re-persist') calls env.handlers.checklist_update(...) directly in-process, so it exercises exactly that Zod-bypassed path and its claim of 'legitimate re-persist' is not actually exercisable by any real caller going through the documented CLI — the test passes but proves something that cannot happen in production. Recommend either: (a) add optional mechanical/receipt/nonMechanicalReason fields to verificationEvidenceSchema so a genuine internal/future caller can actually exercise the accept path through the real CLI too (matching CLAUDE.md's Zod/handler/gate parity convention), or (b) amend the smoke's comment + this story's decision docs to state explicitly that checklist_update's accept branches are intentionally unreachable via the real CLI (internal-only, defense-in-depth), so a future reader does not assume checklist_update is a supported re-persist path. Not a blocker to this round's fix (F-006/F-007/F-001 all verified independently as genuinely resolved); flagging for precision/maintainability only.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T01:34:49.002Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-004",
+      "_hash": "c32668c39492b1f40bbcda952212c3157ee42a72b4f05a57703e5ce5a1f29789",
+      "files": [
+        "packages/main/src/cli/command-schemas.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
