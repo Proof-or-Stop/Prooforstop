@@ -335,6 +335,21 @@
       "_hash": "5a0cd8c9f9f2aff8e6cdd05971ef4f8165faffc6c63690d2732eb94438c53612",
       "signatureTag": "missing|unknown|promise-undelivered-resolvedreason",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70a6:F-016",
+      "desc": "types.ts:142-174 (PendingReopenAudit docblock) — F-013 resolvedReason claims two PRE-EXISTING overclaims were corrected, one being stale next-transition wording in types.ts. Diff verification (de616850b0) shows the types.ts hunk is purely additive (+11/-0, single hunk at line 159): the original sentence at line ~157-158 (reconcilePendingReopenAudit ... emits the missing event on the next transition and clears this record, unqualified, dating to F-004) was NOT edited — a new WHAT THAT DOES AND DOES NOT GUARANTEE paragraph was appended immediately after it instead. This differs from the OTHER corrected overclaim in transition-orchestrator.ts (the serialized by the per-story transition lock the caller holds sentence), which really was edited in place (a -/+ pair). The net docblock, read top to bottom, is accurate (the appended paragraph correctly qualifies next ORCHESTRATED transition + the two out-of-band sites + the F-013 residual, and is itself anchored by assertReopenAuditConcurrencyResidualContract so it cannot be silently deleted later), so this is not misleading in practice — but the claimed correction of the original stale sentence is not literally true; it is a supplement, not an edit.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-26T08:46:18.393Z",
+      "reviewRound": "2026-07-26T08:26:24.151Z",
+      "reviewRunId": "B-70a6:RR-014",
+      "_hash": "9304c0edc7438e1296db4b3708428191e67402452459581a9ae25e52479f0450",
+      "signatureTag": "missing|unknown|types-pendingreopenaudit-docblock",
+      "signatureTagSource": "auto"
     }
   ]
 }
