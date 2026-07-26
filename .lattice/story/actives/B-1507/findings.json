@@ -57,6 +57,26 @@
       ],
       "signatureTag": "missing|ts|lattice-validate-green",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1507:F-004",
+      "desc": "lattice validate is NOT green for this story: CHK-003 added a new command verification_pin_guard_check to command-policy.ts (line 455) but never added the matching entry to packages/main/src/core/process-fact-levels.ts / process-fact-registry.ts (only the CHK-001 verification_run command got those entries -- see the diff to those two files). Reproduced deterministically: `node packages/main/dist/tasks/lifecycle-registry-contract.js` FAILS with `[process-fact-lifecycle] command verification_pin_guard_check is in the registry command dimension (command-policy) but has no process-fact lifecycle level entry`. This also cascades into `node packages/main/dist/tasks/red-evidence-target-binding-smoke.js` failing (it asserts lifecycle-registry-contract exits 0). Both are registered validate.commands and both failed in a fresh `lattice validate --story=B-1507 --json` run (commands 38/54 and 53/54) before any experiment I ran. Fix: add a PROCESS_FACT_LEVELS entry + PROCESS_FACT_KIND_BY_COMMAND / PROCESS_FACT_REQUIRED_SEMANTICS / PROCESS_FACT_ARTIFACT_BY_COMMAND entries for verification_pin_guard_check mirroring what CHK-001 did for verification_run.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T06:12:01.617Z",
+      "reviewRound": "2026-07-26T05:50:49.896Z",
+      "reviewRunId": "B-1507:RR-004",
+      "_hash": "2f3d1a278977daf5fb6c12fbaba6f31169b832850abe0980bda2385887beed04",
+      "files": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|lattice-validate-green",
+      "signatureTagSource": "auto"
     }
   ]
 }
