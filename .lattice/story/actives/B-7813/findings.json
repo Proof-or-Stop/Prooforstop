@@ -28,7 +28,7 @@
       "desc": "CHK-002:happy:0 and CHK-002:edge:0 declare verificationIntent.type=\"cli\" (an operator running stall_resolution_set via the real CLI), but the recorded verificationEvidence (kind=manual_transcript, both pinned to review-budget-stall-adjudication-smoke.js) never crosses the CLI boundary: the smoke calls stall.stall_resolution_set(...) directly via createStallAdjudicationHandlers(ctx), bypassing cli-engine.ts/isCommandAllowed entirely. Independently reproduced (node bin/lattice.js stall_resolution_set against this live story, currently REVIEW): exit 1, \"Command stall_resolution_set is not available in REVIEW phase\" -- confirms lattice-review-concept B-7813:F-001 (stall_resolution_set missing from DEFAULT_PHASE_TOOLS.DEV/.REVIEW in core/config.ts). So the declared cli-type intent was never satisfiable by genuine CLI-level verification, and the manual_transcript evidence mislabels a direct in-process handler call as CLI evidence. Same root cause blocks CHK-001/003 operator recovery too: buildStallAdjudicationPrompt/buildStallCeilingPrompt literally instruct the operator to run stall_resolution_set, which is a dead end in both phases it exists for. Fix: once F-001 lands (stall_resolution_set added to phaseTools), re-run/replace this evidence with a genuine CLI-level transcript (spawn lattice stall_resolution_set as a child process) for the cli-typed intents, or downgrade the declared type to logic and add real CLI-reachability coverage separately.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T09:12:14.807Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/config.ts"
       ],
       "signatureTag": "missing|ts|happy-edge-declare",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "a72c3e5308: smoke partG() now crosses the REAL node cli.js boundary in both DEV and REVIEW — positive control (TEST-only delivery_check_set IS phase-blocked) + asserts stall_resolution_set NOT phase-blocked, so the CHK-002 cli-typed intents genuinely cross the CLI. Smoke PASS.",
+      "resolvedAt": "2026-07-26T09:26:48.958Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7813:F-003",
