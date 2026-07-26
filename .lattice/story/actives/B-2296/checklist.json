@@ -125,7 +125,11 @@
           {
             "desc": "after userSees is snapshotted at status=done, mutating story-owned material makes detectDrift report driftKind=material with actionRequired=re_attestation",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/frozen-claim-drift-smoke.js",
+              "selector": "material drift (same digest, different storyFilesHash) → driftKind=material"
+            }
           }
         ],
         "edge": [
@@ -149,7 +153,28 @@
         "headHash": "3ca3e137860e872d26fecff5909ae3f148f854ae",
         "attestedAt": "2026-07-26T12:29:27.169Z",
         "materialHash": "0c5ea58421075f36d6b587c2a0879a3978f4d996468814befc1d734db1478dfd"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/frozen-claim-drift-smoke.js",
+          "result": "pass",
+          "note": "a frozen userSees with unchanged claim but moved story-owned storyFilesHash is detected as driftKind=material (smoke case 5).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "936b990cd0162c22fe97d661e24a604398c92ea35145aacace82483dba360057",
+            "outputTail": "✓ normalizeClaim collapses arbitrary whitespace deterministically\n✓ whitespace-only difference → identical claimDigest\n✓ one non-whitespace char difference → different claimDigest\n✓ empty / whitespace-only string normalizes to \"\" and digests without throwing\n✓ material drift (same digest, different storyFilesHash) → driftKind=material\n✓ claim edit (different digest, same storyFilesHash) → driftKind=claim\n✓ both claim + material changed → driftKind=both\n✓ unchanged (same digest, same storyFilesHash) → driftKind=none (unrelated change → NO drift)\n✓ undefined snapshot → classification=legacy-unbound\n✓ buildDriftReport: material-drifted item → code=FROZEN_CLAIM_DRIFT, driftKind=material, actionRequired=re_attestation\n✓ buildDriftReport: no-snapshot item → classification=legacy-unbound\n✓ buildDriftReport: clean bound item + empty-userSees item are absent (2 advisories total)\n✓ buildDriftReport: inputs unchanged — pure Fn, writes no files/evidence/metadata\n✓ [false-positive guard] unrelated file change → storyFilesHash unchanged → driftKind=none\n✓ [false-positive guard] whitespace-only userSees edit → digest unchanged → driftKind=none\n✓ [non-blocking] buildDriftReport surfaces drift but the advisory is blocking=false (actionRequired=re_attestation only)\nfrozen-claim-drift-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T22:07:14.435Z"
+          },
+          "headHash": "3f6f15e70ee4990355807f7baca2945852ceb881",
+          "materialHash": "5a4deeb930087b4eea533ecf7c60e167f90936b03b4062826f4694e7e31056ff",
+          "storyFilesHash": "3ebaff3d646c3ffd2fe6a72e22e47a1b8fbbbfaee363e27e8299caa1a0144972",
+          "timestamp": "2026-07-26T22:07:14.575Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
