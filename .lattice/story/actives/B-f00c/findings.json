@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-f00c:F-001",
+      "desc": "CHK-001:edge:0 (must, type=cli): the diff-failed branch of classifyMergeLineage (packages/main/src/core/validation-lineage.ts:62-66, netDiffChangedPaths throwing after the ancestor check passes) is never actually exercised by any test. The recorded evidence (logic_test, no command) only points at smoke test 6, which exercises the SEPARATE not-ancestor catch (merge-base --is-ancestor failing on an orphan branch), not the netDiffChangedPaths catch. Grep across the repo (excluding dist) for diff-failed/lineage_diff_failed/lineage-diff-failed/netDiffChangedPaths/classifyMergeLineage shows only the 3 production files + the smoke; no test ever forces netDiffChangedPaths to throw while merge-base --is-ancestor still succeeds, so the split-catch guarantee (a diff failure surfaces a DISTINCT reason string instead of being mislabeled as not-ancestor) is unverified at runtime -- a future refactor that merges the two catch blocks or reuses the same reason string would go undetected. A reachable repro exists (e.g. delete/corrupt a tree object reachable only from one endpoint commit so merge-base --is-ancestor still succeeds via the commit-parent graph but git diff-tree fails to read the tree) but was not implemented.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T03:55:43.669Z",
+      "reviewRound": "2026-07-26T03:46:02.664Z",
+      "reviewRunId": "B-f00c:RR-005",
+      "_hash": "8a835b8d9d41214c2e6fcb472b7ad447441105cc42cdbe8bbfd99959951250ed",
+      "signatureTag": "missing|unknown|edge-type-diff",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
