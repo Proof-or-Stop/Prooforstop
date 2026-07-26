@@ -1,0 +1,21 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "Multiple findings all involve packages/main/src/tasks/frozen-claim-drift-smoke.ts, packages/main/src/handlers/frozen-claim-drift-check.ts",
+      "findingIds": [
+        "B-2296:F-001",
+        "B-2296:F-002",
+        "B-2296:F-003",
+        "B-2296:F-004"
+      ],
+      "files": [
+        "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+        "packages/main/src/handlers/frozen-claim-drift-check.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-07-26T22:25:21.400Z"
+    }
+  ]
+}
