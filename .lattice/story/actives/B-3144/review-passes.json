@@ -127,6 +127,38 @@
         "scanEscalationReason": null
       },
       "_hash": "9c603d1e1b7e64a31ef5a013538df01fab2480ba0b6e71577c3bd08dd4df4ed6"
+    },
+    {
+      "id": "B-3144:RP-005",
+      "agent": "lattice-review-behavior",
+      "note": "Round-9 re-verification after 7 doc-consistency guard-churn commits (F-011..F-021) + the conflict-refusal-message text fix. Re-read guard predicate alignment in handlers/quorum-submit.ts (same-material + drift-accept branches, refusal message names standing runIds/materialDigest and points at review_escalation_status, matches CHK-002 userSees exactly). Re-read quorum-prune.ts end-to-end: dry-run/apply truth table (omit=dry-run, apply:true, dryRun:false, contradictory apply:true+dryRun:true and apply:false+dryRun:false both refuse), backup naming, lifecycle-metadata commit, matches CHK-003 userSees. Confirmed the specific behavioral fix: all 5 prose sites (catalog top-level description, dryRun describe(), apply describe(), process-fact rationale, command-policy reason) now name dryRun:false as an equivalent executor; old broken wording (\"apply:true to actually recover\" omitting dryRun:false) is fully gone from packages/main/src/. Verified live --help render for quorum_prune (node bin/lattice.js quorum_prune --help) shows correct default-on dry-run contract, not a stale always-on claim. Ran the full apply/dryRun truth table live via a real isolated worktree (killed stray leftover processes from a prior stalled attempt first): node packages/main/dist/tasks/quorum-submit-smoke.js in /private/tmp/.../scratchpad/rr021-iso (HEAD bab5a21f08, freshly built) -> exit 0, 64/64 checks green, zero failures (grep for FAIL/fail/✗ matched only test-name substrings like \"fail closed\"). This suite spawns the real built CLI via child_process for the --dryRun/--apply/--help/conflict cases, not just in-process calls, so it is a genuine live re-run of the truth table, not a reread of prior assertions. Also spot-checked the cli-engine.ts quorum_prune process-event-append exclusion (F-001) fix via its dedicated smoke check (production CLI leaves no process-event dirt after apply, follow-up call reaches the real nothing-to-prune refusal rather than a false pre-dirty refusal). Read docs/requirements/decisions/story-files-hash-material-drift.md in full: the drift-accept semantics implemented (mismatching materialHash + matching storyFilesHash = valid-with-advisory, never silently rebound) match the guard alignment exactly. No behavioral regression found across the 7 guard-churn commits; all are genuine documentation-consistency fixes with matching new smoke coverage (62->64 checks).",
+      "createdAt": "2026-07-26T07:04:33.548Z",
+      "reviewRound": "2026-07-26T06:50:49.241Z",
+      "reviewRunId": "B-3144:RR-022",
+      "envelopeId": "f147b9b12e938cdcde406e988147f2268bfa17faa7fe3ebf16ec3880f76b8af9",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cf3c7e43802d0d18b7a29ca1979809d74642b83053aa149349853be47e1e284f"
     }
   ]
 }
