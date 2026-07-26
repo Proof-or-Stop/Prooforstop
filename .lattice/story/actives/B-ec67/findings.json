@@ -95,6 +95,26 @@
       ],
       "signatureTag": "adversarial|ts|edge-adversarial-overclaim",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ec67:F-006",
+      "desc": "packages/main/src/handlers/checklist.ts:429-438 (enforceAndStampEvidence legacy-shaped branch: `if (!existingPin && !callerSelector) return { evidencePatch: { ...(input.result?{result}:{}), ...(callerCommand?{command}:{}) } }`) + core/verification.ts:86 (`mechanical === undefined -> return 'covered'` in coverageStatusForCoveredEvidence) together mean the whole tool-execution enforcement this story exists to build is opt-in per write, not mandatory for new work: the FIRST evidence write for ANY executable (logic|cli|browser) must-priority intent -- including one created fresh in DEV after this story ships, never pinned before -- is accepted verbatim with a caller-authored command+result:pass and ZERO execution, as long as the caller simply omits `selector` (and omits nonMechanicalReason). Nothing distinguishes a genuinely pre-existing legacy row from a brand-new intent whose evidence writer chooses not to supply a selector; the branch is keyed purely on `!existingPin && !callerSelector` of THIS write, not on any provenance/cutoff signal. Live repro (fresh checklist item never seen before; command that actually exits 1 if run; claimed result:pass; no selector): verification_evidence_add stores it, ev.mechanical is undefined (NOT flagged non-mechanical), and buildVerificationCoverage(cl).entries[0].status === 'covered' with missingRequired:0 -- a fabricated pass on a command that was never executed is scored identically to a real tool-executed receipt. This reproduces exactly the F-045/F-049/F-050/F-061 vulnerability class (agent authors command+result:pass, tool trusts it) for every future intent, defeating the stated purpose of the story. It also contradicts this story's own decision.json preMortem #4 mitigation text, which says grandfathered legacy rows are 'flagged non-mechanical' -- the implementation instead leaves mechanical undefined and the gate scores undefined identically to a genuine receipt ('covered'), not 'non_mechanical'. The story's own smoke (tasks/tool-executed-evidence-receipt-smoke.ts:308-325, case 8, INT-H) actually codifies this as intended behavior on a freshly-created checklist item within the same test run, so it is not a theoretical gap -- it is asserted-as-correct by the story's own test suite. Fix should distinguish genuinely-preexisting legacy evidence (e.g. gate the grandfather branch on whether the intent already had prior evidence BEFORE this write, or require selector whenever an intent has zero prior verificationEvidence rows) from a brand-new intent's first write, and/or have the coverage gate treat mechanical===undefined the same as non_mechanical when there is no other legacy-provenance signal, so selector cannot be silently skipped to bypass execution on new work.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T00:37:55.758Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-002",
+      "_hash": "1d23e0d78e655fe93cf016131f4f155b308763cb6a411772e507562e444d87ba",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
