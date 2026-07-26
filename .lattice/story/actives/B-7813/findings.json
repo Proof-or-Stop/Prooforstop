@@ -51,7 +51,7 @@
       "desc": "doc-promise-undelivered / dead-wiring: stall_resolution_set (packages/main/src/handlers/stall-adjudication.ts, registered in cli/command-catalog.ts + core/command-policy.ts with allowedPhases:[DEV,REVIEW]) is unreachable through the real CLI in exactly those two phases because core/config.ts DEFAULT_PHASE_TOOLS.DEV / .REVIEW (and the \"*\" bucket) never list it. Independently reproduced live against this story: `node bin/lattice.js stall_resolution_set {...}` while B-7813 is in REVIEW -> exit non-zero, \"Command stall_resolution_set is not available in REVIEW phase\". This is exactly the command the new blocking prompts (core/review-convergence.ts buildStallAdjudicationPrompt/buildStallCeilingPrompt, surfaced via getGuardFailureReason) instruct the operator to run — so the entire CHK-002/CHK-003 clearing mechanism (authorize_continuation/replan/escalate_root_cause/resolve_findings/declare_unreachable/override_budget) is inoperable via the real CLI today; only the RED-first smoke exercises it because it calls the handler function directly, bypassing cli-engine.ts isCommandAllowed entirely. Corroborates/aligns with lattice-review-concept finding B-7813:F-001 (same root cause, same fix: add stall_resolution_set to DEFAULT_PHASE_TOOLS.DEV and .REVIEW in core/config.ts). Filed independently under the quality lane because it is precisely the promised-but-undelivered failure mode the Closing Self-Check requires flagging: the guard's own printed remediation text is a dead end for a real operator.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T09:12:55.528Z",
@@ -64,7 +64,11 @@
         "packages/main/src/core/review-convergence.ts"
       ],
       "signatureTag": "missing|ts|promise-undelivered-dead",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "a72c3e5308: same root fix as F-001 (config.ts DEFAULT_PHASE_TOOLS). Systemic root also hardened: lifecycle-registry-contract now checks the CONVERSE (every command-policy allowedPhases reachable in DEFAULT_PHASE_TOOLS); controlled experiment confirmed it flags exactly the 2 stall_resolution_set divergences and zero unrelated commands (empty exemption list). Contract PASS.",
+      "resolvedAt": "2026-07-26T09:26:50.236Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
