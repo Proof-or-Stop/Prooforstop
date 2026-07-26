@@ -418,7 +418,7 @@
       "desc": "F-020 recurrence: packages/main/src/tasks/quorum-submit-smoke.ts:2748-2761 (namedNearby) does not deliver the guarantee its own comment at lines 2743-2746 states (\"Anchor to the enclosing syntactic entry instead ... so however that entry is formatted, prose inside it stays in range\"). The walk records the INNERMOST PropertyAssignment/VariableStatement/ExpressionStatement containing the offset as `enclosing`. For a single-line entry like command-policy.ts:480 (`quorum_prune: { ..., reason: \"...apply:true...\" },`) this happens to work because none of the inner fields individually contain the line-start offset, so `enclosing` stays at the outer `quorum_prune: {...}` assignment whose text includes the command name. But if that same entry is reformatted across multiple lines (e.g. `quorum_prune: {\\n  reason: \"...apply:true...\",\\n}`, an entirely ordinary edit for these already-400+-char lines, and the exact scenario F-020 itself was filed to defend against) the innermost enclosing node becomes the `reason: \"...\"` PropertyAssignment itself, whose own text does NOT include \"quorum_prune\" (the key lives on the outer, sibling line) — so `enclosing.getText().includes(\"quorum_prune\")` is false, and the physical-line fallback (`sourceLines[line-1].includes(\"quorum_prune\")`) also fails because the key is on a different physical line. `namedNearby` returns false, the site is silently dropped from `discovered` (no failure, no floor decrement), reproducing the exact silent-coverage-hole failure mode (F-013/F-017/F-020) this guard exists to close. Verified empirically: extracted the exact `namedNearby` algorithm into a standalone script against a synthetic multi-line-reformatted command-policy.ts-shaped source; result: `enclosing node text: reason: \\x27Official recovery: an explicit apply:true or the equivalent dryRun:false is required to mutate.\\x27` and `namedNearby result: false`. WHY: this is a misleading comment (a false, falsifiable guarantee) plus a real maintainability hazard — after 10 iterations (F-011..F-021) explicitly chasing this exact class of silent coverage hole, the current fix still does not survive the single most ordinary future edit (wrapping a long single-line object literal across multiple lines) that its own comment claims to survive.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T07:33:28.124Z",
@@ -426,7 +426,11 @@
       "reviewRunId": "B-3144:RR-024",
       "_hash": "2741b9d17865b3f4bc915d55ffd05b33eecdeca9e22e33d81eefe1b00ca176f5",
       "signatureTag": "adversarial|unknown|recurrence-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 687ca32583. namedNearby kept only the INNERMOST enclosing node, so reformatting quorum_prune: { reason: ...apply:true... } across lines made that node the reason assignment itself, whose text lacks the command name because the key is a sibling on another line - both the AST check and the physical-line fallback then failed and the site left the sweep silently. The walk now returns true when ANY ancestor names the command, which is what the comment guarantee however that entry is formatted has to mean, since the quorum_prune key always encloses the reason string it owns. The real defect here was a comment promising protection the code did not deliver, which is worse than no comment. Verified by isolated probe against the exact reformatted shape, running BOTH implementations over the same fixture: innermost-only returns false (reproducing the reported escape) and any-ancestor returns true. Also observed during probing that the guard is two-layered - the hardcoded per-site assertions caught a planted stale reason even while the sweep was blind - so the escape was never the only line of defence. Smoke 64 green, process-fact contract verified, npm test clean.",
+      "resolvedAt": "2026-07-26T07:59:22.778Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
