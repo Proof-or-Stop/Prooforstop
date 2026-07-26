@@ -1,0 +1,41 @@
+{
+  "passes": [
+    {
+      "id": "B-7813:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: all 12 must intents (CHK-001..004 x3) have mechanical evidence pinned to review-budget-stall-adjudication-smoke.js (exit0+selector). Verified smoke drives REAL entry points (evaluateReviewMintStallAdjudication/canMintReviewRoundGuard/getGuardFailureReason, stall_resolution_set handler, enforceConvergenceBreakerGate, real story_resume). Mutation-tested 3 behaviors (stall block, previous-round binding rejection, declare_unreachable withdrawal): each reverted production behavior made the smoke FAIL, then restored byte-for-byte via git checkout. milestone_status shows Risks:none.",
+      "createdAt": "2026-07-26T09:10:48.131Z",
+      "reviewRound": "2026-07-26T09:00:34.758Z",
+      "reviewRunId": "B-7813:RR-003",
+      "envelopeId": "607faabf6d1252010d4d75a8c65c014d4b717460bf5cf5d631fe1330b04d95a6",
+      "writerSessionId": "sess-3be7f62392d8c04c609773a573566f1e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7813/checklist.json",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/stall-adjudication.ts",
+          "packages/main/src/handlers/stall-adjudication.ts",
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7813/background.md",
+          ".lattice/story/actives/B-7813/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/advisory.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/transition-effects.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "374686cf24b5c404bd72c51dc726909aeafa0b8916a17e0987d1b0e6c66db594"
+    }
+  ]
+}
