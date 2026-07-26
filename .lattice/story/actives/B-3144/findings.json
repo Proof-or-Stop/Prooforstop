@@ -437,7 +437,7 @@
       "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2748-2772 (namedNearby, F-022 fix commit 687ca32583): the any-ancestor walk stops at the FIRST (outermost) qualifying node (PropertyAssignment/VariableStatement/ExpressionStatement) whose FULL TEXT contains the substring quorum_prune anywhere in its span, preorder from the SourceFile down — not the smallest ancestor that actually names the command near the offset. For every requireSelfMention:true file whose whole command table is ONE top-level statement, that outer statement is the first node visited and its text trivially contains quorum_prune (the entry lives inside it), so namedNearby now returns true for EVERY line in the entire table, including sibling commands the comment two lines above (2679-2682) explicitly says must stay out (\"Scope: sibling commands ... legitimately keep the apply-only convention, so only THIS command's prose is swept\"). Verified with the current implementation copied verbatim: namedNearby(offset of command-policy.ts:479, the quorum_submit sibling entry inside the same COMMAND_POLICIES object as quorum_prune at :480) === true, and namedNearby(offset of command-policy.ts:155, the unrelated story_resume entry) === true; the pre-fix innermost-only implementation correctly returned false for both. Same structural exposure confirmed for config.ts (DEFAULT_PHASE_TOOLS, one statement from :263) and process-fact-levels.ts (PROCESS_FACT_LEVELS, one array from :46) via the same probe. It does not fail the suite today only because no sibling command's reason/description text in these 3 files currently contains apply:true; the first ordinary future edit that adds such phrasing to an unrelated command in these shared tables will either be force-paired against quorum_prune's dryRun:false convention it has nothing to do with (spurious unrelated failure) or, if it happens to satisfy the pairing, validate nothing about quorum_prune. This is the same comment-promises-more-than-code-delivers pattern this exact guard has been fixed for repeatedly (F-011..F-022), now in the opposite direction (too wide instead of too narrow).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T08:14:57.920Z",
@@ -445,7 +445,11 @@
       "reviewRunId": "B-3144:RR-025",
       "_hash": "346ecc23d3d2bcec5742f654ed85f8af1c8602777d9558c0ac1973cf3ab36d0f",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit e7d9a961d3. The F-022 fix over-corrected: any ancestor whose TEXT contains quorum_prune matched the single top-level statement that holds each file entire command table, so namedNearby returned true for every row in that table, including the sibling commands the sweep must leave alone (confirmed at command-policy.ts:479 quorum_submit and :155 story_resume). The walk now matches the entry KEY instead of text containment: a PropertyAssignment whose name is quorum_prune is exactly the entry that owns its own prose, it encloses the reason string however that entry is wrapped, and a sibling keyed quorum_submit never matches whatever the enclosing table contains. Array-element style keeps the physical-line fallback. Verified BEFORE committing with a four-scenario probe running all three implementations over the same fixture (owned reason after cross-line reformat, unrelated sibling story_resume, sibling quorum_submit, array-element style): innermost fails the owned-reason case, anyText fails both sibling cases, keyMatch passes all four. Smoke 64 green, process-fact contract verified, npm test clean.",
+      "resolvedAt": "2026-07-26T08:31:27.290Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
