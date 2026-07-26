@@ -28,7 +28,7 @@
       "desc": "packages/main/src/handlers/frozen-claim-drift-check.ts:144-146 — CHK-003:happy:0 must-intent explicitly promises \"...for a drifted story and a clean report for a clean story\", but the only verificationEvidence (frozen-claim-drift-smoke.ts:137-231) calls buildDriftReport directly on in-memory fixtures that always include a drifted item; it never exercises the zero-advisory clean branch (the handlers text-mode \"0 drifted, 0 legacy-unbound -- clean\" string) nor the actual registered frozen_claim_drift_check --storyId CLI entry point end-to-end (resolveStoryGitCwd + currentStoryFilesHash + store.readChecklist + JSON/text serialization). Manually running node bin/lattice.js frozen_claim_drift_check confirms the real command works, but no re-runnable mechanical evidence covers that path or the clean-story branch — half of a compound must-intent is unverified.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T22:12:49.705Z",
@@ -41,7 +41,11 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedReason": "Added a [clean-branch] assertion to frozen-claim-drift-smoke.ts (commit 01df7748): buildDriftReport over only clean bound items yields zero advisories; the real handler clean-report path is also exercised in the new hook smoke. Compound intent (drifted AND clean) now genuinely covered.",
+      "resolvedAt": "2026-07-26T22:43:47.715Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-2296:F-003",
