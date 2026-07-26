@@ -29,51 +29,95 @@
           },
           {
             "desc": "verification_evidence_add({command:\"node dist/tasks/evidence-selfcheck-smoke.js\", file:\"src/tasks/evidence-selfcheck-smoke.ts\"}) same stem via dist/src + .js/.ts normalization -> accepted; WHY: proves normalization does not false-positive on dist<->src and .js<->ts variants",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({command:\"npm test\", file:\"packages/main/src/tasks/foo.ts\"}) no-stem command + any file -> accepted; WHY: no-stem commands must never trigger false contradiction",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           }
         ],
         "edge": [
           {
             "desc": "verification_evidence_add({command:\"lattice validate\", file:\"some-file.ts\"}) command with no file-like argument at all -> accepted; WHY: non-file-bearing commands cannot yield a stem so no contradiction is possible",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({command:\"node dist/tasks/foo.js\"}) command present but file field absent -> accepted; WHY: contradiction requires BOTH fields present",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({file:\"packages/main/src/tasks/foo.ts\"}) file present but command absent -> accepted; WHY: no command means no stem to compare",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({command:\"node dist/tasks/foo.js\", file:\"src/tasks/foo.cjs\"}) same stem foo, different extensions .js/.cjs -> accepted; WHY: .cjs extension must be normalized alongside .js/.ts",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({command:\"node --require setup.js packages/main/dist/tasks/alpha.js\", file:\"beta.ts\"}) multiple path args where last .js/.ts arg differs from file stem -> refused; WHY: stem extraction must pick the correct target argument, not an intermediate one like setup.js",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "verification_evidence_batch_add with one entry having contradictory command/file (same F-049 shape) -> should also be refused; WHY: batch_add has identical write path and is an obvious bypass if only _add is guarded",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({command:\"node dist/tasks/A.js | tee log\", file:\"B.ts\"}) shell pipe obfuscation -> refused; WHY: shell metacharacters must not prevent stem extraction from the primary target before the pipe",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({command:\"node dist/tasks/../tasks/alpha.js\", file:\"beta.ts\"}) path traversal in command -> refused; WHY: ../ must be resolved before stem comparison so traversal cannot trick the check",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           },
           {
             "desc": "verification_evidence_add({command:\"\", file:\"foo.ts\"}) empty-string command + real file -> accepted without crash; WHY: degenerate empty command must not throw from stem extractor",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
           }
         ]
       },
@@ -105,10 +149,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "same-stem dist/src + .js/.ts variants accepted (normalization does not false-positive)",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:23.905Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -117,10 +169,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "no-stem command (npm test) never triggers a false contradiction",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:25.550Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -129,10 +189,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "command with no file-like argument (lattice validate) is accepted",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:27.217Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -141,10 +209,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "command present but file absent is accepted (contradiction needs both fields)",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:29.500Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -153,10 +229,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "file present but command absent is accepted (no command means no stem)",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:31.128Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -165,10 +249,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": ".js and .cjs of the same stem are accepted (extension normalized)",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:32.826Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:edge:4",
@@ -177,10 +269,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "multi-arg command compares the last script target (alpha), not the intermediate setup.js",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:34.772Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -189,10 +289,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "verification_evidence_batch_add contradictory entry is also refused (bypass closed)",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:36.861Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -201,10 +309,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "shell pipe: primary target extracted before the pipe, contradiction refused",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:38.465Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.324Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -213,10 +329,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "path traversal in command: basename resolved before comparison, contradiction refused",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:40.123Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.325Z"
         },
         {
           "intentRef": "CHK-001:adversarial:3",
@@ -225,10 +349,18 @@
           "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
           "result": "pass",
           "note": "empty-string command with a real file is accepted without crashing",
-          "headHash": "f976732a26d1f2f5517c675ce50c0b214b2b656c",
-          "materialHash": "aa9613e768f3338a6d1d828e3beee7f94843d4d32a80a60b8cd223902c8948a4",
-          "storyFilesHash": "914308b2eeb972dffd15de448c5618bc7b88aca2394663e574612f79940c6974",
-          "timestamp": "2026-07-26T03:07:13.267Z"
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T03:53:42.160Z"
+          },
+          "headHash": "76ffedf4d8f6ac7378bc44c11040b759c389de8b",
+          "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
+          "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
+          "timestamp": "2026-07-26T03:53:42.325Z"
         }
       ]
     },
