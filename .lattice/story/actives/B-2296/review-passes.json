@@ -69,6 +69,40 @@
         "scanEscalationReason": null
       },
       "_hash": "68672e98d089e00b5596871b6746278734ce09aa845965befd2701faac44fa51"
+    },
+    {
+      "id": "B-2296:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: verified F-003 fix. New frozen-claim-snapshot-hook-smoke.ts drives the real checklist_update status->done path via the shipping cli.js (spawned subprocess against a temp git repo), asserting snapshot pinning, immutable-once, no-userSees->no-snapshot, and the real read-only frozen_claim_drift_check handler clean-report path. Ran node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js: PASS exit 0. Confirmed captureUserSeesSnapshot in checklist.ts is genuinely exercised (not reimplemented). Sanity-checked whole feature: frozen-claim-drift.ts is a pure Fn (no fs/git/network imports, only crypto via digest.ts); frozen-claim-drift-check.ts handler is read-only/non-blocking (blocking:false hardcoded, mutates nothing); storyFilesHash is the drift-authoritative binding field. The [determinism] assertion runs buildDriftReport/detectDrift twice on identical input asserting byte-identical output plus statically scans source for forbidden fs/child_process/network imports (meaningful, not tautological). The [clean-branch] assertion runs buildDriftReport over only clean snapshot-bound items asserting zero advisories (also meaningful). Ran full lattice validate: all commands including commands[55] frozen-claim-drift-smoke and commands[56] frozen-claim-snapshot-hook-smoke report PASS, no FAIL found in output. No new quality issues found.",
+      "createdAt": "2026-07-26T22:55:52.469Z",
+      "reviewRound": "2026-07-26T22:42:46.012Z",
+      "reviewRunId": "B-2296:RR-005",
+      "envelopeId": "ccc9cedfa2bb4961df16e45a8c0993849adf2a0eedd7a1d593ff3140afc7d4af",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71a0829876abd5e5eda456774214a82d1cb16586b21f67108e2f1c864f4d4751"
     }
   ]
 }
