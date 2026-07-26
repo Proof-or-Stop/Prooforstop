@@ -36,6 +36,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2296:F-003",
+      "desc": "missing: packages/main/src/handlers/checklist.ts:286-306 captureUserSeesSnapshot (the real production hook wired into checklist_update at the status->done transition, lines 1381-1386) is exercised by ZERO automated tests. frozen-claim-drift-smoke.ts and every CHK-002 verificationEvidence row only unit-test the pure detectDrift/buildDriftReport Fns against hand-constructed FrozenClaimSnapshot fixtures -- none of them ever invoke checklist_update or the real captureUserSeesSnapshot/evidenceHashes wiring. CHK-002s own verificationIntent explicitly specified type=cli for happy/edge/adversarial (e.g. CHK-002:happy:0 after userSees is snapshotted at status=done...), but the recorded evidence substitutes the same offline pure-Fn smoke script (kind:integration_test) instead of a real CLI-driven test. I manually verified via an isolated scratch repo (spawnSync against dist/cli.js) that the real hook currently behaves correctly (captures on first done, immutable-once on re-persist), so there is no live bug today -- but a future refactor of the status-transition block in checklist.ts (e.g. reordering the oldStatus capture, or the userSees vs status write order) could silently break snapshot capture or the immutable-once guarantee with no automated test catching it.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T22:15:19.336Z",
+      "reviewRound": "2026-07-26T22:07:48.977Z",
+      "reviewRunId": "B-2296:RR-003",
+      "_hash": "5e84f541c1014aff30295480d86e32e983277ecbce57f67bd4a3267161b0a621",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|missing-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
