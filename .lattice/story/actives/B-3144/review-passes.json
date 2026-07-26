@@ -61,6 +61,46 @@
         "scanEscalationReason": null
       },
       "_hash": "84d06398cfaf3735a0f0e7686e04d9847ddb60d84c8300bbc8653a390eef333d"
+    },
+    {
+      "id": "B-3144:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 targeted re-review: all 5 round-1 findings (F-003,F-004,F-005,F-006,F-007) genuinely close the coverage gaps they identified, verified against current code and by a fresh live run of the smoke suite (61/61 checks pass, up from 58) plus scripts/verify-process-fact-contract.mjs (pass). F-003: CHK-002:edge:2 check now asserts the full refusal message content (all 3 standing runIds, older materialDigest, current storyFilesHash, literal review_escalation_status pointer) against handlers/quorum-submit.ts:519-526, not just a /drift-accept/ keyword match. F-005: same check now captures HEAD before the refusal and asserts it unchanged after, matching the sibling zero-state-leak checks. F-006: new storyOwnedDiffBlobs() helper (git diff --raw path/status/blob-id triples, merge-base(main,HEAD)..HEAD) gives CHK-001:edge:0 an independent witness that commitMainDrift touches zero story-owned blobs, sharing no code with the storyFilesHash digest equality assertion used for CHK-001:happy:1. F-004: CHK-003:happy:2 now behaviorally verifies DEFAULT_PHASE_TOOLS wiring by dispatching quorum_prune through the real built CLI plus a negative control (plan_set correctly phase-refused in REVIEW), so the exit-0 is not vacuous; confirmed config.ts:362 DEFAULT_PHASE_TOOLS[\"*\"] and command-policy.ts:480 entries both present. F-007: the writeUniqueBackup rename (counter before .bak extension, quorum-prune.ts:145-155) is exercised end-to-end by a real apply-twice-with-no-intervening-git check plus the *.bak .gitignore-pattern self-check. Re-audited all 25 verificationIntent/verificationEvidence pairs across CHK-001/002/003 against current handlers/quorum-submit.ts, handlers/quorum-prune.ts, cli-engine.ts (F-001 quorum_prune exclusion), help-renderer.ts (F-008/F-009 dryRun default-on branch), command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, lattice-cli.ts, review-escalation.ts (eventsWithStoryFilesHashDowngrade lockstep predicate), host-independence.ts — every intent has a genuine, non-vacuous, currently-passing evidence entry. No new coverage gaps found.",
+      "createdAt": "2026-07-26T01:30:38.326Z",
+      "reviewRound": "2026-07-26T00:46:51.875Z",
+      "reviewRunId": "B-3144:RR-006",
+      "envelopeId": "04867a10ef5c4b07426fab792e81dd64c09c23f207f44511c3db575ca45d665f",
+      "writerSessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3144/background.md",
+          ".lattice/story/actives/B-3144/checklist.json",
+          ".lattice/story/actives/B-3144/plan.md",
+          "packages/main/src/handlers/quorum-prune.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3144/process-events.jsonl",
+          "package.json",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/host-independence.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a332deb1df4437986b429b5a5ea18533775f4bf5bd017894a149a680d1e9d533"
     }
   ]
 }
