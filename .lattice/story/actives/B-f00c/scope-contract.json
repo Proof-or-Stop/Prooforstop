@@ -1,0 +1,36 @@
+{
+  "storyId": "B-f00c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/validation-lineage.ts",
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/phase-gates.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Shared classifier + its two consumers + a new smoke + validate.commands wiring; verdict.ts and phase-gates.ts only consume the corrected classifier and must not change.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-26T03:17:26.125Z",
+  "updatedAt": "2026-07-26T03:17:26.125Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-evidence-reuse.ts": "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts": "packages/main/src/core/validation-evidence-admissibility.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/validation-lineage.ts": "packages/main/src/core/validation-lineage.ts",
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+    "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/phase-gates.ts": "packages/main/src/core/phase-gates.ts"
+  }
+}

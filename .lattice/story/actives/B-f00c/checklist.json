@@ -6,7 +6,60 @@
       "context": "Extract a shared helper (netDiffChangedPaths(evidenceHead,currentHead,gitCwd) + a shared lineage classifier) and route BOTH classifyTrustedValidationLineage (packages/main/src/core/validation-evidence-reuse.ts:251) and validationHeadLineage (packages/main/src/core/validation-evidence-admissibility.ts:42) through it. Net diff: git diff-tree -r --no-commit-id --name-only --no-renames -z <E> <C> with maxBuffer 1024*1024*1024; split on NUL. Empty net diff means trusted (remove the changed.length===0 -> rejected/empty-descendant-lineage/lineage_empty push). Split the try/catch so only merge-base --is-ancestor stays in the ancestry catch and a netDiffChangedPaths failure surfaces a distinct reason instead of mislabeling as not-ancestor. Keep the exact-head fast-path, the ancestor gate, and the isStoryMetadataPath untrusted filter unchanged; do not touch the other 8 reuse factors.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Import classifyMergeLineage from validation-lineage.ts in BOTH validation-evidence-reuse.ts (classifyTrustedValidationLineage) AND validation-evidence-admissibility.ts (validationHeadLineage) -> both call the same shared function; WHY: ensures one classifier routes both copies, no divergence possible",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run git diff-tree -r --no-commit-id --name-only --no-renames -z <evidenceHead> <currentHead> on a merge where only story-metadata paths changed -> net diff contains only metadata paths -> lineage classified as trusted; WHY: validates the core fix (net endpoint diff instead of per-commit -m union)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "exact-head fast path preserved: evidenceHead === currentHead -> returns exact-head without spawning any git subprocess; WHY: regression guard on existing fast path",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "netDiffChangedPaths failure (e.g. invalid git ref) surfaces a DISTINCT reason string (not evidence-head-is-not-current-ancestor / lineage_not_ancestor) separate from the merge-base --is-ancestor catch -> caller can distinguish diff failure from ancestry failure; WHY: split-catch requirement",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "empty net diff between two distinct commits (evidenceHead != currentHead but tree-identical after merge) -> returns trusted (not rejected with empty-descendant-lineage/lineage_empty); WHY: verifies the length===0 rejection was removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "maxBuffer set to 1024*1024*1024 in the execFileSync call -> a diff producing >16MB of path output does not throw ENOBUFS; WHY: robustness for large repos",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A mutation that restores the per-commit git diff-tree -m union (reverting to old algorithm) MUST cause the RED smoke assertion to fail, proving the fix is not bypassable by keeping old code; WHY: un-gameability requirement from story adversarial coverage",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Both reuse and admissibility callers import from the SAME module path (validation-lineage.ts); grep for diff-tree.*-m in both consumer files returns zero matches -> the old per-commit approach cannot silently coexist; WHY: prevents divergence between copies",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The other 8 reuse factors in evaluateRoutineValidationReuse remain unchanged: prior-command-execution-not-pass, material-hash-mismatch, story-files-hash-mismatch, identity-digest-mismatch, coverage-mismatch, dirty-tree, head-hash-missing, evidence-missing -> no collateral regression; WHY: scope containment",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
