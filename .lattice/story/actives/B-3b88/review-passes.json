@@ -188,6 +188,44 @@
         "scanEscalationReason": "Narrow diff-anchored scan per role prompt: dispatching agent named 4 specific refresh_stale doc surfaces to re-verify post-fix; repo-wide grep sweep of refresh_stale/refreshStale used to triage remaining .md hits by content, full-read only where the excerpt suggested possible drift."
       },
       "_hash": "15a54d3a38056e0f4de8da189ee329a6698d7e4f1633350f631d0b98ca60a77a"
+    },
+    {
+      "id": "B-3b88:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round bound to head 0ec2738. Re-verified F-001..F-004 fixed in current diff (command-catalog.ts:479, checklist.ts:1074/1103, story-lifecycle.md:265, evidence-stale-hint.ts:87-91/108-111). Exhaustive repo grep for refresh_stale/refreshStale (excl. node_modules/dist/.git/.lattice) found only benign command references or already-corrected description strings; no remaining live misleading refresh_stale semantics. New CHK-001 detectEvidenceRowContradiction has a single implementation wired into both verification_evidence_add and verification_evidence_batch_add, no duplicate/orphaned copy. No concept-residue findings this round.",
+      "createdAt": "2026-07-26T00:10:33.797Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-016",
+      "envelopeId": "01776fb829f1c3793f150ad6bed7727f88d10dc7f3f2a514a2e7990f1f37ae09",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/findings.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "lattice-experience-layer-v1.1-zh.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/evidence-plan.ts",
+          "packages/main/src/handlers/evidence-refresh.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52faeae7e9299a4b49f4e121c59c4ce9770906e9786d03bca89ffd0441b90ac3"
     }
   ]
 }
