@@ -1,0 +1,55 @@
+{
+  "storyId": "B-f00c",
+  "changes": "Extracted a shared merge-lineage classifier (packages/main/src/core/validation-lineage.ts: netDiffChangedPaths + classifyMergeLineage) used by BOTH classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts). It computes a NET endpoint git diff-tree (-z, maxBuffer 1GiB) instead of a per-commit -m union, treats an empty net diff as trusted, and splits the ancestry-vs-diff catch. A new smoke (validation-reuse-merge-lineage-smoke.ts) covers both classifier paths plus negative/robustness/diff-failed cases and is wired into validate.commands; the process-fact contract now tracks the tokens in the shared module.",
+  "usage": "Automatic. During any DONE convergence whose story branch has merged main, done_prepare/done_required_validate now reuse a fresh PASS validation instead of re-running the full suite, and autopilot_review_submit --deriveBindings no longer hard-throws on the story's own content-unchanged files.",
+  "expectedOutcome": "A merge that re-introduces content-unchanged story files is trusted (reuse granted); a genuine non-metadata content change still refuses. Running node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js prints 'validation reuse merge-lineage smoke passed' and exits 0.",
+  "actualTranscript": "validation reuse merge-lineage smoke passed (exit 0, 7 test blocks). Full lattice validate PASS at post-merge material e4b8596b (cmdExec PASS, missingRequired 0). classifyMergeLineage returns trusted-descendant for a merge of an unchanged file on both classifier copies, and untrusted for a genuine content change.",
+  "outcomeDiff": "No diff. Pre-fix: the per-commit git diff-tree -m union flagged the story's own content-unchanged files as untrusted-lineage-path after a main-merge, forcing a redundant ~17 min re-validation and hard-throwing autopilot. Post-fix: the net endpoint diff trusts them while still refusing genuine changes.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The diff-failed branch is exercised via an injectable changedPathsFn seam used only by the smoke (production always uses the real net diff). Review assurance is degraded single-host 3x1 (probe shows fewer than 2 launcher-ready canonical hosts; only agy is review-ready). Design was cross-host audited (Claude CLI + Agy CLI) before implementation.",
+  "pitfalls": "Do NOT revert to the per-commit git diff-tree -m union: it re-introduces the merge false positive (caught by the smoke's mutation-resistance assertion and by scripts/verify-process-fact-contract.mjs). An empty net diff MUST stay trusted (byte-identical endpoint trees are strictly safe), never rejected.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 165548
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 62781
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1197123
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 872385
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 5311518
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 13639755
+    }
+  },
+  "totalDurationMs": 21249837,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-26T09:01:53.937Z",
+  "updatedAt": "2026-07-26T09:01:53.937Z"
+}
