@@ -37,6 +37,26 @@
       ],
       "signatureTag": "missing|ts|happy-edge-declare",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7813:F-003",
+      "desc": "doc-promise-undelivered / dead-wiring: stall_resolution_set (packages/main/src/handlers/stall-adjudication.ts, registered in cli/command-catalog.ts + core/command-policy.ts with allowedPhases:[DEV,REVIEW]) is unreachable through the real CLI in exactly those two phases because core/config.ts DEFAULT_PHASE_TOOLS.DEV / .REVIEW (and the \"*\" bucket) never list it. Independently reproduced live against this story: `node bin/lattice.js stall_resolution_set {...}` while B-7813 is in REVIEW -> exit non-zero, \"Command stall_resolution_set is not available in REVIEW phase\". This is exactly the command the new blocking prompts (core/review-convergence.ts buildStallAdjudicationPrompt/buildStallCeilingPrompt, surfaced via getGuardFailureReason) instruct the operator to run — so the entire CHK-002/CHK-003 clearing mechanism (authorize_continuation/replan/escalate_root_cause/resolve_findings/declare_unreachable/override_budget) is inoperable via the real CLI today; only the RED-first smoke exercises it because it calls the handler function directly, bypassing cli-engine.ts isCommandAllowed entirely. Corroborates/aligns with lattice-review-concept finding B-7813:F-001 (same root cause, same fix: add stall_resolution_set to DEFAULT_PHASE_TOOLS.DEV and .REVIEW in core/config.ts). Filed independently under the quality lane because it is precisely the promised-but-undelivered failure mode the Closing Self-Check requires flagging: the guard's own printed remediation text is a dead end for a real operator.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T09:12:55.528Z",
+      "reviewRound": "2026-07-26T09:00:34.758Z",
+      "reviewRunId": "B-7813:RR-002",
+      "_hash": "fa127361c14750784c2895549429210e5cf04d6c164ded10722dd3cd31dbf353",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/handlers/stall-adjudication.ts",
+        "packages/main/src/core/review-convergence.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-dead",
+      "signatureTagSource": "auto"
     }
   ]
 }
