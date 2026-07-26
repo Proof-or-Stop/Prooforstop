@@ -165,14 +165,16 @@
         },
         {
           "intentRef": "CHK-001:adversarial:2",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
           "file": "packages/main/src/core/validation-evidence-reuse.ts",
-          "note": "git diff shows evaluateRoutineValidationReuse and its other 8 factors (isReusableCommandPass, material/storyFiles/identity hashes, coverage, clean, head-stability) are unchanged; only classifyTrustedValidationLineage's body was refactored to delegate.",
-          "headHash": "91396c5a8d6000104ee5d906741b7562c5c0d9c5",
-          "materialHash": "ca148989f578a88967605f6a7beb88e604330afec934db7aa7aca038968908a3",
-          "storyFilesHash": "f9c14203078b83b24b2556fa121992f5c0a65db302b9d9b6febe0e0b0f086711",
-          "timestamp": "2026-07-26T03:45:33.994Z"
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full npm test exits 0 (incl test:process-fact-contract 'Process fact contract verified' after F-003 fix). git diff confirms evaluateRoutineValidationReuse and its 8 factors sit outside the changed hunk, byte-unchanged; only classifyTrustedValidationLineage delegates to the shared classifier.",
+          "headHash": "e0607fa40ea720b06b2f97c08f9441044f5927b7",
+          "materialHash": "65646d8f842644685430e2789029706d70bf650f58a79d32a31c11c99638535f",
+          "storyFilesHash": "c95695b7694bea06aa2c03eaca2bea64eaa5c5038eacbdfca50bb95ae22bb5fe",
+          "timestamp": "2026-07-26T04:36:55.024Z"
         }
       ]
     },
