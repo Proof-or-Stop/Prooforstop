@@ -15,6 +15,7 @@ import { loadConfig } from './core/config.js';
 import type { HandlerContext } from './handlers/context.js';
 import { createStoryHandlers } from './handlers/story.js';
 import { createChecklistHandlers } from './handlers/checklist.js';
+import { createFrozenClaimDriftCheckHandlers } from './handlers/frozen-claim-drift-check.js';
 import { createBugHandlers } from './handlers/bug.js';
 import { createFixtureHandlers } from './handlers/fixture.js';
 import { createTestAutoHandlers } from './handlers/test-auto.js';
@@ -178,6 +179,8 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   registry.registerBatch(createStoryHandlers(ctx));
   registry.registerBatch(createChecklistHandlers(ctx));
+  // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory surface.
+  registry.registerBatch(createFrozenClaimDriftCheckHandlers(ctx));
   registry.registerBatch(createBugHandlers(ctx));
   registry.registerBatch(createFixtureHandlers(ctx));
   registry.registerBatch(createTestAutoHandlers(ctx));

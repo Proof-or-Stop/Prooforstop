@@ -14,7 +14,8 @@
 
 import { strict as assert } from 'node:assert';
 import { normalizeClaim, claimDigest, detectDrift } from '../core/frozen-claim-drift.js';
-import type { FrozenClaimSnapshot } from '../core/types.js';
+import { buildDriftReport } from '../handlers/frozen-claim-drift-check.js';
+import type { ChecklistItem, FrozenClaimSnapshot } from '../core/types.js';
 
 // ── 1. normalizeClaim collapses arbitrary whitespace deterministically. ─────────
 {
@@ -133,11 +134,107 @@ import type { FrozenClaimSnapshot } from '../core/types.js';
   }
 }
 
+// ── CHK-003: buildDriftReport assembles the read-only advisory deterministically. ─
+// PURE + offline: an in-memory checklist (no git, no fs, no process). storyFilesHash
+// strings are opaque; a plain string compare IS the story-diff-scoped material signal.
+// This exercises the exact advisory-assembly the CLI handler surfaces, WITHOUT spawning
+// a process. Object.freeze proves buildDriftReport mutates none of its inputs (a pure read).
+{
+  const CURRENT_SFH = 'f'.repeat(64); // the story's ONCE-computed current story-owned material hash
+
+  // Item 1 — snapshot pinned at a DIFFERENT storyFilesHash, same claim → material drift.
+  const driftedItem: ChecklistItem = Object.freeze({
+    id: 'CHK-001',
+    title: 'material-drifted frozen claim',
+    userSees: 'the file hello.txt was created',
+    userSeesSnapshot: Object.freeze({
+      normalizedClaimDigest: claimDigest('the file hello.txt was created'),
+      storyFilesHash: 'a'.repeat(64), // pinned when the story-owned material differed
+      headHash: 'deadbeef'.repeat(5),
+      attestedAt: '2026-07-26T00:00:00.000Z',
+    }) as FrozenClaimSnapshot,
+    status: 'done',
+    startTime: null,
+    endTime: null,
+  }) as ChecklistItem;
+
+  // Item 2 — non-empty userSees, NO snapshot → legacy-unbound (grandfathered, never an error).
+  const legacyItem: ChecklistItem = Object.freeze({
+    id: 'CHK-002',
+    title: 'pre-feature frozen claim with no snapshot',
+    userSees: 'a legacy promise with no attestation',
+    status: 'done',
+    startTime: null,
+    endTime: null,
+  }) as ChecklistItem;
+
+  // Item 3 — snapshot pinned at the CURRENT storyFilesHash + unchanged claim → clean (omitted).
+  const cleanItem: ChecklistItem = Object.freeze({
+    id: 'CHK-003',
+    title: 'un-drifted, snapshot-bound frozen claim',
+    userSees: 'the config was written',
+    userSeesSnapshot: Object.freeze({
+      normalizedClaimDigest: claimDigest('the config was written'),
+      storyFilesHash: CURRENT_SFH, // equals current → no material drift
+      headHash: 'cafebabe'.repeat(5),
+      attestedAt: '2026-07-26T00:00:00.000Z',
+    }) as FrozenClaimSnapshot,
+    status: 'done',
+    startTime: null,
+    endTime: null,
+  }) as ChecklistItem;
+
+  // Item 4 — empty userSees → no frozen claim to check (also omitted).
+  const noClaimItem: ChecklistItem = Object.freeze({
+    id: 'CHK-004',
+    title: 'item with no userSees',
+    status: 'done',
+    startTime: null,
+    endTime: null,
+  }) as ChecklistItem;
+
+  const items: readonly ChecklistItem[] = [driftedItem, legacyItem, cleanItem, noClaimItem];
+  const report = buildDriftReport(items, CURRENT_SFH);
+
+  // (a) drifted item → code=FROZEN_CLAIM_DRIFT / driftKind=material / actionRequired=re_attestation.
+  const drifted = report.find((a) => a.itemId === 'CHK-001');
+  assert.ok(drifted, 'material-drifted item is present in the advisory');
+  assert.equal(drifted!.code, 'FROZEN_CLAIM_DRIFT', 'advisory code is FROZEN_CLAIM_DRIFT');
+  assert.equal(drifted!.driftKind, 'material', 'story-owned material moved → driftKind=material');
+  assert.equal(drifted!.classification, 'bound', 'a snapshot-bound drifted item stays bound');
+  assert.equal(drifted!.actionRequired, 're_attestation', 'actionRequired is re_attestation');
+  assert.equal(drifted!.claimRef, 'CHK-001:userSees', 'claimRef binds the item id + userSees');
+  assert.equal(drifted!.previousStoryFilesHash, 'a'.repeat(64), 'previousStoryFilesHash is the snapshot hash');
+  assert.equal(drifted!.currentStoryFilesHash, CURRENT_SFH, 'currentStoryFilesHash is the once-computed value');
+  console.log('✓ buildDriftReport: material-drifted item → code=FROZEN_CLAIM_DRIFT, driftKind=material, actionRequired=re_attestation');
+
+  // (b) no-snapshot item → classification=legacy-unbound.
+  const legacy = report.find((a) => a.itemId === 'CHK-002');
+  assert.ok(legacy, 'no-snapshot item is present in the advisory');
+  assert.equal(legacy!.classification, 'legacy-unbound', 'userSees with no snapshot → classification=legacy-unbound');
+  assert.equal(legacy!.driftKind, 'none', 'legacy-unbound never reports drift');
+  assert.equal(legacy!.previousDigest, '', 'no snapshot → empty previousDigest');
+  assert.equal(legacy!.previousStoryFilesHash, '', 'no snapshot → empty previousStoryFilesHash');
+  console.log('✓ buildDriftReport: no-snapshot item → classification=legacy-unbound');
+
+  // (c) clean bound item + empty-userSees item are ABSENT (a clean item is silent).
+  assert.equal(report.find((a) => a.itemId === 'CHK-003'), undefined, 'un-drifted bound item is omitted (silent)');
+  assert.equal(report.find((a) => a.itemId === 'CHK-004'), undefined, 'empty-userSees item is omitted (no frozen claim)');
+  assert.equal(report.length, 2, 'exactly the drifted + legacy-unbound items are reported');
+  console.log('✓ buildDriftReport: clean bound item + empty-userSees item are absent (2 advisories total)');
+
+  // (d) buildDriftReport is a PURE read: it took frozen inputs and returned without
+  // writing anything. The inputs are unchanged (a mutation would have thrown on freeze).
+  assert.equal(driftedItem.userSeesSnapshot!.storyFilesHash, 'a'.repeat(64), 'input snapshot untouched (pure read, no mutation)');
+  assert.equal(legacyItem.userSeesSnapshot, undefined, 'legacy item never gained a snapshot (writes nothing)');
+  console.log('✓ buildDriftReport: inputs unchanged — pure Fn, writes no files/evidence/metadata');
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// PLACEHOLDER for CHK-003 / CHK-004 to extend:
-//   - CHK-003 CLI-level case: frozen_claim_drift_check prints the structured advisory.
+// PLACEHOLDER for CHK-004 to extend:
 //   - CHK-004 assert the advisory is NON-blocking (changes no gate verdict) + add the
-//     whitespace-only userSees edit → NO drift false-positive guard case.
+//     whitespace-only userSees edit → NO drift false-positive guard case, and register
+//     this smoke in lattice.config.json validate.commands + package.json scripts.
 // Do NOT delete this marker; append the new blocks above the final PASS line.
 // ─────────────────────────────────────────────────────────────────────────────
 
