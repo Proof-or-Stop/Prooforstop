@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2aa7",
+  "allowedCommands": [
+    "git diff",
+    "git grep",
+    "git log",
+    "git show",
+    "lattice validate",
+    "lattice validate --lint",
+    "lattice validate --story=B-2aa7",
+    "node packages/main/dist/tasks/*.js",
+    "node packages/main/tests/red/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm install"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+    "lattice.config.json",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/tests/red/"
+  ],
+  "excludedCommands": [
+    "git checkout main",
+    "git push",
+    "git reset --hard",
+    "lattice release_approve_push",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story/actives/B-506e/",
+    ".worktrees/",
+    "packages/main/src/core/red-evidence/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Read-only inspection of the unmerged story/B-506e worktree is permitted via git show for provenance checking, but no file under packages/main/src/core/red-evidence/ may be modified: that leaf is owned by the parallel B-506e story and is absent from main. Remote publish is blocked outright per repository discipline. Path list is deliberately narrow; widening it requires a scope extension proposal rather than an ad-hoc edit.",
+  "createdAt": "2026-07-26T21:40:35.314Z",
+  "updatedAt": "2026-07-26T21:40:35.314Z",
+  "_hash": "c8b8da8125db27f51de063a1b66caf415039199cec3fdca158a864500dded479"
+}
