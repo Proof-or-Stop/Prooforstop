@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-ec67",
+  "sourceText": "Step 2 (M1) of the evidence-integrity program (docs/evidence-integrity-program-spec.md, handoff docs/step2-evidence-receipts-handoff.md). Verification evidence is an interface defect: VerificationIntentItem stores no command/selector and the only binding is evidence.intentRef === ref, so verification_evidence_add asks the agent to assert a (command,selector) match the tool cannot mechanically check, then trusts result:pass. This produced F-049/F-050 (wrong command), F-045 (non-existent case), F-061 (wrong case in the right command) repeatedly. Make the tool resolve the intent, run the pinned command, and stamp a receipt so a false pass is impossible for automated intents; guard both the single and batch write paths.",
+  "normalizedOutcome": "For an executable intent (logic|cli|browser), recording evidence runs the pinned command and the write is refused unless exit==0 (when pass is claimed), the selector appears in captured output, the intentRef resolves to an intent on the item, and the command matches the pinned one; the evidence carries a receipt (exitCode/outputDigest/outputTail) with result derived from the actual exit. Both verification_evidence_add and verification_evidence_batch_add enforce identically; manual|docs stay attestation-only and cannot cover an executable intent; legacy prose-only evidence is grandfathered.",
+  "acceptanceClaim": "A false verification pass is mechanically impossible for automated intents: the tool executes the pinned command, checks the selector in output and the exit code, stamps a receipt, and refuses any mismatch through both the single and batch entry points.",
+  "keyRequirementIds": [
+    "REQ-batch-parity",
+    "REQ-execute-and-refuse",
+    "REQ-grandfather",
+    "REQ-manual-demotion",
+    "REQ-pin-command-selector"
+  ],
+  "requestHash": "sha256:058dc2ec2494d54a9dac3f6f6f8a8d3999c4dce07f142a692807b6aa46f0a9f8",
+  "createdAt": "2026-07-25T23:37:47.740Z",
+  "updatedAt": "2026-07-25T23:37:47.740Z"
+}

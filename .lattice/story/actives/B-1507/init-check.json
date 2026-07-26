@@ -1,0 +1,52 @@
+{
+  "storyId": "B-1507",
+  "checkedAt": "2026-07-26T03:55:55.748Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md \"## Trigger Event\" (\"That story pins a (command,selector) on the intent...\") and checklist.json CHK-001/CHK-003 context repeatedly use the term selector (\"(command,selector)\", \"verification:{command,selector}\", \"--command/--selector\") without ever explaining what a selector represents or checks (per the actual merged B-ec67 mechanism in packages/main/src/handlers/checklist.ts, a selector is a substring that must appear in the captured command output to prove the verifier genuinely ran). A fresh reader with no B-ec67 context cannot judge why CHK-001 must resolve/pass through this field or why CHK-003s guard must compare --selector."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md \"## Key Insights\" cites \"the class of false-command mistakes (the F-045/F-049/F-050/F-061 family)\" without any inline explanation of what these F-xxx identifiers are or where they are documented; they do not appear anywhere else in B-1507s background.md, index.json, or checklist.json, so a standalone reader cannot verify or trace them."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "medium",
+      "desc": "checklist.json CHK-004 context states RED-first per CLAUDE.md (\"RED-first per CLAUDE.md. Cover: verification_run executes...\"), but a full-text grep of CLAUDE.md (1076 lines) at /Users/jek/Documents/Work/proofbound/CLAUDE.md finds no occurrence of RED-first, TDD, or test-first as a defined convention anywhere; the cited documentation authority does not actually contain/support the discipline being invoked."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-26T03:52:51.392Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-26T03:55:55.748Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md \"## Trigger Event\" (\"That story pins a (command,selector) on the intent...\") and checklist.json CHK-001/CHK-003 context repeatedly use the term selector (\"(command,selector)\", \"verification:{command,selector}\", \"--command/--selector\") without ever explaining what a selector represents or checks (per the actual merged B-ec67 mechanism in packages/main/src/handlers/checklist.ts, a selector is a substring that must appear in the captured command output to prove the verifier genuinely ran). A fresh reader with no B-ec67 context cannot judge why CHK-001 must resolve/pass through this field or why CHK-003s guard must compare --selector."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md \"## Key Insights\" cites \"the class of false-command mistakes (the F-045/F-049/F-050/F-061 family)\" without any inline explanation of what these F-xxx identifiers are or where they are documented; they do not appear anywhere else in B-1507s background.md, index.json, or checklist.json, so a standalone reader cannot verify or trace them."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "medium",
+          "desc": "checklist.json CHK-004 context states RED-first per CLAUDE.md (\"RED-first per CLAUDE.md. Cover: verification_run executes...\"), but a full-text grep of CLAUDE.md (1076 lines) at /Users/jek/Documents/Work/proofbound/CLAUDE.md finds no occurrence of RED-first, TDD, or test-first as a defined convention anywhere; the cited documentation authority does not actually contain/support the discipline being invoked."
+        }
+      ]
+    }
+  ],
+  "_hash": "7c5b1fcbefcfca07853b9e78e30f26c3f1444ba03b0a84e86e7fd6d31b8bcc2b"
+}

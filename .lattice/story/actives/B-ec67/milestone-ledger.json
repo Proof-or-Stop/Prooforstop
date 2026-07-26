@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-ec67",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e5dfb68483b3375ee4b38bc269652ece2f1eda8d371faacecf04f7ac5ec9a968",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-pin-command-selector",
+      "claim": "verification:{command,selector} pinned immutably on first evidence write",
+      "doneMeans": "the pin round-trips; a later change is refused; legacy loads",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-execute-and-refuse",
+      "claim": "both add and batch_add execute the pinned command via one shared helper, refuse on mismatch, and stamp a receipt with result derived from the exit",
+      "doneMeans": "both entry points refuse selector-absent/exit!=0/intentRef-unresolved/command-mismatch; receipt exitCode/outputDigest/outputTail present and overrides caller result",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-manual-demotion",
+      "claim": "manual|docs cannot cover an executable intent in buildVerificationCoverage",
+      "doneMeans": "a manual attestation does not satisfy a logic|cli|browser intent at the gate",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-grandfather",
+      "claim": "legacy prose-only evidence is grandfathered with an explicit auditable escape",
+      "doneMeans": "legacy rows load; internal-call path still enforced",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-execute-and-refuse",
+      "claim": "a RED-first smoke proves both entry points and is registered in validate",
+      "doneMeans": "the smoke prints PASS covering all refusal cases through single and batch paths",
+      "requiredEvidence": [],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-25T23:57:42.294Z",
+  "updatedAt": "2026-07-25T23:58:46.908Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260725233748",
+    "acceptedInterpretationHash": "sha256:1d01132a8280fa1b86285043516b12d9f049c9c205c4629236e8abd1e0766152",
+    "acceptedAt": "2026-07-25T23:58:46.908Z"
+  }
+}

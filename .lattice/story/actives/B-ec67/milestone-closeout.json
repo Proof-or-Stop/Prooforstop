@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-ec67",
+  "phase": "TEST",
+  "generatedAt": "2026-07-26T03:47:38.840Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "f553c55c65dce90b08d145318437f89cb4124d57778a316b615486b8dc7a0c46",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:e5dfb68483b3375ee4b38bc269652ece2f1eda8d371faacecf04f7ac5ec9a968"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "5cf313dd0e9acb89038e043f34e052048bd3fcf8",
+    "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+    "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "verification:{command,selector} pinned immutably on first evidence write",
+      "acceptance": "the pin round-trips; a later change is refused; legacy loads",
+      "evidence": [
+        "CHK-001:happy:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Re-record post-merge: the smoke executes and asserts the pin round-trips.",
+        "CHK-001:edge:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts a legacy intent/evidence with no pinned verification loads and reads without throwing (grandfather).",
+        "CHK-001:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts a second write changing the pinned command/selector is refused (receipt_command_mismatch) while same-command re-executes."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "both add and batch_add execute the pinned command via one shared helper, refuse on mismatch, and stamp a receipt with result derived from the exit",
+      "acceptance": "both entry points refuse selector-absent/exit!=0/intentRef-unresolved/command-mismatch; receipt exitCode/outputDigest/outputTail present and overrides caller result",
+      "evidence": [
+        "CHK-002:happy:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts an executable intent runs the pinned command via the shared enforceAndStampEvidence helper and writes a receipt on exit==0 + selector present.",
+        "CHK-002:edge:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts verification_evidence_batch_add enforces identically through the same helper: a selector-absent row is refused via the batch path too.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts refusal on each of exit!=0-but-pass, selector-absent, intentRef-not-resolving, and pinned-command-mismatch.",
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts stored evidence carries receipt {exitCode,outputDigest,outputTail,selectorMatched} and result is derived from the actual exit, not the caller.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts outputDigest == sha256(output) and outputTail is bounded.",
+        "CHK-003:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts a caller result:pass contradicting a nonzero exit does not survive — the receipt result overrides the claim."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "manual|docs cannot cover an executable intent in buildVerificationCoverage",
+      "acceptance": "a manual attestation does not satisfy a logic|cli|browser intent at the gate",
+      "evidence": [
+        "CHK-004:happy:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts manual|docs evidence is stored as attestation, marked non-mechanical, with no execution.",
+        "CHK-004:edge:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts buildVerificationCoverage does NOT let a manual/docs attestation cover an executable (logic|cli|browser) intent (non_mechanical status).",
+        "CHK-004:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts recording an executable intent as type:manual cannot bypass execution at the coverage gate."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "legacy prose-only evidence is grandfathered with an explicit auditable escape",
+      "acceptance": "legacy rows load; internal-call path still enforced",
+      "evidence": [
+        "CHK-005:happy:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts legacy evidence rows without a pin (mechanical undefined) remain valid and readable — no hard break.",
+        "CHK-005:edge:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke/handler asserts the nonMechanicalReason escape is attributable and gate-visible and never grants coverage.",
+        "CHK-005:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=Smoke asserts the internal fn-call path bypassing Zod is still enforced (handler + coverage gate re-validate)."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "a RED-first smoke proves both entry points and is registered in validate",
+      "acceptance": "the smoke prints PASS covering all refusal cases through single and batch paths",
+      "evidence": [
+        "CHK-006:happy:0 [pass/manual_transcript] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=The registered smoke: selector present + exit 0 through both add and batch_add writes a receipt; prints PASS; registered in lattice.config.json validate.commands.",
+        "CHK-006:edge:0 [pass/manual_transcript] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=RED-first: the smoke shows a selector-absent row is refused after the fix (the ec67-red demo flipped from exit 1 pre-fix to exit 0 post-fix).",
+        "CHK-006:adversarial:0 [pass/manual_transcript] node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js note=The smoke exercises every refusal case through BOTH the single and batch entry points."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

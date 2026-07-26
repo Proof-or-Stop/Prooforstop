@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-ec67",
+  "records": [
+    {
+      "id": "RED-20260725235648",
+      "trigger": "F-045/F-049/F-050/F-061 evidence-binding false-pass defect class: verification_evidence_add trusts a caller-authored command+result without executing or checking the selector",
+      "acceptanceTargetRef": "CHK-002:adversarial:0",
+      "baselineHeadHash": "a304db5f44013bca3c13702570c92e8ee9e04695",
+      "baselineMaterialHash": "8c873445333d13a6e44cdfbf25a6f788a70e7e4390b97ca615a571faf0606f87",
+      "observedFailure": "RED demo (exit 1): current verification_evidence_add ACCEPTS a false-pass row (result=pass) for an executable logic intent whose command exits 1 and whose selector is absent, with no execution and no receipt stored. Confirms the defect class the fix must refuse.",
+      "failureReceiptHash": "sha256:0dacd240e439dc4f632920adb04cc4db87342727fe273f4952520e4936842c38",
+      "expectedGreenCommand": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-002:adversarial:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"
+      },
+      "note": "After the fix the same class of write is refused (selector-absent / exit!=0-but-pass) through both add and batch_add; the smoke re-runs the RED assertion green.",
+      "createdAt": "2026-07-25T23:56:48.292Z"
+    }
+  ],
+  "createdAt": "2026-07-25T23:56:48.292Z",
+  "updatedAt": "2026-07-25T23:56:48.292Z"
+}
