@@ -1,0 +1,116 @@
+{
+  "storyId": "B-506e",
+  "checkedAt": "2026-07-26T20:01:59.908Z",
+  "headHash": "0bae5cf7f856b7dbded60d14819d0a335e48b019",
+  "materialHash": "4fc18e177ae62b0ce637fac440c40295401956f71601dec19efd2ea716f93b76",
+  "storyFilesHash": "f437d182360982e1561a40ec18b6f4ba1e97179f11dbb87fa2bbd5621612acbf",
+  "reviewRound": "2026-07-26T11:41:39.769Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "summary.json#limitations (CORRECTION AND RETRACTION)",
+      "promise": "The previously fabricated sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc is retracted everywhere and replaced by a reproducible digest",
+      "verifiedBy": "grep summary.json on the current tree (materialHash 4fc18e177ae6)",
+      "evidence": "limitations text still contains the explicit CORRECTION AND RETRACTION paragraph naming 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc as reported by a subagent and produced by nothing in the repository, retracted and replaced by the reproducible digest below it."
+    },
+    {
+      "docPath": "summary.json#limitations / checklist.json CHK-003",
+      "promise": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs runs five v1-only scenarios and hashes the concatenated canonicalized FULL reports to sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec",
+      "verifiedBy": "directly re-executed node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs on the current dist, live, this round",
+      "evidence": "Command printed: five-scenario FULL-diagnostic sha256 = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec, OK, exit 0. git diff b4fa4bbfad..HEAD and 85f60fcbf4..HEAD for core/proofstory.ts are both empty, so the predicate under test is unchanged since it originally produced this digest."
+    },
+    {
+      "docPath": "summary.json#pitfalls (vacuous ordering / F-014)",
+      "promise": "Reordered assertions place the record-under-test where Array.prototype.some() cannot short-circuit past it",
+      "verifiedBy": "directly re-executed red-w2c-gate-guard.mjs, red-w2c-schema-failclosed.mjs, and dist/tasks/red-evidence-chain-smoke.js on the current tree, live",
+      "evidence": "All three exit 0 OK on this round. git diff 85f60fcbf4..HEAD for core/proofstory.ts is empty, so the fix is unchanged since the last committed B-506e code round."
+    },
+    {
+      "docPath": "summary.json#limitations (pre-existing defect filed separately)",
+      "promise": "A pre-existing versionless-record defect on main was raised, confirmed, and filed as a separate session task rather than folded into this story",
+      "verifiedBy": "re-read summary.json#limitations on the current tree",
+      "evidence": "Narrative text unchanged, describes filing as a separate session task (not a Lattice story); this is a process claim about prior work, not code in the current diff, so it cannot be invalidated by the intervening merges."
+    },
+    {
+      "docPath": "summary.json#pitfalls (empty-records-array note / F-012)",
+      "promise": "v1 verdict on an empty red-evidence-records array is well-defined and asserted",
+      "verifiedBy": "directly re-executed dist/tasks/red-evidence-chain-smoke.js on the current tree, live",
+      "evidence": "OK output includes the empty-records-array round-trip plus well-defined v1 verdict line, exit 0."
+    },
+    {
+      "docPath": "summary.json#pitfalls (stale line-number citations / F-015)",
+      "promise": "Evidence notes anchor to source file plus a durable locator, not compiled-artifact line numbers",
+      "verifiedBy": "unchanged since prior verified round; no evidence-note authoring paths touched by the intervening merges",
+      "evidence": "review-passes.json and finding resolution text for this story are not in the diff between the last verified round and HEAD."
+    },
+    {
+      "docPath": "summary.json#changes",
+      "promise": "v2 record chain plane lands behind red_evidence_quarantine and red_evidence_recover without moving any v1 verdict",
+      "verifiedBy": "directly re-executed all ten red-w2c-*.mjs, the chain smoke, and command-catalog-smoke on the current tree, live, this round",
+      "evidence": "All ten tests under packages/main/tests/red/red-w2c-*.mjs exit 0 OK; dist/tasks/red-evidence-chain-smoke.js exits 0 OK; dist/tasks/command-catalog-smoke.js reports 342 commands passed. git diff 85f60fcbf4..HEAD (the actual last B-506e code commit; corrects the round-3 baseline of b4fa4bbfad, which predates two further genuine B-506e commits) for core/proofstory.ts, core/red-evidence/*.ts, and handlers/red-evidence.ts is empty; core/store.ts differs only by the unrelated B-7813 stall-adjudication read/write methods."
+    },
+    {
+      "docPath": "summary.json#changes / plan.md CHK-007/CHK-009",
+      "promise": "red_evidence_quarantine and red_evidence_recover are registered through the single command-policy registration point and detectable if de-registered",
+      "verifiedBy": "directly re-executed red-w2c-wiring-detectability.mjs and red-w2c-validate-registration.mjs on the current tree, live",
+      "evidence": "Both exit 0 OK this round: wiring-detectability confirms baseline contracts pass and de-registration is detectable; validate-registration confirms lattice.config.json validate.commands still registers all 3 required red-evidence smokes with committed TypeScript sources."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "red-w2c-binding-corrupt-chain.mjs re-run live this round: OK, malformed multi-head chain rejected, nothing written"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "red-w2c-quarantine-race.mjs re-run live this round: OK, two-process race yields one head, one winner, one structured-abort loser"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "red-w2c-v1-verdict-invariance.mjs re-run live this round: OK, digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec reproduced"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "red-w2c-gate-guard.mjs re-run live this round: OK, live enforce gate unaffected by v2 record ordering"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "red-w2c-schema-failclosed.mjs re-run live this round: OK, v3 record fails closed with typed error, gate never throws bare TypeError"
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "red-w2c-head-consistency.mjs re-run live this round: OK, corrupted head raises store-corruption CONFLICT before becoming prior link"
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "red-w2c-wiring-detectability.mjs re-run live this round: OK, de-registration of quarantine/recover command-policy point is detectable"
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "red-w2c-binding-freeze-race.mjs re-run live this round: OK, freeze read+write serialized under per-story-target chain lock, deterministic bypass rejects FROZEN"
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "red-w2c-validate-registration.mjs re-run live this round: OK, all 3 required red-evidence smokes registered with committed TS sources"
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "red-w2c-rejection-matrix.mjs re-run live this round: OK, full rejection matrix intact (fork/seq/prior-mismatch/CONFLICT/quarantine/retired/forged approvedBy/replay/CHK-012 membership)"
+    },
+    {
+      "featureId": "CHK-011",
+      "transcript": "dist/tasks/red-evidence-chain-smoke.js re-run live this round: OK, full smoke narrative intact including empty-records-array and 2-process race signals"
+    },
+    {
+      "featureId": "CHK-012",
+      "transcript": "core/proofstory.ts, core/red-evidence/*.ts, and handlers/red-evidence.ts are byte-identical since 85f60fcbf4 (the last B-506e code commit); all 12 checklist items remain done; 0/15 findings open"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-record against current material 4fc18e177ae6 after further unrelated main merges (B-ec67, B-7813, B-1507, B-3783). Independently re-verified live, this round: all ten red-w2c tests plus the chain smoke plus command-catalog-smoke pass; the pinned five-scenario digest reproduces byte-for-byte; the RETRACTION of the fabricated 71c267a0 digest is still present in summary.json; the story-owned gate predicate and red-evidence core modules are unchanged since the last B-506e code commit (85f60fcbf4), with core/store.ts differing only by an unrelated B-7813 addition. One correction to the prior round-3 delivery-check: its byte-identical baseline (b4fa4bbfad) predates two further genuine B-506e commits (round-3/round-4 fixes); the correct unchanged-since baseline is 85f60fcbf4, and the substance of every promise still holds against it."
+  },
+  "_hash": "db3cf4016ea7ceb47dc8c4be116680d7aba8367bde2f37f81a14bfe3de08b835"
+}

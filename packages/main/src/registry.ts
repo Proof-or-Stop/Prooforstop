@@ -411,6 +411,8 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // W2b (B-e10d): red_evidence_binding_set — the trusted RED-evidence
   // subsystem's first mutating command. Owner-lease + mutation-authority gated;
   // registers the per-story target binding (§1.1.3) before a RED run.
+  // W2c (B-506e) adds red_evidence_quarantine / red_evidence_recover (the two
+  // owner-gated chain-control appends) to the SAME batch — auto-registered here.
   registry.registerBatch(createRedEvidenceHandlers(ctx));
 
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
