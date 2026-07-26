@@ -2501,6 +2501,38 @@ try {
     });
   });
 
+  check('quorum_prune dryRun:false executes instead of being a silent no-op', () => {
+    // F-010 RED: an explicit dryRun:false used to fall through to the projection path, so an
+    // operator who said "do not dry-run" got a dry run anyway and CHK-003's userSees promise
+    // ("without --dryRun it backs up, removes them, commits") was false. Omitting dryRun must
+    // still default to the safe projection — the default carries the safety, not the silent
+    // discarding of an explicit instruction.
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+
+      // Omitted dryRun keeps the safe projection default.
+      const omitted = runFixtureCli(fixture.root, ['quorum_prune', `--storyId=${STORY_ID}`, '--json']);
+      assert.equal(omitted.status, 0, `${omitted.stdout}\n${omitted.stderr}`);
+      const omittedPayload = JSON.parse(omitted.stdout.trim()) as { dryRun: boolean; applied: boolean };
+      assert.equal(omittedPayload.applied, false, 'omitting dryRun still projects only');
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'omitting dryRun makes no commit');
+      assert.equal(storyBackupFiles(fixture).length, 0, 'omitting dryRun writes no backup');
+
+      // An explicit dryRun:false executes exactly like apply:true.
+      const explicitFalse = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, dryRun: false, json: true })]);
+      assert.equal(explicitFalse.status, 0, `${explicitFalse.stdout}\n${explicitFalse.stderr}`);
+      const falsePayload = JSON.parse(explicitFalse.stdout.trim()) as { dryRun: boolean; applied: boolean; removedVerdictCount: number; removedVerdictIds: string[] };
+      assert.equal(falsePayload.applied, true, 'dryRun:false executes');
+      assert.equal(falsePayload.dryRun, false);
+      assert.equal(falsePayload.removedVerdictCount, 6, 'dryRun:false removes the losing duplicate set');
+      assert.equal(falsePayload.removedVerdictIds.length, 6);
+      assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'dryRun:false really does commit');
+      assert.equal(storyBackupFiles(fixture).length, 1, 'dryRun:false really does write a backup');
+      assert.equal(git(fixture.root, ['status', '--porcelain=v1', '--untracked-files=all']), '', 'dryRun:false leaves a clean tree');
+    });
+  });
+
   console.log(`\n✓ quorum_submit smoke passed (${passed} checks)`);
 } finally {
   process.chdir(previousCwd);

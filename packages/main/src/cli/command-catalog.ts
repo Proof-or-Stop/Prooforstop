@@ -2994,7 +2994,7 @@ Behavior:
   { name: 'quorum_prune', description: 'Official B-bf52 recovery: list (dry-run by default) and, with apply:true, remove duplicate host_verdict events on the same runId + host/session/key identity from the committed process-events.jsonl. Apply writes a timestamped byte-identical backup before rewriting and commits through the same lifecycle-metadata transaction quorum_submit uses.', schema: {
     storyId: z.string().describe('Canonical Story id'),
     runIds: z.array(z.string()).optional().describe('Optional runId filter; only duplicates on these runIds are pruned, others are left untouched'),
-    dryRun: z.boolean().optional().describe('Default dry-run: list the duplicate host_verdict events that would be removed without writing a backup, rewriting, or committing. Default true unless apply=true; passing dryRun:true together with apply:true is refused.'),
+    dryRun: z.boolean().optional().describe('Default dry-run: list the duplicate host_verdict events that would be removed without writing a backup, rewriting, or committing. Default true unless apply=true; an explicit dryRun:false executes exactly like apply:true rather than being a silent no-op; passing dryRun:true together with apply:true is refused.'),
     apply: z.boolean().optional().describe('Actually back up, rewrite, and commit; default false = dry-run that only lists what would be removed'),
     keep: z.enum(['newest-material', 'oldest-material']).optional().describe('Which duplicate survives per group; default newest-material keeps the later (newer-material) event, oldest-material keeps the earlier'),
     json: z.boolean().optional().describe('Output JSON'),

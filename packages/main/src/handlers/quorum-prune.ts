@@ -208,17 +208,22 @@ export function createQuorumPruneHandlers(ctx: HandlerContext) {
       if (!isCanonicalStoryId(storyId)) {
         throw new Error(`quorum_prune: storyId "${storyId}" is not a canonical, path-safe Proofbound story id`);
       }
-      // dryRun/apply resolution follows the repo convention (capability_release_backfill):
-      // apply:true is the only executor, dryRun is default-true, and an explicitly conflicting
-      // combination is REFUSED rather than silently resolved in either direction.
-      const apply = args.apply === true;
-      if (apply && args.dryRun === true) {
+      // dryRun/apply resolution. Like the repo convention (capability_release_backfill), the
+      // DEFAULT is projection-only and an explicitly conflicting combination is REFUSED rather
+      // than silently resolved. B-3144 F-010 adds one thing that convention leaves out: an
+      // explicit dryRun:false must not be a silent no-op. Saying "do not dry-run" is a request
+      // to execute, and CHK-003's userSees promises exactly that ("without --dryRun it backs up,
+      // removes them, commits"). So dryRun:false executes, while OMITTING dryRun still defaults
+      // to the safe projection — the safety default lives in the default, not in ignoring the
+      // operator's explicit instruction.
+      if (args.apply === true && args.dryRun === true) {
         throw new Error(
           'quorum_prune refuses: pass either apply:true or dryRun:true, not both. dryRun:true only '
           + 'projects the duplicate groups (no backup, rewrite, or commit); apply:true backs up, '
           + 'rewrites, and commits. Omit dryRun (the default) and pass apply:true to actually recover.',
         );
       }
+      const apply = args.apply === true || args.dryRun === false;
       const keep: KeepSelector = args.keep === 'oldest-material' ? 'oldest-material' : 'newest-material';
       const runIdFilter = normalizeRunIdFilter(args.runIds);
 
