@@ -299,15 +299,16 @@
         },
         {
           "intentRef": "CHK-003:happy:1",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-bound in round 3: the proof CHANGED. The mixed-store case previously wrote [v1, v2Quarantine]; redEvidenceSatisfied iterates with Array.prototype.some(), which short-circuits on the satisfying v1 record, so the v2 record was never handed to redEvidenceRecordSatisfied and the assertion was vacuous (verified: that arrangement does NOT throw even against a dist built from the pre-fix tree 8727b2db83). The store is now written [v2Quarantine, v1] so the v2 record is evaluated FIRST, and the corrected file run verbatim against the pre-fix dist fails at exactly this assertion with TypeError: Cannot read properties of undefined (reading 'trim'). The old ordering is retained as an explicit companion case, labelled vacuous on its own. What is asserted: the LIVE gate does not throw, and JSON.stringify(missingRedEvidence) is byte-identical to the v1-only baseline in BOTH orderings.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-bound in round 4; this fixes F-014 for this intent. The round-3 note ended with 'the old ordering is retained as an explicit companion case, labelled vacuous on its own' and claimed byte-identity 'in BOTH orderings' — that companion could not fail and has been REMOVED. red-w2c-gate-guard.mjs now covers the mixed store in two ways that both genuinely reach the predicate: (a) lines 103-108, [v2Quarantine, v1] — the v2 record leads; (b) lines 119-131, [non-satisfying v1, v2Quarantine, v1] — the leading record is a real v1 record with a non-empty observedFailure but a foreign acceptanceTargetRef, so redEvidenceRecordSatisfied returns false for it, Array.prototype.some() cannot short-circuit, the v2 record IS evaluated from a non-leading position, and the trailing satisfying v1 record keeps the verdict well-defined. Each asserts the LIVE gate does not throw and that JSON.stringify(missingRedEvidence) equals the v1-only baseline from line 94. Non-vacuity of (b) executed, not argued: against a dist built from git archive 8727b2db83 (with case (a) stripped so (b) is reached), the run FAILS at exactly assertion (b) with TypeError: Cannot read properties of undefined (reading 'trim'). Commit 85f60fcbf4.",
+          "headHash": "3f8fe21aa177363dd7e52897e20ebdfb747e534c",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:18:00.831Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
