@@ -275,15 +275,16 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:adversarial:0",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-bound in round 3. Previously bound to red-w2c-schema-failclosed.mjs, which injects a v3 (unsupported-schema) record, NOT the v2 quarantine record this intent names. red-w2c-gate-guard.mjs is the artifact that literally writes a v2 quarantine record with no observedFailure into a story red-evidence.json and runs the REAL gate. Ordering corrected this round so the v2 record is evaluated FIRST ([v2Quarantine, v1]); against a dist built from the pre-fix tree 8727b2db83 the corrected file fails at exactly that assert.doesNotThrow with TypeError: Cannot read properties of undefined (reading 'trim') — RED signal A reproduced.",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "Re-run in round 4 after the file changed. This artifact is still the one that literally writes a v2 quarantine record carrying NO observedFailure into a story red-evidence.json and runs the REAL enforce gate. Round-4 change: the labelled-vacuous [v1, v2Quarantine] companion kept in round 3 is gone (F-014); in its place lines 119-131 store [non-satisfying v1, v2Quarantine, satisfying v1], where the leading v1 record has a non-empty observedFailure but a foreign acceptanceTargetRef so the predicate rejects it without short-circuiting and the v2 record is genuinely evaluated mid-array. Both this and the v2-first case at lines 103-108 fail against a dist built from git archive 8727b2db83 with TypeError: Cannot read properties of undefined (reading 'trim') — verified separately for each by stripping the other so the case under test is the one reached. Commit 85f60fcbf4.",
+          "headHash": "0ad14bbddf3d0176a43911907dad2ea399a09362",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:18:15.748Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
