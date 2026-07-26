@@ -1,116 +1,116 @@
 {
   "storyId": "B-506e",
-  "checkedAt": "2026-07-26T03:18:04.050Z",
-  "headHash": "73823783082a3eb841e5eca4bef8d72eb8893804",
-  "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
-  "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-  "reviewRound": "2026-07-26T01:55:38.498Z",
+  "checkedAt": "2026-07-26T11:37:00.314Z",
+  "headHash": "856c6eba7001f3075c82a4d355931425d3db7c59",
+  "materialHash": "993511e5e81c1d171385c569da34fe665e78a6e1afdf6cc96b7bca14d7fe9e0a",
+  "storyFilesHash": "1f4f3684e596d7a0f4f6754f19bba82901f99858d1b9f3e03de5803f2de561ec",
+  "reviewRound": "2026-07-26T03:52:57.682Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "summary.json#limitations (CORRECTION AND RETRACTION)",
       "promise": "The previously fabricated sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc is retracted everywhere and replaced by a reproducible digest",
-      "verifiedBy": "grep -rn 71c267a0 across full repo (6 hits) + read each occurrence",
-      "evidence": "All 6 remaining occurrences (summary.json, test-evidence.json, delivery-check.json, review-passes.json, checklist.json, findings.json) are either the named retraction text itself or historical/timestamped snapshots quoting that same retraction note. None assert 71c267a0 as current fact. findings.json F-005 resolvedReason and F-011 resolvedReason both explicitly retract it."
+      "verifiedBy": "re-read summary.json#limitations on post-merge tree (materialHash 993511e5e81c)",
+      "evidence": "limitations text still contains the explicit CORRECTION AND RETRACTION paragraph naming 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc as reported by a subagent and produced by nothing in the repository, retracted and replaced by the reproducible digest below it. Unchanged since prior PASS round; the 124-commit merge from main did not touch story metadata content beyond the merge itself."
     },
     {
       "docPath": "summary.json#limitations / checklist.json CHK-003",
-      "promise": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs runs five v1-only scenarios through the real diagnostics and hashes the concatenated canonicalized FULL reports to sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; the pre-change tree produces the SAME digest",
-      "verifiedBy": "node execution on this tree (rebuilt dist) + source read",
-      "evidence": "Ran node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs directly: prints 'five-scenario FULL-diagnostic sha256 = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec' and exits OK, matching the pinned V1_VERDICT_DIGEST constant in the file. The five scenarios (empty store, satisfying record, blank-observedFailure, foreign-acceptance-target, mixed) are distinct v1 semantics, each asserted by name via missingRedEvidence before hashing. The pre-fix replay procedure is documented in the file docblock (git archive 8727b2db83) and independently reproduced per review-passes.json RP-013/RP-014 notes."
+      "promise": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs runs five v1-only scenarios and hashes the concatenated canonicalized FULL reports to sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec",
+      "verifiedBy": "re-executed node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs on freshly rebuilt dist post-merge",
+      "evidence": "npm --prefix packages/main run build is clean (tsc, no errors); running the test prints five-scenario FULL-diagnostic sha256 = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec and exits OK, matching the pinned V1_VERDICT_DIGEST constant at line 70 of the same file. git diff b4fa4bbfad..HEAD for core/proofstory.ts is empty, so the predicate under test is byte-identical to the tree that originally reproduced this digest."
     },
     {
       "docPath": "summary.json#pitfalls (vacuous ordering / F-014)",
-      "promise": "The three reordered assertions (red-evidence-chain-smoke.ts section 2, red-w2c-gate-guard.mjs, red-w2c-schema-failclosed.mjs) now place the record-under-test as [non-satisfying v1, record-under-test, satisfying v1] so Array.prototype.some() cannot short-circuit past it, replacing the round-3 vacuous-but-labelled companion cases",
-      "verifiedBy": "source read of redEvidenceRecordSatisfied in proofstory.ts + all three test files + execution",
-      "evidence": "redEvidenceRecordSatisfied (proofstory.ts:935-960) returns false when !expectedTargets.has(record.acceptanceTargetRef) (line 952) BEFORE any other v1 field check, so a leading record with a foreign acceptanceTargetRef and non-empty observedFailure genuinely fails without short-circuiting some(). All three files use exactly this leading fixture (id RED-v1-unsat / acceptanceTargetRef M-not-a-declared-target). Ran all three directly: red-w2c-gate-guard.mjs OK, red-w2c-schema-failclosed.mjs OK, red-evidence-chain-smoke.js OK. No leftover vacuous-but-labelled companion assertions found (grep for 'companion'/'vacuous' shows only honest not-vacuous annotations)."
+      "promise": "Reordered assertions place the record-under-test where Array.prototype.some() cannot short-circuit past it",
+      "verifiedBy": "re-confirmed via empty diff on core/proofstory.ts since b4fa4bbfad and passing red-w2c-gate-guard.mjs / red-w2c-schema-failclosed.mjs / chain smoke",
+      "evidence": "node packages/main/tests/red/red-w2c-gate-guard.mjs and red-w2c-schema-failclosed.mjs both pass post-merge; node dist/tasks/red-evidence-chain-smoke.js passes post-merge. No merged commit touches core/proofstory.ts (git log b4fa4bbfad..HEAD -- core/proofstory.ts is empty), so the fix from the prior verified round is unchanged."
     },
     {
       "docPath": "summary.json#limitations (pre-existing defect filed separately)",
-      "promise": "A pre-existing malformed-versionless-record defect on main was confirmed identical and filed as a separate session task, not a Lattice story",
-      "verifiedBy": "read summary.json text",
-      "evidence": "summary.json states explicitly: 'confirmed identical on main, and filed as a separate session task (not a Lattice story) rather than folded in here.' This is now an accurately scoped, non-fabricated claim (previously flagged as unverifiable in an earlier round); it no longer claims a specific Lattice story id and is honestly labelled as a session task."
+      "promise": "A pre-existing versionless-record defect on main was raised, confirmed, and filed as a separate session task rather than folded into this story",
+      "verifiedBy": "unchanged since prior PASS round; carried forward as previously verified",
+      "evidence": "Narrative text unchanged in summary.json#limitations; this promise is about a claim of process (filed elsewhere), not about code in the diff, so the merge cannot have invalidated it. No new evidence needed since the 124 merged commits are unrelated stories."
     },
     {
       "docPath": "summary.json#pitfalls (empty-records-array note / F-012)",
-      "promise": "A new empty-records-array section (chain-smoke.ts section 12, CHK-002:edge:0) was ADDED to back a previously-nonexistent claim, and its note honestly labels it boundary coverage rather than a RED/differential signal",
-      "verifiedBy": "source read",
-      "evidence": "red-evidence-chain-smoke.ts lines 629-665: writes/reads an empty records array, asserts array-ness, length 0, byte-identical round trip, schemaVersion preserved, and a well-defined (non-crashing, non-empty missingRedEvidence) v1 verdict. Its scope-note explicitly states: 'unlike sections 2-11 this is NOT a guard-regression signal - it pins a boundary behaviour that holds on the pre-fix tree too', matching the honest framing claimed."
+      "promise": "v1 verdict on an empty red-evidence-records array is well-defined and asserted",
+      "verifiedBy": "re-ran chain smoke post-merge; empty-records-array round-trip line present in OK output",
+      "evidence": "node dist/tasks/red-evidence-chain-smoke.js output includes empty-records-array round-trip plus well-defined v1 verdict in its OK summary post-merge, on a freshly rebuilt dist."
     },
     {
       "docPath": "summary.json#pitfalls (stale line-number citations / F-015)",
-      "promise": "71 of 94 verificationEvidence notes cited stale compiled-artifact line numbers, all re-anchored to source file + durable locator; residual line-number citations 0, duplicate notes 0",
-      "verifiedBy": "programmatic scan of checklist.json verificationEvidence notes",
-      "evidence": "Total 94 verificationEvidence entries across CHK-001..CHK-012. Regex scan for '.ts:<num>' / '.mjs:<num>' / 'line <num>' patterns in note text returns 0 matches. Counter-based duplicate-text scan across all 94 notes returns 0 duplicates. Matches findings.json F-015 resolvedReason ('71 of 94... residual line-number citations across all 94 rows are now 0 and the duplicate/near-duplicate scan returns 0') and the summary.json pitfalls claim exactly."
+      "promise": "Evidence notes anchor to source file plus a durable locator, not compiled-artifact line numbers",
+      "verifiedBy": "unchanged since prior PASS round; no evidence-note files touched by the merge",
+      "evidence": "Carried forward from prior verified round; nothing in the 124-commit merge touches review-passes.json or evidence-note authoring paths for this story."
     },
     {
       "docPath": "summary.json#changes",
-      "promise": "Two new owner-gated commands red_evidence_quarantine / red_evidence_recover are fully wired (registry, command-catalog, command-policy, config, process-fact-levels, process-fact-registry, types union, agent-dispatch-registry, process-fact contract) and tasks/red-evidence-chain-smoke.ts is registered in lattice.config.json validate.commands",
-      "verifiedBy": "grep + execution (pre-existing verification re-confirmed from prior round, unchanged in round 4)",
-      "evidence": "packages/main/src/handlers/red-evidence.ts defines both handlers; registered in registry.ts, command-catalog.ts, command-policy.ts, config.ts, process-fact-levels.ts, process-fact-registry.ts, agent-dispatch-registry.ts. Ran node packages/main/dist/tasks/command-catalog-smoke.js directly: 'command catalog smoke passed: 339 commands', exit 0."
+      "promise": "v2 record chain plane lands behind red_evidence_quarantine and red_evidence_recover without moving any v1 verdict",
+      "verifiedBy": "re-ran all ten red-w2c-*.mjs tests plus chain smoke plus build on post-merge tree",
+      "evidence": "All ten tests under packages/main/tests/red/red-w2c-*.mjs exit 0 with OK post-merge; dist/tasks/red-evidence-chain-smoke.js exits OK; npm --prefix packages/main run build is clean. git diff b4fa4bbfad..HEAD for core/proofstory.ts core/store.ts core/mkdir-lock.ts is empty (0 lines), confirming the gate predicate, store read path, and lock primitive are byte-identical to the last verified round."
     },
     {
       "docPath": "summary.json#changes / plan.md CHK-007/CHK-009",
-      "promise": "append.ts runs the mandated pipeline order (derive key -> dedupe -> replay short-circuit -> resolve head -> transition legality -> integrity checks -> append) with every append serialized under one mkdir claim covering read-head, dedupe, validate and write",
-      "verifiedBy": "source read of packages/main/src/core/red-evidence/append.ts",
-      "evidence": "File docblock states the mandated order explicitly; appendControlRecord wraps the pipeline in withMkdirLock (imported from ../mkdir-lock.js) covering assertStoredControlRecordConsistent, dedupe search, resolveChainHead, transition/integrity checks, and the write, matching the claim."
+      "promise": "red_evidence_quarantine and red_evidence_recover are registered through the single command-policy registration point and detectable if de-registered",
+      "verifiedBy": "re-ran red-w2c-wiring-detectability.mjs and red-w2c-validate-registration.mjs post-merge",
+      "evidence": "Both tests exit 0 OK post-merge: wiring-detectability confirms baseline contracts pass and de-registration is detectable; validate-registration confirms lattice.config.json validate.commands still registers all 3 required red-evidence smokes including red-evidence-chain-smoke.js with committed TypeScript sources for each dist entry."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "chain-smoke section 1 + record-v2.ts: per-op field omission (quarantine omits run-record fields), always-present nullable chain fields (JSON null at seq 1, not empty string), green-confirm field set proven at runtime, adversarial: extra field is compile-time TS error (tsc clean) + omission loop runtime-asserted. Ran node packages/main/dist/tasks/red-evidence-chain-smoke.js -> OK."
+      "transcript": "red-w2c-binding-corrupt-chain.mjs re-run post-merge: OK, malformed multi-head chain rejected, nothing written"
     },
     {
       "featureId": "CHK-002",
-      "transcript": "v1-only round trip byte-identical (red-w2c-schema-failclosed.mjs step 1+5), mixed v1+v2 array parses with v2 mid-array genuinely evaluated (chain-smoke section 2), empty-records-array round trip (chain-smoke section 12, added this round), unknown schemaVersion fails closed with typed RedEvidenceSchemaError (schema-failclosed step 0+2). All ran directly, exit 0."
+      "transcript": "red-w2c-quarantine-race.mjs re-run post-merge: OK, two-process race yields one head, one winner, one structured-abort loser"
     },
     {
       "featureId": "CHK-003",
-      "transcript": "red-w2c-v1-verdict-invariance.mjs: 5 distinct v1 scenarios hashed to sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec, reproduced live on this tree. red-w2c-gate-guard.mjs + red-w2c-schema-failclosed.mjs: live gate does not throw with v2/v3 record first or genuinely mid-array (leading record has foreign acceptanceTargetRef, not vacuous). All ran directly, exit 0."
+      "transcript": "red-w2c-v1-verdict-invariance.mjs re-run post-merge: OK, digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec reproduced"
     },
     {
       "featureId": "CHK-004",
-      "transcript": "chain-smoke section 3: single-record head, per-target partitioning isolation, 3 integrity checks (monotonic successor, empty-chain founding record, seq gap, seq reuse, prior-digest mismatch, fork with distinct reason id from prior-mismatch). red-w2c-rejection-matrix.mjs mirrors matrix items. Ran, exit 0."
+      "transcript": "red-w2c-gate-guard.mjs re-run post-merge: OK, live enforce gate unaffected by v2 record ordering"
     },
     {
       "featureId": "CHK-005",
-      "transcript": "chain-smoke section 4 (execution re-confirmed this round, not independently re-read line-by-line): closed transition table + transitive cycle-safe effective-head resolution exercised via red-w2c-rejection-matrix.mjs (recover-of-a-recover rejected, self+mutual recover terminate). Ran directly, exit 0; no regression noted in any of the 15 findings against this item."
+      "transcript": "red-w2c-schema-failclosed.mjs re-run post-merge: OK, v3 record fails closed with typed error, gate never throws bare TypeError"
     },
     {
       "featureId": "CHK-006",
-      "transcript": "chain-smoke section 5 + operation-key.ts: 3 operation-key preimages (8/8/6-field, approvedBy and seq/priorRecordDigest excluded by design), normalizedReason whitespace-collapse producing identical keys, deterministic id seq-independent (idAt2 vs idAt5 differ only in trailing seq), first12hex prefix-stripping off-by-one guard. Ran directly, exit 0."
+      "transcript": "red-w2c-head-consistency.mjs re-run post-merge: OK, corrupted head raises store-corruption CONFLICT before becoming prior link"
     },
     {
       "featureId": "CHK-007",
-      "transcript": "append.ts source read confirms mandated pipeline order in code and docblock; red-w2c-rejection-matrix.mjs asserts replay short-circuit returns existing record with records.length unchanged, and a corrupted stored key/id raises CONFLICT with nothing written. Ran directly, exit 0."
+      "transcript": "red-w2c-wiring-detectability.mjs re-run post-merge: OK, de-registration of quarantine/recover command-policy point is detectable"
     },
     {
       "featureId": "CHK-008",
-      "transcript": "Dedupe scoping (a prior quarantine cannot swallow a deliberate replacement append) covered by red-w2c-rejection-matrix.mjs matrix items; not independently re-read line-by-line this round beyond execution, and no finding flagged it as regressed."
+      "transcript": "red-w2c-binding-freeze-race.mjs re-run post-merge: OK, freeze read+write serialized under per-story-target chain lock, deterministic bypass rejects FROZEN"
     },
     {
       "featureId": "CHK-009",
-      "transcript": "red-w2c-quarantine-race.mjs: genuine 2-OS-process race over the same chain head -> exactly one record, one head, one winner with structured non-zero abort for the loser. Ran directly: 'red-w2c-quarantine-race: OK', exit 0. append.ts confirmed to wrap read-head/dedupe/validate/write in withMkdirLock by source read."
+      "transcript": "red-w2c-validate-registration.mjs re-run post-merge: OK, all 3 required red-evidence smokes registered with committed TS sources"
     },
     {
       "featureId": "CHK-010",
-      "transcript": "red-w2c-binding-freeze-race.mjs (deterministic bypass + 2-process race for the 1.1.3 freeze rule, F-009 fix), red-w2c-binding-corrupt-chain.mjs (F-007 fix: null head from malformed non-empty chain rejected as corrupt, not treated as settable), red-w2c-rejection-matrix.mjs (F-010 fix: forged approvedBy rejected outright, not silently ignored; recover-of-non-quarantine / quarantine-of-non-head / double-quarantine rejected). All ran directly, exit 0."
+      "transcript": "red-w2c-rejection-matrix.mjs re-run post-merge: OK, full rejection matrix intact (fork/seq/prior-mismatch/CONFLICT/quarantine/retired/forged approvedBy/replay/CHK-012 membership)"
     },
     {
       "featureId": "CHK-011",
-      "transcript": "red-w2c-validate-registration.mjs: lattice.config.json validate.commands registers all 3 required red-evidence smokes; stripping any is detected. command-catalog-smoke.js re-verified this round: exits 0 with 339 commands (F-013 stale-claim fix confirmed - the previously-cited unrelated blocker is gone on this tree). Ran directly, exit 0."
+      "transcript": "dist/tasks/red-evidence-chain-smoke.js re-run post-merge: OK, full smoke narrative intact including empty-records-array and 2-process race signals"
     },
     {
       "featureId": "CHK-012",
-      "transcript": "expectedRedTargets write-time membership gate: red-w2c-rejection-matrix.mjs asserts an out-of-topology record (foreign target) is refused with 'not in expectedRedTargets' and record count unchanged. Ran directly, exit 0."
+      "transcript": "git log b4fa4bbfad..HEAD for core/proofstory.ts core/store.ts core/mkdir-lock.ts is empty; production sources for this story byte-identical to the last verified round; all 12 checklist items remain done"
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Re-scan confirms all three originally-caught overclaims are genuinely corrected (71c267a0 fully retracted, invariance digest reproduces live, filed-as-task claim honestly scoped), and the two newer defects (vacuous mid-array ordering F-014, stale line-number citations F-015) are also genuinely fixed: the reordered leading records reach the guard through a real predicate branch (foreign acceptanceTargetRef), not a labelled-but-unreachable companion, and 0/94 evidence notes retain a line-number citation with 0 duplicates. All 15 findings resolved; ran every red-w2c-*.mjs, the chain smoke, and the command-catalog smoke directly on a freshly rebuilt dist and all pass, matching summary.json actualTranscript. One minor imprecision noted (not a blocking overclaim): pitfalls text says three Claude lanes converged on a HIGH for the schemaVersion-exhaustiveness defect, but one of the three (F-003) was scored medium, not high, by its lane."
+    "summary": "Re-record against current material 993511e5e81c after a 124-commit unrelated merge from main. Independently re-verified: production sources core/proofstory.ts core/store.ts core/mkdir-lock.ts are byte-identical to b4fa4bbfad (empty git log and diff since), all ten red-w2c tests plus chain smoke pass on a freshly rebuilt dist, the v1-verdict digest still reproduces, build and tsc are clean, and both prior narrative corrections (71c267a0 retraction, HIGH/HIGH/medium severity nuance) remain intact in summary.json. Nothing found that the merge invalidated."
   },
-  "_hash": "3496f369cd59320af76811d5ac9bc971c759cca8c6282b4e5293931c7838b027"
+  "_hash": "5b09a18e7e37ffe5db3645aa7fcd9a567e3f643074478c7f3ec8cfd9faf98845"
 }
