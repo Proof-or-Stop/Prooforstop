@@ -250,6 +250,37 @@
         "scanEscalationReason": null
       },
       "_hash": "d4c92cc447108ddada1c67739047d95bd4929d6d0aa40e4a8a76563cff2cebce"
+    },
+    {
+      "id": "B-ec67:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Pure re-bind: fresh REVIEW round after B-ec67 returned to REVIEW (config merge only, evidence re-recorded). git diff against my last verified commit shows zero changes to tool-executed-evidence-receipt-smoke.ts / checklist.ts / command-schemas.ts. Re-ran node dist/tasks/tool-executed-evidence-receipt-smoke.js on current HEAD -> PASS/exit0. No new analysis needed; prior independent mutation-kill verification stands: F-002..F-005 (RP-002), F-008 both directions (RP-005).",
+      "createdAt": "2026-07-26T03:20:30.921Z",
+      "reviewRound": "2026-07-26T03:19:27.125Z",
+      "reviewRunId": "B-ec67:RR-015",
+      "envelopeId": "1d097b417548b7a323ffd9fcba8bf8b7e5cacf6d6eda8e00fe1455e66d19fb97",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-ec67/background.md",
+          ".lattice/story/actives/B-ec67/checklist.json",
+          ".lattice/story/actives/B-ec67/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "666bc973352c1b9495210fa882afa0a87b0f181ee4c7b85f3e2c695773d898b0"
     }
   ]
 }
