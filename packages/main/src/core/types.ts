@@ -743,6 +743,55 @@ export interface VerificationEvidence {
   factProvenance?: FactProvenanceMetadata;
 }
 
+/**
+ * B-2296 (evidence-integrity §5 follow-on, Phase 1): the immutable snapshot pinned
+ * onto a frozen claim (a checklist item's `userSees`) at attestation time. Drift in
+ * EITHER the normalized claim text OR the bound material voids the attestation and
+ * requires re-attestation (bidirectional binding, per decision.json).
+ *
+ * IMPORTANT — material binding authority (decision B: storyFilesHash):
+ *   `storyFilesHash` is the DRIFT-AUTHORITATIVE material field. It scopes drift to
+ *   exactly the files this story delivers (excluding unrelated main-merge / whole-tree
+ *   churn — the dominant false-positive source). `materialHash` is retained for
+ *   provenance/diagnostics ONLY and is INFORMATIONAL; it MUST NOT be the drift signal.
+ */
+export interface FrozenClaimSnapshot {
+  /** sha256 hex over normalizeClaim(userSees) — see core/frozen-claim-drift.ts. */
+  normalizedClaimDigest: string;
+  /** Drift-authoritative: hash of story-owned material files vs merge-base main. */
+  storyFilesHash: string;
+  /** git HEAD captured when the snapshot was taken. */
+  headHash: string;
+  /** ISO 8601 timestamp when the snapshot was pinned. */
+  attestedAt: string;
+  /** Informational only (whole-tree material). NOT the drift signal (decision B). */
+  materialHash?: string;
+}
+
+/**
+ * B-2296 (Phase 1): structured, NON-blocking advisory emitted when a frozen claim
+ * has drifted relative to its {@link FrozenClaimSnapshot}. Defined here ahead of its
+ * CHK-002 (detect) / CHK-003 (surface) consumers.
+ *
+ * `driftKind` reports WHAT moved: `claim` (normalized digest changed), `material`
+ * (story-owned storyFilesHash moved), `both`, or `none`. `classification`
+ * distinguishes a snapshot-bound claim (`bound`) from a pre-feature claim with no
+ * snapshot (`legacy-unbound`, never an error — grandfathered). Phase 1 only ever
+ * asks for `re_attestation`; the blocking gate is Phase 2.
+ */
+export interface FrozenClaimDriftAdvisory {
+  code: 'FROZEN_CLAIM_DRIFT';
+  itemId: string;
+  claimRef: string;
+  previousDigest: string;
+  currentDigest: string;
+  previousStoryFilesHash: string;
+  currentStoryFilesHash: string;
+  driftKind: 'claim' | 'material' | 'both' | 'none';
+  classification: 'bound' | 'legacy-unbound';
+  actionRequired: 're_attestation';
+}
+
 export interface ChecklistItem {
   id: string;
   title: string;
