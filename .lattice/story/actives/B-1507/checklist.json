@@ -68,7 +68,30 @@
       "context": "Mirror the existing scope guard: .claude/hooks/lattice-scope-pretool.cjs (thin shim) + handlers/prewrite-guard.ts (read-only CLI verdict, e.g. prewrite_guard_check) + tasks/prewrite-guard-smoke.ts. On a verification_evidence_add/verification_run invocation the shim forwards the raw command string; the CLI verdict parses it and denies (exit 2) with a teaching message if --command/--selector does not match the pinned intent, before the write. Fail-open (handler is the floor). Claude matcher adds the shell/Bash tool; Codex .codex hooks add its real shell-tool matcher — gate the Codex side on an e2e test that uses Codex's actual emitted shell-tool name (the current Codex matcher is apply_patch|Edit|Write which does NOT match shell execution, so confirm the real token or the hook never fires).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the Claude Bash shim denies (exit 2) a verification_evidence_add/verification_run whose --command or --selector mismatches the pinned intent, and allows a matching one",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "any hook error (CLI missing, parse failure, timeout, no active story) fails OPEN (exit 0) so legitimate work is never blocked",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "with the hook bypassed entirely the handler still refuses the mismatch (hook is non-load-bearing), and the Codex hook fires on the real emitted shell-tool name (e2e using the actual token, not apply_patch)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
