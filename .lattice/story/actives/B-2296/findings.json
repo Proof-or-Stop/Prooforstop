@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2296:F-002",
+      "desc": "packages/main/src/handlers/frozen-claim-drift-check.ts:144-146 — CHK-003:happy:0 must-intent explicitly promises \"...for a drifted story and a clean report for a clean story\", but the only verificationEvidence (frozen-claim-drift-smoke.ts:137-231) calls buildDriftReport directly on in-memory fixtures that always include a drifted item; it never exercises the zero-advisory clean branch (the handlers text-mode \"0 drifted, 0 legacy-unbound -- clean\" string) nor the actual registered frozen_claim_drift_check --storyId CLI entry point end-to-end (resolveStoryGitCwd + currentStoryFilesHash + store.readChecklist + JSON/text serialization). Manually running node bin/lattice.js frozen_claim_drift_check confirms the real command works, but no re-runnable mechanical evidence covers that path or the clean-story branch — half of a compound must-intent is unverified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T22:12:49.705Z",
+      "reviewRound": "2026-07-26T22:07:48.977Z",
+      "reviewRunId": "B-2296:RR-002",
+      "_hash": "e39bcbfde8ae1ce0ca4b879628b82d5d8367da15054ac1cf0515ecaa033ab752",
+      "files": [
+        "packages/main/src/handlers/frozen-claim-drift-check.ts",
+        "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
