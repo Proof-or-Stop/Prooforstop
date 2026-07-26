@@ -52,7 +52,7 @@
       "desc": "lattice validate is NOT green for this story: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1436-1443 pins packages/main/src/cli-engine.ts to a whole-file AST fingerprint (48ca6562b1...) via PINNED_EXECUTABLE_SOURCE_FINGERPRINTS (line 362). CHK-001 modified cli-engine.ts (added the verification_run entry to MILESTONE_STATUS_APPEND_COMMANDS at line ~515), which changes the fingerprint, so the previously-approved import(`file://${initPath}`) call site in runCli() is now flagged unapproved. Reproduced deterministically: `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` FAILS with `AssertionError: the exact registered cli-engine non-literal loader call site must remain allowed`. This is not an edge case in my mutation testing -- it also failed as command 3/54 in a fresh `lattice validate --story=B-1507 --json` run, well before any experiment I ran. Fix: recompute canonicalAstFingerprint for the new cli-engine.ts content and update the PINNED_EXECUTABLE_SOURCE_FINGERPRINTS entry.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T06:11:49.367Z",
@@ -64,7 +64,11 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "signatureTag": "missing|ts|lattice-validate-green",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "eae5eba: recomputed the stale cli-engine.ts pin in retired-authority-vocabulary-guard-smoke.ts (48ca6562->a2468ce5) and moved the matching hardcoded hash in scripts/verify-process-fact-contract.mjs. Verified retired-authority-vocabulary-guard-smoke PASS.",
+      "resolvedAt": "2026-07-26T06:36:55.409Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1507:F-004",
