@@ -72,7 +72,7 @@
       "desc": "doc-code-drift residue (comment): packages/main/src/core/evidence-stale-hint.ts:87 JSDoc example under the explicit contract \"Output format (must remain stable — all three surfaces assert this format by byte-equality):\" still shows the OLD pre-CHK-002 line `Run to recover:` with no caveat, while the actual renderEvidenceStaleHint output 20 lines below (line 107) now emits `Run to recover (refresh re-stamps command-less attestation only; a command-backed result:pass is REFUSED — re-run it and re-record via verification_evidence_add):`. This is the exact pre-fix concept (\"refresh_stale generically recovers\") left as residue in a comment inside the very file this story edited to fix F-002 in this same lane — a maintainer reading the doc-comment contract would believe the shipped byte format lacks the refusal caveat. Comments count as residue per this role's rules. Fix: update the line-87 example to match the real line-107 output (or reference it) so the illustrative format and the shipped format cannot drift again.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-26T00:03:05.103Z",
@@ -80,7 +80,11 @@
       "reviewRunId": "B-3b88:RR-013",
       "_hash": "b7247c03e6d0c7efffefc10e7aa224721854676e2806c7fef388a6e17d02259e",
       "signatureTag": "missing|unknown|code-drift-residue",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the JSDoc 'Output format' example line in evidence-stale-hint.ts now carries the same command-backed-refusal caveat as the real rendered output.",
+      "resolvedAt": "2026-07-26T00:04:22.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
