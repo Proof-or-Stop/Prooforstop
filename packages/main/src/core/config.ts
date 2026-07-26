@@ -468,6 +468,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'parent_ledger_rollup_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
     'red_evidence_binding_set', // W2b (B-e10d): register the per-story target binding before a RED run; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
+    'red_evidence_quarantine', // W2c (B-506e): retire a bad chain head without mutating history; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
+    'red_evidence_recover', // W2c (B-506e): undo a mistaken quarantine; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
     'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
     'pre_review_check',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',

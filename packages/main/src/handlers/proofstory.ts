@@ -7,7 +7,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, ScopeShrinkageDecisionData } from '../core/types.js';
+import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, RedEvidenceRecord, ScopeShrinkageDecisionData } from '../core/types.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -1094,7 +1094,9 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       }, store.readRedEvidence(args.storyId));
       store.writeRedEvidence(args.storyId, evidence);
       if (args.json) return stringify(evidence);
-      const latest = evidence.records.at(-1);
+      // red_evidence_create only ever appends a v1 record (appendRedEvidence),
+      // so the freshly-appended tail is a v1 RedEvidenceRecord.
+      const latest = evidence.records.at(-1) as RedEvidenceRecord | undefined;
       return [
         'Red evidence: recorded',
         `Records: ${evidence.records.length}`,
