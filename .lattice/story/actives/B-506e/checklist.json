@@ -319,14 +319,14 @@
         {
           "intentRef": "CHK-003:edge:1",
           "kind": "manual_transcript",
-          "file": "packages/main/src/core/proofstory.ts",
-          "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "file": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
           "result": "pass",
-          "note": "the guard discriminates only on schemaVersion, leaving the v1 predicate (observedFailure.trim()) untouched; red-w2c-gate-guard.mjs proves the verdict is byte-identical before/after adding a v2 record (line 92), so a v1 record with empty-string observedFailure still trims to empty and stays unsatisfied exactly as before the change.",
-          "headHash": "cf7050d95e5482af0e30c229468d4abb5c74084c",
-          "materialHash": "5bdad3b9635cbaf3130a81c75066879a45793c8689f2b03eb6b77c49c3d50cda",
-          "storyFilesHash": "5e360b523660fff9f5355f0467ddf8e56f7022476de22b0c976593d667f91d08",
-          "timestamp": "2026-07-25T23:04:09.825Z"
+          "note": "Re-bound in round 3. Previously bound to red-w2c-gate-guard.mjs, which never constructs a v1 record with an empty observedFailure — the binding was unbacked. Scenario 3 of this artifact ('3-blank-observed-failure') stores a v1 record identical to the satisfying one except observedFailure='   ', drives the REAL diagnostics, and asserts missingRedEvidence is NON-EMPTY, i.e. the v1 predicate still rejects it at record.observedFailure.trim().length === 0. The same file run against a dist built from the pre-fix tree 8727b2db83 yields the identical digest, so the guard did not alter this v1 evaluation path.",
+          "headHash": "1fed40963852e4555f8cc919264e8be6d55f0eb8",
+          "materialHash": "b5db2121e8893bf7cb1ce74660e238f908e83a77162d4acda186d3c4df33b01a",
+          "storyFilesHash": "e4de2206f78484751f19ec6777ce1b8b6f9b78846893a0882d97b963a94853fc",
+          "timestamp": "2026-07-26T00:32:58.597Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
