@@ -253,8 +253,16 @@ try {
     writeRecords(store, storyId, [v1]);
     const before = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
 
-    // Add a v2 quarantine record (no observedFailure). Today this THROWS at
-    // record.observedFailure.trim(); after the guard the diagnostic is byte-identical.
+    // Add a v2 quarantine record (no observedFailure). On the pre-fix tree this
+    // THROWS at record.observedFailure.trim(); after the guard the diagnostic is
+    // byte-identical.
+    //
+    // ORDERING IS LOAD-BEARING: redEvidenceSatisfied iterates the records with
+    // Array.prototype.some(), which SHORT-CIRCUITS on the first satisfying
+    // record. A v2 record stored AFTER the satisfying v1 record is never handed
+    // to redEvidenceRecordSatisfied, so asserting on that arrangement proves
+    // nothing — it does not throw even on the pre-fix tree (verified against a
+    // dist built from 8727b2db83). The v2 record is therefore stored FIRST.
     const ra = synthRedAssert({ storyId, acceptanceTargetRef: 'M1', seq: 1, priorRecordDigest: null, supersedes: null });
     const opKey = controlOperationKey({ operation: 'quarantine', storyId, acceptanceTargetRef: 'M1', recoversRecordId: ra.id, referencedRecordDigest: ra.recordDigest, reason: 'r' });
     const qDraft = {
@@ -264,12 +272,22 @@ try {
       reason: 'r', approvedBy: 'a@s', operationKey: opKey, createdAt: NOW,
     };
     const q = { ...qDraft, recordDigest: computeRecordDigest(qDraft as unknown as Record<string, unknown>) } as RedEvidenceRecordV2;
-    writeRecords(store, storyId, [v1, q]);
+    writeRecords(store, storyId, [q, v1]);
     let after = '';
     assert.doesNotThrow(() => {
       after = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
-    }, 'the live gate MUST NOT throw on a v2 quarantine record (no observedFailure)');
+    }, 'the live gate MUST NOT throw on a v2 quarantine record (no observedFailure) evaluated BEFORE any satisfying v1 record');
     assert.equal(after, before, 'the v1 gate verdict is BYTE-IDENTICAL with a v2 record added (v2 ignored)');
+
+    // The reverse ordering too. NOTE: on its own this case is vacuous (some()
+    // short-circuits on the satisfying v1 record and never sees the v2 record);
+    // it is kept only as the companion of the v2-first case above.
+    writeRecords(store, storyId, [v1, q]);
+    let afterV1First = '';
+    assert.doesNotThrow(() => {
+      afterV1First = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
+    }, 'the live gate MUST NOT throw with the v2 quarantine record after the v1 record either');
+    assert.equal(afterV1First, before, 'the v1 gate verdict is BYTE-IDENTICAL in either record order');
 
     // v2-only store: missingRedEvidence fires (no v1 satisfier), no crash.
     writeRecords(store, storyId, [ra, q]);
