@@ -54,6 +54,28 @@
         "scanEscalationReason": null
       },
       "_hash": "151dbe8f7e03ca9250487d000040746a6d13d06f09ebe903ea50c97878c7e300"
+    },
+    {
+      "id": "B-ec67:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 verification of F-008 (commit 64bf559611), orthogonal precision fix landed after RP-001. Confirmed: (1) verificationEvidenceSchema now explicit .strip()s mechanical/receipt/nonMechanicalReason -- via the real CLI (spawned lattice checklist_update binary, JSON payload including a fabricated mechanical:true+fake receipt) the fields are stripped before the handler runs and the resulting raw executable row is refused with checklist_update_executable_evidence_unenforced, nothing persisted. (2) carryForwardOnDiskProvenance also strips caller-supplied provenance on the INTERNAL fn-call path (bypassing Zod entirely, calling handlers.checklist_update directly with mechanical:true+fabricated receipt and no prior on-disk evidence for the intentRef) -- still refused, nothing persisted, coverage stays missing. (3) re-ran my original F-007 fabricated-command repro -- still refused, unchanged. (4) re-ran tool-executed-evidence-receipt-smoke.js end to end (rewritten test 12 exercises exactly this: fabricated caller receipt refused; genuine on-disk receipt seeded via verification_evidence_add then re-persisted via checklist_update with no receipt in the payload survives via on-disk carry-forward, stays covered) -- PASS. F-008 closes a genuine precision gap (a legitimate metadata-only re-persist of an already-earned receipt was previously vulnerable to silent loss because the pre-F-008 CLI schema never declared these fields, so Zod default-stripped them on any real CLI call even though the round-2 fix worked when tested by calling the handler in-process) without reopening caller-receipt injection. F-001 and F-007 both remain fixed; no new concept-completeness gaps found.",
+      "createdAt": "2026-07-26T02:17:51.008Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-007",
+      "envelopeId": "addd822367eedfef47de45d5ec94b2d4ecc9f9faf49a15715a406170030b1780",
+      "writerSessionId": "sess-8c39f97ecfc6609d02463177dc0a91d1",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "55ce3e69f9bd462d7c6ddd7d96d372c2d2b63f917da922aad061b2897e167734"
     }
   ]
 }
