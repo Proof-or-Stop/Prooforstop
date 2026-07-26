@@ -7,11 +7,12 @@
  * is the primary false-positive engine and belongs only to Phase-2 human
  * re-attestation (see background.md / decision.json principle 2).
  *
- * The drift-detection logic (detectDrift) arrives in CHK-002; the read-only CLI
- * handler in CHK-003. This module is the shared foundation both build on.
+ * CHK-002 adds the pure drift-detection Fn (detectDrift); the read-only CLI
+ * handler arrives in CHK-003. This module is the shared foundation both build on.
  */
 
 import { digestText } from './digest.js';
+import type { FrozenClaimSnapshot } from './types.js';
 
 /**
  * Deterministically normalize a claim string for digesting:
@@ -36,4 +37,54 @@ export function normalizeClaim(s: string): string {
  */
 export function claimDigest(s: string): string {
   return digestText(normalizeClaim(s));
+}
+
+/**
+ * B-2296 CHK-002: the bidirectional drift verdict for one frozen claim.
+ *
+ * - `driftKind` reports WHAT moved: `claim` (the normalized claim digest changed),
+ *   `material` (the story-owned storyFilesHash moved), `both`, or `none`.
+ * - `classification` distinguishes a snapshot-bound claim (`bound`) from a
+ *   pre-feature claim with no snapshot (`legacy-unbound`, never an error — grandfathered).
+ */
+export interface FrozenClaimDriftVerdict {
+  driftKind: 'claim' | 'material' | 'both' | 'none';
+  classification: 'bound' | 'legacy-unbound';
+  claimDrifted: boolean;
+  materialDrifted: boolean;
+}
+
+/**
+ * B-2296 CHK-002: PURE Fn — no I/O, no git, no fs. It takes PRE-COMPUTED inputs
+ * (the snapshot pinned at attestation time + the freshly measured current digest
+ * and storyFilesHash) and returns a bidirectional drift verdict.
+ *
+ * Bidirectional binding (decision B): drift in EITHER the normalized claim text OR
+ * the story-owned material voids the attestation.
+ *   - `claimDrifted` = snapshot.normalizedClaimDigest !== current.currentNormalizedDigest
+ *   - `materialDrifted` = snapshot.storyFilesHash !== current.currentStoryFilesHash
+ *
+ * The material comparison is a plain storyFilesHash string compare — that IS the
+ * rename-aware, story-diff-scoped signal: storyFilesHash already encodes the content
+ * of the story-owned files (unrelated main-merge / whole-tree churn is excluded by
+ * construction), so an unrelated file change never moves it and never fires drift.
+ *
+ * A missing snapshot (`!snapshot`) is `legacy-unbound` — a grandfathered claim with
+ * no attestation to drift against, NEVER an error.
+ */
+export function detectDrift(
+  snapshot: FrozenClaimSnapshot | undefined,
+  current: { currentNormalizedDigest: string; currentStoryFilesHash: string },
+): FrozenClaimDriftVerdict {
+  if (!snapshot) {
+    return { classification: 'legacy-unbound', driftKind: 'none', claimDrifted: false, materialDrifted: false };
+  }
+  const claimDrifted = snapshot.normalizedClaimDigest !== current.currentNormalizedDigest;
+  const materialDrifted = snapshot.storyFilesHash !== current.currentStoryFilesHash;
+  const driftKind: FrozenClaimDriftVerdict['driftKind'] =
+    claimDrifted && materialDrifted ? 'both'
+      : claimDrifted ? 'claim'
+        : materialDrifted ? 'material'
+          : 'none';
+  return { driftKind, classification: 'bound', claimDrifted, materialDrifted };
 }

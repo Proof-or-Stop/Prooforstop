@@ -13,7 +13,8 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { normalizeClaim, claimDigest } from '../core/frozen-claim-drift.js';
+import { normalizeClaim, claimDigest, detectDrift } from '../core/frozen-claim-drift.js';
+import type { FrozenClaimSnapshot } from '../core/types.js';
 
 // ── 1. normalizeClaim collapses arbitrary whitespace deterministically. ─────────
 {
@@ -62,13 +63,81 @@ import { normalizeClaim, claimDigest } from '../core/frozen-claim-drift.js';
   console.log('✓ empty / whitespace-only string normalizes to "" and digests without throwing');
 }
 
+// ── CHK-002: detectDrift is a PURE, bidirectional drift verdict. ────────────────
+// Deterministic + offline: construct the snapshot + current inputs directly (no real
+// git). storyFilesHash strings are opaque here — a plain string compare IS the
+// story-diff-scoped, rename-aware material signal.
+{
+  const CLAIM = 'the file hello.txt was created';
+  const SFH_A = 'a'.repeat(64); // story-owned material hash at attestation time
+  const SFH_B = 'b'.repeat(64); // story-owned material moved (a story-owned file changed)
+  const baseSnapshot: FrozenClaimSnapshot = {
+    normalizedClaimDigest: claimDigest(CLAIM),
+    storyFilesHash: SFH_A,
+    headHash: 'deadbeef'.repeat(5),
+    attestedAt: '2026-07-26T00:00:00.000Z',
+    materialHash: 'c'.repeat(64),
+  };
+
+  // 5a. Material drift: same claim digest, DIFFERENT storyFilesHash → 'material'.
+  {
+    const v = detectDrift(baseSnapshot, { currentNormalizedDigest: claimDigest(CLAIM), currentStoryFilesHash: SFH_B });
+    assert.equal(v.driftKind, 'material', 'story-owned material moved → material drift');
+    assert.equal(v.classification, 'bound', 'a snapshot-bound claim is classified bound');
+    assert.equal(v.materialDrifted, true, 'materialDrifted flag set');
+    assert.equal(v.claimDrifted, false, 'claim text unchanged → claimDrifted false');
+    console.log('✓ material drift (same digest, different storyFilesHash) → driftKind=material');
+  }
+
+  // 5b. Claim edit: DIFFERENT claim digest, same storyFilesHash → 'claim'.
+  {
+    const edited = 'the file hello.txt was DELETED'; // a real, non-whitespace text edit
+    const v = detectDrift(baseSnapshot, { currentNormalizedDigest: claimDigest(edited), currentStoryFilesHash: SFH_A });
+    assert.equal(v.driftKind, 'claim', 'userSees text edited → claim drift (bidirectional binding)');
+    assert.equal(v.classification, 'bound', 'still bound');
+    assert.equal(v.claimDrifted, true, 'claimDrifted flag set');
+    assert.equal(v.materialDrifted, false, 'material unchanged → materialDrifted false');
+    console.log('✓ claim edit (different digest, same storyFilesHash) → driftKind=claim');
+  }
+
+  // 5c. Both changed → 'both'.
+  {
+    const edited = 'a completely different promise';
+    const v = detectDrift(baseSnapshot, { currentNormalizedDigest: claimDigest(edited), currentStoryFilesHash: SFH_B });
+    assert.equal(v.driftKind, 'both', 'claim AND material moved → both');
+    assert.equal(v.claimDrifted, true, 'claimDrifted set');
+    assert.equal(v.materialDrifted, true, 'materialDrifted set');
+    console.log('✓ both claim + material changed → driftKind=both');
+  }
+
+  // 5d. Unchanged → 'none'. This is the "unrelated change → NO drift" guard at the pure
+  // level: an unrelated (non-story-owned) file does not move storyFilesHash, so the
+  // current storyFilesHash equals the snapshot's and no drift fires.
+  {
+    const v = detectDrift(baseSnapshot, { currentNormalizedDigest: claimDigest(CLAIM), currentStoryFilesHash: SFH_A });
+    assert.equal(v.driftKind, 'none', 'identical digest + identical storyFilesHash → no drift');
+    assert.equal(v.classification, 'bound', 'still bound');
+    assert.equal(v.claimDrifted, false, 'no claim drift');
+    assert.equal(v.materialDrifted, false, 'no material drift (unrelated churn excluded by construction)');
+    console.log('✓ unchanged (same digest, same storyFilesHash) → driftKind=none (unrelated change → NO drift)');
+  }
+
+  // 5e. Undefined snapshot → legacy-unbound (grandfathered, never an error).
+  {
+    const v = detectDrift(undefined, { currentNormalizedDigest: claimDigest(CLAIM), currentStoryFilesHash: SFH_A });
+    assert.equal(v.classification, 'legacy-unbound', 'a userSees with no snapshot is legacy-unbound');
+    assert.equal(v.driftKind, 'none', 'legacy-unbound never reports drift');
+    assert.equal(v.claimDrifted, false, 'no claim drift on legacy-unbound');
+    assert.equal(v.materialDrifted, false, 'no material drift on legacy-unbound');
+    console.log('✓ undefined snapshot → classification=legacy-unbound');
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// PLACEHOLDER for CHK-002 / CHK-003 / CHK-004 to extend:
-//   - CHK-002 detectDrift cases: material drift under a frozen userSees → detected;
-//     userSees text edited → detected; unrelated file change → NO drift; whitespace-only
-//     userSees edit → NO drift; userSees with no snapshot → legacy-unbound.
+// PLACEHOLDER for CHK-003 / CHK-004 to extend:
 //   - CHK-003 CLI-level case: frozen_claim_drift_check prints the structured advisory.
-//   - CHK-004 assert the advisory is NON-blocking (changes no gate verdict).
+//   - CHK-004 assert the advisory is NON-blocking (changes no gate verdict) + add the
+//     whitespace-only userSees edit → NO drift false-positive guard case.
 // Do NOT delete this marker; append the new blocks above the final PASS line.
 // ─────────────────────────────────────────────────────────────────────────────
 

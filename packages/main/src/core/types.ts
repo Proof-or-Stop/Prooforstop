@@ -819,6 +819,16 @@ export interface ChecklistItem {
    */
   verificationIntent?: VerificationIntent;
   verificationEvidence?: VerificationEvidence[];
+  /**
+   * B-2296 (evidence-integrity §5 follow-on, Phase 1): immutable frozen-claim
+   * snapshot pinned onto this item's `userSees` at attestation time (the
+   * checklist_update status→done transition). Written exactly once, when the
+   * item first transitions to done with a non-empty userSees and no prior
+   * snapshot; NEVER re-taken on a read or a later re-persist (B-ec67 pin-once
+   * model). Absent on legacy items and on items with an empty/absent userSees —
+   * detectDrift classifies a missing snapshot as `legacy-unbound` (never an error).
+   */
+  userSeesSnapshot?: FrozenClaimSnapshot;
   /** @deprecated Legacy item phase from TEST_CASE lifecycle. New flow uses DEV/REVIEW/TEST only. */
   phase?: 'DEV' | 'TEST_CASE';
   /** @deprecated Legacy testIntent kept for old story data and compatibility helpers. */
