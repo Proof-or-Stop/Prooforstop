@@ -36,6 +36,38 @@
         "scanEscalationReason": null
       },
       "_hash": "374686cf24b5c404bd72c51dc726909aeafa0b8916a17e0987d1b0e6c66db594"
+    },
+    {
+      "id": "B-7813:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review of fix commit a72c3e5308 (F-001/F-002/F-003). (1) config.ts: stall_resolution_set added to DEFAULT_PHASE_TOOLS.DEV and .REVIEW, placed adjacent to finding_cluster with the same B-7813 inline-rationale comment style as peer entries; matches command-policy allowedPhases:[DEV,REVIEW] exactly, no other phase bucket touched. (2) lifecycle-registry-contract.ts: new converse check (3) in checkCommandDimension reuses the same resolveDefaultPhaseToolsCommands/lifecycleResolvedCommandsForPhase helpers as the existing check (2), just flips the subset direction (policy-per-phase subset-of phase-tools) -- no new unsafe assumption, symmetric with proven logic. PHASE_TOOLS_REACHABILITY_EXEMPTIONS is a documented ReadonlySet (currently empty) with a paired stale-exemption guard that fails the contract if a seeded exemption becomes reachable everywhere -- adding an exemption is an explicit, reviewable diff line, not a silent runtime bypass, and staleness cannot go unnoticed. (3) partG in the smoke spawns the REAL cli.js via execFileSync across a materialized git worktree checked out on story/<id> (matching detectActiveStory branch-keyed semantics), asserts a positive control (delivery_check_set, a TEST-only command, IS phase-blocked with the exact `Command X is not available in Y phase` string sourced from cli-engine.ts:850) before asserting stall_resolution_set is NOT phase-blocked in DEV/REVIEW -- ruling out a false-green from a detectActiveStory miss; not a tautology. Ran npm --prefix packages/main run build twice (clean, exit 0) and executed dist/tasks/review-budget-stall-adjudication-smoke.js directly (PASS, all parts A-G). Verified via git diff a72c3e5308..HEAD --stat -- packages/main/src that zero source files changed after the fix commit (only story-metadata commits landed concurrently in this shared worktree -- confirmed by identical materialHash 26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479 across RR-005 and RR-007), so core/stall-adjudication.ts, core/review-convergence.ts, core/convergence-breaker.ts and handlers/stall-adjudication.ts are byte-identical to what round-1 quality review already covered clean (purity, ceiling-before-resolution, override re-validation, empty-scope floor, breaker independence all unchanged). No findings.",
+      "createdAt": "2026-07-26T09:35:57.120Z",
+      "reviewRound": "2026-07-26T09:26:17.405Z",
+      "reviewRunId": "B-7813:RR-007",
+      "envelopeId": "3a256d3d3bf281c4645ec834bcdf47819e8d18b8e6f751213427980ec1bbc881",
+      "writerSessionId": "sess-3be7f62392d8c04c609773a573566f1e",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-7813/background.md",
+          ".lattice/story/actives/B-7813/checklist.json",
+          ".lattice/story/actives/B-7813/plan.md",
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/stall-adjudication.ts",
+          "packages/main/src/handlers/stall-adjudication.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "929f96439dfbdd73d3d21d049725abe77e299fdd2858925c48fe23b6e6db0f18"
     }
   ]
 }
