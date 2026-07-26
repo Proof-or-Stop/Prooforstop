@@ -62,11 +62,11 @@
           "file": "packages/main/src/core/red-evidence/record-v2.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 1 (lines 189-194) builds a quarantine v2 record and asserts it OMITS observedFailure/baselineHeadHash/baselineMaterialHash/greenRelation/specDigest/assertion/policySnapshot/runReceipt and carries only recoversRecordId/referencedRecordDigest/linkKind/reason/approvedBy/operationKey (0.4 field-set omission).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the previous citation (chain-smoke section 1, line offsets) pointed into the gitignored compiled dist build, whose numbering re-stales on every rebuild. Durable anchor: packages/main/src/tasks/red-evidence-chain-smoke.ts, section 1 banner (v2 record union - per-operation field sets + 0.4 nullability/omission, CHK-001), the quarantine record q built from qDraft plus computeRecordDigest. Asserted there: isControlRecordV2(q) is true (message: quarantine is a control record); a loop over observedFailure, baselineHeadHash, baselineMaterialHash, greenRelation, specDigest, assertion, policySnapshot and runReceipt asserts the field is NOT in q (templated message: quarantine record OMITS <field> - 0.4 field-set omission); a second loop asserts recoversRecordId, referencedRecordDigest, linkKind, reason, approvedBy and operationKey ARE in q (templated message: quarantine record carries <field>). The control record therefore carries only the control field set, and the run-record fields are absent rather than present-and-null.",
+          "headHash": "ecb33b06c42a101c6b90311256edb2d787270692",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:40:11.618Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
