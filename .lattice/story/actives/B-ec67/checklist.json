@@ -569,9 +569,9 @@
       "id": "CHK-006",
       "title": "Add a RED-first smoke proving the mechanism and register it in validate",
       "context": "RED first: an evidence row whose selector is absent from output must be REFUSED after the fix and (demonstrably) was accepted before. Cover BOTH verification_evidence_add and verification_evidence_batch_add: selector-absent refused; intentRef-not-resolving refused; pinned-command-mismatch refused; exit!=0-but-pass refused; happy path (selector present, exit 0) writes a receipt with real exitCode/outputDigest/outputTail; pin immutability (second write changing command/selector refused); manual intent stays attestation-only and is not scored as a receipt. Register under packages/main/src/tasks and lattice.config.json validate.commands + package.json.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T00:28:53.033Z",
       "files": {
         "modify": [
           "lattice.config.json",
