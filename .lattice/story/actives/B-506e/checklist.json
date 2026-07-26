@@ -307,15 +307,14 @@
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-run in round 4 after the file changed elsewhere; the case backing THIS intent is itself unchanged and was never vacuous. Lines 154-156 store ONLY the v2 quarantine record, so there is no satisfying v1 record for some() to short-circuit on; the assertion is that missingRedEvidence is non-empty — the gate reports missing red evidence rather than crashing. Against a dist built from git archive 8727b2db83 this same case throws TypeError at record.observedFailure.trim() instead of returning a verdict. Commit 85f60fcbf4.",
-          "headHash": "a3184745fe6c6b53ba7e5cde4177b9a56491251e",
+          "note": "F-015 re-anchor: the old note cited line offsets. Durable anchor: red-w2c-gate-guard.mjs, the arrangement introduced by the comment (A v2-only store: missingRedEvidence fires, no v1 satisfier, still no crash) - writeRecords stores v2Quarantine alone and the live gate runs on it; the assertion message is (a v2-only store has no v1 satisfier so missing_red_evidence fires, not a crash). With no satisfying v1 record in the array there is nothing for some() to short-circuit on, so the predicate necessarily reaches the v2 record. Against a dist built from git archive 8727b2db83 this same case throws TypeError at record.observedFailure.trim() instead of returning a verdict.",
+          "headHash": "42ccee870aa27d3e34cded4c013b4ae8f2805fc1",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:18:19.506Z"
+          "timestamp": "2026-07-26T01:40:53.324Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
