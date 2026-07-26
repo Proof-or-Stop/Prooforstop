@@ -124,7 +124,11 @@
           {
             "desc": "after material drift, refresh re-runs the pinned command and re-issues a mechanical receipt bound to current material (not demoted) when it still passes",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -150,7 +154,28 @@
         "test": [
           "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Smoke B1 asserts after material drift the refresh re-executes the pin and the row stays mechanical:true bound to the NEW materialHash (fresh executedAt), not demoted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T05:33:31.336Z"
+          },
+          "headHash": "762308839b36b81b737dc6533be7675988e641bc",
+          "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
+          "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
+          "timestamp": "2026-07-26T05:33:31.451Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
