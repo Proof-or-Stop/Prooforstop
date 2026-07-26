@@ -6,7 +6,30 @@
       "context": "buildPhaseTransitionProcessEvent (transition-orchestrator.ts) gains optional transitionType/reason appended only when defined; the call site passes { transitionType: 'reopen', reason: args.reason?.trim() } only when eventType === 'REOPEN'. Normal transitions must keep a byte-identical event shape so the flow-stability deepEqual shape test and all phase_transition consumers stay green. Reference: commit 05385c9.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A PLAN->INIT reopen with a valid reason appends a phase_transition event whose reason matches verbatim and whose transitionType is 'reopen', read back from the real persisted JSONL",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A normal (non-REOPEN) transition produces a phase_transition event with neither transitionType nor reason, byte-identical to the pre-change shape",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reopen refused for a missing or too-short reason leaves the phase at PLAN and appends no event claiming a successful PLAN->INIT transition",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
