@@ -363,6 +363,24 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-020",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:2690-2691 (namedNearby, commit c2e20023e1): for the three requireSelfMention files (command-policy.ts, config.ts, process-fact-levels.ts), self-mention scoping is bounded to sourceLines.slice(line-4, line+3), a ~7-line window. Reproduced with the exact extracted logic: a synthetic command-policy.ts-shaped entry with `quorum_prune: {` on line 2 and a stale `reason: apply:true...` string moved to line 13 (10 lines below the key, still inside one JS object literal spanning the same entry) yields discovered=[] -- the site never enters `discovered` at all, so it contributes neither a failure nor a floor-count decrement; it is completely invisible, the same silently-missed outcome F-016/F-017 already flagged for the old regex sweep. This is lower-likelihood than F-018/F-019 today because all three requireSelfMention files currently write each entry as a single line (verified: every command-policy.ts entry, including quorum_prune itself, is one line; process-fact-levels.ts and config.ts likewise) -- but the guard exists precisely to survive a future editor reformatting one of those entries onto multiple lines, a completely ordinary JS style (and already the dominant style used elsewhere in this same story, e.g. quorum-prune.ts contractSources array and QuorumPruneArgs JSDoc fields), and the widened window described in the commit message (\"scoping is wide... answered over the surrounding lines\") is not actually wide enough to survive it. WHY: the fix explicitly reframes scoping vs pairing as intentionally different granularities to close F-017, but the chosen scoping granularity (+-3/4 lines) is still a fixed line-count window rather than being anchored to the enclosing syntactic entry (e.g. the object literal or array element containing the prose), so it inherits the same structural fragility as the parts of the guard it replaced.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T05:48:15.495Z",
+      "reviewRound": "2026-07-26T05:33:47.701Z",
+      "reviewRunId": "B-3144:RR-019",
+      "_hash": "93f86cf10dce75bdc492e38bdfa48672a31f44bc6da59ecea6e7acd8f1d91586",
+      "files": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
