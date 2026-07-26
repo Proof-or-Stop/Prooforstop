@@ -115,9 +115,29 @@ assert.doesNotThrow(() => {
 }, 'the LIVE enforce gate MUST NOT throw with the v2 quarantine record after the v1 record either');
 assert.equal(afterV1First, before, 'the v1 gate verdict is BYTE-IDENTICAL in either record order');
 
+// A MALFORMED HYBRID: a v2 record that DOES carry every v1 field, including a
+// non-empty observedFailure and a well-formed greenRelation, so it would satisfy
+// the v1 predicate field-by-field. The schemaVersion discriminant — not field
+// presence — must govern the skip, otherwise a v2 record could satisfy the v1
+// gate. Stored ALONE so nothing can short-circuit past it: if the discriminant
+// did not govern, missingRedEvidence would NOT fire here.
+const v2Hybrid = {
+  ...v2Quarantine,
+  id: 'QUA-abc123abc123-9',
+  trigger: 'auth regression', failingCommand: 'npm test', observedFailure: 'assertion failed',
+  baselineHeadHash: 'base-head', baselineMaterialHash: 'base-mat',
+  greenRelation: { targetRef: 'M1', relation: 'same_acceptance', greenHeadHash: 'green-head', greenMaterialHash: 'green-mat' },
+};
+writeRecords(store, storyId, [v2Hybrid]);
+const hybridOnly = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence;
+assert.ok(
+  hybridOnly.length > 0,
+  'a v2 record carrying a complete, valid v1 field set MUST NOT satisfy the v1 predicate — the schemaVersion discriminant governs the skip, not field presence',
+);
+
 // A v2-only store: missingRedEvidence fires (no v1 satisfier), still no crash.
 writeRecords(store, storyId, [v2Quarantine]);
 const v2Only = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence;
 assert.ok(v2Only.length > 0, 'a v2-only store has no v1 satisfier → missing_red_evidence fires (not a crash)');
 
-console.log('red-w2c-gate-guard: OK (live enforce gate does not throw on a v2 record; v1 verdict byte-identical; v2-only store reports missing not crash)');
+console.log('red-w2c-gate-guard: OK (live enforce gate does not throw on a v2 record ordered BEFORE any satisfying v1 record; v1 verdict byte-identical in either order; a v2 record with a complete valid v1 field set still does not satisfy the v1 predicate; v2-only store reports missing not crash)');
