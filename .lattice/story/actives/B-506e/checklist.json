@@ -662,11 +662,11 @@
           "file": "packages/main/src/core/red-evidence/chain.ts",
           "command": "node packages/main/dist/tasks/red-evidence-chain-smoke.js",
           "result": "pass",
-          "note": "chain-smoke section 7 (lines 427-428) appends a second red-assert head then attempts to quarantine the now-non-head seq-1 record and asserts it throws (/not the current chain head/) — only the head can be quarantined (also red-w2c-rejection-matrix line 132).",
-          "headHash": "b55580cf98b44d21b28c9de293e88e70a5e07438",
-          "materialHash": "719d30e8590a8c69e72696b2e1bbdc916b191b41c247025a9e3d2ac497fb0657",
-          "storyFilesHash": "f4e50f7107a5b9bc08d8d2a049a51bc668a2bd8584474e40b7c2991d5f0a498e",
-          "timestamp": "2026-07-26T00:36:24.583Z"
+          "note": "F-015 re-anchor: the old citation was dist line offsets plus red-w2c-rejection-matrix line offsets. Durable anchor: section 7 of red-evidence-chain-smoke.ts, the block under the comment (Quarantine of a NON-head record REJECTED): a second red-assert ra2 is written so the seq-1 record ra is no longer the head, and the registered quarantine handler called on ra is asserted to throw matching not the current chain head, under the message (quarantine of a non-head record is rejected). Committed regression: red-w2c-rejection-matrix.mjs matrix item 4, message: quarantine of non-head rejected.",
+          "headHash": "20ef3459b71217b23a329001a57816f205863d67",
+          "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
+          "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
+          "timestamp": "2026-07-26T01:41:42.727Z"
         },
         {
           "intentRef": "CHK-005:adversarial:4",
