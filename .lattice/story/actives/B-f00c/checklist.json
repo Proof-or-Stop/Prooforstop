@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "One shared merge-lineage classifier (net endpoint diff, -z, maxBuffer, empty-diff means trusted, split catch) routes both the reuse and admissibility copies",
+      "context": "Extract a shared helper (netDiffChangedPaths(evidenceHead,currentHead,gitCwd) + a shared lineage classifier) and route BOTH classifyTrustedValidationLineage (packages/main/src/core/validation-evidence-reuse.ts:251) and validationHeadLineage (packages/main/src/core/validation-evidence-admissibility.ts:42) through it. Net diff: git diff-tree -r --no-commit-id --name-only --no-renames -z <E> <C> with maxBuffer 1024*1024*1024; split on NUL. Empty net diff means trusted (remove the changed.length===0 -> rejected/empty-descendant-lineage/lineage_empty push). Split the try/catch so only merge-base --is-ancestor stays in the ancestry catch and a netDiffChangedPaths failure surfaces a distinct reason instead of mislabeling as not-ancestor. Keep the exact-head fast-path, the ancestor gate, and the isStoryMetadataPath untrusted filter unchanged; do not touch the other 8 reuse factors.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "RED-first smoke reproduces the merge false-positive on both reuse and admissibility paths, with negative and robustness tests",
+      "context": "New smoke (pattern per packages/main/src/tasks/evidence-refresh-smoke.ts: mkdtemp + git init + seed). (a) RED on unfixed code: merge a main branch lacking the story's committed source file, then assert classifyTrustedValidationLineage AND validationHeadLineage return rejected with untrusted-lineage-path/lineage_untrusted despite identical material/storyFiles/identity. (b) GREEN after fix: both return trusted; evaluateRoutineValidationReuse reusable=true and admissibility ok. (c) NEGATIVE (protection preserved): a genuine content change to a non-metadata file at the endpoint STILL refuses on both paths. (d) empty-net-diff between distinct heads means trusted; and a large-diff case exercising maxBuffer does not throw ENOBUFS. Wire the smoke into lattice.config.json validate.commands normal tier.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
