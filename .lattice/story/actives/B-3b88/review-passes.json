@@ -291,6 +291,44 @@
         "scanEscalationReason": null
       },
       "_hash": "f0a23c2c193c7e78c81b18c22967856cc95ef74c5a4455f337d0cbcc9247da32"
+    },
+    {
+      "id": "B-3b88:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Re-attestation at current material (post B-ec67 merge + F-004 fix). Extracted ~40 diff symbols (detectEvidenceRowContradiction, isCommandBackedPass, SCRIPT_EXT_RE, commandTargetStem, scriptFileStem). Verified 6 doc paragraphs referencing refresh_stale semantics across 4 files: command-catalog.ts schema description, story-lifecycle.md (stale-evidence bullet, command table row, per-command semantics bullet), testing-infra.md command table row, evidence-stale-hint.ts JSDoc example + matching renderer string. All consistently state refresh_stale re-stamps command-less attestation only and refuses command-backed result:pass rows, matching checklist.ts/verification.ts implementation. No stale/conflicting mentions elsewhere; no doc-promise-undelivered gaps. No blockers.",
+      "createdAt": "2026-07-26T11:16:42.867Z",
+      "reviewRound": "2026-07-26T11:14:01.717Z",
+      "reviewRunId": "B-3b88:RR-021",
+      "envelopeId": "1c6ebc50e0f7c61b5d7452ac02242229ab1df2e21219f557c3889d36dc8ec75d",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+          "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "92efaedfd70eef2113e822f015c8bec8a57573b5b7de155bef2fd551f1ee8e5d"
     }
   ]
 }
