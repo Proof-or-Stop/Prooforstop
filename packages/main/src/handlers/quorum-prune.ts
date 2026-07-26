@@ -17,9 +17,12 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 // drift-accept guard (CHK-002); this command is the OFFICIAL recovery for already-poisoned
 // stories, replacing hand-editing the append-only log.
 //
-// Containment (decision.json preMortems): dry-run is the default (no mutation without explicit
-// apply:true, and dryRun is a real declared schema flag so `--dryRun` is honored rather than
-// silently swallowed), a timestamped byte-identical backup is written before any rewrite —
+// Containment (decision.json preMortems): dry-run is the DEFAULT — omitting both flags never
+// mutates. Execution requires an explicit instruction: apply:true, or the equivalent dryRun:false
+// (a real declared schema flag, so `--dryRun` is honored rather than silently swallowed and
+// `--dryRun=false` is not a silent no-op). Either explicitly contradictory pair, apply:true with
+// dryRun:true or apply:false with dryRun:false, is REFUSED rather than silently resolved. A
+// timestamped byte-identical backup is written before any rewrite —
 // named `process-events.jsonl.<stamp>.bak` so it matches the repository's existing `*.bak`
 // ignore pattern and leaves no untracked dirt behind — and the rewrite is committed through the
 // SAME lifecycle-metadata transaction machinery quorum_submit uses so the pre-dirty refusal,
@@ -195,7 +198,7 @@ function formatPruneResult(result: QuorumPruneResult): string {
     lines.push(`metadataCommitSha: ${result.metadataCommitSha}`);
     lines.push(`removedVerdictFiles: ${result.removedVerdictFiles.length}`);
   } else {
-    lines.push('note: dry-run only — re-run with apply:true to back up, prune, and commit.');
+    lines.push('note: dry-run only — re-run with apply:true (or dryRun:false) to back up, prune, and commit.');
   }
   return lines.join('\n');
 }
@@ -221,6 +224,16 @@ export function createQuorumPruneHandlers(ctx: HandlerContext) {
           'quorum_prune refuses: pass either apply:true or dryRun:true, not both. dryRun:true only '
           + 'projects the duplicate groups (no backup, rewrite, or commit); apply:true backs up, '
           + 'rewrites, and commits. Omit dryRun (the default) and pass apply:true to actually recover.',
+        );
+      }
+      // The symmetric conflict must refuse too, and for the same reason: apply:false says "do not
+      // execute" while dryRun:false says "do not project". Resolving it silently would pick the
+      // MORE dangerous side (a real backup + rewrite + commit) against an explicit apply:false.
+      if (args.apply === false && args.dryRun === false) {
+        throw new Error(
+          'quorum_prune refuses: apply:false and dryRun:false contradict each other — apply:false '
+          + 'says do not execute, dryRun:false says do not project. Pass apply:true (or dryRun:false '
+          + 'alone) to recover, or omit both for the default projection.',
         );
       }
       const apply = args.apply === true || args.dryRun === false;

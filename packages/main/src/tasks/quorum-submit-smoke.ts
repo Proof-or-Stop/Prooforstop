@@ -2533,6 +2533,57 @@ try {
     });
   });
 
+  check('quorum_prune refuses the symmetric apply:false + dryRun:false conflict', () => {
+    // F-012 RED: the F-010 fix resolved `apply === true || dryRun === false`, so {apply:false,
+    // dryRun:false} silently EXECUTED a backup+rewrite+commit against an explicit apply:false —
+    // resolving a contradiction toward the more dangerous side, which is exactly what the
+    // conflict rule exists to prevent. Both contradictory pairs must refuse.
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const conflict = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, apply: false, dryRun: false })]);
+      const conflictOut = `${conflict.stdout}\n${conflict.stderr}`;
+      assert.notEqual(conflict.status, 0, `apply:false + dryRun:false must fail: ${conflictOut}`);
+      assert.match(conflictOut, /apply:false and dryRun:false contradict each other/i, conflictOut);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'the symmetric conflict makes no commit');
+      assert.equal(storyBackupFiles(fixture).length, 0, 'the symmetric conflict writes no backup');
+
+      // apply:false alone still projects rather than executing.
+      const applyFalse = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, apply: false, json: true })]);
+      assert.equal(applyFalse.status, 0, `${applyFalse.stdout}\n${applyFalse.stderr}`);
+      assert.equal((JSON.parse(applyFalse.stdout.trim()) as { applied: boolean }).applied, false, 'apply:false projects only');
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'apply:false makes no commit');
+    });
+  });
+
+  check('every quorum_prune apply/dryRun description states both executors', () => {
+    // F-011 RED: the F-010 fix updated only the dryRun field description and one comment, leaving
+    // five other prose sites claiming apply:true was the sole mutation trigger — including the
+    // catalog's top-level description, which is the FIRST line of --help and contradicted the
+    // corrected flag description a few lines below it in the same output. Assert every one of
+    // those user-facing/audit descriptions names both executors so the drift cannot silently recur.
+    const catalogSource = readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/cli/command-catalog.ts'), 'utf8');
+    const factSource = readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/process-fact-levels.ts'), 'utf8');
+    const policySource = readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/command-policy.ts'), 'utf8');
+    const catalogEntry = catalogSource.slice(catalogSource.indexOf("{ name: 'quorum_prune'"));
+    const catalogDescription = catalogEntry.slice(0, catalogEntry.indexOf('schema:'));
+    const factRow = factSource.split('\n').find(line => line.includes("name: 'quorum_prune'")) ?? '';
+    const policyRow = policySource.split('\n').find(line => line.includes('quorum_prune: {')) ?? '';
+    for (const [label, prose] of [
+      ['catalog top-level description', catalogDescription],
+      ['process-fact rationale', factRow],
+      ['command-policy reason', policyRow],
+    ] as const) {
+      assert.ok(prose.length > 0, `${label} was not found`);
+      assert.match(prose, /dryRun:false/, `${label} must name dryRun:false as an executor`);
+      assert.doesNotMatch(
+        prose,
+        /\(apply:true required to mutate\)/,
+        `${label} must not claim apply:true is the only mutation trigger`,
+      );
+    }
+  });
+
   console.log(`\n✓ quorum_submit smoke passed (${passed} checks)`);
 } finally {
   process.chdir(previousCwd);
