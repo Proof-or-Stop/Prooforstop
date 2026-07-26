@@ -2747,19 +2747,22 @@ try {
       const scopeSf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
       const namedNearby = (line: number): boolean => {
         const offset = scopeSf.getPositionOfLineAndCharacter(Math.max(0, line - 1), 0);
-        // F-022 RED: keeping only the INNERMOST enclosing node broke the guarantee this comment
-        // makes. Reformat `quorum_prune: { reason: '...apply:true...' }` across lines and the
-        // innermost enclosing PropertyAssignment becomes `reason:` itself, whose text does not
-        // contain the command name (the key is a sibling on another line) — so both this check
-        // and the line fallback failed and the site left the sweep silently. Any ANCESTOR naming
-        // the command puts the prose in range, which is what "however that entry is formatted"
-        // has to mean: the `quorum_prune:` key always encloses the reason string it owns.
+        // The question is "which command's entry owns this prose", so match the KEY, not the text.
+        // F-022 RED: keeping only the innermost enclosing node answered it wrongly — reformat
+        // `quorum_prune: { reason: '...apply:true...' }` across lines and the innermost node is
+        // `reason:` itself, whose text lacks the command name, so the site left the sweep.
+        // F-023 RED: widening that to "any ancestor whose TEXT contains quorum_prune" answered it
+        // wrongly in the other direction — each of these files holds its whole command table in
+        // ONE top-level statement, which trivially contains the name, so every row in the table
+        // matched, including the sibling commands this sweep must leave alone.
+        // A property whose KEY is the command name is exactly the entry that owns its own prose:
+        // it encloses the reason string however that entry is wrapped, and a sibling entry keyed
+        // `quorum_submit` never matches no matter what the enclosing table contains.
         let named = false;
         const visit = (node: ts.Node): void => {
           if (named) return;
           if (node.getFullStart() > offset || node.getEnd() < offset) return;
-          if ((ts.isPropertyAssignment(node) || ts.isVariableStatement(node) || ts.isExpressionStatement(node))
-            && node.getText().includes('quorum_prune')) {
+          if (ts.isPropertyAssignment(node) && node.name.getText().replace(/['"]/g, '') === 'quorum_prune') {
             named = true;
             return;
           }
