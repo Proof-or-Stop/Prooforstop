@@ -271,15 +271,14 @@
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "packages/main/tests/red/red-w2c-gate-guard.mjs",
           "command": "node packages/main/tests/red/red-w2c-gate-guard.mjs",
           "result": "pass",
-          "note": "Re-run in round 4 after the file changed. This artifact is still the one that literally writes a v2 quarantine record carrying NO observedFailure into a story red-evidence.json and runs the REAL enforce gate. Round-4 change: the labelled-vacuous [v1, v2Quarantine] companion kept in round 3 is gone (F-014); in its place lines 119-131 store [non-satisfying v1, v2Quarantine, satisfying v1], where the leading v1 record has a non-empty observedFailure but a foreign acceptanceTargetRef so the predicate rejects it without short-circuiting and the v2 record is genuinely evaluated mid-array. Both this and the v2-first case at lines 103-108 fail against a dist built from git archive 8727b2db83 with TypeError: Cannot read properties of undefined (reading 'trim') — verified separately for each by stripping the other so the case under test is the one reached. Commit 85f60fcbf4.",
-          "headHash": "0ad14bbddf3d0176a43911907dad2ea399a09362",
+          "note": "F-015 re-anchor: the old note cited line offsets. Durable anchor: the module-level consts v1, v2Quarantine and v1Unsatisfying in packages/main/tests/red/red-w2c-gate-guard.mjs. v2Quarantine is a literal v2 quarantine record with NO observedFailure; it is written into a real story red-evidence.json via store.writeRedEvidence and the REAL gate is run through evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(...)). Two placements reach the predicate: the v2-first store [v2Quarantine, v1] under the message (RED signal A: the LIVE enforce gate MUST NOT throw on a v2 quarantine record evaluated BEFORE any satisfying v1 record, no observedFailure), and the mid-array store [v1Unsatisfying, v2Quarantine, v1] under the message (the LIVE enforce gate MUST NOT throw on a v2 quarantine record placed MID-ARRAY behind a non-satisfying v1 record - some() does not short-circuit, so the v2 record IS evaluated). Both fail against a dist built from git archive 8727b2db83 with TypeError: Cannot read properties of undefined (reading trim), each verified with the other case stripped so the case under test is the one reached.",
+          "headHash": "572e168d4fe4651f0a8c3c1a061e106117f37cd0",
           "materialHash": "42745cc2316b8cabc38dd36b978db573ae79acb535140fc2bdb6dc999d702d85",
           "storyFilesHash": "bdd39d8c290de4b4c09f43d1cc260c60de430d0daab0a031829e971a91bf434c",
-          "timestamp": "2026-07-26T01:18:15.748Z"
+          "timestamp": "2026-07-26T01:40:48.315Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
