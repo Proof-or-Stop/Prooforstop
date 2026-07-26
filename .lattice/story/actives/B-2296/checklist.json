@@ -84,7 +84,30 @@
       "userSees": "A developer runs `lattice frozen_claim_drift_check --storyId=B-xxxx` on a story with drifted userSees and sees a JSON advisory carrying code FROZEN_CLAIM_DRIFT, driftKind, and actionRequired: re_attestation; a clean story reports zero drift and exits 0.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "frozen_claim_drift_check --storyId prints the structured FROZEN_CLAIM_DRIFT advisory (code, claimRef, driftKind, actionRequired, classification) for a drifted story and a clean report for a clean story",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the command is read-only: it writes no evidence or files and exits 0 for both clean and drifted stories",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the advisory never changes a gate verdict: running it against a drifted story does not fail review, delivery, or DONE gates (Phase 1 non-blocking invariant)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
