@@ -7,7 +7,8 @@
     "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "scripts/verify-process-fact-contract.mjs",
-    "packages/main/src/core/types.ts"
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/story-query.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -24,7 +25,7 @@
     "package.json",
     "packages/main/package.json"
   ],
-  "scopeChangeReason": "SECOND EXPANSION driven by cross-host review B-70a6-xhr-r3: independent host codex-host-b returned fail with a second MAJOR finding - 'Reopen state is persisted before its required audit event' (transition-orchestrator.ts:950). Verified directly against the source: writeStory lands the phase at line 937, the persist claim is released at line 940, and appendProcessEvent runs at line 950 OUTSIDE the claim. A crash or throw in that window leaves phase=INIT with no audit record, and because REOPEN can only fire from PLAN the story has already left the only phase that could retry it, so the event is UNRECOVERABLE. That directly defeats this story's durable-audited-reopen guarantee and matches the requester's own section 5 acceptance standard ('a successful PLAN->INIT transition must produce exactly one audit event containing the full reason; a failed transition must leave no event claiming success') and their prescribed remedy ('prepared/committed state; failure recovery or consistency check'). The main agent had previously and WRONGLY argued this was merely a pre-existing universal property and excluded it; it is universal in mechanism but uniquely unrecoverable for REOPEN, so the exclusion was incorrect and is hereby reversed. types.ts moves from protectedFiles to allowedModify solely to carry a recovery record on the story index so the reason can be persisted ATOMICALLY with the phase write (single tmp-write + rename) and a missing event can be reconciled afterwards. machine.ts, version-bump.ts and process-events.ts remain protected; transition legality, the release path and the shared append primitive must not change.",
+  "scopeChangeReason": "THIRD EXPANSION driven by REVIEW round 4 finding B-70a6:F-005 (high, lattice-review-behavior, independently corroborated by lattice-review-test-coverage). The F-004 fix established reconcilePendingReopenAudit at the top of runStoryTransitionInner, but the invariant 'no phase change can follow an unaudited reopen' is NOT framework-wide: story_discard (packages/main/src/handlers/worktree.ts:1428) and the zombie-story DONE-reconcile path (packages/main/src/handlers/story-query.ts:796) both mutate story.phase directly via store.writeStory without reconciling. Proven empirically in an isolated scratch repo: crash-inject the reopen audit append, then story_discard --force deletes the worktree and branch that held the pending record, the story reaches terminal DISCARDED with zero warning, and the audit event is PERMANENTLY lost - falsifying the implementer's documented residual #2 that recovery is merely deferred. Adding exactly one file, packages/main/src/handlers/story-query.ts, so the reconcile can be invoked at both out-of-band phase-mutation sites. machine.ts, version-bump.ts and process-events.ts remain protected.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -44,7 +45,7 @@
     }
   ],
   "createdAt": "2026-07-26T01:06:42.704Z",
-  "updatedAt": "2026-07-26T05:06:45.939Z",
+  "updatedAt": "2026-07-26T05:59:09.935Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -60,6 +61,7 @@
     "packages/main/package.json": "packages/main/package.json",
     ".lattice/story/actives/B-70a6/init-self-check.json": ".lattice/story/actives/B-70a6/init-self-check.json",
     "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
-    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/story-query.ts": "packages/main/src/handlers/story-query.ts"
   }
 }
