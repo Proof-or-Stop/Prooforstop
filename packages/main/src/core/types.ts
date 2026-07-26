@@ -159,6 +159,17 @@ export interface StoryEvent {
  * next transition and clears this record; `auditId` is the idempotency key that
  * makes that recovery emit EXACTLY ONE event, never two.
  *
+ * WHAT THAT DOES AND DOES NOT GUARANTEE. Recovery fires on the next ORCHESTRATED
+ * transition, and — since B-70a6 F-005 — at the two out-of-band phase writers
+ * (story_discard, the story_reconcile zombie repair) before they destroy the copy
+ * holding this record. It is NOT a concurrency guarantee: those two sites hold no
+ * lock, so a reopen that writes this record while one of them is already running
+ * can still lose both the record and its event — see
+ * CONCURRENCY RESIDUAL (B-70a6 F-013), documented in full on
+ * `reconcileReopenAuditBeforeOutOfBandPhaseChange`. Finding this record on disk
+ * therefore means "a reopen committed whose audit event may be missing", not
+ * "every committed reopen is guaranteed to leave one".
+ *
  * It is audit/recovery bookkeeping, NOT gate evidence: no gate consumes it.
  */
 export interface PendingReopenAudit {

@@ -308,8 +308,8 @@ async function assertReopenAuditCrashRecovery(): Promise<void> {
 // ── B-70a6 F-005: OUT-OF-BAND phase mutations must not destroy the record ────
 //
 // THE DEFECT. F-004's reconciliation runs at the top of runStoryTransitionInner,
-// which yields the invariant "no phase change can follow an unaudited reopen"
-// ONLY for phase changes that go through the orchestrator. Two production sites
+// which yields the invariant "no ORCHESTRATED phase change can follow an
+// unaudited reopen" — i.e. only for phase changes that go through it. Two production sites
 // mutate story.phase directly with store.writeStory and never reconcile:
 // story_discard (handlers/worktree.ts) and the story_reconcile zombie DONE
 // repair (handlers/story-query.ts). Both also DESTROY the copy that holds the
@@ -321,6 +321,18 @@ async function assertReopenAuditCrashRecovery(): Promise<void> {
 // to the MAIN root, so the handler's own store CANNOT SEE the record — it lives
 // in the doomed worktree copy. The event must be read from the doomed copy and
 // appended to the SURVIVING log.
+//
+// WHAT THESE TWO DRILLS PROVE, EXACTLY (CONCURRENCY RESIDUAL (B-70a6 F-013)).
+// They are SEQUENTIAL: the crash injection completes and the recovery record is
+// asserted durable BEFORE story_discard / story_reconcile is invoked, so what is
+// proven is "a record already on disk when the terminal operation starts is
+// rescued into the surviving log". They do NOT prove — and the code does not
+// claim — anything about a reopen RACING the terminal operation: the rescue
+// holds no per-story transition lock, so a record written after its scan is
+// still destroyed with the worktree. That race is a named residual and a
+// follow-up story; see reconcileReopenAuditBeforeOutOfBandPhaseChange. Writing a
+// drill for it here would be dishonest, because there is no serialization for it
+// to observe.
 const DISCARD_REOPEN_REASON = 'Discard drill: this reopen committed but crashed before its audit event, and story_discard must not erase it.';
 const ZOMBIE_REOPEN_REASON = 'Zombie drill: this reopen committed but crashed before its audit event, and the zombie DONE repair must not erase it.';
 

@@ -2682,13 +2682,15 @@ function assertPhaseTransitionReopenAuditContract() {
 
   // (6) ORDERED RECONCILIATION: a transition heals a crash-interrupted reopen
   // BEFORE it touches its own state, and retires the record only AFTER the event
-  // is durable. That ordering is the whole guarantee: no phase change can follow
-  // an unaudited reopen, and no record is dropped before its event exists.
+  // is durable. That ordering is the guarantee AT THIS CALL SITE: no ORCHESTRATED
+  // phase change can follow an unaudited reopen, and no record is dropped before
+  // its event exists. Out-of-band writers get only the narrower, unserialized
+  // version of it — see assertReopenAuditConcurrencyResidualContract.
   const reconcileCalls = transitionFn?.body ? collectCallExpressionsByName(transitionFn.body, 'reconcilePendingReopenAudit') : [];
   assert(reconcileCalls.length >= 2, `${orchestratorPath}: runStoryTransitionInner must both RECOVER an interrupted reopen at entry and RETIRE its own record after the append (found ${reconcileCalls.length} reconcilePendingReopenAudit call sites)`);
   const transitionAppends = transitionFn?.body ? collectMemberCalls(transitionFn.body, 'store', 'appendProcessEvent') : [];
   assert(transitionAppends.length === 1, `${orchestratorPath}: runStoryTransitionInner must keep exactly one phase_transition append site; found ${transitionAppends.length}`);
-  assert(reconcileCalls.length > 0 && phaseWrite && reconcileCalls[0].end < phaseWrite.end, `${orchestratorPath}: the entry reconciliation must run BEFORE this transition's own phase write, so a story can never advance while an unaudited reopen is still pending`);
+  assert(reconcileCalls.length > 0 && phaseWrite && reconcileCalls[0].end < phaseWrite.end, `${orchestratorPath}: the entry reconciliation must run BEFORE this transition's own phase write, so no ORCHESTRATED transition can advance a story while an unaudited reopen is still pending`);
   assert(reconcileCalls.length > 0 && transitionAppends.length > 0 && reconcileCalls[reconcileCalls.length - 1].end > transitionAppends[0].end, `${orchestratorPath}: the recovery record must be retired only AFTER its audit event has been appended (clearing it first re-opens the unrecoverable window)`);
 
   // (7) THE RECOVERY ITSELF: emits the missing event from the RECORD, guarded by
@@ -2798,7 +2800,7 @@ function assertOutOfBandReopenAuditRescueContract() {
   const orchestratorPath = 'packages/main/src/handlers/transition-orchestrator.ts';
   const orchestratorSf = parseSourceFile(orchestratorPath);
   const rescueFn = findFunctionDeclaration(orchestratorSf, 'reconcileReopenAuditBeforeOutOfBandPhaseChange');
-  assert(rescueFn?.body, `${orchestratorPath}: reconcileReopenAuditBeforeOutOfBandPhaseChange must exist — it is what makes the "no unaudited reopen" invariant hold for phase writes that bypass the orchestrator`);
+  assert(rescueFn?.body, `${orchestratorPath}: reconcileReopenAuditBeforeOutOfBandPhaseChange must exist — it is what extends the "no unaudited reopen" invariant to phase writes that bypass the orchestrator, at the SEQUENTIAL strength documented on it (see assertReopenAuditConcurrencyResidualContract)`);
   const rescueDelegations = rescueFn?.body ? collectCallExpressionsByName(rescueFn.body, 'reconcilePendingReopenAudit') : [];
   assert(rescueDelegations.length >= 2, `${orchestratorPath}: the out-of-band rescue must delegate to reconcilePendingReopenAudit for BOTH the surviving-store record and the doomed-copy record (found ${rescueDelegations.length} delegations)`);
   assert(rescueFn?.body && collectMemberCalls(rescueFn.body, 'store', 'appendProcessEvent').length === 0, `${orchestratorPath}: the out-of-band rescue must NOT append the audit event itself — a second append site would let its idempotency rule drift from reconcilePendingReopenAudit's`);
@@ -2905,6 +2907,132 @@ function assertOutOfBandReopenAuditRescueContract() {
   // than the audit loss, so both drills pin the success exit code too.
   assert(/assert\.equal\(discard\.code, 0/.test(reopenSmokeText), 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the discard drill must assert story_discard still SUCCEEDS (the rescue must never block a legitimate discard)');
   assert(/assert\.equal\(reconcile\.code, 0/.test(reopenSmokeText), 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts: the zombie drill must assert story_reconcile still SUCCEEDS (the rescue must never block a legitimate repair)');
+}
+
+/**
+ * B-70a6 F-013: the out-of-band rescue's guarantee is SEQUENTIAL, and every layer
+ * that states it must state it at that strength.
+ *
+ * THE FINDING. `reconcileReopenAuditBeforeOutOfBandPhaseChange` is a ONE-TIME
+ * SCAN that holds no per-story transition lock, so it serializes against nothing:
+ * a PLAN->INIT reopen can pass the scan before writing its recovery record, land
+ * that record in the worktree, and lose it when story_discard removes the
+ * worktree a moment later — leaving neither record nor event. The rescue is still
+ * a strict improvement (before it there was no rescue at all), so what was wrong
+ * was the STRENGTH OF THE CLAIM, not the code. The engineering decision was to
+ * NAME the residual rather than force a lock in: the only per-story mutex is
+ * documented as advisory and is disabled outright by an env var a smoke sets, the
+ * authoritative persist claim is a 15s fail-fast claim built for a millisecond
+ * synchronous section, and story_reconcile's repair already holds the main write
+ * lock so a transition lock there would invert this repo's transitionLock ->
+ * mainWriteLock order.
+ *
+ * THIS IS THE MECHANICAL HALF OF THAT DECISION (the F-003 lesson). A narrowed
+ * claim that only lives in prose can be silently re-inflated by the next
+ * refactor, which is exactly how this story got bitten three times. So: the
+ * residual must be DECLARED in the registry and next to each site that relies on
+ * it, and the absolute formulation ("no phase change can follow an unaudited
+ * reopen", with no qualifier) must NOT come back. Restoring the overstated
+ * wording — in the registry rationale, in either handler, in the type doc, or in
+ * the drill header — exits 1.
+ */
+function assertReopenAuditConcurrencyResidualContract() {
+  const registry = processFactRegistryMap();
+  const phaseTransitionFact = registry.get('runtime:closeout_phase_transition');
+  for (const token of [
+    'CONCURRENCY RESIDUAL (B-70a6 F-013)',
+    // The mechanism, not just the word "residual": WHY it does not hold.
+    'one-time scan that does not hold the per-story transition lock',
+    'neither the record nor the event survives',
+    // The narrowed claim itself, and the case it still covers.
+    'SEQUENTIAL',
+    'not covered',
+    // The reasons it is named rather than locked. Each is independently
+    // load-bearing: drop one and the decision reads as an excuse.
+    'best-effort advisory contention reducer',
+    'LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK',
+    'invert the established transitionLock to mainWriteLock order',
+    'follow-up story and is not claimed here',
+  ]) {
+    assert(phaseTransitionFact?.rationale.includes(token), `${processFactRegistryPath}: phase transition rationale must declare the F-013 concurrency residual token ${token} — a rescue documented as stronger than it is is exactly the overclaim this story was bitten by`);
+  }
+
+  // The residual must ALSO be where a reader of the CODE meets it: on the rescue
+  // itself, at both call sites that depend on it, on the record type, and in the
+  // drill header that would otherwise read as proof of a concurrency guarantee.
+  const residualMarker = 'CONCURRENCY RESIDUAL (B-70a6 F-013)';
+  const orchestratorPath = 'packages/main/src/handlers/transition-orchestrator.ts';
+  const residualSites = [
+    {
+      path: orchestratorPath,
+      tokens: [
+        residualMarker,
+        // The defect in one phrase, plus the two escape hatches that make the
+        // lock unusable as a correctness fence.
+        'SERIALIZES AGAINST NOTHING',
+        'NEITHER the record NOR the event survives',
+        'BEST-EFFORT ADVISORY CONTENTION-REDUCER',
+        'LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK',
+        'FOLLOW-UP STORY',
+      ],
+    },
+    {
+      path: 'packages/main/src/handlers/worktree.ts',
+      tokens: [residualMarker, 'ONE-TIME SCAN', 'neither record nor event survives'],
+    },
+    {
+      path: 'packages/main/src/handlers/story-query.ts',
+      // The reconcile site carries the ordering reason specifically: it is the
+      // one whose lock acquisition would deadlock against the main write lock.
+      tokens: [residualMarker, 'ONE-TIME SCAN', 'invert that order'],
+    },
+    {
+      path: 'packages/main/src/core/types.ts',
+      tokens: [residualMarker, 'NOT a concurrency guarantee'],
+    },
+    {
+      path: 'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts',
+      // The drills are sequential by construction; saying so stops a later reader
+      // from citing them as evidence for the race they never exercise.
+      tokens: [residualMarker, 'SEQUENTIAL', 'do NOT prove'],
+    },
+  ];
+  for (const site of residualSites) {
+    const text = read(site.path);
+    for (const token of site.tokens) {
+      assert(text.includes(token), `${site.path}: must document the F-013 concurrency residual (missing ${JSON.stringify(token)}) — the out-of-band reopen-audit rescue is unserialized, and every site that leans on it has to say so`);
+    }
+  }
+
+  // The residual on the rescue must sit ON the rescue's own docblock, not be
+  // parked somewhere else in a 1500-line file where nobody editing it will see it.
+  const orchestratorText = read(orchestratorPath);
+  const rescueDecl = orchestratorText.indexOf('export function reconcileReopenAuditBeforeOutOfBandPhaseChange');
+  assert(rescueDecl !== -1, `${orchestratorPath}: reconcileReopenAuditBeforeOutOfBandPhaseChange must exist`);
+  // Anchored to the docblock that immediately precedes the declaration (the last
+  // `/**` before it), not to a byte distance: the marker is deliberately
+  // cross-referenced from reconcilePendingReopenAudit higher up, and an
+  // earliest-occurrence match would be satisfied by that mention alone.
+  const docblockStart = rescueDecl === -1 ? -1 : orchestratorText.lastIndexOf('/**', rescueDecl);
+  const markerAt = rescueDecl === -1 ? -1 : orchestratorText.lastIndexOf(residualMarker, rescueDecl);
+  assert(docblockStart !== -1 && markerAt > docblockStart && markerAt < rescueDecl, `${orchestratorPath}: the F-013 concurrency residual must be documented in the docblock immediately ABOVE reconcileReopenAuditBeforeOutOfBandPhaseChange (a residual filed far from the function it qualifies is one nobody reads before changing it)`);
+
+  // THE RE-INFLATION GUARD. The unqualified invariant is the wording that was
+  // false; it must not return. Comment markers are stripped and whitespace
+  // collapsed first, so re-wrapping the sentence across lines does not evade it.
+  const unqualifiedInvariant = /no phase change can follow an unaudited reopen/i;
+  const claimSurfaces = [
+    orchestratorPath,
+    'packages/main/src/handlers/worktree.ts',
+    'packages/main/src/handlers/story-query.ts',
+    'packages/main/src/core/types.ts',
+    'packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts',
+    processFactRegistryPath,
+  ];
+  for (const path of claimSurfaces) {
+    const flattened = read(path).replace(/^\s*(?:\/\/|\*)\s?/gm, ' ').replace(/\s+/g, ' ');
+    assert(!unqualifiedInvariant.test(flattened), `${path}: states the UNQUALIFIED invariant "no phase change can follow an unaudited reopen". That is false under a concurrent story_discard (B-70a6 F-013): the out-of-band rescue holds no transition lock, so a reopen that records AFTER its scan loses both record and event. Qualify it (e.g. "no ORCHESTRATED phase change ...") and keep the F-013 residual declared`);
+  }
 }
 
 function isReviewerPrompt(relPath, text) {
@@ -7536,6 +7664,7 @@ assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
 assertPhaseTransitionReopenAuditContract();
 assertOutOfBandReopenAuditRescueContract();
+assertReopenAuditConcurrencyResidualContract();
 assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();

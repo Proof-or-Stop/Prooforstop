@@ -522,12 +522,20 @@ export interface ReopenAuditReconciliation {
  *     read-only commands (store.readStory lives in core/store.ts, outside this
  *     story's permitted scope); until one of them runs, the validated reason is
  *     still durable and visible on the story index.
- *   - The "already audited" test is a read-then-append, not an atomic CAS. It is
- *     serialized by the per-story transition lock the caller holds, so it is
+ *   - NARROWED AGAIN BY B-70a6 F-013. Even at those two sites the coverage is
+ *     SEQUENTIAL only: they rescue a record that is ALREADY on disk when they
+ *     start, and they serialize against nothing, so a reopen RACING them is not
+ *     covered. See CONCURRENCY RESIDUAL (B-70a6 F-013) on
+ *     `reconcileReopenAuditBeforeOutOfBandPhaseChange` for the exact interleaving
+ *     and for why it is named rather than locked.
+ *   - The "already audited" test is a read-then-append, not an atomic CAS. On the
+ *     ORCHESTRATED path the caller holds the per-story transition lock, so it is
  *     exact under the same software-concurrency threat model as the persist
- *     claim. It inherits that claim's documented residual (an OS-level freeze
+ *     claim, and it inherits that claim's documented residual (an OS-level freeze
  *     longer than staleMs); the failure mode there is a DUPLICATE audit event,
  *     both carrying the same auditId so a reader can dedupe — never a lost one.
+ *     The OUT-OF-BAND callers hold NO such lock, so there the same read-then-append
+ *     is UNSERIALIZED — the F-013 residual below, not a stronger claim in disguise.
  */
 export function reconcilePendingReopenAudit(
   store: StoryStore,
@@ -592,8 +600,8 @@ export interface OutOfBandReopenAuditReconciliation {
  *
  * WHY THIS EXISTS (the F-004 invariant was narrower than it claimed).
  * `reconcilePendingReopenAudit` runs at the top of `runStoryTransitionInner`,
- * which only yields "no phase change can follow an unaudited reopen" for phase
- * changes that GO THROUGH the orchestrator. Two production sites write
+ * which only yields "no ORCHESTRATED phase change can follow an unaudited
+ * reopen" — i.e. only for phase changes that GO THROUGH it. Two production sites write
  * `story.phase` directly via `store.writeStory`:
  *   - `story_discard`  (handlers/worktree.ts)  -> DISCARDED
  *   - the `story_reconcile` zombie repair (handlers/story-query.ts) -> DONE
@@ -622,6 +630,53 @@ export interface OutOfBandReopenAuditReconciliation {
  * metadata at all — StoryStore's typed not-found. That is not a failure: there is
  * nothing there to rescue. Every other read failure (corrupt index.json, EACCES)
  * IS warned about, because it may be hiding a record.
+ *
+ * ── CONCURRENCY RESIDUAL (B-70a6 F-013) — NAMED, NOT FIXED ────────────────────
+ * THE HONEST SCOPE OF THIS FUNCTION. It is a ONE-TIME SCAN and it does NOT hold
+ * the per-story transition lock that `runStoryTransitionInner` holds, so it
+ * SERIALIZES AGAINST NOTHING. The interleaving it therefore does NOT cover:
+ *   1. this scan runs and finds no record;
+ *   2. a concurrent PLAN->INIT reopen commits phase=INIT + its recovery record
+ *      into the worktree copy;
+ *   3. story_discard removes that worktree;
+ *   4. the reopen dies against the removed copy.
+ * NEITHER the record NOR the event survives. So the guarantee is:
+ *   - SEQUENTIAL (holds): a reopen whose record is ALREADY on disk when the
+ *     terminal operation starts is recovered — by the next orchestrated
+ *     transition, or here. That is what the drills in
+ *     tasks/plan-init-reopen-roundtrip-smoke.ts actually prove.
+ *   - CONCURRENT (does NOT hold): a reopen that writes its record AFTER this scan
+ *     and loses its copy to that same operation is not covered.
+ * A second, lock-independent case: story_discard --force on a story whose
+ * worktree is ALREADY gone. The record only ever lived there, so there is nothing
+ * to rescue and no mutex could have changed that.
+ *
+ * WHY IT IS NAMED RATHER THAN LOCKED (reasons, not excuses):
+ *   - `acquireStoryTransitionLock` is documented in core/story-transition-lock.ts
+ *     as a "BEST-EFFORT ADVISORY CONTENTION-REDUCER, NOT the correctness
+ *     guarantee", and `LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1` turns its
+ *     acquire into a no-op (tasks/transition-integrity-smoke.ts sets exactly that
+ *     to prove the atomic claim alone serializes a persist). A correctness claim
+ *     resting on that lock would be FALSE under that env while every test stayed
+ *     green, and making it load-bearing means rewriting that file's contract.
+ *   - The AUTHORITATIVE fence, the persist claim below, is `failFastIfHeld` with
+ *     `staleMs: 15000`, deliberately held for MILLISECONDS across a fully
+ *     synchronous section. story_discard's rescue-through-destruction interval
+ *     runs `git status` / `worktree remove` / `branch -D` / prune and takes the
+ *     main write lock — routinely longer than 15s — so stretching the claim over
+ *     it would let a concurrent transition stale-reclaim it and persist a phase
+ *     MID-DESTRUCTION, and would make every concurrent transition abort with a
+ *     "concurrent transition already advancing" message that is not true.
+ *   - `story_reconcile`'s repair already runs INSIDE `withMainWriteLock`, while
+ *     this repo's established order is transitionLock -> mainWriteLock
+ *     (runStoryTransitionInner takes the transition lock, then the DONE path
+ *     takes the main write lock). Acquiring the transition lock inside that
+ *     repair would INVERT that order, so a reconcile would sit on the main write
+ *     lock for up to the transition deadline while a DONE holding the transition
+ *     lock fail-fasts on the main write lock — turning one rare audit loss into
+ *     systematic aborts of DONE / story_create / gap_log / audit, inside the tool
+ *     operators run precisely when things are already stuck.
+ * Hardening this race is a FOLLOW-UP STORY. It is not claimed here.
  *
  * RESIDUALS (stated, not glossed):
  *   - The doomed copy's record is deliberately NOT cleared. Writing to a worktree
@@ -791,8 +846,13 @@ async function runStoryTransitionInner(
     // — reconciliation always goes first. B-70a6 F-005: that is NOT by itself a
     // framework-wide invariant, because story_discard and the story_reconcile
     // zombie repair write story.phase WITHOUT coming through this function; they
-    // get the same guarantee by calling
+    // get a NARROWER version of it by calling
     // reconcileReopenAuditBeforeOutOfBandPhaseChange before their own phase write.
+    // B-70a6 F-013: narrower in a specific way — those two sites hold no lock, so
+    // they only cover a record ALREADY on disk when they start, never a reopen
+    // racing them (CONCURRENCY RESIDUAL (B-70a6 F-013) on that function). THIS
+    // call site is the strong one: it runs under the transition lock acquired
+    // above, so a concurrent transition cannot slip a reopen past it.
     // For every ordinary transition `pendingReopenAudit` is absent and this is a
     // pure no-op that returns the very object just read.
     const reconciledReopenAudit = reconcilePendingReopenAudit(

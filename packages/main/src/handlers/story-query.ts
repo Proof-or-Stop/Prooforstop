@@ -773,6 +773,18 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
             // surviving store's log, and only THEN read the story object that the
             // phase write persists (reading it earlier would resurrect a record
             // the rescue just cleared). Never throws: the repair is legitimate.
+            //
+            // CONCURRENCY RESIDUAL (B-70a6 F-013): a ONE-TIME SCAN, taken WITHOUT
+            // the per-story transition lock, so it covers only a record already
+            // on disk when the repair starts — never a reopen racing it. The lock
+            // is deliberately NOT taken HERE in particular: this whole repair
+            // already runs inside withMainWriteLock (see the call at the bottom of
+            // story_reconcile), while the established order is transitionLock ->
+            // mainWriteLock, so acquiring it here would invert that order and let
+            // a repair sit on the main write lock waiting for a transition that is
+            // itself fail-fasting on the main write lock. Full reasoning + the
+            // follow-up scope live on
+            // reconcileReopenAuditBeforeOutOfBandPhaseChange.
             const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({
               storyId: z.storyId,
               store,

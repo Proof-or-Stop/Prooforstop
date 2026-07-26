@@ -1216,6 +1216,20 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       // Ordering is the whole point: this must precede the worktree removal AND
       // the phase write. It never throws — discarding is legitimate and must not
       // be blocked by an audit record; problems are surfaced as ⚠ lines instead.
+      //
+      // CONCURRENCY RESIDUAL (B-70a6 F-013): this is a ONE-TIME SCAN taken
+      // WITHOUT the per-story transition lock, so it rescues only a record that
+      // is ALREADY on disk right now. A PLAN->INIT reopen that commits its record
+      // into the worktree AFTER this line still loses it to the removal below,
+      // and dies against the removed copy — neither record nor event survives.
+      // Deliberately NOT locked here: the transition lock is documented as
+      // advisory (and is disabled outright by
+      // LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK), the authoritative persist
+      // claim is a 15s fail-fast claim that cannot span the git work below, and
+      // this handler already nests withReentrantMainWriteLock, so the ordering
+      // has to stay transitionLock -> mainWriteLock rather than gain a new
+      // acquisition here. Full reasoning + the follow-up scope live on
+      // reconcileReopenAuditBeforeOutOfBandPhaseChange.
       const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({
         storyId: args.storyId,
         store,
