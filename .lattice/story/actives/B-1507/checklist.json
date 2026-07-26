@@ -235,7 +235,11 @@
           {
             "desc": "the Claude Bash shim denies (exit 2) a verification_evidence_add/verification_run whose --command or --selector mismatches the pinned intent, and allows a matching one",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
           }
         ],
         "edge": [
@@ -268,7 +272,28 @@
         "test": [
           "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Smoke C1/C2/C3 assert the guard verdict DENIES a mismatched --command (JSON blob) and --selector (--k=v) and ALLOWS a matching one; D1 the Claude Bash shim exits 2 on deny / 0 on match.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T05:33:49.565Z"
+          },
+          "headHash": "04bcd4f40b04c38767e55f68c629c758d8c66f5b",
+          "materialHash": "de5b5d221de80e29a51db27fe316ab27d76b54b2629dfab3cf27e8ccdf388f82",
+          "storyFilesHash": "1c435e7690c15397ee6471f5c911c9ae89228ac2741dc9712b498cfbdbc17d81",
+          "timestamp": "2026-07-26T05:33:49.682Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
