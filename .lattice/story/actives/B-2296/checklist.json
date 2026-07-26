@@ -89,9 +89,9 @@
         "CLAUDE.md"
       ],
       "userSees": "A developer runs `lattice frozen_claim_drift_check --storyId=B-xxxx` on a story with drifted userSees and sees a JSON advisory carrying code FROZEN_CLAIM_DRIFT, driftKind, and actionRequired: re_attestation; a clean story reports zero drift and exits 0.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T21:47:09.713Z",
       "verificationIntent": {
         "happy": [
           {
@@ -114,6 +114,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "afab4d4fda01bbf73d9bd84e2461ccd5f4f87e1f7748b6bb854c0ed6402713d2",
+        "storyFilesHash": "87b816806afd8b0af0ef580dbe764c4d36a0992a9b8247eda855329222d1380d",
+        "headHash": "47232d121c86a9a4e1116e315203e7d6793c8940",
+        "attestedAt": "2026-07-26T21:47:10.198Z",
+        "materialHash": "8cdab8b917d8628fa3afeaa49babf3f3d48fc635d3a642a3ab2743f6c4094f57"
       }
     },
     {
