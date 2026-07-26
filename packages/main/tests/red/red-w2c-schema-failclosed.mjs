@@ -23,6 +23,13 @@
  *       gate does not crash and its verdict is BYTE-IDENTICAL to the v1-only run
  *       (the v3 record is invisible to the v1 predicate);
  *   (4) a v1-only store stays BYTE-IDENTICAL end-to-end.
+ *
+ * ORDERING IS LOAD-BEARING in step 4. redEvidenceSatisfied iterates the records
+ * with `Array.prototype.some()`, which SHORT-CIRCUITS on the first satisfying
+ * record, so a v3 record appended AFTER a satisfying v1 record is never handed to
+ * the predicate and asserting on that arrangement proves nothing (it does not
+ * throw even on the pre-fix tree). Step 4 therefore injects the v3 record FIRST,
+ * and additionally covers a v3-only input that cannot be short-circuited past.
  */
 import { strict as assert } from 'node:assert';
 import { fileURLToPath } from 'node:url';
@@ -114,15 +121,47 @@ assert.ok(!(gateErr instanceof TypeError), `the LIVE gate MUST NOT throw a bare 
 assert.ok(gateErr instanceof RedEvidenceSchemaError, 'the gate surfaces the typed unsupported-schema diagnostic, never a TypeError');
 
 // ── 4. gate predicate defense-in-depth: inject v3 DIRECTLY into the input
-//       (bypassing the read fail-closed) → no crash, verdict BYTE-IDENTICAL ──
+//       (bypassing the read fail-closed) → no crash, verdict BYTE-IDENTICAL.
+//
+// ORDERING IS LOAD-BEARING: redEvidenceSatisfied iterates with
+// Array.prototype.some(), which SHORT-CIRCUITS on the first satisfying record.
+// A v3 record appended AFTER the satisfying v1 record is never handed to the
+// predicate, so asserting on that arrangement proves nothing (it does not throw
+// even on the pre-fix tree). unshift() puts the v3 record FIRST, which is the
+// arrangement that actually reaches the guard: against the pre-fix tree
+// (8727b2db83, predicate opens with record.observedFailure.trim()) this throws a
+// bare TypeError. ─────────────────────────────────────────────────────────────
 writeRecords(store, storyId, [v1]);
 const input = proofStoryDiagnosticInput(store, storyId, root); // v1-only, valid
-input.redEvidence.records.push(v3); // inject a v3 record past the read gate
+input.redEvidence.records.unshift(v3); // inject a v3 record past the read gate, FIRST
 let injected;
 assert.doesNotThrow(() => {
   injected = JSON.stringify(evaluateProofStoryDiagnostics(input).missingRedEvidence);
-}, 'the gate predicate MUST NOT crash on a non-v1 record (never reaches observedFailure.trim())');
-assert.equal(injected, before, 'the v1 gate verdict is BYTE-IDENTICAL with a v3 record injected (v3 is invisible to the v1 predicate)');
+}, 'the gate predicate MUST NOT crash on a non-v1 record evaluated BEFORE any satisfying v1 record (never reaches observedFailure.trim())');
+assert.equal(injected, before, 'the v1 gate verdict is BYTE-IDENTICAL with a v3 record injected first (v3 is invisible to the v1 predicate)');
+
+// The reverse ordering too. NOTE: on its own this case is vacuous (some()
+// short-circuits on the satisfying v1 record and never sees the v3 record); it is
+// kept only as the companion of the v3-first case above.
+const inputV1First = proofStoryDiagnosticInput(store, storyId, root);
+inputV1First.redEvidence.records.push(v3);
+let injectedV1First;
+assert.doesNotThrow(() => {
+  injectedV1First = JSON.stringify(evaluateProofStoryDiagnostics(inputV1First).missingRedEvidence);
+}, 'the gate predicate MUST NOT crash with the v3 record after the v1 record either');
+assert.equal(injectedV1First, before, 'the v1 gate verdict is BYTE-IDENTICAL in either record order');
+
+// A v3-only input: the predicate must reach the v3 record with NO satisfying v1
+// record anywhere, report missing_red_evidence, and still not crash. This case
+// cannot be short-circuited past, so it holds even if the ordering above ever
+// regresses.
+const inputV3Only = proofStoryDiagnosticInput(store, storyId, root);
+inputV3Only.redEvidence.records = [v3];
+let v3Only;
+assert.doesNotThrow(() => {
+  v3Only = evaluateProofStoryDiagnostics(inputV3Only).missingRedEvidence;
+}, 'the gate predicate MUST NOT crash on a v3-only input (no satisfying v1 record to short-circuit on)');
+assert.ok(v3Only.length > 0, 'a v3-only input has no v1 satisfier → missing_red_evidence fires (not a crash)');
 
 // ── 5. v1-only store stays byte-identical end-to-end ────────────────────────
 writeRecords(store, storyId, [v1]);

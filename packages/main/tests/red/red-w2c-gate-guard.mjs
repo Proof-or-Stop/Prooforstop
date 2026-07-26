@@ -5,10 +5,18 @@
  *
  * Repro-first RED: written and committed BEFORE the guard in
  * redEvidenceRecordSatisfied (core/proofstory.ts) skips non-v1 records. Against
- * today's tree, injecting a v2 quarantine record (which carries NO
+ * the pre-fix tree, injecting a v2 quarantine record (which carries NO
  * `observedFailure`) into a story's red-evidence.json and running the REAL
- * ProofStory diagnostics THROWS a TypeError at `record.observedFailure.trim()`
- * (the .some() over records reaches every record). That throw IS the RED signal.
+ * ProofStory diagnostics THROWS a TypeError at `record.observedFailure.trim()`.
+ * That throw IS the RED signal.
+ *
+ * ORDERING IS LOAD-BEARING. redEvidenceSatisfied iterates the records with
+ * `Array.prototype.some()`, which SHORT-CIRCUITS on the first satisfying record.
+ * A non-v1 record placed AFTER an already-satisfying v1 record is therefore never
+ * handed to the predicate, and asserting on that arrangement proves nothing — it
+ * does not throw even on the pre-fix tree. Every case below that claims to
+ * exercise the guard puts the non-v1 record FIRST (or uses a store with no
+ * satisfying v1 record).
  *
  * After the guard: (1) the diagnostic on a v1-only store is BYTE-IDENTICAL to the
  * run WITH a v2 record added (v2 records are invisible to the v1 predicate); and
@@ -83,13 +91,29 @@ const store = makeStore(root, storyId);
 writeRecords(store, storyId, [v1]);
 const before = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
 
-// Inject the v2 quarantine record. TODAY this throws at observedFailure.trim().
-writeRecords(store, storyId, [v1, v2Quarantine]);
+// Inject the v2 quarantine record BEFORE the satisfying v1 record. The ordering
+// is load-bearing: redEvidenceSatisfied iterates with Array.prototype.some(),
+// which SHORT-CIRCUITS on the first satisfying record — so with the v1 record
+// first the v2 record would never be handed to the predicate at all and this
+// assertion would be vacuous. v2-first is the ordering that actually reaches the
+// guard: against the pre-fix tree (8727b2db83) it throws a TypeError at
+// record.observedFailure.trim(). That throw IS RED signal A.
+writeRecords(store, storyId, [v2Quarantine, v1]);
 let after;
 assert.doesNotThrow(() => {
   after = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
-}, 'RED signal A: the LIVE enforce gate MUST NOT throw on a v2 quarantine record (no observedFailure)');
+}, 'RED signal A: the LIVE enforce gate MUST NOT throw on a v2 quarantine record evaluated BEFORE any satisfying v1 record (no observedFailure)');
 assert.equal(after, before, 'the v1 gate verdict is BYTE-IDENTICAL with a v2 record added (v2 records are ignored)');
+
+// The reverse ordering too, so the skip is order-independent. NOTE: on its own
+// this case is vacuous (some() short-circuits on v1 and never sees the v2
+// record); it is kept only as the companion of the v2-first case above.
+writeRecords(store, storyId, [v1, v2Quarantine]);
+let afterV1First;
+assert.doesNotThrow(() => {
+  afterV1First = JSON.stringify(evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, root)).missingRedEvidence);
+}, 'the LIVE enforce gate MUST NOT throw with the v2 quarantine record after the v1 record either');
+assert.equal(afterV1First, before, 'the v1 gate verdict is BYTE-IDENTICAL in either record order');
 
 // A v2-only store: missingRedEvidence fires (no v1 satisfier), still no crash.
 writeRecords(store, storyId, [v2Quarantine]);
