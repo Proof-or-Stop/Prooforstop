@@ -42,6 +42,18 @@
           "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
           "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
           "timestamp": "2026-07-26T01:35:34.795Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/flow-stability-smoke.ts",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "Strict deepEqual pins the builder output for a normal REVIEW->TEST transition to the exact 8-key pre-change object, so neither transitionType nor reason appears when they are not passed. Reinforced end-to-end in plan-init-reopen-roundtrip-smoke, which asserts the PERSISTED INIT_CHECK->PLAN event carries neither key using hasOwnProperty (key presence, so an explicit undefined would also fail). That end-to-end half matters because the builder-level deepEqual calls the builder directly and cannot see a call-site regression: verified RED by removing the eventType===REOPEN gate, which left flow-stability green but failed the persisted-event assertion.",
+          "headHash": "bd9f130d77198c0d9f20f7c94f7b706b926fe781",
+          "materialHash": "bcf96522fa5a7c46e99743f73a528705219a71a1279ce60483ca38759fddf354",
+          "storyFilesHash": "3220dc1bac34a50c5b9c56dae9d5cea6a57c0ed5970ff204164d20ed5e790d66",
+          "timestamp": "2026-07-26T01:35:43.922Z"
         }
       ]
     },
