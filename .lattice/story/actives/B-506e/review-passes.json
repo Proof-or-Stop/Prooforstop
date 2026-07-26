@@ -726,6 +726,49 @@
         "scanEscalationReason": null
       },
       "_hash": "850e9ff951ff109ee71334b26abde7206b9abf9f216ea550c413ece6e0733696"
+    },
+    {
+      "id": "B-506e:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-pass after 2 more main merges (B-7813, B-1507) since RP-016. Confirmed: (1) evidence_plan reports 94/94 verificationEvidence rows 1:1, 0 missing, 0 rerun (94 refresh-only due to expected storyFilesHash drift from main-merge, not a coverage gap); all 21 distinct cited test/source files present on disk, none disappeared in the merges. (2) red-w2c-validate-registration.mjs passes, confirming the union-resolved lattice.config.json still registers red-evidence-chain-smoke.js among validate.commands. (3) All ten red-w2c-*.mjs and dist/tasks/red-evidence-chain-smoke.js pass. No blocker; consistent with RP-014/RP-016 zero-finding conclusions.",
+      "createdAt": "2026-07-26T11:49:37.335Z",
+      "reviewRound": "2026-07-26T11:41:39.769Z",
+      "reviewRunId": "B-506e:RR-049",
+      "envelopeId": "5b9c01518533b1dfc91405a4b47b74dea2df6f9cd9cd5eaee918db4021f5995f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "lattice.config.json",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/command-catalog-smoke.js",
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4dd8f8526366c40b9f796abd9fe90b11361dc2925b48bf953c0e6db82c3d612e"
     }
   ]
 }
