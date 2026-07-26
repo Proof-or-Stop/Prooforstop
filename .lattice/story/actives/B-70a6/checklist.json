@@ -104,13 +104,13 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "docs_check",
           "file": "packages/main/src/handlers/transition-orchestrator.ts",
-          "command": "grep -n \"persistClaim = acquireMkdirLock|store.writeChecklist(args.storyId, reopenChecklist)|store.writeStory(args.storyId, story)|persistClaim.release()\" packages/main/src/handlers/transition-orchestrator.ts",
+          "command": "grep -Fn -e \"persistClaim = acquireMkdirLock\" -e \"store.writeChecklist(args.storyId, reopenChecklist)\" -e \"store.writeStory(args.storyId, story)\" -e \"persistClaim.release()\" packages/main/src/handlers/transition-orchestrator.ts",
           "result": "pass",
-          "note": "Comment at transition-orchestrator.ts:896-923 now states the guarantee as CONCURRENCY-atomic via the mkdir persist claim, ORDERED so the phase writeStory runs LAST. Each clause independently verified against code, not taken from the reference commit: (1) mkdir-based claim - acquireMkdirLock (core/mkdir-lock.ts:253) acquires via mkdirSync(lockDir) at line 269 with EEXIST treated as held, so it is genuinely a mkdir lock; (2) ordering - grep shows acquire at line 859, reset write store.writeChecklist at 935, phase write store.writeStory at 937, release at 940, so the phase write is last inside the claim; (3) loser abort - the oldPhase re-read guard at lines 878-885 throws before line 935, so a losing concurrent writer never reaches the reset. npm --prefix packages/main run build exits 0.",
-          "headHash": "c1549a78256ec16005f0811549016972dafc8a94",
-          "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693",
-          "storyFilesHash": "19a85e8b1fccf71b90c23d9ef0a97cfc9a0c732e14b48adf7a9e096e1dd3f72f",
-          "timestamp": "2026-07-26T01:42:33.824Z"
+          "note": "Comment at transition-orchestrator.ts:896-923 states the guarantee as CONCURRENCY-atomic via the mkdir persist claim, ORDERED so the phase writeStory runs LAST. COMMAND RE-RECORDED (fixes F-001): the previously recorded command used bare | alternation, which default BRE grep treats as a literal character, so run verbatim it produced ZERO output (confirmed: exit 1, no lines) instead of the four lines the note claimed. Replaced with the grep -Fn fixed-string form above, one -e per literal; -F rather than -E because the unescaped parens in these literals are ERE metacharacters (the naive -E form errors out with 'empty (sub)expression' on this host's grep). I RAN the new command in this worktree; ACTUAL OUTPUT, exit 0, exactly four lines: '859:      persistClaim = acquireMkdirLock(persistClaimPath, {' / '935:        if (reopenMutated) store.writeChecklist(args.storyId, reopenChecklist);' / '937:      store.writeStory(args.storyId, story);' / '940:      persistClaim.release();'. Each clause independently re-verified against current code, not taken from the reference commit: (1) mkdir-based claim - acquireMkdirLock (core/mkdir-lock.ts:253) acquires via mkdirSync(lockDir) at line 269 with EEXIST treated as held, so it is genuinely a mkdir lock; (2) ordering - acquire 859 < reset write 935 < phase write 937 < release 940, so the phase write is last inside the claim; (3) loser abort - the oldPhase re-read guard at lines 878-885 (re-read at 878, throw at 879-885) sits before line 935, so a losing concurrent writer never reaches the reset. npm --prefix packages/main run build exits 0.",
+          "headHash": "0f2b9333f2ccc6c452e14066bb7f74d8e76ab1b2",
+          "materialHash": "ed0e3d7d616df3c38c9b31cae58708c792fb7478f421becd7d2aad45991f092b",
+          "storyFilesHash": "332b6cba57beca38c2346eb25202b28abeb549d05b25f527b58cf9d9bfcd7e68",
+          "timestamp": "2026-07-26T02:23:35.038Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
