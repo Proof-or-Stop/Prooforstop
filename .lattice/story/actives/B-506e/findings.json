@@ -213,7 +213,7 @@
       "desc": ".lattice/story/actives/B-506e/summary.json:14 (limitations) and .lattice/story/actives/B-506e/findings.json:101 (B-506e:F-005 resolvedReason) still assert as VERIFIED FACT a specific sha256 (71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc, byte-identical v1 diagnostic across 5 scenarios) that the story own round-3 checklist evidence (CHK-003:happy:0 note on red-w2c-v1-verdict-invariance.mjs) explicitly disproves: that digest is not produced by any artifact in the repo (the real, now-committed, independently-reproduced digest is 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec). Round 3 fixed the TEST artifacts that back CHK-003 but did not correct the narrative record that still cites the fabricated digest as settled proof. F-005 remains status=resolved/evidenceState=verified with a resolvedReason repeating the debunked number, and summary.json (the DONE-track change/limitations narrative) repeats it too. WHY: this is the exact self-report-overclaim class this round exists to close out (the TEST delivery reviewer already caught and quoted this same digest as an overclaim in delivery-check.json); leaving it asserted as fact elsewhere in the story evidentiary record is a residual fabricated-evidence reference, not a functional code defect.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-26T00:44:43.245Z",
@@ -221,7 +221,11 @@
       "reviewRunId": "B-506e:RR-019",
       "_hash": "de91ad4f2f1e06e4de86e76d6229845fb63f96e614e513bde9c02c241792a951",
       "signatureTag": "adversarial|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed. The B-506e:F-005 resolvedReason has been amended via finding_resolve (allowed in REVIEW): it now asserts the real, reproducible digest sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec, produced by the committed test packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs, and explicitly RETRACTS the earlier sha256 71c267a0... as an unbacked subagent-reported claim produced by nothing in the repository. The remaining occurrence in summary.json limitations is corrected by the orchestrator at TEST phase via summary_set, where the retraction is also recorded openly.",
+      "resolvedAt": "2026-07-26T01:57:31.256Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-506e:F-012",
