@@ -51,7 +51,7 @@
       "desc": "CHK-003:happy:0 (must) overclaims \"the result field is derived from the actual exit code, not the caller\": in every smoke case where caller-claimed result and actual exit could differ, checklist.ts:482-486 THROWS (refuses the whole write) rather than storing an overridden value, so no test ever proves derivation vs echoing the caller — a case where caller under-claims or omits result (e.g. result omitted/'fail' while exit==0 and selector matches) succeeds without throwing and derivedResult (checklist.ts:502,505) silently overrides, but this path is never exercised. Demonstrated by mutation: changed checklist.js line `result: derivedResult,` to `result: input.result ?? derivedResult,` (i.e. echo caller when supplied) and reran the smoke — still PASS/exit 0, because all passing smoke calls pass result:'pass' matching the true outcome. The must-intent claim of tool-derived (not caller-derived) result is therefore unverified for the only case that would distinguish it.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-26T00:36:44.103Z",
@@ -63,7 +63,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|ts|happy-overclaims-result",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "cb4f966371: smoke now tests the caller-omits/under-claims-result case (exit==0 + selector present -> result derived as pass from the receipt). Mutation-killed (echo-caller mutation now fails).",
+      "resolvedAt": "2026-07-26T01:26:19.593Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ec67:F-004",
