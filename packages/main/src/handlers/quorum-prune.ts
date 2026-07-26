@@ -43,12 +43,19 @@ export type QuorumPruneArgs = {
   runIds?: string[] | string;
   /**
    * Explicit projection-only request. Omitted or true = project the duplicate groups without
-   * touching anything; it is the default, so it exists mainly so `--dryRun` is a REAL declared
-   * schema field (not a silently-swallowed unknown key) and so help-renderer derives the true
-   * "default-on via --dryRun" contract instead of falling through to "always-on".
-   * dryRun:true together with apply:true is refused rather than silently resolved.
+   * touching anything; it is the default, so it exists both so `--dryRun` is a REAL declared
+   * schema field (not a silently-swallowed unknown key, and help-renderer derives the true
+   * "default-on via --dryRun" contract instead of falling through to "always-on") and so an
+   * explicit dryRun:false is a real executor rather than a silent no-op. Contradictory pairs are
+   * refused rather than silently resolved: dryRun:true with apply:true, and dryRun:false with
+   * apply:false.
    */
   dryRun?: boolean;
+  /**
+   * Explicit execute request; equivalent to dryRun:false. Omitted defaults to the projection.
+   * Contradictory pairs are refused: apply:true with dryRun:true, and apply:false with
+   * dryRun:false.
+   */
   apply?: boolean;
   keep?: KeepSelector;
 } & QuorumPruneFormatArgs;

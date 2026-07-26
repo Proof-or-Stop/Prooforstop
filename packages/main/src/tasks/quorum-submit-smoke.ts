@@ -2560,19 +2560,37 @@ try {
     // F-011 RED: the F-010 fix updated only the dryRun field description and one comment, leaving
     // five other prose sites claiming apply:true was the sole mutation trigger — including the
     // catalog's top-level description, which is the FIRST line of --help and contradicted the
-    // corrected flag description a few lines below it in the same output. Assert every one of
-    // those user-facing/audit descriptions names both executors so the drift cannot silently recur.
+    // corrected flag description a few lines below it in the same output.
+    //
+    // F-013 RED: the first version of THIS guard had the same blind spot one level down. It read
+    // only the three block-level descriptions and never the per-flag `describe()` strings, which
+    // are exactly what help-renderer prints per argument — so --help could (and did) show a
+    // correct top-level description above a stale --dryRun line and a never-updated --apply line.
+    // A guard with a coverage hole is worse than no guard: it reads as "this is protected". Every
+    // site that renders or audits this contract is asserted here, including the two schema fields
+    // and the handler JSDoc, plus a live --help render so the assertion is not source-only.
     const catalogSource = readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/cli/command-catalog.ts'), 'utf8');
     const factSource = readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/process-fact-levels.ts'), 'utf8');
     const policySource = readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/command-policy.ts'), 'utf8');
+    const handlerSource = readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/handlers/quorum-prune.ts'), 'utf8');
     const catalogEntry = catalogSource.slice(catalogSource.indexOf("{ name: 'quorum_prune'"));
+    const catalogBlock = catalogEntry.slice(0, catalogEntry.indexOf('}},'));
     const catalogDescription = catalogEntry.slice(0, catalogEntry.indexOf('schema:'));
-    const factRow = factSource.split('\n').find(line => line.includes("name: 'quorum_prune'")) ?? '';
-    const policyRow = policySource.split('\n').find(line => line.includes('quorum_prune: {')) ?? '';
+    const fieldDescribe = (field: string): string => {
+      const start = catalogBlock.indexOf(`${field}: z.`);
+      return start < 0 ? '' : catalogBlock.slice(start, catalogBlock.indexOf('\n', start));
+    };
+    const argsTypeStart = handlerSource.indexOf('QuorumPruneArgs = {');
+    const argsTypeEnd = handlerSource.indexOf('keep?: KeepSelector', argsTypeStart);
+    assert.ok(argsTypeStart >= 0 && argsTypeEnd > argsTypeStart, 'QuorumPruneArgs declaration shape changed; update this guard');
+    const argsInterface = handlerSource.slice(argsTypeStart, argsTypeEnd);
     for (const [label, prose] of [
       ['catalog top-level description', catalogDescription],
-      ['process-fact rationale', factRow],
-      ['command-policy reason', policyRow],
+      ['catalog dryRun describe()', fieldDescribe('dryRun')],
+      ['catalog apply describe()', fieldDescribe('apply')],
+      ['process-fact rationale', factSource.split('\n').find(line => line.includes("name: 'quorum_prune'")) ?? ''],
+      ['command-policy reason', policySource.split('\n').find(line => line.includes('quorum_prune: {')) ?? ''],
+      ['QuorumPruneArgs JSDoc', argsInterface],
     ] as const) {
       assert.ok(prose.length > 0, `${label} was not found`);
       assert.match(prose, /dryRun:false/, `${label} must name dryRun:false as an executor`);
@@ -2582,6 +2600,24 @@ try {
         `${label} must not claim apply:true is the only mutation trigger`,
       );
     }
+    // Both refusals must be documented wherever the per-flag contract is rendered, so the two
+    // --help lines cannot disagree with each other or with the block above them again.
+    for (const [label, prose] of [
+      ['catalog dryRun describe()', fieldDescribe('dryRun')],
+      ['catalog apply describe()', fieldDescribe('apply')],
+      ['QuorumPruneArgs JSDoc', argsInterface],
+    ] as const) {
+      assert.match(prose, /apply:false/, `${label} must document the symmetric apply:false refusal`);
+    }
+    // And the rendered help itself, since that is what an operator actually reads.
+    withFreshFixture((fixture) => {
+      const help = runFixtureCli(fixture.root, ['quorum_prune', '--help']);
+      const helpText = `${help.stdout}\n${help.stderr}`;
+      const dryRunLine = helpText.split('\n').find(line => line.includes('--dryRun')) ?? '';
+      const applyLine = helpText.split('\n').find(line => line.trim().startsWith('--apply')) ?? '';
+      assert.match(dryRunLine, /dryRun:false/, `rendered --dryRun help is stale: ${dryRunLine}`);
+      assert.match(applyLine, /dryRun:false/, `rendered --apply help is stale: ${applyLine}`);
+    });
   });
 
   console.log(`\n✓ quorum_submit smoke passed (${passed} checks)`);
