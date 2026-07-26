@@ -24,7 +24,7 @@
       "desc": "validation-evidence-reuse.ts:263 and validation-evidence-admissibility.ts:48 switch over MergeLineageClassification.kind (5 variants: exact-head/trusted-descendant/untrusted/not-ancestor/diff-failed) with no default case and no exhaustiveness guard, unlike the codebase convention used for exactly this purpose elsewhere (const never: never = kind; in packages/main/src/core/usage-ledger/estimate.ts:407 and assemble.ts:115). tsconfig.json (packages/main/tsconfig.json) has strict:true but NOT noImplicitReturns, so tsc will not error if a future MergeLineageClassification variant is added in validation-lineage.ts without updating both switches -- each function would silently fall through and return undefined at runtime (typed as a non-optional lineage object), and callers (evaluateRoutineValidationReuse, evaluateValidationEvidenceAdmissibility) would throw on .lineage/.reasons access instead of getting a compile-time error. Maintainability/type-safety gap on a trust-boundary classifier shared by two callers; not exploitable today (both switches currently handle all 5 kinds correctly -- verified via clean build + all smokes passing in an isolated worktree), but it removes the compiler safety net the rest of the codebase relies on for exactly this switch-exhaustiveness pattern.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-26T03:56:51.628Z",
@@ -37,7 +37,11 @@
         "packages/main/src/core/validation-evidence-admissibility.ts"
       ],
       "signatureTag": "switch-exhaustiveness-guard-missing",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added default exhaustiveness guard (const _exhaustive: never = classification) to both MergeLineageClassification.kind switches in validation-evidence-reuse.ts and validation-evidence-admissibility.ts, per the codebase convention; a future variant now fails to compile. Committed 8f2eaa3208.",
+      "resolvedAt": "2026-07-26T04:02:34.539Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
