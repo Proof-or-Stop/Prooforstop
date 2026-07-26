@@ -109,6 +109,33 @@
         "scanEscalationReason": null
       },
       "_hash": "94475d1e5603bfda8879bf1d78d6f6c4bae1d639bf048e23a59fe8cba000bab7"
+    },
+    {
+      "id": "B-70a6:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality re-audit of F-003 fix (commit b964aa7619). Scope: process-fact-registry.ts rationale extension for runtime:closeout_phase_transition, and new assertPhaseTransitionReopenAuditContract() in verify-process-fact-contract.mjs; re-audited full story diff (transition-orchestrator.ts, worktree.ts, plan-init-reopen-roundtrip-smoke.ts). (1) Style convention: the new AST-walker helpers (subtreeReadsMember, hasIdentifierGuardedThrowingBranch, collectConditionalObjectSpreads, isDefinedCheckOnMember, isEmptyObjectLiteral, etc.) match the file established JSDoc-commented, walk()-closure, found/ok-sentinel pattern (compared against subtreeReferencesProperty/subtreeReturnsFalseOk/subtreeThrows) and each is actually called (no dead code). The registry-rationale token-list assertion style (assert(fact.rationale.includes(token))) mirrors the pre-existing pattern used for sibling entries in the same PROCESS_FACT_CLOSEOUT_TELEMETRY array (receiptFact, reattestationBoundaryFact, validationTerminalFact all use the identical token-list-over-rationale idiom) -- not a divergent style. (2) Registry honesty: confirmed by grep that nothing in packages/main/src (done-prepare.ts collectDonePrepareConvergenceFacts and all other phase_transition readers) consumes event.transitionType or event.reason -- only the round-trip smoke test reads them back. The audit-only-not-gate-evidence claim is accurate. I considered whether the audit-only carve-out should have been expressed via consumerGate (as done for artifact:closeout-write-receipts.jsonl) rather than buried only in rationale prose, but runtime:closeout_validation_terminal -- a sibling entry in the same array -- already has this exact pattern (a compound entry with both a blocking counter and a rationale-only-described non-blocking telemetry sub-field, consumerGate left as one generic string), so this is established precedent, not a new inconsistency. (3) Brittleness: builder/call-site checks are AST-anchored (ts.createSourceFile, real conditional-spread/property-initializer inspection) so comment or formatting-only changes cannot fake or break them; only a real code-shape change moves the verdict. The literal-substring checks against smoke-test file contents use plain .includes(), the same established idiom used pervasively elsewhere in this file for asserting executable-anchor content; coupled to code fragments (not prose), so an innocuous variable rename would break it, but consistent with existing risk tolerance in this file for this check category. Rationale-token substring checks are consistent with ~10 pre-existing sibling assertions in the same function. (4) Spot-checked the primary mutation claim myself in an isolated git worktree scratch copy under /private/tmp (git worktree add --detach at the story head, node_modules/dist symlinked for speed, never touched the shared B-70a6 worktree): baseline exits 0 with Process fact contract verified; dropping args.reason from the REOPEN call-site spread (keeping transitionType only) makes test:process-fact-contract exit 1 with the exact expected message; reverting restores exit 0. tsc --noEmit on mutated vs baseline tree produced identical pre-existing unrelated ws-module diagnostics in both cases (no new errors from the mutation), consistent with the compiles-clean claim. Scratch worktree removed after the check; shared worktree git status confirmed touched only by my own review_run_start/dispatch/review_incremental_context process-event writes, no source files. No new quality issues found in the round-3 diff. No blockers.",
+      "createdAt": "2026-07-26T04:09:41.262Z",
+      "reviewRound": "2026-07-26T04:00:24.255Z",
+      "reviewRunId": "B-70a6:RR-007",
+      "envelopeId": "641bc83be6feccbd5a8b1af3a31e9a05931c13648fafb9f967f44c6040d59175",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2cb85192de132cac5626784536bc0053b3b6a71c72d8f38105b252bf4f24dd2b"
     }
   ]
 }
