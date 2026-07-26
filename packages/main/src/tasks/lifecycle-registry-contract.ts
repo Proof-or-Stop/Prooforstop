@@ -57,6 +57,21 @@ interface Divergence {
   detail: string;
 }
 
+/**
+ * B-7813: pre-existing phase-tools reachability gaps, tracked separately.
+ *
+ * The converse reachability check (checkCommandDimension check (3)) flags any
+ * command-policy allowedPhases entry that no DEFAULT_PHASE_TOOLS pattern grants
+ * in that phase (a dead command). Entries here are pre-existing gaps that predate
+ * B-7813 and are out of this story's scope to individually fix; seeding them keeps
+ * the new check ACTIVE (it fails on any NEW unreachable command like the
+ * stall_resolution_set regression) without expanding B-7813 to remediate the whole
+ * back-catalog. Each entry is a command NAME (exempt in every phase its policy
+ * allows). Remove an entry once its DEFAULT_PHASE_TOOLS coverage is fixed — the
+ * stale-exemption guard fails if an entry is no longer unreachable anywhere.
+ */
+const PHASE_TOOLS_REACHABILITY_EXEMPTIONS: ReadonlySet<string> = new Set([]);
+
 const divergences: Divergence[] = [];
 
 function record(source: string, detail: string): void {
@@ -137,6 +152,50 @@ function checkCommandDimension(): void {
           `DEFAULT_PHASE_TOOLS resolves command ${command} as legal in phase ${phase}, but the registry command dimension (command-policy allowedPhases) does not`,
         );
       }
+    }
+  }
+
+  // (3) CONVERSE reachability (B-7813): every command-policy allowedPhases entry
+  // must ALSO be reachable in DEFAULT_PHASE_TOOLS for that phase. isCommandAllowed
+  // intersects the policy ceiling with DEFAULT_PHASE_TOOLS, so a command whose
+  // policy lists a phase but which no DEFAULT_PHASE_TOOLS pattern grants in that
+  // phase is DEAD — permanently rejected in exactly the phase it exists for
+  // (the B-7813 stall_resolution_set regression class). Check (2) only proves the
+  // subset direction (phase-tools ⊆ policy); this proves the converse
+  // (policy-per-phase ⊆ phase-tools), closing the blind spot. Pre-existing gaps
+  // unrelated to B-7813 are seeded in PHASE_TOOLS_REACHABILITY_EXEMPTIONS so the
+  // check passes now yet fails on any NEW unreachable command.
+  for (const phase of COMMAND_LIFECYCLE_PHASES) {
+    const phaseToolsResolved = resolveDefaultPhaseToolsCommands(phase, allCommands);
+    const registryResolved = lifecycleResolvedCommandsForPhase(phase);
+    for (const command of registryResolved) {
+      if (phaseToolsResolved.has(command)) continue;
+      if (PHASE_TOOLS_REACHABILITY_EXEMPTIONS.has(command)) continue;
+      record(
+        'default-phase-tools-reachability',
+        `command ${command} declares phase ${phase} legal in command-policy (allowedPhases) but no DEFAULT_PHASE_TOOLS pattern grants it in ${phase} — isCommandAllowed will REJECT it there (dead command). Add it to DEFAULT_PHASE_TOOLS[${phase}] (or the '*' bucket) in packages/main/src/core/config.ts, or add a justified entry to PHASE_TOOLS_REACHABILITY_EXEMPTIONS`,
+      );
+    }
+  }
+  // Stale-exemption guard: an exemption that is no longer unreachable in ANY
+  // phase (i.e. every phase its policy allows is now granted by DEFAULT_PHASE_TOOLS)
+  // must be removed so the allowlist cannot silently mask a future regression.
+  for (const command of PHASE_TOOLS_REACHABILITY_EXEMPTIONS) {
+    let stillUnreachableSomewhere = false;
+    for (const phase of COMMAND_LIFECYCLE_PHASES) {
+      const registryResolved = new Set(lifecycleResolvedCommandsForPhase(phase));
+      if (!registryResolved.has(command)) continue; // policy does not allow it here
+      const phaseToolsResolved = resolveDefaultPhaseToolsCommands(phase, allCommands);
+      if (!phaseToolsResolved.has(command)) {
+        stillUnreachableSomewhere = true;
+        break;
+      }
+    }
+    if (!stillUnreachableSomewhere) {
+      record(
+        'default-phase-tools-reachability',
+        `exemption ${command} is now reachable in DEFAULT_PHASE_TOOLS for every phase its command-policy allows — remove the stale PHASE_TOOLS_REACHABILITY_EXEMPTIONS entry`,
+      );
     }
   }
 }

@@ -29,6 +29,14 @@
  *      breaker but NOT the stall block; a stall resolution does not move the
  *      breaker advanceBaseline; each brake fires only on its own trigger (no
  *      double-count).
+ *   G. REAL CLI PHASE-GATE BOUNDARY (B-7813 F-001/F-002/F-003) — parts A-F drive
+ *      the in-process handler and thus BYPASS the cli-engine phase gate, so they
+ *      never caught that stall_resolution_set was absent from DEFAULT_PHASE_TOOLS
+ *      (isCommandAllowed REJECTED it in exactly the DEV/REVIEW phases its
+ *      command-policy allows). This part crosses the REAL `node cli.js` boundary:
+ *      for BOTH DEV and REVIEW it proves the phase gate is LIVE (a TEST-only
+ *      command IS phase-blocked) yet stall_resolution_set is NOT phase-blocked —
+ *      the CHK-002 `cli`-typed intents are now satisfiable at the CLI boundary.
  *
  * Prints `review-budget-stall-adjudication-smoke: PASS` + exit 0 on success;
  * prints a diagnostic + exit 1 (thrown assertion) on any failure.
@@ -38,7 +46,8 @@ import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import {
@@ -517,6 +526,77 @@ function partF(): void {
     'F: ...yet the converging review is NOT stall-blocked (stall brake keyed on trend, not advances)');
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// G. REAL CLI PHASE-GATE BOUNDARY (B-7813 F-001/F-002/F-003)
+// ════════════════════════════════════════════════════════════════════════════
+// dist/tasks/<this>.js -> dist/cli.js (the TS source ships alongside dist, so the
+// dist run resolves the built CLI entry the real `lattice` bin bootstraps into).
+const CLI_ENTRY = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
+
+/** Run the REAL CLI in `root`; return merged stdout+stderr regardless of exit code. */
+function runRealCli(root: string, args: string[]): string {
+  try {
+    return execFileSync('node', [CLI_ENTRY, ...args], {
+      cwd: root, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    const e = error as { stdout?: string; stderr?: string };
+    return `${e.stdout ?? ''}${e.stderr ?? ''}`;
+  }
+}
+
+/**
+ * Materialize a stalled fixture story at `phase` on the `story/<id>` branch so
+ * cli-engine `detectActiveStory` (keyed on the git branch) picks it up and the
+ * phase gate runs against it.
+ */
+function makeActiveStoryRoot(tag: string, phase: StoryInfo['phase']): { root: string; storyId: string } {
+  const { root, store } = makeRoot(`cli-${tag}`);
+  const storyId = `B-cli${tag}`;
+  synthStalled(store, storyId, { perRoundCounts: [3, 3, 3, 3] });
+  const story = store.readStory(storyId);
+  story.phase = phase;
+  store.writeStory(storyId, story);
+  git(root, ['add', '.']);
+  git(root, ['commit', '-q', '-m', 'cli fixture story']);
+  git(root, ['checkout', '-q', '-b', `story/${storyId}`]);
+  return { root, storyId };
+}
+
+function partG(): void {
+  for (const phase of ['DEV', 'REVIEW'] as const) {
+    const { root, storyId } = makeActiveStoryRoot(phase.toLowerCase(), phase);
+
+    // Positive control: the phase gate is LIVE for this active story. A TEST-only
+    // command IS rejected with the exact phase-block message in DEV/REVIEW — so a
+    // detectActiveStory miss (which would make the negative assertion a false
+    // green) is ruled out.
+    const control = runRealCli(root, ['delivery_check_set', JSON.stringify({ storyId })]);
+    assert.match(
+      control,
+      new RegExp(`Command "delivery_check_set" is not available in ${phase} phase`),
+      `G: the CLI phase gate is LIVE in ${phase} (TEST-only delivery_check_set is phase-blocked; proves detectActiveStory engaged)`,
+    );
+
+    // The fix (F-001/F-003): stall_resolution_set must NOT be phase-blocked in the
+    // very phase its command-policy allowedPhases lists. isCommandAllowed must pass
+    // at the real CLI boundary (it may still fail downstream for a NON-phase reason
+    // — e.g. owner-lease / not-stalled — which is out of scope for this assertion).
+    const out = runRealCli(root, [
+      'stall_resolution_set',
+      JSON.stringify({
+        storyId, action: 'authorize_continuation',
+        reason: 'twenty-plus-character reason recorded from the real CLI boundary test',
+      }),
+    ]);
+    assert.doesNotMatch(
+      out,
+      /Command "stall_resolution_set" is not available in .* phase/,
+      `G: stall_resolution_set is NOT phase-blocked in ${phase} (isCommandAllowed passes at the real \`node cli.js\` boundary)`,
+    );
+  }
+}
+
 // ── runner ──
 try {
   partA();
@@ -525,6 +605,7 @@ try {
   partD();
   partE();
   partF();
+  partG();
   console.log('review-budget-stall-adjudication-smoke: PASS');
   cleanupAll();
 } catch (e) {
