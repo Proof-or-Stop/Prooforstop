@@ -2608,37 +2608,106 @@ try {
     // the sites instead of listing them — every non-test production line that talks about this
     // command's apply contract must also name dryRun:false. Adding a new mention anywhere now
     // either satisfies the contract or fails this check; it can no longer be silently missed.
-    // Scope matters: sibling commands (capability_release_backfill and friends) legitimately keep
-    // the apply-only convention, so the sweep must cover THIS command's prose and nothing else.
-    // quorum-prune.ts is entirely about this command; elsewhere the line itself must name it, and
-    // for the catalog only the quorum_prune entry block is in range.
-    const contractSources: Array<{ file: string; text: string; lineOffset: number; requireSelfMention: boolean }> = [
-      { file: 'packages/main/src/cli/command-catalog.ts', text: catalogBlock, lineOffset: catalogSource.slice(0, catalogSource.indexOf("{ name: 'quorum_prune'")).split('\n').length, requireSelfMention: false },
-      { file: 'packages/main/src/core/command-policy.ts', text: policySource, lineOffset: 1, requireSelfMention: true },
-      { file: 'packages/main/src/core/config.ts', text: readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/config.ts'), 'utf8'), lineOffset: 1, requireSelfMention: true },
-      { file: 'packages/main/src/core/process-fact-levels.ts', text: factSource, lineOffset: 1, requireSelfMention: true },
-      { file: 'packages/main/src/handlers/quorum-prune.ts', text: handlerSource, lineOffset: 1, requireSelfMention: false },
+    // F-016/F-017 RED: the first discovery sweep matched line-by-line with a regex, which gave it
+    // three silent escapes, all confirmed by reviewers against the real logic: (1) the exclusion
+    // pattern was whole-line, so fusing a stale claim onto a line containing `args.apply` or a
+    // `+ '...'` continuation hid it entirely — and 3 real continuation lines carrying `apply:true`
+    // were already being skipped; (2) the self-mention test read ONE line while the pairing test
+    // read a ±3-line window, so a two-line comment naming the command above a stale claim was
+    // invisible; (3) the window was not sentence-scoped, so a stale statement could borrow a
+    // neighbour's correct `dryRun:false`. Line-oriented regex is simply the wrong instrument for
+    // "is this prose unit self-consistent". Parse instead: every string literal (concatenations
+    // folded into one unit) and every comment block IS a prose unit, so a claim and its pairing
+    // are judged in the same unit they were written in, and executable logic is excluded because
+    // it is neither a comment nor a string rather than because a regex guessed at it.
+    const proseUnitsOf = (file: string, source: string): Array<{ text: string; line: number }> => {
+      const sf = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
+      const units: Array<{ text: string; line: number }> = [];
+      const lineOf = (pos: number) => sf.getLineAndCharacterOfPosition(pos).line + 1;
+      const seenComments = new Set<number>();
+      const collectComments = (pos: number) => {
+        for (const range of [...(ts.getLeadingCommentRanges(source, pos) ?? []), ...(ts.getTrailingCommentRanges(source, pos) ?? [])]) {
+          if (seenComments.has(range.pos)) continue;
+          seenComments.add(range.pos);
+          units.push({ text: source.slice(range.pos, range.end), line: lineOf(range.pos) });
+        }
+      };
+      const visit = (node: ts.Node): void => {
+        collectComments(node.getFullStart());
+        // A `'a' + 'b' + 'c'` message is ONE prose unit; take the whole expression and do not
+        // descend into its parts, so a claim on one operand pairs with text on another.
+        if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken && /['"`]/.test(node.getText()[0] ?? '')) {
+          units.push({ text: node.getText(), line: lineOf(node.getStart()) });
+          return;
+        }
+        if (ts.isStringLiteralLike(node)) {
+          units.push({ text: node.getText(), line: lineOf(node.getStart()) });
+          return;
+        }
+        node.forEachChild(visit);
+      };
+      visit(sf);
+      // Merge adjacent single-line comments into one block: a wrapped `//` paragraph is one unit.
+      units.sort((a, b) => a.line - b.line);
+      const merged: Array<{ text: string; line: number }> = [];
+      for (const unit of units) {
+        const previous = merged[merged.length - 1];
+        const contiguousComment = previous
+          && unit.text.startsWith('//') && previous.text.startsWith('//')
+          && unit.line === previous.line + previous.text.split('\n').length;
+        if (contiguousComment) previous.text += `\n${unit.text}`;
+        else merged.push({ ...unit });
+      }
+      return merged;
+    };
+    // Scope: sibling commands (capability_release_backfill and friends) legitimately keep the
+    // apply-only convention, so only THIS command's prose is swept. quorum-prune.ts is entirely
+    // about this command; the catalog is narrowed to the quorum_prune entry; elsewhere the prose
+    // unit itself must name the command — now judged per UNIT, not per line, closing escape (2).
+    const catalogBlockStart = catalogSource.indexOf("{ name: 'quorum_prune'");
+    const contractSources: Array<{ file: string; source: string; requireSelfMention: boolean; range?: [number, number] }> = [
+      { file: 'packages/main/src/cli/command-catalog.ts', source: catalogSource, requireSelfMention: false, range: [catalogBlockStart, catalogBlockStart + catalogBlock.length] },
+      { file: 'packages/main/src/core/command-policy.ts', source: policySource, requireSelfMention: true },
+      { file: 'packages/main/src/core/config.ts', source: readFileSync(join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src/core/config.ts'), 'utf8'), requireSelfMention: true },
+      { file: 'packages/main/src/core/process-fact-levels.ts', source: factSource, requireSelfMention: true },
+      { file: 'packages/main/src/handlers/quorum-prune.ts', source: handlerSource, requireSelfMention: false },
     ];
     const discovered: string[] = [];
-    for (const { file, text, lineOffset, requireSelfMention } of contractSources) {
-      const lines = text.split('\n');
-      lines.forEach((line, index) => {
-        if (!/apply:true|apply=true/.test(line)) return;
-        if (requireSelfMention && !line.includes('quorum_prune')) return;
-        // Prose only: skip the executable resolution/refusal logic, which necessarily compares
-        // against the literal values it documents.
-        if (/args\.apply|args\.dryRun|throw new Error|^\s*\+ '/.test(line)) return;
-        // Prose wraps, so the paired statement can sit on a neighbouring line of the same comment
-        // or description block; match against the surrounding window rather than the single line.
-        const context = lines.slice(Math.max(0, index - 3), index + 4).join('\n');
-        const where = `${file}:${index + lineOffset}`;
+    for (const { file, source, requireSelfMention, range } of contractSources) {
+      const inRange = (line: number): boolean => {
+        if (!range) return true;
+        const startLine = source.slice(0, range[0]).split('\n').length;
+        const endLine = source.slice(0, range[1]).split('\n').length;
+        return line >= startLine && line <= endLine;
+      };
+      const sourceLines = source.split('\n');
+      // Scoping and pairing are deliberately different granularities. Pairing is judged INSIDE the
+      // prose unit (strict — a claim cannot borrow a neighbour's wording). Scoping asks only "is
+      // this prose about quorum_prune", and the command name often sits beside the unit rather
+      // than inside it (`'quorum_prune', // <comment>`, or a `quorum_prune: {` key above a reason
+      // string), so it is answered over the surrounding lines. Wide scoping under-skips; strict
+      // pairing prevents escapes. Getting these backwards is what F-017 flagged.
+      const namedNearby = (line: number): boolean =>
+        sourceLines.slice(Math.max(0, line - 4), line + 3).some(candidate => candidate.includes('quorum_prune'));
+      for (const unit of proseUnitsOf(file, source)) {
+        if (!/apply:true|apply=true/.test(unit.text)) continue;
+        if (!inRange(unit.line)) continue;
+        if (requireSelfMention && !unit.text.includes('quorum_prune') && !namedNearby(unit.line)) continue;
+        const where = `${file}:${unit.line}`;
         discovered.push(where);
-        assert.match(context, /dryRun:false|--dryRun=false/, `${where} documents apply:true without naming dryRun:false as the equivalent executor`);
-      });
+        assert.match(
+          unit.text,
+          /dryRun:false|--dryRun=false/,
+          `${where} documents apply:true without naming dryRun:false as the equivalent executor (prose unit: ${unit.text.slice(0, 160)})`,
+        );
+      }
     }
+    // The floor guards against the sweep silently finding nothing (a parse or scoping regression).
+    // It is pinned to the actual current count, so losing even one site trips it — a loose floor
+    // was itself a review finding: at >= 6 with 12 real sites, half could vanish unnoticed.
     assert.ok(
-      discovered.length >= 6,
-      `expected the discovery sweep to find the known contract sites, found ${discovered.length}: ${discovered.join(', ')}`,
+      discovered.length >= 10,
+      `discovery sweep under-covered: found only ${discovered.length} contract prose units (${discovered.join(', ')}); if a site was legitimately removed, lower this floor deliberately`,
     );
     // Both refusals must be documented wherever the per-flag contract is rendered, so the two
     // --help lines cannot disagree with each other or with the block above them again.
