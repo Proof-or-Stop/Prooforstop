@@ -699,6 +699,33 @@
         "scanEscalationReason": null
       },
       "_hash": "39007f9dfbf03c7057270d58b6ddedd51b848b44fc9875f095181a7f0140ec14"
+    },
+    {
+      "id": "B-506e:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Fast re-pass after 2 more main merges (B-7813, B-1507) invalidated the prompt envelope again; no story-owned work changed. (1) core/store.ts delta vs b4fa4bbfad is exactly B-7813 one type-import add (StallAdjudicationData) plus two new methods readStallAdjudication/writeStallAdjudication targeting a distinct file stall-adjudication.json; classifyRedRecordSchema and readRedEvidence untouched, no naming collision with red-evidence schema-classification. (2) lattice.config.json: valid JSON, validate.commands has 56 entries, red-evidence-chain-smoke.js and review-budget-stall-adjudication-smoke.js both present adjacent (lines 103-104) with no duplicate ids; repo-wide grep for conflict markers (<<<<<<<, =======, >>>>>>>) outside node_modules/dist/.git returns zero. (3) Re-grepped 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc repo-wide: 14 occurrences, all confined to this story own .lattice/story/actives/B-506e/*.json artifacts (summary.json, findings.json x3, checklist.json, delivery-check.json x3, test-evidence.json, review-passes.json x5); every occurrence is either the explicit CORRECTION AND RETRACTION language or a historical reviewer note quoting/describing the retracted value -- none asserts it as current fact. No blocker.",
+      "createdAt": "2026-07-26T11:46:51.371Z",
+      "reviewRound": "2026-07-26T11:41:39.769Z",
+      "reviewRunId": "B-506e:RR-038",
+      "envelopeId": "de11aa4ae6a5c171a2f6f0bbfadcda9811e9f00742a8fad744565359a769647c",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          ".lattice/story/actives/B-506e/test-evidence.json",
+          "lattice.config.json",
+          "packages/main/src/core/store.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "850e9ff951ff109ee71334b26abde7206b9abf9f216ea550c413ece6e0733696"
     }
   ]
 }
