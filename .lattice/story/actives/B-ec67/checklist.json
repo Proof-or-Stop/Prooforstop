@@ -345,9 +345,9 @@
       "id": "CHK-004",
       "title": "Keep manual|docs intents attestation-only, explicitly non-mechanical, and not scored equal to tool receipts",
       "context": "type manual|docs cannot auto-execute. Mark them non-mechanical human attestation and ensure the coverage/gate does NOT treat them as equivalent to an executed receipt, so type:manual cannot become an escape hatch that bypasses execution for an automatable intent.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-26T00:28:49.982Z",
       "files": {
         "modify": [
           "packages/main/src/core/verification.ts",
