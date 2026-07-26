@@ -29,6 +29,7 @@ import {
   signStallAdjudication,
   validateStallResolutionInput,
 } from '../core/stall-adjudication.js';
+import { PRIVILEGED_OVERRIDE_ACTION } from '../core/review-convergence.js';
 import { StoryStore } from '../core/store.js';
 import type { StallAdjudicationData } from '../core/types.js';
 
@@ -101,11 +102,18 @@ export function createStallAdjudicationHandlers(ctx: HandlerContext): Record<str
           store.writeStallAdjudication(args.storyId, data);
 
           const commitHint = autoCommitStoryMetadata(root, args.storyId, 'stall_resolution_set');
+          // CHK-003: override_budget is the PRIVILEGED action — it clears the
+          // hard-ceiling block (which an ordinary per-round resolution cannot),
+          // and is likewise current-round-bound (authorizes exactly the next round).
+          const isOverride = normalized.action === PRIVILEGED_OVERRIDE_ACTION;
+          const clearLine = isOverride
+            ? '\n→ This PRIVILEGED override clears the hard-ceiling block for exactly the next ordinary review round (an ordinary per-round resolution cannot clear the ceiling). It is not a permanent budget increase — each further round past the ceiling needs its own override.'
+            : '\n→ This clears the convergence-stall block for exactly the next ordinary review round.';
           const closeLine = normalized.action === 'declare_unreachable'
             ? `\n→ Checklist item ${normalized.itemId} withdrawn (B-1909 disposition${withdrawalDecisionRef ? ` ${withdrawalDecisionRef}` : ''}); the stall loop is closed for that item — no further ordinary round is required for it.`
             : '';
           return `Stall resolution recorded for ${args.storyId}: action=${normalized.action}, bound to review round ${reviewRound}.` +
-            `\n→ This clears the convergence-stall block for exactly the next ordinary review round.${closeLine}${commitHint}`;
+            `${clearLine}${closeLine}${commitHint}`;
         },
         { label: 'stall-adjudication metadata' },
       );

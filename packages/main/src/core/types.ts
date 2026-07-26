@@ -1844,18 +1844,20 @@ export interface InitCheckData {
 // stall-adjudication.json consumed by the DEV→REVIEW mint gate) ──
 
 /**
- * B-7813: the five structured actions an operator may record to clear the
- * convergence-stall block (CHK-001). Kept in lock-step with the canonical
- * STALL_RESOLUTION_ACTIONS tuple in core/review-convergence.ts — that tuple is
- * the runtime source of truth for membership validation; this union is the
- * compile-time mirror.
+ * B-7813: the structured actions an operator may record to clear the
+ * convergence-stall block. The first five are the ordinary per-round resolutions
+ * (CHK-001/CHK-002); `override_budget` (CHK-003) is the PRIVILEGED hard-ceiling
+ * override. Kept in lock-step with the canonical STALL_RESOLUTION_ACTIONS tuple
+ * in core/review-convergence.ts — that tuple is the runtime source of truth for
+ * membership validation; this union is the compile-time mirror.
  */
 export type StallResolutionActionName =
   | 'authorize_continuation'
   | 'replan'
   | 'escalate_root_cause'
   | 'resolve_findings'
-  | 'declare_unreachable';
+  | 'declare_unreachable'
+  | 'override_budget';
 
 /**
  * B-7813 CHK-002: the signed stall-adjudication record persisted at
