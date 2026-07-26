@@ -900,16 +900,27 @@ async function runStoryTransitionInner(
       // from the delivered code (the tampering the INIT_CHECK freeze prevents, which
       // decision.json promises the reopen preserves). This synchronous read-mutate-write
       // is co-located INSIDE the persist claim (F-006) and ORDERED so the phase=INIT
-      // writeStory below runs LAST. The persist claim is a mkdir concurrency lock, so it
-      // serializes concurrent writers (concurrency-atomic) — it is NOT crash-transactional:
-      // the reset and the phase write are two separate fs writes, so a hard crash between
-      // them can leave the checklist reset without the phase advanced. That residual is the
-      // SAFE direction — because the phase write is LAST, no exception or crash can leave
-      // phase=INIT with a stale done item that, since REOPEN only fires from PLAN, could
-      // never be re-triggered; a reset-without-advance is harmless and re-derivable on a
-      // retry. It also aborts at the oldPhase re-read guard above with the phase write, so a
-      // loser concurrent transition never resets. No-op for the common case (all items
-      // already pending).
+      // writeStory below runs LAST.
+      //
+      // Exact guarantee. CONCURRENCY-atomic: the persist claim is a mkdir lock
+      // (core/mkdir-lock.ts — mkdirSync of a fresh dir IS the atomic acquire, EEXIST means
+      // held), so only one writer at a time runs the reset+phase pair, and a loser aborts at
+      // the oldPhase re-read guard above before writing EITHER file, so it never resets.
+      // NOT crash-transactional: the reset (checklist.json) and the phase write (index.json)
+      // are two separate fs writes, so a crash or kill between them leaves the checklist
+      // reset with the phase still PLAN. Each write is individually tmp+rename
+      // (store.writeJsonFile), so that residual is one of exactly two file-consistent
+      // states — never a torn checklist.
+      //
+      // Why that is the safe direction, and it is safe ONLY because the phase write is LAST:
+      // no crash can produce the dangerous state — phase=INIT (titles unfrozen) still holding
+      // a stale done item — which nothing would later clean up, since REOPEN only fires from
+      // PLAN (see the eventType remap above) and so the reset cannot re-run from INIT. The
+      // reachable residual costs only the done/in_progress markers that this reopen was
+      // deliberately discarding anyway, so a retry converges on exactly the intended end
+      // state. It is not free, though: abandon the reopen and those markers stay lost
+      // (checklist.json has already been overwritten), so "safe" here means integrity-safe,
+      // not recoverable. No-op for the common case (all items already pending).
       if (eventType === 'REOPEN') {
         const reopenChecklist = store.readChecklist(args.storyId);
         let reopenMutated = false;
