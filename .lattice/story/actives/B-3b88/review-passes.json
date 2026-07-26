@@ -121,6 +121,37 @@
         "scanEscalationReason": null
       },
       "_hash": "ef654793914bd5e8760cc659f2e3f23cb321e4d3927e6ce174150c72f6b3c850"
+    },
+    {
+      "id": "B-3b88:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-pass (RR-012, head 119da19b0). checklist.ts/verification.ts code (detectEvidenceRowContradiction helper + wiring; refresh_stale isCommandBackedPass guard incl. whitespace non-trim fix) diffed byte-identical against the round-1-passed commits (bf718f50ee/a9036147af). Round-2 diff = doc/help-text + verification-freshness-smoke.ts assertion updates (630b6d9, F-001/F-002) plus a live F-003 fix (0d525f9de2) that landed on story-lifecycle.md:265 mid-review -- rebound via a fresh review_run_start (RR-009->RR-012) instead of judging the stale binding. Ran: npx tsc --noEmit (clean), npm run build (clean), dist/tasks/evidence-selfcheck-smoke.js (PASS), dist/tasks/refresh-stale-honesty-smoke.js (PASS), dist/tasks/verification-freshness-smoke.js (modified assertion blocks pass; the one remaining failure, assertSimulatedMainMergeRegression, is a documented pre-existing unrelated pre_review_check/acceptance-basis issue and this smoke is not in package.json test:* or run-all-smokes). No dead code (new import used at both call sites), no unnecessary as any / empty catch introduced, no bridge.ts pattern (I/O-isolation N/A), no job/run.metadata proof semantics touched (N/A). Closing self-check: command-catalog.ts help text, evidence-stale-hint.ts renderEvidenceStaleHint block, and both decision docs (story-lifecycle.md lines 195/265/278, testing-infra.md:166) now consistently describe the refuse/re-stamp-only behavior actually implemented; no promised-but-undelivered surface remains. No blocker.",
+      "createdAt": "2026-07-26T00:01:04.219Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-012",
+      "envelopeId": "5db0348ee4b6b8b2e6235c812fec6a477623e37ad70b522acdb17bdf3a9e964a",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "815baae7c4004e4287f44005575a1780ef3790f714c563a84fbb22a5a6b8822e"
     }
   ]
 }
