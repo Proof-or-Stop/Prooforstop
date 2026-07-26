@@ -59,6 +59,24 @@
       "resolvedAt": "2026-07-26T02:28:37.137Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-70a6:F-003",
+      "desc": "Cross-host review round B-70a6-xhr-r1/r2: independent host codex-host-b returned decision=fail with one MAJOR finding (recorded here by the main agent for tracking; the authoritative verdict is the host_verdict process event, not this record). Finding: \"New reopen audit semantics are absent from the process-fact contract\" at packages/main/src/core/process-fact-registry.ts:1371. This story makes transitionType and reason durable semantics of PLAN->INIT phase_transition events, but the registered phase-transition process fact still describes only fromPhase/toPhase/attemptId/reviewRound/materialHash/storyFilesHash, and scripts/verify-process-fact-contract.mjs has no assertion for the new fields. That violates the CLAUDE.md dual-layer process-fact contract (prompt guidance + hardcoded mechanical fallback) and lets a later refactor silently drop the reopen marker or the reason while the mechanical contract still passes - defeating the audit guarantee this story exists to establish. Fix: extend the runtime phase-transition process-fact declaration to cover the REOPEN marker + reason semantics, and extend verify-process-fact-contract.mjs to mechanically assert that a successful REOPEN emits transitionType=reopen with the validated reason while ordinary transitions omit both fields. Note: all three local Claude reviewers (concept, quality, test-coverage) passed without catching this; the independent host did.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-26T03:46:06.850Z",
+      "reviewRound": "2026-07-26T02:28:17.084Z",
+      "_hash": "4ea324a820a828fe13106713e84b7f62422d2f622d42d6d9e536c6a6a48241c8",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|cross-host-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
