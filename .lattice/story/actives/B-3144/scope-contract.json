@@ -34,10 +34,26 @@
       "phase": "DEV",
       "headHash": "a4211826b3b4154cae3160ab526a1172bc471de4",
       "materialHash": "ca5cdd778eae450c4299f3ee5ce72131d6f7a27c8045b4c1172f063bf2f8af45"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Review finding B-3144:F-001 (high, concept lane, live-reproduced): writeCodexProcessEvent excludes only quorum_submit from the generic post-handler codex_cli process-event append. quorum_prune commits through the identical immutable lifecycle-metadata transaction, so without a matching exclusion the generic append re-dirties the very process-events.jsonl the command just atomically committed, making the next quorum call pre-dirty-refuse for unrelated reasons.",
+      "timestamp": "2026-07-25T23:08:42.245Z",
+      "paths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-engine.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "11410e4c1e149aae3075b74555d9678036bba1f2",
+      "materialHash": "3b518e271d9f1be5fb163938c2716f5fa4eb092fdfd9df17e520ef1ee5009ce2"
     }
   ],
   "createdAt": "2026-07-24T20:12:00.926Z",
-  "updatedAt": "2026-07-24T22:00:36.504Z",
+  "updatedAt": "2026-07-25T23:08:42.245Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -48,6 +64,7 @@
     "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
     "packages/main/src/handlers/quorum-prune.ts": "packages/main/src/handlers/quorum-prune.ts",
-    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts"
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts"
   }
 }

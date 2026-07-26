@@ -18,11 +18,15 @@ import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 // stories, replacing hand-editing the append-only log.
 //
 // Containment (decision.json preMortems): dry-run is the default (no mutation without explicit
-// apply:true), a timestamped byte-identical backup is written before any rewrite, and the
-// rewrite is committed through the SAME lifecycle-metadata transaction machinery quorum_submit
-// uses so the pre-dirty refusal, exact-content verification, and rollback all hold. It never
-// touches floor/escalation acceptance semantics — removing events cannot re-stale passes
-// because story metadata is excluded from storyFilesHash.
+// apply:true, and dryRun is a real declared schema flag so `--dryRun` is honored rather than
+// silently swallowed), a timestamped byte-identical backup is written before any rewrite —
+// named `process-events.jsonl.<stamp>.bak` so it matches the repository's existing `*.bak`
+// ignore pattern and leaves no untracked dirt behind — and the rewrite is committed through the
+// SAME lifecycle-metadata transaction machinery quorum_submit uses so the pre-dirty refusal,
+// exact-content verification, and rollback all hold. Because that transaction is exact and
+// immutable, cli-engine's generic codex_cli process-event append excludes quorum_prune exactly
+// as it excludes quorum_submit. It never touches floor/escalation acceptance semantics —
+// removing events cannot re-stale passes because story metadata is excluded from storyFilesHash.
 
 type KeepSelector = 'newest-material' | 'oldest-material';
 
@@ -34,6 +38,14 @@ export interface QuorumPruneFormatArgs {
 export type QuorumPruneArgs = {
   storyId: string;
   runIds?: string[] | string;
+  /**
+   * Explicit projection-only request. Omitted or true = project the duplicate groups without
+   * touching anything; it is the default, so it exists mainly so `--dryRun` is a REAL declared
+   * schema field (not a silently-swallowed unknown key) and so help-renderer derives the true
+   * "default-on via --dryRun" contract instead of falling through to "always-on".
+   * dryRun:true together with apply:true is refused rather than silently resolved.
+   */
+  dryRun?: boolean;
   apply?: boolean;
   keep?: KeepSelector;
 } & QuorumPruneFormatArgs;
@@ -122,12 +134,20 @@ function assertCleanPruneBaseline(gitCwd: string): void {
   }
 }
 
+// The backup lands in the GIT-TRACKED story dir, so its name must genuinely match the
+// repository's existing `*.bak` ignore pattern (.gitignore) — the extension has to be the LAST
+// segment. A `.bak-<stamp>` suffix does not match `*.bak`, and because the prune transaction
+// stages only process-events.jsonl the backup would then survive as untracked dirt; both
+// assertCleanPruneBaseline here and quorum_submit's assertCleanQuorumBaseline run an unscoped
+// `git status --porcelain=v1 --untracked-files=all`, so the very next legitimate recovery call
+// would refuse on this tool's own artifact. Uniqueness therefore appends the collision counter
+// BEFORE the extension so every candidate keeps the ignored `.bak` ending.
 function writeUniqueBackup(storyDir: string, rawBytes: Buffer): string {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  let candidate = join(storyDir, `process-events.jsonl.bak-${stamp}`);
+  let candidate = join(storyDir, `process-events.jsonl.${stamp}.bak`);
   let counter = 1;
   while (existsSync(candidate)) {
-    candidate = join(storyDir, `process-events.jsonl.bak-${stamp}-${counter}`);
+    candidate = join(storyDir, `process-events.jsonl.${stamp}-${counter}.bak`);
     counter += 1;
   }
   writeFileSync(candidate, rawBytes);
@@ -188,7 +208,17 @@ export function createQuorumPruneHandlers(ctx: HandlerContext) {
       if (!isCanonicalStoryId(storyId)) {
         throw new Error(`quorum_prune: storyId "${storyId}" is not a canonical, path-safe Proofbound story id`);
       }
+      // dryRun/apply resolution follows the repo convention (capability_release_backfill):
+      // apply:true is the only executor, dryRun is default-true, and an explicitly conflicting
+      // combination is REFUSED rather than silently resolved in either direction.
       const apply = args.apply === true;
+      if (apply && args.dryRun === true) {
+        throw new Error(
+          'quorum_prune refuses: pass either apply:true or dryRun:true, not both. dryRun:true only '
+          + 'projects the duplicate groups (no backup, rewrite, or commit); apply:true backs up, '
+          + 'rewrites, and commits. Omit dryRun (the default) and pass apply:true to actually recover.',
+        );
+      }
       const keep: KeepSelector = args.keep === 'oldest-material' ? 'oldest-material' : 'newest-material';
       const runIdFilter = normalizeRunIdFilter(args.runIds);
 

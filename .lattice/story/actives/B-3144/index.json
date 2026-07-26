@@ -4,7 +4,7 @@
   "title": "quorum_submit cross-material resubmission poisons a drift-accepted quorum: align the duplicate guard with the floor and add a recovery command",
   "description": "quorum_submit emits verdicts under deterministic runIds (<storyId>-q-rN, no material component; handlers/quorum-submit.ts:480,506). Its duplicate guard only refuses resubmission when committed verdicts on a planned runId carry the SAME materialDigest (quorum-submit.ts:485), and its comment explicitly intends to allow a fresh quorum after the material changes. But the review-escalation floor accepts old verdicts whose materialDigest is stale when their storyFilesHash matches current, by REWRITING their materialDigest to current before round evaluation (eventsWithStoryFilesHashDowngrade, core/review-escalation.ts:948-969). After a merge that changes materialHash but not storyFilesHash (e.g. git merge main), a redundant resubmit therefore passes the guard, lands a second verdict per host into the same runIds, and evaluateHostVerdictRounds invalidates every round as 'duplicate host/session/key identity' (core/host-independence.ts:191-205), silently dropping assurance from full-3x2 to ordinary review. There is no supersede or recovery command; the only recovery is manual surgery on the committed process-events.jsonl (live incident: story B-bf52, 2026-07-24, recovered by commit 255eefd289). Root cause: the guard's collision predicate (raw digest equality) is strictly narrower than the floor's acceptance predicate (digest equality OR storyFilesHash drift-accept). Fix: (1) align the guard - refuse resubmission when existing committed verdicts on planned runIds would drift-accept at the current storyFilesHash, with an error that states the standing quorum is still valid; (2) add an official recovery command that removes duplicate host-verdict events for poisoned runIds (dry-run + backup), formalizing the B-bf52 surgery.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "source": "B-bf52 quorum poisoning incident forensics (2026-07-24)",
   "keywords": [
@@ -64,6 +64,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-25T22:42:25.197Z",
+      "branch": "story/B-3144",
+      "user": "Harmonygo",
+      "sessionId": "sess-5b1726329b4238f4714da1445a2ae181",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-25T23:08:30.112Z",
       "branch": "story/B-3144",
       "user": "Harmonygo",
       "sessionId": "sess-5b1726329b4238f4714da1445a2ae181",

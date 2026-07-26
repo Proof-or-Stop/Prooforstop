@@ -9,8 +9,13 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { captureLifecycleMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { canonicalDigest } from '../core/authority-signing.js';
-import { resetConfigCache } from '../core/config.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { DEFAULT_PHASE_TOOLS, isCommandAllowed, resetConfigCache } from '../core/config.js';
+import {
+  currentGitHead,
+  currentMaterialHash,
+  currentStoryFilesHash,
+  isMaterialExcludedPath,
+} from '../core/evidence-freshness.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { collectReviewerEvidenceState, signReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import {
@@ -48,6 +53,22 @@ const REVIEW_LANES = [
   'lattice-review-concept',
   'lattice-review-quality',
   'lattice-review-test-coverage',
+] as const;
+
+// Ignore rules copied verbatim from the implementation repo's own .gitignore. Both
+// quorum_prune's assertCleanPruneBaseline and quorum_submit's assertCleanQuorumBaseline run an
+// UNSCOPED `git status --porcelain=v1 --untracked-files=all`, so a fixture that omits the
+// shipped repo's `*.bak` + managed-runtime-artifact rules measures fixture drift instead of
+// product behavior (a CLI-driven mutating command writes owner-lease.json while it runs). The
+// "clean worktree after apply" check asserts every pattern below still exists in the real
+// .gitignore, so this mirror can never quietly become a self-serving fixture.
+const MIRRORED_REPO_IGNORE_PATTERNS = [
+  '*.bak',
+  '**/owner-lease.json',
+  '**/breaker-state.json',
+  '**/takeover-count.json',
+  '**/gate-failure-counts.json',
+  '**/*.lock/',
 ] as const;
 
 function reviewerReadManifest(lane: string): Record<string, unknown> {
@@ -163,7 +184,13 @@ function makeFixture(
 ): { root: string; store: StoryStore; ctx: HandlerContext; registry: ReturnType<typeof createMainRegistry> } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-quorum-submit-'));
   writeConfig(root);
-  write(root, '.gitignore', '.lattice/autopilot-verdicts/\n.lattice/activity.jsonl\n.lattice/locks/\n');
+  write(root, '.gitignore', [
+    '.lattice/autopilot-verdicts/',
+    '.lattice/activity.jsonl',
+    '.lattice/locks/',
+    ...MIRRORED_REPO_IGNORE_PATTERNS,
+    '',
+  ].join('\n'));
   write(root, 'bin/lattice.js', `#!/usr/bin/env node\nimport ${JSON.stringify(DIST_CLI_PATH)};\n`);
   write(root, 'probe.mjs', [
     "import { appendFileSync } from 'node:fs';",
@@ -418,7 +445,30 @@ function quorumProcessEventsPath(fixture: ReturnType<typeof makeFixture>): strin
 
 function storyBackupFiles(fixture: ReturnType<typeof makeFixture>): string[] {
   return readdirSync(fixture.store.storyDirPath(STORY_ID))
-    .filter(name => name.startsWith('process-events.jsonl.bak-'));
+    .filter(name => name.startsWith('process-events.jsonl.') && name.endsWith('.bak'));
+}
+
+// B-3144 F-006: an INDEPENDENT, file-level view of the story-owned diff — the (path, status,
+// destination blob id) triples git itself reports between merge-base(main, HEAD) and HEAD, with
+// the same story-metadata exclusion currentStoryFilesHash applies. It shares no code with the
+// storyFilesHash digest, so equality here is a genuinely separate witness that a main drift
+// touched zero story-owned blobs rather than a restatement of the hash equality.
+function storyOwnedDiffBlobs(root: string): string[] {
+  const base = git(root, ['merge-base', 'main', 'HEAD']);
+  const raw = git(root, ['diff', '--raw', base, 'HEAD']);
+  return raw.split('\n').filter(Boolean).map((line) => {
+    const [meta, path] = line.split('\t');
+    // ":<srcmode> <dstmode> <srcsha> <dstsha> <status>"
+    const parts = meta.trim().split(/\s+/);
+    return { path, dstBlob: parts[3], status: parts[4] };
+  })
+    .filter(entry => entry.path && !isMaterialExcludedPath(entry.path, root))
+    .map(entry => `${entry.path}\0${entry.status}\0${entry.dstBlob}`)
+    .sort();
+}
+
+function wholeTreeDiffPaths(root: string, fromHead: string): string[] {
+  return git(root, ['diff', '--name-only', fromHead, 'HEAD']).split('\n').filter(Boolean).sort();
 }
 
 // B-3144 CHK-003: reproduce the exact B-bf52 poisoned file shape. The producer guard now
@@ -1631,14 +1681,39 @@ try {
       const first: any = handler(quorumArgs());
       assert.equal(first.emittedCount, 6, 'baseline quorum emits 3 rounds x 2 hosts');
       const storyHashBefore = currentStoryFilesHash(fixture.root, 'HEAD', fixture.root);
+      // CHK-001:edge:0 (F-006): storyFilesHash equality is necessary but NOT sufficient, so also
+      // capture the independent file-level story-owned blob set before the drift.
+      const storyBlobsBefore = storyOwnedDiffBlobs(fixture.root);
+      const preDriftHead = git(fixture.root, ['rev-parse', 'HEAD']);
       commitMainDrift(fixture.root);
       const storyHashAfter = currentStoryFilesHash(fixture.root, 'HEAD', fixture.root);
       assert.equal(storyHashAfter, storyHashBefore, 'incident precondition: main drift must not move storyFilesHash');
+      // F-006: independent witness — the drift really did change the tree (main-drift.ts appears
+      // in the whole-tree diff), yet the story-owned changed-file set and every one of its
+      // destination blob ids are byte-identical, so zero story-owned blobs were touched.
+      const driftedPaths = wholeTreeDiffPaths(fixture.root, preDriftHead);
+      assert.ok(
+        driftedPaths.includes('packages/main/src/main-drift.ts'),
+        `drift precondition: the merge must actually introduce main-drift.ts (${driftedPaths.join(', ')})`,
+      );
+      const storyBlobsAfter = storyOwnedDiffBlobs(fixture.root);
+      assert.ok(storyBlobsBefore.length > 0, 'the story-owned diff set is non-empty, so equality below is not vacuous');
+      assert.deepEqual(
+        storyBlobsAfter,
+        storyBlobsBefore,
+        'commitMainDrift touches ZERO story-owned blobs: identical (path, status, blob id) triples across the drift',
+      );
+      assert.ok(
+        storyBlobsAfter.every(entry => !entry.startsWith('packages/main/src/main-drift.ts\0')),
+        'the drift file never enters the story-owned diff set',
+      );
       const materialAfter = currentMaterialHash(fixture.root, 'HEAD', fixture.root);
       assert.ok(materialAfter && materialAfter !== first.materialDigest, 'incident precondition: main drift must move materialHash');
       recordReviewerPasses(fixture.registry);
       const beforeEvents = hostVerdictEventCount(fixture.store);
       const beforeVerdicts = verdictFileCount(fixture.root);
+      // CHK-002:adversarial:2 (F-005): the refusal must leak NO state, HEAD included.
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
       let refusal: unknown = null;
       try {
         handler(quorumArgs());
@@ -1662,13 +1737,32 @@ try {
           + `validRounds=${rounds.validRounds.length} invalidRounds=${rounds.invalidRounds.length} (${reasons.join(' | ')})`,
         );
       }
+      const refusalMessage = String((refusal as Error).message);
       assert.match(
-        String((refusal as Error).message),
+        refusalMessage,
         /quorum_submit refuses: .*drift-accept/i,
         'refusal names the standing drift-accepted quorum',
       );
+      // CHK-002:edge:2 (F-003): assert the refusal message CONTENT, not just the branch keyword —
+      // the operator must be able to act on it without reading the source.
+      for (const runId of [`${STORY_ID}-q-r1`, `${STORY_ID}-q-r2`, `${STORY_ID}-q-r3`]) {
+        assert.ok(refusalMessage.includes(runId), `refusal names the standing runId ${runId}: ${refusalMessage}`);
+      }
+      assert.ok(
+        first.materialDigest && refusalMessage.includes(String(first.materialDigest)),
+        `refusal names the older standing materialDigest ${first.materialDigest}: ${refusalMessage}`,
+      );
+      assert.ok(
+        storyHashAfter && refusalMessage.includes(String(storyHashAfter)),
+        `refusal names the current storyFilesHash ${storyHashAfter}: ${refusalMessage}`,
+      );
+      assert.ok(
+        refusalMessage.includes('review_escalation_status'),
+        `refusal points at review_escalation_status: ${refusalMessage}`,
+      );
       assert.equal(hostVerdictEventCount(fixture.store), beforeEvents, 'refusal writes no host_verdict events');
       assert.equal(verdictFileCount(fixture.root), beforeVerdicts, 'refusal writes no verdict files');
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'refusal does not advance HEAD');
     });
   });
 
@@ -2075,7 +2169,11 @@ try {
       assert.equal(result.removedVerdictCount, 6);
       assert.ok(result.metadataCommitSha, 'apply commits the pruned log');
       assert.ok(result.backupPath && existsSync(result.backupPath), 'timestamped backup created');
-      assert.match(result.backupPath, /process-events\.jsonl\.bak-/, 'backup name is timestamped');
+      assert.match(
+        result.backupPath,
+        /process-events\.jsonl\.\d{4}-\d{2}-\d{2}T[0-9-]+Z(?:-\d+)?\.bak$/,
+        'backup name is timestamped AND keeps the ignored .bak extension last',
+      );
       assert.deepEqual(readFileSync(result.backupPath), poisonedBytes, 'backup is a byte-identical copy of the pre-prune log');
       const losing = new Set(originalHostVerdictLines);
       const expectedAfter = beforeLines.filter(line => !losing.has(line));
@@ -2095,20 +2193,35 @@ try {
     });
   });
 
-  check('quorum_prune resolves as a registered CLI command (catalog + policy wired)', () => {
+  check('quorum_prune resolves AND executes through the built CLI in the story phase (catalog + policy + DEFAULT_PHASE_TOOLS)', () => {
+    // CHK-003:happy:2 (F-004): every in-scope wiring point, including the config.ts
+    // DEFAULT_PHASE_TOOLS entry, is verified BEHAVIORALLY by this bound command.
+    assert.ok(
+      DEFAULT_PHASE_TOOLS['*'].includes('quorum_prune'),
+      'config.ts DEFAULT_PHASE_TOOLS["*"] lists quorum_prune',
+    );
+    assert.equal(isCommandAllowed('quorum_prune', 'REVIEW'), true, 'the phase-tool resolver admits quorum_prune in the fixture story phase');
     withFreshFixture((fixture) => {
       injectPoisonedDuplicates(fixture);
+      // Negative control FIRST: the fixture declares no phaseTools, so the CLI phase gate runs
+      // against DEFAULT_PHASE_TOOLS and genuinely blocks a command that is not listed for
+      // REVIEW. Without this, the exit-0 below would be vacuous.
+      const blocked = runFixtureCli(fixture.root, ['plan_set', `--storyId=${STORY_ID}`]);
+      assert.notEqual(blocked.status, 0, 'phase-gate control command is refused');
+      assert.match(
+        `${blocked.stdout}\n${blocked.stderr}`,
+        /is not available in REVIEW phase/,
+        'the DEFAULT_PHASE_TOOLS-driven phase gate is live in this fixture',
+      );
       const dryRun = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, json: true })]);
       const combined = `${dryRun.stdout}\n${dryRun.stderr}`;
-      // Registration proof (happy[2], wiring across the 5 in-scope integration points): the CLI
-      // resolves quorum_prune through command-catalog + command-policy and dispatches it — it is
-      // NEVER an unknown-command error, and the resolved command name is surfaced (either as the
-      // JSON dry-run result or as its command-policy phase note). Full CLI availability in every
-      // phase additionally requires listing quorum_prune in DEFAULT_PHASE_TOOLS['*'] (config.ts),
-      // which is outside this story's scope contract; the dry-run reporting logic itself is
-      // exercised directly through the registered handler in the dry-run check above.
       assert.doesNotMatch(combined, /unknown command|Unknown command|not a registered command|Unknown subcommand/i, 'quorum_prune resolves as a registered command, not unknown');
-      assert.match(combined, /quorum_prune/, 'the CLI recognizes and dispatches the quorum_prune command');
+      assert.doesNotMatch(combined, /is not available in REVIEW phase/, 'quorum_prune is NOT phase-refused: the DEFAULT_PHASE_TOOLS entry is live');
+      assert.equal(dryRun.status, 0, `quorum_prune executes through the built CLI: ${combined}`);
+      const payload = JSON.parse(dryRun.stdout.trim()) as { schemaVersion: string; duplicateGroups: unknown[]; dryRun: boolean };
+      assert.equal(payload.schemaVersion, 'lattice.quorum_prune.v1', 'the real handler ran end-to-end through catalog + policy + phase gate');
+      assert.equal(payload.dryRun, true);
+      assert.equal(payload.duplicateGroups.length, 6, 'the dispatched handler actually projected the poisoned groups');
     });
   });
 
@@ -2264,6 +2377,127 @@ try {
       assert.ok(secondPrune.backupPath && existsSync(secondPrune.backupPath));
       assert.notEqual(secondPrune.backupPath, firstPrune.backupPath, 'second prune uses a distinct backup path');
       assert.deepEqual(readFileSync(firstPrune.backupPath), firstBackupBytes, 'the earlier backup is not overwritten');
+    });
+  });
+
+  check('quorum_prune apply leaves a clean worktree and a second apply needs no manual git', () => {
+    // F-002/F-007 RED: the pre-prune backup is written into the GIT-TRACKED story dir while the
+    // prune transaction stages only process-events.jsonl. Unless the backup name genuinely
+    // matches the repository's `*.bak` ignore pattern it survives as untracked dirt, and both
+    // assertCleanPruneBaseline and quorum_submit's assertCleanQuorumBaseline (unscoped
+    // `git status --porcelain=v1 --untracked-files=all`) then refuse on the tool's OWN artifact.
+    // The fixture mirrors the repo's ignore rules, so first prove the real pattern still exists —
+    // otherwise the mirror could silently become a self-serving fixture.
+    const repoIgnoreLines = readFileSync(join(IMPLEMENTATION_REPO_ROOT, '.gitignore'), 'utf8')
+      .split('\n')
+      .map(line => line.trim());
+    for (const pattern of MIRRORED_REPO_IGNORE_PATTERNS) {
+      assert.ok(
+        repoIgnoreLines.includes(pattern),
+        `the implementation repo .gitignore still carries the mirrored pattern ${pattern}`,
+      );
+    }
+    assert.ok(
+      repoIgnoreLines.includes('*.bak'),
+      'the *.bak pattern the backup name relies on is a real, shipped repo rule',
+    );
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const r1 = `${STORY_ID}-q-r1`;
+      const r2 = `${STORY_ID}-q-r2`;
+      const first: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, runIds: [r1], apply: true, json: true });
+      assert.equal(first.applied, true, 'first apply succeeds');
+      assert.ok(first.backupPath.endsWith('.bak'), `backup must end in .bak so *.bak covers it (got ${first.backupPath})`);
+      assert.ok(existsSync(first.backupPath), 'the backup really is written into the tracked story dir');
+      assert.equal(
+        git(fixture.root, ['status', '--porcelain=v1', '--untracked-files=all']),
+        '',
+        'a successful apply leaves NO worktree dirt — the exact predicate both clean-baseline checks use',
+      );
+      const firstBackupBytes = readFileSync(first.backupPath);
+      // The next legitimate recovery action, with NO intervening git add/commit whatsoever.
+      const second: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, runIds: [r2], apply: true, json: true });
+      assert.equal(second.applied, true, 'the immediate second apply is not blocked by the first apply backup');
+      assert.notEqual(second.backupPath, first.backupPath, 'the second apply writes a distinct backup');
+      assert.deepEqual(readFileSync(first.backupPath), firstBackupBytes, 'the first backup survives the second apply untouched');
+      assert.equal(
+        git(fixture.root, ['status', '--porcelain=v1', '--untracked-files=all']),
+        '',
+        'the tree is still clean after the second apply',
+      );
+      assert.equal(storyBackupFiles(fixture).length, 2, 'both backups are retained side by side');
+      const rounds = quorumFloorRounds(fixture);
+      assert.ok(rounds.validRounds.map(round => round.runId).includes(r1), 'r1 recovered by the first apply');
+      assert.ok(rounds.validRounds.map(round => round.runId).includes(r2), 'r2 recovered by the second apply with no manual git');
+    });
+  });
+
+  check('quorum_prune apply through the production CLI under codex leaves no process-event dirt', () => {
+    // F-001 RED: cli-engine's generic post-handler codex_cli process-event append must exclude
+    // quorum_prune exactly as it excludes quorum_submit, otherwise it re-dirties the very
+    // process-events.jsonl the handler just atomically committed. runFixtureCli sets
+    // LATTICE_ACTIVITY_SOURCE=codex, which is the only condition under which the append fires.
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const applied = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, apply: true, json: true })]);
+      const combined = `${applied.stdout}\n${applied.stderr}`;
+      assert.equal(applied.status, 0, combined);
+      const payload = JSON.parse(applied.stdout.trim()) as { applied: boolean; removedVerdictCount: number; metadataCommitSha: string };
+      assert.equal(payload.applied, true);
+      assert.equal(payload.removedVerdictCount, 6);
+      assert.ok(payload.metadataCommitSha, 'the prune committed through the lifecycle-metadata transaction');
+      assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'apply advances HEAD with the pruned log');
+      assert.equal(
+        git(fixture.root, ['status', '--porcelain=v1', '--untracked-files=all']),
+        '',
+        'no codex_cli append re-dirties the file quorum_prune just committed, and no backup is left untracked',
+      );
+      // The next real call must therefore still be able to run: it reaches its own semantic
+      // refusal (nothing left to prune) instead of a pre-dirty refusal about our own artifact.
+      const next = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, apply: true, json: true })]);
+      const nextCombined = `${next.stdout}\n${next.stderr}`;
+      assert.match(nextCombined, /nothing to prune/, `follow-up call reaches the semantic refusal: ${nextCombined}`);
+      assert.doesNotMatch(nextCombined, /worktree\/index must be clean|has uncommitted changes/, 'follow-up call is not blocked by the tool\'s own leftovers');
+    });
+  });
+
+  check('quorum_prune --dryRun is a real declared flag, is honored, and refuses when combined with --apply', () => {
+    // F-008/F-009 RED: without a `dryRun` schema field, `--dryRun` is silently swallowed by the
+    // non-strict flag parser and help-renderer falls through to "Dry-run: always-on", which
+    // inverts the safety boundary for a command whose apply path really does mutate git state.
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const dry = runFixtureCli(fixture.root, ['quorum_prune', `--storyId=${STORY_ID}`, '--dryRun', '--json']);
+      assert.equal(dry.status, 0, `${dry.stdout}\n${dry.stderr}`);
+      const dryPayload = JSON.parse(dry.stdout.trim()) as { dryRun: boolean; applied: boolean; duplicateGroups: unknown[] };
+      assert.equal(dryPayload.dryRun, true, '--dryRun projects');
+      assert.equal(dryPayload.applied, false);
+      assert.equal(dryPayload.duplicateGroups.length, 6);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, '--dryRun makes no commit');
+      assert.equal(storyBackupFiles(fixture).length, 0, '--dryRun writes no backup');
+
+      // An explicitly conflicting combination must REFUSE, never silently pick a side.
+      const conflict = runFixtureCli(fixture.root, ['quorum_prune', `--storyId=${STORY_ID}`, '--dryRun', '--apply']);
+      const conflictOut = `${conflict.stdout}\n${conflict.stderr}`;
+      assert.notEqual(conflict.status, 0, `--dryRun --apply must fail: ${conflictOut}`);
+      assert.match(conflictOut, /pass either apply:true or dryRun:true, not both/i, conflictOut);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'the conflict refusal makes no commit');
+      assert.equal(storyBackupFiles(fixture).length, 0, 'the conflict refusal writes no backup');
+
+      // The auto-generated help must state the truth about when this command mutates.
+      const help = runFixtureCli(fixture.root, ['quorum_prune', '--help']);
+      const helpText = `${help.stdout}\n${help.stderr}`;
+      assert.match(helpText, /--dryRun\s+boolean/, 'help documents --dryRun as a declared boolean flag');
+      assert.doesNotMatch(helpText, /Dry-run: always-on/i, 'help must not claim the command never executes a side effect');
+      assert.match(helpText, /Dry-run: default-on via --dryRun=true/, 'help states the real default-on-with-explicit-apply contract');
+
+      // And apply:true still mutates for real, so the help claim above is not the safe lie.
+      const realApply = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, apply: true, json: true })]);
+      assert.equal(realApply.status, 0, `${realApply.stdout}\n${realApply.stderr}`);
+      assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'apply:true really does commit');
+      assert.equal(storyBackupFiles(fixture).length, 1, 'apply:true really does write a backup');
     });
   });
 
