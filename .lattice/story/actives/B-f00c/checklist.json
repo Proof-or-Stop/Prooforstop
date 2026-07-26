@@ -67,7 +67,60 @@
       "context": "New smoke (pattern per packages/main/src/tasks/evidence-refresh-smoke.ts: mkdtemp + git init + seed). (a) RED on unfixed code: merge a main branch lacking the story's committed source file, then assert classifyTrustedValidationLineage AND validationHeadLineage return rejected with untrusted-lineage-path/lineage_untrusted despite identical material/storyFiles/identity. (b) GREEN after fix: both return trusted; evaluateRoutineValidationReuse reusable=true and admissibility ok. (c) NEGATIVE (protection preserved): a genuine content change to a non-metadata file at the endpoint STILL refuses on both paths. (d) empty-net-diff between distinct heads means trusted; and a large-diff case exercising maxBuffer does not throw ENOBUFS. Wire the smoke into lattice.config.json validate.commands normal tier.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "RED assertion: on a repo where main-merge re-lists the story source file via per-commit -m union, classifyTrustedValidationLineage returns rejected with untrusted-lineage-path AND validationHeadLineage returns rejected with lineage_untrusted, despite identical materialHash/storyFilesHash/identity.digest -> smoke FAILS on unfixed code; WHY: proves the bug is reproducible before fix",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "GREEN assertion: after applying the net endpoint diff fix, the same merge scenario causes BOTH classifyTrustedValidationLineage to return trusted-story-metadata-descendant AND validationHeadLineage to return trusted-story-metadata-descendant; evaluateRoutineValidationReuse reusable=true and admissibility ok=true; WHY: proves the fix resolves the false positive",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke is wired into lattice.config.json validate.commands normal tier and runs as part of npm test -> CI executes it; WHY: ensures ongoing regression protection",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NEGATIVE test: a genuine content change to a non-metadata file at the endpoint STILL causes both classifyTrustedValidationLineage and validationHeadLineage to return rejected with the untrusted path listed -> protection preserved; WHY: the fix must not over-trust",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "empty-net-diff between two distinct heads (tree-identical merge) -> both paths return trusted (not rejected); WHY: edge case where merge commits exist but net content is unchanged",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "large-diff maxBuffer: a repo with >1000 changed paths in the net diff does not throw ENOBUFS or truncate the path list; WHY: robustness under realistic large-repo conditions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation resistance: if the per-commit -m union is kept (reverting the fix in the shared classifier), the RED assertion MUST fire; the smoke structurally asserts the old algorithm fails -> a gameable fix that keeps -m is caught; WHY: un-gameability",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Removing the NEGATIVE assertion (genuine content change still refuses) must be detectable as coverage loss: the smoke explicitly asserts untrusted paths are rejected, and removing that assertion causes the coverage report to flag missing required verification; WHY: prevents weakening the test",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Both paths exercised in the SAME smoke: the smoke calls BOTH classifyTrustedValidationLineage AND validationHeadLineage (the admissibility copy) with the same git state and asserts matching results -> the two copies cannot silently diverge; WHY: shared-classifier convergence guarantee",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
