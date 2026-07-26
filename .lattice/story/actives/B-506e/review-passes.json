@@ -769,6 +769,44 @@
         "scanEscalationReason": null
       },
       "_hash": "4dd8f8526366c40b9f796abd9fe90b11361dc2925b48bf953c0e6db82c3d612e"
+    },
+    {
+      "id": "B-506e:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Fast re-pass post B-7813/B-1507 merges (envelope re-refresh only, no code changes since RP-017): tsc clean, union-resolve of validate.commands verified lossless (56=54+55 union, no dup), pinned five-scenario digest 2d584cc1 reproduces, store.ts B-7813 additions isolated from readRedEvidence/writeRedEvidence. No blockers.",
+      "createdAt": "2026-07-26T11:53:50.070Z",
+      "reviewRound": "2026-07-26T11:41:39.769Z",
+      "reviewRunId": "B-506e:RR-067",
+      "envelopeId": "020e9c181b741a76831b804c7fd0137002ae5c40ded081a9467118dd9a0f5e82",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/store.ts",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "667fed359cba9d05fd4594a99dcbedb7995a2c35bbd778de44af667a348f7417"
     }
   ]
 }
