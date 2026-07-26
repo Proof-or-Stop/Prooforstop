@@ -368,6 +368,33 @@
         "scanEscalationReason": null
       },
       "_hash": "ba31f4557f70634d5b3b5678e557874b2cba1d6df5515f7ba89e182bd7258dd3"
+    },
+    {
+      "id": "B-3b88:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed at current material (post B-ec67 merge + F-001..F-004 fixes): CHK-001 12/12 and CHK-002 11/11 verificationIntent slots each bind to a distinct real assertion in evidence-selfcheck-smoke.ts / refresh-stale-honesty-smoke.ts (verified by reading both smoke files line-by-line against every intentRef). All 23 verificationEvidence rows are mechanical receipts (selectorMatched:true, exitCode:0) recorded at current materialHash e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6, matching the storys current material. Re-ran fresh: npm --prefix packages/main run build succeeded cleanly, then node packages/main/dist/tasks/evidence-selfcheck-smoke.js and node packages/main/dist/tasks/refresh-stale-honesty-smoke.js both printed PASS (exit 0). No blocker.",
+      "createdAt": "2026-07-26T11:20:21.927Z",
+      "reviewRound": "2026-07-26T11:14:01.717Z",
+      "reviewRunId": "B-3b88:RR-023",
+      "envelopeId": "800d1a28071db6778651219b65d1a13450620bd61c2d8e0855293767c7c7abbe",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "603be019f0351390439f24dcb2155dc396d756e905f5ee6e1194ab48e748cae1"
     }
   ]
 }
