@@ -1,0 +1,56 @@
+{
+  "storyId": "B-506e",
+  "changes": "Adds the red-evidence v2 record and chain plane behind two new owner-gated commands. New modules under packages/main/src/core/red-evidence/: record-v2.ts (the four-operation v2 union with exhaustive per-operation field sets, always-present nullable chain fields, CANON recordDigest and specDigest, plus a fail-closed schema classifier), chain.ts (head resolution by both uniqueness conjuncts, the three integrity checks with a fork reason id distinct from the prior-digest one, the closed transition table, and cycle-safe transitive effective-head resolution), operation-key.ts (the three operation-key preimages, normalizedReason, and the deterministic OP-first12hex-seq record id), append.ts (the mandated pipeline order: derive key, dedupe, replay short-circuit, resolve head, transition legality, integrity checks, append; every append serialized under one per-story-per-target mkdir claim). types.ts widens RedEvidenceData.records to a mixed v1 and v2 array with the on-disk layout unchanged, and in the SAME commit proofstory.ts guards the v1 gate predicate so a non-v1 record can never reach observedFailure.trim(). store.ts classifies every record at load and fails closed with a typed RedEvidenceSchemaError on an unsupported schemaVersion. handlers/red-evidence.ts adds red_evidence_quarantine and red_evidence_recover with the reference-validation state machine, a derived approvedBy, a write-time expectedRedTargets membership gate, and the binding-freeze rule, and rejects a caller-supplied approvedBy. Both commands are wired through the full registration recipe (registry, command-catalog, command-policy, config, process-fact-levels, process-fact-registry, types union, agent-dispatch-registry, and the process-fact contract enumerations). tasks/red-evidence-chain-smoke.ts is registered in lattice.config.json validate.commands, and nine committed regression tests live under packages/main/tests/red/.",
+  "usage": "Retire a red-evidence record and reinstate it, then run the committed chain smoke: node bin/lattice.js red_evidence_quarantine --storyId=B-xxxx --recordId=RED-ab12cd34ef56-1 --reason='superseded by the fixed assertion' ; node bin/lattice.js red_evidence_recover --storyId=B-xxxx --recordId=QUA-9f81ac2d40b7-2 --reason='quarantine was a mistake' ; node packages/main/dist/tasks/red-evidence-chain-smoke.js",
+  "expectedOutcome": "Running red_evidence_quarantine prints a chain receipt naming the new record id, its seq, the prior digest and a derived approvedBy of the form actor-at-session; red_evidence_recover does the same for the reinstatement; and node packages/main/dist/tasks/red-evidence-chain-smoke.js prints a single OK line covering the v2 union, the byte-identical v1 enforce-gate guard, chain integrity, the transition table, operation keys, dedupe and replay ordering, the rejection matrix, the binding freeze, and the two-process race.",
+  "actualTranscript": "node packages/main/dist/tasks/red-evidence-chain-smoke.js -> red-evidence-chain-smoke: OK - v2 union + section 0.4 omission/nullability; enforce-gate byte-identical v1 guard (RED signal A); chain head both conjuncts + three integrity checks with distinct reason ids; closed transition table + transitive cycle-safe effective head; operation-key + normalizedReason + deterministic id; dedupe/replay ordering + scoped dedupe + CONFLICT; full rejection matrix + retired byte-identical + forged approvedBy rejected + CHK-012 membership; section 1.1.3 binding-freeze/unfreeze/re-freeze; genuine 2-process mkdir-claim race -> one head (RED signal B). node bin/lattice.js validate -> exit 0, 52 of 52 configured commands green, including the newly registered chain smoke at commands[51].",
+  "outcomeDiff": "No difference. The observed smoke line and the green 52 of 52 validate run match the expected outcome exactly.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered. Every claim in this story is backed by a committed regression: the live enforce-gate crash class is proven by a differential RED (the pre-change tree throws a TypeError at observedFailure.trim, the current tree returns a typed RedEvidenceSchemaError) plus a byte-identical v1-only diagnostic (sha256 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc across five v1 scenarios), the serialization claim by a genuine two-process race, and the chain rules by a hashed rejection matrix. This story writes only the two control operations; the assertion envelope, matchers, run receipts and the process-spawning runner belong to later leaves W2d and W2e, as the frozen scope boundary states. A separate pre-existing defect on main, where a malformed versionless record still classifies as v1 and crashes the same predicate, was raised by the cross-host reviewer, confirmed by the orchestrator to be identical on main, and filed as its own task rather than folded in here.",
+  "pitfalls": "Six reviewers (four Claude lanes plus a real codex CLI second host) produced ten genuine findings that the implementer and its own RED tests had all missed. Three Claude lanes independently converged on a HIGH: an unknown schemaVersion fell through to the v1 branch and crashed the LIVE enforce gate, and the fail-closed classifier that documented the guarantee was never called from production code. The codex host found four more that all four Claude lanes missed: head consistency was validated only on a dedupe hit so a corrupt head became the prior link; a null head from a malformed non-empty chain was treated as an empty settable chain; the binding-freeze decision raced because binding_set held a binding lock while chain appends held a per-target chain lock; and a caller-supplied approvedBy was silently ignored where the spec says it is not accepted. Run a real second host, not one vendor. Process lessons for the next person: probing a blocked gate by re-running story_advance trips the convergence breaker at three repeats, so call it once and read the whole blocker list; quorum_submit validates each lane pass's prompt envelope against the changed-file set, so merge main BEFORE running the lanes that feed the quorum, not merely before the quorum itself, or every pass is refused; and when several sessions share one machine, lattice validate can hit its 900 second cap purely from lock contention, so wait for a quiet window instead of reading the abort as a failure.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 891664
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 22929
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 2228243
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 41203759
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 6876654
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 67654
+    }
+  },
+  "totalDurationMs": 51291384,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-26T00:04:36.910Z",
+  "updatedAt": "2026-07-26T00:04:36.910Z"
+}
