@@ -755,6 +755,180 @@ export function reconstructMissingIntentsFromEvidence(cl: ChecklistData): string
   return filled;
 }
 
+/**
+ * B-1507 CHK-002: a receipt earned by RE-RUNNING a pinned command during a stale
+ * refresh. Only ever populated by a real pass (mechanical:true + on-disk receipt) —
+ * a failed / unavailable re-run leaves NO entry, so the row falls through to the
+ * demote path. There is NO code path that mints one of these without a real pass.
+ */
+type ReexecStamp = { command?: string; result?: 'pass' | 'fail'; mechanical: true; receipt: VerificationExecutionReceipt };
+
+type StaleRefreshContext = {
+  refreshGitCwd: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  /** Pre-lock checklist snapshot (used to resolve pins for re-execution). */
+  cl: ChecklistData;
+  stale: ReturnType<typeof buildVerificationCoverage>['entries'];
+};
+
+/**
+ * B-1507 CHK-002: read-only snapshot of the current freshness hashes + the stale
+ * verificationEvidence set. Shared by BOTH the synchronous metadata-only entry and
+ * the re-executing CLI handler so the two paths compute the stale set identically.
+ * Throws (mirroring the original handler) when git HEAD is unreadable.
+ */
+function collectStaleRefreshContext(ctx: HandlerContext, storyId: string): StaleRefreshContext {
+  const { store, root } = ctx;
+  // B-75f0 CHK-001: refresh freshness from the RESOLVED gitRoot, not the bare
+  // metadataRoot. On a wrapper-root layout the bare root is not a git repo, so
+  // `git rev-parse HEAD` threw and refresh was impossible. metadataRoot stays
+  // `root` for the storyDir-aware material exclusion. Plain repos: gitCwd==root.
+  const refreshGitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  let headHash = '';
+  try {
+    headHash = execSync('git rev-parse HEAD', { cwd: refreshGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+  } catch {
+    throw new Error('verification_evidence_refresh_stale: cannot read git HEAD in current directory, unable to refresh freshness');
+  }
+  const materialHash = currentMaterialHash(refreshGitCwd, 'HEAD', root);
+  const storyFilesHash = currentStoryFilesHash(refreshGitCwd, 'HEAD', root);
+  const cl = store.readChecklist(storyId);
+  const coverage = buildVerificationCoverage(
+    cl,
+    headHash,
+    (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
+    { deferredGateEvidence: 'missing' },
+  );
+  const stale = coverage.entries.filter(e => e.status === 'stale' && e.evidence);
+  return { refreshGitCwd, headHash, materialHash, storyFilesHash, cl, stale };
+}
+
+/**
+ * B-1507 CHK-002: the SINGLE synchronous write core for a stale refresh, run under the
+ * checklist lock. For each stale row it does exactly ONE of two things:
+ *   - `reexecByKey` has a pass-stamp for the row (its pinned command was RE-RUN and
+ *     PASSED, computed by the async handler before the lock) → re-stamp a fresh
+ *     mechanical:true receipt bound to the CURRENT head/material — the row stays covered.
+ *   - otherwise (no pin / not re-run / the re-run did NOT pass) → the pre-B-1507
+ *     behavior: DEMOTE a stale mechanical receipt to a non-mechanical attestation, else
+ *     freshness-only re-stamp. A covered receipt is NEVER minted here without a real pass.
+ */
+function writeStaleRefresh(
+  ctx: HandlerContext,
+  storyId: string,
+  computed: StaleRefreshContext,
+  opts: { dryRun?: boolean; reexecByKey?: Map<string, ReexecStamp> } = {},
+): string {
+  const { store, root } = ctx;
+  const { headHash, materialHash, storyFilesHash, stale } = computed;
+  const reexecByKey = opts.reexecByKey ?? new Map<string, ReexecStamp>();
+  return withChecklistLock(ctx, storyId, () => {
+    const cl = store.readChecklist(storyId);
+    const lines = [
+      `${opts.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${storyId}: ${stale.length}`,
+    ];
+    let refreshed = 0;
+    for (const entry of stale) {
+      const item = cl.items.find(i => i.id === entry.itemId);
+      const existing = item?.verificationEvidence || [];
+      const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
+      const ev = idx >= 0 ? existing[idx] : entry.evidence;
+      lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
+      if (opts.dryRun || !item || idx < 0 || !ev) continue;
+      const reexec = reexecByKey.get(`${entry.itemId}::${entry.intentRef}`);
+      if (reexec) {
+        // B-1507 CHK-002: the pinned command was RE-RUN and PASSED through the same
+        // enforceAndStampEvidence refusal path. Bind the FRESH receipt to the CURRENT
+        // head/material so the row stays mechanical:true covered — no demotion.
+        existing[idx] = makeEvidence({
+          intentRef: ev.intentRef,
+          kind: ev.kind,
+          ...(ev.verdict ? { verdict: ev.verdict } : {}),
+          ...(ev.waiverType ? { waiverType: ev.waiverType } : {}),
+          ...(ev.file ? { file: ev.file } : {}),
+          ...(reexec.command ? { command: reexec.command } : (ev.command ? { command: ev.command } : {})),
+          ...(reexec.result ? { result: reexec.result } : (ev.result ? { result: ev.result } : {})),
+          note: ev.note,
+          headHash,
+          ...(materialHash ? { materialHash } : {}),
+          ...(storyFilesHash ? { storyFilesHash } : {}),
+          ...(ev.attestation ? { attestation: ev.attestation } : {}),
+          ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
+          ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
+          mechanical: true,
+          receipt: reexec.receipt,
+        });
+        item.verificationEvidence = existing;
+        refreshed++;
+        continue;
+      }
+      // B-ec67 F-001: carry the tool-execution provenance forward so refresh does NOT
+      // launder a demoted / receipt row back to mechanical:undefined (= grandfathered
+      // covered). A mechanical:true receipt is DEMOTED to a non-mechanical attestation
+      // here: without a fresh passing re-run the stale receipt must not keep covering.
+      let refreshedMechanical = ev.mechanical;
+      let refreshedReceipt = ev.receipt;
+      let refreshedReason = ev.nonMechanicalReason;
+      if (ev.mechanical === true) {
+        refreshedMechanical = false;
+        refreshedReceipt = undefined;
+        refreshedReason = ev.nonMechanicalReason
+          ?? 'receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt';
+      }
+      existing[idx] = makeEvidence({
+        intentRef: ev.intentRef,
+        kind: ev.kind,
+        ...(ev.verdict ? { verdict: ev.verdict } : {}),
+        ...(ev.waiverType ? { waiverType: ev.waiverType } : {}),
+        ...(ev.file ? { file: ev.file } : {}),
+        ...(ev.command ? { command: ev.command } : {}),
+        ...(ev.result ? { result: ev.result } : {}),
+        note: ev.note,
+        headHash,
+        ...(materialHash ? { materialHash } : {}),
+        ...(storyFilesHash ? { storyFilesHash } : {}),
+        ...(ev.attestation ? { attestation: ev.attestation } : {}),
+        ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
+        ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
+        ...(refreshedMechanical !== undefined ? { mechanical: refreshedMechanical } : {}),
+        ...(refreshedReceipt ? { receipt: refreshedReceipt } : {}),
+        ...(refreshedReason ? { nonMechanicalReason: refreshedReason } : {}),
+      });
+      item.verificationEvidence = existing;
+      refreshed++;
+    }
+
+    if (!opts.dryRun) store.writeChecklist(storyId, cl);
+    lines.push(opts.dryRun
+      ? '→ Rerun the above command without dryRun to refresh evidence metadata'
+      : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run lattice validate --story=${storyId} --json`);
+    if (!opts.dryRun) {
+      const commitHint = autoCommitStoryMetadata(root, storyId, 'verification_evidence_refresh_stale');
+      if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
+    }
+    return lines.join('\n');
+  });
+}
+
+/**
+ * B-1507 CHK-002: SYNCHRONOUS, metadata-only stale refresh that NEVER executes a
+ * pinned command. This preserves the exact pre-B-1507 behavior (freshness re-stamp +
+ * demote a stale mechanical receipt) for in-process callers whose OWN contract forbids
+ * running a verification command as a side effect: `evidence_refresh` ("never runs a
+ * command"), `done_prepare` (refuses / reruns command-backed rows on its own path), and
+ * `recover_evidence` (refresh hashes, then validate). The RE-EXECUTING behavior lives
+ * exclusively on the async `verification_evidence_refresh_stale` CLI handler below.
+ */
+export function refreshStaleEvidenceMetadataOnly(ctx: HandlerContext, storyId: string, dryRun = false): string {
+  const computed = collectStaleRefreshContext(ctx, storyId);
+  if (computed.stale.length === 0) {
+    return `No stale verification evidence for ${storyId}`;
+  }
+  return writeStaleRefresh(ctx, storyId, computed, { dryRun });
+}
+
 export function createChecklistHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
   // B-75f0 CHK-001: resolve the authoritative git cwd for a story-scoped command.
@@ -1576,96 +1750,68 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       });
     },
 
-    verification_evidence_refresh_stale(args: {
+    /**
+     * B-1507 CHK-002: the stale-evidence refresh now RE-EXECUTES pinned executable rows
+     * instead of demoting them. For every stale row whose intent carries an immutable
+     * `verification:{command,selector}` (a mechanical receipt or any pinned executable
+     * intent), the PINNED command is re-run OUTSIDE the checklist lock through the SAME
+     * `enforceAndStampEvidence` refusal path + `runSingleAllowlistedCommand` executor as
+     * `verification_run` / `verification_evidence_add` (no second executor). On a real
+     * pass a fresh receipt bound to the CURRENT head/material is re-stamped and the row
+     * stays `mechanical:true` covered. On ANY failure (exit != 0, selector absent,
+     * command unavailable / not allowlisted, resolution error) the re-run throws, no
+     * pass-stamp is recorded, and the row falls through to the pre-B-1507 demote path —
+     * a covered receipt is NEVER re-minted without a real pass (no laundering). Rows
+     * WITHOUT a pinned command keep the freshness-only / demote behavior unchanged.
+     *
+     * In-process callers whose contract forbids running a command as a side effect
+     * (`evidence_refresh`, `done_prepare`, `recover_evidence`) use the synchronous
+     * `refreshStaleEvidenceMetadataOnly` export instead of this re-executing handler.
+     */
+    async verification_evidence_refresh_stale(args: {
       storyId: string;
       dryRun?: boolean;
-    }): string {
-      return withChecklistLock(ctx, args.storyId, () => {
-      const cl = store.readChecklist(args.storyId);
-      let headHash = '';
-      // B-75f0 CHK-001: refresh freshness from the RESOLVED gitRoot, not the bare
-      // metadataRoot. On a wrapper-root layout the bare root is not a git repo, so
-      // `git rev-parse HEAD` threw and refresh was impossible. metadataRoot stays
-      // `root` for the storyDir-aware material exclusion. Plain repos: gitCwd==root.
-      const refreshGitCwd = resolveStoryGitCwd(args.storyId);
-      try {
-        headHash = execSync('git rev-parse HEAD', { cwd: refreshGitCwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-      } catch {
-        throw new Error('verification_evidence_refresh_stale: cannot read git HEAD in current directory, unable to refresh freshness');
-      }
-      const materialHash = currentMaterialHash(refreshGitCwd, 'HEAD', root);
-      const storyFilesHash = currentStoryFilesHash(refreshGitCwd, 'HEAD', root);
-      const coverage = buildVerificationCoverage(
-        cl,
-        headHash,
-        (oldHeadHash, evidence) => checkEvidenceFreshnessForGit(refreshGitCwd, oldHeadHash, evidence?.materialHash, root, evidence?.storyFilesHash).fresh,
-        { deferredGateEvidence: 'missing' },
-      );
-      const stale = coverage.entries.filter(e => e.status === 'stale' && e.evidence);
-      if (stale.length === 0) {
+    }): Promise<string> {
+      const computed = collectStaleRefreshContext(ctx, args.storyId);
+      if (computed.stale.length === 0) {
         return `No stale verification evidence for ${args.storyId}`;
       }
 
-      const lines = [
-        `${args.dryRun ? '[DRY-RUN] ' : ''}Stale verification evidence for ${args.storyId}: ${stale.length}`,
-      ];
-      let refreshed = 0;
-      for (const entry of stale) {
-        const item = cl.items.find(i => i.id === entry.itemId);
-        const existing = item?.verificationEvidence || [];
-        const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
-        const ev = idx >= 0 ? existing[idx] : entry.evidence;
-        lines.push(`  - ${entry.intentRef}: ${ev?.command || ev?.file || ev?.kind || 'evidence'} → ${headHash.slice(0, 7)}`);
-        if (args.dryRun || !item || idx < 0 || !ev) continue;
-        // B-ec67 F-001: carry the tool-execution provenance forward so refresh does NOT
-        // launder a demoted / receipt row back to mechanical:undefined (= grandfathered
-        // covered). A mechanical:true receipt is DEMOTED to a non-mechanical attestation
-        // here: refresh only re-stamps freshness hashes and does NOT re-run the pinned
-        // command (re-execution is a follow-on story), so a stale receipt must not keep
-        // covering. Coordinates with B-3b88, which also edits refresh_stale (prose-only
-        // laundering); this change is additive — it only carries/demotes mechanical fields.
-        let refreshedMechanical = ev.mechanical;
-        let refreshedReceipt = ev.receipt;
-        let refreshedReason = ev.nonMechanicalReason;
-        if (ev.mechanical === true) {
-          refreshedMechanical = false;
-          refreshedReceipt = undefined;
-          refreshedReason = ev.nonMechanicalReason
-            ?? 'receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt';
+      // Re-execute pinned executable rows OUTSIDE the checklist lock (execution is
+      // async; the write body is synchronous). Only a real mechanical pass records a
+      // stamp; every failure path leaves the key absent so the write demotes the row.
+      const reexecByKey = new Map<string, ReexecStamp>();
+      if (!args.dryRun) {
+        for (const entry of computed.stale) {
+          const item = computed.cl.items.find(i => i.id === entry.itemId);
+          if (!item) continue;
+          const resolved = resolveIntentForRef(item, entry.intentRef);
+          const pin = resolved?.intent.verification;
+          if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type)) continue;
+          const kind = intentTypeToEvidenceKind(resolved.intent.type);
+          try {
+            const stamp = await enforceAndStampEvidence(
+              item,
+              { intentRef: entry.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
+              { runCommand: (command, cwd) => runSingleAllowlistedCommand(command, root, { cwd }), cwd: computed.refreshGitCwd },
+            );
+            if (stamp.evidencePatch.mechanical === true && stamp.evidencePatch.receipt) {
+              reexecByKey.set(`${entry.itemId}::${entry.intentRef}`, {
+                ...(stamp.evidencePatch.command ? { command: stamp.evidencePatch.command } : {}),
+                ...(stamp.evidencePatch.result ? { result: stamp.evidencePatch.result } : {}),
+                mechanical: true,
+                receipt: stamp.evidencePatch.receipt,
+              });
+            }
+            // A non-mechanical / receiptless stamp is not a real pass → leave for demote.
+          } catch {
+            // exit != 0 / selector absent / command unavailable / not allowlisted /
+            // resolution error: leave the row on the demote path. NO laundering.
+          }
         }
-        existing[idx] = makeEvidence({
-          intentRef: ev.intentRef,
-          kind: ev.kind,
-          ...(ev.verdict ? { verdict: ev.verdict } : {}),
-          ...(ev.waiverType ? { waiverType: ev.waiverType } : {}),
-          ...(ev.file ? { file: ev.file } : {}),
-          ...(ev.command ? { command: ev.command } : {}),
-          ...(ev.result ? { result: ev.result } : {}),
-          note: ev.note,
-          headHash,
-          ...(materialHash ? { materialHash } : {}),
-          ...(storyFilesHash ? { storyFilesHash } : {}),
-          ...(ev.attestation ? { attestation: ev.attestation } : {}),
-          ...(ev.actorTrust ? { actorTrust: ev.actorTrust } : {}),
-          ...(ev.factProvenance ? { factProvenance: ev.factProvenance } : {}),
-          ...(refreshedMechanical !== undefined ? { mechanical: refreshedMechanical } : {}),
-          ...(refreshedReceipt ? { receipt: refreshedReceipt } : {}),
-          ...(refreshedReason ? { nonMechanicalReason: refreshedReason } : {}),
-        });
-        item.verificationEvidence = existing;
-        refreshed++;
       }
 
-      if (!args.dryRun) store.writeChecklist(args.storyId, cl);
-      lines.push(args.dryRun
-        ? '→ Rerun the above command without dryRun to refresh evidence metadata'
-        : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run lattice validate --story=${args.storyId} --json`);
-      if (!args.dryRun) {
-        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_refresh_stale');
-        if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
-      }
-      return lines.join('\n');
-      });
+      return writeStaleRefresh(ctx, args.storyId, computed, { dryRun: args.dryRun, reexecByKey });
     },
 
     /**
