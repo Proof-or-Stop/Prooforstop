@@ -1381,6 +1381,47 @@
         "scanEscalationReason": null
       },
       "_hash": "5bed3bcecd8fc576ae6d59ce566ec2835021ed1c010350bdb6e8254429885a1a"
+    },
+    {
+      "id": "B-4043:RP-042",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at head d4fa3cee (round opened solely to refresh stale closeout receipts). Diffed against last passing quality round (RR-060, head 1794d90b): only B-4043 metadata bookkeeping plus unrelated sibling-story/docs files changed; no B-4043 source/config touched.",
+      "createdAt": "2026-07-27T14:23:52.377Z",
+      "reviewRound": "2026-07-27T14:21:49.118Z",
+      "reviewRunId": "B-4043:RR-063",
+      "envelopeId": "2d6d4c11853f41384c39fb054c28923a8eca662fa44f3b346e0adf86317fd7e1",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-basis.json",
+          ".lattice/story/actives/B-4043/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-4043/delivery-check.json",
+          ".lattice/story/actives/B-4043/done-required-evidence.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/summary.json",
+          ".lattice/story/actives/B-4043/test-evidence.json",
+          ".lattice/story/actives/B-49d4/background.md",
+          ".lattice/story/actives/B-49d4/checklist.json",
+          "docs/evidence-integrity-program-spec.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3742700669e34288a606f2bec8a678ebdea49d386968c3a81a72a00f137ffae1"
     }
   ]
 }
