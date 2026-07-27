@@ -401,7 +401,7 @@
       "desc": ".lattice/story/actives/B-4043/checklist.json:73-405 — 12 of 15 verificationEvidence rows (CHK-001/002/003/004 happy+edge+adversarial, non-hardening) were NOT genuinely re-run post-merge as claimed. Notes still say Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z) — 40d6da1076 predates the 785-commit main merge at f9855acc21 (2026-07-27T03:02:11+01:00) by two days, and that cohort timestamp does not match the actually-regenerated /tmp/b4043-cohort-r4-final.json (verified mtime 2026-07-27T03:09:46). Yet these 12 rows carry headHash=1a6b726a (post-merge) solely because verification_evidence_refresh_stale (commit df0cdac9; diff shows ONLY hash/timestamp fields changed, note text untouched) unconditionally re-stamps stale non-mechanical rows to current headHash/materialHash/storyFilesHash with no re-execution (packages/main/src/handlers/checklist.ts writeStaleRefresh). I independently called checkEvidenceFreshnessForGit (packages/main/src/core/evidence-freshness.ts) with the ORIGINAL pre-refresh hashes (headHash=40d6da1076, materialHash=bec45105, storyFilesHash=32752b50) against current HEAD: result fresh:false, reason=evidence storyFilesHash does not match current story-owned file state, materialFiles=[<story-files-changed>] — the framework own classifier reports RELATED_STORY_MATERIAL_DRIFT (story-owned files actually changed across the merge), not the KNOWN_UNRELATED_MATERIAL_DRIFT case eligible for a safe metadata-only refresh. writeStaleRefresh does not discriminate the two classifications for manual_transcript evidence, so it silently laundered a must-rerun signal into an apparently-fresh PASS. This reproduces the F-017 pattern via a different mechanism; the claim commands were re-run at the merge head is false for these 12 rows. Only CHK-005 3 rows are independently verified genuine (headHash bound to f9855acc21/793462d8/33adeba1; cohort mtime matches exactly; I re-ran node scripts/verify-process-fact-contract.mjs myself, exit 0). Not re-raising CHK-004:hardening orphan row (accepted-risk per F-015).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-27T02:20:23.954Z",
@@ -414,7 +414,11 @@
         "packages/main/src/core/evidence-freshness.ts"
       ],
       "signatureTag": "missing|json|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause eliminated, not papered over. F-019 correctly identified that 12 evidence rows were hash-re-stamped without real re-execution (and diagnosed the enabling framework path: writeStaleRefresh not discriminating drift classes for manual_transcript evidence). The fix converts those rows from caller-authored to TOOL-EXECUTED under the B-ec67 pinned-command contract that main has since landed: each executable intent now carries an immutable pin {command, selector}, the CLI itself spawns the command, and result is derived from the real exit code plus selector match — a caller can no longer assert a pass. 12 of 15 intents now hold mechanical receipts (exitCode/outputDigest/outputTail/executedAt); the other 3 (CHK-005) are type=docs, non-executable by design. Enabling work committed: --cohort/--story/--out argv options and a --quiet mode so the pinned commands are expressible as executable+argv and their success markers fall inside the 12000-char selector window. Verified after the latest main merge: verification_evidence_refresh_stale RE-EXECUTED all 15 (receipts stamped 2026-07-27T11:44:07Z-11:49:44Z, minutes before this resolve), and the stale scan now reports 'No stale verification evidence'.",
+      "resolvedAt": "2026-07-27T11:50:35.875Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
