@@ -1228,6 +1228,32 @@
         "scanEscalationReason": null
       },
       "_hash": "63e09d481d8ee856adcf3001b91ab2dd06cfbf88edee5177f67131deaf3dcb75"
+    },
+    {
+      "id": "B-4043:RP-038",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage re-review after F-017/F-019 remediation: independently re-executed 2 of 3 distinct pinned commands live (verify-process-fact-contract.mjs, proofstory-acceptance-rollout-smoke.js) and got byte-identical exit-0/selector-matching output to the stored receipts, confirming 12/15 intents (CHK-001..CHK-004) are genuinely mechanical and fresh. All 15 declared verificationIntent entries have result=pass evidence, none missing/failed. CHK-005 (type=docs, no pin by design) evidence rows carry mechanical:false + honest nonMechanicalReason from verification_evidence_refresh_stale, which per core/verification.ts coverageStatusForCoveredEvidence only demotes EXECUTABLE (logic/cli/browser) intent types to non_mechanical - docs-type intents remain covered regardless, so this does not create a coverage gap. Re-ran proofstory-pre-review-check-smoke --proof-scenarios and confirmed the underlying scenario records tied to CHK-005 (A-MUT-5/10/17, A-POS-4) independently pass/bite at current head. Confirmed via --help that verification_evidence_add derives result from the receipt for pinned intents and refuses a contradicting caller pass, so F-017/F-019 laundering (hash-restamp without re-execution silently kept as pass) cannot recur for pinned intents; refresh_stale now re-executes-or-demotes-with-audit-reason rather than silently re-stamping trust. F-015 orphan CHK-004:hardening row remains accepted-risk, not re-raised. No blocking coverage gap found.",
+      "createdAt": "2026-07-27T12:00:26.853Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-059",
+      "envelopeId": "d5baea757541e70f47d1c82ddc2c877f481f13e98d9605ace8705376d3d19664",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c71e204c00b7015cfad907461aab7eccd6f629b116ef0acbffb01ff3dff350ac"
     }
   ]
 }
