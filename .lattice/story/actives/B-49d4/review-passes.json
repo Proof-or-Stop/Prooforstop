@@ -1,0 +1,37 @@
+{
+  "passes": [
+    {
+      "id": "B-49d4:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2+ quality re-review after CL-004 (F-006/F-007 fix) + def4df7f18 + 0b1ef6a6f7. Live-ran red-b49d4-registration-derivation.mjs (26/26 GREEN), red-b49d4-harness-registration.mjs (32 registered + 3 excluded, exit 0), red-b49d4-chk002-receipt.mjs (exit 0, matches waiver-quoted counts verbatim). F-006 fix verdict: legitimate narrowing, DECIDED genuinely bites (DECISION_ARM_IS_LIVE row empirically drops a candidate to unaccounted on this run) and both failure directions (unaccounted member, unreadable decision record) are loud RED, never silent GREEN; no coverage of substance is lost because the two real b2aa7 receipts remain both spawned-in-practice (chk007) and decided-on-record, only the false spawned-claim for the b49d4 receipt was removed. Six waivers verdict: honest, not a dodge -- CHK-001s three are permanently unearnable by construction (receipt now silent forever once the artifact it gates is fixed) and CHK-003s three are stale only because a literal-count selector text no longer matches post-fix live output while the underlying proposition still holds (verified live output matches each waiver notes quoted string exactly); re-earning would require either reintroducing a regression or a PLAN-owned re-pin (verificationIntent is phase-frozen per checklist.ts:1287-1290, confirmed in source). Noted as an irony worth a future PLAN follow-up: CHK-003s own selectors pinned literal counts, the exact anti-pattern this story exists to eliminate -- recommend a lightweight follow-up to re-pin those three intents to structural markers rather than counts, non-blocking. F-002 (open, medium): read is DEFER, not blocking -- empirically and by construction any divergence between the three registered-or-excluded map implementations cannot silently pass, because each guard independently fails loud (undecided/wronglyRegistered) against the same ground-truth config; verified this directly when a transient uncommitted edit to red-b49d4-harness-registration.mjs (external to this diff, self-reverted before I could attribute it, not caused by any writeFileSync path in the reviewed sources) dropped one exclusion entry and the guard failed loudly naming it, corroborating the fail-loud claim. Real cost of F-002 is DRY/maintenance burden (3 places to update prose), not a live coverage gap; a shared canonical exclusion-reasons module would also require touching red-b2aa7-chk007-receipt.mjs which is outside this storys declared scope contract. No new blocking defects found. Dead-code/type-safety/IO-isolation checks clean on all changed files; no unused imports; all catch blocks have safe fail-loud fallbacks; no CLAUDE.md/README changes so no doc-promise-undelivered risk.",
+      "createdAt": "2026-07-27T19:59:40.634Z",
+      "reviewRound": "2026-07-27T19:47:16.995Z",
+      "reviewRunId": "B-49d4:RR-009",
+      "envelopeId": "f564329297cc35cbb2674ca6a3a93f23e3d92b44fdb1523f7534a55f2babe43e",
+      "writerSessionId": "sess-14ce788c48429840fd642741e2150a60",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49d4/checklist.json",
+          ".lattice/story/actives/B-49d4/scope-check.json",
+          ".lattice/story/actives/B-49d4/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49d4/decision.json",
+          ".lattice/story/actives/B-49d4/findings.json",
+          ".lattice/story/actives/B-49d4/plan.md",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1c8be912a39c4e37b3dbda892f0e06a3c9c36b7a2c99460f454b34b223e2e75d"
+    }
+  ]
+}
