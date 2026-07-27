@@ -1660,6 +1660,30 @@
         "scanEscalationReason": null
       },
       "_hash": "0c4d2e49c2e83be0c6dfa0b255de327ef0b2bfaea0555c776c4f745cd0a9406e"
+    },
+    {
+      "id": "B-4043:RP-048",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation round (quorum rebuild after done_prepare --mergeMain materialHash shift; no source change since RP-044). Re-verified at current head: all 15 declared verificationIntents have valid pass evidence; 12 executable intents carry genuine tool-executed receipts bound to one consistent headHash/storyFilesHash pair from the RP-044 window; F-015 orphan row accepted-risk, not re-raised; 19/19 findings resolved, 0 open; refresh_stale reports no stale evidence. No blocker.",
+      "createdAt": "2026-07-27T15:17:52.338Z",
+      "reviewRound": "2026-07-27T15:11:10.692Z",
+      "reviewRunId": "B-4043:RR-070",
+      "envelopeId": "2ac3d3c8e071979b1210787c9595b4ea4e9d619bb6f36fb2cc67feca17fff96e",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "448f921cba4f845d79a5b8942e145aa194f57417f64334854d4a24d3946a5d7b"
     }
   ]
 }
