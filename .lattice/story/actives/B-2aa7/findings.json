@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-2aa7:F-001",
+      "desc": "concept-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md:68 and :595 still say the consumer count is SEVEN (\"the seven consumers... remains valid\" / \"all seven consumers in §4 must be asserted\"), even though this same rev-4 revision corrected §4 (line 246) and D-2 (§12) to say the count is TEN (three merge-added: core/red-evidence/append.ts, handlers/red-evidence.ts x2). §10.4s own acceptance table (C1/C2/C3) only enumerates 3 of the 10 consumers and was never extended for the recount, so the doc landed by this story contradicts itself about a concept (\"the consumers\") that rev 4 explicitly claims to have fixed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-27T02:39:51.368Z",
+      "reviewRound": "2026-07-27T02:31:52.563Z",
+      "reviewRunId": "B-2aa7:RR-001",
+      "_hash": "dc31e47707cf978c148c52bdfc22daa7ffdd50e0f3a3c1904d0bd5f0b1c73009",
+      "files": [
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md"
+      ],
+      "signatureTag": "missing|md|concept-drift-docs",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
