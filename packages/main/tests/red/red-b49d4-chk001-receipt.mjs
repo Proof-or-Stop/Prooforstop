@@ -25,6 +25,25 @@
  * enumerates, with no self-exception, so the decision has to be made rather than
  * skipped.
  *
+ * ── THIS FILE IS SPENT, AND ITS ROW IDS ARE HISTORICAL (F-005 / F-006) ──────
+ *
+ * Measured on the finished tree: exit 0, 0 bytes on stdout AND 0 bytes on
+ * stderr. `ranToCompletion` below requires `run.status !== 0`, so NO marker here
+ * can ever print again — the CHK-001 intents this file was pinned to cannot be
+ * re-earned by it, and they were not repointed at some other command that passes
+ * for a different reason. That is recorded as a permanent waiver on those
+ * intents rather than papered over with a fresh green.
+ *
+ * The row IDs parsed below (`EVERY_RED_HARNESS_IS_RUN_BY_VALIDATE`,
+ * `REACHABILITY_ARM_IS_LIVE`) are the PRE-FIX names and are deliberately left
+ * as-is: they name what the artifact printed on the tree this file attests to.
+ * The F-006 fix removed both rows, because the first reported textual mentions as
+ * execution edges — it counted THIS file as "spawned by a registered command"
+ * when nothing spawns it. Nothing should resurrect this parse against the
+ * current artifact: its successor rows are `EVERY_RED_HARNESS_IS_REGISTERED_OR_
+ * DECIDED` and `DECISION_ARM_IS_LIVE`, and they assert a different, weaker and
+ * true claim (accounted for, not executed).
+ *
  * Run from anywhere:
  *   node packages/main/tests/red/red-b49d4-chk001-receipt.mjs
  */

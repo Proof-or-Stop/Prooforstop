@@ -36,7 +36,10 @@
  *                  disk — `packages/main/dist/tasks/red-evidence-*.js` together
  *                  with its `packages/main/src/tasks/*.ts` counterpart, so it is
  *                  indistinguishable from a real member and cannot be dismissed
- *                  as stale build output. It is registered NOWHERE and it exits
+ *                  as stale build output. That indistinguishability is MEASURED
+ *                  against the real members rather than asserted about the probe
+ *                  this file just wrote (see `PLANTED_MEMBER_MATCHES_THE_SHAPE_OF
+ *                  _REAL_MEMBERS`). It is registered NOWHERE and it exits
  *                  NON-ZERO, so `lattice validate` would fail if it ran. The
  *                  REAL guard is then spawned. Two independent assertions:
  *                  (A1) it must not exit 0, and (A2) a confident success line
@@ -57,14 +60,48 @@
  *                  empty-commands copy must fail (the redirect really happened,
  *                  so a non-biting control can never be mistaken for a fine one).
  *
- *   C. POPULATION  How many `packages/main/tests/red/*.mjs` does `lattice
- *                  validate` never run? DERIVED, never hardcoded: enumerate the
- *                  directory UNFILTERED, subtract what `validate.commands`
- *                  registers, then subtract what is transitively REACHABLE from
- *                  a registered command (`red-b2aa7-chk007-receipt.mjs` spawns
- *                  the invariance harness and both pre-fix receipts, so those
- *                  three do get run). Whatever remains is coverage nobody has.
- *                  A number in a test goes stale; a derivation cannot.
+ *   C. POPULATION  How many `packages/main/tests/red/*.mjs` are ACCOUNTED FOR?
+ *                  DERIVED, never hardcoded: enumerate the directory UNFILTERED,
+ *                  subtract what `validate.commands` registers, and require every
+ *                  remainder to be a RECORDED DECISION — an entry in the audited
+ *                  exclusion record of the registered guard
+ *                  `red-b49d4-harness-registration.mjs`, which is spawned here and
+ *                  must exit 0. Whatever is neither is coverage nobody has and
+ *                  nobody chose. A number in a test goes stale; a derivation
+ *                  cannot.
+ *
+ * ── WHY BLOCK C NO LONGER CLAIMS "REACHABLE" (F-006) ────────────────────────
+ *
+ * BLOCK C used to subtract a third set: members "transitively REACHABLE from a
+ * registered command". Reachability was followed by TEXTUAL INCLUSION — if a
+ * registered file's source contained a member's filename, the member was reported
+ * as `spawned by a registered command`. That is not an execution edge, and the
+ * header used to call the over-approximation "conservative". It is the opposite
+ * of conservative for the claim actually being made. Measured on this tree:
+ * `red-b49d4-chk001-receipt.mjs` appears in `red-b49d4-harness-registration.mjs`
+ * only as a KEY in its exclusion bookkeeping map — that guard contains no
+ * `child_process` import at all — and `red-b2aa7-chk007-receipt.mjs` spawns only
+ * the keys of its OWN map, filtered by `/^red-b2aa7-.*\.mjs$/`, which cannot name
+ * a `b49d4` file. So NOTHING executes it, yet the row printed
+ * `0 are NEVER RUN: none` and went GREEN. A file nothing runs was reported as
+ * covered: a SILENT FALSE GREEN, reproducing inside this guard the exact
+ * false-confidence defect class B-49d4 exists to remove.
+ *
+ * The fix does not special-case that filename and does not swap one textual
+ * guess for another. It separates two DIFFERENT properties that the old row
+ * conflated:
+ *
+ *   DECIDED   — the member's non-registration is a recorded, audited decision.
+ *               Mechanically checkable, and it is what the verdict now rests on.
+ *   EXECUTED  — something actually runs the member. NOT claimed here at all:
+ *               proving it needs measurement (tracing a real run), not a scan,
+ *               and this block does not measure it. Saying nothing is the honest
+ *               option; saying "0 are NEVER RUN" was not.
+ *
+ * Both failure directions are now LOUD: a member that is neither registered nor
+ * in the decision record lands in `unaccounted` and the row goes RED, and a
+ * decision record this file cannot read yields an EMPTY decided set, which lands
+ * every unregistered member in `unaccounted` and also goes RED.
  *
  * ── THE TRAP THIS FILE EXISTS TO CLOSE (BLOCK D) ────────────────────────────
  *
@@ -134,10 +171,11 @@
  * ── SELF-INCLUSION ──────────────────────────────────────────────────────────
  *
  * The BLOCK C population is enumerated unfiltered, so THIS file and its receipt
- * are inside it with no self-exception; today they are part of what is counted
- * as never run. The only thing excluded anywhere is a spawn cycle: BLOCK D does
- * not spawn a file that spawns this one, which is a recursion break, not a
- * coverage carve-out — and it is now audited rather than silent.
+ * are inside it with no self-exception: this file is registered, and its receipt
+ * is decided by an exclusion entry that states why — neither is carved out of the
+ * population to make the row pass. The only thing excluded anywhere is a spawn
+ * cycle: BLOCK D does not spawn a file that spawns this one, which is a recursion
+ * break, not a coverage carve-out — and it is now audited rather than silent.
  *
  * Run from anywhere:
  *   node packages/main/tests/red/red-b49d4-registration-derivation.mjs
@@ -166,6 +204,19 @@ const CONFIG_PATH = join(repoRoot, CONFIG_REL);
 /** The guard this story names. It is spawned as a REAL child process, never imitated. */
 const GUARD_REL = `${RED_DIR_REL}/red-w2c-validate-registration.mjs`;
 const GUARD_ABS = join(repoRoot, GUARD_REL);
+
+/**
+ * THE DECISION AUTHORITY for `packages/main/tests/red`, used by BLOCK C.
+ *
+ * It is REGISTERED in `validate.commands`, it enumerates this directory TOTALLY
+ * (no name pattern, no extension filter), and it exits non-zero NAMING any entry
+ * that is neither registered nor carried by an exclusion entry whose reason is
+ * length-checked at runtime. BLOCK C SPAWNS it and uses its live verdict; it does
+ * not re-implement it, because a re-implementation here could pass while the
+ * shipped one is blind.
+ */
+const DECIDER_REL = `${RED_DIR_REL}/red-b49d4-harness-registration.mjs`;
+const DECIDER_ABS = join(repoRoot, DECIDER_REL);
 
 /** The population the named guard governs: dist red-evidence tasks. */
 const DIST_MEMBER_RE = /^red-evidence-.*\.js$/;
@@ -438,15 +489,35 @@ try {
     writeFileSync(join(blindMirror, BLIND_SRC_REL), probeBody, 'utf8');
 
     const probeRun = runNode([join(blindMirror, BLIND_DIST_REL)], blindMirror);
+    // F-007. This row used to assert three things this very block had just
+    // GUARANTEED: that a script whose body is the literal `process.exit(3)` this
+    // file wrote exits non-zero, that a file this file wrote two lines earlier
+    // exists, and that paths nothing ever writes into the repository are absent.
+    // None of those can fail for a reason outside this block's own construction,
+    // so the row was a setup note counted as a guard-behavior proof point. The
+    // DISCRIMINATING question is whether the probe is shaped like the members it
+    // is standing in for, and that is a property of the REPOSITORY: if the real
+    // `red-evidence-*.js` family did not carry `src/tasks/*.ts` counterparts, a
+    // probe that carries one would be distinguishable from a real member and
+    // BLOCK A would be testing a straw member. So the verdict is now measured
+    // over the REAL members, and the construction facts are REPORTED rather than
+    // asserted. The mirror-only conjuncts are dropped outright: BLOCK E's
+    // `REPO_TREE_NEVER_WRITTEN_TO` measures the guarded directories' listing
+    // digest before and after, which is a real observation of the same thing.
+    const realSrcCounterparts = cleanDistPop.map((n) => n.replace(/\.js$/, '.ts'));
+    const missingSrcCounterparts = realSrcCounterparts
+      .filter((n) => !existsSync(join(repoRoot, SRC_TASKS_REL, n)));
     row(
-      'PLANTED_MEMBER_IS_LOAD_BEARING', 'A',
-      probeRun.status !== 0 && existsSync(join(blindMirror, BLIND_SRC_REL))
-      && !existsSync(join(repoRoot, BLIND_DIST_REL)) && !existsSync(join(repoRoot, BLIND_SRC_REL)),
-      `probe exit=${probeRun.status}, src counterpart present=${existsSync(join(blindMirror, BLIND_SRC_REL))}, `
-      + `planted in the mirror only (repository copies absent=`
-      + `${!existsSync(join(repoRoot, BLIND_DIST_REL)) && !existsSync(join(repoRoot, BLIND_SRC_REL))})`,
-      'the planted member must genuinely fail and must carry its src counterpart, so it is a real gap and not a stale '
-      + 'build artifact — and it must exist only in the mirror, so no kill can strand it in a guarded directory',
+      'PLANTED_MEMBER_MATCHES_THE_SHAPE_OF_REAL_MEMBERS', 'A',
+      cleanDistPop.length > 0 && missingSrcCounterparts.length === 0
+      && existsSync(join(blindMirror, BLIND_SRC_REL)) && existsSync(join(blindMirror, BLIND_DIST_REL)),
+      `MEASURED on the repository (this is the conjunct that can fail): all ${cleanDistPop.length} real `
+      + `${DIST_TASKS_REL}/red-evidence-*.js members carry a ${SRC_TASKS_REL} counterpart — missing: `
+      + `${missingSrcCounterparts.join(', ') || 'none'} — so a dist+src pair is exactly the shape of a real member. `
+      + `REPORTED, not asserted (guaranteed by the body this block just wrote): the probe exits ${probeRun.status}`,
+      `the planted member must match the shape real members have ON DISK. If the ${DIST_TASKS_REL} family did not `
+      + `carry ${SRC_TASKS_REL} counterparts, this probe would be distinguishable from a real member and the blindness `
+      + 'result below would be about a straw member instead of a genuine one',
     );
 
     const probeTokens = registeredTokens(config);
@@ -578,67 +649,101 @@ try {
   );
 
   /**
-   * THE DERIVATION (run over the real config AND over a mutated copy below, so a
+   * THE DERIVATION (run over the real config AND over mutated inputs below, so a
    * clean bill of health cannot be vacuous).
    *
    * Population: every `*.mjs` in the red directory, enumerated UNFILTERED — no
    * name pattern, because a pattern is what leaves a differently-prefixed
    * newcomer invisible.
    *
-   * Reachable: a harness `lattice validate` never names directly can still be RUN
-   * by something it does name — `red-b2aa7-chk007-receipt.mjs` spawns the
-   * invariance harness and both pre-fix receipts. Reachability is followed
-   * transitively from every registered command that exists on disk, by textual
-   * reference to a population member's filename. That OVER-approximates (a name
-   * in a comment counts), which can only SHRINK the unreached set — the
-   * conservative direction for a claim that something is never run.
+   * `decided` is a FIRST-CLASS INPUT, not something inferred from the population's
+   * own text. A member is decided when its non-registration is a recorded,
+   * audited choice. That is a DIFFERENT property from being executed, and the two
+   * are deliberately not conflated: this function reports what is accounted for,
+   * and reports nothing at all about what runs.
    */
-  function derive(tokens) {
+  function derive(tokens, decided) {
     const population = readdirSync(here).filter((n) => n.endsWith('.mjs')).sort();
     const registered = population.filter((n) => tokens.has(`${RED_DIR_REL}/${n}`));
-    const roots = [...tokens].filter((t) => t.includes('/') && existsSync(join(repoRoot, t)));
-    const reached = new Set();
-    const seen = new Set(roots);
-    const queue = [...roots];
-    while (queue.length > 0) {
-      const rel = queue.shift();
-      let text = '';
-      try {
-        text = readFileSync(join(repoRoot, rel), 'utf8');
-      } catch {
-        continue;
-      }
-      for (const name of population) {
-        if (name === basename(rel) || !text.includes(name)) continue;
-        reached.add(name);
-        const childRel = `${RED_DIR_REL}/${name}`;
-        if (!seen.has(childRel)) {
-          seen.add(childRel);
-          queue.push(childRel);
-        }
-      }
-    }
     const registeredSet = new Set(registered);
     const unregistered = population.filter((n) => !registeredSet.has(n));
     return {
       population,
       registered,
       unregistered,
-      reachedUnregistered: unregistered.filter((n) => reached.has(n)),
-      unreached: unregistered.filter((n) => !reached.has(n)),
+      decided: unregistered.filter((n) => decided.has(n)),
+      unaccounted: unregistered.filter((n) => !decided.has(n)),
     };
   }
 
-  const derived = derive(realTokens);
+  /**
+   * WHERE `decided` COMES FROM — measured first, then named.
+   *
+   * The VERDICT is measured: the decision authority is spawned as a real child
+   * process against the untouched tree. It enumerates this directory TOTALLY and
+   * exits non-zero naming any entry that is neither registered nor carried by an
+   * exclusion entry whose reason it length-checks. Its exit-0 therefore MEANS
+   * "every entry here is registered or decided", and its population is asserted
+   * to be at least this block's (an inequality, so it cannot go stale the way a
+   * quoted count does).
+   *
+   * The NAMES are then read from that guard's exclusion record as DATA — the
+   * literal keys of its declared map, scoped to the map body so that an unrelated
+   * path constant elsewhere in the file cannot masquerade as a decision. This is
+   * reading a decision somebody recorded, NOT inferring behaviour from a mention,
+   * and it cannot produce a false GREEN in either direction: a name this parse
+   * misses leaves its member in `unaccounted` (RED), and a name it over-reads
+   * cannot make an undecided member pass, because the spawned guard would have
+   * exited non-zero first.
+   */
+  const deciderRun = runNode([DECIDER_ABS]);
+  const deciderCounts = new RegExp(
+    'all (\\d+) entries of (\\S+) found ON DISK are accounted for: (\\d+) registered in '
+    + 'lattice\\.config\\.json validate\\.commands and (\\d+) excluded with a stated reason',
+  ).exec(deciderRun.out);
+  let deciderRecordBlock = '';
+  try {
+    deciderRecordBlock = /REGISTRATION_EXCLUSIONS\s*=\s*new Map\(\[([\s\S]*?)^\]\);/m
+      .exec(readFileSync(DECIDER_ABS, 'utf8'))?.[1] ?? '';
+  } catch {
+    deciderRecordBlock = '';
+  }
+  const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const decidedNames = new Set(
+    readdirSync(here).filter((n) => n.endsWith('.mjs'))
+      .filter((n) => new RegExp('`\\$\\{[A-Za-z_][A-Za-z0-9_]*\\}/' + escapeRe(n) + '`').test(deciderRecordBlock)),
+  );
+
+  const derived = derive(realTokens, decidedNames);
+  const deciderCoversPopulation = deciderCounts !== null
+    && deciderCounts[2] === RED_DIR_REL
+    && Number(deciderCounts[1]) >= derived.population.length;
+
   row(
-    'EVERY_RED_HARNESS_IS_RUN_BY_VALIDATE', 'C',
-    derived.unreached.length === 0,
-    `${derived.population.length} *.mjs on disk (unfiltered): ${derived.registered.length} registered, `
-    + `${derived.unregistered.length} unregistered, of which ${derived.reachedUnregistered.length} are spawned by a `
-    + `registered command (${derived.reachedUnregistered.join(', ') || 'none'}) and ${derived.unreached.length} are `
-    + `NEVER RUN: ${derived.unreached.join(', ') || 'none'}`,
-    'every member of packages/main/tests/red/*.mjs must be registered in validate.commands or transitively reachable '
-    + 'from something that is; a harness nobody runs is coverage nobody has',
+    'DECISION_RECORD_IS_LIVE_AND_AUDITED', 'C',
+    deciderRun.status === 0 && deciderCoversPopulation
+    && (derived.unregistered.length === 0 || decidedNames.size > 0),
+    `${DECIDER_REL} spawned against the untouched tree: exit=${deciderRun.status}; it reports a TOTAL enumeration of `
+    + `${deciderCounts === null ? '<success line unparsed>' : `${deciderCounts[1]} entries of ${deciderCounts[2]}`}, `
+    + `covering at least the ${derived.population.length} *.mjs this block enumerates=${deciderCoversPopulation}; `
+    + `${decidedNames.size} key(s) read from its declared exclusion record: ${[...decidedNames].join(', ') || 'none'}`,
+    'the decision authority must be a REGISTERED guard that ran and PASSED here, its total enumeration must cover this '
+    + "block's population, and its exclusion record must be readable — an unreadable record would leave every "
+    + 'unregistered member unaccounted (the loud direction), but it would not be measuring the decision it claims to',
+  );
+  row(
+    'EVERY_RED_HARNESS_IS_REGISTERED_OR_DECIDED', 'C',
+    derived.unaccounted.length === 0 && deciderRun.status === 0 && deciderCoversPopulation,
+    `${derived.population.length} *.mjs on disk (unfiltered): ${derived.registered.length} registered in `
+    + `validate.commands, ${derived.unregistered.length} unregistered — of which ${derived.decided.length} are DECIDED `
+    + `by the audited exclusion record of ${basename(DECIDER_REL)} `
+    + `(${derived.decided.join(', ') || 'none'}) and ${derived.unaccounted.length} are UNACCOUNTED: `
+    + `${derived.unaccounted.join(', ') || 'none'}. EXECUTION IS A DIFFERENT PROPERTY AND IS NOT CLAIMED HERE: `
+    + `lattice validate does not run those ${derived.unregistered.length} directly, and whether anything else executes `
+    + 'them is not measured by this block — a filename appearing in a registered file is a mention, not a spawn',
+    'every member of packages/main/tests/red/*.mjs must be registered in validate.commands, or its non-registration '
+    + 'must be a recorded decision the shipped guard audits; a member that is silently neither is coverage nobody has '
+    + 'and nobody chose',
   );
   row(
     'SELF_IS_INSIDE_THE_POPULATION', 'C',
@@ -646,24 +751,38 @@ try {
     `${SELF} present in the derived population=${derived.population.includes(SELF)}`,
     'this file must be inside its own population with no self-exception; a carve-out is the exemption being removed',
   );
+
+  // NON-VACUITY of the DECISION arm: it must classify something, and a member
+  // must fall into `unaccounted` the moment its record entry goes away —
+  // otherwise `decided` is just `unregistered` wearing a different name.
+  let decisionProof = null;
+  for (const candidate of derived.decided) {
+    const stripped = new Set(decidedNames);
+    stripped.delete(candidate);
+    if (derive(realTokens, stripped).unaccounted.includes(candidate)) {
+      decisionProof = candidate;
+      break;
+    }
+  }
   row(
-    'REACHABILITY_ARM_IS_LIVE', 'C',
-    derived.reachedUnregistered.length > 0,
-    `unregistered but spawned by a registered command: ${derived.reachedUnregistered.join(', ') || 'none'}`,
-    'the reachability arm must actually classify something, or the unreached count is just "unregistered" wearing a '
-    + 'different name and what red-b2aa7-chk007-receipt.mjs spawns was never accounted for',
+    'DECISION_ARM_IS_LIVE', 'C',
+    derived.decided.length > 0 && decisionProof !== null,
+    `unregistered but carried by the audited decision record: ${derived.decided.join(', ') || 'none'}; dropping `
+    + `${decisionProof ?? '<no candidate>'} from that record moves it into unaccounted=${decisionProof !== null}`,
+    'the decision arm must actually classify something AND a member must land in `unaccounted` the moment its record '
+    + 'entry disappears, or "decided" is just "unregistered" wearing a different name',
   );
 
-  // NON-VACUITY: de-register a registered harness that nothing else spawns and
-  // require the SAME derivation to move it into `unreached`. The candidate is
+  // NON-VACUITY of the REGISTRATION arm: de-register a registered harness and
+  // require the SAME derivation to move it into `unaccounted`. The candidate is
   // searched for rather than named, so this survives any registration change.
   let stripProof = null;
   for (const candidate of derived.registered) {
     const stripped = new Set(realTokens);
     stripped.delete(`${RED_DIR_REL}/${candidate}`);
-    const mutatedDerivation = derive(stripped);
-    if (mutatedDerivation.unreached.includes(candidate)) {
-      stripProof = { candidate, after: mutatedDerivation.unreached.length };
+    const mutatedDerivation = derive(stripped, decidedNames);
+    if (mutatedDerivation.unaccounted.includes(candidate)) {
+      stripProof = { candidate, after: mutatedDerivation.unaccounted.length };
       break;
     }
   }
@@ -671,8 +790,8 @@ try {
     'DERIVATION_IS_NON_VACUOUS', 'C',
     stripProof !== null,
     stripProof === null
-      ? `de-registering any of the ${derived.registered.length} registered harnesses left the unreached set unchanged`
-      : `de-registering ${stripProof.candidate} moves it into unreached (${derived.unreached.length} → ${stripProof.after})`,
+      ? `de-registering any of the ${derived.registered.length} registered harnesses left the unaccounted set unchanged`
+      : `de-registering ${stripProof.candidate} moves it into unaccounted (${derived.unaccounted.length} → ${stripProof.after})`,
     'the same derivation must detect a de-registered harness, or a clean result would mean nothing',
   );
 
@@ -993,8 +1112,10 @@ if (red.length > 0) {
 
 console.log(
   'red-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of '
-  + `${DIST_TASKS_REL}/red-evidence-*.js is caught, every ${RED_DIR_REL}/*.mjs is registered or reachable from `
-  + 'something registered, a differently-prefixed newcomer is caught by the shipped guards themselves, and the '
-  + 'control bites on a config COPY while the real lattice.config.json stays byte-identical)',
+  + `${DIST_TASKS_REL}/red-evidence-*.js is caught, every ${RED_DIR_REL}/*.mjs is either registered in `
+  + 'validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and '
+  + 'passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is '
+  + 'made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a '
+  + 'config COPY while the real lattice.config.json stays byte-identical)',
 );
 process.exit(0);
