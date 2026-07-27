@@ -1254,6 +1254,57 @@
         "scanEscalationReason": null
       },
       "_hash": "c71e204c00b7015cfad907461aab7eccd6f629b116ef0acbffb01ff3dff350ac"
+    },
+    {
+      "id": "B-4043:RP-039",
+      "agent": "lattice-review-docs",
+      "note": "F-014 fix re-verified after 2 more main merges: 5 modular reviewer shims (both hosts) remain thin/body-free, Wave4 text lives only in packages/main/templates/agents/*.md, verify-process-fact-contract.mjs --quiet PASS with --quiet confirmed non-semantic (only wraps console.log). No doc-code drift found in docs/CLI.md, execution-plan.md, or baseline hash file. New --story/--out/--quiet argv options are internal smoke-script flags not referenced by any doc, so no CLI.md update was owed.",
+      "createdAt": "2026-07-27T12:01:47.098Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-062",
+      "envelopeId": "3cf61cc599e57414b42ff6d71e4277fdb0e42ac61a0160aaad4bfcf29379e7d5",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a504cbbbab3e8b86d1b5ae10189d048e202eb33523fdd1563a64fd6f6fea8b4"
     }
   ]
 }
