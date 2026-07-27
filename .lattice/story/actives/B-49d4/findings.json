@@ -164,6 +164,25 @@
       ],
       "signatureTag": "missing|mjs|beyond-duplicate-data",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49d4:F-009",
+      "desc": "CHK-002 happy/edge/adversarial verificationEvidence (all 3, kind=logic_test, mechanical=true, recorded at headHash a20480c7/8bab8121/02608c63) is now storyFilesHash-stale: confirmed via `lattice verification_evidence_refresh_stale --storyId=B-49d4 --dryRun`, which reports exactly these 3 entries as stale, refreshable to current HEAD 4909ff7. Root cause: the two post-review-draft fix commits for F-005/F-006/F-007 (0b1ef6a6f7, f1e29db691) modified story-owned material (red-b49d4-chk001-receipt.mjs, red-b49d4-registration-derivation.mjs) that is inside CHK-002s own files.test set, so the branch-wide storyFilesHash moved from 6b3212ad... (recorded) to 9bf241b4... (current); materialHash likewise moved (2e4a1e14... -> fd777e04...). This is the SAME defect class F-005 caught for CHK-001/CHK-003, left unaddressed for CHK-002. UNLIKE CHK-001/CHK-003, this is NOT an unearnable/false-selector situation: I independently re-ran `node packages/main/tests/red/red-b49d4-chk002-receipt.mjs` on current HEAD and all three pinned selectors (BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN, TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER, BITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION) still appear verbatim in the output with exit=0 -- CHK-002s selectors are marker names, not literal counts, so they survived the 33/2->32/3 registration-count drift that broke CHK-003s literal-count selectors. This should be trivially re-earned via `lattice verification_evidence_refresh_stale` (non-dry-run) or a fresh `verification_run`/`verification_evidence_add` before TEST->DONE (done_prepare --refreshStale would also catch it), but it has not been done yet and should not be missed a second time.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-27T20:08:38.747Z",
+      "reviewRound": "2026-07-27T19:47:16.995Z",
+      "reviewRunId": "B-49d4:RR-011",
+      "_hash": "08ffb04accb2a4b9467cd9516e39079940284da51561c3f4bd89ee38a7ac1627",
+      "files": [
+        "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+        ".lattice/story/actives/B-49d4/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|happy-edge-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
