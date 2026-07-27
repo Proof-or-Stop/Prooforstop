@@ -56,6 +56,23 @@
  * script — FAILS as a red-evidence artifact outside the declared population
  * rather than being quietly skipped.
  *
+ * ── NOTE FOR WHOEVER EDITS THIS FILE ────────────────────────────────────────
+ *
+ * This guard is a spawn target of the B-49d4 derivation artifact, which plants a
+ * differently-prefixed newcomer and requires the SHIPPED guards to judge it. That
+ * artifact picks its targets by skipping any file that mentions it by name — a
+ * recursion break, since a file that spawns it would loop — so writing that
+ * artifact's filename into this header or body removes this guard from the check.
+ *
+ * It no longer does so QUIETLY: the artifact asserts that its derived target set
+ * equals the set of files that genuinely qualify and contains this guard by name,
+ * so a mention here makes it FAIL naming this file rather than shrink its target
+ * set and stay green. That failure is deliberate and noisy, but it is still a
+ * failure — describe the artifact without naming it, exactly as this note does.
+ * The same applies to ceasing to qualify: this guard is a target because it reads
+ * `lattice.config.json` AND enumerates a directory, and dropping either would
+ * also fail there.
+ *
  * Run from anywhere:
  *   node packages/main/tests/red/red-w2c-validate-registration.mjs
  */

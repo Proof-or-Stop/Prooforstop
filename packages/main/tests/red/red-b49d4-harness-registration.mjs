@@ -55,9 +55,16 @@
  * gap.
  *
  * NOTE FOR WHOEVER EDITS THIS FILE: the B-49d4 derivation artifact chooses which
- * guards to spawn by skipping any file that mentions it by name, so naming it
- * here would silently remove this guard from that check. Register it in the
- * config; do not exclude it here.
+ * guards to spawn by skipping any file that mentions it by name — a recursion
+ * break, since a file that spawns it would loop — so naming it here removes this
+ * guard from that check. It no longer does so silently: that artifact asserts its
+ * derived target set equals the set of files that genuinely qualify and contains
+ * this guard by name, so a mention here makes it FAIL naming this file instead of
+ * shrinking its target set and staying green. The failure is deliberate and
+ * noisy, but it is still a failure — describe the artifact without naming it, as
+ * this note does. The sibling guard named in SIBLING_GUARD_REL carries the same
+ * note for the same reason. Register this file in the config; do not exclude it
+ * here.
  *
  * Run from anywhere:
  *   node packages/main/tests/red/red-b49d4-harness-registration.mjs
@@ -101,8 +108,10 @@ const isMember = () => true;
  *
  * CAUTION FOR WHOEVER ADDS AN ENTRY: keep reasons free of the B-49d4 derivation
  * artifact's filename. That artifact picks its BLOCK D targets by skipping any
- * file that mentions it by name, so naming it in a reason here would silently
- * drop THIS guard from the newcomer check — the same trap the header flags.
+ * file that mentions it by name, so naming it in a reason here drops THIS guard
+ * from the newcomer check — the same trap the header flags. That artifact now
+ * FAILS naming this file when it happens rather than shrinking its target set
+ * quietly, so the mistake is loud; it is still a mistake.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
   [`${POPULATION_DIR_REL}/red-b2aa7-chk001-receipt.mjs`,

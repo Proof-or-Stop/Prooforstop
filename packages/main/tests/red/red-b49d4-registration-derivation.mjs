@@ -87,19 +87,64 @@
  * measured rather than argued about: it is a real shipped derived guard that
  * looks straight past this newcomer.
  *
+ * ── WHICH GUARDS JUDGE THE NEWCOMER IS ASSERTED COMPLETE, NOT JUST NON-EMPTY ─
+ *
+ * A file that spawns this one has to be skipped or BLOCK D recurses forever, and
+ * that skip used to be a bare `text.includes(SELF)` continue with a
+ * `targetRuns.length > 0` assertion behind it. Non-empty is not complete: writing
+ * this artifact's filename into a target — a "see also" comment is enough —
+ * removed it from the check while the artifact still reported GREEN on whatever
+ * remained, so a guard's newcomer detection could stop being verified without
+ * anything saying so. The skip is now audited DATA (`TARGET_CYCLE_BREAKS`, empty
+ * today) and the derived target set must EQUAL the set of files that genuinely
+ * qualify, must contain both guards this story ships, and fails NAMING any file
+ * that drops out — whether because it mentions this artifact or because it
+ * quietly stopped qualifying. `TARGET_SET_COMPLETENESS_CHECK_BITES` re-runs the
+ * same derivation over six synthetic mutations covering every one of those ways
+ * to shrink, so a clean verdict is not a vacuous one.
+ *
+ * ── NO PROBE IS EVER WRITTEN INTO THE REPOSITORY ────────────────────────────
+ *
+ * Probes used to be planted in the WORKING TREE and removed in `try/finally`
+ * after a startup sweep. Both are best effort, and the population a probe lands
+ * in is one that `red-b49d4-harness-registration.mjs` enumerates TOTALLY:
+ *
+ *   - `finally` does not run through SIGKILL or a watchdog kill, so a killed run
+ *     stranded `b49d4-newcomer-probe-unprefixed.mjs` in the red directory, and
+ *     the guard then FAILED naming it — the artifact created the debris and the
+ *     guard tripped on it, breaking `lattice validate` for a registration gap
+ *     that did not exist. The file was not gitignored either, so it could be
+ *     committed by accident.
+ *   - the startup sweep does not save it: it is itself racy. Two concurrent runs
+ *     interleave plant and sweep, so one run's sweep deletes the other's live
+ *     probe, or one run's assertion sees the other's. Shared mutable state in a
+ *     policed directory cannot be made safe by tidying it more carefully.
+ *
+ * So probes are now planted ONLY inside a private `mkdtemp` mirror of the
+ * repository (`makeMirror`), and the guards are spawned against that mirror
+ * through `--preserve-symlinks-main`, running bytes asserted sha256-identical to
+ * the committed files. Concurrent runs no longer share any path, and a SIGKILL
+ * can strand nothing except a temporary directory that is outside every guarded
+ * population — debris that cannot make any guard fail, rather than debris that is
+ * merely less likely. `REPO_TREE_NEVER_WRITTEN_TO` measures this: the guarded
+ * directories must hold exactly the same entries after the run as before it.
+ * `sweepLegacyProbeDebris` remains only to clear marker-carrying debris a pre-fix
+ * run may already have stranded in somebody's tree.
+ *
  * ── SELF-INCLUSION ──────────────────────────────────────────────────────────
  *
  * The BLOCK C population is enumerated unfiltered, so THIS file and its receipt
  * are inside it with no self-exception; today they are part of what is counted
  * as never run. The only thing excluded anywhere is a spawn cycle: BLOCK D does
  * not spawn a file that spawns this one, which is a recursion break, not a
- * coverage carve-out.
+ * coverage carve-out — and it is now audited rather than silent.
  *
  * Run from anywhere:
  *   node packages/main/tests/red/red-b49d4-registration-derivation.mjs
  */
 import {
-  existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync,
+  copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync,
+  symlinkSync, writeFileSync,
 } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -126,9 +171,9 @@ const GUARD_ABS = join(repoRoot, GUARD_REL);
 const DIST_MEMBER_RE = /^red-evidence-.*\.js$/;
 
 // ── probes ──────────────────────────────────────────────────────────────────
-// Planted, measured, and removed. Names are fixed (not pid-suffixed) so the RED
-// report is reproducible, and a sweep runs both before and after in case a
-// previous run was killed.
+// Every probe is planted inside a PRIVATE TEMPORARY MIRROR of the repository
+// (see makeMirror below), never inside the repository itself. The paths below
+// are therefore mirror-relative: `packages/main/...` under a `mkdtemp` root.
 const BLIND_BASE = 'red-evidence-b49d4-blindness-probe';
 const BLIND_DIST_REL = `${DIST_TASKS_REL}/${BLIND_BASE}.js`;
 const BLIND_SRC_REL = `${SRC_TASKS_REL}/${BLIND_BASE}.ts`;
@@ -139,11 +184,108 @@ const BLIND_SRC_REL = `${SRC_TASKS_REL}/${BLIND_BASE}.ts`;
  */
 const NEWCOMER_BASE = 'b49d4-newcomer-probe-unprefixed.mjs';
 const NEWCOMER_REL = `${RED_DIR_REL}/${NEWCOMER_BASE}`;
-const PROBE_RELS = [BLIND_DIST_REL, BLIND_SRC_REL, NEWCOMER_REL];
 
-const sweepProbes = () => {
-  for (const rel of PROBE_RELS) rmSync(join(repoRoot, rel), { force: true });
+/** Directories whose contents are policed by the guards this artifact spawns. */
+const GUARDED_DIRS = [RED_DIR_REL, DIST_TASKS_REL, SRC_TASKS_REL];
+
+/**
+ * PRE-FIX DEBRIS ONLY.
+ *
+ * An earlier version of this artifact planted these three paths in the WORKING
+ * TREE and removed them in `try/finally` after a startup sweep. Both are best
+ * effort: `finally` does not run through SIGKILL or a watchdog kill, and the
+ * startup sweep is itself racy — two concurrent runs interleave plant and sweep,
+ * so one run's sweep can delete the other's live probe or its assertion can see
+ * the other's. Either way `${NEWCOMER_REL}` survives inside a population that
+ * `red-b49d4-harness-registration.mjs` enumerates TOTALLY, and that guard then
+ * fails naming it: the artifact stranded the debris and the guard tripped on it.
+ *
+ * Nothing writes these paths any more, so the sweep below exists purely to clear
+ * debris a pre-fix run may already have stranded in somebody's tree. It is gated
+ * on the planted-by marker, so it can never delete a file that this artifact did
+ * not write.
+ */
+const LEGACY_PROBE_RELS = [BLIND_DIST_REL, BLIND_SRC_REL, NEWCOMER_REL];
+const PLANTED_BY_MARKER = `PLANTED BY ${RED_DIR_REL}/${SELF}`;
+
+const sweepLegacyProbeDebris = () => {
+  const swept = [];
+  for (const rel of LEGACY_PROBE_RELS) {
+    const abs = join(repoRoot, rel);
+    let text = null;
+    try {
+      text = readFileSync(abs, 'utf8');
+    } catch {
+      continue;
+    }
+    if (!text.includes(PLANTED_BY_MARKER)) continue;   // not ours: never touch it
+    rmSync(abs, { force: true });
+    swept.push(rel);
+  }
+  return swept;
 };
+
+/**
+ * A PRIVATE MIRROR of the repository root, built from symlinks so it is
+ * byte-faithful and costs no copying. `writableFiles` are the only paths the
+ * caller may write: each is left absent (the caller creates it) and every
+ * ancestor directory is materialized as a REAL directory whose other entries are
+ * symlinks to the real ones. `materializeDirs` does the same for a directory the
+ * caller does not write but wants REAL, so that a spawned child which plants its
+ * own probe there lands in this mirror instead of in the repository.
+ *
+ * `copyDirs` goes one step further: that directory's files are BYTE COPIES
+ * rather than symlinks. A symlink is a mode change (100644 → 120000) to git, so a
+ * guard that asserts its own working-tree cleanliness — `red-b2aa7-chk007-receipt
+ * .mjs` runs `git diff --name-only HEAD --` over a file in the red directory —
+ * fails inside a symlinked mirror for a reason that has nothing to do with what
+ * is being tested. Copies are indistinguishable from the real entries to git, and
+ * unlike a hard link a write to a copy cannot reach the repository. Byte identity
+ * with the committed file is ASSERTED per target in BLOCK D rather than assumed.
+ * Sub-directories inside a copied directory are symlinked, not copied.
+ *
+ * Guards are then executed through `--preserve-symlinks-main`: the main module
+ * keeps its mirror path, so the guard resolves its repository root to the mirror
+ * while running bytes that are identical to the committed file. A kill at any
+ * moment can therefore strand nothing except a directory under `os.tmpdir()`,
+ * which is outside every guarded population and cannot make any guard fail.
+ */
+function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs = [] } = {}) {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  const mustBeReal = new Set();
+  const copied = new Set(copyDirs);
+  const addAncestors = (rel) => {
+    const parts = rel.split('/');
+    for (let i = 1; i < parts.length; i += 1) mustBeReal.add(parts.slice(0, i).join('/'));
+  };
+  for (const rel of writableFiles) addAncestors(rel);
+  for (const rel of [...materializeDirs, ...copyDirs]) {
+    addAncestors(rel);
+    mustBeReal.add(rel);
+  }
+  const skip = new Set(writableFiles);
+  const walk = (relDir) => {
+    const inCopiedDir = copied.has(relDir);
+    for (const entry of readdirSync(relDir === '' ? repoRoot : join(repoRoot, relDir))) {
+      const childRel = relDir === '' ? entry : `${relDir}/${entry}`;
+      if (skip.has(childRel)) continue;
+      const src = join(repoRoot, childRel);
+      const dest = join(root, childRel);
+      if (mustBeReal.has(childRel)) {
+        mkdirSync(dest);
+        walk(childRel);
+        continue;
+      }
+      if (inCopiedDir && !statSync(src).isDirectory()) {
+        copyFileSync(src, dest);
+        continue;
+      }
+      symlinkSync(src, dest);
+    }
+  };
+  walk('');
+  return root;
+}
 
 // ── row reporting ───────────────────────────────────────────────────────────
 const rows = [];
@@ -204,17 +346,44 @@ function registeredTokens(cfg) {
   return tokens;
 }
 
-const distMembers = () => readdirSync(join(repoRoot, DIST_TASKS_REL))
+/** Enumerate the dist red-evidence family under ANY root (the repo, or a mirror). */
+const distMembersIn = (root) => readdirSync(join(root, DIST_TASKS_REL))
   .filter((n) => DIST_MEMBER_RE.test(n)).sort();
 
-sweepProbes();
+/** Run a REAL committed guard whose repository root resolves to `mirrorRoot`. */
+const runInMirror = (mirrorRoot, rel) => runNode(['--preserve-symlinks-main', join(mirrorRoot, rel)], mirrorRoot);
+
+const gitStatusFor = (paths) => {
+  try {
+    return execFileSync('git', ['status', '--porcelain', '--', ...paths], { cwd: repoRoot, encoding: 'utf8' }).trim();
+  } catch {
+    return null;
+  }
+};
+/** A digest of the guarded directories' listings, so ANY appearing file is caught. */
+const guardedListingDigest = () => sha256(GUARDED_DIRS.map((dir) => {
+  let names = [];
+  try {
+    names = readdirSync(join(repoRoot, dir)).sort();
+  } catch {
+    names = ['<unreadable>'];
+  }
+  return `${dir}\n${names.join('\n')}`;
+}).join('\n---\n'));
+
+// Clear debris a PRE-FIX run may have stranded, then snapshot the guarded
+// directories. Everything below writes only into private temporary mirrors, so
+// this snapshot must still hold at the end of the run (BLOCK E).
+const sweptLegacy = sweepLegacyProbeDebris();
+const LISTING_DIGEST_BEFORE = guardedListingDigest();
+const GIT_STATUS_BEFORE = gitStatusFor(GUARDED_DIRS);
 
 try {
   // ══════════════════════════════════════════════════════════════════════════
   // BLOCK 0 — the experiment's floor: the guard passes on the untouched tree.
   //           Without this, a RED result below could just be a broken tree.
   // ══════════════════════════════════════════════════════════════════════════
-  const cleanDistPop = distMembers();
+  const cleanDistPop = distMembersIn(repoRoot);
   const baseline = runNode([GUARD_ABS]);
   const baselineCount = largestCount(baseline.stdout);
   row(
@@ -232,39 +401,68 @@ try {
 
   // ══════════════════════════════════════════════════════════════════════════
   // BLOCK A — BLINDNESS. A genuine, unregistered, non-zero-exiting member of
-  //           the guard's OWN population leaves it at exit 0.
+  //           the guard's OWN population leaves it at exit 0. The member is
+  //           planted in a PRIVATE MIRROR, never in the repository.
   // ══════════════════════════════════════════════════════════════════════════
   const probeBody = [
-    '// PLANTED BY packages/main/tests/red/red-b49d4-registration-derivation.mjs (B-49d4 CHK-001).',
+    '#!/usr/bin/env node',
+    `// ${PLANTED_BY_MARKER} (B-49d4 CHK-001).`,
     '// A genuine member of the packages/main/dist/tasks/red-evidence-*.js population that is',
     '// registered NOWHERE in lattice.config.json validate.commands. It exits NON-ZERO, so if',
     '// `lattice validate` ran it, validate would fail. Nothing runs it, and nothing notices.',
-    '// If you are reading this in a committed tree, a probe run was killed before cleanup: delete it.',
+    '// It lives in a private temporary mirror of the repository and is never written to the',
+    '// repository, so a kill at any moment can strand nothing that any guard enumerates.',
     "process.stderr.write('red-evidence-b49d4-blindness-probe: FAIL (unregistered member, deliberately non-zero)\\n');",
     'process.exit(3);',
     '',
   ].join('\n');
-  writeFileSync(join(repoRoot, BLIND_DIST_REL), probeBody, 'utf8');
-  writeFileSync(join(repoRoot, BLIND_SRC_REL), probeBody, 'utf8');
 
-  const probeRun = runNode([join(repoRoot, BLIND_DIST_REL)]);
-  row(
-    'PLANTED_MEMBER_IS_LOAD_BEARING', 'A',
-    probeRun.status !== 0 && existsSync(join(repoRoot, BLIND_SRC_REL)),
-    `probe exit=${probeRun.status}, src counterpart present=${existsSync(join(repoRoot, BLIND_SRC_REL))}`,
-    'the planted member must genuinely fail and must carry its src counterpart, so it is a real gap and not a stale build artifact',
-  );
+  let blindMirror = null;
+  let blinded = null;
+  let withProbePop = [];
+  try {
+    blindMirror = makeMirror('red-b49d4-blindness-', { writableFiles: [BLIND_DIST_REL, BLIND_SRC_REL] });
 
-  const probeTokens = registeredTokens(config);
-  row(
-    'PLANTED_MEMBER_IS_REGISTERED_NOWHERE', 'A',
-    !probeTokens.has(BLIND_DIST_REL),
-    `${BLIND_DIST_REL} present in validate.commands=${probeTokens.has(BLIND_DIST_REL)}`,
-    'the planted member must be absent from validate.commands, or the blindness question is not being asked',
-  );
+    // A1 — the mirror is faithful: the guard still passes before anything is
+    //      planted, so the blindness result below is attributable to the probe.
+    const mirrorClean = runInMirror(blindMirror, GUARD_REL);
+    row(
+      'BLINDNESS_MIRROR_IS_FAITHFUL', 'A',
+      mirrorClean.status === 0,
+      `guard run against the untouched mirror exit=${mirrorClean.status} out="${clip(mirrorClean.out, 160)}"`,
+      'the guard must still pass inside the mirror before the probe is planted, or the mirror — not the probe — is '
+      + 'what failed it',
+    );
 
-  const blinded = runNode([GUARD_ABS]);
-  const withProbePop = distMembers();
+    writeFileSync(join(blindMirror, BLIND_DIST_REL), probeBody, 'utf8');
+    writeFileSync(join(blindMirror, BLIND_SRC_REL), probeBody, 'utf8');
+
+    const probeRun = runNode([join(blindMirror, BLIND_DIST_REL)], blindMirror);
+    row(
+      'PLANTED_MEMBER_IS_LOAD_BEARING', 'A',
+      probeRun.status !== 0 && existsSync(join(blindMirror, BLIND_SRC_REL))
+      && !existsSync(join(repoRoot, BLIND_DIST_REL)) && !existsSync(join(repoRoot, BLIND_SRC_REL)),
+      `probe exit=${probeRun.status}, src counterpart present=${existsSync(join(blindMirror, BLIND_SRC_REL))}, `
+      + `planted in the mirror only (repository copies absent=`
+      + `${!existsSync(join(repoRoot, BLIND_DIST_REL)) && !existsSync(join(repoRoot, BLIND_SRC_REL))})`,
+      'the planted member must genuinely fail and must carry its src counterpart, so it is a real gap and not a stale '
+      + 'build artifact — and it must exist only in the mirror, so no kill can strand it in a guarded directory',
+    );
+
+    const probeTokens = registeredTokens(config);
+    row(
+      'PLANTED_MEMBER_IS_REGISTERED_NOWHERE', 'A',
+      !probeTokens.has(BLIND_DIST_REL),
+      `${BLIND_DIST_REL} present in validate.commands=${probeTokens.has(BLIND_DIST_REL)}`,
+      'the planted member must be absent from validate.commands, or the blindness question is not being asked',
+    );
+
+    blinded = runInMirror(blindMirror, GUARD_REL);
+    withProbePop = distMembersIn(blindMirror);
+  } finally {
+    if (blindMirror !== null) rmSync(blindMirror, { recursive: true, force: true });
+  }
+
   const reportedCount = largestCount(blinded.stdout);
   const successLine = blinded.stdout.split('\n').find((l) => l.trim() !== '') ?? '';
 
@@ -285,8 +483,6 @@ try {
     + 'population moves is the size of the expectation, which is why this guard can never reveal a gap',
   );
 
-  sweepProbes();
-
   // ══════════════════════════════════════════════════════════════════════════
   // BLOCK B — CONTROL. De-register a currently-listed command against a COPY of
   //           the config and require the guard to bite. The real config is never
@@ -299,18 +495,13 @@ try {
 
   let sandboxRoot = null;
   try {
-    sandboxRoot = mkdtempSync(join(tmpdir(), 'red-b49d4-control-'));
     // A faithful mirror: every repository-root entry symlinked, EXCEPT the one
     // file under test, which is a writable copy.
-    for (const entry of readdirSync(repoRoot)) {
-      if (entry === CONFIG_REL) continue;
-      symlinkSync(join(repoRoot, entry), join(sandboxRoot, entry));
-    }
+    sandboxRoot = makeMirror('red-b49d4-control-', { writableFiles: [CONFIG_REL] });
     const sandboxConfig = join(sandboxRoot, CONFIG_REL);
-    const sandboxGuard = join(sandboxRoot, GUARD_REL);
     // `--preserve-symlinks-main` keeps the main module's symlinked path, so the
     // REAL guard file executes yet resolves its repository root to the sandbox.
-    const runSandbox = () => runNode(['--preserve-symlinks-main', sandboxGuard], sandboxRoot);
+    const runSandbox = () => runInMirror(sandboxRoot, GUARD_REL);
 
     // B1 — the sandbox is faithful: an unmutated copy still passes.
     writeFileSync(sandboxConfig, configRaw, 'utf8');
@@ -372,9 +563,19 @@ try {
   // ══════════════════════════════════════════════════════════════════════════
   // BLOCK C — POPULATION. Derived, never hardcoded.
   // ══════════════════════════════════════════════════════════════════════════
-  for (const rel of PROBE_RELS) {
-    if (existsSync(join(repoRoot, rel))) throw new Error(`probe ${rel} still planted while deriving the population`);
-  }
+  // The derivation below counts what is on disk, so a stranded probe from a
+  // PRE-FIX run would corrupt it. Nothing plants these paths any more and the
+  // startup sweep clears marked debris, so this is a reported row rather than a
+  // throw: a RED row naming the file beats an uncaught error with no report.
+  const strandedDebris = LEGACY_PROBE_RELS.filter((rel) => existsSync(join(repoRoot, rel)));
+  row(
+    'NO_PRE_FIX_PROBE_DEBRIS_IN_THE_REPOSITORY', 'C',
+    strandedDebris.length === 0,
+    `probe paths present in the working tree: ${strandedDebris.join(', ') || 'none'}`
+    + `${sweptLegacy.length > 0 ? ` (startup sweep removed marked pre-fix debris: ${sweptLegacy.join(', ')})` : ''}`,
+    'no probe path may exist in the repository while the population is derived from disk; probes are planted only in '
+    + 'private temporary mirrors, so anything here is unmarked debris a pre-fix run stranded — delete it',
+  );
 
   /**
    * THE DERIVATION (run over the real config AND over a mutated copy below, so a
@@ -479,57 +680,234 @@ try {
   // BLOCK D — THE TRAP. A differently-prefixed newcomer, judged by REAL SHIPPED
   //           GUARDS spawned as child processes. No enumeration is imitated here.
   // ══════════════════════════════════════════════════════════════════════════
-  writeFileSync(join(repoRoot, NEWCOMER_REL), [
+  const newcomerBody = [
     '#!/usr/bin/env node',
-    '// PLANTED BY packages/main/tests/red/red-b49d4-registration-derivation.mjs (B-49d4 CHK-001).',
+    `// ${PLANTED_BY_MARKER} (B-49d4 CHK-001).`,
     '// A newly added red harness that nobody has registered and nobody has excluded. Its name',
     '// deliberately lacks the `red-` prefix: the declared population is *.mjs in this directory,',
     '// so only an UNFILTERED enumeration sees it. Any guard that narrows by name pattern will',
     '// report complete coverage while this file sits here undecided.',
-    '// If you are reading this in a committed tree, a probe run was killed before cleanup: delete it.',
+    '// It lives in a private temporary mirror of the repository and is never written to the',
+    '// repository, so a kill at any moment can strand nothing that any guard enumerates.',
     "console.log('b49d4-newcomer-probe-unprefixed: OK');",
     '',
-  ].join('\n'), 'utf8');
+  ].join('\n');
 
   /**
-   * Targets are DERIVED and are real files on disk: the guard this story names,
-   * plus every `*.mjs` here that reads `lattice.config.json` AND enumerates a
-   * directory — i.e. anything that decides registration by looking rather than by
-   * remembering. Files that spawn THIS one are skipped to break the cycle; that is
-   * a recursion break, not a population carve-out (BLOCK C still counts them).
+   * WHICH GUARDS JUDGE THE NEWCOMER — DERIVED, AND ASSERTED COMPLETE.
+   *
+   * A target is any `*.mjs` here that reads `lattice.config.json` AND enumerates
+   * a directory: anything that decides registration by LOOKING rather than by
+   * remembering. A file that spawns THIS one has to be skipped or the run
+   * recurses forever — but that skip used to be a bare `text.includes(SELF)`
+   * continue, so writing this artifact's filename into a target (a "see also"
+   * comment is enough) silently removed it from the check while the artifact
+   * still reported GREEN on whatever remained. The set could only shrink, and
+   * nothing measured the shrink.
+   *
+   * So the skip is now DATA, audited on every run:
+   *   - a qualifying file that mentions this artifact and is NOT in
+   *     TARGET_CYCLE_BREAKS is a SILENT DROP and FAILS, naming the file;
+   *   - an entry in TARGET_CYCLE_BREAKS that no longer mentions this artifact is
+   *     stale and FAILS (a carve-out that widened itself);
+   *   - an entry without a real reason FAILS.
+   * The map is empty today: nothing that qualifies spawns this file (the one
+   * file that does — `red-b49d4-chk001-receipt.mjs` — never enumerates, so the
+   * qualification predicate excludes it and the cycle skip is not what drops it).
+   *
+   * REQUIRED_NEWCOMER_TARGETS is a FLOOR, not the population. The population
+   * stays derived; the floor only forbids the derived set from silently losing
+   * either guard this story ships — including by a target quietly ceasing to
+   * qualify, which set equality alone would not catch. A floor can hide no
+   * member: it can only make the check stricter, and it is itself audited (a
+   * required target that vanishes or stops qualifying FAILS naming itself).
    */
-  const targetRels = [];
-  const considerTarget = (rel) => {
-    if (!targetRels.includes(rel) && existsSync(join(repoRoot, rel))) targetRels.push(rel);
-  };
-  considerTarget(GUARD_REL);
-  for (const name of readdirSync(here).filter((n) => n.endsWith('.mjs')).sort()) {
-    if (name === SELF || name === NEWCOMER_BASE) continue;
-    let text = '';
+  const REQUIRED_NEWCOMER_TARGETS = [GUARD_REL, `${RED_DIR_REL}/red-b49d4-harness-registration.mjs`];
+  const TARGET_CYCLE_BREAKS = new Map([]);
+  const MIN_CYCLE_BREAK_REASON_CHARS = 40;
+
+  const redModuleNames = readdirSync(here).filter((n) => n.endsWith('.mjs')).sort();
+  const readRedText = (name) => {
     try {
-      text = readFileSync(join(here, name), 'utf8');
+      return readFileSync(join(here, name), 'utf8');
     } catch {
-      continue;
+      return null;
     }
-    if (text.includes(SELF)) continue;                       // would spawn this file back
-    if (!text.includes(CONFIG_REL)) continue;                // does not read the registration source of truth
-    if (!/readdirSync|opendirSync|globSync|readdir\(/.test(text)) continue; // does not enumerate
-    considerTarget(`${RED_DIR_REL}/${name}`);
+  };
+
+  /** PURE, so the audit below can be re-run against synthetic trees and maps. */
+  function deriveTargets(names, readText, cycleBreaks) {
+    const qualified = [];
+    const mentionsSelf = [];
+    for (const name of names) {
+      if (name === SELF || name === NEWCOMER_BASE) continue;
+      const text = readText(name);
+      if (text === null) continue;
+      if (!text.includes(CONFIG_REL)) continue;                                // not a registration decider
+      if (!/readdirSync|opendirSync|globSync|readdir\(/.test(text)) continue;   // does not enumerate
+      const rel = `${RED_DIR_REL}/${name}`;
+      qualified.push(rel);
+      if (text.includes(SELF)) mentionsSelf.push(rel);
+    }
+    // Anything that mentions this file is UNSPAWNABLE — spawning it may recurse
+    // forever — so it leaves the target set either way. The difference is that a
+    // mention without an audited cycle break now shrinks the set LOUDLY: it lands
+    // in droppedSilently, which fails the completeness row naming the file.
+    const targets = qualified.filter((rel) => !mentionsSelf.includes(rel));
+    return {
+      qualified,
+      mentionsSelf,
+      droppedSilently: mentionsSelf.filter((rel) => !cycleBreaks.has(rel)),
+      targets,
+      staleCycleBreaks: [...cycleBreaks.keys()].filter((rel) => !mentionsSelf.includes(rel)),
+      unreasonedCycleBreaks: [...cycleBreaks.entries()]
+        .filter(([, why]) => typeof why !== 'string' || why.trim().length < MIN_CYCLE_BREAK_REASON_CHARS)
+        .map(([rel]) => rel),
+      missingRequired: REQUIRED_NEWCOMER_TARGETS.filter((rel) => !targets.includes(rel)),
+    };
+  }
+  const targetsAreComplete = (d) => d.droppedSilently.length === 0 && d.staleCycleBreaks.length === 0
+    && d.unreasonedCycleBreaks.length === 0 && d.missingRequired.length === 0;
+
+  const targetSet = deriveTargets(redModuleNames, readRedText, TARGET_CYCLE_BREAKS);
+  const targetRels = targetSet.targets;
+
+  // NON-VACUITY of the completeness check itself: every way the target set could
+  // shrink must flip the verdict to failure. Measured, not argued.
+  const overlay = (name, transform) => (n) => {
+    const text = readRedText(n);
+    return n === name && text !== null ? transform(text) : text;
+  };
+  const biteFailures = [];
+  for (const rel of REQUIRED_NEWCOMER_TARGETS) {
+    const name = basename(rel);
+    // (a) the target gains a mention of this artifact — the F-003 shrink.
+    const mentioned = deriveTargets(
+      redModuleNames, overlay(name, (t) => `${t}\n// see also: ${SELF}\n`), TARGET_CYCLE_BREAKS,
+    );
+    if (targetsAreComplete(mentioned) || !mentioned.droppedSilently.includes(rel) || mentioned.targets.includes(rel)) {
+      biteFailures.push(`a "see also: <this artifact>" comment added to ${name} did not FAIL the completeness check`);
+    }
+    // (b) the target quietly stops qualifying — set equality alone misses this.
+    const unqualified = deriveTargets(
+      redModuleNames, overlay(name, (t) => t.split(CONFIG_REL).join('<removed>')), TARGET_CYCLE_BREAKS,
+    );
+    if (targetsAreComplete(unqualified) || !unqualified.missingRequired.includes(rel)) {
+      biteFailures.push(`${name} ceasing to qualify did not FAIL the completeness check`);
+    }
+  }
+  // (c) both arms of the cycle-break audit, exercised even though the real map is
+  //     empty, so the machinery cannot rot while unused.
+  const SYNTHETIC_STALE_BREAK = `${RED_DIR_REL}/red-b49d4-deleted-last-week.mjs`;
+  const staleAudit = deriveTargets(redModuleNames, readRedText, new Map([
+    [SYNTHETIC_STALE_BREAK, 'a reason comfortably longer than the minimum length this auditor requires'],
+  ]));
+  if (targetsAreComplete(staleAudit) || !staleAudit.staleCycleBreaks.includes(SYNTHETIC_STALE_BREAK)) {
+    biteFailures.push('a cycle break naming a file that does not mention this artifact was not flagged as stale');
+  }
+  const reasonName = basename(REQUIRED_NEWCOMER_TARGETS[0]);
+  const reasonAudit = deriveTargets(
+    redModuleNames, overlay(reasonName, (t) => `${t}\n// ${SELF}\n`),
+    new Map([[REQUIRED_NEWCOMER_TARGETS[0], 'too short']]),
+  );
+  if (targetsAreComplete(reasonAudit) || !reasonAudit.unreasonedCycleBreaks.includes(REQUIRED_NEWCOMER_TARGETS[0])) {
+    biteFailures.push('a cycle break carrying no real reason was not flagged as unreasoned');
   }
 
-  const targetRuns = targetRels.map((rel) => {
-    const r = runNode([join(repoRoot, rel)]);
-    return { rel, status: r.status, names: r.out.includes(NEWCOMER_BASE), ms: r.ms, out: r.out };
-  });
+  row(
+    'NEWCOMER_TARGET_SET_IS_COMPLETE', 'D',
+    targetsAreComplete(targetSet),
+    `${targetSet.qualified.length} *.mjs qualify (read ${CONFIG_REL} AND enumerate): `
+    + `${targetSet.qualified.map((r) => basename(r)).join(', ')}; dropped for mentioning ${SELF} without an audited `
+    + `cycle break: ${targetSet.droppedSilently.map((r) => basename(r)).join(', ') || 'none'}; audited cycle breaks: `
+    + `${[...TARGET_CYCLE_BREAKS.keys()].map((r) => basename(r)).join(', ') || 'none'} `
+    + `(stale: ${targetSet.staleCycleBreaks.join(', ') || 'none'}; unreasoned: `
+    + `${targetSet.unreasonedCycleBreaks.join(', ') || 'none'}); required targets missing from the derived set: `
+    + `${targetSet.missingRequired.join(', ') || 'none'}`,
+    'the spawned target set must EQUAL the set of files that genuinely qualify, and must contain both guards this '
+    + `story ships. A file that drops out because it mentions ${SELF} — or because it quietly stopped qualifying — `
+    + 'must FAIL here naming itself, never shrink the set silently while the remaining targets keep the row GREEN',
+  );
+  row(
+    'TARGET_SET_COMPLETENESS_CHECK_BITES', 'D',
+    biteFailures.length === 0,
+    biteFailures.length === 0
+      ? `the same derivation was re-run over ${REQUIRED_NEWCOMER_TARGETS.length * 2 + 2} synthetic mutations and `
+      + `rejected every one: each required target (${REQUIRED_NEWCOMER_TARGETS.map((r) => basename(r)).join(', ')}) `
+      + `gaining a mention of ${SELF}, each ceasing to qualify, a stale cycle break and an unreasoned one`
+      : biteFailures.join(' | '),
+    'the completeness check must reject every way the target set could shrink, or a clean result above would mean '
+    + 'nothing',
+  );
+
+  // The newcomer is planted in a PRIVATE MIRROR, and the guards are spawned
+  // against that mirror. The red directory is copied byte for byte so a guard's
+  // own git-cleanliness check still passes; the dist task directory is
+  // materialized so a target that plants its own probe there lands in the mirror
+  // rather than in the repository. Nothing here can strand a file in a guarded
+  // directory of the working tree.
+  let newcomerMirror = null;
+  let targetRuns = [];
+  let faithful = [];
+  let byteMismatches = [];
+  try {
+    newcomerMirror = makeMirror('red-b49d4-newcomer-', {
+      writableFiles: [NEWCOMER_REL],
+      copyDirs: [RED_DIR_REL],
+      materializeDirs: [DIST_TASKS_REL],
+    });
+
+    // The mirror is faithful: both required guards pass BEFORE the newcomer is
+    // planted, so a catch below is attributable to the newcomer alone.
+    faithful = REQUIRED_NEWCOMER_TARGETS.map((rel) => ({ rel, ...runInMirror(newcomerMirror, rel) }));
+
+    writeFileSync(join(newcomerMirror, NEWCOMER_REL), newcomerBody, 'utf8');
+
+    byteMismatches = targetRels.filter((rel) => {
+      try {
+        return sha256(readFileSync(join(newcomerMirror, rel))) !== sha256(readFileSync(join(repoRoot, rel)));
+      } catch {
+        return true;
+      }
+    });
+    targetRuns = targetRels.map((rel) => {
+      const r = runInMirror(newcomerMirror, rel);
+      return { rel, status: r.status, names: r.out.includes(NEWCOMER_BASE), ms: r.ms, out: r.out };
+    });
+  } finally {
+    if (newcomerMirror !== null) rmSync(newcomerMirror, { recursive: true, force: true });
+  }
+
   const catchers = targetRuns.filter((t) => t.status !== 0 && t.names);
   const blindTargets = targetRuns.filter((t) => t.status === 0);
 
   row(
+    'NEWCOMER_MIRROR_IS_FAITHFUL', 'D',
+    faithful.length === REQUIRED_NEWCOMER_TARGETS.length && faithful.every((f) => f.status === 0),
+    `before the newcomer was planted: ${faithful.map((f) => `${basename(f.rel)}(exit=${f.status})`).join(', ') || 'none run'}`,
+    'both required guards must pass inside the mirror before the newcomer is planted, or the mirror — not the '
+    + 'newcomer — is what failed them',
+  );
+  row(
     'NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS', 'D',
-    targetRuns.length > 0 && targetRels.every((rel) => existsSync(join(repoRoot, rel))),
+    targetRuns.length > 0 && byteMismatches.length === 0
+    && targetRels.every((rel) => existsSync(join(repoRoot, rel))),
     `spawned ${targetRuns.length} committed guard(s) as child processes: `
-    + `${targetRuns.map((t) => `${basename(t.rel)}(exit=${t.status}, ${t.ms}ms)`).join(', ')}`,
-    'the newcomer must be judged by the enumeration that actually ships, not by a copy of it written in this file',
+    + `${targetRuns.map((t) => `${basename(t.rel)}(exit=${t.status}, ${t.ms}ms)`).join(', ')}`
+    + `; every spawned file is sha256-identical to its committed counterpart=${byteMismatches.length === 0}`
+    + `${byteMismatches.length > 0 ? ` (differs: ${byteMismatches.join(', ')})` : ''}`,
+    'the newcomer must be judged by the enumeration that actually ships, not by a copy of it written in this file: '
+    + 'the bytes executed for each target must be sha256-identical to the committed guard they stand for',
+  );
+  const unattributable = targetRuns.filter((t) => t.status !== 0 && !t.names);
+  row(
+    'EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE', 'D',
+    unattributable.length === 0,
+    `targets that failed WITHOUT naming the newcomer: `
+    + `${unattributable.map((t) => `${basename(t.rel)}(exit=${t.status}, "${clip(t.out, 120)}")`).join(' | ') || 'none'}`,
+    'a target may fail only because it saw the newcomer. A target failing for any other reason is an artefact of the '
+    + 'mirror, and it would silently downgrade this block from "a derived guard is blind to the newcomer" to "a '
+    + 'derived guard errored" while the rows above stayed GREEN',
   );
   row(
     'DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION', 'D',
@@ -552,8 +930,6 @@ try {
     );
   }
 
-  sweepProbes();
-
   // ══════════════════════════════════════════════════════════════════════════
   // BLOCK E — the real config was never written to.
   // ══════════════════════════════════════════════════════════════════════════
@@ -573,12 +949,26 @@ try {
   );
   row(
     'PROBES_CLEANED_UP', 'E',
-    PROBE_RELS.every((rel) => !existsSync(join(repoRoot, rel))),
-    PROBE_RELS.map((rel) => `${rel}=${existsSync(join(repoRoot, rel)) ? 'LEFT BEHIND' : 'removed'}`).join(', '),
-    'no probe may survive the run',
+    LEGACY_PROBE_RELS.every((rel) => !existsSync(join(repoRoot, rel))),
+    LEGACY_PROBE_RELS.map((rel) => `${rel}=${existsSync(join(repoRoot, rel)) ? 'LEFT BEHIND' : 'absent'}`).join(', '),
+    'no probe may survive the run — probes are planted only in private temporary mirrors, so these repository paths '
+    + 'must be absent by construction rather than by cleanup',
+  );
+  const listingAfter = guardedListingDigest();
+  const gitAfter = gitStatusFor(GUARDED_DIRS);
+  row(
+    'REPO_TREE_NEVER_WRITTEN_TO', 'E',
+    listingAfter === LISTING_DIGEST_BEFORE && gitAfter === GIT_STATUS_BEFORE,
+    `listing digest of ${GUARDED_DIRS.join(', ')} before=${LISTING_DIGEST_BEFORE.slice(0, 16)}… `
+    + `after=${listingAfter.slice(0, 16)}…; git status --porcelain over those paths unchanged=`
+    + `${gitAfter === GIT_STATUS_BEFORE}`,
+    'the guarded directories must contain exactly the same entries after the run as before it: a probe planted in the '
+    + 'population a guard polices is a false failure waiting for the next kill, so no probe may be written here at all',
   );
 } finally {
-  sweepProbes();
+  // Nothing to sweep: every probe lived in a private temporary mirror that its
+  // own block removes. A kill can strand only a directory of symlinks under
+  // os.tmpdir(), which no guard enumerates.
 }
 
 // ── report ──────────────────────────────────────────────────────────────────
