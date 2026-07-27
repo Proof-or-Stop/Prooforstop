@@ -187,7 +187,11 @@
           {
             "desc": "The scan is re-runnable at merge time and does not hard-code the PLAN-phase snapshot of 105 artifacts / 144 records / 0 affected.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+              "selector": "SCAN_RECOMPUTES_NOT_PINNED"
+            }
           }
         ]
       },
@@ -240,6 +244,26 @@
           "materialHash": "45569e5af7d11ee037bd268bc2591a88e99c4e6aeb341c888838496ed8096ea3",
           "storyFilesHash": "c3937f1bc356cd55366c55ebcc1637f43b2cc140ab3005bf96b6cd9380f4332d",
           "timestamp": "2026-07-27T00:09:02.645Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "result": "pass",
+          "note": "Nothing is hard-coded: the PLAN snapshot of 105 artifacts / 144 records appears nowhere as a constant, and this run recomputed 106 / 145 on the same machine. The marker is gated on a self-test that runs FIRST, through the identical code path, over synthetic fixtures in a throwaway temp dir: records missing only trigger, only createdAt, only id, and one with a blank trigger must all be reported affected, a well-formed control must not, a v2 record must be skipped and three broken envelopes must be reported. The scan also aborts with exit 1 rather than printing a meaningless 0 if the RedEvidenceRecord symbol cannot be located or if every mandatory field is already read by the predicate.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "776768a72b26cc35329a61c405b1ef8253558b71f3ddf951d16c637e47b02bef",
+            "outputTail": "mandatory v1 fields derived from RedEvidenceRecord: id, trigger, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, observedFailure, greenRelation, createdAt\n  of which the pre-fix predicate never reads: id, trigger, createdAt\nself-test: synthetic corpus (4 artifacts / 6 records, 5 satisfying today) -> 4 affected [FLIPS_MISSING_TRIGGER:missing:trigger, FLIPS_MISSING_CREATEDAT:missing:createdAt, <no id>:missing:id, FLIPS_BLANK_TRIGGER:blank:trigger], 1 v2 skipped, 3 envelope faults reported\nSCAN_RECOMPUTES_NOT_PINNED\n\nroots: /Users/jek/Documents/Work/proofbound/.worktrees/B-2aa7 (repository root)\nscanned 106 artifacts / 145 records, 0 affected\n  (of 145 records: 144 SATISFY the pre-fix predicate today and are the only records whose verdict could move — 0 of them are schema-invalid; 0 carry their own schemaVersion and are not v1; 0 crash the pre-fix predicate today, which is a crash class, not a verdict movement; 0 artifacts have envelope faults)\nMIGRATION_SCAN_ENUMERATED_AND_COUNTED\nZERO_AFFECTED_STATED_POSITIVELY\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:09:20.791Z"
+          },
+          "headHash": "ddc641dbe7efb468e3af6dc307df64ff37947cdc",
+          "materialHash": "45569e5af7d11ee037bd268bc2591a88e99c4e6aeb341c888838496ed8096ea3",
+          "storyFilesHash": "c3937f1bc356cd55366c55ebcc1637f43b2cc140ab3005bf96b6cd9380f4332d",
+          "timestamp": "2026-07-27T00:09:20.946Z"
         }
       ]
     },
