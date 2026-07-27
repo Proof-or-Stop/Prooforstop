@@ -249,6 +249,35 @@
         "scanEscalationReason": null
       },
       "_hash": "320d96392ade4d562bbce5a980d3450414effa037326f3d519f04c9f7b45cc3b"
+    },
+    {
+      "id": "B-70a6:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 re-bind check after sibling merges (B-2296/B-2aa7/B-506e) advanced main and staled RP-009 (RR-009) prompt-envelope binding. This is not a fresh full review -- 9 prior rounds already substantively covered this diff -- but I independently re-verified rather than rubber-stamping: (1) all 4 required assertion functions in scripts/verify-process-fact-contract.mjs are still defined AND invoked -- grep confirms assertPhaseTransitionReopenAuditContract (def L2592, call L7839), assertOutOfBandReopenAuditRescueContract (def L2780, call L7840), assertReopenAuditConcurrencyResidualContract (def L2945, call L7841), assertReopenAuditLockRejectionRationaleContract (def L3077, call L7842) -- none dropped, none stubbed. (2) finding_list confirms exactly 17 findings (F-001..F-017), all status=resolved, 0 open, 0 suspected/disproven in attention block. (3) Re-ran all 4 required commands fresh in this worktree: npm --prefix packages/main run build exits clean (tsc, no errors); npm run test:process-fact-contract prints Process fact contract verified; node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js passes all 6 lines (round-trip, dev_start reuse/re-bootstrap, crash-window recovery, survives story_discard, survives zombie story_reconcile, same-reason reopens audited separately); node packages/main/dist/tasks/flow-stability-smoke.js passes. (4) Checked git diff main...HEAD (current merge-base is 2904baa7fe, confirmed main is an ancestor of HEAD via merge-base --is-ancestor, so the diff reflects the true accumulated material): grep for raw conflict markers (^<<<<<<<, ^=======$, ^>>>>>>>) across packages/main/src and the contract script returns nothing; grepped the added lines of the shared-touch files (transition-orchestrator.ts, worktree.ts, story-query.ts, types.ts) for as-any/bare-catch/console.log patterns -- the one hit is a comment (line documenting the F-008 fix), and I read the actual catch block it documents (L749-772): it discriminates by e.name !== StoryArtifactMissingError before warning, never silently swallows an unexpected error, matching the docblock exactly (no regression). types.ts diff is a clean additive insertion (PendingReopenAudit interface + pendingReopenAudit field), no edits to unrelated pre-existing lines, consistent with the merges having touched other regions of that file. process-fact-registry.ts diff is a single rationale-string extension on the pre-existing runtime:closeout_phase_transition entry, not a new/duplicated entry. No new dead code, no new any-casts, no new empty catches introduced by the accumulated diff. No blockers. This story has no bridge.ts (CLI/core only, no shell/fn.ts split) so I-O isolation check N/A, and no proof/receipt/provider/run/job metadata semantics are touched by this diff so the narrow proof-metadata-coverage rule is N/A. Re-binding to current material with a clean pass.",
+      "createdAt": "2026-07-27T00:17:37.507Z",
+      "reviewRound": "2026-07-27T00:13:12.753Z",
+      "reviewRunId": "B-70a6:RR-017",
+      "envelopeId": "15fa85d5c3122d17ad3bf2d0aaff85055641db82d88d6ab0eadb9ab02f652aec",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ecf7517944e76468f7bd6beaeab252c509aa434aa18b7c98fc4ab480deb85e60"
     }
   ]
 }
