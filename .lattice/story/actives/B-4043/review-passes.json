@@ -1305,6 +1305,39 @@
         "scanEscalationReason": null
       },
       "_hash": "7a504cbbbab3e8b86d1b5ae10189d048e202eb33523fdd1563a64fd6f6fea8b4"
+    },
+    {
+      "id": "B-4043:RP-040",
+      "agent": "lattice-review-concept",
+      "note": "Incremental re-review since RP-034: 2 new main merges (lattice.config.json/package.json/proofstory.ts conflicts resolved as unions) + new --cohort=/--story=/--out=/--quiet argv options. Verified merged proofstory.ts imports (AcceptanceRolloutCohortInputV1 + RedEvidenceData/red-evidence-artifact-validation) both used; config/package merges purely additive; tsc build clean; zero duplicate command-catalog names; all new argv flags fall back to prior env-var/default behavior preserving old invocations; verify-process-fact-contract.mjs PASS with/without --quiet, identical content minus verbose listing lines. No concept deletion/replacement, zero residue. 0 findings open.",
+      "createdAt": "2026-07-27T12:40:52.601Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-061",
+      "envelopeId": "aeb5c8d4d65a8564b25a8084c89ed500b15b5be43b561f1ea8071da94cb1349c",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd93833311ed9e5eb16d1bc37d53a4144eac04b84420b1540dda7d435fa3d992"
     }
   ]
 }
