@@ -576,8 +576,8 @@
       "id": "CHK-006",
       "title": "Make every readRedEvidence consumer surface corruption instead of aborting or degrading",
       "context": "There are TEN production call sites on current main, not the seven this story originally claimed - the B-506e merge added three more, and the count has now been wrong TWICE from a stale inventory, so re-derive it yourself before starting. Pre-existing seven: core/machine.ts, handlers/phase-gates.ts, handlers/proofstory.ts (three sites), handlers/story-review.ts (two sites). Added by the merge, verified absent at 1847b3af6d: core/red-evidence/append.ts, and TWO sites in handlers/red-evidence.ts (that file had zero such calls before the merge). Requirements: red_evidence_get must DISPLAY the corruption rather than abort; red_evidence_add reads before appending, so it must repair-by-append or refuse with an actionable message rather than making the artifact unrepairable through the CLI; the story_review advisory path, whose catch renders 'ProofStory Diagnostics (advisory only): unavailable (<message>)', must not let corruption read as 'feature not configured'; and the three merge-added consumers must be held to the same standard. Locate all of them by symbol, never by line number.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-27T01:12:51.024Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
