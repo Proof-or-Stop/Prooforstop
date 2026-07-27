@@ -27,8 +27,8 @@ import type { HandlerContext } from './context.js';
 import { StoryStore } from '../core/store.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { getSessionId } from '../core/owner-session.js';
-import { resolveExpectedRedTargets } from '../core/proofstory.js';
-import { proofStoryDiagnosticInput } from './phase-gates.js';
+import { resolveExpectedRedTargets, type ExpectedRedTargetsInput } from '../core/proofstory.js';
+import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import {
   appendTargetBinding,
   emptyRedTargetBindingsFile,
@@ -45,15 +45,65 @@ import {
 } from '../core/red-evidence/append.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import type { RedEvidenceData } from '../core/types.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+} from '../core/red-evidence-artifact-validation.js';
 
 function withBindingLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
   const lockDir = store.runtimeLockDirPath(storyId, 'red-target-bindings', 'red-target-bindings');
   return withMkdirLock(lockDir, fn, { label: 'red-target-bindings metadata' });
 }
 
+/**
+ * B-2aa7 CHK-006 (§10.4 rows C2/C3) — the chain commands' read of the artifact.
+ *
+ * Both chain commands read `red-evidence.json` and then write a REBUILT envelope
+ * through `appendControlRecord` (`core/red-evidence/append.ts`, owned by the
+ * merged sibling B-506e and OUTSIDE this story's write set). That rebuild does
+ * not restore D-4 quarantined originals to `records`, so running it against a
+ * corrupt artifact would relocate — and, on any later non-spreading append,
+ * destroy — evidence the operator is trying to repair. Since the rebuild cannot
+ * be fixed from here, the command REFUSES instead, which is C2's second branch:
+ * a controlled failure naming the corruption and the repair path, never a silent
+ * rewrite and never an abort that reads as "not configured".
+ *
+ * `red_evidence_create` is unaffected by this refusal and remains the CLI repair
+ * path (it restores quarantined originals before writing), so the artifact is
+ * never left unrepairable through the CLI.
+ */
+function readRedEvidenceForChain(
+  store: StoryStore,
+  storyId: string,
+  command: string,
+): RedEvidenceData | null {
+  let data: RedEvidenceData | null;
+  try {
+    data = store.readRedEvidence(storyId);
+  } catch (e) {
+    const corruption = describeRedEvidenceReadFailure(e);
+    if (corruption === null) throw e;
+    throw new Error(
+      `${command} refused: this story's red-evidence artifact cannot be read, so its chain state is unknown. ` +
+        `Nothing written.\n${corruption}\n${redEvidenceRepairGuidance(storyId)}`,
+    );
+  }
+  const corruption = renderRedEvidenceQuarantineNotice(storyId, data);
+  if (corruption !== null) {
+    throw new Error(
+      `${command} refused: this story's red-evidence artifact holds quarantined record(s), and appending to the chain ` +
+        `rebuilds the envelope without restoring them. Nothing written.\n${corruption}\n` +
+        `${redEvidenceRepairGuidance(storyId)}`,
+    );
+  }
+  return data;
+}
+
 /** Locate a v2 chain record by id within a story's store (§4.1 reference lookup). */
 function findV2Record(store: StoryStore, storyId: string, recordId: string): RedEvidenceRecordV2 {
-  const data = store.readRedEvidence(storyId);
+  const data = readRedEvidenceForChain(store, storyId, 'red_evidence chain reference');
   const record = (data?.records ?? []).find(
     (r): r is RedEvidenceRecordV2 => isRedEvidenceV2(r) && r.id === recordId,
   );
@@ -66,9 +116,42 @@ function findV2Record(store: StoryStore, storyId: string, recordId: string): Red
   return record;
 }
 
+/**
+ * The EXACT slice `resolveExpectedRedTargets` reads (§3.3), and nothing else.
+ *
+ * B-2aa7 F-005. This used to build a whole `proofStoryDiagnosticInput`, whose
+ * many fields include an eager `store.readRedEvidence()`. `resolveExpectedRedTargets`
+ * never looks at `redEvidence` — it reads only the three fields below (proofstory.ts
+ * `ExpectedRedTargetsInput`) — so that coupling made a corrupt `red-evidence.json`
+ * abort a membership decision that does not depend on it, through the ONE call site
+ * of the shared builder that was not wrapped in `withRedEvidenceCorruptionContext`
+ * (phase-gates.ts wraps both of its own). The operator got a bare
+ * `RedEvidenceArtifactError` with no repair guidance.
+ *
+ * Dropping the read is preferred over wrapping it because wrapping would report a
+ * failure this gate cannot honestly claim: the membership inputs ARE readable, so
+ * "the gate has no evidence to evaluate" would be false and misattributed. Each read
+ * should report its own failure. `red_evidence_binding_set` still surfaces the
+ * corruption — at `readRedEvidenceForChain`, the read that genuinely needs the
+ * artifact and already attaches `redEvidenceRepairGuidance` — and because that is now
+ * the command's ONLY artifact read, which message the operator sees no longer depends
+ * on which of two reads fires first. `red_evidence_quarantine` / `red_evidence_recover`
+ * are unaffected: their `findV2Record` already reads through that same wrapper first.
+ *
+ * The computed set is UNCHANGED (same three fields, same store readers, same
+ * resolver), so no membership verdict moves.
+ */
+function expectedRedTargetsInput(store: StoryStore, storyId: string): ExpectedRedTargetsInput {
+  return {
+    originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
+    proofStoryContract: store.readProofStoryContract(storyId),
+    milestoneLedger: readTrustedProofStoryScopeArtifacts(store, storyId).ledger,
+  };
+}
+
 /** §3.3 write-time expectedRedTargets membership gate (CHK-012), case-sensitive. */
-function assertTargetInExpected(store: StoryStore, root: string, storyId: string, acceptanceTargetRef: string, command: string): void {
-  const expected = resolveExpectedRedTargets(proofStoryDiagnosticInput(store, storyId, root));
+function assertTargetInExpected(store: StoryStore, storyId: string, acceptanceTargetRef: string, command: string): void {
+  const expected = resolveExpectedRedTargets(expectedRedTargetsInput(store, storyId));
   if (!expected.has(acceptanceTargetRef)) {
     throw new Error(
       `${command}: derived acceptanceTargetRef "${acceptanceTargetRef}" is not in expectedRedTargets for ${storyId} ` +
@@ -114,7 +197,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
       }
 
       // §3.3 write-time membership gate (case-sensitive).
-      assertTargetInExpected(store, root, args.storyId, acceptanceTargetRef, 'red_evidence_binding_set');
+      assertTargetInExpected(store, args.storyId, acceptanceTargetRef, 'red_evidence_binding_set');
 
       return withBindingLock(store, args.storyId, () => {
         // §1.1.3 binding-FREEZE (W2c): a binding is FROZEN once a run record
@@ -134,7 +217,11 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         return withMkdirLock(
           chainLock,
           () => {
-            const evidence = store.readRedEvidence(args.storyId);
+            // B-2aa7 CHK-006: the freeze decision below is derived from the
+            // chain, so a corrupt artifact means the decision would be made from
+            // a PARTIAL view of the file. Fail closed and say so — the same
+            // stance the corrupt-chain guard immediately below already takes.
+            const evidence = readRedEvidenceForChain(store, args.storyId, 'red_evidence_binding_set');
             const chain = partitionChain(evidence?.records ?? [], args.storyId, acceptanceTargetRef);
             const head = resolveChainHead(chain);
             // F-007: a NON-empty chain with no unique head is CORRUPT — never
@@ -254,7 +341,7 @@ function appendChainControl(ctx: HandlerContext, dispatch: ChainControlDispatch)
   const referencedRecordDigest = referenced.recordDigest;
 
   // CHK-012 §3.3 write-time membership gate on the DERIVED target.
-  assertTargetInExpected(store, root, args.storyId, acceptanceTargetRef, command);
+  assertTargetInExpected(store, args.storyId, acceptanceTargetRef, command);
 
   const operationKey = controlOperationKey({
     operation,

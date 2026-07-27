@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-2aa7",
+  "records": [
+    {
+      "id": "RED-20260726225505",
+      "trigger": "red_evidence_required: a malformed versionless record in red-evidence.json crashes the LIVE dev/review/done enforce gate with a bare TypeError instead of failing closed",
+      "acceptanceTargetRef": "sha256:533bbf1a54d4b6596fd5f5d1f466e1596272d57468e540f70bb28a85164ca3ce",
+      "baselineHeadHash": "44bf281dd9b30f58be374fd52fc99f6fdfe70382",
+      "baselineMaterialHash": "d260823e94d30123a3246e63ca053e79530e403d62b5973489ef1fff44ff3c62",
+      "observedFailure": "TypeError: Cannot read properties of undefined (reading 'trim') - thrown from redEvidenceRecordSatisfied in core/proofstory.ts, reached through the real gate pair proofStoryDiagnosticInput then evaluateProofStoryDiagnostics, on a store whose red-evidence.json contains the single record {\"id\":\"corrupt\"}. The node process exits 1. classifyRedRecordSchemaSafe({id:'corrupt'}) returns 'v1' without validating the legacy v1 shape, so the record passes both post-B-506e skip guards and reaches the unguarded observedFailure dereference. Verified on this worktree at CLI 0.3.243, after sibling story B-506e merged at 4d417a0c4b.",
+      "failingCommand": "node -e \"const{StoryStore}=require('./packages/main/dist/core/store.js');const{evaluateProofStoryDiagnostics,computeMilestoneLedgerHash}=require('./packages/main/dist/core/proofstory.js');const{proofStoryDiagnosticInput}=require('./packages/main/dist/handlers/phase-gates.js');const N='2026-07-25T00:00:00.000Z',S='B-repro',R=require('path').join(require('os').tmpdir(),'b2aa7-'+process.pid),st=new StoryStore(R);st.writeStory(S,{storyId:S,name:'r',title:'r',description:'Fix an authentication session security regression (behavior change).',type:'bug',phase:'DEV',priority:'high',createdAt:N,startedAt:N,endedAt:null});const ms=[{id:'M1',sourceRequirementId:'REQ-1',claim:'c',doneMeans:'d',requiredEvidence:[],checklistRefs:['CHK-001'],verificationIntentRefs:['CHK-001:happy:0'],status:'planned'}];st.writeMilestoneLedger(S,{schemaVersion:'proofstory.milestone_ledger.v1',storyId:S,state:'confirmed',ledgerHash:computeMilestoneLedgerHash(ms),milestones:ms,createdAt:N,updatedAt:N});st.writeRedEvidence(S,{schemaVersion:'proofstory.red_evidence.v1',storyId:S,records:[{id:'corrupt'}],createdAt:N,updatedAt:N});evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(st,S,R));console.log('NO CRASH - red signal absent');\"",
+      "expectedGreenCommand": "node packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+      "greenRelation": {
+        "targetRef": "sha256:533bbf1a54d4b6596fd5f5d1f466e1596272d57468e540f70bb28a85164ca3ce",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+      },
+      "note": "Repro-first. This is one representative row of the CRASH class; the committed regression (CHK-001) covers all three defect classes - CRASH, SILENT (a non-object JSON root reads as ABSENT evidence with no throw at all) and UNTYPED-THROW (an unparseable file lets a raw SyntaxError escape). The command drives the production gate pair rather than the predicate in isolation, so the crash is demonstrated where the enforce gate actually runs. It writes only into a throwaway temp store under the OS temp dir and touches no repository state.",
+      "createdAt": "2026-07-26T22:55:05.693Z"
+    }
+  ],
+  "createdAt": "2026-07-26T22:55:05.693Z",
+  "updatedAt": "2026-07-26T22:55:05.693Z"
+}

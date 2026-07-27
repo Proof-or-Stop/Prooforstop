@@ -4,65 +4,1243 @@
       "id": "CHK-001",
       "title": "Commit a repro-first RED artifact proving both crash classes still live on current main",
       "context": "Must FAIL on current main (CLI 0.3.243, after B-506e merged at 4d417a0c4b) before any fix exists. B-506e already closed ONE class - a record that is null or a bare string now yields a typed RedEvidenceSchemaError - so do NOT include those as RED rows; they would pass and prove nothing. RECORD class still live, each verified by probe: {id:'corrupt'} versionless with no observedFailure, observedFailure of null or 123, and an ARRAY record (typeof [] is 'object', so classifyRedRecordSchemaSafe still returns 'v1' for it). ORDERING: malformed-FIRST-then-satisfying, so Array.prototype.some cannot short-circuit past it. ENVELOPE class, wholly untouched by the merge: records as {} or 42 (non-iterable TypeError) and records as 'x' (which iterates the string's characters and misreports 'a record must be an object'). SILENT class, which is NOT a crash and therefore needs a different assertion: a JSON root of [], 'x', null or 42 returns the raw value and reads as ABSENT evidence everywhere, and an unparseable file lets a raw SyntaxError escape - assert the observable wrong behaviour, not a throw. Drive everything through proofStoryDiagnosticInput then evaluateProofStoryDiagnostics, the pair the live enforce gates call, never the predicate in isolation.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-27T00:11:31.614Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed RED artifact runs on current main and FAILS, proving all three defect classes are live before any fix exists.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+              "selector": "RED_ARTIFACT_FAILS_WITH_ALL_CLASSES_LIVE"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Rows that B-506e already closed (record is null or a bare string) are absent from the artifact, so no row passes vacuously.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+              "selector": "NO_ROW_PASSES_VACUOUSLY"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Each class asserts the right shape: CRASH rows assert a bare TypeError escapes, SILENT rows assert a wrong observable value AND no throw, and the unparseable-file row asserts a RAW untyped SyntaxError escapes rather than asserting no throw.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+              "selector": "THREE_CLASSES_THREE_SHAPES"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "packages/main/tests/red/"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "b6449b5ef79925b61c3f5945492dc7af046bbf81",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "timestamp": "2026-07-27T05:25:54.887Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "035e37b0a77e000d697c2e044594bc10470168ce",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "timestamp": "2026-07-27T05:25:55.658Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "b465538c1e74d50db1250ed0a16828ff6d680d8e",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "timestamp": "2026-07-27T05:25:56.427Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Establish the pre-fix invariance baseline from main's existing five-scenario harness",
       "context": "SUPERSEDES the original plan to port a harness: packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs is now ON main (it arrived with the B-506e merge) and passes there, printing 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec. That constant is therefore main's OWN pinned value, not a foreign import, and it must NOT be re-pinned. Run it BEFORE the fix to record that it passes on the pre-fix tree; that run is the baseline CHK-007 asserts against. Its five v1-only scenarios are empty store, satisfying record, blank-observedFailure record, foreign-acceptance-target record, and mixed store, each anchored by name so the digest cannot be silently re-pinned to a different verdict. Separately: 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc remains a phantom produced by no artifact (audit section 7.1) and must never be pinned.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-27T00:02:09.401Z",
+      "endTime": "2026-07-27T00:10:52.307Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red-w2c-v1-verdict-invariance.mjs is run on the pre-fix tree and recorded as passing with digest 2d584cc1...",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+              "selector": "2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The recorded baseline names the exact commit it was taken at, so a later reader can tell whether it predates the fix.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+              "selector": "BASELINE_COMMIT_PREDATES_FIX 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The pinned constant is not edited, and the phantom digest 71c267a0... appears nowhere as a pinned value.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+              "selector": "PINNED_CONSTANT_INTACT_PHANTOM_UNPINNED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "result": "pass",
+          "note": "Pre-fix invariance baseline. main's own five-scenario harness was run unmodified on the pre-fix tree at commit 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02 and exited 0, printing five-scenario FULL-diagnostic sha256 = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec. That tree is pre-fix by inspection: packages/main/src/core/proofstory.ts still reaches record.observedFailure.trim() immediately after the schema classify with no shape guard, and packages/main/src/core/red-evidence-artifact-validation.ts does not exist. The selector is the digest itself, so this evidence cannot pass unless the harness really recomputes that value. CHK-007 re-runs the same command post-fix and must observe the same digest; if it moves, the fix is wrong and the constant must NOT be re-pinned.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "44d9f55ae2da9e9e32069c5fb56236d76a7dc6373c8eac25bf7b7c372b7fec86",
+            "outputTail": "red-w2c-v1-verdict-invariance: five-scenario FULL-diagnostic sha256 = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec\nred-w2c-v1-verdict-invariance: OK (5 v1-only scenarios; per-scenario v1 semantics asserted by name; one sha256 over the concatenated FULL diagnostics equals the pinned digest)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:08.165Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "result": "pass",
+          "note": "The baseline names its commit, and the naming is proven rather than asserted. The receipt pins BASELINE_COMMIT = 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02 and emits this selector only when three conditions hold together: the commit resolves; it is an ancestor-or-equal of HEAD, so it is genuinely on this story history; and its BLOB is pre-fix - at that commit the schema classify line in packages/main/src/core/proofstory.ts is IMMEDIATELY followed by the unguarded record.observedFailure.trim() dereference that CHK-005 will split apart, and packages/main/src/core/red-evidence-artifact-validation.ts (the CHK-004 validator) is absent from the tree. Because it reads the historical blob rather than the working tree, the assertion stays checkable after the fix lands, which is exactly what lets a later reader tell the baseline predates it. Condition-gating verified by negative runs: re-pinning BASELINE_COMMIT to an unresolvable sha, and to pre-B-506e main 1847b3af6d where the classify line does not yet exist, each suppress the marker while leaving the other marker intact.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "83b53b01bbacee43ea3fb4788eedff5fced20d56595399cf6b21bb374877e2a4",
+            "outputTail": "BASELINE_COMMIT_PREDATES_FIX 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02\nPINNED_CONSTANT_INTACT_PHANTOM_UNPINNED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:08.536Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "result": "pass",
+          "note": "Two adversarial conditions, both proven mechanically. (1) The pinned constant was not edited: red-w2c-v1-verdict-invariance.mjs is byte-identical to main - it appears in neither git diff merge-base..HEAD nor git diff HEAD - and its V1_VERDICT_DIGEST equals the value on main, so no assertion around the constant was relaxed either. It is listed under scope-contract protectedFiles and this story never opened it for writing. (2) The phantom digest of audit section 7.1 appears nowhere under packages/main/src or packages/main/tests as a pinned value: the receipt READS the phantom out of the audit document that documents it, then scans both trees for it, so the receipt itself never becomes another place it is pinned - writing the literal here would have been the very mistake 7.1 exists to prevent, and would also have made the scan self-defeating. Condition-gating verified by a negative run: planting the extracted phantom into a scanned root suppresses this marker while leaving the baseline marker intact.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "83b53b01bbacee43ea3fb4788eedff5fced20d56595399cf6b21bb374877e2a4",
+            "outputTail": "BASELINE_COMMIT_PREDATES_FIX 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02\nPINNED_CONSTANT_INTACT_PHANTOM_UNPINNED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:08.782Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Run the mandatory migration scan over real story red-evidence artifacts and record the result",
       "context": "Decision D-7. Full validation was chosen, so 'no valid verdict moved' is an assumption until this scan proves it - and the pinned digest CANNOT detect the difference, because all five of its scenarios are well-formed. Enumerate every reachable red-evidence.json in real story directories; for each record compute (current verdict, verdict under full v1 validation). The story may merge only if the differing set is empty, or every entry is individually justified in the story record. Report the count even when zero: 'scanned N artifacts, 0 affected' is the evidence; silence is not.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-27T00:03:33.097Z",
+      "endTime": "2026-07-27T00:10:53.342Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed scan enumerates every reachable red-evidence artifact and reports a concrete count of records that satisfy the gate today while being schema-invalid.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+              "selector": "MIGRATION_SCAN_ENUMERATED_AND_COUNTED"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The scan reports its result even when the affected set is empty, so 'scanned N artifacts, 0 affected' is positive evidence rather than silence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+              "selector": "ZERO_AFFECTED_STATED_POSITIVELY"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The scan is re-runnable at merge time and does not hard-code the PLAN-phase snapshot of 105 artifacts / 144 records / 0 affected.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+              "selector": "SCAN_RECOMPUTES_NOT_PINNED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "result": "pass",
+          "note": "The committed scan walks the repository for every reachable red-evidence.json and, for each legacy v1 record, computes (verdict under the frozen pre-fix predicate, validity under the full v1 mandatory-field set derived from the RedEvidenceRecord interface by symbol). The marker is printed only when the enumeration actually covered a non-empty corpus and emitted the count line, so an empty or aborted run cannot match the selector.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ce01383e76dbadcab34f1b61ab468d3a94a5b20f771f20adedca8e26a418a74f",
+            "outputTail": "mandatory v1 fields derived from RedEvidenceRecord: id, trigger, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, observedFailure, greenRelation, createdAt\n  of which the pre-fix predicate never reads: id, trigger, createdAt\nself-test: synthetic corpus (4 artifacts / 6 records, 5 satisfying today) -> 4 affected [FLIPS_MISSING_TRIGGER:missing:trigger, FLIPS_MISSING_CREATEDAT:missing:createdAt, <no id>:missing:id, FLIPS_BLANK_TRIGGER:blank:trigger], 1 v2 skipped, 3 envelope faults reported\nSCAN_RECOMPUTES_NOT_PINNED\n\nroots: /Users/jek/Documents/Work/proofbound/.worktrees/B-2aa7 (repository root)\nscanned 107 artifacts / 149 records, 0 affected\n  (of 149 records: 148 SATISFY the pre-fix predicate today and are the only records whose verdict could move — 0 of them are schema-invalid; 0 carry their own schemaVersion and are not v1; 0 crash the pre-fix predicate today, which is a crash class, not a verdict movement; 0 artifacts have envelope faults)\nMIGRATION_SCAN_ENUMERATED_AND_COUNTED\nZERO_AFFECTED_STATED_POSITIVELY\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:08.967Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "result": "pass",
+          "note": "D-7 obligation 4: the result is stated even when empty. The scan always prints scanned N artifacts / M records, K affected plus the denominator (how many records satisfy the predicate today and therefore COULD have moved), and prints this marker only when K is genuinely 0. If any record flipped the marker is absent and one AFFECTED line per record is printed instead, so silence can never be read as zero.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ce01383e76dbadcab34f1b61ab468d3a94a5b20f771f20adedca8e26a418a74f",
+            "outputTail": "mandatory v1 fields derived from RedEvidenceRecord: id, trigger, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, observedFailure, greenRelation, createdAt\n  of which the pre-fix predicate never reads: id, trigger, createdAt\nself-test: synthetic corpus (4 artifacts / 6 records, 5 satisfying today) -> 4 affected [FLIPS_MISSING_TRIGGER:missing:trigger, FLIPS_MISSING_CREATEDAT:missing:createdAt, <no id>:missing:id, FLIPS_BLANK_TRIGGER:blank:trigger], 1 v2 skipped, 3 envelope faults reported\nSCAN_RECOMPUTES_NOT_PINNED\n\nroots: /Users/jek/Documents/Work/proofbound/.worktrees/B-2aa7 (repository root)\nscanned 107 artifacts / 149 records, 0 affected\n  (of 149 records: 148 SATISFY the pre-fix predicate today and are the only records whose verdict could move — 0 of them are schema-invalid; 0 carry their own schemaVersion and are not v1; 0 crash the pre-fix predicate today, which is a crash class, not a verdict movement; 0 artifacts have envelope faults)\nMIGRATION_SCAN_ENUMERATED_AND_COUNTED\nZERO_AFFECTED_STATED_POSITIVELY\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:09.145Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "result": "pass",
+          "note": "Nothing is hard-coded: the PLAN snapshot of 105 artifacts / 144 records appears nowhere as a constant, and this run recomputed 106 / 145 on the same machine. The marker is gated on a self-test that runs FIRST, through the identical code path, over synthetic fixtures in a throwaway temp dir: records missing only trigger, only createdAt, only id, and one with a blank trigger must all be reported affected, a well-formed control must not, a v2 record must be skipped and three broken envelopes must be reported. The scan also aborts with exit 1 rather than printing a meaningless 0 if the RedEvidenceRecord symbol cannot be located or if every mandatory field is already read by the predicate.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ce01383e76dbadcab34f1b61ab468d3a94a5b20f771f20adedca8e26a418a74f",
+            "outputTail": "mandatory v1 fields derived from RedEvidenceRecord: id, trigger, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, observedFailure, greenRelation, createdAt\n  of which the pre-fix predicate never reads: id, trigger, createdAt\nself-test: synthetic corpus (4 artifacts / 6 records, 5 satisfying today) -> 4 affected [FLIPS_MISSING_TRIGGER:missing:trigger, FLIPS_MISSING_CREATEDAT:missing:createdAt, <no id>:missing:id, FLIPS_BLANK_TRIGGER:blank:trigger], 1 v2 skipped, 3 envelope faults reported\nSCAN_RECOMPUTES_NOT_PINNED\n\nroots: /Users/jek/Documents/Work/proofbound/.worktrees/B-2aa7 (repository root)\nscanned 107 artifacts / 149 records, 0 affected\n  (of 149 records: 148 SATISFY the pre-fix predicate today and are the only records whose verdict could move — 0 of them are schema-invalid; 0 carry their own schemaVersion and are not v1; 0 crash the pre-fix predicate today, which is a crash class, not a verdict movement; 0 artifacts have envelope faults)\nMIGRATION_SCAN_ENUMERATED_AND_COUNTED\nZERO_AFFECTED_STATED_POSITIVELY\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:09.327Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Add fail-closed full v1 artifact validation at the read boundary with quarantine",
       "context": "Decisions D-1 to D-4. Precedence rule D-1 (which source of schema version wins): the FILE declares the era, the RECORD declares the exception, so a versionless record inside a v1-declared file is only CLAIMED v1 and must be validated against the v1 schema, never assumed to satisfy it. Validate the ENVELOPE before the records. Malformed entries are quarantined - records stays clean, malformed surface in a separate reported list - never thrown, never silently dropped. Mandatory v1 fields per the RedEvidenceRecord interface in core/types.ts (locate by symbol; the line range drifted). Cases that are easy to miss: a record missing only trigger / createdAt / id but otherwise complete is currently SATISFIED and is the WITNESS that full validation rather than the rejected narrow option was implemented; a prototype-inherited observedFailure (Object.create(null) and friends) must not be accepted via the prototype chain; and an ARRAY record must be rejected, since the classifier still returns 'v1' for it. Envelope rows from acceptance section 10.2.1: E5, a JSON root that is not an object ([], 'x', null, 42) currently does NOT crash - it flows through as the raw parsed value and every consumer reads it as ABSENT evidence, making a corrupt artifact indistinguishable from a missing one, which a crash-only validator would leave untouched; E6, a missing or unknown FILE-level schemaVersion must not silently degrade to v1; E7, an unparseable file currently lets a raw SyntaxError escape from readJson and must instead produce a typed error naming the path.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-27T00:42:53.953Z",
+      "endTime": "2026-07-27T00:47:14.239Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A well-formed v1 artifact loads unchanged and its gate verdict is identical to pre-fix.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+              "selector": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Envelope rows E5, E6 and E7 each behave as specified: a non-object root is rejected rather than read as absent, a missing or unknown file-level schemaVersion does not degrade to v1, and an unparseable file yields a typed error naming the path instead of a raw SyntaxError.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+              "selector": "ENVELOPE_ROWS_E5_E6_E7"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed entries are quarantined, not dropped: the rejected entry is retained and reported with index, identifying field and reason, and an envelope fault is never reported as a record fault. An array record and a prototype-inherited observedFailure are both rejected.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+              "selector": "QUARANTINE_RETAINS_AND_ATTRIBUTES"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/red-evidence-artifact-validation.ts"
+        ],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "result": "pass",
+          "note": "A well-formed v1 artifact loads UNCHANGED and its verdict is IDENTICAL TO PRE-FIX, both observed rather than claimed. 'Unchanged' is checked at the real read boundary: store.readRedEvidence returns an envelope whose canonical form equals the bytes on disk, malformedRecords is absent (no quarantine surface is manufactured for a clean artifact), and the live pair proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics reports zero missingRedEvidence rows. 'Identical to pre-fix' is not self-reported: the receipt spawns the PROTECTED harness red-w2c-v1-verdict-invariance.mjs and requires exit 0 plus the digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec, which CHK-002 pinned on the pre-fix tree at 6d7c20bb4b - so a match is a direct pre-fix/post-fix comparison. The pinned constant was NOT edited and that file is untouched in this diff. Non-vacuity comes from a discriminating control rather than from flipping (this is a no-change intent, so it necessarily holds on both trees): the same envelope with ONE malformed record appended must NOT canonicalise to the clean envelope, so 'unchanged' cannot hold for an arbitrary artifact.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c12d94593c26a376b1517491de48db9be75fd0e825cede0b4ec4190e766d4ae",
+            "outputTail": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; the pre-fix-pinned five-scenario digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec still reproduces; control=one malformed record appended is discriminated)\nENVELOPE_ROWS_E5_E6_E7 (E5: 4/4 non-object roots rejected as root_not_object and no longer read as ABSENT; E6: missing -> schema_version_missing and unknown -> schema_version_unknown, neither degrading to v1 while the same record SATISFIES under a v1 envelope; E7: still THROWS, typed RedEvidenceArtifactError(unparseable) naming the path, not a raw SyntaxError)\nQUARANTINE_RETAINS_AND_ATTRIBUTES (rejected entry RETAINED verbatim at index=1 id=\"corrupt\" with reason and violations while records stays clean; full v1 field set enforced (missing:trigger flips a record the predicate never reads); blank observedFailure legacy-tolerated per D-5 — UNSATISFIED, no new diagnostic, never quarantined; envelope fault reported as records_not_array naming the path, never as \"a record must be an object\"; array record and prototype-inherited observedFailure both rejected, own-field null-prototype control accepted)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:10.770Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "result": "pass",
+          "note": "Envelope rows E5, E6 and E7 each observed against the real read boundary, and the marker prints only when ALL THREE hold together. E5: each of the four non-object JSON roots ([], \"x\", null, 42) is rejected with a typed RedEvidenceArtifactError code=root_not_object naming the absolute artifact path, AND its report no longer equals the ABSENT baseline computed earlier in the same run - pre-fix all four flowed through as the raw parsed value and were byte-identical to an absent artifact, which is why a crash-only fix would have left them untouched. E6: a missing file-level schemaVersion yields code=schema_version_missing and an unknown one yields code=schema_version_unknown, neither degrading to v1 (D-1). Its discriminating control is exact: both fixtures carry the SAME satisfying v1 record as the CLEAN baseline, which the same run observes SATISFYING the gate under a v1 envelope, so the rejection is caused by the schemaVersion member alone and not by the record. E7: the unparseable file STILL THROWS - the requirement is a typed throw, not the absence of one - and the escaping error is asserted to be non-builtin, NOT a SyntaxError, name=RedEvidenceArtifactError, code=unparseable, and to name the path. Gating proven by replay: this marker is ABSENT on the pre-fix tree (git archive HEAD, rebuilt) and PRESENT on the fixed tree.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c12d94593c26a376b1517491de48db9be75fd0e825cede0b4ec4190e766d4ae",
+            "outputTail": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; the pre-fix-pinned five-scenario digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec still reproduces; control=one malformed record appended is discriminated)\nENVELOPE_ROWS_E5_E6_E7 (E5: 4/4 non-object roots rejected as root_not_object and no longer read as ABSENT; E6: missing -> schema_version_missing and unknown -> schema_version_unknown, neither degrading to v1 while the same record SATISFIES under a v1 envelope; E7: still THROWS, typed RedEvidenceArtifactError(unparseable) naming the path, not a raw SyntaxError)\nQUARANTINE_RETAINS_AND_ATTRIBUTES (rejected entry RETAINED verbatim at index=1 id=\"corrupt\" with reason and violations while records stays clean; full v1 field set enforced (missing:trigger flips a record the predicate never reads); blank observedFailure legacy-tolerated per D-5 — UNSATISFIED, no new diagnostic, never quarantined; envelope fault reported as records_not_array naming the path, never as \"a record must be an object\"; array record and prototype-inherited observedFailure both rejected, own-field null-prototype control accepted)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:12.221Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "result": "pass",
+          "note": "Quarantine is retain-and-report, and the fault is attributed to the right layer. Six conditions must hold together for this marker. (1) RETENTION: for records [satisfying, {id:'corrupt'}] the read boundary returns records canonically equal to [satisfying] while malformedRecords carries exactly one entry with index=1 (the ON-DISK position, not the post-filter one), id='corrupt' (the identifying field), a reason naming missing:observedFailure, and value canonically equal to the rejected entry VERBATIM - so nothing is dropped and a clean empty array, which reads exactly like an absent artifact, is never produced. (2) FULL breadth (D-3 Axis A (ii)): a record missing ONLY trigger - a mandatory field the gate predicate never reads, so it is SATISFIED pre-fix - is quarantined with violations including missing:trigger. That row is the witness that full validation rather than the rejected narrow option was implemented. (3) D-5 OVERRIDE preserved: a blank observedFailure is NOT quarantined (malformedRecords absent), stays UNSATISFIED via the ordinary missing_red_evidence code, and its report is byte-identical to the ABSENT baseline - no new diagnostic - which is what keeps scenario 3 of the invariance harness intact. (4) NO MISATTRIBUTION: records:'x' yields code=records_not_array naming the path, whose message matches /envelope/ and does NOT match /a record must be an object/, and produces no malformed RECORD entry - pre-fix it iterated the string's characters and blamed a record that does not exist. (5) an ARRAY record is quarantined with a not-a-plain-object violation. (6) a PROTOTYPE-INHERITED observedFailure is rejected: the receipt drives the production leaf partitionRedEvidenceRecords directly because JSON.parse cannot build such a value, first asserting the inherited value IS visible to a plain record.observedFailure read, then that it is quarantined as missing:observedFailure; the control is a null-prototype object whose fields are genuinely OWN, which is accepted - so the rule rejects prototype reach-through, not exotic containers. Gating proven by replay: ABSENT on the pre-fix tree, PRESENT on the fixed tree.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c12d94593c26a376b1517491de48db9be75fd0e825cede0b4ec4190e766d4ae",
+            "outputTail": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; the pre-fix-pinned five-scenario digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec still reproduces; control=one malformed record appended is discriminated)\nENVELOPE_ROWS_E5_E6_E7 (E5: 4/4 non-object roots rejected as root_not_object and no longer read as ABSENT; E6: missing -> schema_version_missing and unknown -> schema_version_unknown, neither degrading to v1 while the same record SATISFIES under a v1 envelope; E7: still THROWS, typed RedEvidenceArtifactError(unparseable) naming the path, not a raw SyntaxError)\nQUARANTINE_RETAINS_AND_ATTRIBUTES (rejected entry RETAINED verbatim at index=1 id=\"corrupt\" with reason and violations while records stays clean; full v1 field set enforced (missing:trigger flips a record the predicate never reads); blank observedFailure legacy-tolerated per D-5 — UNSATISFIED, no new diagnostic, never quarantined; envelope fault reported as records_not_array naming the path, never as \"a record must be an object\"; array record and prototype-inherited observedFailure both rejected, own-field null-prototype control accepted)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:13.676Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Extend the existing two-layer guard so the gate predicate is total on arbitrary input",
       "context": "Decision D-2. SUPERSEDES the earlier framing that main had no two-layer idiom to mirror: since the B-506e merge, main already classifies at the read boundary in store.ts and skips non-v1 records in the predicate. This story EXTENDS that shape rather than establishing it. The remaining hole is that the 'v1' class is RESIDUAL, not validated - classifyRedRecordSchemaSafe returns 'v1' for any object lacking a schemaVersion member without checking the legacy v1 shape, and it returns 'v1' for arrays too. So redEvidenceRecordSatisfied must never throw on arbitrary input even when a malformed record is injected directly into the diagnostic input, bypassing the read path. The audit verified observedFailure is the ONLY unguarded per-record dereference - every other check in the predicate is a truthiness test or a short-circuited read - so do not widen this into a rewrite of those checks.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-27T00:47:15.077Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The gate predicate returns a verdict for every well-formed input exactly as before.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+              "selector": "WELL_FORMED_VERDICTS_UNCHANGED"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The predicate never throws even when a malformed record is injected DIRECTLY into the diagnostic input, bypassing the read boundary entirely.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+              "selector": "PREDICATE_TOTAL_ON_DIRECT_INJECTION"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The other per-record checks are unchanged; only the missing shape guard is added, verified by diffing the predicate.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+              "selector": "ONLY_THE_SHAPE_GUARD_WAS_ADDED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "result": "pass",
+          "note": "Well-formed inputs still get the same verdict, proven two ways at once. (a) The PROTECTED five-scenario harness red-w2c-v1-verdict-invariance.mjs is re-run as a child process and must exit 0 printing the digest it pinned on the pre-fix tree; that digest is READ out of the harness source rather than authored here, so this receipt can never become a second place the constant is pinned, and a moved verdict withholds the marker. (b) The same five fixtures are re-driven through the DIRECT-injection path so the new guard is shown to PASS well-formed records rather than merely to sit outside the harness's code path. The marker additionally requires the D-5 invariant: a blank or empty observedFailure still classifies as v1, still does NOT crash the pre-fix unguarded dereference, and still returns UNSATISFIED - i.e. it stays legacy-tolerated input on the ordinary non-satisfier route and is not rerouted through the new guard, which is what keeps scenario 3's report shape intact.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2264616eba764b89988f85d2e97b88b85c79e7d590fc34d6668c971b61f7491c",
+            "outputTail": "WELL_FORMED_VERDICTS_UNCHANGED (5 well-formed fixtures re-driven through direct injection; protected harness re-run exits 0 at its own pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; blank/empty observedFailure still UNSATISFIED via the ordinary non-satisfier route, not via the new guard)\nPREDICATE_TOTAL_ON_DIRECT_INJECTION (9/9 malformed records: each still classifies as the RESIDUAL 'v1', each still crashes the pre-fix unguarded dereference with a TypeError, and each now yields a verdict in every position (alone / first / last); artifact on disk still holds 0 records, so nothing was read through store.readRedEvidence)\nONLY_THE_SHAPE_GUARD_WAS_ADDED (predicate body diffed against 3826486e80: 1 executable line added — if (!isShapedLegacyV1Record(record)) return false; — placed before the dereference it protects; the other 17 executable lines are byte-identical and in the same order)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:14.660Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "result": "pass",
+          "note": "Nine malformed records are injected DIRECTLY into the object returned by proofStoryDiagnosticInput, so they are handed to the predicate without ever passing store.readRedEvidence; the marker requires the artifact on disk to still hold ZERO records and to contain none of the injected ids, which is what proves the bypass rather than asserting it. Every row must satisfy three conditions together: it still classifies as the RESIDUAL v1 (so the B-506e skip guards do not catch it), the pre-fix opening expression record.observedFailure.trim() still throws a TypeError on it (so the row is genuinely in the crash class and the totality claim is not vacuous), and the real gate now returns a verdict in EVERY position - alone, first (where some() cannot short-circuit past it) and last. Causal control on the current combined tree, with CHK-004's uncommitted read-boundary work present: replacing this guard with a no-op that still references the helper, then rebuilding, makes all nine rows throw bare TypeErrors again and withholds this marker while the other two are unaffected - so the guard, not the read boundary, is what makes the bypass path total.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2264616eba764b89988f85d2e97b88b85c79e7d590fc34d6668c971b61f7491c",
+            "outputTail": "WELL_FORMED_VERDICTS_UNCHANGED (5 well-formed fixtures re-driven through direct injection; protected harness re-run exits 0 at its own pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; blank/empty observedFailure still UNSATISFIED via the ordinary non-satisfier route, not via the new guard)\nPREDICATE_TOTAL_ON_DIRECT_INJECTION (9/9 malformed records: each still classifies as the RESIDUAL 'v1', each still crashes the pre-fix unguarded dereference with a TypeError, and each now yields a verdict in every position (alone / first / last); artifact on disk still holds 0 records, so nothing was read through store.readRedEvidence)\nONLY_THE_SHAPE_GUARD_WAS_ADDED (predicate body diffed against 3826486e80: 1 executable line added — if (!isShapedLegacyV1Record(record)) return false; — placed before the dereference it protects; the other 17 executable lines are byte-identical and in the same order)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:15.659Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "result": "pass",
+          "note": "The predicate body is DIFFED against the blob at 3826486e80, the last commit before this guard landed, not against a remembered shape. Comment and blank lines are dropped on both sides; of the remaining executable lines, removing the ones that mention the new helper must leave a sequence byte-identical to the pre-fix one IN THE SAME ORDER, so a reordered, rewritten or deleted check cannot pass. Observed: exactly 1 executable line added, the other 17 unchanged and in order. Three conditions were added after controls found the check too weak or too brittle: the added line must equal the guard VERBATIM (a control that replaced it with a no-op still mentioning the helper kept this marker alive until that equality was pinned, while the edge marker correctly went red); the guard must sit BEFORE the dereference it protects; and the helper must be genuinely absent at the pinned commit. Re-pinning to the wrong history withholds the marker instead of crashing the receipt - verified by re-pointing it at pre-B-506e main 1847b3af6d and at an unresolvable sha, both of which suppress only this marker.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2264616eba764b89988f85d2e97b88b85c79e7d590fc34d6668c971b61f7491c",
+            "outputTail": "WELL_FORMED_VERDICTS_UNCHANGED (5 well-formed fixtures re-driven through direct injection; protected harness re-run exits 0 at its own pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; blank/empty observedFailure still UNSATISFIED via the ordinary non-satisfier route, not via the new guard)\nPREDICATE_TOTAL_ON_DIRECT_INJECTION (9/9 malformed records: each still classifies as the RESIDUAL 'v1', each still crashes the pre-fix unguarded dereference with a TypeError, and each now yields a verdict in every position (alone / first / last); artifact on disk still holds 0 records, so nothing was read through store.readRedEvidence)\nONLY_THE_SHAPE_GUARD_WAS_ADDED (predicate body diffed against 3826486e80: 1 executable line added — if (!isShapedLegacyV1Record(record)) return false; — placed before the dereference it protects; the other 17 executable lines are byte-identical and in the same order)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:16.646Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Make every readRedEvidence consumer surface corruption instead of aborting or degrading",
       "context": "There are TEN production call sites on current main, not the seven this story originally claimed - the B-506e merge added three more, and the count has now been wrong TWICE from a stale inventory, so re-derive it yourself before starting. Pre-existing seven: core/machine.ts, handlers/phase-gates.ts, handlers/proofstory.ts (three sites), handlers/story-review.ts (two sites). Added by the merge, verified absent at 1847b3af6d: core/red-evidence/append.ts, and TWO sites in handlers/red-evidence.ts (that file had zero such calls before the merge). Requirements: red_evidence_get must DISPLAY the corruption rather than abort; red_evidence_add reads before appending, so it must repair-by-append or refuse with an actionable message rather than making the artifact unrepairable through the CLI; the story_review advisory path, whose catch renders 'ProofStory Diagnostics (advisory only): unavailable (<message>)', must not let corruption read as 'feature not configured'; and the three merge-added consumers must be held to the same standard. Locate all of them by symbol, never by line number.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-27T01:12:51.024Z",
+      "endTime": "2026-07-27T01:22:51.847Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red_evidence_get displays the corruption instead of aborting, on a store carrying a malformed artifact.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+              "selector": "RED_EVIDENCE_GET_DISPLAYS_CORRUPTION"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "red_evidence_add can still repair the artifact by appending, or refuses with an actionable message naming what is wrong; it never leaves the artifact unrepairable through the CLI.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+              "selector": "RED_EVIDENCE_ADD_REPAIRS_WITHOUT_LOSS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "All ten consumers are re-derived by symbol at implementation time and each renders corruption distinctly from absence; in particular the story_review advisory path does not let corruption read as 'feature not configured'.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+              "selector": "EVERY_CONSUMER_DISTINGUISHES_CORRUPTION_FROM_ABSENCE"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "result": "pass",
+          "note": "Drives the real red_evidence_get handler over a store carrying both corruption shapes (a rejected envelope and a quarantined record): neither aborts, both carry the shared corruption marker, the quarantined original is displayed verbatim at records[1], json status=corrupt. Controls: an absent artifact still renders not configured and a clean one still renders configured, neither marked.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "02d49219ac06d3e098359097483b140628ef206026845cf1f15944f6c8358b3a",
+            "outputTail": "RED_EVIDENCE_GET_DISPLAYS_CORRUPTION (both a rejected envelope and a quarantined record are DISPLAYED, not aborted; the quarantined original is shown verbatim at records[1] and json status=corrupt; controls: absent still renders \"not configured\" and clean still renders \"configured\", neither carrying the corruption marker)\nRED_EVIDENCE_ADD_REPAIRS_WITHOUT_LOSS (round trip: corrupt artifact -> red_evidence_create -> re-read; the malformed original is still on disk byte-identically at records[1], the repair record is appended, no derived quarantine key is persisted, and the next read quarantines the same entry again; the un-restored append is shown LIVE to lose it; an unreadable envelope is refused with \"Nothing written\" and a repair command, writing nothing; control: the clean write path is unchanged)\nEVERY_CONSUMER_DISTINGUISHES_CORRUPTION_FROM_ABSENCE (9/9 consumers re-derived by symbol: handlers/proofstory.ts red_evidence_get; handlers/proofstory.ts red_evidence_create; handlers/proofstory.ts diagnosticInput (proofstory_gate_check); handlers/phase-gates.ts REVIEW completeness gate; handlers/phase-gates.ts DONE intent-equivalence gate; core/machine.ts proofStoryDevGateFailure; handlers/red-evidence.ts findV2Record; handlers/red-evidence.ts red_evidence_binding_set; handlers/story-review.ts story_review (C3 advisory path) — each names the corruption for BOTH a rejected envelope and a quarantined record, each differs from its own absent-artifact output, and none marks an absent or clean artifact; C3: the story_review advisory path renders \"CORRUPT\" and no longer renders \"unavailable\")\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:18.764Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "result": "pass",
+          "note": "Round trip against a real corrupt store: corrupt artifact -> red_evidence_create -> re-read from disk. The malformed original is still on disk byte-identically at its original index, the repair record is appended, the derived quarantine key is not persisted, and the next read quarantines the same entry again. The un-restored append is executed live as a negative control and shown to lose the record. An unreadable envelope is refused with Nothing written plus a repair command, and the file is unchanged by the refusal.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "02d49219ac06d3e098359097483b140628ef206026845cf1f15944f6c8358b3a",
+            "outputTail": "RED_EVIDENCE_GET_DISPLAYS_CORRUPTION (both a rejected envelope and a quarantined record are DISPLAYED, not aborted; the quarantined original is shown verbatim at records[1] and json status=corrupt; controls: absent still renders \"not configured\" and clean still renders \"configured\", neither carrying the corruption marker)\nRED_EVIDENCE_ADD_REPAIRS_WITHOUT_LOSS (round trip: corrupt artifact -> red_evidence_create -> re-read; the malformed original is still on disk byte-identically at records[1], the repair record is appended, no derived quarantine key is persisted, and the next read quarantines the same entry again; the un-restored append is shown LIVE to lose it; an unreadable envelope is refused with \"Nothing written\" and a repair command, writing nothing; control: the clean write path is unchanged)\nEVERY_CONSUMER_DISTINGUISHES_CORRUPTION_FROM_ABSENCE (9/9 consumers re-derived by symbol: handlers/proofstory.ts red_evidence_get; handlers/proofstory.ts red_evidence_create; handlers/proofstory.ts diagnosticInput (proofstory_gate_check); handlers/phase-gates.ts REVIEW completeness gate; handlers/phase-gates.ts DONE intent-equivalence gate; core/machine.ts proofStoryDevGateFailure; handlers/red-evidence.ts findV2Record; handlers/red-evidence.ts red_evidence_binding_set; handlers/story-review.ts story_review (C3 advisory path) — each names the corruption for BOTH a rejected envelope and a quarantined record, each differs from its own absent-artifact output, and none marks an absent or clean artifact; C3: the story_review advisory path renders \"CORRUPT\" and no longer renders \"unavailable\")\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:20.891Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "result": "pass",
+          "note": "Nine operator-facing consumers re-derived by symbol from a fresh grep of readRedEvidence across packages/main/src and driven for real: red_evidence_get, red_evidence_create, proofstory_gate_check, the REVIEW completeness gate, the DONE intent-equivalence gate, the machine DEV gate, both handlers/red-evidence.ts sites, and story_review. Each names the corruption for BOTH a rejected envelope and a quarantined record, each differs from its own absent-artifact output, and none marks an absent or clean artifact. C3 specifically: the story_review advisory path renders CORRUPT and no longer renders unavailable.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "02d49219ac06d3e098359097483b140628ef206026845cf1f15944f6c8358b3a",
+            "outputTail": "RED_EVIDENCE_GET_DISPLAYS_CORRUPTION (both a rejected envelope and a quarantined record are DISPLAYED, not aborted; the quarantined original is shown verbatim at records[1] and json status=corrupt; controls: absent still renders \"not configured\" and clean still renders \"configured\", neither carrying the corruption marker)\nRED_EVIDENCE_ADD_REPAIRS_WITHOUT_LOSS (round trip: corrupt artifact -> red_evidence_create -> re-read; the malformed original is still on disk byte-identically at records[1], the repair record is appended, no derived quarantine key is persisted, and the next read quarantines the same entry again; the un-restored append is shown LIVE to lose it; an unreadable envelope is refused with \"Nothing written\" and a repair command, writing nothing; control: the clean write path is unchanged)\nEVERY_CONSUMER_DISTINGUISHES_CORRUPTION_FROM_ABSENCE (9/9 consumers re-derived by symbol: handlers/proofstory.ts red_evidence_get; handlers/proofstory.ts red_evidence_create; handlers/proofstory.ts diagnosticInput (proofstory_gate_check); handlers/phase-gates.ts REVIEW completeness gate; handlers/phase-gates.ts DONE intent-equivalence gate; core/machine.ts proofStoryDevGateFailure; handlers/red-evidence.ts findV2Record; handlers/red-evidence.ts red_evidence_binding_set; handlers/story-review.ts story_review (C3 advisory path) — each names the corruption for BOTH a rejected envelope and a quarantined record, each differs from its own absent-artifact output, and none marks an absent or clean artifact; C3: the story_review advisory path renders \"CORRUPT\" and no longer renders \"unavailable\")\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:23.011Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
       "title": "Assert the invariance digest is unchanged post-fix and register the regressions in validate",
       "context": "Depends on the baseline recorded in CHK-002. Re-run packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs after the fix and assert it still passes with the SAME pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec - that is the 'no valid v1 verdict moved' proof, scoped per decision D-3 to records that are well-formed under the legacy v1 schema. If that digest moves, the fix changed a verdict it was not permitted to change; do not re-pin the constant to make it pass. Decision D-5: a blank observedFailure (empty or whitespace) is legacy-tolerated - it must keep producing UNSATISFIED with NO new diagnostic and must never be quarantined, because scenario 3 of that harness depends on exactly that report shape; this is the single sub-case where quarantine is overridden. Register the new tests in lattice.config.json validate.commands alongside the existing red-evidence smokes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-27T02:28:15.339Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red-w2c-v1-verdict-invariance.mjs passes post-fix with the SAME pinned digest as the CHK-002 baseline.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+              "selector": "INVARIANCE_DIGEST_UNCHANGED_POST_FIX"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A blank observedFailure still produces UNSATISFIED with no new diagnostic and is never quarantined, so scenario 3's report shape is unchanged.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+              "selector": "D5_BLANK_OBSERVED_FAILURE_TOLERATED"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the digest moves, it is treated as a defect in the fix; the constant is not re-pinned to make the test pass.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+              "selector": "PIN_NOT_REPINNED_HARNESS_UNTOUCHED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "result": "pass",
+          "note": "The receipt runs the PROTECTED harness red-w2c-v1-verdict-invariance.mjs as a child on the finished tree and requires exit 0 plus a printed digest identical to the one pinned in the harness BLOB at the CHK-002 baseline commit 6d7c20bb4b (read via git show, never from the working tree). Observed 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec — unchanged. The comparator is proven to discriminate a perturbed pin, so the match is not vacuous.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "74b1f30ed036ea15b4ebe3f6d8f7b56ba3054b440ef62de82f4cadaeb9753d81",
+            "outputTail": "INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec — identical to the digest pinned by the CHK-002 baseline commit 6d7c20bb4b, read from that commit's blob rather than from the working tree; the harness exited 0 with its own per-scenario v1 semantics asserted by name; comparator discriminated a perturbed pin)\nD5_BLANK_OBSERVED_FAILURE_TOLERATED (observedFailure \"   \" and \"\" both: read without throwing, retained in the clean set, NEVER quarantined (malformedRecords absent), UNSATISFIED via the ordinary missing_red_evidence gap, and a FULL diagnostic byte-identical to an ABSENT artifact — no new diagnostic, so scenario 3's report shape is untouched; controls: the same record with a real observedFailure SATISFIES and a malformed record IS quarantined)\nPIN_NOT_REPINNED_HARNESS_UNTOUCHED (packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs is byte-identical to its blob at the CHK-002 baseline commit 6d7c20bb4b and has no uncommitted changes, so the digest above was matched rather than made to match; detector proven non-vacuous against a re-pinned copy and against an edited copy whose pin was left alone)\nVALIDATE_REGISTRATION_COMPLETE (all 15 red-b2aa7-*.mjs receipts found ON DISK are accounted for: 13 registered in lattice.config.json validate.commands — including this file, the D-7 migration scan that must be re-run at merge time, and the F-005 decoupling receipt — and 2 excluded with a stated reason. The expectation is DERIVED from the directory, not a hardcoded list, so a receipt added without a registration decision FAILS this check; proven non-vacuous per registered entry and against a synthetic newcomer)\nVACUOUS_PREFIX_RECEIPTS_EXCLUDED (2 pre-fix receipts verified SILENT — 0 bytes on stdout and stderr, exit 0 — on the finished tree, because every marker in them is gated on BLOCK A of red-b2aa7-artifact-validation.mjs being RED; they are therefore deliberately absent from validate.commands, and this check fails if either is registered or stops being silent)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:36.362Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "result": "pass",
+          "note": "Decision D-5 driven through the real production pair (store.readRedEvidence then evaluateProofStoryDiagnostics over proofStoryDiagnosticInput) on a throwaway store: observedFailure \"   \" and \"\" are read without throwing, retained in the clean records set, never quarantined (malformedRecords absent), still UNSATISFIED via the ordinary missing_red_evidence gap, and their FULL diagnostic report is byte-identical to an ABSENT artifact — no new diagnostic, which is the exact report shape scenario 3 of the invariance harness pins. Controls: the same record with a real observedFailure SATISFIES, and a genuinely malformed record IS quarantined.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "74b1f30ed036ea15b4ebe3f6d8f7b56ba3054b440ef62de82f4cadaeb9753d81",
+            "outputTail": "INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec — identical to the digest pinned by the CHK-002 baseline commit 6d7c20bb4b, read from that commit's blob rather than from the working tree; the harness exited 0 with its own per-scenario v1 semantics asserted by name; comparator discriminated a perturbed pin)\nD5_BLANK_OBSERVED_FAILURE_TOLERATED (observedFailure \"   \" and \"\" both: read without throwing, retained in the clean set, NEVER quarantined (malformedRecords absent), UNSATISFIED via the ordinary missing_red_evidence gap, and a FULL diagnostic byte-identical to an ABSENT artifact — no new diagnostic, so scenario 3's report shape is untouched; controls: the same record with a real observedFailure SATISFIES and a malformed record IS quarantined)\nPIN_NOT_REPINNED_HARNESS_UNTOUCHED (packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs is byte-identical to its blob at the CHK-002 baseline commit 6d7c20bb4b and has no uncommitted changes, so the digest above was matched rather than made to match; detector proven non-vacuous against a re-pinned copy and against an edited copy whose pin was left alone)\nVALIDATE_REGISTRATION_COMPLETE (all 15 red-b2aa7-*.mjs receipts found ON DISK are accounted for: 13 registered in lattice.config.json validate.commands — including this file, the D-7 migration scan that must be re-run at merge time, and the F-005 decoupling receipt — and 2 excluded with a stated reason. The expectation is DERIVED from the directory, not a hardcoded list, so a receipt added without a registration decision FAILS this check; proven non-vacuous per registered entry and against a synthetic newcomer)\nVACUOUS_PREFIX_RECEIPTS_EXCLUDED (2 pre-fix receipts verified SILENT — 0 bytes on stdout and stderr, exit 0 — on the finished tree, because every marker in them is gated on BLOCK A of red-b2aa7-artifact-validation.mjs being RED; they are therefore deliberately absent from validate.commands, and this check fails if either is registered or stops being silent)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:18:49.800Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "result": "pass",
+          "note": "The digest was matched, not made to match: the working-tree red-w2c-v1-verdict-invariance.mjs is byte-identical to its blob at the CHK-002 baseline commit 6d7c20bb4b and has no uncommitted changes, so neither the pinned constant nor any assertion around it was relaxed. The re-pin detector is proven non-vacuous by re-running it over two mutated in-memory copies: one whose pin is flipped (flagged as repinned) and one edited elsewhere with the pin left alone (flagged as edited only).",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "74b1f30ed036ea15b4ebe3f6d8f7b56ba3054b440ef62de82f4cadaeb9753d81",
+            "outputTail": "INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec — identical to the digest pinned by the CHK-002 baseline commit 6d7c20bb4b, read from that commit's blob rather than from the working tree; the harness exited 0 with its own per-scenario v1 semantics asserted by name; comparator discriminated a perturbed pin)\nD5_BLANK_OBSERVED_FAILURE_TOLERATED (observedFailure \"   \" and \"\" both: read without throwing, retained in the clean set, NEVER quarantined (malformedRecords absent), UNSATISFIED via the ordinary missing_red_evidence gap, and a FULL diagnostic byte-identical to an ABSENT artifact — no new diagnostic, so scenario 3's report shape is untouched; controls: the same record with a real observedFailure SATISFIES and a malformed record IS quarantined)\nPIN_NOT_REPINNED_HARNESS_UNTOUCHED (packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs is byte-identical to its blob at the CHK-002 baseline commit 6d7c20bb4b and has no uncommitted changes, so the digest above was matched rather than made to match; detector proven non-vacuous against a re-pinned copy and against an edited copy whose pin was left alone)\nVALIDATE_REGISTRATION_COMPLETE (all 15 red-b2aa7-*.mjs receipts found ON DISK are accounted for: 13 registered in lattice.config.json validate.commands — including this file, the D-7 migration scan that must be re-run at merge time, and the F-005 decoupling receipt — and 2 excluded with a stated reason. The expectation is DERIVED from the directory, not a hardcoded list, so a receipt added without a registration decision FAILS this check; proven non-vacuous per registered entry and against a synthetic newcomer)\nVACUOUS_PREFIX_RECEIPTS_EXCLUDED (2 pre-fix receipts verified SILENT — 0 bytes on stdout and stderr, exit 0 — on the finished tree, because every marker in them is gated on BLOCK A of red-b2aa7-artifact-validation.mjs being RED; they are therefore deliberately absent from validate.commands, and this check fails if either is registered or stops being silent)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:19:03.653Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
       "title": "Land the decision document in docs/requirements/decisions/ so the story's own citations resolve",
       "context": "Every other item cites decisions D-1 through D-8 and section numbers of docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md, which is NOT on main and would otherwise be a dangling reference for anyone reading this story independently, including the PLAN scope reviewer that reads the decisions directory. Recover REV 4 from commit 9583fb95aa2e5d3dda094dfc2341aa6d9e835722 (same path, retrievable from any worktree via git show) and land it in this story's diff. Do this as the LITERAL FIRST action of PLAN, before understanding_set - plan.md DependsOn only orders DEV-phase dispatch and cannot reach back into PLAN-phase timing. Read its section 0.0 FIRST: it records that sibling story B-506e has MERGED into main, which inverted an earlier provenance warning; rev 4 additionally corrects the consumer count to ten, downgrades the E5 row from a crash to a silent misread, and fixes a D-2 row that contradicted section 0.0.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T23:54:06.616Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The decision document is present at docs/requirements/decisions/ in the story diff and its D-1..D-8 citations resolve.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+              "selector": "DOC_LANDED_WITH_DECISIONS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "It is landed before the PLAN scope review runs, not at the end of the story.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+              "selector": "DOC_PRECEDES_SCOPE_REVIEW"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The landed copy has no header text contradicting its own section 0.0 about which tree the citations describe.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+              "selector": "STALE_HEADER_REMOVED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "result": "pass",
+          "note": "Tool-executed receipt: the marker prints only if the decision record is BOTH present in commit b8c458422e (this story's diff) AND actually contains the D-8 decision row, so the citations threaded through the other ten items resolve for an independent reader.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b4dcb25307214b3ca2eac9ec1856a5a35b6b876befef589fa4221575abd3118",
+            "outputTail": "DOC_LANDED_WITH_DECISIONS\nDOC_PRECEDES_SCOPE_REVIEW\nSTALE_HEADER_REMOVED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:19:03.833Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "result": "pass",
+          "note": "Tool-executed ORDERING receipt rather than an assertion: git rev-list --ancestry-path yields the first scope_check_save commit only if the doc commit is genuinely its ancestor. Had the doc landed after the PLAN scope review the output would be empty and the selector could not match.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b4dcb25307214b3ca2eac9ec1856a5a35b6b876befef589fa4221575abd3118",
+            "outputTail": "DOC_LANDED_WITH_DECISIONS\nDOC_PRECEDES_SCOPE_REVIEW\nSTALE_HEADER_REMOVED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:19:04.006Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "command": "node packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "result": "pass",
+          "note": "Tool-executed receipt that the stale pre-merge header was rewritten rather than merely supplemented: it prints only if the corrected wording is present AND the old self-contradicting line is absent. A negative control (mutating the condition) was run and confirmed the marker disappears, so the receipt is not vacuous.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1b4dcb25307214b3ca2eac9ec1856a5a35b6b876befef589fa4221575abd3118",
+            "outputTail": "DOC_LANDED_WITH_DECISIONS\nDOC_PRECEDES_SCOPE_REVIEW\nSTALE_HEADER_REMOVED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:19:04.178Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-009",
+      "title": "Prove the gate verdict is order-independent after the fix",
+      "context": "Added in PLAN per INIT-002 / DRAFT-106, raised twice by the INIT reviewer and re-verified live on current main. Decision document acceptance section 10.3 requires BOTH ordering rows, and only O1 was covered. O1, malformed entry first, crashes today and is a CHK-001 repro row. O2, a satisfying record FIRST and a malformed entry after, does NOT crash: redEvidenceSatisfied uses Array.prototype.some, which short-circuits on the first satisfying record, so the malformed entry is never examined and the gate returns SATISFIED while the artifact is corrupt. That makes the outcome depend on array position, which is a defect in its own right and cannot be caught by a crash-only test. After the fix, assert that the SAME record set produces the SAME verdict regardless of position, and that a malformed entry is reported even when a satisfying record precedes it.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-2aa7/background.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-27T01:22:52.795Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the fix, the same record set produces the same verdict regardless of the position of the malformed entry.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+              "selector": "ORDER_INDEPENDENT_VERDICT"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A malformed entry is reported even when a satisfying record precedes it, so Array.prototype.some short-circuiting can no longer hide it.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+              "selector": "MALFORMED_REPORTED_BEHIND_SATISFIER"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The pre-fix behaviour is pinned first: satisfying-first-then-malformed returns SATISFIED today with no throw, proving the assertion is not vacuous.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+              "selector": "O2_SILENT_CORRUPTION_PINNED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "result": "pass",
+          "note": "BLOCK C row C1 in red-b2aa7-artifact-validation.mjs, driven through the live pair proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics, never the predicate in isolation. Order independence is asserted as a RELATION BETWEEN permutations, which is the only shape that can catch it: BLOCK A rows A5 (malformed first) and A13 (satisfying first) can both be green while the read boundary is still position-sensitive. C1 takes 4 record sets - {satisfying, id-only}, plus a third and fourth malformed flavour (observedFailure:123, observedFailure:null, an ARRAY record) - and evaluates ALL 38 permutations (2+6+6+24), requiring each set to collapse to exactly ONE position-free observable: same read result, same gap codes, same FULL canonical diagnostic report, same sorted quarantined set, and no permutation escaping a bare TypeError. Observed 38 permutations, distinctPerFamily=1,1,1,1, bareTypeErrors=0. The malformed entry's index and the index embedded in its reason are deliberately stripped from the comparison because they SHOULD track position - an accurate pointer, not a verdict - and row C2 separately asserts they are present and exact, so stripping cannot hide a lost pointer. Non-vacuity is proven three ways, all observed rather than claimed. (1) PRE-FIX: this exact file, run on a rebuilt archive of 6d7c20bb4b (git archive, npm --prefix packages/main run build, same harness), reports C1 RED with distinctPerFamily=2,2,2,2 and 27 bare TypeErrors - every family split into exactly two outcomes, partitioned precisely by whether index 0 was malformed. (2) MUTATION: in an isolated rebuilt copy of HEAD, re-introducing the some()-style short-circuit into partitionRedEvidenceRecords makes C1 fail and the file exit 1. (3) THREE NEGATIVE CONTROLS, asserted fatally and verified to hold on BOTH trees, prove the comparator ignores ORDER and nothing else: adding a malformed record, and swapping one malformed flavour for another, must each change the observable, and a SATISFIED store must differ from an ABSENT one.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed25886b63e7949e42b492236320d3672e3c3ff6b9d3177147c9b7640095b756",
+            "outputTail": "ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)\nMALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)\nO2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in `records` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — unvalidatedCodes=[], unvalidatedQuarantined=0, validatedCodes=[], validatedQuarantinedIndex=1)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:19:10.765Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "result": "pass",
+          "note": "BLOCK C rows C2 and C3. This is the half Array.prototype.some used to swallow whole: pre-fix, some() returned true at index 0 and the malformed record that followed was NEVER EXAMINED, so the gate reported SATISFIED over a corrupt artifact. C2 covers 12 cases - four malformed flavours ({id:'corrupt'} versionless, observedFailure:null, observedFailure:123, and a record that is itself an ARRAY) at each of three depths behind 1, 2 and 3 satisfying records - so no fix can pass by special-casing index 1 or the single shape row A13 happens to use. Each case must REPORT the entry: retained verbatim on the quarantine surface, at its TRUE index, with that index named in the reason, and removed from the clean records array the typed domain sees. Observed reportedAtTrueIndex=12/12, silentPassThrough=0/12, attributedIndexExact=12/12, attributedIndices=[1,2,3,1,2,3,1,2,3,1,2,3] - the exact per-case index, which is what makes C1's index-stripping safe rather than a blind spot. The required predicate is phrased as a disjunction (quarantine at the true index OR wholesale rejection by a typed error naming the path) so it states the REQUIREMENT that corruption must not pass unnoticed, not one implementation of it. C3 adds the stronger anti-short-circuit statement: detection must be EXHAUSTIVE, not first-match. Three malformed entries stacked behind one satisfier are all accounted for (satisfierFirstReported=3, malformedFirstReported=3) and both orders share ONE position-free observable (ordersAgree=true) - so a fix that merely stopped at the first MALFORMED entry instead of the first satisfying one would still fail. Non-vacuity: on the rebuilt pre-fix archive of 6d7c20bb4b this same file reports C2 with reportedAtTrueIndex=0/12, silentPassThrough=12/12, attributedIndices all 'none', and C3 with satisfierFirstReported=0 and ordersAgree=false. By mutation on an isolated rebuilt copy of HEAD: discarding the position pointer (index forced to 0) fails C2 while C1 stays green, and retaining only one canonically-chosen malformed entry - order-independent but not exhaustive - fails C3 while C1 and C2 stay green, so each row is doing its own work.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed25886b63e7949e42b492236320d3672e3c3ff6b9d3177147c9b7640095b756",
+            "outputTail": "ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)\nMALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)\nO2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in `records` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — unvalidatedCodes=[], unvalidatedQuarantined=0, validatedCodes=[], validatedQuarantinedIndex=1)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:19:17.241Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "result": "pass",
+          "note": "The pre-fix pin, without which the post-fix assertion would be vacuous. The AUTHORITATIVE observation was taken on a rebuilt archive of the pre-fix commit 6d7c20bb4b (git archive, npm --prefix packages/main run build, then the same proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics harness), because CHK-004 fixed the read boundary and CHK-005 made the predicate total, so neither the O1 crash nor the O2 silence can be provoked through the production path on this tree. Verbatim from that run: O1 [malformed, satisfying] -> gate THREW TypeError(TypeError): Cannot read properties of undefined (reading 'trim'); O2 [satisfying, malformed] -> no throw, gate codes [], report byte-identical to CLEAN, records loaded verbatim and unreported; O1.report === O2.report was FALSE while O2.report === CLEAN.report was TRUE. Over whole permutation families the split was exactly two outcomes (2-set 2 perms -> 2 distinct, 3-set 6 perms -> 2, 4-set 24 perms -> 2), partitioned precisely by whether index 0 was malformed. Copying this file onto that rebuilt tree reports 17 RED / 0 GREEN with witnessed classes CRASH=7, ENVELOPE-MISATTRIBUTION=1, SILENT=5, UNTYPED-THROW=1, ORDER-DEPENDENCE=3, and each BLOCK C row matched its DOCUMENTED preFixDefect rather than the runner's STALE ROW path - so the rows failed for the documented reason, not a typo or a broken fixture. Because that archive is not committed, the SELECTOR here is a live in-tree differential that reproduces the SILENT half mechanically: the receipt drives the live gate over the SAME bytes twice, once through the validated read boundary and once with it BYPASSED (JSON.parse straight into the typed domain, which is exactly what store.readRedEvidence did pre-CHK-004). Observed unvalidatedCodes=[] with unvalidatedQuarantined=0 and the malformed record still sitting in records, versus validatedCodes=[] with the same bytes quarantined verbatim at validatedQuarantinedIndex=1 and removed from the clean set. The verdict is IDENTICAL on both paths, which is the sharp point: what the fix changed is whether corruption is REPORTED, not whether the gate passes, so 'the fix works' cannot be confused with 'the gate started failing'. Every marker in this receipt is additionally gated on the artifact file running fully green (0 RED, all three C rows GREEN, exit 0), and a BLOCK C row that failed for an undocumented reason would abort the run with a STALE ROW assertion before any marker could print.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed25886b63e7949e42b492236320d3672e3c3ff6b9d3177147c9b7640095b756",
+            "outputTail": "ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)\nMALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)\nO2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in `records` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — unvalidatedCodes=[], unvalidatedQuarantined=0, validatedCodes=[], validatedQuarantinedIndex=1)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:19:23.793Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-010",
+      "title": "Assert the behaviour this fix must NOT change",
+      "context": "Closes two scope gaps found by the PLAN scope reviewer (decision document acceptance rows V2 and E4), neither of which was owned by any item. V2: a valid v2 record must remain unchanged and continue to be correctly skipped by the v1 predicate - the v2 record union arrived on main with the B-506e merge, so this is live behaviour that a read-boundary validator could easily break by rejecting records it does not recognise. E4: an artifact whose records key is ABSENT must keep producing UNSATISFIED, which is the ordinary not-configured path and must NOT be reclassified as corruption; conflating absent with malformed would regress the very distinction this story exists to create. Both are regression assertions against behaviour that is correct today, not new capability.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-2aa7/background.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-27T00:22:30.997Z",
+      "endTime": "2026-07-27T00:25:20.284Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid v2 record is still correctly skipped by the v1 predicate and its handling is unchanged from pre-fix.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
+              "selector": "V2_RECORD_SKIPPED_UNCHANGED"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An artifact whose records key is ABSENT still produces UNSATISFIED via the ordinary not-configured path and is NOT reclassified as corruption.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
+              "selector": "RECORDS_KEY_ABSENT_STAYS_NOT_CONFIGURED"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Absent and malformed remain distinguishable end to end: an absent artifact reports as not configured while a corrupt one reports as corrupt, at every consumer.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
+              "selector": "ABSENT_NOT_RECLASSIFIED_AS_CORRUPTION"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:happy:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "68383e91b3df1663b28382869c680f118ad92220",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "timestamp": "2026-07-27T05:25:57.207Z"
+        },
+        {
+          "intentRef": "CHK-010:edge:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "5584ae3f4129e48d75a512172a6a8963a6e3c294",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "timestamp": "2026-07-27T05:25:57.973Z"
+        },
+        {
+          "intentRef": "CHK-010:adversarial:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "a04c82ef8b4afe2701073cc1f880b4ff0abff1b4",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "timestamp": "2026-07-27T05:25:58.753Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-011",
+      "title": "Fuzz the validator to prove it is total on arbitrary JSON",
+      "context": "Closes the third scope gap: decision document section 10.5 requires that the validator ITSELF cannot throw on any JSON shape, and the checklist only pinned the specific enumerated malformed and envelope rows. Those rows were written from observed failures, so they prove the known cases and nothing about the unknown ones - which is the same mistake, in test form, that produced this defect in the first place. Generate arbitrary acyclic JSON values (nested objects and arrays, mixed primitives, empty containers, deeply nested structures, and objects with no prototype) and assert the validator returns a classification for every one of them and never throws. This is a property, not a case list.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-2aa7/background.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-27T01:44:54.709Z",
+      "endTime": "2026-07-27T01:48:49.364Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The validator returns a classification for arbitrary acyclic JSON values and never throws.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+              "selector": "VALIDATOR_TOTAL_ON_ARBITRARY_JSON"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Coverage includes empty containers, deeply nested structures, mixed primitive arrays, and objects created with no prototype.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+              "selector": "FUZZ_COVERS_STRUCTURAL_EDGE_SHAPES"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The property is asserted over generated inputs rather than the enumerated failure rows, so it can catch shapes nobody thought to list - the same blind spot that produced this defect.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+              "selector": "FUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-011:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+          "result": "pass",
+          "note": "BLOCK D drives 4846 deterministically generated acyclic JSON values through classifyRedEvidenceArtifact (the entry point documented as TOTAL) and 7705 reachable arrays through partitionRedEvidenceRecords; the marker is emitted only when the row counters themselves show 0 throws, 0 results outside the classification union, 0 lost/duplicated/reordered entries, and 0 raw builtins escaping the live read boundary or gate pair over 1212 of those values written to disk.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2b873678fd950973dd3c10612e3dc8618846b6a57b4bf6f38bef5bb3936b2664",
+            "outputTail": "VALIDATOR_TOTAL_ON_ARBITRARY_JSON (4846 generated acyclic JSON values: classifyRedEvidenceArtifact threw 0 and returned a well-formed classification for every one; partitionRedEvidenceRecords threw 0 over 7705 arrays and lost, duplicated or reordered nothing; 1212 of them written to disk let 0 raw builtins escape the live read boundary and 0 escape the full gate pair, with 773 typed rejections all naming the artifact)\nFUZZ_COVERS_STRUCTURAL_EDGE_SHAPES (walked the corpus: emptyObjects=2919, emptyArrays=1272, Object.create(null)=1485, prototype-inherited=819, own \"__proto__\" keys=508, mixed-primitive arrays=150, maxDepth=204, distinctKeys=47, acyclic=true — and those inputs drove the validator through ALL SEVEN outcomes: all four envelope fault codes, the record-schema fault, quarantine and clean accept)\nFUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST (3528 of the distinct generated shapes appear in NO enumerated row; the SAME corpus still crashes an unguarded transcription of the pre-fix read path on 1786/4846 values, so \"the validator never threw\" is a fact about the validator and not about harmless inputs; two runs at the default seed produced byte-identical BLOCK D proof lines and corpusDigest=a5bbd628a393426b14a0b84277c67181d8c4face5ffa07393c0d56c82d628ef9; a third run at a different seed produced corpusDigest=c6a722824aeea8ac7b47b1b63ec6e1b5514eef7965e3d5349ee89869aa76c6cb and still held the property, so the seed is load-bearing and the corpus was not tuned to pass)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:20:01.027Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-011:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+          "result": "pass",
+          "note": "Coverage is MEASURED by walking the generated corpus, not asserted by the generator intent: emptyObjects=2919, emptyArrays=1272, Object.create(null)=1485, prototype-inherited records=819, own __proto__ keys=508, mixed-primitive arrays=150, maxDepth=204, distinctKeys=47, acyclic=true. The marker additionally requires REACH - those inputs drove the validator through all seven classification outcomes (four envelope fault codes, record_schema, quarantine, clean accept) - so the shapes are not merely present but actually enter the code. A fatal in-file assertion fails the run if any bucket empties.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2b873678fd950973dd3c10612e3dc8618846b6a57b4bf6f38bef5bb3936b2664",
+            "outputTail": "VALIDATOR_TOTAL_ON_ARBITRARY_JSON (4846 generated acyclic JSON values: classifyRedEvidenceArtifact threw 0 and returned a well-formed classification for every one; partitionRedEvidenceRecords threw 0 over 7705 arrays and lost, duplicated or reordered nothing; 1212 of them written to disk let 0 raw builtins escape the live read boundary and 0 escape the full gate pair, with 773 typed rejections all naming the artifact)\nFUZZ_COVERS_STRUCTURAL_EDGE_SHAPES (walked the corpus: emptyObjects=2919, emptyArrays=1272, Object.create(null)=1485, prototype-inherited=819, own \"__proto__\" keys=508, mixed-primitive arrays=150, maxDepth=204, distinctKeys=47, acyclic=true — and those inputs drove the validator through ALL SEVEN outcomes: all four envelope fault codes, the record-schema fault, quarantine and clean accept)\nFUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST (3528 of the distinct generated shapes appear in NO enumerated row; the SAME corpus still crashes an unguarded transcription of the pre-fix read path on 1786/4846 values, so \"the validator never threw\" is a fact about the validator and not about harmless inputs; two runs at the default seed produced byte-identical BLOCK D proof lines and corpusDigest=a5bbd628a393426b14a0b84277c67181d8c4face5ffa07393c0d56c82d628ef9; a third run at a different seed produced corpusDigest=c6a722824aeea8ac7b47b1b63ec6e1b5514eef7965e3d5349ee89869aa76c6cb and still held the property, so the seed is load-bearing and the corpus was not tuned to pass)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:20:19.541Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        },
+        {
+          "intentRef": "CHK-011:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+          "result": "pass",
+          "note": "Four independent facts, all read off observed counters: NOVELTY - 3528 distinct generated shapes appear in no enumerated row; POTENCY - the same corpus still crashes an unguarded transcription of the pre-fix read path on 1786/4846 values, so 0 throws is a fact about the validator rather than about harmless inputs; DETERMINISM - two runs at the default seed produced byte-identical BLOCK D proof lines and the same sha256 corpusDigest; SEEDED - a third run at a different seed produced a different corpusDigest and still held. Mutation-tested out of band: two deliberately broken rebuilt copies of the validator (unguarded .trim() in v1RecordViolations; E5 root guard removed) each left all 17 enumerated rows GREEN and were caught only by BLOCK D, and this receipt withheld all three markers under them.",
+          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+          "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2b873678fd950973dd3c10612e3dc8618846b6a57b4bf6f38bef5bb3936b2664",
+            "outputTail": "VALIDATOR_TOTAL_ON_ARBITRARY_JSON (4846 generated acyclic JSON values: classifyRedEvidenceArtifact threw 0 and returned a well-formed classification for every one; partitionRedEvidenceRecords threw 0 over 7705 arrays and lost, duplicated or reordered nothing; 1212 of them written to disk let 0 raw builtins escape the live read boundary and 0 escape the full gate pair, with 773 typed rejections all naming the artifact)\nFUZZ_COVERS_STRUCTURAL_EDGE_SHAPES (walked the corpus: emptyObjects=2919, emptyArrays=1272, Object.create(null)=1485, prototype-inherited=819, own \"__proto__\" keys=508, mixed-primitive arrays=150, maxDepth=204, distinctKeys=47, acyclic=true — and those inputs drove the validator through ALL SEVEN outcomes: all four envelope fault codes, the record-schema fault, quarantine and clean accept)\nFUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST (3528 of the distinct generated shapes appear in NO enumerated row; the SAME corpus still crashes an unguarded transcription of the pre-fix read path on 1786/4846 values, so \"the validator never threw\" is a fact about the validator and not about harmless inputs; two runs at the default seed produced byte-identical BLOCK D proof lines and corpusDigest=a5bbd628a393426b14a0b84277c67181d8c4face5ffa07393c0d56c82d628ef9; a third run at a different seed produced corpusDigest=c6a722824aeea8ac7b47b1b63ec6e1b5514eef7965e3d5349ee89869aa76c6cb and still held the property, so the seed is load-bearing and the corpus was not tuned to pass)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T05:20:38.110Z"
+          },
+          "timestamp": "2026-07-27T05:20:38.123Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-26T22:22:19.997Z",
+      "phase": "PLAN",
+      "itemId": "CHK-009",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "INIT reviewer raised this twice (DRAFT-106 then INIT-002) and it was deferred to PLAN on the explicit condition that it become a real checklist item rather than an optional addition; acceptance section 10.3 row O2 was otherwise covered by no item.",
+      "addedTitle": "Prove the gate verdict is order-independent after the fix",
+      "addedContext": "Added in PLAN per INIT-002 / DRAFT-106, raised twice by the INIT reviewer and re-verified live on current main. Decision document acceptance section 10.3 requires BOTH ordering rows, and only O1 was covered. O1, malformed entry first, crashes today and is a CHK-001 repro row. O2, a satisfying record FIRST and a malformed entry after, does NOT crash: redEvidenceSatisfied uses Array.prototype.some, which short-circuits on the first satisfying record, so the malformed entry is never examined and the gate returns SATISFIED while the artifact is corrupt. That makes the outcome depend on array position, which is a defect in its own right and cannot be caught by a crash-only test. After the fix, assert that the SAME record set produces the SAME verdict regardless of position, and that a malformed entry is reported even when a satisfying record precedes it."
+    },
+    {
+      "timestamp": "2026-07-26T22:37:05.709Z",
+      "phase": "PLAN",
+      "itemId": "CHK-010",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer classified acceptance rows V2 and E4 as gaps with no owning checklist item; unresolved gaps are a PLAN-to-DEV blocker.",
+      "addedTitle": "Assert the behaviour this fix must NOT change",
+      "addedContext": "Closes two scope gaps found by the PLAN scope reviewer (decision document acceptance rows V2 and E4), neither of which was owned by any item. V2: a valid v2 record must remain unchanged and continue to be correctly skipped by the v1 predicate - the v2 record union arrived on main with the B-506e merge, so this is live behaviour that a read-boundary validator could easily break by rejecting records it does not recognise. E4: an artifact whose records key is ABSENT must keep producing UNSATISFIED, which is the ordinary not-configured path and must NOT be reclassified as corruption; conflating absent with malformed would regress the very distinction this story exists to create. Both are regression assertions against behaviour that is correct today, not new capability."
+    },
+    {
+      "timestamp": "2026-07-26T22:37:06.276Z",
+      "phase": "PLAN",
+      "itemId": "CHK-011",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer classified decision document section 10.5 safety property (validator total on any JSON shape) as a gap; unresolved gaps are a PLAN-to-DEV blocker.",
+      "addedTitle": "Fuzz the validator to prove it is total on arbitrary JSON",
+      "addedContext": "Closes the third scope gap: decision document section 10.5 requires that the validator ITSELF cannot throw on any JSON shape, and the checklist only pinned the specific enumerated malformed and envelope rows. Those rows were written from observed failures, so they prove the known cases and nothing about the unknown ones - which is the same mistake, in test form, that produced this defect in the first place. Generate arbitrary acyclic JSON values (nested objects and arrays, mixed primitives, empty containers, deeply nested structures, and objects with no prototype) and assert the validator returns a classification for every one of them and never throws. This is a property, not a case list."
     }
   ]
 }

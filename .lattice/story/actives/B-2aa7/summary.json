@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2aa7",
+  "changes": "packages/main/src/core/red-evidence-artifact-validation.ts is new: a pure leaf that validates a red-evidence artifact at the read boundary, envelope BEFORE records, and quarantines malformed records instead of throwing or dropping them. store.ts wires it into readRedEvidence and adds a write-boundary guard so a rebuilt envelope can no longer lose quarantined originals; readJson gained an optional wrapParseError hook so an unparseable file yields a typed error naming the path instead of a raw SyntaxError. proofstory.ts adds one shape guard so the gate predicate is total on arbitrary input even when a record bypasses the read path. Nine direct consumers plus their transitive reachers now render corruption distinctly from an absent artifact: red_evidence_get displays it, red_evidence_create repairs by appending without losing the originals, and story_review no longer reports it as unavailable. Quarantine entries carry provenance so a hand-built payload cannot fabricate them. 15 regressions under packages/main/tests/red/ are registered in lattice.config.json, and the decision record is landed at docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md.",
+  "usage": "lattice red_evidence_get --storyId=<id> on a corrupt artifact now DISPLAYS the corruption with the offending record index and reason instead of aborting; lattice red_evidence_create --storyId=<id> ... repairs by appending while preserving the quarantined originals on disk. Both are exercised end to end by node packages/main/tests/red/red-b2aa7-artifact-validation.mjs and the red-b2aa7-*-receipt.mjs family, all registered under lattice validate.",
+  "expectedOutcome": "An operator whose red-evidence.json is corrupt gets a controlled failure naming the artifact path, the offending record index or id and the offending field; can still inspect and repair it through the CLI; and can tell corruption apart from an artifact that is simply absent. No verdict changes for any record that is well-formed under the legacy v1 schema.",
+  "actualTranscript": "Observed on a throwaway store by the delivery reviewer and reproduced by the main agent: red_evidence_get returns status corrupt with the malformed original retained verbatim at records[1], in both JSON and text mode, leaving the file unmodified. A planted non-object JSON root is rejected with a typed error naming the path. A hand-built malformedRecords payload is refused with [quarantine_provenance] and nothing reaches disk. red-b2aa7-artifact-validation.mjs reports 0 RED / 20 GREEN of 20 rows. The pinned five-scenario invariance harness still prints 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec and its file is byte-identical to main.",
+  "outcomeDiff": "No difference. Every element of the expected outcome was observed on a real store, and the invariance digest that proves no well-formed verdict moved is unchanged from its pre-fix baseline.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered. Two facts belong on the record rather than as shortfalls. First, six of the 33 verification intents (CHK-001 and CHK-010) carry permanent waivers instead of mechanical receipts. That follows from what those intents assert: they pin a PRE-FIX observation, namely that the RED artifact failed on the unfixed tree, which by construction can never be re-observed once the fix exists, and their pinned receipts gate every marker on BLOCK A still being RED so they are silent by design now. Repointing them at a passing post-fix command would claim a pass proves a failure. The substance stays mechanically guarded on every run by the registered fail-closed red-b2aa7-artifact-validation.mjs, BLOCK A for CHK-001 and BLOCK B for CHK-010, and the pre-fix observation was independently reproduced by the test-coverage reviewer, who rebuilt the trees at b207d4645b and 357ab0f07f and saw the regressions genuinely fail there. Second, OPEN-3 asks whether story B-506e shipping prose that cites a sha256 no artifact produces warrants a B-META finding against the delivery-check gate; that is a question about B-506e's own artifacts and its answer changes nothing this story delivered.",
+  "pitfalls": "The defect this story fixes is trusting a value that was never validated, and that same mistake recurred five times during the work, twice inside a fix for the previous instance. The residual v1 class was trusted because nobody had seen it break; the audit document asserted a consumer count that was wrong four times; the TOCTOU guard trusted an on-disk malformedRecords key; the derivation fix then claimed in a comment that a hand-built payload could not smuggle one in, which was false; and while documenting the provenance register the implementer wrote that no in-process route existed, tested it, and found that false too. Every real remedy replaced an enumeration with a derived property: the registration guard now scans the directory instead of holding an allowlist, the fuzz asserts a property instead of listing cases, the document states which commit its count came from, and quarantine entries carry provenance instead of merely a shape. Three process lessons. Run every cross-host round rather than stopping at the first: round 1 passed and rounds 2 and 3 found the TOCTOU race that would otherwise have shipped. Do not dispatch a document fix in parallel with a code fix it describes; doing so created finding F-006 directly, because the document was written before the code it describes landed. And proving a guard is load-bearing, by removing it and watching a test fail, is not the same as proving it cannot be abused; the injection vector existed because only the first check was done.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 37267548
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 82464
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 5522174
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 14199062
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 5950406
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 721389
+    }
+  },
+  "totalDurationMs": 63744159,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-27T05:41:33.828Z",
+  "updatedAt": "2026-07-27T05:41:33.828Z"
+}

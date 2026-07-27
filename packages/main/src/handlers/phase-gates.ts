@@ -28,7 +28,12 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, ScopeViolation, ProofStoryGateMode } from '../core/types.js';
+import type { ChecklistData, RedEvidenceData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, ScopeViolation, ProofStoryGateMode } from '../core/types.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+} from '../core/red-evidence-artifact-validation.js';
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
@@ -125,6 +130,46 @@ function proofStoryMaterialClassification(store: StoryStore, storyId: string, ro
   return tryBuildMaterialClassificationSnapshotForDiagnostics(root, gitCwd);
 }
 
+/**
+ * B-2aa7 CHK-006. The REVIEW and DONE gates run their whole body inside this, so
+ * an unreadable artifact surfaces as a gate-shaped failure naming the corruption
+ * and the repair path, rather than as a bare read-boundary throw.
+ *
+ * Wrapping happens HERE, at the terminal operator-facing site, and deliberately
+ * NOT inside `proofStoryDiagnosticInput`: that builder is shared, and the typed
+ * `RedEvidenceArtifactError` / `RedEvidenceSchemaError` classes escaping it are
+ * load-bearing for other consumers (`red-b2aa7-artifact-validation.mjs`'s
+ * exclusion guard asserts B-506e's class by name through exactly that path). A
+ * shared builder must not launder a typed error into a plain one.
+ *
+ * Anything that is not an artifact fault is rethrown untouched — a blanket catch
+ * here is what produced the §4 `story_review` degradation in the first place.
+ */
+function withRedEvidenceCorruptionContext<T>(storyId: string, fn: () => T): T {
+  try {
+    return fn();
+  } catch (e) {
+    const corruption = describeRedEvidenceReadFailure(e);
+    if (corruption === null) throw e;
+    throw new Error(
+      `ProofStory gate evidence cannot be read for ${storyId}: its red-evidence artifact is corrupt, which is NOT the `
+        + `same as an absent one — the gate has no evidence to evaluate.\n${corruption}\n${redEvidenceRepairGuidance(storyId)}`,
+    );
+  }
+}
+
+/**
+ * B-2aa7 CHK-006. The QUARANTINED case never throws: `records` reaches the gate
+ * clean, so the report says `missing_red_evidence` — the wording for an ABSENT
+ * artifact. This banner is prepended to the gate's own rendering so corruption
+ * stays distinguishable from absence. It DECORATES the rendering only and never
+ * changes `blocking`, so no gate verdict moves because of it.
+ */
+function redEvidenceCorruptionBanner(storyId: string, input: ProofStoryDiagnosticInput): string {
+  const corruption = renderRedEvidenceQuarantineNotice(storyId, input.redEvidence);
+  return corruption === null ? '' : `${corruption}\n${redEvidenceRepairGuidance(storyId)}\n\n`;
+}
+
 // Exported for the language-neutral-gates smoke (B-956f FIX H): the smoke
 // drives THIS production builder and asserts materialClassification arrives.
 export function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: string): ProofStoryDiagnosticInput {
@@ -146,6 +191,10 @@ export function proofStoryDiagnosticInput(store: StoryStore, storyId: string, ro
     intentCollision: store.readIntentCollision(storyId),
     scopeContract: store.readScopeContract(storyId),
     scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+    // B-2aa7 CHK-006: the typed read-boundary error propagates from here
+    // UNCHANGED. Callers add operator context via
+    // `withRedEvidenceCorruptionContext`; laundering the class in this shared
+    // builder would break every consumer that discriminates on it.
     redEvidence: store.readRedEvidence(storyId),
     spikeEvidence: store.readProofStorySpikes(storyId),
     summary: store.readSummary(storyId),
@@ -336,8 +385,9 @@ export async function runReviewToTestPreflightGate(
   runReviewLoopGate(storyId, store);
   const proofStoryMode = configuredProofStoryMode(ctx, 'reviewGateMode');
   if (proofStoryMode !== 'observe') {
-    const proofStoryReport = evaluateReviewCompleteness(proofStoryDiagnosticInput(store, storyId, ctx.root), proofStoryMode);
-    const renderedProofStory = renderProofStoryRows(
+    const proofStoryInput = withRedEvidenceCorruptionContext(storyId, () => proofStoryDiagnosticInput(store, storyId, ctx.root));
+    const proofStoryReport = evaluateReviewCompleteness(proofStoryInput, proofStoryMode);
+    const renderedProofStory = redEvidenceCorruptionBanner(storyId, proofStoryInput) + renderProofStoryRows(
       'ProofStory REVIEW completeness',
       proofStoryReport.mode,
       proofStoryReport.status,
@@ -519,8 +569,9 @@ export function runLegacyReceiptTransitionGate(
   if (targetPhase !== 'DONE') return '';
   const mode = configuredProofStoryMode(ctx, 'doneGateMode');
   if (mode === 'observe') return '';
-  const report = evaluateDoneIntentEquivalence(proofStoryDiagnosticInput(ctx.store, storyId, ctx.root), mode);
-  const rendered = renderProofStoryRows(
+  const input = withRedEvidenceCorruptionContext(storyId, () => proofStoryDiagnosticInput(ctx.store, storyId, ctx.root));
+  const report = evaluateDoneIntentEquivalence(input, mode);
+  const rendered = redEvidenceCorruptionBanner(storyId, input) + renderProofStoryRows(
     'ProofStory DONE intent equivalence',
     report.mode,
     report.status,

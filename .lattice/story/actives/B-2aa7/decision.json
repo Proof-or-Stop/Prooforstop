@@ -1,0 +1,85 @@
+{
+  "principles": [
+    "Unvalidated data must not enter typed domain logic; validate once at the boundary rather than making every consumer defend itself.",
+    "A gate must fail closed and diagnosably. Neither a bare crash nor a silent misread is an acceptable failure mode.",
+    "Never break a verdict that was correct: a well-formed v1 record that satisfied the gate must keep satisfying it, and the proof of that must be mechanical rather than asserted.",
+    "Corruption must remain inspectable and repairable through the CLI; a fix that locks the operator out of their own artifact is not a fix.",
+    "Every existing-system claim is re-derived against current main by symbol, never carried over from an earlier reading."
+  ],
+  "drivers": [
+    "All three gate modes are enforce, so this aborts live DEV/REVIEW/DONE transitions rather than blocking them controllably.",
+    "Ten production consumers read this artifact, including the two commands an operator would use to diagnose and repair it.",
+    "The defect has three distinct failure shapes (bare crash, silent misread as absent, raw SyntaxError), so a crash-only fix would look complete while leaving two of them live.",
+    "Main is under continuous change by parallel sessions and already invalidated this story's premise once mid-flight."
+  ],
+  "options": [
+    {
+      "name": "A - narrow predicate guard",
+      "pros": [
+        "Smallest possible change",
+        "Provably cannot move any verdict, since a crash is not a verdict",
+        "No migration scan needed"
+      ],
+      "cons": [
+        "Leaves the same bug latent for the next field a future predicate dereferences",
+        "Does nothing for the envelope class or the silent-misread class",
+        "Leaves the residual 'v1' class still unvalidated"
+      ]
+    },
+    {
+      "name": "B - full validation at the read boundary, malformed entries quarantined",
+      "pros": [
+        "Closes all three failure shapes at one boundary",
+        "Makes the 'v1' class validated rather than residual, so consumers may assume their invariants",
+        "Keeps the artifact inspectable and repairable because nothing throws",
+        "Corruption becomes distinguishable from absence"
+      ],
+      "cons": [
+        "Knowingly changes the outcome for records that are schema-invalid yet currently satisfying, so it needs a migration scan to prove the set is empty",
+        "More surface than a one-line guard",
+        "Must carefully preserve the legacy-tolerated blank observedFailure case or the pinned invariance digest moves"
+      ]
+    },
+    {
+      "name": "C - full validation that throws at the read boundary",
+      "pros": [
+        "Strongest fail-closed posture",
+        "Simplest to implement, since it just rejects"
+      ],
+      "cons": [
+        "Breaks recoverability: red_evidence_get and red_evidence_add both read before acting, so a corrupt artifact could be neither inspected nor repaired via the CLI",
+        "One consumer already catches and renders 'unavailable', so the failure would be invisible there",
+        "Turns a diagnosable problem into a hard stop"
+      ]
+    }
+  ],
+  "chosen": "B - full validation at the read boundary, malformed entries quarantined",
+  "rationale": "B is the only option that closes all three failure shapes while keeping the operator able to see and repair the damage. A is provably safe but leaves two of the three shapes live and keeps 'v1' a residual class, which is the actual root cause. C fails the recoverability test that the consumer inventory makes concrete: the two commands you would reach for to diagnose a corrupt artifact both read it first, so throwing locks you out of the repair path. B's one real cost is that full validation may flip records that are schema-invalid yet currently satisfying, and a PLAN-phase read-only scan of 105 artifacts and 144 records found ZERO such records, so that cost is vacuous on current data; CHK-003 still ships a re-runnable scan because parallel sessions create stories continuously and the answer could differ at merge time.",
+  "preMortem": [
+    {
+      "scenario": "The fix ships and the pinned invariance digest has moved, so a valid v1 verdict was changed.",
+      "trigger": "The blank-observedFailure case is treated as malformed and quarantined, or quarantine adds a new diagnostic to the report for a scenario that previously had none.",
+      "consequence": "A well-formed store silently changes verdict; the invariance proof is destroyed, and the tempting repair is to re-pin the constant, which would hide the regression permanently.",
+      "mitigation": "CHK-007 asserts the SAME pinned digest post-fix and explicitly forbids re-pinning it. Decision D-5 makes blank observedFailure legacy-tolerated: UNSATISFIED with no new diagnostic, never quarantined. Any digest movement is treated as a defect in the fix, not in the constant."
+    },
+    {
+      "scenario": "The fix validates records but the envelope class is still live, and the story looks complete.",
+      "trigger": "Implementation focuses on the record loop because that is where the reported TypeError came from, and the acceptance matrix rows are read as record-level cases.",
+      "consequence": "records:{} still crashes the live gate after the story is DONE, so the headline defect is only half fixed while every test passes.",
+      "mitigation": "CHK-001 has a distinct ENVELOPE class of repro rows, CHK-004 names E5/E6/E7 explicitly, and the envelope must be validated BEFORE the records so no record-level code path is reached at all."
+    },
+    {
+      "scenario": "The consumer inventory is stale again and some consumer keeps degrading silently.",
+      "trigger": "The count has already been wrong twice; main is under continuous change and another sibling story adds a consumer while this story is in DEV.",
+      "consequence": "A corrupt artifact still reads as 'not configured' somewhere, which is the exact silent-degradation failure the story exists to eliminate.",
+      "mitigation": "CHK-006 requires re-deriving the call-site list by symbol at implementation time rather than trusting the number in the text, and done_prepare merges main before DONE so a late-arriving consumer surfaces as related drift rather than being missed."
+    },
+    {
+      "scenario": "Corruption is still indistinguishable from absence after the fix.",
+      "trigger": "Quarantine is implemented as 'drop the bad records and carry on', which produces a clean empty records array that reads exactly like an absent artifact.",
+      "consequence": "The gate fails closed but the operator is told there is no evidence rather than that the evidence is broken, so they recreate it instead of repairing it and the corruption is never diagnosed.",
+      "mitigation": "Quarantine must RETAIN and REPORT every rejected entry with its index, identifying field and reason; CHK-006 requires each of the ten consumers to render corruption distinctly from absence, and CHK-001's SILENT class pins the current wrong behaviour so the change is observable."
+    }
+  ],
+  "timestamp": "2026-07-26T22:24:58.035Z"
+}
