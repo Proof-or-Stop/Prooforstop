@@ -101,6 +101,26 @@
       ],
       "signatureTag": "missing|mjs|rows-rows-verificationevidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49d4:F-006",
+      "desc": "The population reachability claim in red-b49d4-registration-derivation.mjs BLOCK C (the derive function around lines 596-630, row EVERY_RED_HARNESS_IS_RUN_BY_VALIDATE lines 633-642) is factually false for red-b49d4-chk001-receipt.mjs: it is reported as spawned by a registered command (feeding the 0 are NEVER RUN GREEN claim), but it is never actually spawned or executed by anything. Independently confirmed: (a) red-b49d4-harness-registration.mjs has ZERO child_process usage anywhere in the file (no import of node:child_process, no spawnSync, no execFileSync) -- its REGISTRATION_EXCLUSIONS map (lines 116-134) uses the filename red-b49d4-chk001-receipt.mjs only as a Map key for the registered/excluded/undecided bookkeeping classifier, never as a spawn target; (b) red-b2aa7-chk007-receipt.mjs's own spawn loop (around lines 513-520) iterates only over the keys of its own REGISTRATION_EXCLUSIONS map (lines 389-397: red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs only), which does not include red-b49d4-chk001-receipt.mjs; (c) a repo-wide search for the filename across packages/main/tests/red and packages/main/src finds exactly 3 files -- itself, red-b49d4-harness-registration.mjs (bookkeeping map key, no execution), and red-b49d4-registration-derivation.mjs (a comment in the BLOCK D discussion, also no execution). The derive function's textual-inclusion BFS (checking whether a registered file's source text contains a population member's filename, derivation.mjs lines 611-619) conflates a filename appearing as a string inside a registered file with that file being executed by a registered command; the header comment documents this as an intentional over-approximation and calls it conservative for the never-run claim, but it is actually the opposite of conservative for the specific GREEN claim being made (0 are NEVER RUN, all reachable): it lets a file that lattice validate genuinely never executes count as covered, reproducing inside this guard the exact false-confidence defect class B-49d4 exists to remove. Live-confirmed on current HEAD 4dcbf91: node packages/main/tests/red/red-b49d4-registration-derivation.mjs prints 3 unregistered, of which 3 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs) and 0 are NEVER RUN: none -- the third name is misclassified as spawned when it is only textually mentioned.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-27T19:18:23.566Z",
+      "reviewRound": "2026-07-27T19:06:55.751Z",
+      "reviewRunId": "B-49d4:RR-008",
+      "_hash": "b0aac22aa4cfa1d8306f3b94c4ecbb3684a5ecfae3e3a001881bfb3c47a053d7",
+      "files": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+        "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|population-reachability-claim",
+      "signatureTagSource": "auto"
     }
   ]
 }
