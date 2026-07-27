@@ -213,6 +213,31 @@
         "scanEscalationReason": null
       },
       "_hash": "a92b64695c895fb123b31fe731e2e2aa4fc8fa0eb5cfbdf1c6da8b80ed0cd3e4"
+    },
+    {
+      "id": "B-2296:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 post-merge re-review: all 12 must-intents (CHK-001..004 x happy/edge/adversarial) carry verificationEvidence result=pass, rebound to post-merge materialHash=3674fa96../storyFilesHash=c108d5f7.. matching current task context exactly. Both frozen-claim-drift-smoke.js and frozen-claim-snapshot-hook-smoke.js re-run live: PASS, including required [determinism]/[clean-branch] lines. Both registered in lattice.config.json validate.commands and package.json scripts alongside mains red-evidence entries (merge conflict resolution preserved). All 4 prior findings (F-001..F-004) resolved/verified, zero open blockers. No new gaps found.",
+      "createdAt": "2026-07-27T10:47:22.802Z",
+      "reviewRound": "2026-07-27T10:45:11.471Z",
+      "reviewRunId": "B-2296:RR-012",
+      "envelopeId": "f13ffebe62850dff0ef7338c3f3f958b15732a5881d3c0133f3c1693ed92def1",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2296/background.md",
+          ".lattice/story/actives/B-2296/checklist.json",
+          ".lattice/story/actives/B-2296/plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3e7373b7441cbfefb1bc457e549fe2408b59a1315b861c8bcaf9aba9efe89b1"
     }
   ]
 }
