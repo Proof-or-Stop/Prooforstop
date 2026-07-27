@@ -26,7 +26,7 @@
       "desc": "The registered-or-excluded-with-a-stated-reason exclusion concept now exists in THREE independently authored, near-duplicate implementations: red-w2c-validate-registration.mjs (REGISTRATION_EXCLUSIONS, empty map, MIN_EXCLUSION_REASON_CHARS=40), red-b2aa7-chk007-receipt.mjs:389-397 (REGISTRATION_EXCLUSIONS, 2 entries: red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs, MIN=40, population narrowed by RECEIPT_NAME_RE=/^red-b2aa7-.*\\.mjs$/ at line 370), and red-b49d4-harness-registration.mjs:100-124 (REGISTRATION_EXCLUSIONS, 3 entries incl. the SAME two b2aa7 files plus red-b49d4-chk001-receipt.mjs, MIN=40, total population). chk007's population (red-b2aa7-*) is now a strict subset of harness-registration's total population, so the SAME two exclusion decisions (chk001/chk010) are recorded via independently-worded prose reasons in two files with no shared source of truth and no mechanical cross-check that the two maps agree (only each guard's own internal registered/excluded/undecided/wronglyRegistered classification is checked in isolation). If a future edit adds, removes, or renames an exclusion entry in one map without mirroring it in the other, the two guards will disagree about that file's registration status (one PASS, one FAIL) and nothing states which is authoritative for the red-b2aa7-* subset now that harness-registration.mjs subsumes it -- chk007 has become a live, separately-maintained duplicate rather than a documented-redundant or retired check.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-27T18:33:27.489Z",
@@ -39,7 +39,11 @@
       ],
       "signatureTag": "missing|mjs|registered-excluded-stated",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "dismissReason": "DEFERRED with concept-lane concurrence (RP-002), tracked as a spun-off follow-up, not dropped. The duplicate exclusion maps cannot diverge SILENTLY: each guard independently reads the same ground-truth lattice.config.json and fails loudly naming the file - corroborated live this round when a reviewer caught harness-registration transiently missing an entry and the guard failed by name. The blocker to fixing it here is real: any proper unification requires editing red-b2aa7-chk007-receipt.mjs, a PINNED verification receipt of the already-DONE story B-2aa7 whose checklist pins an exact outputDigest/outputTail. Invalidating a completed story's recorded evidence needs deliberate repro-first handling, not a patch appended to this story's fourth fix cycle.",
+      "dismissedAt": "2026-07-27T20:15:57.982Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "medium"
     },
     {
       "id": "B-49d4:F-003",
@@ -150,7 +154,7 @@
       "desc": "Beyond F-002's duplicate-data complaint, the three implementations give the SAME label (\"excluded\"/\"DECIDED\") three different enforcement STRENGTHS. red-b2aa7-chk007-receipt.mjs:508-524 re-spawns EACH of its own REGISTRATION_EXCLUSIONS entries every run and asserts they are SILENT (exit 0, 0 bytes stdout+stderr) -- the \"noisy\" check, actively re-verifying the premise behind the stated reason. red-b49d4-harness-registration.mjs:116-134 has NO equivalent behavioral re-verification for any of its 3 entries: for the 2 it shares with chk007 (red-b2aa7-chk001/chk010-receipt.mjs) the guarantee holds only because chk007 independently re-checks them every run; for its OWN third entry (red-b49d4-chk001-receipt.mjs) the \"stays silent forever\" premise was checked exactly ONCE, manually, at headHash dfa21181, and is now frozen as static prose in a checklist verificationEvidence waiver note (F-005) -- no committed, registered guard ever re-spawns that file to confirm it is still silent. red-b49d4-registration-derivation.mjs derive() (lines 665-671, 699-712) reads a THIRD, weaker sense of \"DECIDED\" still: a pure pass-through of whichever names are literal Map keys in harness-registration.mjs's exclusion record, contingent only on that guard's overall exit code, with no independent behavioral check of its own. So the label now means: (a) enforced + live-behaviorally-verified (chk007, for its own map), (b) enforced-bookkeeping-only with no behavioral check (harness-registration, for its own map -- weaker than (a) for the 2 duplicated entries), and (c) advisory pass-through with zero independent verification (derive()'s reading of harness-registration's map). Currently low-risk: the one entry with NO live behavioral re-verification anywhere (red-b49d4-chk001-receipt.mjs) is safe only because the artifact it gates on (red-b49d4-registration-derivation.mjs) is itself independently registered in validate.commands, so a regression there is caught elsewhere regardless of this gap -- but the semantic content of \"excluded\"/\"DECIDED\" no longer means one consistent, machine-checked thing across the three files, which is the same concept-drift class this story exists to remove; a future exclusion entry added to harness-registration.mjs alone (not mirrored into any behaviorally-verifying guard) would carry the (b)-strength guarantee while reading, to a maintainer, as equivalent to chk007's (a)-strength one.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-27T19:59:41.611Z",
@@ -163,7 +167,11 @@
         "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
       ],
       "signatureTag": "missing|mjs|beyond-duplicate-data",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "DEFERRED into the same follow-up as F-002 (they are one problem: three implementations, three enforcement strengths). The specific unre-verified exclusion is bounded rather than arbitrary: red-b49d4-chk001-receipt.mjs is silent BY CONSTRUCTION because every marker it emits is gated on red-b49d4-registration-derivation.mjs still being RED - and that artifact IS registered and fail-closed, so if it ever went RED you would get a loud validate failure, not silence. So the frozen premise is derivable from a condition whose change is itself alarmed, which is materially different from a hand-checked snapshot. Fixing it properly still requires touching chk007's pinned B-2aa7 receipt, same blocker as F-002.",
+      "dismissedAt": "2026-07-27T20:16:06.194Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
     },
     {
       "id": "B-49d4:F-009",
