@@ -37,6 +37,25 @@
       ],
       "signatureTag": "missing|mjs|registered-excluded-stated",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49d4:F-003",
+      "desc": "red-b49d4-registration-derivation.mjs BLOCK D (around line 494-500, `if (text.includes(SELF)) continue;`) chooses which committed guards to spawn-probe against the differently-prefixed newcomer by skipping any *.mjs whose text contains this file's own basename. red-b49d4-harness-registration.mjs documents this coupling explicitly ('NOTE FOR WHOEVER EDITS THIS FILE ... naming it here would silently remove this guard from that check'), but red-w2c-validate-registration.mjs -- which is equally a spawn target in BLOCK D and equally droppable from it by the same string-match mechanism -- carries no such warning anywhere in its header or body. Additionally the two BLOCK D assertions that would need to catch a silently-shrunk target set are too weak to do so: NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS only requires `targetRuns.length > 0` and DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION only requires `catchers.length > 0` (both around line 516-540) -- neither asserts that BOTH known real guards (red-w2c-validate-registration.mjs and red-b49d4-harness-registration.mjs) were actually among the spawned targets. So a future edit that adds a 'see also: red-b49d4-registration-derivation.mjs' style comment to red-w2c-validate-registration.mjs would silently drop it from BLOCK D's coverage, and the RED artifact would keep reporting GREEN as long as harness-registration.mjs alone still catches the newcomer -- masking that w2c's own newcomer-detection was never actually re-verified that run.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-27T18:33:41.734Z",
+      "reviewRound": "2026-07-27T18:23:36.999Z",
+      "reviewRunId": "B-49d4:RR-004",
+      "_hash": "b62b8aa3a1b26616844ec5749e17ff1899e3ca090f39d791b99efc0a345433b6",
+      "files": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+        "packages/main/tests/red/red-w2c-validate-registration.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|b49d4-registration-derivation",
+      "signatureTagSource": "auto"
     }
   ]
 }
