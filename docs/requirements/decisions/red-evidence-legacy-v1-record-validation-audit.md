@@ -266,10 +266,11 @@ The deeper problem is that the instrument which produced all four numbers is its
 `grep 'readRedEvidence('` finds only what *names* the boundary. It cannot find a consumer that
 reaches the boundary **through a shared builder** — and this story's REVIEW round found exactly such
 a consumer that four consecutive inventories had all missed: `assertTargetInExpected`
-(`handlers/red-evidence.ts`) calls `proofStoryDiagnosticInput`, which reads the artifact eagerly, so
-`red_evidence_binding_set` / `red_evidence_quarantine` / `red_evidence_recover` all hit the read
+(`handlers/red-evidence.ts`) *called* `proofStoryDiagnosticInput`, which reads the artifact eagerly,
+so `red_evidence_binding_set` / `red_evidence_quarantine` / `red_evidence_recover` all hit the read
 boundary while containing no `readRedEvidence` of their own. No amount of re-grepping would ever have
-surfaced them.
+surfaced them. (That particular edge has since been severed — see §4.2 — which does not weaken the
+example: the instrument is what found it in the first place.)
 
 **The correct instrument: enumerate everything that can REACH the read boundary
 (`store.readRedEvidence`, `core/store.ts`), transitively — not everything that mentions it.** In
@@ -281,11 +282,54 @@ and `handlers/phase-gates.ts` — exported), the handler-local `diagnosticInput`
 `appendControlRecord` (`core/red-evidence/append.ts`). Any new one must be added to §4.2 in the same
 commit that introduces it, or the next inventory will be wrong for a fifth time.
 
-### 4.1 Direct call sites — **NINE**, derived at `2c0ef1ca2d`
+#### It then went wrong twice more — *after* this section was written, once inside this story's own tooling
+
+Both were caught in REVIEW rather than by the authors, and both are recorded here on purpose: a
+reader who takes only the principle away should also learn how fast it gets violated in practice.
+
+**1. In this document itself (F-006 / F-008, medium).** Commit `0b7217f170` severed the
+`assertTargetInExpected` edge one commit after `bc16eaf87f` wrote the §4.2 table describing it, and
+§4.2 was left hedging in *future* tense about a change that had already landed. The obvious repair —
+delete the stale row — would have been worse than the stale row: the row that should have carried
+`red_evidence_binding_set` forward (`readRedEvidenceForChain`) did not list it, so the deletion would
+have dropped that command out of the enumeration entirely, reproducing §4.0's own failure mode
+*inside the section written to prevent it*. The reviewer caught that before the deletion, not after.
+See §4.2.
+
+**2. In this story's regression tooling (F-007, high).** The registration guard in
+`packages/main/tests/red/red-b2aa7-chk007-receipt.mjs` compared `lattice.config.json`
+`validate.commands` against a **hardcoded allowlist** of receipts. It caught a listed command being
+removed, and caught an excluded one being re-added — and was structurally blind to what actually
+happened: a new, meaningful receipt (`red-b2aa7-f005-receipt.mjs`, added by CL-003) appearing in
+neither list. Absent from the required array, nothing was "missing"; absent from the exclusion array,
+nothing was "wrongly registered". `lattice validate` never ran it, and the guard reported complete
+coverage. That is precisely §4.0's error transplanted into a different artifact: **a check bound to a
+fixed enumeration instead of to the property it exists to guarantee.**
+
+`d01941179e` rewrote it to the §4.0 instrument. The population is now **enumerated from disk** —
+every `red-b2aa7-*.mjs` in the directory — and each member must be either registered in
+`validate.commands` or explicitly excluded **with a stated reason**; anything else lands in
+`undecided` and fails the check. The guard governs itself under the same rule, deliberately **with no
+self-exception**, because a carve-out for the checker is the hardcoded exemption being removed.
+
+**The generalisation, which outlives every number in this document: a fixed list is the wrong
+instrument wherever the population can grow.** It does not matter whether the population is call
+sites, consumers, or test receipts. Enumerate it from whatever *defines* it — the boundary's callers,
+the directory listing — and then require every member to be classified. A list that must be
+maintained by hand records the last person who remembered; it does not measure the tree.
+
+### 4.1 Direct call sites — **NINE**, re-derived at `d01941179e`
 
 Production source only: `packages/main/src`, excluding the `src/tasks/*-smoke.ts` harnesses and
 `packages/main/tests/`. Line numbers are derivation-commit values and *will* drift — **re-locate by
 the enclosing symbol.** **[CODE]**
+
+The previous derivation commit (`2c0ef1ca2d`) predates the CL-003 severing (`0b7217f170`), so it
+described a tree that is no longer the shipped one. Both this table and §4.2 were re-derived whole at
+`d01941179e` — every row and every reacher chain re-walked, not two rows spot-patched. The count is
+still nine because CL-003 removed a *builder* call, not a `store.readRedEvidence` call; all nine line
+numbers below were re-confirmed exact at that commit, whose own diff touches no file under
+`packages/main/src`.
 
 | # | Site | Enclosing symbol | Pre-fix behaviour on a throwing read |
 |---|---|---|---|
@@ -303,26 +347,61 @@ the enclosing symbol.** **[CODE]**
 
 Every row below reaches the boundary transitively through a builder in §4.1. **None of them would
 appear in an inventory built by grepping the boundary's name**, which is why the count kept moving
-while the real blast radius did not. **[CODE]**
+while the real blast radius did not. Re-derived whole at `d01941179e`. **[CODE]**
 
 | Reached via | Reacher chain | Operator-visible surface |
 |---|---|---|
-| `core/machine.ts` private builder (#1) | `proofStoryDevGateFailure` → the xstate DEV-entry guards + `getGuardFailureReason` | `story_advance` into DEV |
+| `core/machine.ts` private builder (#1) | `proofStoryDevGateFailure` ← the three xstate DEV-entry guards `canStartDevGuard` / `canSkipPlanGuard` / `canReenterDevGuard`, and ← the `DEV` branch of `getGuardFailureReason` ← `resolveGuardFailure` ← `transition-orchestrator.ts` | `story_advance` into DEV — PLAN→DEV, the express INIT_CHECK→DEV skip, and the REVIEW/TEST→DEV rollback doors |
 | `handlers/phase-gates.ts` builder (#2) | `runReviewToTestPreflightGate`, `runLegacyReceiptTransitionGate` (both via `transition-orchestrator.ts`) | `story_advance` REVIEW→TEST and TEST→DONE |
-| `handlers/phase-gates.ts` builder (#2) | `assertTargetInExpected` (`handlers/red-evidence.ts`) ← `red_evidence_binding_set`, and ← `appendChainControl` | `red_evidence_binding_set`, `red_evidence_quarantine`, `red_evidence_recover` |
-| `handlers/proofstory.ts` `diagnosticInput` (#3) | `renderGateReport`, plus four direct callers | `proofstory_gate_check`, `proofstory_contract_set`, `intent_coverage_check`, `done_intent_equivalence_check`, `proofstory_review_completeness_check` |
-| `handlers/red-evidence.ts` `readRedEvidenceForChain` (#6) | `findV2Record` ← `appendChainControl` | `red_evidence_quarantine`, `red_evidence_recover` |
+| `handlers/proofstory.ts` `diagnosticInput` (#3) | `renderGateReport` ← `proofstory_gate_check`, plus four direct callers | `proofstory_gate_check`, `proofstory_contract_set`, `intent_coverage_check`, `done_intent_equivalence_check`, `proofstory_review_completeness_check` |
+| `handlers/red-evidence.ts` `readRedEvidenceForChain` (#6) | **`red_evidence_binding_set` directly** — the §1.1.3 binding-freeze read, taken under the chain lock — **and** `findV2Record` ← `appendChainControl` | `red_evidence_binding_set`, `red_evidence_quarantine`, `red_evidence_recover` |
 | `core/red-evidence/append.ts` `appendControlRecord` (#9) | `appendChainControl` (`handlers/red-evidence.ts`) | `red_evidence_quarantine`, `red_evidence_recover` |
 
-Row 3 is the one this story's REVIEW round raised: a shared builder pulled in only for
-`resolveExpectedRedTargets`, which never reads `redEvidence` at all. It is the concrete proof that the
-reach enumeration and the grep enumeration are different sets — four inventories, all built by
-grepping, all missed it.
+**Closure.** §4.1 plus the rows above, taken to closure at `d01941179e`, give the complete set of
+operator-facing commands that can reach `store.readRedEvidence` — **twelve**:
 
-**Row 3 is also expected to leave this table.** The REVIEW finding it came from is being resolved by
-narrowing `assertTargetInExpected` to the three fields the resolver actually reads, which severs that
-edge. Re-derive against the current tree rather than assuming either state: the durable claim of this
-section is the *instrument* in §4.0, not any individual row.
+`red_evidence_get`, `red_evidence_create`, `red_evidence_binding_set`, `red_evidence_quarantine`,
+`red_evidence_recover`, `story_review`, `story_advance` (into DEV, REVIEW→TEST, TEST→DONE),
+`proofstory_gate_check`, `proofstory_contract_set`, `intent_coverage_check`,
+`done_intent_equivalence_check`, `proofstory_review_completeness_check`.
+
+Exactly **three** of those twelve — `red_evidence_get`, `red_evidence_create`, `story_review` — name
+the boundary anywhere in their own handler body. The other nine reach it only through a builder. That
+ratio is the argument of §4.0 in one line: grepping the boundary's name finds a quarter of the
+operator-facing blast radius and reports it as the whole.
+
+#### The row that left this table, and the trap in removing it
+
+Up to `bc16eaf87f` this table carried a sixth row: `assertTargetInExpected`
+(`handlers/red-evidence.ts`) reaching the boundary through the `handlers/phase-gates.ts` builder
+(#2), on behalf of `red_evidence_binding_set` / `red_evidence_quarantine` / `red_evidence_recover`. A
+shared builder pulled in solely for `resolveExpectedRedTargets`, which never reads `redEvidence` at
+all. It was the concrete proof that the reach enumeration and the grep enumeration are different
+sets — four inventories, all built by grepping, all missed it.
+
+**Post-fix, on the shipped tree, that edge does not exist.** `0b7217f170` (CL-003) replaced the
+shared-builder call with the narrow `expectedRedTargetsInput` helper, which reads only the three
+fields the resolver actually consumes (`originalIntentSnapshot`, `proofStoryContract`,
+`milestoneLedger`); `handlers/red-evidence.ts` no longer imports `proofStoryDiagnosticInput` at all.
+This is **settled fact at `d01941179e`, not a pending change** — the earlier text here hedged in
+future tense ("row 3 is also expected to leave this table…") because it was written one commit
+*before* the severing landed, in a REVIEW round that has since closed.
+
+**Deleting that row was nevertheless the wrong repair on its own, and would have been a regression.**
+`red_evidence_binding_set` still reaches the boundary post-CL-003 — **directly**, through
+`readRedEvidenceForChain`, the binding-freeze read inside the chain lock. That path *predates*
+CL-003, which deliberately left it as the command's one and only artifact read (so which corruption
+message the operator sees no longer depends on which of two reads fires first). But the
+`readRedEvidenceForChain` row above used to list only `findV2Record ← appendChainControl` and name
+only `red_evidence_quarantine` / `red_evidence_recover`. Removing the severed row *without* repairing
+that omission would have dropped `red_evidence_binding_set` out of the enumeration entirely —
+recreating, inside the very section built to prevent it, the exact §4.0 failure mode: a command that
+reaches the boundary while naming nothing, and an inventory that cannot see it. The row now names the
+direct call, so the command survives its own reach-path changing.
+
+The durable claim of this section remains the *instrument* in §4.0, never an individual row. Re-derive
+against the current tree before relying on any of it, and land any change to the reach graph in this
+table **in the same commit that makes it** — the two-commit gap above is exactly how this went stale.
 
 ### 4.3 Consequence
 
@@ -683,12 +762,17 @@ ships with uncovered consumers:
 | C1 | `red_evidence_get` | must **display** the corruption, not abort (§9) |
 | C2 | `red_evidence_create` (the read-before-append repair path) | must either repair-by-append or refuse with an actionable message — never a bare abort |
 | C3 | `story_review` advisory path (`handlers/story-review.ts`, the read inside the advisory render's own `try`/`catch`) | must **not** silently render "unavailable"; corruption must be distinguishable from absence |
-| C4 | the chain commands, which reach the boundary only through helpers rather than a read of their own — `red_evidence_binding_set`, `red_evidence_quarantine`, `red_evidence_recover` (§4.2) | must surface corruption in the same vocabulary as C1/C2, not as an incidental abort inherited from a shared builder. A helper that reaches the boundary for data its caller does not need is itself the defect (§4.2 row 3) |
+| C4 | the chain commands, which reach the boundary only through helpers rather than a read of their own — `red_evidence_binding_set`, `red_evidence_quarantine`, `red_evidence_recover` (§4.2) | must surface corruption in the same vocabulary as C1/C2, not as an incidental abort inherited from a shared builder. A helper that reaches the boundary for data its caller does not need is itself the defect — **on the shipped tree that helper (`assertTargetInExpected`) no longer reads the artifact at all (`0b7217f170`)**, and all three commands now reach the boundary through exactly one path, `readRedEvidenceForChain`, which attaches the repair guidance (§4.2) |
 | C5 | the phase-gate reachers: `story_advance` into DEV, REVIEW→TEST, TEST→DONE (§4.2) | a corrupt artifact must produce a named, gate-shaped failure, never a raw read-boundary throw |
 
 C3 is the row that would otherwise let the fix look complete while a real store degrades silently.
 C4 and C5 are the rows a count-based inventory keeps missing, because neither surface names the read
 boundary anywhere in its own source (§4.0).
+
+The assertion list is the **§4.2 closure** — twelve operator-facing commands at `d01941179e` — and
+not any count. C4's own reach path moved *during this story's REVIEW round* while the set of three
+commands it covers did not change, which is why these rows are stated as operator-visible surfaces
+rather than as call sites: a surface survives its own plumbing being rewritten.
 
 ### 10.5 Safety properties
 
@@ -741,6 +825,11 @@ D-7 is the only decision that can fail late, so it is stated as an explicit obli
 2. For each record, compute *(current verdict, verdict under full v1 validation)*.
 3. The story may merge only if that set is empty **or** every non-empty entry is individually justified in the story record.
 4. The result is reported even when empty — "scanned N artifacts, 0 affected" is the evidence; silence is not.
+5. The re-run at merge time is what `lattice validate` does, so the scan must be **registered** in
+   `lattice.config.json` `validate.commands`; an unregistered scan is a silent D-7 failure that looks
+   identical to a passing one. That registration is itself guarded by a **derived** completeness check
+   rather than a hardcoded list of expected entries — see §4.0, where relying on the hardcoded version
+   is how a receipt went unrun without anything reporting a gap.
 
 ---
 
