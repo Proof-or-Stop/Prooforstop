@@ -77,23 +77,14 @@
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
-          "command": "node packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
-          "result": "pass",
-          "note": "The control direction is asserted against a COPY of lattice.config.json inside a symlink-mirror sandbox run through --preserve-symlinks-main, so the real shipped guard executes but resolves its root to the sandbox. De-registering one currently-listed command makes it exit non-zero and name the victim; an unmutated copy in the same sandbox still passes and an empty-commands copy still fails, so the redirect is proven and a non-biting control could never be mistaken for a healthy guard. The real config is provably unmodified: sha256 identical before and after and git status --porcelain empty.",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "a4affea4906f0b270837f3ec12eaa0af90e6bd0196057eac67bd47a0b52aa18a",
-            "outputTail": "RED_ARTIFACT_FAILS_ON_PRE_FIX_TREE (exit=1; 4/18 rows red with 14 green controls; the guard exited 0 with an unregistered, non-zero-exiting member of its own population on disk and its success line still counted 3 of 4; DERIVED population: 33 tests/red/*.mjs enumerated unfiltered = 13 registered + 20 unregistered, of which 3 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-w2c-v1-verdict-invariance.mjs) leaving 17 that lattice validate NEVER runs)\nDIFFERENTLY_PREFIXED_NEWCOMER_DRIVES_REAL_GUARDS (b49d4-newcomer-probe-unprefixed.mjs carries neither the red-b2aa7- nor the red-w2c- prefix — nor any red- prefix — so only an UNFILTERED enumeration can see it; it was judged by spawning 2 REAL committed guards as child processes rather than by any simulation written in the artifact (red-w2c-validate-registration.mjs exit=0 in 66ms; red-b2aa7-chk007-receipt.mjs exit=0 in 27814ms), and NONE of them caught it — including red-b2aa7-chk007-receipt.mjs, which does derive its population from disk but through /^red-b2aa7-.*\\.mjs$/, the narrowing this artifact exists to forbid)\nCONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED (de-registering packages/main/dist/tasks/red-evidence-chain-smoke.js from a COPY of lattice.config.json (71 → 70 commands) made the SAME guard exit non-zero and name it, while an unmutated copy in the same sandbox still passed and an empty-commands copy still failed — so the sandbox provably redirected the read and blindness is not a broken experiment; the real lattice.config.json is byte-identical (sha256 96fe2ce743cf1a73… before and after), git status reports it clean, and every planted probe was removed)\n",
-            "selectorMatched": true,
-            "executedAt": "2026-07-27T16:40:08.710Z"
-          },
-          "headHash": "d3bdab57357cf8af59c390246942c82feaebd1ae",
-          "materialHash": "51156b00ea5f514897062cdcd0456199e1413ea38e36c2982e13703e957705ea",
-          "storyFilesHash": "ceae053c62d77ac2c8c90b7ffbcd738ecac7d76ca210ba9ba11e13b21ddd1be3",
-          "timestamp": "2026-07-27T16:40:08.973Z"
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005. NOT re-earnable, and deliberately NOT repointed. Measured on HEAD dfa21181: the pinned command node packages/main/tests/red/red-b49d4-chk001-receipt.mjs exits 0 with zero output, and lattice verification_run --intentRef=CHK-001:adversarial:0 was REFUSED with [receipt_selector_absent] for pinned selector CONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED. Same permanent construction: the marker is gated on ranToCompletion, which requires the spawned derivation artifact to exit non-zero, and that artifact now exits 0 on the fixed tree. The control direction itself is still live and is re-measured on every run of the registered artifact (rows CONTROL_DEREGISTRATION_BITES, SANDBOX_IS_FAITHFUL, SANDBOX_REDIRECTS_THE_CONFIG_READ, CONTROL_USED_A_COPY_NOT_THE_REAL_CONFIG, REAL_CONFIG_BYTE_UNMODIFIED - all GREEN on HEAD), but that is a different command from the one pinned here and is expressly NOT claimed as this row receipt. Original receipt genuine at headHash d3bdab57357cf8af59c390246942c82feaebd1ae.",
+          "headHash": "b3a87aabfecceea1d87a8c3242847afaa23ef42a",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:41:07.698Z"
         }
       ]
     },
