@@ -396,7 +396,11 @@
           {
             "desc": "The gate predicate returns a verdict for every well-formed input exactly as before.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+              "selector": "WELL_FORMED_VERDICTS_UNCHANGED"
+            }
           }
         ],
         "edge": [
@@ -422,7 +426,29 @@
         "test": [
           "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "result": "pass",
+          "note": "Well-formed inputs still get the same verdict, proven two ways at once. (a) The PROTECTED five-scenario harness red-w2c-v1-verdict-invariance.mjs is re-run as a child process and must exit 0 printing the digest it pinned on the pre-fix tree; that digest is READ out of the harness source rather than authored here, so this receipt can never become a second place the constant is pinned, and a moved verdict withholds the marker. (b) The same five fixtures are re-driven through the DIRECT-injection path so the new guard is shown to PASS well-formed records rather than merely to sit outside the harness's code path. The marker additionally requires the D-5 invariant: a blank or empty observedFailure still classifies as v1, still does NOT crash the pre-fix unguarded dereference, and still returns UNSATISFIED - i.e. it stays legacy-tolerated input on the ordinary non-satisfier route and is not rerouted through the new guard, which is what keeps scenario 3's report shape intact.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2264616eba764b89988f85d2e97b88b85c79e7d590fc34d6668c971b61f7491c",
+            "outputTail": "WELL_FORMED_VERDICTS_UNCHANGED (5 well-formed fixtures re-driven through direct injection; protected harness re-run exits 0 at its own pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; blank/empty observedFailure still UNSATISFIED via the ordinary non-satisfier route, not via the new guard)\nPREDICATE_TOTAL_ON_DIRECT_INJECTION (9/9 malformed records: each still classifies as the RESIDUAL 'v1', each still crashes the pre-fix unguarded dereference with a TypeError, and each now yields a verdict in every position (alone / first / last); artifact on disk still holds 0 records, so nothing was read through store.readRedEvidence)\nONLY_THE_SHAPE_GUARD_WAS_ADDED (predicate body diffed against 3826486e80: 1 executable line added — if (!isShapedLegacyV1Record(record)) return false; — placed before the dereference it protects; the other 17 executable lines are byte-identical and in the same order)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:39:29.740Z"
+          },
+          "headHash": "40e7fc73a23fcece56edc8bb668ececf4e8bf6d1",
+          "materialHash": "5594f85944deb9ad35426d61b2efebfabe8da9cf504e753d317a8b4428779aa5",
+          "storyFilesHash": "1825de80d66636fa0c8c8af24aa3028140fd7d0ac3128ef512e860984e1247b7",
+          "timestamp": "2026-07-27T00:39:29.913Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
