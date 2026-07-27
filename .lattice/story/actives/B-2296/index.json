@@ -4,7 +4,7 @@
   "title": "Detect frozen-claim drift (evidence-integrity §5 follow-on, Phase 1 of 2): bind checklist userSees to a normalized claim-digest + materialHash snapshot and surface a non-blocking FROZEN_CLAIM_DRIFT advisory when either drifts",
   "description": "Phase 1 of the evidence-integrity program §5 follow-on (docs/evidence-integrity-program-spec.md §5). Bind each checklist userSees frozen claim to a snapshot { normalizedClaimDigest, materialHash, headHash, attestedAt } and surface a structured, NON-blocking FROZEN_CLAIM_DRIFT advisory when EITHER the normalized claim text drifts OR the bound material drifts (rename-aware) under a frozen claim. Bidirectional binding is required because in both source incidents (F-027/F-060 userSees, F-059 plan.md) the claim text stayed frozen while the code moved, so a claim-digest-only check catches neither. Normalization is mechanical (trim + collapse whitespace); no semantic diffing. Legacy userSees with no snapshot are classified legacy-unbound and reported, never errored. Scope: userSees only. Detect + report only — the blocking gate, reviewer re-attestation recovery, and legacy migration policy are Phase 2. Reuses B-ec67 (M1) receipt/freshness and the B-5a9a/B-d243/B-edf1 storyFilesHash drift-advisory pattern.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "evidence-integrity",
@@ -119,6 +119,24 @@
       "user": "Harmonygo",
       "sessionId": "sess-claude-drive-b2296",
       "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-27T10:45:05.144Z",
+      "branch": "story/B-2296",
+      "user": "Harmonygo",
+      "sessionId": "sess-claude-drive-b2296",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-27T10:45:11.471Z",
+      "branch": "story/B-2296",
+      "user": "Harmonygo",
+      "sessionId": "sess-claude-drive-b2296",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -126,5 +144,5 @@
     "branch": "story/B-2296",
     "createdAt": "2026-07-26T11:51:39.090Z"
   },
-  "currentReviewRound": "2026-07-27T10:32:29.627Z"
+  "currentReviewRound": "2026-07-27T10:45:11.471Z"
 }
