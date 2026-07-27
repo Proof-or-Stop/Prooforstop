@@ -101,6 +101,40 @@
         "scanEscalationReason": null
       },
       "_hash": "01cd36c4330daa0bbf45687dd29a15fb1573ad2d05b0ad478474ed06292a154e"
+    },
+    {
+      "id": "B-2aa7:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 test-coverage re-review after two cross-host security fixes (470d52fd1a write-quarantine-race, d4adac6847 quarantine-derivation). Both new red regressions independently confirmed to bite: rebuilt pre-fix trees at each fix commit parent (b207d4645b for the race, 357ab0f07f for the injection), copied the unmodified regression file in, built, and observed FAIL (race: quarantined original deleted + malformedRecords persisted to disk; injection: 72 checks failed including live payload injection into on-disk records and TypeErrors) then re-ran on HEAD and observed PASS. Verified the race test injects only while the chain lock dir exists and asserts the pre-lock read saw a clean artifact (prelockSawQuarantine===false) plus >=1 locked read, matching the real precheck-then-locked-read structure in append.ts/red-evidence.ts. Both files registered in lattice.config.json; red-b2aa7-chk007-receipt.mjs registration-derivation check passed (15 on-disk red-b2aa7-*.mjs receipts = 13 registered + 2 deliberately-excluded pre-fix attestations). All 33 verificationIntent rows executable receipts re-ran green; CHK-002/CHK-007 invariance digest still 2d584cc1... unchanged. red-b2aa7-artifact-validation.mjs blocks A/B/C/D all 20/20 GREEN, file byte-unchanged across both fix commits (git diff empty) so no existing row was weakened. No open findings; no blocker to register.",
+      "createdAt": "2026-07-27T04:39:23.745Z",
+      "reviewRound": "2026-07-27T04:25:36.270Z",
+      "reviewRunId": "B-2aa7:RR-010",
+      "envelopeId": "c2474bc49862818036166d2566fc47820e725b2166823dd4bb371b0488ae0abe",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/background.md",
+          ".lattice/story/actives/B-2aa7/plan.md",
+          "packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs",
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          ".lattice/story/actives/B-2aa7/findings.json",
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1412df282d1d180900d3c42d1fa0a54b817d6c469816d0ded776445dc6764aa6"
     }
   ]
 }
