@@ -121,6 +121,24 @@
       ],
       "signatureTag": "adversarial|mjs|population-reachability-claim",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49d4:F-007",
+      "desc": "The PLANTED_MEMBER_IS_LOAD_BEARING row in red-b49d4-registration-derivation.mjs (assertion at lines 442-450, probe body constructed at lines 407-416) is tautological and adds no discriminating coverage. The test writes a literal script containing process.exit(3) to a mkdtemp mirror (line 416, 437-438) and then asserts: the spawned probe exits non-zero (guaranteed, since the script it just wrote unconditionally calls process.exit(3)), that its src counterpart exists (guaranteed, since the same test just wrote that exact file at line 438), and that no repo copy exists (guaranteed by construction, since nothing ever writes those paths into the real repo). None of these three conjuncts depend on the guard under test (red-w2c-validate-registration.mjs) at all -- the guard is not even invoked until the next row, GUARD_DETECTS_UNREGISTERED_MEMBER, which is the actual discriminating assertion. This row inflates the reported GREEN count (currently 25 rows, 0 RED / 25 GREEN on current HEAD 4dcbf91) with a self-verifying setup check rather than a guard-behavior assertion. Confirmed still present and unchanged by the two post-review-draft fix commits (def4df7f18, 0b1ef6a6f7), which touched CHK-002/CHK-003 registration logic, not this BLOCK A setup-verification row. Low risk of masking a real gap since the adjacent GUARD_DETECTS_UNREGISTERED_MEMBER row does the real assertion, but the row should either be removed or reworded as a setup-sanity check rather than counted as a guard-behavior proof point.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-27T19:18:39.973Z",
+      "reviewRound": "2026-07-27T19:06:55.751Z",
+      "reviewRunId": "B-49d4:RR-008",
+      "_hash": "a8eff7e20ce9e275be5fbaff21fcee56df6dc86cf0c9574b2993929ab7686a52",
+      "files": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "signatureTag": "missing|mjs|planted-member-load",
+      "signatureTagSource": "auto"
     }
   ]
 }
