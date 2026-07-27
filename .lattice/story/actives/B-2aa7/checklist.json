@@ -868,7 +868,11 @@
           {
             "desc": "A malformed entry is reported even when a satisfying record precedes it, so Array.prototype.some short-circuiting can no longer hide it.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+              "selector": "MALFORMED_REPORTED_BEHIND_SATISFIER"
+            }
           }
         ],
         "adversarial": [
@@ -908,6 +912,26 @@
           "materialHash": "decb351dcf6ae7fe4296b3a2a0675ebb322eb6b91bba64c55ba10470de684e8d",
           "storyFilesHash": "705bced5d932735d17c681e1e92d54ca92c78857c5517f220f93387812acd040",
           "timestamp": "2026-07-27T01:20:15.692Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "result": "pass",
+          "note": "BLOCK C rows C2 and C3. This is the half Array.prototype.some used to swallow whole: pre-fix, some() returned true at index 0 and the malformed record that followed was NEVER EXAMINED, so the gate reported SATISFIED over a corrupt artifact. C2 covers 12 cases - four malformed flavours ({id:'corrupt'} versionless, observedFailure:null, observedFailure:123, and a record that is itself an ARRAY) at each of three depths behind 1, 2 and 3 satisfying records - so no fix can pass by special-casing index 1 or the single shape row A13 happens to use. Each case must REPORT the entry: retained verbatim on the quarantine surface, at its TRUE index, with that index named in the reason, and removed from the clean records array the typed domain sees. Observed reportedAtTrueIndex=12/12, silentPassThrough=0/12, attributedIndexExact=12/12, attributedIndices=[1,2,3,1,2,3,1,2,3,1,2,3] - the exact per-case index, which is what makes C1's index-stripping safe rather than a blind spot. The required predicate is phrased as a disjunction (quarantine at the true index OR wholesale rejection by a typed error naming the path) so it states the REQUIREMENT that corruption must not pass unnoticed, not one implementation of it. C3 adds the stronger anti-short-circuit statement: detection must be EXHAUSTIVE, not first-match. Three malformed entries stacked behind one satisfier are all accounted for (satisfierFirstReported=3, malformedFirstReported=3) and both orders share ONE position-free observable (ordersAgree=true) - so a fix that merely stopped at the first MALFORMED entry instead of the first satisfying one would still fail. Non-vacuity: on the rebuilt pre-fix archive of 6d7c20bb4b this same file reports C2 with reportedAtTrueIndex=0/12, silentPassThrough=12/12, attributedIndices all 'none', and C3 with satisfierFirstReported=0 and ordersAgree=false. By mutation on an isolated rebuilt copy of HEAD: discarding the position pointer (index forced to 0) fails C2 while C1 stays green, and retaining only one canonically-chosen malformed entry - order-independent but not exhaustive - fails C3 while C1 and C2 stay green, so each row is doing its own work.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed25886b63e7949e42b492236320d3672e3c3ff6b9d3177147c9b7640095b756",
+            "outputTail": "ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)\nMALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)\nO2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in `records` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — unvalidatedCodes=[], unvalidatedQuarantined=0, validatedCodes=[], validatedQuarantinedIndex=1)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:20:40.092Z"
+          },
+          "headHash": "9f735ca66536fc7a948fe089f96689f75f7620bf",
+          "materialHash": "decb351dcf6ae7fe4296b3a2a0675ebb322eb6b91bba64c55ba10470de684e8d",
+          "storyFilesHash": "705bced5d932735d17c681e1e92d54ca92c78857c5517f220f93387812acd040",
+          "timestamp": "2026-07-27T01:20:40.251Z"
         }
       ]
     },
