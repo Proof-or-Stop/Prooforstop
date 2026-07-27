@@ -9,7 +9,14 @@
 import type { HandlerContext } from './context.js';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import type { AcceptanceBasisArtifactV1, AcceptanceRolloutCohortInputV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, RedEvidenceRecord } from '../core/types.js';
+import type { AcceptanceBasisArtifactV1, AcceptanceRolloutCohortInputV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, RedEvidenceData, RedEvidenceRecord } from '../core/types.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceQuarantinedRecords,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+  restoreQuarantinedRecords,
+} from '../core/red-evidence-artifact-validation.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -392,6 +399,30 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     return tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root, gitCwd);
   }
 
+  /**
+   * B-2aa7 CHK-006. `store.readRedEvidence` REJECTS an unreadable artifact with
+   * a typed error (D-8 / row E7). That error already opens with the corruption
+   * marker and names the artifact path, so it is corruption-distinct on its own;
+   * this only adds the §9 repair instruction at a TERMINAL rendering site.
+   *
+   * Deliberately applied around the caller, never inside `diagnosticInput`: that
+   * builder is shared, and rewrapping there would launder
+   * `RedEvidenceArtifactError` / `RedEvidenceSchemaError` into a plain `Error`
+   * for every consumer that discriminates on the class.
+   */
+  function withRedEvidenceCorruptionContext<T>(storyId: string, fn: () => T): T {
+    try {
+      return fn();
+    } catch (e) {
+      const corruption = describeRedEvidenceReadFailure(e);
+      if (corruption === null) throw e;
+      throw new Error(
+        `ProofStory diagnostics cannot be evaluated for ${storyId}: its red-evidence artifact is corrupt, which is ` +
+          `NOT the same as an absent one — there is no verdict to report.\n${corruption}\n${redEvidenceRepairGuidance(storyId)}`,
+      );
+    }
+  }
+
   function diagnosticInput(storyId: string): ProofStoryDiagnosticInput {
     const story = store.readStory(storyId);
     const checklist = readChecklistSafe(storyId);
@@ -407,6 +438,8 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       intentCollision: store.readIntentCollision(storyId),
       scopeContract: store.readScopeContract(storyId),
       scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+      // The typed read-boundary error propagates from here UNCHANGED (B-2aa7
+      // CHK-006); operator context is added by callers, not by this builder.
       redEvidence: store.readRedEvidence(storyId),
       spikeEvidence: store.readProofStorySpikes(storyId),
       summary: store.readSummary(storyId),
@@ -416,9 +449,18 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   }
 
   function renderGateReport(storyId: string, args: JsonFlag & ModeFlag): string {
-    const report = evaluateProofStoryDiagnostics(diagnosticInput(storyId), resolveMode(args));
-    if (args.json) return enforceOrRender(report, stringify(report));
-    return enforceOrRender(report, renderProofStoryDiagnosticReport(report));
+    const input = withRedEvidenceCorruptionContext(storyId, () => diagnosticInput(storyId));
+    const report = evaluateProofStoryDiagnostics(input, resolveMode(args));
+    // B-2aa7 CHK-006. A QUARANTINED artifact does not throw: `records` arrives
+    // clean, so the report can read exactly like "no red evidence configured".
+    // Lead with the corruption so the operator is never told a corrupt file is
+    // an absent one. The VERDICT is untouched — this renders, it does not judge.
+    const corruption = renderRedEvidenceQuarantineNotice(storyId, input.redEvidence);
+    if (args.json) {
+      return enforceOrRender(report, stringify(corruption === null ? report : { ...report, redEvidenceCorruption: corruption }));
+    }
+    const rendered = renderProofStoryDiagnosticReport(report);
+    return enforceOrRender(report, corruption === null ? rendered : `${corruption}\n${rendered}`);
   }
 
   function rejectBasisWriteShape(args: Record<string, unknown>, allowed: readonly string[]): void {
@@ -1210,11 +1252,48 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       store.readStory(args.storyId);
       const baselineHeadHash = args.baselineHeadHash ?? currentGitHead(ctx.root);
       const baselineMaterialHash = args.baselineMaterialHash ?? currentMaterialHash(ctx.root, 'HEAD', ctx.root);
-      const evidence = appendRedEvidence({
+      // ── B-2aa7 CHK-006, §10.4 row C2 — THE DATA-LOSS SITE.
+      //
+      // This is the repair path: §9 says an operator must be able to fix a
+      // corrupt artifact by appending a good record. But the append REBUILDS the
+      // envelope from the read result, and D-4 quarantine hands it a CLEAN
+      // `records` array — so a naive read→append→write would persist the clean
+      // subset and DELETE the malformed originals. The operator would destroy
+      // the evidence they came to repair, silently, with one command.
+      //
+      // Two branches, and each is one of the two outcomes C2 allows:
+      //
+      //   ENVELOPE FAULT -> REFUSE, with a message that names the corruption and
+      //     the repair path. There is no readable envelope to append to, so any
+      //     write here would overwrite a file whose contents we cannot even
+      //     enumerate. `red_evidence_get` still displays it (C1), so the
+      //     artifact stays diagnosable — it is refused, not abandoned.
+      //
+      //   QUARANTINE -> REPAIR BY APPENDING. `restoreQuarantinedRecords` puts
+      //     every quarantined original back at its on-disk index, so what is
+      //     written is the artifact as it was plus the new record. Nothing is
+      //     lost, and the next read quarantines the same entries again.
+      let existing: RedEvidenceData | null;
+      try {
+        existing = store.readRedEvidence(args.storyId);
+      } catch (e) {
+        const corruption = describeRedEvidenceReadFailure(e);
+        if (corruption === null) throw e;
+        throw new Error(
+          `red_evidence_create refused: this story's red-evidence artifact cannot be read as an envelope, so appending ` +
+            `would overwrite records that are still on disk. Nothing written.\n${corruption}\n` +
+            `${redEvidenceRepairGuidance(args.storyId)}`,
+        );
+      }
+      const quarantined = redEvidenceQuarantinedRecords(existing);
+      const appended = appendRedEvidence({
         ...args,
         baselineHeadHash,
         baselineMaterialHash,
-      }, store.readRedEvidence(args.storyId));
+      }, existing);
+      // Identity on a clean/absent read; throws rather than write a lossy
+      // envelope if retention cannot be proven.
+      const evidence = restoreQuarantinedRecords(existing, appended);
       store.writeRedEvidence(args.storyId, evidence);
       if (args.json) return stringify(evidence);
       // red_evidence_create only ever appends a v1 record (appendRedEvidence),
@@ -1226,15 +1305,59 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `Target: ${latest?.acceptanceTargetRef ?? 'unknown'}`,
         `Baseline head: ${latest?.baselineHeadHash ?? 'unknown'}`,
         `Baseline material: ${latest?.baselineMaterialHash ?? 'unknown'}`,
+        ...(quarantined.length === 0
+          ? []
+          : [
+            `Retained quarantined records: ${quarantined.length} (still on disk, at their original positions — repaired by appending, nothing dropped)`,
+            renderRedEvidenceQuarantineNotice(args.storyId, existing) ?? '',
+          ]),
       ].join('\n');
     },
 
     red_evidence_get(args: { storyId: string; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
-      const evidence = store.readRedEvidence(args.storyId);
+      // ── B-2aa7 CHK-006, §10.4 row C1 / §9.
+      //
+      // This is the DIAGNOSTIC command, so a throwing read boundary breaks it
+      // first and locks the operator out of inspecting the very file they must
+      // repair. It must DISPLAY corruption, never abort on it — and it must not
+      // reuse the `not configured` wording, because "corrupt" reading as
+      // "absent" is the defect this story exists to remove.
+      let evidence: RedEvidenceData | null;
+      try {
+        evidence = store.readRedEvidence(args.storyId);
+      } catch (e) {
+        const corruption = describeRedEvidenceReadFailure(e);
+        if (corruption === null) throw e;
+        const result = {
+          storyId: args.storyId,
+          status: 'corrupt',
+          corruption: { kind: 'read_rejected', message: corruption },
+        };
+        return args.json
+          ? stringify(result)
+          : `Red evidence: CORRUPT\nStory: ${args.storyId}\n${corruption}\n${redEvidenceRepairGuidance(args.storyId)}`;
+      }
       if (!evidence) {
         const result = { storyId: args.storyId, status: 'not_configured', message: 'No red evidence.' };
         return args.json ? stringify(result) : `Red evidence: not configured\nStory: ${args.storyId}`;
+      }
+      const quarantined = redEvidenceQuarantinedRecords(evidence);
+      if (quarantined.length > 0) {
+        // The artifact loaded, so the well-formed records are shown as usual —
+        // but the quarantined originals are shown TOO, verbatim, which is what
+        // makes this a diagnosis rather than a partial view.
+        const corruption = renderRedEvidenceQuarantineNotice(args.storyId, evidence) ?? '';
+        const result = {
+          storyId: args.storyId,
+          status: 'corrupt',
+          corruption: { kind: 'quarantined_records', count: quarantined.length, message: corruption, records: quarantined },
+          evidence,
+        };
+        return args.json
+          ? stringify(result)
+          : `Red evidence: CORRUPT (${quarantined.length} quarantined record(s))\nStory: ${args.storyId}\n`
+            + `${corruption}\n${redEvidenceRepairGuidance(args.storyId)}\n${stringify(evidence)}`;
       }
       return renderStored('Red evidence', evidence, args);
     },

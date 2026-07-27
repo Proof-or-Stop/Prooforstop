@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-2aa7",
+  "sourceText": "Pre-existing defect found by a cross-host (codex) reviewer during story B-506e (W2c) review, deliberately NOT fixed there because it is out of that story's scope and is unchanged from main. Defect: a MALFORMED VERSIONLESS record in .lattice/story/actives/<id>/red-evidence.json crashes the LIVE dev/review/done enforce gate with a bare TypeError instead of being rejected as corrupt or treated as a safe non-satisfier. Suggested fix: make the v1 branch shape-safe and fail-closed. Hard constraint: this MUST NOT change any valid v1 verdict. Ship a committed regression. Follow the normal Proof-or-Stop story lifecycle for this repo (this is a material code change, so it needs a real story: repro-first RED, then the fix). Subsequent operator decisions in the same session approved full validation, quarantine as the rejection form, and a mandatory migration scan.",
+  "normalizedOutcome": "An operator whose red-evidence.json is corrupt gets a controlled, diagnosable failure that names the artifact path, the offending record index or id, and the offending field; can still inspect the artifact and repair it through the CLI; and can tell corruption apart from a simply absent artifact. No valid v1 verdict changes.",
+  "acceptanceClaim": "On the fixed tree, every malformed red-evidence artifact - malformed record, malformed envelope, non-object JSON root, or unparseable file - produces a controlled typed outcome rather than a bare TypeError or a silent misread as absent evidence, while the pinned five-scenario v1 invariance digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec is unchanged.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:533bbf1a54d4b6596fd5f5d1f466e1596272d57468e540f70bb28a85164ca3ce",
+  "createdAt": "2026-07-26T22:53:35.611Z",
+  "updatedAt": "2026-07-26T22:53:35.611Z"
+}

@@ -1,0 +1,209 @@
+{
+  "passes": [
+    {
+      "id": "B-2aa7:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage audit of all 11 checklist items / 33 intent-evidence pairs: reproduced every pinned command and outputDigest by hand (sha256 matched exactly for chk004/chk011/doc and eyeballed for all others); mutation-tested all 7 fail-closed receipts (chk004,chk005,chk006,chk009,chk011,doc,baseline) by suppressing one required-marker condition in a throwaway copy and confirming non-zero exit, then removed the copies (HEAD clean); confirmed chk001/chk010 receipts are correctly silent+exit0 post-fix and that their underlying invariants (Block A defect classes, Block B CHK-010 invariants) remain live-guarded via the registered shared artifact-validation.mjs file, not orphaned; verified Block A/B/C/D (20 RED_ROWS + 3 invariant rows) are structurally labeled, mutually-exclusive-asserted, and stale-row-detected so no row can be silently weakened; investigated the one apparent gap (core/red-evidence/append.ts read call site absent from CHK-006 9-consumer list) and confirmed it is architecturally unreachable with corrupt data because handlers/red-evidence.ts readRedEvidenceForChain refuses upstream before appendControlRecord runs, and that upstream guard is itself exercised by the registered consumer tests. No blocking test-coverage defects found.",
+      "createdAt": "2026-07-27T02:47:22.202Z",
+      "reviewRound": "2026-07-27T02:31:52.563Z",
+      "reviewRunId": "B-2aa7:RR-003",
+      "envelopeId": "901ed7c14b66340427860cd99bec9373f4bffc0b92f9ce5a19a6f37b117a1281",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          ".lattice/story/actives/B-2aa7/findings.json",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk010-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e59da6dfd978a6b8558b5377829a4434b118dfa89da4d5a5e94a417b83caa12"
+    },
+    {
+      "id": "B-2aa7:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review scoped to the F-005 fix (commit 0b7217f170) plus the adjoining doc-cluster commit bc16eaf87f, per dispatch. Verified assertTargetInExpected now builds a narrow ExpectedRedTargetsInput (originalIntentSnapshot/proofStoryContract/milestoneLedger via readTrustedProofStoryScopeArtifacts) instead of the full proofStoryDiagnosticInput, so it no longer calls store.readRedEvidence() at all; confirmed by source inspection that this is the exact same three fields/readers/resolver as before (resolveExpectedRedTargets unchanged), so the computed membership Set cannot move -- the new receipt asserts this equivalence on two fixtures (populated + empty) and no counterexample was found. Confirmed the one behavioral change is real and acceptable: on a corrupt artifact plus an out-of-set target, red_evidence_binding_set now reaches the membership refusal (byte-identical to the absent-artifact run) instead of aborting with the bare corruption error; this is a diagnostic-specificity trade-off, not a safety regression -- nothing is written in either case, quarantine/recover still surface corruption first via findV2Record -> readRedEvidenceForChain (order unchanged, verified in source), and binding_set with an in-set target still surfaces the guided corruption error later in the same call via readRedEvidenceForChain. Reproduced red-b2aa7-f005-receipt.mjs against a rebuilt pre-fix tree (parent commit bc16eaf87f, isolated worktree plus build): exit 1 with exactly 2 of 3 required markers withheld (BINDING_SET_CORRUPTION_IS_ACTIONABLE and MEMBERSHIP_GATE_DOES_NOT_READ_RED_EVIDENCE withheld; EXPECTED_RED_TARGETS_SET_UNCHANGED still emitted), matching the commit message claim exactly; post-fix it emits all 3 markers and exits 0. Also reproduced the claim that red-b2aa7-chk006-receipt.mjs passes identically pre- and post-fix (9/9 consumers, exit 0 both times) -- confirming it could not have caught F-005, since it only asserts the corruption is named, which the bare pre-fix error already did. Verified bc16eaf87f only changed one line of comment text in core/red-evidence-artifact-validation.ts (red_evidence_add -> red_evidence_create), no behavior touched; all other changes in that commit are to the decision doc. Ran the full tests/red directory (30 files) plus validate --lint: all green. No new quality-scope defect found in the CL-003 change itself (no dead code, no unnecessary any, no I/O-isolation issue -- the root param was correctly dropped from assertTargetInExpected because it is no longer needed and remains used elsewhere in the same file). Note: F-006 and F-007 (lattice-review-concept, this same round) are open and unresolved -- doc drift and missing lattice.config.json wiring for the new receipt -- but those sit outside this quality-review scope and are already registered by their owning reviewer, so they are not duplicated here.",
+      "createdAt": "2026-07-27T03:17:03.635Z",
+      "reviewRound": "2026-07-27T03:03:06.893Z",
+      "reviewRunId": "B-2aa7:RR-006",
+      "envelopeId": "03c94a20cd681563ebe6bb5bd66bf3f9af98c8226c918ef6622ca1fa594e190b",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/findings.json",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "lattice.config.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc6ba49d09a57a40cceb2cb6bcc6b1b90a1cb3fee13463dc392bff39a9268355"
+    },
+    {
+      "id": "B-2aa7:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 incremental test-coverage review of CL-003/CL-004. Independently reproduced (pre-fix vs post-fix builds) that red-b2aa7-f005-receipt.mjs genuinely distinguishes fixed-from-broken while red-b2aa7-chk006-receipt.mjs is byte-identical before/after CL-003. Confirmed doc-receipt and baseline-receipt digests still reproduce exactly despite the doc rewrite (no evidence staleness). The two real coverage gaps I found (f005-receipt unregistered in lattice.config.json/verificationEvidence; doc reachability table stale for readRedEvidenceForChain) are already open as B-2aa7:F-007 and B-2aa7:F-006/F-008 from this same round, filed by other reviewer lanes with matching or more precise detail; no new test-coverage-specific blocker to add.",
+      "createdAt": "2026-07-27T03:18:58.695Z",
+      "reviewRound": "2026-07-27T03:03:06.893Z",
+      "reviewRunId": "B-2aa7:RR-008",
+      "envelopeId": "2691900413edfd1101869daf3f3bd767ceb15140fdc5fbe28d8288666093eb61",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/background.md",
+          ".lattice/story/actives/B-2aa7/plan.md",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01cd36c4330daa0bbf45687dd29a15fb1573ad2d05b0ad478474ed06292a154e"
+    },
+    {
+      "id": "B-2aa7:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 test-coverage re-review after two cross-host security fixes (470d52fd1a write-quarantine-race, d4adac6847 quarantine-derivation). Both new red regressions independently confirmed to bite: rebuilt pre-fix trees at each fix commit parent (b207d4645b for the race, 357ab0f07f for the injection), copied the unmodified regression file in, built, and observed FAIL (race: quarantined original deleted + malformedRecords persisted to disk; injection: 72 checks failed including live payload injection into on-disk records and TypeErrors) then re-ran on HEAD and observed PASS. Verified the race test injects only while the chain lock dir exists and asserts the pre-lock read saw a clean artifact (prelockSawQuarantine===false) plus >=1 locked read, matching the real precheck-then-locked-read structure in append.ts/red-evidence.ts. Both files registered in lattice.config.json; red-b2aa7-chk007-receipt.mjs registration-derivation check passed (15 on-disk red-b2aa7-*.mjs receipts = 13 registered + 2 deliberately-excluded pre-fix attestations). All 33 verificationIntent rows executable receipts re-ran green; CHK-002/CHK-007 invariance digest still 2d584cc1... unchanged. red-b2aa7-artifact-validation.mjs blocks A/B/C/D all 20/20 GREEN, file byte-unchanged across both fix commits (git diff empty) so no existing row was weakened. No open findings; no blocker to register.",
+      "createdAt": "2026-07-27T04:39:23.745Z",
+      "reviewRound": "2026-07-27T04:25:36.270Z",
+      "reviewRunId": "B-2aa7:RR-010",
+      "envelopeId": "c2474bc49862818036166d2566fc47820e725b2166823dd4bb371b0488ae0abe",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/background.md",
+          ".lattice/story/actives/B-2aa7/plan.md",
+          "packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs",
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          ".lattice/story/actives/B-2aa7/findings.json",
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1412df282d1d180900d3c42d1fa0a54b817d6c469816d0ded776445dc6764aa6"
+    },
+    {
+      "id": "B-2aa7:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round 5, quality pass over the two cross-host security fixes (470d52fd1a write-boundary quarantine retention, d4adac6847 strictly-derived malformedRecords) plus the incremental changed set. Traced withDerivedQuarantine as the sole ok:true producer in classifyRedEvidenceArtifact (no path still returns a raw parsed envelope); confirmed the identity fast path only shortcuts when no malformedRecords key is inherited and nothing new was derived, so it cannot leak a stale or planted classification. Rebuilt and ran red-b2aa7-artifact-validation.mjs, red-b2aa7-quarantine-derivation.mjs, red-b2aa7-write-quarantine-race.mjs, red-b2aa7-chk007-receipt.mjs, red-w2c-v1-verdict-invariance.mjs (digest 2d584cc1 unchanged) and every other red-b2aa7 receipt: all green, migration scan 0 affected. No dead code, no as-any or ts-ignore or empty catch, no shell-imports-fn.ts issue introduced by these two commits; tsc build clean. One medium finding registered (F-009): retainQuarantinedRecordsOnWrite and redEvidenceQuarantinedRecords only verify SHAPE of malformedRecords, not provenance, so a hand-built (not store.readRedEvidence-derived) RedEvidenceData with a well-shaped malformedRecords entry still gets re-inserted into records on write, empirically reproduced, contradicting the module doc comment claim that a hand-built payload cannot smuggle one in. Not exploitable via any current call site, since all three writeRedEvidence callers honestly derive from a prior read, so non-blocking; no other blocking issue found in this round.",
+      "createdAt": "2026-07-27T04:40:31.323Z",
+      "reviewRound": "2026-07-27T04:25:36.270Z",
+      "reviewRunId": "B-2aa7:RR-009",
+      "envelopeId": "77d10dcefec4d80182c39c5096c43f803abb8b0e04fa3c73058ca21f14faf062",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs",
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aad38d183db6138ed5b3d31375e9b13999515a3ed1daeb51de1436f4779db334"
+    },
+    {
+      "id": "B-2aa7:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 6, F-009 fix (cd11bab5c7) verified by hostile re-derivation, not by re-reading the diff. Registration route, freeze consequence, DoS reachability, legitimate-writer safety, and comment accuracy all re-derived and confirmed true; all pinned smokes rerun green with digest unchanged. No blocking issue found.",
+      "createdAt": "2026-07-27T05:05:50.857Z",
+      "reviewRound": "2026-07-27T04:59:05.649Z",
+      "reviewRunId": "B-2aa7:RR-012",
+      "envelopeId": "b8e2d2a3fd8d13cdd2bbc0a0c8d88a55f1c7529e20620f01b5540dde2199628b",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5fb43a356fa0e4a6eb2210b0b7306cbb5cf167de5d3651796c20bc71dbf4e993"
+    }
+  ]
+}

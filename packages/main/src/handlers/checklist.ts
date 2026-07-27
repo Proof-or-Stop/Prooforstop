@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
-import { buildVerificationCoverage, collectVerificationIntents, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { createHash } from 'crypto';
 import { isDeliveredChecklistStatus, isTerminalChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
@@ -871,7 +871,15 @@ function writeStaleRefresh(
       let refreshedMechanical = ev.mechanical;
       let refreshedReceipt = ev.receipt;
       let refreshedReason = ev.nonMechanicalReason;
-      if (ev.mechanical === true) {
+      // B-3b88 CHK-002: ANY command-backed result:pass that reaches this path was NOT
+      // re-executed (no fresh receipt above), so it must never be re-stamped as a
+      // still-valid pass. Demote unconditionally — including legacy rows whose
+      // `mechanical` is undefined, which would otherwise pass straight through and be
+      // silently re-certified on new material (the F-045/F-046/F-047 laundering bug).
+      const unexecutedCommandBackedPass = typeof ev.command === 'string'
+        && ev.command.length > 0
+        && ev.result === 'pass';
+      if (ev.mechanical === true || unexecutedCommandBackedPass) {
         refreshedMechanical = false;
         refreshedReceipt = undefined;
         refreshedReason = ev.nonMechanicalReason
@@ -1486,6 +1494,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (args.waiverType && kind !== 'waiver') {
         throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
       }
+      const contradiction = detectEvidenceRowContradiction({ command: args.command, file: args.file });
+      if (contradiction) {
+        throw new Error(`verification_evidence_add: ${contradiction}`);
+      }
 
       // B-ec67: run the pinned command / resolve enforcement OUTSIDE the checklist
       // lock (execution is async; withChecklistLock releases synchronously). The
@@ -1574,6 +1586,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const kind = normalizeEvidenceKind(entry.kind);
         if (entry.waiverType && kind !== 'waiver') {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType can only be used with kind=waiver`);
+        }
+        const entryContradiction = detectEvidenceRowContradiction({ command: entry.command, file: entry.file });
+        if (entryContradiction) {
+          throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} ${entryContradiction}`);
         }
         normalizedKinds.push(kind);
       }
