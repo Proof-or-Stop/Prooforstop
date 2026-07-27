@@ -146,6 +146,25 @@
       ],
       "signatureTag": "missing|json|missing-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2aa7:F-008",
+      "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §4.2 (lines 302-325) is stale/incomplete at CURRENT HEAD. Row 3 (assertTargetInExpected -> handlers/phase-gates.ts proofStoryDiagnosticInput) is now FALSE: commit 0b7217f170 (CL-003) removed that import from packages/main/src/handlers/red-evidence.ts and replaced the call with a narrow expectedRedTargetsInput builder that never touches store.readRedEvidence -- verified by reading the current file (no proofStoryDiagnosticInput import remains). The doc text at lines 322-325 (\"Row 3 is also expected to leave this table... Re-derive against the current tree rather than assuming either state\") was written in commit bc16eaf87f, which landed BEFORE the severing commit 0b7217f170 -- so at current HEAD this is a settled fact, not an open question, and the hedged/future-tense wording is now stale. More importantly, simply deleting Row 3 (as the hedge anticipates) would create a real completeness gap, not just a tense problem: red_evidence_binding_set still reaches store.readRedEvidence post-fix, directly, via readRedEvidenceForChain at handlers/red-evidence.ts:224 (const evidence = readRedEvidenceForChain(store, args.storyId, (quote)red_evidence_binding_set(quote));) -- a path that pre-dates CL-003 too (CL-003s own commit message says red_evidence_binding_set read the artifact TWICE, once through readRedEvidenceForChain, once through the now-removed call). But §4.2s readRedEvidenceForChain (#6) row (line 315) lists only findV2Record <- appendChainControl as reachers and only red_evidence_quarantine, red_evidence_recover as the operator-visible surface -- it omits red_evidence_binding_sets direct call. This omission predates CL-003 (present since the CL-004 doc restructure) but becomes load-bearing now that Row 3 is retiring: it is the only place red_evidence_binding_sets reach to the boundary should be documented, and today it is not documented there. This recreates, inside the very section built to fix it, the exact failure mode §4.0 narrates (a consumer reaching the boundary through a shared builder that a grep-based/stale inventory misses). Separately CONFIRMED ACCURATE at current HEAD: §4.1s direct-call-site count of NINE (re-derived independently via grep of store.readRedEvidence( across packages/main/src excluding tests/ and src/tasks/*-smoke.ts, matching all 9 listed symbols/rows exactly) and §4.2 rows 1, 2, 4, 6 (verified against current core/machine.ts, handlers/phase-gates.ts, handlers/proofstory.ts, handlers/red-evidence.ts, core/red-evidence/append.ts). Fix: state Row 3s severing definitively (not hedged) and add red_evidence_binding_set to the readRedEvidenceForChain (#6) row (or a dedicated row) so the enumeration stays complete for the current tree.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-27T03:11:27.721Z",
+      "reviewRound": "2026-07-27T03:03:06.893Z",
+      "reviewRunId": "B-2aa7:RR-005",
+      "_hash": "0f359fc9245d10bfcccd6a09363789e881baf98dae43c1e8ac4b22706c38d5f4",
+      "files": [
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+        "packages/main/src/handlers/red-evidence.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
