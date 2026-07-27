@@ -364,7 +364,11 @@
           {
             "desc": "Envelope rows E5, E6 and E7 each behave as specified: a non-object root is rejected rather than read as absent, a missing or unknown file-level schemaVersion does not degrade to v1, and an unparseable file yields a typed error naming the path instead of a raw SyntaxError.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+              "selector": "ENVELOPE_ROWS_E5_E6_E7"
+            }
           }
         ],
         "adversarial": [
@@ -407,6 +411,26 @@
           "materialHash": "ec829c0a2741dc66ae26045c0a104fbd9e3e1d18a7d5a9116aa072953c23e588",
           "storyFilesHash": "3d8002a0677044efdfdbcc51c47ee7006150058e1121104100073c6c32e8ac37",
           "timestamp": "2026-07-27T00:43:33.051Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "result": "pass",
+          "note": "Envelope rows E5, E6 and E7 each observed against the real read boundary, and the marker prints only when ALL THREE hold together. E5: each of the four non-object JSON roots ([], \"x\", null, 42) is rejected with a typed RedEvidenceArtifactError code=root_not_object naming the absolute artifact path, AND its report no longer equals the ABSENT baseline computed earlier in the same run - pre-fix all four flowed through as the raw parsed value and were byte-identical to an absent artifact, which is why a crash-only fix would have left them untouched. E6: a missing file-level schemaVersion yields code=schema_version_missing and an unknown one yields code=schema_version_unknown, neither degrading to v1 (D-1). Its discriminating control is exact: both fixtures carry the SAME satisfying v1 record as the CLEAN baseline, which the same run observes SATISFYING the gate under a v1 envelope, so the rejection is caused by the schemaVersion member alone and not by the record. E7: the unparseable file STILL THROWS - the requirement is a typed throw, not the absence of one - and the escaping error is asserted to be non-builtin, NOT a SyntaxError, name=RedEvidenceArtifactError, code=unparseable, and to name the path. Gating proven by replay: this marker is ABSENT on the pre-fix tree (git archive HEAD, rebuilt) and PRESENT on the fixed tree.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c12d94593c26a376b1517491de48db9be75fd0e825cede0b4ec4190e766d4ae",
+            "outputTail": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; the pre-fix-pinned five-scenario digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec still reproduces; control=one malformed record appended is discriminated)\nENVELOPE_ROWS_E5_E6_E7 (E5: 4/4 non-object roots rejected as root_not_object and no longer read as ABSENT; E6: missing -> schema_version_missing and unknown -> schema_version_unknown, neither degrading to v1 while the same record SATISFIES under a v1 envelope; E7: still THROWS, typed RedEvidenceArtifactError(unparseable) naming the path, not a raw SyntaxError)\nQUARANTINE_RETAINS_AND_ATTRIBUTES (rejected entry RETAINED verbatim at index=1 id=\"corrupt\" with reason and violations while records stays clean; full v1 field set enforced (missing:trigger flips a record the predicate never reads); blank observedFailure legacy-tolerated per D-5 — UNSATISFIED, no new diagnostic, never quarantined; envelope fault reported as records_not_array naming the path, never as \"a record must be an object\"; array record and prototype-inherited observedFailure both rejected, own-field null-prototype control accepted)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:43:48.510Z"
+          },
+          "headHash": "7236dd2c9cd42a690901c9fbaa66bbc8d15997dd",
+          "materialHash": "ec829c0a2741dc66ae26045c0a104fbd9e3e1d18a7d5a9116aa072953c23e588",
+          "storyFilesHash": "3d8002a0677044efdfdbcc51c47ee7006150058e1121104100073c6c32e8ac37",
+          "timestamp": "2026-07-27T00:43:48.699Z"
         }
       ]
     },
