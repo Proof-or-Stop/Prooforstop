@@ -30,6 +30,7 @@ import { runAcceptanceRolloutGate } from '../handlers/transition-orchestrator.js
 const projectRoot = resolve(process.cwd());
 const runnerPath = join(projectRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs');
 const issuerMutationMode = process.argv.includes('--issuer-mutations');
+const cohortArgPath = process.argv.find(arg => arg.startsWith('--cohort='))?.slice('--cohort='.length);
 let assertions = 0;
 
 function ok(value: unknown, message: string): asserts value {
@@ -47,7 +48,7 @@ function clone<T>(value: T): T {
 }
 
 function runCohort(path = runnerPath): AcceptanceRolloutCohortInputV1 {
-  const frozenInputPath = process.env.LATTICE_ROLLOUT_COHORT_INPUT_PATH;
+  const frozenInputPath = cohortArgPath || process.env.LATTICE_ROLLOUT_COHORT_INPUT_PATH;
   if (frozenInputPath) {
     return JSON.parse(readFileSync(frozenInputPath, 'utf8')) as AcceptanceRolloutCohortInputV1;
   }

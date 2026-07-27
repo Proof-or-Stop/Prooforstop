@@ -41,6 +41,7 @@ const storyId = process.env.LATTICE_ROLLOUT_COHORT_STORY_ID ?? 'B-pre-review-smo
 const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
+const cohortArgPath = process.argv.find(arg => arg.startsWith('--cohort='))?.slice('--cohort='.length);
 const consumerControlSource = "import { produceFact } from './producer.js'; export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n";
 const scenarioLedger = new Map<string, PreReviewCaseRecordV1>();
 let scenarioEventSequence = 0;
@@ -164,10 +165,10 @@ function selectActiveScenarioRecords(
 }
 
 function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohortInputV1 {
-  const frozenPath = process.env.LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE;
+  const frozenPath = cohortArgPath || process.env.LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE;
   if (!frozenPath) {
     throw new Error(
-      '--proof-scenarios requires LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE; ' +
+      '--proof-scenarios requires --cohort=<path> or LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE; ' +
       'scenario execution refuses to spawn the expensive registered cohort runner',
     );
   }
@@ -175,7 +176,7 @@ function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohor
   if (cohort.schemaVersion !== 'proofstory.acceptance_rollout_cohort_input.v1'
     || cohort.generatedBy !== 'runProofStoryAcceptanceRolloutCohort'
     || cohort.runnerPath !== 'scripts/run-proofstory-acceptance-rollout-cohort.mjs') {
-    throw new Error('LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE is not a registered cohort envelope');
+    throw new Error('--cohort / LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE is not a registered cohort envelope');
   }
   return cohort;
 }
@@ -183,7 +184,9 @@ function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohor
 if (liveProofMode) {
   const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
   if (!activeStoryId) throw new Error('--live-proof requires LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
-  const scenarioOutput = execFileSync(process.execPath, [fileURLToPath(import.meta.url), '--proof-scenarios'], {
+  const scenarioArgs = [fileURLToPath(import.meta.url), '--proof-scenarios'];
+  if (cohortArgPath) scenarioArgs.push(`--cohort=${cohortArgPath}`);
+  const scenarioOutput = execFileSync(process.execPath, scenarioArgs, {
     cwd: repositoryRoot,
     env: { ...process.env, LATTICE_PRE_REVIEW_SCENARIO_NESTED: '1' },
     encoding: 'utf8',
