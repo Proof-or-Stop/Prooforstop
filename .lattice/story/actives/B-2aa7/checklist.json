@@ -64,7 +64,11 @@
           {
             "desc": "The recorded baseline names the exact commit it was taken at, so a later reader can tell whether it predates the fix.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+              "selector": "BASELINE_COMMIT_PREDATES_FIX 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02"
+            }
           }
         ],
         "adversarial": [
@@ -102,6 +106,26 @@
           "materialHash": "ac749a849e5176f58cd69d865f9c72f1f93d8ccbd1ff28e4c329c2f33f2c90a4",
           "storyFilesHash": "d5aca3a419c81bc4e402ba01c362d36c427ac5e543808ac10c67d00106e5f802",
           "timestamp": "2026-07-27T00:04:31.499Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "result": "pass",
+          "note": "The baseline names its commit, and the naming is proven rather than asserted. The receipt pins BASELINE_COMMIT = 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02 and emits this selector only when three conditions hold together: the commit resolves; it is an ancestor-or-equal of HEAD, so it is genuinely on this story history; and its BLOB is pre-fix - at that commit the schema classify line in packages/main/src/core/proofstory.ts is IMMEDIATELY followed by the unguarded record.observedFailure.trim() dereference that CHK-005 will split apart, and packages/main/src/core/red-evidence-artifact-validation.ts (the CHK-004 validator) is absent from the tree. Because it reads the historical blob rather than the working tree, the assertion stays checkable after the fix lands, which is exactly what lets a later reader tell the baseline predates it. Condition-gating verified by negative runs: re-pinning BASELINE_COMMIT to an unresolvable sha, and to pre-B-506e main 1847b3af6d where the classify line does not yet exist, each suppress the marker while leaving the other marker intact.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "83b53b01bbacee43ea3fb4788eedff5fced20d56595399cf6b21bb374877e2a4",
+            "outputTail": "BASELINE_COMMIT_PREDATES_FIX 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02\nPINNED_CONSTANT_INTACT_PHANTOM_UNPINNED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:05:23.970Z"
+          },
+          "headHash": "fcb9c791d8802c7f8effb8a6402c5746851254ad",
+          "materialHash": "8675b1f6c400890cc3eb1873bc9e3bc05cabf5e5ba23769df8fbcf67bb4d9f62",
+          "storyFilesHash": "21f15eb6f8975ac2d2419b777fb521606e01d27a9bebf46aa2bbd4f6c9196b91",
+          "timestamp": "2026-07-27T00:05:24.091Z"
         }
       ]
     },
