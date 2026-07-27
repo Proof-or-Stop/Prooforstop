@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Commit a repro-first RED artifact proving the guard is blind and measuring what validate never runs",
       "context": "Must FAIL on current main before any fix. Three separate demonstrations, each needing its own assertion shape. BLINDNESS: place a genuine member of the guard's population that is registered nowhere and deliberately exits non-zero, run the guard, assert it exits 0 - and assert its success line reports the expectation's size rather than the population's, since that is why it can never reveal the gap. CONTROL: de-register one currently-listed command against a copy of lattice.config.json and assert the guard DOES exit non-zero, so the blindness result cannot be a broken experiment; the real config must not be edited. POPULATION: measure and assert how many packages/main/tests/red/*.mjs are neither registered in validate.commands nor reachable transitively from a registered command, accounting for the three that red-b2aa7-chk007-receipt.mjs spawns. Do not hard-code 15 or 18 - derive both numbers, because the whole point is that a fixed number goes stale.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-27T16:37:52.917Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
