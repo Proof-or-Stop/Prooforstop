@@ -75,10 +75,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 (post F-014 fix): verify-process-fact-contract.mjs exit 0 (Process fact contract verified). This supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "40d6da10766744ae3e4e8314be1e6bb9f7e972f5",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:10.880Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-001:edge:mirror-mode",
@@ -86,10 +86,10 @@
           "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): pre-review-check-smoke --proof-scenarios exit 0; this scenario record biting as designed (all 17 mutations bite, 5 positive + 1 transcript PASS). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "824be069ef5cbd4d6d588a5e39e7c2f4eb3d9f52",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:12.216Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-001:adversarial:prompt-authority",
@@ -97,10 +97,10 @@
           "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): pre-review-check-smoke --proof-scenarios exit 0; this scenario record biting as designed (all 17 mutations bite, 5 positive + 1 transcript PASS). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "3762638fd0dd17338b72e22503cda3317bed3c57",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:13.769Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         }
       ]
     },
@@ -196,10 +196,10 @@
           "command": "node scripts/run-proofstory-acceptance-rollout-cohort.mjs > /tmp/b4043-cohort-r4-final.json",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076: run-proofstory-acceptance-rollout-cohort.mjs exit 0, wrote fresh cohort /tmp/b4043-cohort-r4-final.json (2026-07-25T23:28:10Z, 10 records); A-POS-2 verified-cohort-receipt PASS. Supersedes earlier hash-only re-stamp (F-017).",
-          "headHash": "96b74149cc49a84483eadcd8c80a363bb00fe3be",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:15.155Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-002:edge:false-block-controls",
@@ -207,10 +207,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "50a80b2b38d170b2d1f30b2481d6d823c356f953",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:16.806Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-002:adversarial:seeded-defects",
@@ -218,10 +218,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "1a1350d1bb272e18f21450a9e7b900ca4de702d6",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:18.306Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         }
       ]
     },
@@ -284,10 +284,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "b275289525ad5348ff0849d0c9d3fe6f52edacce",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:20.067Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-003:edge:inconclusive-boundary",
@@ -295,10 +295,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "aa9eeaf6a39d14180346f2897053917c7524628d",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:21.632Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-003:adversarial:threshold-bypass",
@@ -306,10 +306,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "1f216a43960a9e4f8a868ac6fbc26015aa00bfb1",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:23.181Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         }
       ]
     },
@@ -374,10 +374,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "18a8aa9e209e5685df1124361606c08d137e3643",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:24.635Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
@@ -385,10 +385,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "70f1fa4792011877f32572139db5a136b003cde9",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:26.109Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-004:adversarial:fail-closed-mutations",
@@ -396,10 +396,10 @@
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "ba3a6850c76255292f7810a24bdedcabe2d6fee0",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:28.465Z"
+          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:12:24.908Z"
         },
         {
           "intentRef": "CHK-004:hardening:issuance-replay-integrity",
