@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|md|concept-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2aa7:F-002",
+      "desc": "concept-does-not-exist: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md repeatedly cites a CLI command `red_evidence_add` (lines 256, 291, 503, 513, 599-600, 643/D-6) as the read-before-append repair path. No such command exists anywhere in the CLI catalog (packages/main/src/cli/command-catalog.ts) or handler set; the real command implementing that behaviour is `red_evidence_create` (handlers/proofstory.ts:1110). `git log -S\"red_evidence_add\"` shows this string was introduced only by this storys own CHK-004 commit (53afa24245) -- it never existed as a real command name pre- or post-fix. The same fictional name also leaked into production source: packages/main/src/core/red-evidence-artifact-validation.ts:72 says \"CHK-006s `red_evidence_add` obligation\". Rev 4 fixed §0.0/§4/§10.2.1/D-2 but did not catch this naming error, so the landed canonical decision doc (and a source comment) now permanently describe a command that does not resolve.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-27T02:40:00.612Z",
+      "reviewRound": "2026-07-27T02:31:52.563Z",
+      "reviewRunId": "B-2aa7:RR-001",
+      "_hash": "0376abf3ac458bc0326360cdc10f092258ba7d55b2f09561a1f846ee138df125",
+      "files": [
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+        "packages/main/src/core/red-evidence-artifact-validation.ts"
+      ],
+      "signatureTag": "missing|md|concept-exist-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
