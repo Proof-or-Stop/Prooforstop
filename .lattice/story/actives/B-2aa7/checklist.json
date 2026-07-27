@@ -34,7 +34,11 @@
           {
             "desc": "Each class asserts the right shape: CRASH rows assert a bare TypeError escapes, SILENT rows assert a wrong observable value AND no throw, and the unparseable-file row asserts a RAW untyped SyntaxError escapes rather than asserting no throw.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+              "selector": "THREE_CLASSES_THREE_SHAPES"
+            }
           }
         ]
       },
@@ -88,6 +92,26 @@
           "materialHash": "e04e5eaeea9b1b2678f84e72a190d5477ccf07f7dde5e81d7ad6d12ffffc4e20",
           "storyFilesHash": "ec2930d2d48b132960f95bb15f8ff68ec429cb20e1dc55caa69bc8185e23fa40",
           "timestamp": "2026-07-27T00:10:03.999Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+          "result": "pass",
+          "note": "Marker requires each class to carry its own shape AND the three required-predicates to be mutually distinct: CRASH (7 rows) observes THREW TypeError(TypeError) and requires no bare TypeError; SILENT (5 rows) observes 'no throw' plus a report byte-identical to an ABSENT artifact and requires distinguishability; UNTYPED-THROW (1 row) observes a RAW SyntaxError and requires it to STILL THROW as a typed error naming the path, explicitly stating the absence of a throw would NOT satisfy it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "23e1d2762fa1e81d9a77f2dbae50d516249d44abd1e6e7c1d42736570dceb5dd",
+            "outputTail": "RED_ARTIFACT_FAILS_WITH_ALL_CLASSES_LIVE (14/14 rows red; classes: CRASH,ENVELOPE-MISATTRIBUTION,SILENT,UNTYPED-THROW)\nNO_ROW_PASSES_VACUOUSLY (0 green of 14; B-506e-closed rows excluded and that exclusion re-verified)\nTHREE_CLASSES_THREE_SHAPES (CRASH=7 asserts bare TypeError; SILENT=5 asserts wrong value + no throw; UNTYPED-THROW=1 asserts raw SyntaxError, requires a TYPED throw)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:10:12.283Z"
+          },
+          "headHash": "a19475d7ee33948f7ad0f60b275ba5aac4e43d97",
+          "materialHash": "e04e5eaeea9b1b2678f84e72a190d5477ccf07f7dde5e81d7ad6d12ffffc4e20",
+          "storyFilesHash": "ec2930d2d48b132960f95bb15f8ff68ec429cb20e1dc55caa69bc8185e23fa40",
+          "timestamp": "2026-07-27T00:10:12.408Z"
         }
       ]
     },
