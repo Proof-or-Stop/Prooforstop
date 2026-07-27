@@ -108,6 +108,25 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-003",
       "resolvedBy": "CL-003@0b7217f"
+    },
+    {
+      "id": "B-2aa7:F-006",
+      "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §4.2 (table row 3) and §10.4 (row C4, citing '(§4.2 row 3)') still describe assertTargetInExpected as reaching store.readRedEvidence only through the shared handlers/phase-gates.ts proofStoryDiagnosticInput builder, and the prose under the §4.2 table hedges only in future tense (\"Row 3 is also expected to leave this table... is being resolved by narrowing assertTargetInExpected\"). But CL-003 (0b7217f170), committed within this same REVIEW round after CL-004 (bc16eaf87f) wrote that text, already landed the narrowing: assertTargetInExpected now takes ExpectedRedTargetsInput and never calls proofStoryDiagnosticInput or reads redEvidence at all (packages/main/src/handlers/red-evidence.ts). On the final reviewed tree the table row and the C4 cross-reference are stale — they describe a reach-path that no longer exists, without the \"Post-fix, on the shipped tree...\" treatment this same commit applied elsewhere (§4.3, §10.2.1 E5) for an identical pre/post-fix split. This is exactly the residue the restructure was supposed to prevent (§4.0's own warning: any change to the reach graph must be reflected in §4.2 in the same commit).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-27T03:10:20.526Z",
+      "reviewRound": "2026-07-27T03:03:06.893Z",
+      "reviewRunId": "B-2aa7:RR-007",
+      "_hash": "4f49486de9d64cdae69d0b211c0c544a175ab63db121f6f35dfd5fa315bf78a5",
+      "files": [
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+        "packages/main/src/handlers/red-evidence.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
