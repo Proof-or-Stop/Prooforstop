@@ -17,7 +17,7 @@ import type {
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
 import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
-import { classifyRedRecordSchema } from './red-evidence/record-v2.js';
+import { redEvidenceArtifactParseError, validateRedEvidenceArtifact } from './red-evidence-artifact-validation.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
@@ -113,16 +113,39 @@ export class StoryStore {
   }
 
   private readJson<T>(storyId: string, file: string): T {
+    return this.readJsonCandidate<T>(storyId, file).data;
+  }
+
+  /**
+   * `readJson`, but the chosen candidate's PATH comes back with the data.
+   *
+   * `wrapParseError` (B-2aa7 CHK-004, §10.2.1 row E7) lets one artifact turn the
+   * raw `SyntaxError` that `JSON.parse` throws — which names neither the file nor
+   * the story — into a TYPED error naming the path, at the only place where the
+   * path is still in scope. Omitting it rethrows the original error verbatim, so
+   * every other artifact's read behaviour is byte-for-byte unchanged.
+   */
+  private readJsonCandidate<T>(
+    storyId: string,
+    file: string,
+    wrapParseError?: (cause: unknown, filePath: string) => Error,
+  ): JsonCandidate<T> {
     const tried: string[] = [];
     const candidates: JsonCandidate<T>[] = [];
     for (const dir of this.candidateStoryDirs(storyId)) {
       const filePath = join(dir, file);
       tried.push(filePath);
       if (existsSync(filePath)) {
-        candidates.push({ filePath, data: JSON.parse(readFileSync(filePath, 'utf-8')) as T });
+        let data: T;
+        try {
+          data = JSON.parse(readFileSync(filePath, 'utf-8')) as T;
+        } catch (e) {
+          throw wrapParseError ? wrapParseError(e, filePath) : e;
+        }
+        candidates.push({ filePath, data });
       }
     }
-    if (candidates.length > 0) return this.chooseJsonCandidate(file, candidates).data;
+    if (candidates.length > 0) return this.chooseJsonCandidate(file, candidates);
     throw new StoryArtifactMissingError(`File not found: ${tried.join(' or ')}`);
   }
 
@@ -865,27 +888,38 @@ export class StoryStore {
     this.writeJson(storyId, 'scope-shrinkage-decision.json', data);
   }
 
+  /**
+   * The trust boundary between the on-disk red-evidence file and the typed
+   * domain (B-2aa7, decisions D-1/D-3/D-4/D-8). This method is the I/O shell:
+   * it locates and parses the file, and `core/red-evidence-artifact-validation.ts`
+   * — a pure leaf — decides what is well-formed.
+   *
+   * Three outcomes, and they are deliberately different:
+   *  - ABSENT file        -> `null`, the ordinary not-configured path (row E4/B3).
+   *  - ENVELOPE fault     -> a typed `RedEvidenceArtifactError` NAMING THE PATH,
+   *                          including an unparseable file (row E7 requires a
+   *                          throw, just a typed one). Validated BEFORE any
+   *                          record, so an envelope fault can never be reported
+   *                          as a record fault (§2.4).
+   *  - MALFORMED RECORD   -> D-4 quarantine: `records` keeps only well-formed
+   *                          entries and the rejected ones are RETAINED on
+   *                          `malformedRecords`. Never dropped, never thrown.
+   *
+   * The W2c / B-506e unsupported-per-record-schemaVersion rejection is unchanged
+   * and still runs ahead of the v1 shape check; it now sits behind the envelope
+   * check, which is what stops it being handed the characters of a string.
+   */
   readRedEvidence(storyId: string): RedEvidenceData | null {
-    let data: RedEvidenceData | null;
+    const artifactFile = 'red-evidence.json';
+    let candidate: JsonCandidate<unknown>;
     try {
-      data = this.readJson<RedEvidenceData>(storyId, 'red-evidence.json');
+      candidate = this.readJsonCandidate<unknown>(storyId, artifactFile, (cause, filePath) =>
+        redEvidenceArtifactParseError(filePath, cause));
     } catch (e) {
       if (e instanceof StoryArtifactMissingError) return null;
       throw e;
     }
-    // §6.4 fail-closed forward-compatibility (W2c / B-506e): every stored record
-    // is classified at load time; a record carrying an UNSUPPORTED per-record
-    // schemaVersion (neither absent/legacy-v1 nor the exact v2 literal — a future
-    // v3, a typo, a corrupted value) is REJECTED here with a clear typed
-    // RedEvidenceSchemaError, never silently accepted into records[] where a
-    // downstream v1-only field access would later throw a bare TypeError in the
-    // LIVE enforce gate. v1 (absent version) and v2 (exact literal) load unchanged.
-    if (data) {
-      for (const record of data.records ?? []) {
-        classifyRedRecordSchema(record);
-      }
-    }
-    return data;
+    return validateRedEvidenceArtifact(candidate.data, candidate.filePath);
   }
 
   writeRedEvidence(storyId: string, data: RedEvidenceData): void {

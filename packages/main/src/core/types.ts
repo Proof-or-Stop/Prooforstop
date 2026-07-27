@@ -2815,17 +2815,53 @@ export interface RedEvidenceRecord {
   createdAt: string;
 }
 
+/**
+ * B-2aa7 (D-4) — one entry the read boundary REJECTED as not well-formed under
+ * the legacy v1 schema, retained so corruption stays visible.
+ *
+ * Quarantine is retain-and-report, never drop: a rejected entry is removed from
+ * `records` (so the typed domain only ever sees well-formed records) but is kept
+ * here VERBATIM. Silently dropping it would leave a "clean empty array", which
+ * reads exactly like an absent artifact — the defect this story removes.
+ *
+ * Produced only by `core/red-evidence-artifact-validation.ts`; never written to
+ * disk by the canonical writer.
+ */
+export interface RedEvidenceMalformedRecord {
+  /** Zero-based position of the rejected entry in the ON-DISK `records` array. */
+  index: number;
+  /** The entry's `id` when it has a usable one, else `null`. */
+  id: string | null;
+  /** Operator-facing summary naming the index, the id and every violation. */
+  reason: string;
+  /** Machine-readable violations: `missing:trigger`, `wrong-type:observedFailure`, … */
+  violations: string[];
+  /** The rejected entry, verbatim. This is what makes quarantine non-destructive. */
+  value: unknown;
+}
+
 export interface RedEvidenceData {
   /**
    * The FILE-level schema stays `proofstory.red_evidence.v1` — the on-disk layout
    * is unchanged (W2c / B-506e). Individual records are discriminated by their
    * OWN `schemaVersion`: a legacy v1 record has none, a v2 record carries
    * `proofstory.red_evidence.v2`. No migration of existing v1 stores.
+   *
+   * B-2aa7 (D-1, E6): the FILE declares the era, so this member is now READ as an
+   * authority at the read boundary. A missing or unknown value is rejected there
+   * rather than silently degrading to v1.
    */
   schemaVersion: 'proofstory.red_evidence.v1';
   storyId: string;
   /** Append-only, mixed v1 (legacy) + v2 (chain) records in one array. */
   records: (RedEvidenceRecord | RedEvidenceRecordV2)[];
+  /**
+   * B-2aa7 (D-4): entries the read boundary quarantined. Present ONLY when the
+   * artifact actually carried a malformed record, so an artifact that is merely
+   * absent, empty or `records`-less never acquires a corruption surface. Derived
+   * at read time and not part of the on-disk schema.
+   */
+  malformedRecords?: RedEvidenceMalformedRecord[];
   createdAt: string;
   updatedAt: string;
 }
