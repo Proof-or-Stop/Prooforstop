@@ -67,7 +67,7 @@
       "desc": "test-probe-delete-me",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-27T19:17:00.667Z",
@@ -75,6 +75,31 @@
       "reviewRunId": "B-49d4:RR-008",
       "_hash": "0fafa17c11ad3002502006ccd4fbe115359f6d97c1d8932c7cf8418e61759cd1",
       "signatureTag": "missing|unknown|test-probe-delete",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accidental probe finding created while verifying reviewRunId format for finding_add; not a real finding, superseded by the actual test-coverage findings below.",
+      "dismissedAt": "2026-07-27T19:17:18.864Z",
+      "dismissReasonType": "false_positive"
+    },
+    {
+      "id": "B-49d4:F-005",
+      "desc": "CHK-001 (all 3 must rows) and CHK-003 (all 3 must rows) verificationEvidence is stale and no longer reproduces on current HEAD 4dcbf91. Re-verified by direct re-execution: (1) CHK-001 pinned command node packages/main/tests/red/red-b49d4-chk001-receipt.mjs now exits 0 with ZERO output (confirmed live) -- none of the recorded markers RED_ARTIFACT_FAILS_ON_PRE_FIX_TREE / DIFFERENTLY_PREFIXED_NEWCOMER_DRIVES_REAL_GUARDS / CONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED appear, because red-b49d4-chk001-receipt.mjs:68-69 gates every marker on the spawned derivation artifact still exiting non-zero, and that artifact was fixed by CHK-002/CHK-003 so it now exits 0 (this is exactly why def4df7f18 excluded the receipt from validate.commands, but the CHK-001 verificationEvidence rows recorded at headHash 782924094/640b83e3/d3bdab57 were never refreshed to reflect the new silent behaviour). (2) CHK-003 pinned selectors literally quote counts that no longer match: happy selector \"33 registered in lattice.config.json validate.commands and 2 excluded\" vs live red-b49d4-harness-registration.mjs output \"32 registered ... and 3 excluded\" (def4df7f18 moved red-b49d4-chk001-receipt.mjs from registered to excluded, 33->32 / 2->3, after evidence was recorded at headHash 501fbe56e/b295a0c1/74963149e1); edge selector \"35 members on disk, 33 registered + 2 excluded\" vs live red-b49d4-chk002-receipt.mjs output \"35 members on disk, 32 registered + 3 excluded\"; adversarial selector \"2 unregistered ... (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs) and 0 are NEVER RUN: none\" vs live red-b49d4-registration-derivation.mjs output \"3 unregistered, of which 3 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs)\". None of the three pinned CHK-003 selector strings appear verbatim in current live output. storyFilesHash moved from 331d993a.../6b3212ad... at evidence-record time to b5091eaf... at current HEAD -- genuine story-owned material drift that was never re-verified via verification_evidence_add after def4df7f18 and 0b1ef6a6f7 landed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-27T19:17:34.984Z",
+      "reviewRound": "2026-07-27T19:06:55.751Z",
+      "reviewRunId": "B-49d4:RR-008",
+      "_hash": "88e1f7a3ce026c81ff952091e7e6f2c2c18a0e86c6c828bf9c922095bcab6b29",
+      "files": [
+        "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+        "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+        "lattice.config.json"
+      ],
+      "signatureTag": "missing|mjs|rows-rows-verificationevidence",
       "signatureTagSource": "auto"
     }
   ]
