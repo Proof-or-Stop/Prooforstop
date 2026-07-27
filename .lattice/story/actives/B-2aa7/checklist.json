@@ -75,17 +75,13 @@
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
-          "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
-          "result": "pass",
-          "note": "Marker requires each class to carry its own shape AND the three required-predicates to be mutually distinct: CRASH (7 rows) observes THREW TypeError(TypeError) and requires no bare TypeError; SILENT (5 rows) observes 'no throw' plus a report byte-identical to an ABSENT artifact and requires distinguishability; UNTYPED-THROW (1 row) observes a RAW SyntaxError and requires it to STILL THROW as a typed error naming the path, explicitly stating the absence of a throw would NOT satisfy it.",
-          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "b465538c1e74d50db1250ed0a16828ff6d680d8e",
           "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
           "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-07-27T05:20:38.123Z"
+          "timestamp": "2026-07-27T05:25:56.427Z"
         }
       ]
     },
