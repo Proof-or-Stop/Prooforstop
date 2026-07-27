@@ -965,7 +965,712 @@ RED_ROWS.push({
 //
 // Asserts post-fix behaviour, so its rows belong in RED_ROWS (same
 // `required` / `preFixDefect` shape) — NOT in INVARIANT_ROWS.
+//
+// ── WHY A PROPERTY, AND NOT SIMPLY MORE ROWS ────────────────────────────────
+//
+// Every enumerated row above was written from an OBSERVED failure. Those rows
+// prove the KNOWN cases and say nothing whatsoever about the unknown ones —
+// which is, in test form, precisely the blind spot that produced this defect:
+// `'v1'` was a RESIDUAL class, trusted because nobody had yet seen it break.
+// Decision document §10.5 therefore states the requirement as a PROPERTY —
+// "the validator itself cannot throw on any JSON shape" — and a property is the
+// only assertion shape that can fail on an input nobody thought to list.
+//
+// ── DETERMINISTIC BY CONSTRUCTION ───────────────────────────────────────────
+//
+// A flaky property test is worse than none: an irreproducible failure gets
+// re-run until it is green, which is how a real defect becomes "that test is
+// flaky". The generator is a seeded PRNG and consumes nothing else — no
+// `Math.random`, no clock, no directory listing, no environment beyond the seed
+// itself. The seed is PRINTED, together with a `corpusDigest` over the
+// canonical form of every generated value, so two runs are provably the SAME
+// corpus and `RED_B2AA7_FUZZ_SEED=<seed> node <this file>` reproduces any
+// failure exactly. `red-b2aa7-chk011-receipt.mjs` re-runs this file three times
+// and checks both halves mechanically: same seed → byte-identical proof lines;
+// different seed → a different corpus that still holds the property.
+//
+// ── THE THREE THINGS THAT KEEP IT FROM BEING DECORATION ─────────────────────
+//
+// A fuzz can pass for bad reasons: too few inputs, inputs too boring to reach
+// the code under test, or inputs so harmless that ANY implementation would
+// survive them. All three are closed by fatal fixture assertions inside the
+// observer, and all three counts are printed:
+//
+//   COVERAGE  the corpus demonstrably contains what §10.5 / CHK-011 name —
+//             empty containers, deep nesting, mixed-primitive arrays, unusual
+//             but legal keys, `Object.create(null)`, own `__proto__` keys and
+//             prototype-INHERITED fields. Counted by walking the corpus, never
+//             assumed. That walk doubles as the ACYCLICITY proof.
+//   REACH     the classifications actually observed span EVERY envelope fault
+//             code, the record-schema fault, the quarantine outcome AND the
+//             clean accept. A corpus that only ever bounced off
+//             `root_not_object` would never enter record-level code at all.
+//   POTENCY   the SAME corpus, fed to an unguarded transcription of the PRE-FIX
+//             read path, still crashes it with raw builtin errors. So "the
+//             validator never threw" is a fact about the VALIDATOR, not about a
+//             corpus of inputs that could not have broken anything.
+//
+// ── WHAT IS DELIBERATELY NOT FUZZED ─────────────────────────────────────────
+//
+// `validateRedEvidenceEnvelope` and `validateRedEvidenceArtifact` THROW BY
+// DESIGN (§10.2.1 row E7 requires a throw, just a typed one naming the path),
+// so "never throws" is the wrong property for them and asserting it would
+// encode a requirement the audit explicitly rejects. The total entry points are
+// `classifyRedEvidenceArtifact` (D1) and `partitionRedEvidenceRecords` (D2);
+// row D3 covers the throwing wrapper with the property it actually has — no RAW
+// builtin ever escapes the live read boundary, and every typed rejection names
+// the artifact.
+//
+// Nesting is capped at ~200 levels. Beyond that `JSON.parse` itself is the
+// binding constraint, so a deeper fixture would be fuzzing V8's parser rather
+// than this validator, and a `RangeError` from the harness's own recursion
+// would read as a defect in code that never ran.
 // ════════════════════════════════════════════════════════════════════════════
+const { createHash } = await import('node:crypto');
+
+// The validator is imported DEFENSIVELY. On the pre-fix tree this module does
+// not exist at all, and a bare top-level import would abort the whole harness
+// before any row could report. Instead its absence becomes row D1's documented
+// pre-fix defect: the §10.5 property had no implementation to hold it.
+let VALIDATOR = null;
+let VALIDATOR_IMPORT_ERROR = null;
+try {
+  VALIDATOR = await import(`${DIST}/core/red-evidence-artifact-validation.js`);
+} catch (e) {
+  VALIDATOR_IMPORT_ERROR = e;
+}
+
+const FUZZ_SEED = process.env.RED_B2AA7_FUZZ_SEED ?? 'B-2aa7/CHK-011/fuzz/v1';
+const FUZZ_STRATUM_SIZE = 1200;
+const FUZZ_VALUE_DEPTH = 4;
+/** Floor below which "a property" would just be a case list with extra steps. */
+const FUZZ_MIN_CASES = 4000;
+/**
+ * Floors for the two things that make the case count meaningful: how many
+ * DISTINCT shapes the corpus holds that appear nowhere in the enumerated rows,
+ * and how many arrays row D2 gets to partition. Both are lower than the case
+ * count because primitives legitimately recur — the point is that neither can
+ * quietly collapse to a handful without failing here.
+ */
+const FUZZ_MIN_NOVEL = 3000;
+const FUZZ_MIN_ARRAYS = 2000;
+/** How many generated artifacts are also driven through the LIVE gate pair (~95ms each). */
+const FUZZ_GATE_SAMPLE = 16;
+/** Floor for the potency control: the corpus must genuinely break unguarded code. */
+const FUZZ_MIN_POTENCY = 100;
+
+// ── seeded PRNG ─────────────────────────────────────────────────────────────
+// FNV-1a over the seed string, then mulberry32. Small, pure, and reproducible
+// across Node versions — `Math.random` is unusable here by definition.
+function fnv1a32(text) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(fnv1a32(FUZZ_SEED));
+const rndInt = (n) => Math.floor(rnd() * n);
+const rndPick = (items) => items[rndInt(items.length)];
+
+// ── the alphabet ────────────────────────────────────────────────────────────
+// Primitives are all JSON-REPRESENTABLE on purpose (no NaN, no Infinity, no
+// undefined, no BigInt): the property under test is about JSON shapes, and a
+// value that cannot survive `JSON.stringify` could not have come off disk.
+// `-0`, `1e308` and a 300-character string are legal JSON and are included.
+const FUZZ_PRIMITIVES = [
+  null, true, false,
+  0, -0, 1, -1, 42, 123, -7.5, 0.1, 1e308, -1e-7, Number.MAX_SAFE_INTEGER,
+  '', ' ', '   ', 'x', 'a string', 'null', 'undefined', '0', 'true',
+  'proofstory.red_evidence.v1', 'proofstory.red_evidence.v2', 'proofstory.red_evidence.v3',
+  'same_acceptance', 'regression_to_green', 'not_a_relation', 'M1',
+  '__proto__', 'constructor', ' ', '✓ unicode ☃', '\\', '"', 'a'.repeat(300),
+];
+// Keys are unusual BUT LEGAL. `__proto__` / `constructor` / `toString` /
+// `hasOwnProperty` are the ones that break naive `record[key]` and
+// `key in record` validators; '' and '0' and ' ' are legal JSON keys that
+// hand-written fixtures never contain.
+const FUZZ_KEYS = [
+  '', ' ', 'a', 'id', 'trigger', 'createdAt', 'records', 'schemaVersion', 'storyId',
+  'observedFailure', 'greenRelation', 'targetRef', 'relation', 'acceptanceTargetRef',
+  'baselineHeadHash', 'baselineMaterialHash', 'failingCommand', 'malformedRecords',
+  '__proto__', 'constructor', 'prototype', 'toString', 'hasOwnProperty', 'valueOf',
+  '0', '1', '-1', 'length', 'a.b', 'a b', '✓', 'null', '"', '\\',
+];
+
+/**
+ * A prototype carrying every field the v1 schema demands. An object created
+ * from it answers `record.observedFailure` while OWNING nothing — the §10.2 row
+ * M8 shape, and the exact reason the validator uses `hasOwnProperty` rather
+ * than a plain property read. `JSON.parse` can never produce this, so only a
+ * generator can put it in front of the validator.
+ */
+const FUZZ_INHERITED_PROTO = Object.freeze({
+  id: 'inherited-id', trigger: 'inherited trigger', acceptanceTargetRef: 'M1',
+  baselineHeadHash: 'inherited-head', baselineMaterialHash: 'inherited-mat',
+  observedFailure: 'inherited observed failure', createdAt: NOW,
+  greenRelation: Object.freeze({ targetRef: 'M1', relation: 'same_acceptance' }),
+});
+
+/**
+ * `target.__proto__ = v` on a plain object REPLACES THE PROTOTYPE instead of
+ * creating an own key, which would silently drop the very shape being
+ * generated. `defineProperty` creates a real own data property that shadows the
+ * accessor — which is also exactly what `JSON.parse` does.
+ */
+function defineOwn(target, key, value) {
+  Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
+}
+function makeObject(entries, proto = 'plain') {
+  const target = proto === 'null' ? Object.create(null)
+    : proto === 'inherited' ? Object.create(FUZZ_INHERITED_PROTO)
+      : {};
+  for (const [key, value] of entries) defineOwn(target, key, value);
+  return target;
+}
+
+// ── generators ──────────────────────────────────────────────────────────────
+function randomValue(depth) {
+  const roll = rnd();
+  if (depth <= 0 || roll < 0.45) return rndPick(FUZZ_PRIMITIVES);
+  if (roll < 0.68) return Array.from({ length: rndInt(5) }, () => randomValue(depth - 1));
+  const proto = rnd() < 0.14 ? 'null' : rnd() < 0.1 ? 'inherited' : 'plain';
+  const entries = [];
+  const count = rndInt(6);
+  for (let i = 0; i < count; i += 1) entries.push([rndPick(FUZZ_KEYS), randomValue(depth - 1)]);
+  return makeObject(entries, proto);
+}
+
+/** A chain `levels` deep, alternating array / object / null-prototype object. */
+function deepValue(levels, leaf) {
+  let value = leaf;
+  for (let i = 0; i < levels; i += 1) {
+    value = i % 3 === 0
+      ? [value]
+      : makeObject([[i % 3 === 1 ? 'records' : 'a', value]], i % 7 === 5 ? 'null' : 'plain');
+  }
+  return value;
+}
+
+const V1_FILE_VERSION = 'proofstory.red_evidence.v1';
+
+/** A well-formed v1 ENVELOPE around whatever `records` is handed in. */
+function fuzzEnvelope(records, proto = 'plain') {
+  return makeObject([
+    ['schemaVersion', V1_FILE_VERSION], ['storyId', storyId],
+    ['records', records], ['createdAt', NOW], ['updatedAt', NOW],
+  ], proto);
+}
+
+/** An envelope with a randomly correct / wrong / ABSENT file-level version (E5/E6/E1-E3). */
+function randomEnvelope() {
+  const entries = [];
+  const versionRoll = rnd();
+  if (versionRoll < 0.55) entries.push(['schemaVersion', V1_FILE_VERSION]);
+  else if (versionRoll < 0.82) entries.push(['schemaVersion', randomValue(1)]);
+  // else: no `schemaVersion` member at all — row E6, which must NOT degrade to v1.
+  if (rnd() < 0.86) entries.push(['records', randomValue(FUZZ_VALUE_DEPTH - 1)]);
+  if (rnd() < 0.5) entries.push(['storyId', rnd() < 0.5 ? storyId : rndPick(FUZZ_PRIMITIVES)]);
+  if (rnd() < 0.4) entries.push([rndPick(FUZZ_KEYS), randomValue(2)]);
+  return makeObject(entries, rnd() < 0.1 ? 'null' : 'plain');
+}
+
+/** Field paths of the SATISFYING record, i.e. the ones full v1 validation reads. */
+const FUZZ_MUTANT_PATHS = [
+  ['id'], ['trigger'], ['acceptanceTargetRef'], ['baselineHeadHash'], ['baselineMaterialHash'],
+  ['observedFailure'], ['createdAt'], ['failingCommand'], ['schemaVersion'],
+  ['greenRelation'], ['greenRelation', 'targetRef'], ['greenRelation', 'relation'],
+];
+
+/**
+ * A single-point mutation of the record that DOES satisfy the gate. These are
+ * the inputs that get furthest into the validator: they pass the envelope, they
+ * classify `'v1'`, and only then does one field turn out to be wrong.
+ */
+function mutantRecord() {
+  const clone = { ...satisfying, greenRelation: { ...satisfying.greenRelation } };
+  const path = rndPick(FUZZ_MUTANT_PATHS);
+  const drop = rnd() < 0.3;
+  if (path.length === 1) {
+    if (drop) delete clone[path[0]];
+    else clone[path[0]] = randomValue(2);
+  } else {
+    const parent = clone[path[0]];
+    if (parent !== null && typeof parent === 'object') {
+      if (drop) delete parent[path[1]];
+      else parent[path[1]] = randomValue(2);
+    }
+  }
+  const proto = rnd() < 0.12 ? 'null' : rnd() < 0.12 ? 'inherited' : 'plain';
+  // For the inherited shape, strip the own field so the ONLY way to see it is
+  // through the prototype chain (row M8).
+  if (proto === 'inherited') delete clone.observedFailure;
+  const entries = Object.entries(clone);
+  if (rnd() < 0.15) entries.push([rndPick(FUZZ_KEYS), randomValue(1)]);
+  return makeObject(entries, proto);
+}
+
+/**
+ * Hand-forced structural edges. These consume NO randomness, so every one of
+ * them is present under EVERY seed — the named requirements of CHK-011 are
+ * guaranteed rather than left to a lucky draw, while the four random strata
+ * supply the shapes nobody thought to name.
+ */
+function structuralCases() {
+  const allFieldsNoProto = makeObject(Object.entries(satisfying), 'null');
+  const inheritedOnly = makeObject([], 'inherited');
+  const protoKeyed = makeObject([['__proto__', fuzzEnvelope([satisfying])]]);
+  return [
+    ['empty object', {}],
+    ['empty array', []],
+    ['empty string', ''],
+    ['blank string', '   '],
+    ['zero', 0],
+    ['negative zero', -0],
+    ['false', false],
+    ['null root', null],
+    ['null-prototype empty object', Object.create(null)],
+    ['null-prototype envelope, empty records', fuzzEnvelope([], 'null')],
+    ['envelope with records: []', fuzzEnvelope([])],
+    ['envelope with records: [{}]', fuzzEnvelope([{}])],
+    ['envelope with records: [[]] (an ARRAY record)', fuzzEnvelope([[]])],
+    ['envelope with records: [[], {}, null, 0, "", true]', fuzzEnvelope([[], {}, null, 0, '', true])],
+    ['envelope with a null-prototype record carrying EVERY v1 field', fuzzEnvelope([allFieldsNoProto])],
+    ['envelope with a record that OWNS nothing and inherits every v1 field (row M8)', fuzzEnvelope([inheritedOnly])],
+    ['envelope with an empty null-prototype record', fuzzEnvelope([Object.create(null)])],
+    ['envelope whose records is an ARRAY-LIKE object {0:…, length:1}', fuzzEnvelope(makeObject([['0', satisfying], ['length', 1]]))],
+    ['envelope whose records is a null-prototype object', fuzzEnvelope(Object.create(null))],
+    ['envelope whose records is the empty string', fuzzEnvelope('')],
+    ['envelope whose records is a nested empty array', fuzzEnvelope([[[]]])],
+    ['envelope with 300 empty-object records (breadth)', fuzzEnvelope(Array.from({ length: 300 }, () => ({})))],
+    ['envelope with schemaVersion: {}', makeObject([['schemaVersion', {}], ['records', []]])],
+    ['envelope with schemaVersion: []', makeObject([['schemaVersion', []], ['records', []]])],
+    ['envelope with schemaVersion: null', makeObject([['schemaVersion', null], ['records', []]])],
+    ['envelope with schemaVersion: ""', makeObject([['schemaVersion', ''], ['records', []]])],
+    ['envelope with NO schemaVersion member (row E6)', makeObject([['records', []]])],
+    ['envelope with NO records member (row E4)', makeObject([['schemaVersion', V1_FILE_VERSION]])],
+    ['object with an OWN "__proto__" key holding a whole envelope', protoKeyed],
+    ['envelope whose records hold an own-"__proto__" record', fuzzEnvelope([makeObject([['__proto__', satisfying]])])],
+    ['object with an own "constructor" key', makeObject([['constructor', 'not a function'], ['records', []]])],
+    ['object with an own "toString" key holding an array', makeObject([['toString', [1, 2]]])],
+    ['object with the empty string as a key', makeObject([['', 'empty key']])],
+    ['mixed-primitive array', [null, true, 0, '', 1e308, 'x', -0.5]],
+    ['array of empty containers', [[], {}, [], {}]],
+    ['deep chain, 2 levels', deepValue(2, satisfying)],
+    ['deep chain, 8 levels', deepValue(8, {})],
+    ['deep chain, 64 levels', deepValue(64, [])],
+    ['deep chain, 200 levels', deepValue(200, null)],
+    ['envelope whose records is a 200-level deep chain', fuzzEnvelope(deepValue(200, []))],
+    ['envelope whose record field is a 200-level deep chain', fuzzEnvelope([{ ...satisfying, observedFailure: deepValue(200, 'x') }])],
+    ['envelope whose schemaVersion is a 200-level deep chain', makeObject([['schemaVersion', deepValue(200, 'x')], ['records', []]])],
+    ['a valid v2 record beside a mutant', fuzzEnvelope([v2Assert, { ...satisfying, observedFailure: null }])],
+    ['every enumerated malformed flavour at once', fuzzEnvelope([malformed, malformedNull, malformedNumber, malformedArray, satisfying])],
+    ['300-character string root', 'a'.repeat(300)],
+    ['array containing the envelope itself (nested, not cyclic)', [fuzzEnvelope([satisfying])]],
+  ];
+}
+
+/**
+ * The PRE-FIX read+predicate path, transcribed with its guards REMOVED — the
+ * POTENCY control. Not a paraphrase: the envelope was never validated
+ * (`store.readRedEvidence` handed the raw parsed value to the typed domain,
+ * audit §2.4), and the predicate went straight from the schema discriminant to
+ * `record.observedFailure.trim()`, THE crash site of audit §2.1, with no shape
+ * guard in front of it (CHK-005 added that guard; this is the code as it stood
+ * before). Feeding the corpus to this proves the corpus can break something —
+ * without which "the validator never threw" would be a fact about the inputs.
+ */
+function unguardedPreFixReader(parsed) {
+  const records = parsed?.records ?? [];
+  return records.some((record) => {
+    if (isRedEvidenceV2(record)) return false;
+    if (classifyRedRecordSchemaSafe(record) !== 'v1') return false;
+    return record.observedFailure.trim().length > 0;
+  });
+}
+
+/**
+ * Walk a generated value: collect coverage counters AND prove acyclicity. The
+ * `path` set holds only the ancestors of the current node, so shared subtrees
+ * (a DAG, which the generators do produce) are fine and only a genuine cycle is
+ * reported. A cycle would make `canon` and `JSON.stringify` diverge, so this is
+ * a real precondition of the corpus, not paperwork.
+ */
+function walkValue(value, path, stats) {
+  if (value === null || typeof value !== 'object') {
+    stats.primitiveKinds.add(value === null ? 'null' : typeof value);
+    return 1;
+  }
+  if (path.has(value)) { stats.cycles += 1; return 1; }
+  path.add(value);
+  let deepest = 0;
+  if (Array.isArray(value)) {
+    stats.arrays += 1;
+    if (value.length === 0) stats.emptyArrays += 1;
+    const primitiveKinds = new Set(
+      value.filter((v) => v === null || typeof v !== 'object').map((v) => (v === null ? 'null' : typeof v)),
+    );
+    if (primitiveKinds.size >= 3) stats.mixedPrimitiveArrays += 1;
+    for (const item of value) deepest = Math.max(deepest, walkValue(item, path, stats));
+  } else {
+    stats.objects += 1;
+    const proto = Object.getPrototypeOf(value);
+    if (proto === null) stats.nullProtoObjects += 1;
+    else if (proto !== Object.prototype) stats.inheritedProtoObjects += 1;
+    const keys = Object.keys(value);
+    if (keys.length === 0) stats.emptyObjects += 1;
+    for (const key of keys) {
+      stats.distinctKeys.add(key);
+      if (key === '__proto__') stats.protoOwnKeys += 1;
+      deepest = Math.max(deepest, walkValue(value[key], path, stats));
+    }
+  }
+  path.delete(value);
+  return deepest + 1;
+}
+
+/** Is this a CLASSIFICATION, i.e. a well-formed member of the documented union? */
+function isWellFormedClassification(classified) {
+  if (classified === null || typeof classified !== 'object') return false;
+  if (classified.ok === true) {
+    if (classified.data === null || typeof classified.data !== 'object') return false;
+    if (!Array.isArray(classified.malformed)) return false;
+    return classified.malformed.every((entry) =>
+      entry !== null && typeof entry === 'object' && !Array.isArray(entry)
+      && Number.isInteger(entry.index) && entry.index >= 0
+      && (entry.id === null || typeof entry.id === 'string')
+      && typeof entry.reason === 'string' && entry.reason.length > 0
+      && Array.isArray(entry.violations) && entry.violations.length > 0
+      && entry.violations.every((v) => typeof v === 'string' && v.length > 0)
+      && Object.prototype.hasOwnProperty.call(entry, 'value'));
+  }
+  if (classified.ok !== false) return false;
+  if (classified.fault !== 'envelope' && classified.fault !== 'record_schema') return false;
+  const { error } = classified;
+  if (!(error instanceof Error) || typeof error.message !== 'string' || error.message.length === 0) return false;
+  if (classified.fault === 'record_schema') return error.name === 'RedEvidenceSchemaError';
+  // An ENVELOPE fault must name the artifact and must never read as a record
+  // fault — the misattribution of row A8, restated as a property.
+  return error.name === 'RedEvidenceArtifactError'
+    && FUZZ_ENVELOPE_CODES.has(error.code)
+    && error.artifactPath === ARTIFACT_PATH
+    && namesArtifactPath(error.message)
+    && !MISATTRIBUTES_TO_RECORD.test(error.message);
+}
+const FUZZ_ENVELOPE_CODES = new Set([
+  'unparseable', 'root_not_object', 'schema_version_missing', 'schema_version_unknown', 'records_not_array',
+]);
+
+/** Built once, shared by D1 / D2 / D3 — the three rows are three properties of ONE corpus. */
+let FUZZ = null;
+function fuzz() {
+  if (FUZZ !== null) return FUZZ;
+
+  // ── build ────────────────────────────────────────────────────────────────
+  const corpus = [];
+  const add = (stratum, value, label = null) => corpus.push({ stratum, value, label });
+  for (let i = 0; i < FUZZ_STRATUM_SIZE; i += 1) add('raw', randomValue(FUZZ_VALUE_DEPTH));
+  for (let i = 0; i < FUZZ_STRATUM_SIZE; i += 1) add('envelope', randomEnvelope());
+  for (let i = 0; i < FUZZ_STRATUM_SIZE; i += 1) {
+    const known = [satisfying, v2Assert, malformed, malformedNull, malformedNumber, malformedArray];
+    const entries = Array.from({ length: rndInt(5) }, () => (rnd() < 0.25 ? rndPick(known) : randomValue(3)));
+    add('records', fuzzEnvelope(rnd() < 0.9 ? entries : randomValue(2)));
+  }
+  for (let i = 0; i < FUZZ_STRATUM_SIZE; i += 1) {
+    const entries = Array.from({ length: 1 + rndInt(4) }, () => (rnd() < 0.75 ? mutantRecord() : rndPick([satisfying, v2Assert])));
+    add('mutants', fuzzEnvelope(entries));
+  }
+  for (const [label, value] of structuralCases()) add('structural', value, label);
+
+  const strata = {};
+  for (const item of corpus) strata[item.stratum] = (strata[item.stratum] ?? 0) + 1;
+
+  // ── COVERAGE + acyclicity ────────────────────────────────────────────────
+  const stats = {
+    objects: 0, arrays: 0, emptyObjects: 0, emptyArrays: 0, nullProtoObjects: 0,
+    inheritedProtoObjects: 0, protoOwnKeys: 0, mixedPrimitiveArrays: 0, cycles: 0,
+    distinctKeys: new Set(), primitiveKinds: new Set(),
+  };
+  let maxDepth = 0;
+  const canonSeen = new Set();
+  for (const item of corpus) {
+    maxDepth = Math.max(maxDepth, walkValue(item.value, new Set(), stats));
+    canonSeen.add(canon(item.value));
+  }
+  const corpusDigest = createHash('sha256').update([...canonSeen].sort().join(' ')).digest('hex');
+
+  assert.ok(corpus.length >= FUZZ_MIN_CASES, `fuzz: only ${corpus.length} generated values — a property over a handful of inputs is just another case list`);
+  assert.equal(stats.cycles, 0, 'fuzz: the corpus must be ACYCLIC — a cycle makes canon/JSON.stringify diverge and the property untestable');
+  assert.ok(stats.emptyObjects > 0 && stats.emptyArrays > 0, `fuzz coverage: EMPTY CONTAINERS missing (objects=${stats.emptyObjects}, arrays=${stats.emptyArrays})`);
+  assert.ok(stats.nullProtoObjects > 0, 'fuzz coverage: no Object.create(null) value was generated — CHK-011 names it explicitly');
+  assert.ok(stats.inheritedProtoObjects > 0, 'fuzz coverage: no PROTOTYPE-INHERITED shape was generated — row M8 would go untested');
+  assert.ok(stats.protoOwnKeys > 0, 'fuzz coverage: no own "__proto__" key was generated');
+  assert.ok(stats.mixedPrimitiveArrays > 0, 'fuzz coverage: no MIXED-PRIMITIVE array was generated');
+  assert.ok(maxDepth >= 100, `fuzz coverage: deepest value is only ${maxDepth} levels — "deeply nested" is not covered`);
+  assert.ok(stats.distinctKeys.size >= 20, `fuzz coverage: only ${stats.distinctKeys.size} distinct keys — unusual-but-legal keys are not covered`);
+  assert.ok(stats.primitiveKinds.size >= 4, `fuzz coverage: only ${[...stats.primitiveKinds].join('/')} primitive kinds`);
+  // NOVELTY — the corpus must not be the enumerated rows in disguise. Every
+  // fixture BLOCK A / B / C uses, compared against the corpus by canonical form.
+  const enumerated = new Set([
+    satisfying, malformed, malformedNull, malformedNumber, malformedArray, v2Assert, v2Quarantine,
+    v1Twin, v2Hybrid, [], 'x', null, 42, {}, fuzzEnvelope([satisfying]), fuzzEnvelope([]),
+  ].map(canon));
+  const novel = [...canonSeen].filter((c) => !enumerated.has(c)).length;
+  assert.ok(
+    novel >= FUZZ_MIN_NOVEL,
+    `fuzz NOVELTY: only ${novel} of the ${canonSeen.size} distinct generated shapes appear nowhere in the enumerated fixtures — the property would be re-testing the case list it exists to escape`,
+  );
+
+  // ── D1 · classify totality ───────────────────────────────────────────────
+  const outcomes = {};
+  const bump = (key) => { outcomes[key] = (outcomes[key] ?? 0) + 1; };
+  const classifyThrew = [];
+  const badShape = [];
+  const classifications = new Array(corpus.length).fill(null);
+  if (VALIDATOR !== null) {
+    corpus.forEach((item, i) => {
+      let classified;
+      try {
+        classified = VALIDATOR.classifyRedEvidenceArtifact(item.value, ARTIFACT_PATH);
+      } catch (e) {
+        classifyThrew.push({ item, error: e });
+        return;
+      }
+      classifications[i] = classified;
+      if (!isWellFormedClassification(classified)) { badShape.push({ item, classified }); return; }
+      if (classified.ok) bump(classified.malformed.length > 0 ? 'ok-quarantined' : 'ok-clean');
+      else bump(classified.fault === 'envelope' ? `envelope/${classified.error.code}` : 'record_schema');
+    });
+
+    // REACH — the corpus must actually get INTO the code. Every envelope fault
+    // code, the record-schema fault, quarantine and clean accept, all observed.
+    //
+    // Deliberately SKIPPED while any value is still throwing. A throw already
+    // aborts the classification that would have recorded the outcome, so with
+    // throws present a missing outcome is a CONSEQUENCE of the defect, and
+    // reporting it as a weak corpus would send a reader to fix the fixture
+    // instead of the validator. Row D1 owns that case and names the throw.
+    // (Observed while mutation-testing this block: an unguarded dereference
+    // reintroduced into `v1RecordViolations` made this fire first, with the
+    // wrong diagnosis.)
+    if (classifyThrew.length === 0) {
+      for (const key of ['ok-clean', 'ok-quarantined', 'record_schema',
+        'envelope/root_not_object', 'envelope/schema_version_missing',
+        'envelope/schema_version_unknown', 'envelope/records_not_array']) {
+        assert.ok(
+          (outcomes[key] ?? 0) > 0,
+          `fuzz REACH: none of the ${corpus.length} generated values ever produced "${key}", and nothing threw. `
+          + `EITHER the corpus degenerated and no longer reaches that branch, OR the branch no longer exists. `
+          + `Both are real failures: a property that cannot reach the code proves nothing about it. `
+          + `Observed outcomes: ${Object.entries(outcomes).sort().map(([k, n]) => `${k}:${n}`).join(', ') || 'none'}`,
+        );
+      }
+    }
+  }
+
+  // ── POTENCY — the same corpus against the unguarded pre-fix transcription ──
+  let potency = 0;
+  for (const item of corpus) {
+    try { unguardedPreFixReader(item.value); } catch (e) { if (isRawBuiltinError(e)) potency += 1; }
+  }
+  assert.ok(
+    potency >= FUZZ_MIN_POTENCY,
+    `fuzz POTENCY control FAILED: only ${potency} of ${corpus.length} generated values crash the unguarded PRE-FIX transcription, so "the validator never threw" may be a fact about a harmless corpus rather than about the validator`,
+  );
+
+  const firstThrow = classifyThrew[0];
+  const firstBad = badShape[0];
+  const D1 = {
+    moduleMissing: VALIDATOR === null,
+    cases: corpus.length,
+    throwCount: classifyThrew.length,
+    badShapeCount: badShape.length,
+    potency,
+    summary: VALIDATOR === null
+      ? `the artifact validator module does not exist on this tree (${VALIDATOR_IMPORT_ERROR?.constructor?.name}: ${VALIDATOR_IMPORT_ERROR?.message})`
+      : `${corpus.length} generated acyclic JSON values: ${classifyThrew.length} made classifyRedEvidenceArtifact THROW, ${badShape.length} returned something that is not a classification`
+        + (firstThrow ? ` — first throw on a "${firstThrow.item.stratum}" value (${firstThrow.item.label ?? canon(firstThrow.item.value).slice(0, 120)}): ${firstThrow.error?.constructor?.name}: ${firstThrow.error?.message}` : '')
+        + (firstBad ? ` — first bad shape on a "${firstBad.item.stratum}" value: ${canon(firstBad.item.value).slice(0, 120)}` : ''),
+    proofLine: `seed=${JSON.stringify(FUZZ_SEED)}; corpus=${corpus.length}; corpusDigest=${corpusDigest}; `
+      + `strata=${Object.entries(strata).map(([k, n]) => `${k}:${n}`).join(',')}; `
+      + `classifyThrew=${classifyThrew.length}/${corpus.length}; notAClassification=${badShape.length}/${corpus.length}; `
+      + `outcomes=${Object.entries(outcomes).sort().map(([k, n]) => `${k}:${n}`).join(',') || 'none'}`,
+  };
+
+  // ── D2 · partition totality + losslessness ───────────────────────────────
+  // Every ARRAY reachable in the corpus is a candidate `records` array, so the
+  // quarantine splitter is exercised over far more shapes than any envelope
+  // fixture could reach it with.
+  const arrays = [];
+  const collectArrays = (value, seen) => {
+    if (value === null || typeof value !== 'object' || seen.has(value)) return;
+    seen.add(value);
+    if (Array.isArray(value)) {
+      arrays.push(value);
+      for (const item of value) collectArrays(item, seen);
+      return;
+    }
+    for (const key of Object.keys(value)) collectArrays(value[key], seen);
+  };
+  for (const item of corpus) collectArrays(item.value, new Set());
+
+  const partitionThrew = [];
+  const partitionLossy = [];
+  if (VALIDATOR !== null) {
+    for (const entries of arrays) {
+      let partition;
+      try {
+        partition = VALIDATOR.partitionRedEvidenceRecords(entries);
+      } catch (e) { partitionThrew.push({ entries, error: e }); continue; }
+      const reason = partitionDefect(partition, entries);
+      if (reason !== null) partitionLossy.push({ entries, reason });
+    }
+  }
+  const D2 = {
+    moduleMissing: VALIDATOR === null,
+    arrays: arrays.length,
+    throwCount: partitionThrew.length,
+    lossyCount: partitionLossy.length,
+    summary: VALIDATOR === null
+      ? 'the artifact validator module does not exist on this tree'
+      : `${arrays.length} arrays reachable in the corpus: ${partitionThrew.length} made partitionRedEvidenceRecords THROW, ${partitionLossy.length} lost or duplicated an entry`
+        + (partitionLossy[0] ? ` — first: ${partitionLossy[0].reason}` : '')
+        + (partitionThrew[0] ? ` — first throw: ${partitionThrew[0].error?.constructor?.name}: ${partitionThrew[0].error?.message}` : ''),
+    proofLine: `arrays=${arrays.length}; partitionThrew=${partitionThrew.length}/${arrays.length}; `
+      + `lossyOrReordered=${partitionLossy.length}/${arrays.length}; `
+      + `retainedVerbatim=${arrays.length - partitionLossy.length - partitionThrew.length}/${arrays.length}`,
+  };
+
+  // ── D3 · the LIVE read boundary over generated artifacts ─────────────────
+  // The pure functions above are the property's subject; this row proves the
+  // property is actually WIRED — that the same shapes reach production code and
+  // that its THROWING wrapper only ever throws typed errors naming the file.
+  const onDisk = corpus.filter((item, i) => i % 4 === 0);
+  const rawEscapes = [];
+  const unnamed = [];
+  let typedRejections = 0;
+  for (const item of onDisk) {
+    writeRawArtifact(JSON.stringify(item.value) ?? 'null');
+    try {
+      store.readRedEvidence(storyId);
+    } catch (e) {
+      if (isRawBuiltinError(e)) { rawEscapes.push({ item, error: e }); continue; }
+      typedRejections += 1;
+      if (e?.name === 'RedEvidenceArtifactError' && !namesArtifactPath(e.message)) unnamed.push({ item, error: e });
+    }
+  }
+  // …and a small sample all the way through the LIVE gate pair (~95ms each, so
+  // this is a sample rather than the corpus — the read boundary above is where
+  // the shape coverage lives).
+  const gateSample = onDisk.filter((item, i) => i % Math.ceil(onDisk.length / FUZZ_GATE_SAMPLE) === 0).slice(0, FUZZ_GATE_SAMPLE);
+  const gateEscapes = [];
+  for (const item of gateSample) {
+    const o = observe(() => writeRawArtifact(JSON.stringify(item.value) ?? 'null'));
+    if (o.readThrew && isRawBuiltinError(o.readError)) gateEscapes.push({ item, error: o.readError });
+    else if (o.threw && isRawBuiltinError(o.error)) gateEscapes.push({ item, error: o.error });
+  }
+  const firstEscape = rawEscapes[0] ?? gateEscapes[0];
+  const D3 = {
+    artifacts: onDisk.length,
+    gateSample: gateSample.length,
+    rawEscapeCount: rawEscapes.length + gateEscapes.length,
+    unnamedCount: unnamed.length,
+    summary: `${onDisk.length} generated artifacts through the live read boundary and ${gateSample.length} through the full gate pair: `
+      + `${rawEscapes.length + gateEscapes.length} let a RAW builtin escape, ${unnamed.length} typed rejections named no artifact`
+      + (firstEscape ? ` — first on a "${firstEscape.item.stratum}" value: ${firstEscape.error?.constructor?.name}: ${firstEscape.error?.message}` : ''),
+    proofLine: `artifacts=${onDisk.length}; readBoundaryRawBuiltins=${rawEscapes.length}/${onDisk.length}; `
+      + `typedRejections=${typedRejections}; typedNamingArtifact=${typedRejections - unnamed.length}/${typedRejections}; `
+      + `gateSample=${gateSample.length}; gateRawBuiltins=${gateEscapes.length}/${gateSample.length}`,
+  };
+
+  console.log(
+    `      proof D0: seed=${JSON.stringify(FUZZ_SEED)}; corpus=${corpus.length}; corpusDigest=${corpusDigest}; acyclic=true; `
+    // NODE counts, not distinct-value counts: `walkValue` visits every position,
+    // so a shared subtree is counted once per path. D2's `arrays` is a different
+    // number on purpose — there it is the DISTINCT arrays actually partitioned.
+    + `maxDepth=${maxDepth}; objectNodes=${stats.objects}; arrayNodes=${stats.arrays}; emptyObjects=${stats.emptyObjects}; `
+    + `emptyArrays=${stats.emptyArrays}; nullPrototype=${stats.nullProtoObjects}; inheritedPrototype=${stats.inheritedProtoObjects}; `
+    + `ownProtoKeys=${stats.protoOwnKeys}; mixedPrimitiveArrays=${stats.mixedPrimitiveArrays}; distinctKeys=${stats.distinctKeys.size}; `
+    + `novelVsEnumerated=${novel}; potencyAgainstUnguardedPreFixReader=${potency}/${corpus.length}`,
+  );
+
+  FUZZ = { D1, D2, D3 };
+  return FUZZ;
+}
+
+/**
+ * D-4 says quarantine RETAINS. Stated as a property of the partition rather
+ * than of one fixture: nothing is dropped, nothing is duplicated, every
+ * rejected entry is the ORIGINAL object at its ORIGINAL index, and the kept
+ * entries are the input with exactly those indices removed — order intact.
+ * Returns `null` when the partition is sound, or the first defect found.
+ */
+function partitionDefect(partition, entries) {
+  if (partition === null || typeof partition !== 'object') return 'the partition is not an object';
+  const { records, malformed: rejected } = partition;
+  if (!Array.isArray(records) || !Array.isArray(rejected)) return 'records/malformed are not both arrays';
+  if (records.length + rejected.length !== entries.length) {
+    return `${entries.length} entries in, ${records.length} kept + ${rejected.length} quarantined out — an entry was DROPPED or DUPLICATED`;
+  }
+  const takenIndices = new Set();
+  for (const entry of rejected) {
+    if (!Number.isInteger(entry?.index) || entry.index < 0 || entry.index >= entries.length) return `quarantined index ${String(entry?.index)} is not a position in a ${entries.length}-entry array`;
+    if (takenIndices.has(entry.index)) return `index ${entry.index} was quarantined twice`;
+    takenIndices.add(entry.index);
+    if (!Object.is(entry.value, entries[entry.index])) return `the entry quarantined at index ${entry.index} is not the ORIGINAL value — quarantine must retain verbatim`;
+  }
+  const expected = entries.filter((_, i) => !takenIndices.has(i));
+  for (let i = 0; i < expected.length; i += 1) {
+    if (!Object.is(expected[i], records[i])) return `kept record ${i} is not the original entry in its original relative order`;
+  }
+  return null;
+}
+
+// ── D1 · the §10.5 totality property ────────────────────────────────────────
+RED_ROWS.push({
+  id: 'D1-classify-total-on-arbitrary-json',
+  block: 'D.1', klass: 'TOTALITY',
+  label: '`classifyRedEvidenceArtifact` returns a well-formed CLASSIFICATION for every generated acyclic JSON value and never throws (§10.5)',
+  observeRow: () => fuzz().D1,
+  preFixDefectDesc: 'the §10.5 totality property has no implementation to hold it — on the pre-fix tree there is no artifact validator at all — or some generated value makes the documented-total entry point throw, or hands back something that is not a classification',
+  preFixDefect: (o) => o.moduleMissing || o.throwCount > 0 || o.badShapeCount > 0,
+  requiredDesc: 'every generated value yields a member of the classification union — `{ok:true}` with a retained `malformed` list, or `{ok:false}` with a typed error whose envelope faults carry a known code and NAME the artifact — and not one of them throws',
+  required: (o) => !o.moduleMissing && o.cases >= FUZZ_MIN_CASES && o.throwCount === 0 && o.badShapeCount === 0,
+});
+
+// ── D2 · quarantine is total AND lossless, as a property ────────────────────
+RED_ROWS.push({
+  id: 'D2-partition-total-and-lossless',
+  block: 'D.2', klass: 'TOTALITY',
+  label: '`partitionRedEvidenceRecords` is total over every array in the corpus and never drops, duplicates or rewrites an entry (D-4 retain-and-report)',
+  observeRow: () => fuzz().D2,
+  preFixDefectDesc: 'there is no quarantine splitter to hold the property, or some generated array makes it throw, or a partition loses / duplicates / reorders an entry — a "clean empty array" being exactly what reads as an ABSENT artifact',
+  preFixDefect: (o) => o.moduleMissing || o.throwCount > 0 || o.lossyCount > 0,
+  requiredDesc: 'for every array: kept + quarantined accounts for every entry exactly once, each quarantined entry is the ORIGINAL object at its ORIGINAL index, and the kept entries are the input with those indices removed, order intact',
+  required: (o) => !o.moduleMissing && o.arrays >= FUZZ_MIN_ARRAYS && o.throwCount === 0 && o.lossyCount === 0,
+});
+
+// ── D3 · the property is WIRED, not just true of a pure function ────────────
+RED_ROWS.push({
+  id: 'D3-read-boundary-total-on-generated-artifacts',
+  block: 'D.3', klass: 'TOTALITY',
+  label: 'no generated artifact lets a RAW builtin escape the live read boundary or the live gate pair, and every typed rejection names the artifact',
+  observeRow: () => fuzz().D3,
+  preFixDefectDesc: 'a generated artifact escapes a RAW builtin error (the bare TypeError of §2.1/§2.4, or a raw SyntaxError) from the live read boundary or the live gate — naming nothing an operator could act on',
+  preFixDefect: (o) => o.rawEscapeCount > 0,
+  requiredDesc: 'the read boundary either returns a value or throws a TYPED error that names the artifact path; no raw builtin escapes to the gate for any generated shape',
+  required: (o) => o.artifacts >= 1000 && o.rawEscapeCount === 0 && o.unnamedCount === 0,
+});
 
 // ── runner ──────────────────────────────────────────────────────────────────
 const ctx = { store, storyId, root, satisfying, malformed, writeEnvelope, writeRawArtifact, removeArtifact, observe, canon, ABSENT, CLEAN };
