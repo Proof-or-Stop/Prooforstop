@@ -1,0 +1,39 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-003",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-2aa7:F-005"
+      ],
+      "files": [
+        "packages/main/src/handlers/red-evidence.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-07-27T02:48:19.389Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "findingIds": [
+        "B-2aa7:F-001",
+        "B-2aa7:F-002",
+        "B-2aa7:F-003",
+        "B-2aa7:F-004"
+      ],
+      "files": [
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+        "packages/main/src/core/red-evidence-artifact-validation.ts",
+        "packages/main/src/handlers/red-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/core/red-evidence/append.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-07-27T02:48:30.240Z"
+    }
+  ]
+}

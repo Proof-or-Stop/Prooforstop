@@ -5,7 +5,7 @@
       "desc": "concept-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md:68 and :595 still say the consumer count is SEVEN (\"the seven consumers... remains valid\" / \"all seven consumers in §4 must be asserted\"), even though this same rev-4 revision corrected §4 (line 246) and D-2 (§12) to say the count is TEN (three merge-added: core/red-evidence/append.ts, handlers/red-evidence.ts x2). §10.4s own acceptance table (C1/C2/C3) only enumerates 3 of the 10 consumers and was never extended for the recount, so the doc landed by this story contradicts itself about a concept (\"the consumers\") that rev 4 explicitly claims to have fixed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-27T02:39:51.368Z",
@@ -16,14 +16,16 @@
         "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md"
       ],
       "signatureTag": "missing|md|concept-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@bc16eaf"
     },
     {
       "id": "B-2aa7:F-002",
       "desc": "concept-does-not-exist: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md repeatedly cites a CLI command `red_evidence_add` (lines 256, 291, 503, 513, 599-600, 643/D-6) as the read-before-append repair path. No such command exists anywhere in the CLI catalog (packages/main/src/cli/command-catalog.ts) or handler set; the real command implementing that behaviour is `red_evidence_create` (handlers/proofstory.ts:1110). `git log -S\"red_evidence_add\"` shows this string was introduced only by this storys own CHK-004 commit (53afa24245) -- it never existed as a real command name pre- or post-fix. The same fictional name also leaked into production source: packages/main/src/core/red-evidence-artifact-validation.ts:72 says \"CHK-006s `red_evidence_add` obligation\". Rev 4 fixed §0.0/§4/§10.2.1/D-2 but did not catch this naming error, so the landed canonical decision doc (and a source comment) now permanently describe a command that does not resolve.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-27T02:40:00.612Z",
@@ -35,14 +37,16 @@
         "packages/main/src/core/red-evidence-artifact-validation.ts"
       ],
       "signatureTag": "missing|md|concept-exist-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@bc16eaf"
     },
     {
       "id": "B-2aa7:F-003",
       "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §4 (\"`store.readRedEvidence` has TEN production call sites on current main\") is wrong a third time on the shipped tree. Grep of `store.readRedEvidence(` in packages/main/src (excluding tests) gives NINE call sites: core/machine.ts:177, handlers/phase-gates.ts:198, handlers/proofstory.ts:391/1155/1205 (3), handlers/story-review.ts:295/833 (2), core/red-evidence/append.ts:167, handlers/red-evidence.ts:84 (1). The doc's two cited handlers/red-evidence.ts sites (:56 and :137) were real at the B-506e-merge baseline (verified: `git show f342d9464b^:packages/main/src/handlers/red-evidence.ts` has calls at exactly those two lines) but this story's own CHK-006 commit (f342d9464b) consolidated both into a single shared `readRedEvidenceForChain` helper with one `store.readRedEvidence` call at :84, called from two command paths (findV2Record:106, red_evidence_binding_set:191). The doc never notes this consolidation and still asserts TEN as the current count; a reader who greps to verify (exactly what §0.0 instructs: \"re-derive any inventory... against CURRENT main rather than trusting a number in this text\") gets NINE. Functionally all consumers still surface corruption correctly (verified read-through of red-evidence.ts, proofstory.ts:1205, story-review.ts:833) so this is a documentation count, not a functional gap.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-27T02:40:09.264Z",
@@ -59,14 +63,16 @@
         "packages/main/src/core/red-evidence/append.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@bc16eaf"
     },
     {
       "id": "B-2aa7:F-004",
       "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §10.2.1 row E5 (\"file root is not an object ([], \\\"x\\\", null, 42) | WORSE than crashes\") plus its follow-up prose (\"None of these crash. They flow into the typed domain as the raw parsed value... a corrupt artifact is indistinguishable from an absent one\") is the PRE-FIX probe result only, and unlike sibling rows E4 (\"must stay\") and E6 (\"must not silently degrade... §6.1\") it carries no post-fix requirement/outcome statement. On the shipped tree this is no longer true: `validateRedEvidenceEnvelope` in packages/main/src/core/red-evidence-artifact-validation.ts:287-300 now throws a typed `RedEvidenceArtifactError` with fault code `root_not_object` for any non-plain-object root ([], string, null, number), naming the artifact path and the actual value type (`describeValue`) - verified by reading the function body. So a reader hitting E5 in the landed doc, without noting it describes the pre-fix state, would reasonably (and now incorrectly) conclude a non-object JSON root is still silently misread as absent evidence on current main.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-27T02:40:20.633Z",
@@ -78,14 +84,16 @@
         "packages/main/src/core/red-evidence-artifact-validation.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@bc16eaf"
     },
     {
       "id": "B-2aa7:F-005",
       "desc": "handlers/red-evidence.ts:120-126 (assertTargetInExpected), called from red_evidence_binding_set (line 167) and appendChainControl (line 311, shared by red_evidence_quarantine/red_evidence_recover), calls the UNWRAPPED phase-gates.ts:175 proofStoryDiagnosticInput directly (not the withRedEvidenceCorruptionContext-wrapped version used by phase-gates own gate functions). resolveExpectedRedTargets never reads input.redEvidence at all (verified: only originalIntentSnapshot/proofStoryContract/milestoneLedger, proofstory.ts:916-929) yet the shared builder still eagerly calls store.readRedEvidence() as one of its many fields, so a corrupt red-evidence.json makes these three unrelated commands throw. Repro confirmed live (corrupt artifact = bare `[]` root): red_evidence_binding_set throws a bare RedEvidenceArtifactError WITHOUT the redEvidenceRepairGuidance() suffix or NOT_ABSENCE sentence that every other CHK-006 consumer gets (e.g. red_evidence_get, red_evidence_create). This is a genuine 11th consumer that the CHK-006 checklist inventory (explicitly re-derived twice already per its own context note) still missed a third time: it is not one of the counted \"TWO sites in handlers/red-evidence.ts\" (those are findV2Record and the chain-read inside red_evidence_binding_set, both correctly routed through the new readRedEvidenceForChain wrapper). Not silent-as-absent (the typed error message still embeds the corruption marker + path), but it is an inconsistent, uncounted corruption-surfacing gap and an avoidable coupling to a field the caller does not need.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-27T02:41:48.288Z",
@@ -97,7 +105,9 @@
         "packages/main/src/handlers/phase-gates.ts"
       ],
       "signatureTag": "missing|ts|handlers-evidence-asserttargetinexpected",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003",
+      "resolvedBy": "CL-003@0b7217f"
     }
   ]
 }
