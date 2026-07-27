@@ -687,7 +687,11 @@
           {
             "desc": "A valid v2 record is still correctly skipped by the v1 predicate and its handling is unchanged from pre-fix.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
+              "selector": "V2_RECORD_SKIPPED_UNCHANGED"
+            }
           }
         ],
         "edge": [
@@ -704,7 +708,29 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
+          "result": "pass",
+          "note": "BLOCK B row B1, authored and observed on the PRE-FIX tree (commit 1e03c7c8af; CHK-004 has not landed, so packages/main/src/core/red-evidence-artifact-validation.ts does not exist and proofstory.ts:950 still dereferences record.observedFailure.trim() unguarded). Driven through proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics, never the predicate in isolation. The row asserts a VALID v2 record (id/operationKey derived, recordDigest recomputes via recordDigestMatches; a red-assert plus a quarantine control record) round-trips through store.readRedEvidence BYTE-IDENTICALLY, is never quarantined, and is skipped by the v1 predicate so the FULL diagnostic report is byte-identical to an ABSENT artifact; and that a v2 record next to a satisfying v1 record leaves the report byte-identical to a v1-only satisfying store in BOTH array orders. \"Skipped\" is proven as a VERDICT FLIP driven by the schemaVersion member ALONE: v1Twin and v2Hybrid are the same object except for that member, v1Twin SATISFIES ([]) and v2Hybrid is skipped ([\"missing_red_evidence\"]) - so the row cannot pass merely because a canonical v2 record happens to lack failingCommand. Non-vacuity is also built in: an UNSUPPORTED schemaVersion (v3) must NOT receive the same handling, a control whose outcome is identical on both trees. Falsification runs confirmed the row is not vacuous: asserting the opposite of the skip, and of the byte-identical round-trip, each aborted inside BLOCK B.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "aa162c379498f9c5c2615e7bae5252cda09c5c09a370edd36f137485dcb127ef",
+            "outputTail": "V2_RECORD_SKIPPED_UNCHANGED (loads byte-identically, never quarantined, verdict flips [] -> [\"missing_red_evidence\"] on the schemaVersion member alone, 2/2 mixed orders unperturbed; observed while BLOCK A is 14/14 RED)\nRECORDS_KEY_ABSENT_STAYS_NOT_CONFIGURED (UNSATISFIED via the ordinary missing_red_evidence gap, report byte-identical to an ABSENT artifact, never quarantined; a corrupt `records: {}` envelope is discriminated from it on this same predicate)\nABSENT_NOT_RECLASSIFIED_AS_CORRUPTION (4/4 not-configured shapes on one path, distinct from SATISFIED, corrupt envelope discriminated; the corrupt half of the distinction is BLOCK A's 14 still-RED rows, deliberately not claimed here)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:23:05.185Z"
+          },
+          "headHash": "1e03c7c8af9e29ff079fb400a20d25243f44ffd3",
+          "materialHash": "4b6aacf41d21fe35f70781294d551d34f696527bfdb06471c6694649546e15a0",
+          "storyFilesHash": "7a180339f4a146dcf009d8ed73e7d35fcffd9736b6a72101e75180f459e88a41",
+          "timestamp": "2026-07-27T00:23:05.416Z"
+        }
+      ]
     },
     {
       "id": "CHK-011",
