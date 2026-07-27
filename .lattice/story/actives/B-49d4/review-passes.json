@@ -32,6 +32,39 @@
         "scanEscalationReason": null
       },
       "_hash": "1c8be912a39c4e37b3dbda892f0e06a3c9c36b7a2c99460f454b34b223e2e75d"
+    },
+    {
+      "id": "B-49d4:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round follow-up on F-001/F-002/F-003/F-006. F-001 and F-003 fixes verified sound (mirror-based probing, audited BLOCK D self-mention skip with bite proven both directions). F-006 fix verified: derive() no longer computes reachability by textual BFS; it claims only REGISTERED and DECIDED and explicitly disclaims EXECUTED. No live concept residue of reachability/NEVER-RUN found -- the only remaining textual traces are an explicitly-documented, permanently-frozen historical receipt (red-b49d4-chk001-receipt.mjs, whose header names F-005/F-006 and states the old row IDs are historical) plus matching waiver notes in checklist verificationEvidence, and PLAN-phase artifacts (plan.md/decision.json/understanding.json) that are frozen-at-DEV-start problem framing, not live shipped-code claims -- neither counts as unaddressed residue. F-002 remains open (my own finding, medium, does not block this critical-only round): disposition is DEFER, not fix-now or dismiss. Reasoning: (1) the duplication's practical blast radius is bounded -- both chk007 and harness-registration are independently registered and each checks its OWN exclusion map every run, so any one-sided edit surfaces as a FAIL on at least one of them, unlike F-001/F-003/F-006 which were silent false-greens; (2) a proper fix means editing red-b2aa7-chk007-receipt.mjs, which is itself a PINNED verification receipt for the already-DONE sibling story B-2aa7 (its checklist.json pins an exact outputDigest/outputTail for CHK-007) -- touching it deserves its own deliberate RED-first treatment (this story's own methodology) as a follow-up, not a rushed round-3+ patch under critical-only blocking pressure. Filed F-008 (low) with additional evidence: the DECIDED/'excluded' label has forked into three different enforcement STRENGTHS (chk007 behaviorally re-verifies its own excluded entries every run; harness-registration only bookkeeps, with zero live re-verification for its own third entry red-b49d4-chk001-receipt.mjs; derive() is a third, purely-advisory pass-through of harness-registration's map) -- currently low-risk because the unverified entry's underlying artifact is independently registered, but the shared label no longer means one consistent thing. Checked for other silent naming-based behavior forks post-F-003: none found -- BLOCK D's mention-skip and BLOCK C's decidedNames extraction are both scoped, audited reads of declared data, not textual-mention inference. No critical finding this round.",
+      "createdAt": "2026-07-27T20:00:06.826Z",
+      "reviewRound": "2026-07-27T19:47:16.995Z",
+      "reviewRunId": "B-49d4:RR-013",
+      "envelopeId": "6ddc767fdec21ede564dd9586a626e1700cfb63f56afeb80a6d2e9bdfa1d391d",
+      "writerSessionId": "sess-14ce788c48429840fd642741e2150a60",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49d4/plan.md",
+          ".lattice/story/actives/B-49d4/scope-contract.json",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          ".lattice/story/actives/B-49d4/checklist.json",
+          ".lattice/story/actives/B-49d4/decision.json",
+          ".lattice/story/actives/B-49d4/understanding.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3757a1bed7e03831adf32a127eff5d7666328fc83ce1353edd542918a46941f4"
     }
   ]
 }
