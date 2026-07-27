@@ -4,7 +4,7 @@
   "title": "Derive red-harness validate registration instead of asserting a fixed allowlist",
   "description": "Two populations, one shape of defect. packages/main/tests/red/red-w2c-validate-registration.mjs guards its own population - the three dist/tasks/red-evidence-*.js smokes - with a hardcoded list, so it is blind to a member nobody registered; proven by probe, an unregistered member exiting 1 left it at exit 0. Separately, the packages/main/tests/red/*.mjs population has NO guard at all beyond red-b2aa7-chk007-receipt.mjs, which covers only red-b2aa7-*: 18 of 31 are unregistered and 15 are reachable by no automated path, including the w2c guard itself, so even where it does bite it never runs under lattice validate. All 18 currently pass in roughly half a minute, so nothing is broken today and registration is nearly free. Fix both by mirroring chk007, which already derives its population from disk and requires every member to be registered or explicitly excluded with a stated reason.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "validate-registration",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-07-27T13:31:24.433Z",
   "startedAt": "2026-07-27T13:31:24.433Z",
-  "endedAt": null,
+  "endedAt": "2026-07-27T21:41:48.479Z",
   "events": [
     {
       "phase": "INIT",
@@ -112,12 +112,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-14ce788c48429840fd642741e2150a60",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-27T21:41:48.479Z",
+      "branch": "story/B-49d4",
+      "user": "Harmonygo",
+      "sessionId": "sess-14ce788c48429840fd642741e2150a60",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-49d4",
-    "branch": "story/B-49d4",
-    "createdAt": "2026-07-27T13:42:15.484Z"
-  },
   "currentReviewRound": "2026-07-27T19:47:16.995Z"
 }
