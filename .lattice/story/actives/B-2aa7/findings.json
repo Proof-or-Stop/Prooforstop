@@ -170,6 +170,25 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-005",
       "resolvedBy": "CL-005@aa00b5c"
+    },
+    {
+      "id": "B-2aa7:F-009",
+      "desc": "red-evidence-artifact-validation.ts:861-866 makes a FALSE safety claim (\"a hand-built payload cannot smuggle one in either\") about retainQuarantinedRecordsOnWrite (:875-886), and it is the same trust-the-unvalidated-field pattern the two commits under review just fixed, moved one layer down. redEvidenceQuarantinedRecords (:653-659) only checks SHAPE via isDerivedQuarantineEntry, never PROVENANCE -- it cannot distinguish an entry genuinely produced by classifyRedEvidenceArtifact/withDerivedQuarantine from a hand-built RedEvidenceData object literal with a structurally-identical malformedRecords array (exactly the shape the tests own plantedEntry() helper builds, at packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs:102-109). store.writeRedEvidence (store.ts:957-958) unconditionally passes ANY caller-supplied RedEvidenceData through retainQuarantinedRecordsOnWrite, so any current or future in-process caller that constructs a RedEvidenceData by hand (not via store.readRedEvidence) with a well-shaped but fabricated malformedRecords entry gets that entry's value silently re-inserted into records -- the exact evidence the DEV/REVIEW/DONE gates read. Empirically reproduced: calling retainQuarantinedRecordsOnWrite directly on a hand-built object {records:[{id:\"RED-ok\"}], malformedRecords:[{index:0,id:\"INJECTED-PAYLOAD\",reason:\"fabricated\",violations:[\"fabricated\"],value:{id:\"INJECTED-PAYLOAD\",forged:true}}]} returns records=[INJECTED-PAYLOAD, RED-ok] with the malformedRecords key stripped -- i.e. injection succeeds and leaves no trace that it happened. No current production call site (proofstory.ts:1174, red-evidence/append.ts:279, red-evidence-chain-smoke.ts:161) triggers this because all three happen to derive data from an honest prior store.readRedEvidence() -- so this is not exploitable TODAY, but the safety property is an unenforced caller-discipline convention, not a mechanical guarantee, and the doc comment overclaims that it is. Recommend either correcting the doc comment to state the actual (caller-discipline) trust boundary, or making derivation authoritative at the write boundary too (e.g. an unforgeable brand/symbol attached only by withDerivedQuarantine, so a hand-built object literal can never satisfy isDerivedQuarantineEntry) -- the same fix strategy the second commit already applied at the read boundary.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-27T04:39:45.465Z",
+      "reviewRound": "2026-07-27T04:25:36.270Z",
+      "reviewRunId": "B-2aa7:RR-009",
+      "_hash": "8829fae01ad9fe92cb012f68871530f8d419c6ae4ee8e37bd1fc45db031998a2",
+      "files": [
+        "packages/main/src/core/red-evidence-artifact-validation.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "adversarial|ts|evidence-artifact-validation",
+      "signatureTagSource": "auto"
     }
   ]
 }
