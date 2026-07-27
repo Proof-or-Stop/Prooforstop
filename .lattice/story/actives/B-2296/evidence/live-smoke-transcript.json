@@ -5,17 +5,17 @@
     "command": "node bin/lattice.js frozen_claim_drift_check --storyId=B-2296",
     "exitCode": 0,
     "stdout": "FROZEN_CLAIM_DRIFT advisory for B-2296 (3 drifted, 1 legacy-unbound, non-blocking)\n  CHK-001 classification=legacy-unbound actionRequired=re_attestation\n  CHK-002 driftKind=material actionRequired=re_attestation\n  CHK-003 driftKind=material actionRequired=re_attestation\n  CHK-004 driftKind=material actionRequired=re_attestation\n",
-    "stderr": "[0.1s] running frozen_claim_drift_check...\n[0.4s] frozen_claim_drift_check done\n"
+    "stderr": "[0.0s] running frozen_claim_drift_check...\n[0.3s] frozen_claim_drift_check done\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-27T10:39:06.855Z",
+  "capturedAtIso": "2026-07-27T11:03:03.712Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "021661c1d91a157ac7848636e5e5f55b616ce22d",
-  "materialHash": "723c65cb8fca0bc715fe46d88801726d1f8f0e7fec5d90ad4c2fdaf50ffe5a6f"
+  "headHash": "85ebd682aea2c38eb0e2868e9b7e68739fa64c3b",
+  "materialHash": "3674fa960f06743cf59ffe7f3312b5adad46ba841b660b135cdf3a342c16ea33"
 }
