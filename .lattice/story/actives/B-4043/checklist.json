@@ -291,7 +291,11 @@
             "desc": "Insufficient samples, unknown/partial/unsupported adapters, unexplained adapter disagreement, and claim-taxonomy gaps fail promotion with stable diagnostics while remaining honestly partial/unsupported; flat project scope is preserved and no selective Story/policy applicability is inferred without Wave 3A.",
             "type": "cli",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
           }
         ],
         "adversarial": [
@@ -328,13 +332,21 @@
         {
           "intentRef": "CHK-003:edge:inconclusive-boundary",
           "kind": "manual_transcript",
-          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
           "result": "pass",
-          "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): proofstory-acceptance-rollout-smoke.js exit 0, PASS (57 assertions). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
-          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
-          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
-          "timestamp": "2026-07-27T02:12:24.908Z"
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T10:52:27.720Z"
+          },
+          "headHash": "48dbec9ab3f39fc1f07947119145451f445a1ed7",
+          "materialHash": "9e6d05bfb6dd084937eb839552de4d5be870ddf981cb7e495fd8e86c96116c13",
+          "storyFilesHash": "4192182b1813c9fd53f788b1c9c75fe0e272f3d9d99920eefcb77d1ff0c110f6",
+          "timestamp": "2026-07-27T10:52:27.927Z"
         },
         {
           "intentRef": "CHK-003:adversarial:threshold-bypass",
