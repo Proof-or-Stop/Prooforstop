@@ -879,7 +879,11 @@
           {
             "desc": "The pre-fix behaviour is pinned first: satisfying-first-then-malformed returns SATISFIED today with no throw, proving the assertion is not vacuous.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+              "selector": "O2_SILENT_CORRUPTION_PINNED"
+            }
           }
         ]
       },
@@ -932,6 +936,26 @@
           "materialHash": "decb351dcf6ae7fe4296b3a2a0675ebb322eb6b91bba64c55ba10470de684e8d",
           "storyFilesHash": "705bced5d932735d17c681e1e92d54ca92c78857c5517f220f93387812acd040",
           "timestamp": "2026-07-27T01:20:40.251Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "result": "pass",
+          "note": "The pre-fix pin, without which the post-fix assertion would be vacuous. The AUTHORITATIVE observation was taken on a rebuilt archive of the pre-fix commit 6d7c20bb4b (git archive, npm --prefix packages/main run build, then the same proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics harness), because CHK-004 fixed the read boundary and CHK-005 made the predicate total, so neither the O1 crash nor the O2 silence can be provoked through the production path on this tree. Verbatim from that run: O1 [malformed, satisfying] -> gate THREW TypeError(TypeError): Cannot read properties of undefined (reading 'trim'); O2 [satisfying, malformed] -> no throw, gate codes [], report byte-identical to CLEAN, records loaded verbatim and unreported; O1.report === O2.report was FALSE while O2.report === CLEAN.report was TRUE. Over whole permutation families the split was exactly two outcomes (2-set 2 perms -> 2 distinct, 3-set 6 perms -> 2, 4-set 24 perms -> 2), partitioned precisely by whether index 0 was malformed. Copying this file onto that rebuilt tree reports 17 RED / 0 GREEN with witnessed classes CRASH=7, ENVELOPE-MISATTRIBUTION=1, SILENT=5, UNTYPED-THROW=1, ORDER-DEPENDENCE=3, and each BLOCK C row matched its DOCUMENTED preFixDefect rather than the runner's STALE ROW path - so the rows failed for the documented reason, not a typo or a broken fixture. Because that archive is not committed, the SELECTOR here is a live in-tree differential that reproduces the SILENT half mechanically: the receipt drives the live gate over the SAME bytes twice, once through the validated read boundary and once with it BYPASSED (JSON.parse straight into the typed domain, which is exactly what store.readRedEvidence did pre-CHK-004). Observed unvalidatedCodes=[] with unvalidatedQuarantined=0 and the malformed record still sitting in records, versus validatedCodes=[] with the same bytes quarantined verbatim at validatedQuarantinedIndex=1 and removed from the clean set. The verdict is IDENTICAL on both paths, which is the sharp point: what the fix changed is whether corruption is REPORTED, not whether the gate passes, so 'the fix works' cannot be confused with 'the gate started failing'. Every marker in this receipt is additionally gated on the artifact file running fully green (0 RED, all three C rows GREEN, exit 0), and a BLOCK C row that failed for an undocumented reason would abort the run with a STALE ROW assertion before any marker could print.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed25886b63e7949e42b492236320d3672e3c3ff6b9d3177147c9b7640095b756",
+            "outputTail": "ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)\nMALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)\nO2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in `records` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — unvalidatedCodes=[], unvalidatedQuarantined=0, validatedCodes=[], validatedQuarantinedIndex=1)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:21:06.971Z"
+          },
+          "headHash": "784b8d21bd4435fbac255d2f67990dd4a2d90aa8",
+          "materialHash": "decb351dcf6ae7fe4296b3a2a0675ebb322eb6b91bba64c55ba10470de684e8d",
+          "storyFilesHash": "705bced5d932735d17c681e1e92d54ca92c78857c5517f220f93387812acd040",
+          "timestamp": "2026-07-27T01:21:07.161Z"
         }
       ]
     },
