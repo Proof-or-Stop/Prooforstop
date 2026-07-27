@@ -1,0 +1,122 @@
+{
+  "storyId": "B-2aa7",
+  "checkedAt": "2026-07-27T05:40:14.094Z",
+  "headHash": "620d54529c8ee09364400a1f9ff49dc48fe8a01d",
+  "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
+  "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
+  "reviewRound": "2026-07-27T04:59:05.649Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#4.1",
+      "promise": "store.readRedEvidence has exactly NINE production call sites at HEAD (core/machine.ts:177, handlers/phase-gates.ts:198, handlers/proofstory.ts:391/1155/1205, handlers/red-evidence.ts:84, handlers/story-review.ts:295/833, core/red-evidence/append.ts:167)",
+      "verifiedBy": "grep",
+      "evidence": "grep -rn \"readRedEvidence(\" packages/main/src (excluding tests) returns exactly 9 consumer call sites plus the store.ts:922 definition and the append.ts:60 interface signature; matches the doc's table exactly, including line numbers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#10.4-C3",
+      "promise": "the story_review advisory path (handlers/story-review.ts) renders a distinct CORRUPT section instead of the pre-fix 'unavailable (...)' wording when the red-evidence artifact is corrupt",
+      "verifiedBy": "code read + independent re-run",
+      "evidence": "handlers/story-review.ts:290-320 and :790-820 both hoist store.readRedEvidence out of the try, call renderRedEvidenceQuarantineNotice, and only fall back to 'unavailable (...)' when describeRedEvidenceReadFailure returns null (i.e. a non-artifact error). Re-ran packages/main/tests/red/red-b2aa7-chk006-receipt.mjs myself (rebuilt dist) and observed EVERY_CONSUMER_DISTINGUISHES_CORRUPTION_FROM_ABSENCE print, explicitly naming 'story-review.ts story_review (C3 advisory path)' as no longer rendering unavailable."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#D-1..D-8 / 10.2 / 10.2.1 / 10.5",
+      "promise": "fail-closed v1 artifact validation at the read boundary: envelope validated before records (D-8), full v1 field validation (D-3), quarantine retains malformed records rather than dropping/throwing/silently passing (D-4), the gate predicate is total on arbitrary injected input (D-2), and the validator itself never throws on arbitrary JSON (10.5)",
+      "verifiedBy": "independent test re-run",
+      "evidence": "Rebuilt packages/main (npm run build) and re-ran packages/main/tests/red/red-b2aa7-artifact-validation.mjs myself: 0 RED / 20 GREEN across Blocks A (14 defect-class rows), B, C (order-independence, 38 permutations) and D (4846-value fuzz corpus, 0 throws). Also read core/red-evidence-artifact-validation.ts directly to confirm envelope-before-records ordering and the WeakSet-based quarantine derivation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#0.0 (PROTECTED harness)",
+      "promise": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs (main's own five-scenario invariance harness, pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec) is left byte-identical to main and the constant is never re-pinned, proving no valid v1 verdict moved",
+      "verifiedBy": "git diff + sha256 + re-run",
+      "evidence": "git diff main...HEAD and git diff HEAD for this file are both empty; git show main:<path> | sha256sum equals git show HEAD:<path> | sha256sum (2ab4ea0f...). Re-ran the harness myself post-build; it still prints and asserts against 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec, exit 0."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#7.1",
+      "promise": "the phantom digest 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc (which no artifact produces) is never pinned anywhere in this story's shipped source or tests",
+      "verifiedBy": "grep",
+      "evidence": "grep -rn for the literal string across packages/main/src and packages/main/tests returns zero matches."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#D-7 / CHK-003",
+      "promise": "a mandatory, re-runnable migration scan proves 'no valid v1 verdict moved' over real story red-evidence artifacts, reporting the count even when zero",
+      "verifiedBy": "independent re-run",
+      "evidence": "Re-ran packages/main/tests/red/red-b2aa7-migration-scan.mjs myself: scanned 107 artifacts / 149 records, 0 affected, self-test corpus shows the detector is non-vacuous (4/6 synthetic records correctly flagged affected)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#9 (recoverability) + CHK-006",
+      "promise": "red_evidence_get DISPLAYS corruption (both a rejected envelope and a quarantined record) instead of aborting, so a corrupt artifact stays diagnosable and repairable through the CLI",
+      "verifiedBy": "independent real-machine exercise",
+      "evidence": "Built a throwaway store outside the story's own fixtures (a different storyId and an ARRAY-shaped malformed record the story's CHK-006 receipt does not use verbatim) and called the real red_evidence_get handler from dist/. It returned status:'corrupt' with the quarantined original retained verbatim at records[1], both in JSON and text mode, and left the on-disk file unmodified. A second run with a bad file-level schemaVersion also correctly reported a distinct envelope-level corruption message rather than aborting."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#4.0 (F-007) + CHK-007",
+      "promise": "the validate.commands registration-completeness check enumerates receipts from disk rather than a hardcoded allowlist, so a new receipt cannot silently go unregistered",
+      "verifiedBy": "code read + independent re-run",
+      "evidence": "Confirmed lattice.config.json validate.commands lists 13 red-b2aa7-*.mjs/red-w2c-*.mjs entries (chk004/005/006/007/009/011, doc, baseline, f005, artifact-validation, migration-scan, write-quarantine-race, quarantine-derivation); re-ran red-b2aa7-chk007-receipt.mjs which prints VALIDATE_REGISTRATION_COMPLETE by deriving the expected set from the packages/main/tests/red/ directory listing, not a fixed list."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md#12 (OPEN-3)",
+      "promise": "OPEN-3 (whether B-506e's phantom-digest prose warrants a B-META finding against the delivery-check gate) is explicitly deferred and out of THIS story's scope, not silently dropped",
+      "verifiedBy": "doc read + story-artifact cross-check",
+      "evidence": "scope-check.json explicitly lists this as status:'excluded' with a stated reason citing decision doc #12; no story was created after B-2aa7's own createdAt (2026-07-26T11:59:09.669Z) anywhere under .lattice/story/actives, so it has not been silently forgotten either -- it remains an open, correctly-scoped-out question about a DIFFERENT story's (B-506e's) delivery-check gate, not an unshipped promise of B-2aa7."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Three intents (happy/edge/adversarial) are PERMANENT WAIVERS by construction: they assert the RED artifact FAILED pre-fix, which cannot be re-observed post-fix. I independently corroborated the substance rather than taking the waiver note on trust: (1) re-ran red-b2aa7-artifact-validation.mjs myself post-build -- 0 RED / 20 GREEN, with Block A rows A1-A14 covering exactly the malformed/envelope/silent classes CHK-001 enumerates; (2) found the test-coverage reviewer's own independent pass (review-passes.json RP-004) rebuilding pre-fix trees at commit parents and observing the regressions genuinely FAIL there and PASS on HEAD. Judgment: the waivers are honest, not a dodge -- repointing them at a passing post-fix command would falsely claim a pass proves a pre-fix failure, and the underlying defect classes remain live-guarded by the registered fail-closed artifact-validation.mjs on every validate run."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Re-ran packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs myself; independently confirmed via git show + sha256 that this PROTECTED file is byte-identical to main and its pinned V1_VERDICT_DIGEST (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec) was never edited or re-pinned. Confirmed the phantom digest 71c267a0... appears nowhere in src or tests."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Re-ran packages/main/tests/red/red-b2aa7-migration-scan.mjs myself: scanned 107 artifacts / 149 records, 0 affected; self-test corpus correctly flags 4/6 synthetic bad records, proving the scan is not vacuous."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Re-ran the shared artifact-validation.mjs (Block A rows A1-A14) post-build: all GREEN. Independently exercised the read boundary myself with a fresh ARRAY-shaped malformed record via the real red_evidence_get handler and observed correct quarantine (retained verbatim at records[1]) plus correct envelope-level rejection for an unknown schemaVersion."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Covered by the same artifact-validation.mjs re-run (Block A/C rows) and by reading proofstory.ts's isShapedLegacyV1Record guard directly; the predicate returns a verdict rather than throwing across the fuzz corpus (Block D, 4846 values, 0 throws)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Re-ran red-b2aa7-chk006-receipt.mjs myself post-build (exit 0, all 3 markers printed). Independently repeated the exercise with my own throwaway store and a corruption shape not in the story's own fixture (a two-element records array with an ARRAY-shaped second entry): red_evidence_get displayed CORRUPT with the quarantined original verbatim at records[1] in both JSON and text mode, and the on-disk file was unchanged after the read."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Re-ran red-b2aa7-chk007-receipt.mjs myself: INVARIANCE_DIGEST_UNCHANGED_POST_FIX, D5_BLANK_OBSERVED_FAILURE_TOLERATED, PIN_NOT_REPINNED_HARNESS_UNTOUCHED, VALIDATE_REGISTRATION_COMPLETE and VACUOUS_PREFIX_RECEIPTS_EXCLUDED all printed. Cross-checked lattice.config.json validate.commands against the packages/main/tests/red/ directory listing by hand."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Re-ran red-b2aa7-doc-receipt.mjs myself: DOC_LANDED_WITH_DECISIONS, DOC_PRECEDES_SCOPE_REVIEW, STALE_HEADER_REMOVED all printed. Read the landed decision doc directly (904 lines) and confirmed §0.0 correctly states B-506e has merged and supersedes the earlier provenance warning."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "Covered by the artifact-validation.mjs re-run: rows C1/C2/C3 (order-independence) all GREEN, 38 permutations across 4 record sets collapsing to 1 observable each, 0 bare TypeErrors."
+    },
+    {
+      "featureId": "CHK-010",
+      "transcript": "Three intents are PERMANENT WAIVERS for the same pre-fix-observation reason as CHK-001. Independently corroborated via the same Block B rows in the re-run artifact-validation.mjs (0 RED / 20 GREEN) and via scope-check.json showing V2/E4 features explicitly covered_by CHK-010 with status:covered."
+    },
+    {
+      "featureId": "CHK-011",
+      "transcript": "Re-ran red-b2aa7-chk011-receipt.mjs myself: VALIDATOR_TOTAL_ON_ARBITRARY_JSON, FUZZ_COVERS_STRUCTURAL_EDGE_SHAPES, FUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST all printed (4846-value corpus, 0 throws, seed-sensitive corpus digest confirming the corpus was not tuned to pass)."
+    },
+    {
+      "featureId": "F-009",
+      "transcript": "Independently re-ran red-b2aa7-quarantine-derivation.mjs and red-b2aa7-write-quarantine-race.mjs (both registered in validate.commands): both exit 0. These close the 'appendControlRecord residual in a blocked path' concern -- since core/red-evidence/append.ts is explicitly excluded from this story's scope, the fix instead hardens the WRITE boundary (store.ts + a WeakSet provenance brand in red-evidence-artifact-validation.ts, both in-scope files) so a TOCTOU race or a hand-built payload can never launder fabricated data into red-evidence.json's records array. Confirmed core/red-evidence/append.ts itself is untouched in this diff (git diff main...HEAD -- packages/main/src/core/red-evidence/ is empty), consistent with the scope contract's explicitExcludes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-ran every registered red-b2aa7-*/red-w2c-v1-verdict-invariance receipt post-rebuild (13/13 green) plus two of my own throwaway-store exercises with fixtures the story's own receipts do not use verbatim, and all delivered behaviour matched the decision document's claims. The six PERMANENT-WAIVER intents (CHK-001/CHK-010) are honest, not a dodge: they assert an unrepeatable pre-fix observation, are corroborated by the test-coverage reviewer's own independent pre-fix rebuild, and the substance they gate remains mechanically re-checked by a registered fail-closed test on every validate run. Of the four claimed 'follow-up' items, three (F-005 read-decoupling, F-007 hardcoded-allowlist registration guard, F-009 write-boundary provenance/race hardening) are fully resolved and tested inside this same story's diff, not spun off, and the fourth (OPEN-3) is an explicitly out-of-scope, correctly-deferred question about a DIFFERENT story's (B-506e's) delivery-check gate -- none is an undelivered promise of B-2aa7."
+  },
+  "_hash": "16f396a505a404e353bb3c4f563f6093520d8bdbb8fcc550db87b8eb9fbfb137"
+}

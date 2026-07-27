@@ -1,0 +1,54 @@
+{
+  "storyId": "B-2aa7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/red-evidence-artifact-validation.ts",
+    "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+    "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+    "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red"
+  ],
+  "protectedFiles": [
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/red-evidence"
+  ],
+  "scopeChangeReason": "Derived from the user-confirmed scope boundary and plan.md's per-item Files sets. red-w2c-v1-verdict-invariance.mjs is PROTECTED rather than merely untouched: it carries the pinned digest that proves no valid v1 verdict moved, so editing it - including re-pinning the constant to make a failing assertion pass - would destroy the proof this story depends on. packages/main/src/core/red-evidence/ is excluded because that leaf is owned by the merged sibling story B-506e; the new validation code goes in a sibling file.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-26T22:53:48.331Z",
+  "updatedAt": "2026-07-26T22:53:48.331Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/red-evidence.ts": "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/handlers/story-review.ts": "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/red-evidence-artifact-validation.ts": "packages/main/src/core/red-evidence-artifact-validation.ts",
+    "packages/main/tests/red/red-b2aa7-artifact-validation.mjs": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+    "packages/main/tests/red/red-b2aa7-migration-scan.mjs": "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+    "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md": "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+    "packages/main/tests/red": "packages/main/tests/red/",
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+    "packages/main/src/core/red-evidence": "packages/main/src/core/red-evidence/"
+  }
+}

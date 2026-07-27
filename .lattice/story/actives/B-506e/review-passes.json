@@ -1,0 +1,812 @@
+{
+  "passes": [
+    {
+      "id": "B-506e:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 confirmation. F-005 (non-exhaustive schemaVersion discriminant) CONFIRMED FIXED: record-v2.ts adds classifyRedRecordSchemaSafe (v1|v2|unsupported, non-throwing) + typed RedEvidenceSchemaError(message, schemaVersion) subclass; classifyRedRecordSchema now fails closed via that typed error. Wired at every production read site: store.ts:870 readRedEvidence classifies EVERY record at load and throws RedEvidenceSchemaError on an unsupported version (store.readRedEvidence is the sole choke point for red-evidence.json reads across machine.ts/phase-gates.ts/proofstory.ts/story-review.ts/red-evidence.ts, verified by grep); proofstory.ts:948-949 redEvidenceRecordSatisfied double-guards (isRedEvidenceV2 + classifyRedRecordSchemaSafe!==v1) before touching any v1-only field, defense-in-depth even if a non-v1 record bypasses the read gate. Ran the new committed regression red-w2c-schema-failclosed.mjs live: v3 record read-path throws typed RedEvidenceSchemaError (never TypeError), live gate never throws a bare TypeError, v1-only verdict byte-identical, v2/v3 injected directly into diagnostic input never crashes the predicate. F-006 (dead normalizeReason import) CONFIRMED FIXED: append.ts:32 import trimmed to controlOperationKey/deriveRecordId; normalizeReason remains used internally by operation-key.ts:49 controlOperationKey, no functionality lost. tsc --noEmit clean. Quality audit of fix commit b4fa4bbfad: (1) new nested locking in handlers/red-evidence.ts red_evidence_binding_set (F-009) acquires withBindingLock (outer) then the exported redEvidenceChainLockDir chain-lock (inner) via withMkdirLock, both using try/finally-backed acquireMkdirLock/release (mkdir-lock.ts:477-484) so both locks release on every path including throw; grepped all call sites of redEvidenceChainLockDir - the chain-append path (append.ts appendControlRecord, invoked only via red_evidence_quarantine/recover) acquires ONLY the chain lock, never the binding lock, so lock order is consistently binding-then-chain with no caller ever acquiring chain-then-binding, so no AB-BA cycle/deadlock risk, and binding_set never re-enters the chain lock so no self-deadlock either. (2) RedEvidenceSchemaError is a proper named Error subclass (name=RedEvidenceSchemaError, stable readonly schemaVersion field), not a bare Error. (3) No new as-any/colon-any, no new empty catches, no new I/O introduced into chain.ts or operation-key.ts (both remain untouched by the fix commit and import no fs/process modules). (4) Read-path fail-closed throw from store.readRedEvidence is appropriate, not new uncaught-crash fragility: it only fires for a genuinely unsupported schemaVersion (v1/v2, the only real production shapes, never throw), it is exactly what CHK-002:adversarial:0 mandates (forward-compat must fail closed at parse/load time), and every existing call site already tolerates a thrown exception per pre-existing codebase convention (story-review.ts wraps both usages in try/catch and degrades to an advisory message; machine.ts guard functions already wrap proofStoryDevGateFailure in a blanket try/catch with documented fail-closed/fail-open semantics predating and unrelated to this diff; CLI handler call sites surface exceptions as normal command errors per repo convention). Ran all 6 relevant red-w2c-*.mjs regressions live (schema-failclosed, binding-corrupt-chain, head-consistency, binding-freeze-race, validate-registration, gate-guard) - all OK. 0 findings this round.",
+      "createdAt": "2026-07-25T22:41:07.474Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-008",
+      "envelopeId": "bfff05221a09bf7b685264ab5c0698668aaf9144c5c15405c0f6a6200c59d68e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8f8918d8c620c7e01fead5bbce06e150fef739912519c04434d5b858e67e9191"
+    },
+    {
+      "id": "B-506e:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 confirmation. F-003 CONFIRMED FIXED: exhaustive fail-closed schema discrimination now guards the single production observedFailure.trim() call site (proofstory.ts:950) with TWO independent layers: (1) read-path fail-closed at store.ts:870 readRedEvidence, which classifies every record via classifyRedRecordSchema and throws typed RedEvidenceSchemaError on an unsupported schemaVersion, never silently accepting it into records[]; (2) gate-predicate defense-in-depth at proofstory.ts:948-949 (isRedEvidenceV2 skip + classifyRedRecordSchemaSafe!=='v1' skip) before any v1-only field access. Verified store.readRedEvidence is the SOLE production read choke point for red-evidence.json (grep across machine.ts/handlers/proofstory.ts/handlers/story-review.ts/handlers/phase-gates.ts/red-evidence.ts — all construct redEvidence via store.readRedEvidence, no bypass). chain.ts partitionChain and handlers/red-evidence.ts findV2Record were NOT modified and do not need to be: both only ever check isRedEvidenceV2 as a v2 filter and never dereference a v1-only field (observedFailure/failingCommand/baselineHeadHash/greenRelation all live only inside redEvidenceRecordSatisfied), and both consume data exclusively via store.readRedEvidence, so relying on the read-path fail-closed is sufficient there. No code path can still reach observedFailure.trim() on a non-v1 record. Ran red-w2c-schema-failclosed.mjs live (fresh build, tsc --noEmit clean): v3-record read throws typed RedEvidenceSchemaError not TypeError; live gate never throws bare TypeError; v1-only verdict byte-identical before/after; v3 injected directly past the read gate is still invisible to the predicate. All 9 red-w2c/*.mjs + red-evidence-chain-smoke.js pass. Concept-residual scan of b4fa4bbfad: no dead/unreachable code, no leftover TODOs; the retained isRedEvidenceV2(record) check at proofstory.ts:948 is now logically subsumed by the classifyRedRecordSchemaSafe!=='v1' check on the next line (any v2 record already fails that check) but this is harmless intentional defense-in-depth, not a bug, and does not warrant a finding. Fail-closed read does NOT break any legitimate caller: only a genuinely unsupported schemaVersion (never absent-v1 or the exact v2 literal) triggers the new throw, confirmed against a v1-only store, a mixed v1+v2 store, and a v2-only store. Confirmed v1 red_evidence_create writer (handlers/proofstory.ts) is untouched by commit b4fa4bbfad (absent from its changed-files list), and the v1 gate verdict body in redEvidenceRecordSatisfied is byte-identical apart from the new early-return guard (diff-verified + byte-identical assertions in the committed RED test). 0 new findings this round.",
+      "createdAt": "2026-07-25T22:44:18.642Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-007",
+      "envelopeId": "6ac4d8403b5aeed74aef5f97b35a8edb90bce484b1bfb32850127ca41a26c3b9",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/findings.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "724d43c370f251fa56f831e1d36532ff9c1c1346cc2a4fb757d3f6740bc4f866"
+    },
+    {
+      "id": "B-506e:RP-003",
+      "agent": "lattice-review-behavior",
+      "note": "Round-2 confirmation: independently re-repro F-004 (v3 schemaVersion record) against rebuilt dist in a fresh temp story dir - now throws typed RedEvidenceSchemaError, never a bare TypeError; store.readRedEvidence fails closed at load, gate predicate is defense-in-depth. Ran all 9 committed red-w2c tests fresh against a clean tsc build - all 9 pass (schema-failclosed, gate-guard, binding-corrupt-chain, binding-freeze-race, head-consistency, quarantine-race, rejection-matrix, validate-registration, wiring-detectability). Read-reviewed new logic: (1) handlers/red-evidence.ts:133 nested lock - binding lock outer per-story then chain lock inner per-target via redEvidenceChainLockDir; append.ts chain-append pipeline takes only the chain lock, never the binding lock, so no reverse-order acquisition exists anywhere in the diff, hence no deadlock; withMkdirLock releases in finally so a throw in the inner lock cannot strand the outer lock; grepped writeRedTargetBindings - the only production call site is inside both locks. (2) append.ts:206 assertStoredControlRecordConsistent(head) runs unconditionally on every non-replay path after head is established non-null and before any field of head is trusted or written, matching the CONFLICT/nothing-written claim, confirmed by red-w2c-head-consistency.mjs including a non-vacuity control case. (3) approvedBy rejection at appendChainControl is shared by both red_evidence_quarantine and red_evidence_recover (confirmed by reading source); deriveApprovedBy always serializes actor-at-sessionId matching spec section 4.1 wording that a free-form approvedBy argument is not accepted. (4) corrupt-chain guard at handlers/red-evidence.ts:143 uses chain.length greater than 0 and head === null, mirrors append.ts, throws before any write, confirmed untouched-store by red-w2c-binding-corrupt-chain.mjs. Regression check: v1-only store verdict byte-identical (red-w2c-schema-failclosed.mjs part 5, red-w2c-gate-guard.mjs); mixed v1+v2 store does not throw and v1 verdict is byte-identical with the v2 record present (red-w2c-gate-guard.mjs). No new defects found. Did not run the full lattice validate 52-command suite in this shared worktree after observing multiple other lattice validate processes concurrently rebuilding and racing dist for other stories and reviewers; relied instead on a clean isolated tsc build plus the 9 targeted committed regression tests plus an independent from-scratch repro script, consistent with the read-only no-shared-dist-race review constraint.",
+      "createdAt": "2026-07-25T22:48:29.405Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-012",
+      "envelopeId": "13ab1cd64936bcbfd7e27b752efe30f6c35ec7f7ee4012ba40b3770e38fddc1c",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "single candidate doc exists for this story topic; full read performed directly"
+      },
+      "_hash": "8da4a46e26a69d01496e9bf6b5e2b5bfa347fe78ebedf7ef76d5883a2a69b8ed"
+    },
+    {
+      "id": "B-506e:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 CONFIRMATION test-coverage pass. F-001 CONFIRMED FIXED: CHK-011:adversarial:1 re-bound to red-w2c-validate-registration.mjs (parses real lattice.config.json validate.commands, asserts red-evidence-chain-smoke.js registered, proves non-vacuity by stripping each required entry from an in-memory copy and re-detecting, plus dangling-source check) -- literal match for the de-registration scenario. CHK-011:adversarial:0 correctly re-bound to red-w2c-wiring-detectability.mjs (non-destructive ESM --import loader strips ONE command-policy entry for red_evidence_quarantine/recover, asserts command-ownership-contract + lifecycle-registry-contract both fail and NAME the command, with a green non-vacuous baseline) -- matches the command-catalog/command-policy de-registration scenario. Both ran green directly. F-002 CONFIRMED FIXED: chain-smoke section 1 (lines 199-228) hand-builds a synthetic GreenConfirmRecordV2 draft whose literal field set genuinely includes confirms*/redBaseline* and omits assertion/policySnapshot, then runs the in-operator presence/omission loop both directions; recordDigestMatches confirms the seal. CHK-001:edge:0 evidence note accurately describes this. Audited the 5 new tests for genuineness, not just pass/fail: all reach real code through compiled dist imports and createMainRegistry handlers (not mocks); schema-failclosed exercises the real read-path (store.readRedEvidence) and the real live gate (evaluateProofStoryDiagnostics) with a defense-in-depth direct-injection case plus a byte-identical v1-only control; binding-corrupt-chain seeds a genuinely malformed 2-head chain and asserts resolveChainHead===null as a precondition before calling the real handler; head-consistency includes a non-vacuous control (part a: untampered head succeeds) before showing tampered recordDigest/operationKey are independently caught pre-use, matched against the specific REASON_STORE_CORRUPTION reason id; binding-freeze-race Part 1 is a deterministic repro using the SAME redEvidenceChainLockDir()+acquireMkdirLock the production binding_set and append pipeline actually use (confirmed via source read of red-evidence.ts:133-135 and append.ts:162-164), so it genuinely contends on the real lock, and Part 2 spawns two genuine OS processes racing the real commands and asserts mutual-exclusivity of the two serial outcomes. Ran all 9 red-w2c-*.mjs files plus the compiled chain-smoke directly: all exit 0. Re-audited the full 94 intent-evidence mapping after the 13 re-bindings + refresh: 94 intents / 94 evidence entries (1:1), all result=pass, all share the current materialHash/storyFilesHash (fresh, none stale), all referenced evidence files exist on disk; spot-checked notes against actual source for CHK-002/003/007/009/010/012 -- no overclaiming found. Confirmed command-catalog-smoke.js fails only on an unrelated pre-existing assertion (lattice-review-channel agentType vs AGENT_DISPATCH_ACCEPTED_TYPES at line 144, untouched by this story diff which only added permittedMutations entries to agent-dispatch-registry.ts); no checklist evidence entry uses command-catalog-smoke.js as its verifying command. No blocker.",
+      "createdAt": "2026-07-25T22:51:23.771Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-009",
+      "envelopeId": "162711d47dca3a6af74eac949b138f452c4382400da6f316edd33dc826726deb",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d1251639289e14a3b95d95bb718e051fab88d7f18ef7fcfed847742af2b3109d"
+    },
+    {
+      "id": "B-506e:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge fresh-pass re-review after merge cf7050d95e (main->story, 86 commits, no conflicts). Re-verified: (1) all 5 W2c source files (append.ts, record-v2.ts, proofstory.ts, handlers/red-evidence.ts, store.ts) byte-identical to fix commit b4fa4bbfad; (2) 94 verificationIntent entries across 12 checklist items map 1:1 to 94 verificationEvidence entries, zero missing/orphaned/duplicate intentRefs, zero non-pass results, zero stale, all evidence materialHash/storyFilesHash consistent with current story digest; (3) all 9 committed red-w2c-*.mjs tests + red-evidence-chain-smoke.js + command-ownership-contract.js + verify-process-fact-contract.mjs re-executed directly against the merged tree, all exit 0; (4) red-w2c-validate-registration.mjs confirms red-evidence-chain-smoke.js remains registered in lattice.config.json validate.commands post-merge. No blocker.",
+      "createdAt": "2026-07-25T23:11:23.627Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-015",
+      "envelopeId": "5bbce0b195ebe7b8cbc52ef1fb496595d8306644dc715cf09c12507cdc40af0d",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63a957c92ad2fff9ff658a9ecbf0c91c101c13a26534d355a7428e84307d6305"
+    },
+    {
+      "id": "B-506e:RP-006",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge fresh pass after cf7050d95e (merge main into story/B-506e, 86 commits, no conflicts). Confirmed via git diff that all five core W2c files (append.ts, chain.ts/record-v2.ts, proofstory.ts, handlers/red-evidence.ts, store.ts) are byte-identical to fix commit b4fa4bbfad across the entire merge range (002edb0c0b..cf7050d95e) and vs b4fa4bbfad..HEAD (0 diff lines). Re-ran the two RED-signal-A committed tests directly on the merged tree: red-w2c-gate-guard.mjs (v1 verdict byte-identical, v2 record does not crash live enforce gate, v2-only store reports missing not crash) and red-w2c-schema-failclosed.mjs (v3 record fails closed with typed RedEvidenceSchemaError, never a bare TypeError) — both OK. Ran all nine red-w2c-*.mjs tests and the red-evidence-chain-smoke dist task — all OK. Audited every file touched by the merge (lattice-brand.ts version bump, lifecycle-registry.ts, machine.ts, handlers/checklist.ts, handlers/story-advance.ts, handlers/transition-orchestrator.ts, handlers/worktree.ts, tasks/flow-stability-smoke.ts) and confirmed all changes belong to an unrelated story (B-8b69 gated PLAN->INIT reopen) that does not touch core/mkdir-lock.ts, core/store.ts, core/proofstory.ts gate/enforce path, or core/red-evidence/*; no interaction with the W2c nested per-(storyId,acceptanceTargetRef) mkdir-claim chain-append lock. Also ran scripts/verify-process-fact-contract.mjs (passed). Noted but out-of-scope: dist/tasks/command-catalog-smoke.js and dist/tasks/agent-dispatch-registry-smoke.js fail, but both failures trace to unrelated pre-existing code (agent-dispatch-registry.ts lattice-review-channel handling from commit 560307c536, and an unrelated smoke-fixture git-init gap) that is byte-identical on both sides of B-506e's diff against main (not touched by this story or this merge) — not filed as a B-506e finding. No behavioral regression found for W2c.",
+      "createdAt": "2026-07-25T23:13:17.474Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-016",
+      "envelopeId": "c09e17ad52070432914cc9461c07d7209860e2b21130f94ea5c0f7d27d5a7086",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4007524019c0b3c303c8583a0aef9b8b31e908270312ac380f4c9b3cd49d5916"
+    },
+    {
+      "id": "B-506e:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge fresh pass after main merge cf7050d95e (86 commits, no conflicts). Confirmed byte-identical blobs at fix commit b4fa4bbfad vs HEAD a3b765e for append.ts, record-v2.ts, chain.ts, operation-key.ts, target-bindings.ts, core/proofstory.ts, store.ts, handlers/red-evidence.ts, and v1 writer handlers/proofstory.ts. Only allowedModify diffs (lifecycle-registry.ts, cli/command-catalog.ts) are unrelated B-8b69 REOPEN additions, no touch to red-evidence gate predicate or schema discrimination. Clean tsc build; all 9 red-w2c-*.mjs RED tests pass; red-evidence-chain-smoke.js passes; policy-canon-smoke and target-binding-smoke registry contracts pass. No concept-level regression from the merge.",
+      "createdAt": "2026-07-25T23:14:45.818Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-013",
+      "envelopeId": "c263d84faf543a0d1ca2946507843ca58835c187cc6a7f3b21c797fa3d15698f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a5cdecd379adbecec36aea299188d5d76a333bfaee1224322a3a40d7fb4e24f"
+    },
+    {
+      "id": "B-506e:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge fresh-pass re-review after merge cf7050d95e (main->story, 86 commits, no conflicts). Merge-collision check: command-catalog.ts merge diff is a clean 3-way combine (main added an unrelated story_advance reason field for B-8b69; story kept red_evidence_quarantine/red_evidence_recover additions + updated red_evidence_binding_set description) — no textual conflict, no clobbering. lifecycle-registry.ts is byte-identical to main post-merge (story never modified it; W2c does not add lifecycle artifact filenames, only chain records inside the existing red-evidence.json file). Verified all 13 wiring points for red_evidence_quarantine/red_evidence_recover intact post-merge (command-catalog, agent-dispatch-registry permittedMutations+VALID_MUTATIONS, command-policy, process-fact-levels, process-fact-registry, types union, registry.ts, handlers/red-evidence.ts, verify-process-fact-contract.mjs enumerations, command-catalog-smoke trailing order) via targeted grep + line-level inspection; counts match the already-reviewed red_evidence_binding_set baseline. tsc --noEmit clean (0 errors) on merged tree. All 9 committed red-w2c-*.mjs tests pass (exit 0). red-evidence-chain-smoke.js passes (exit 0), confirms v2 union, byte-identical v1 gate guard (RED A), chain integrity+transition table, operation-key/dedupe/replay, binding-freeze, 2-process mkdir-claim race (RED B). scripts/verify-process-fact-contract.mjs passes (exit 0). Separately observed: command-catalog-smoke.js fails on an UNRELATED pre-existing assertion (AGENT_DISPATCH_REGISTRY dispatch-schema loop rejecting the deliberately-dispatch-excluded lattice-review-channel entry) — confirmed by direct reproduction that this same failure already exists on main HEAD e998a8d4be in isolation (no B-506e code), so it predates and is independent of this merge/story; the W2c-specific trailing-catalog-order assertions for red_evidence_quarantine/red_evidence_recover (earlier in the same smoke file, line ~109-113) execute and pass before that unrelated failure is reached. Not filed as a B-506e finding: out of scope (agent-dispatch-registry.ts dispatch-schema wiring, unrelated to red-evidence chain semantics) and not introduced by this merge.",
+      "createdAt": "2026-07-25T23:15:13.275Z",
+      "reviewRound": "2026-07-25T22:32:54.983Z",
+      "reviewRunId": "B-506e:RR-014",
+      "envelopeId": "eadd86cf2979a66d93b01fadaa4348a4f8ea56f9ed260071da6a130e5b478443",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "245aaa46dc61217bb7b0ec17437443c958de85c3658ab364c29790707a9b3399"
+    },
+    {
+      "id": "B-506e:RP-009",
+      "agent": "lattice-review-behavior",
+      "note": "Round-3 evidence-integrity re-review. Confirmed via git diff b4fa4bbfad..HEAD that NO production source changed (core/proofstory.ts, core/store.ts, core/mkdir-lock.ts, core/red-evidence/*, handlers/red-evidence.ts, core/types.ts all byte-identical); the only src diffs are the round-3 ordering fix in tasks/red-evidence-chain-smoke.ts (matches story summary) plus unrelated B-8b69/B-3783 lifecycle files pulled in by the clean merge of main, none of which touch the gate/store/lock paths. Independently verified the central claim with my OWN repro (distinct fixtures from the story test files): built two fresh dist trees via git archive+npm run build (HEAD and pre-fix 8727b2db83). My 5-scenario full-diagnostic-report sha256 was IDENTICAL across both trees (7aeb1c18...), confirming the v1 gate verdict did not move. A hand-built v2 quarantine record (no observedFailure) placed FIRST in records[] genuinely reached the guard on HEAD (does not throw, missingRedEvidence correctly still satisfied by the v1 record, v2 ignored) while the identical scenario THREW TypeError at record.observedFailure.trim() on the pre-fix dist -- proving the guard is real and non-vacuous. Also confirmed a v2-only store reports missing_red_evidence (length>0) rather than crashing or silently satisfying. Also ran the storys own committed artifacts (red-w2c-gate-guard.mjs, red-w2c-schema-failclosed.mjs, red-w2c-v1-verdict-invariance.mjs) against both my independently-built dist trees: all three pass on HEAD with the exact pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; the v1-verdict-invariance file reproduces the SAME pinned digest verbatim against the pre-fix dist; the gate-guard file fails at exactly its intended assert.doesNotThrow on the pre-fix dist with the cited TypeError (RED signal A genuinely reproduces). All 10 prior findings (F-001..F-010) remain resolved; checklist all 12 items done. No new findings this round.",
+      "createdAt": "2026-07-26T00:42:58.838Z",
+      "reviewRound": "2026-07-26T00:36:31.301Z",
+      "reviewRunId": "B-506e:RR-018",
+      "envelopeId": "5d0f4f6a341fc53d3824e099af67e9f1050e207007b64caab2fc018c7c84688d",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44f2c2ba93939abf8f078bb0c6a5db9d706175b01ed070c4ed115966052c33dd"
+    },
+    {
+      "id": "B-506e:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 evidence-integrity re-review (no production code changed, 4 commits fixing the story own test/evidence). Verified: (1) red-w2c-v1-verdict-invariance.mjs five-scenario digest is deterministic - evaluateProofStoryDiagnostics/proofStoryDiagnosticInput contain no Date.now/random/hostname; currentEvidenceBinding+materialClassification resolve to undefined because the store root is a throwaway non-git TMPDIR path (resolveGitCwd falls back to root, then currentGitHead/currentMaterialHash/currentStoryFilesHash fail silently on a non-repo dir), NOW is a fixed literal, canon() is a local deterministic serializer; reran the digest test 3x, sha256 always 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec matching the pinned constant. (2) The kept vacuous orderings in red-w2c-gate-guard.mjs, red-w2c-schema-failclosed.mjs and red-evidence-chain-smoke.ts Section 2 are clearly inline-labelled (NOTE: on its own this case is vacuous ... kept only as the companion of) - not confusing dead weight. (3) npx tsc --noEmit -p packages/main clean; npm --prefix packages/main run build clean; diffed the two changed .mjs files + smoke.ts, found no new any/swallowed catches/duplicated scaffolding beyond the documented paired orderings; ran all 10 red-w2c-*.mjs (all OK), dist/tasks/red-evidence-chain-smoke.js (OK, RED signals A/B/C), scripts/verify-process-fact-contract.mjs (OK). (4) Diffed b4fa4bbfad..HEAD restricted to the story scope file list: only red-evidence-chain-smoke.ts changed by story work (the documented Section-2 reorder); command-catalog.ts/command-catalog-smoke.ts/lattice.config.json diffs are unrelated main-merge content (B-8b69 PLAN->INIT reopen, B-3783 command-catalog-smoke registration), confirmed via git log b4fa4bbfad..HEAD on those paths. Independently confirmed ancestor 8727b2db83 (genuine ancestor of b4fa4bbfad) still opens redEvidenceRecordSatisfied with unguarded record.observedFailure.trim(), matching commit-message claims. No findings.",
+      "createdAt": "2026-07-26T00:43:24.371Z",
+      "reviewRound": "2026-07-26T00:36:31.301Z",
+      "reviewRunId": "B-506e:RR-020",
+      "envelopeId": "5fb4de0b606ea309014c7330856787ec6556943201f322a91100d223a1a5748a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9d8df0032719b78da0a595badc2ebf6c6a4f0c778e5069a5c0f9a4ee3c10848c"
+    },
+    {
+      "id": "B-506e:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 confirmation. F-011 genuinely closed: F-005 resolvedReason asserts real sha256 2d584cc157... (verified: red-w2c-v1-verdict-invariance.mjs prints this exact digest on this tree) and RETRACTS sha256 71c267a0... as unbacked, not deleted. checklist.json CHK-003 note and delivery-check.json already flag 71c267a0 as fabricated/OVERCLAIM. Remaining occurrences: summary.json#limitations (orchestrators TEST-phase job) and test-evidence.json (timestamped 00:03 snapshot, predates the round-4 fix, historical not live). Production sources byte-identical to b4fa4bbfad (proofstory.ts/types.ts/store.ts/mkdir-lock.ts sha256 match); other production diffs since b4fa4bbfad trace to B-8b69 main-merge, not this story. Round-4 commit 85f60fcbf4 (F-014 mid-array reorder + F-012 empty-records section) reviewed in full: docstrings consistent, no stale vacuous/companion language, no dead helpers. F-015 spot-check: 0/94 checklist notes match a file:line citation pattern. F-013 spot-check: ran dist/tasks/command-catalog-smoke.js directly, exit 0. Ran all ten red-w2c-*.mjs: all OK including digest match. No blockers.",
+      "createdAt": "2026-07-26T02:09:00.671Z",
+      "reviewRound": "2026-07-26T01:55:38.498Z",
+      "reviewRunId": "B-506e:RR-022",
+      "envelopeId": "0ab06e5f4b3f178bd0a16a926b5f53da9d39368d2b78b68b2f804655a0ac40d1",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          ".lattice/story/actives/B-506e/test-evidence.json",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/index.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          ".lattice/story/actives/B-506e/process-metrics.json",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a250b99b545bb5fa93e0971a690c93a071ef64c89b7421b5080f112b6e145d80"
+    },
+    {
+      "id": "B-506e:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 quality confirmation. F-014 verified genuinely fixed in all three named files: red-w2c-gate-guard.mjs, red-w2c-schema-failclosed.mjs, red-evidence-chain-smoke.ts all now place the non-v1/v2/v3 record either FIRST or MID-ARRAY behind a deliberately-constructed leading v1 record (foreign acceptanceTargetRef + non-empty observedFailure, so the v1 predicate returns false and Array.prototype.some() cannot short-circuit past it); each docstring explains why the ordering matters and cites the pre-fix tree 8727b2db83. Ran all three directly against a freshly rebuilt dist: red-evidence-chain-smoke.js OK, red-w2c-gate-guard.mjs OK, red-w2c-schema-failclosed.mjs OK. F-012 empty-records section (chain-smoke.ts, appended last) uses only the pre-existing deterministic NOW constant and mkdtemp-isolated freshRoot pattern already used throughout the file; it is a separate node process from red-w2c-v1-verdict-invariance.mjs and cannot perturb that file pinned digest by construction (different files and processes, no shared state) -- independently reran the invariance test and it reproduced sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec exactly, matching the amended F-005/F-011 resolvedReason text. F-013: ran dist/tasks/command-catalog-smoke.js directly, exit 0, 339 commands; CHK-011:happy:2 note correctly re-anchored to its trailing-order assertion. F-015: parsed checklist.json programmatically -- 94 of 94 verificationEvidence notes, 0 contain a file:line citation pattern, 0 exact-duplicate note bodies. tsc --noEmit (packages/main) clean, exit 0; full package build (tsc) also clean. Diffed all core red-evidence production files (append.ts, chain.ts, operation-key.ts, record-v2.ts, handlers/red-evidence.ts, proofstory.ts, handlers/proofstory.ts, store.ts, types.ts) against b4fa4bbfad: zero bytes changed. Other production-scope files that do differ (command-catalog.ts, lattice.config.json command-catalog-smoke registration, agent-dispatch-registry consistency asserts) trace via git log to unrelated main-merge commits (B-8b69, B-3783), not this story round-4 work. No new any or swallowed catch in the round-4 diff; the repeated v1Unsatisfying fixture literal across the three files matches this story established self-contained-RED-artifact convention (each file already duplicates synthRedAssert and controlOperationKey rather than sharing helpers), not novel scaffolding duplication. Findings.json: 15 of 15 resolved. Vacuous-assertion sweep of all round-4-touched files plus spot check of unchanged doesNotThrow sites: none found that structurally cannot fail. Non-blocking note carried forward (already tracked, not this round scope): summary.json#limitations and the historical delivery-check.json and test-evidence.json snapshots still literally contain the retracted fabricated digest 71c267a0...; F-011 resolvedReason explicitly defers that narrative correction to the orchestrator TEST-phase summary_set, consistent with review-pass RP-011 same finding.",
+      "createdAt": "2026-07-26T02:15:00.129Z",
+      "reviewRound": "2026-07-26T01:55:38.498Z",
+      "reviewRunId": "B-506e:RR-024",
+      "envelopeId": "c9bcdd34e8e297154ee51acbef140b9c01ac2018b7358b8e8d1be0b000caf5ee",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/index.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b0ae42e407e4861631e3c614434ca08f58e3c5d04471227a8f720ef7d1dfc3b9"
+    },
+    {
+      "id": "B-506e:RP-013",
+      "agent": "lattice-review-behavior",
+      "note": "Round-4 final evidence-integrity confirmation. (1) Production behavior unchanged: zero diff vs b4fa4bbfad on core/proofstory.ts, core/store.ts, core/types.ts, core/red-evidence/*, handlers/red-evidence.ts; other production-file deltas (lifecycle-registry.ts, machine.ts, checklist.ts, worktree.ts, transition-orchestrator.ts, command-catalog.ts, command-catalog-smoke.ts, flow-stability-smoke.ts, plan-init-reopen-roundtrip-smoke.ts) trace entirely to merged-in B-8b69/B-3783 commits and version bumps, not B-506e commits (git log per-file verified). (2) F-014 independently non-vacuity-verified with my OWN repro, not on trust: built a fresh dist from git archive 8727b2db83 + tsc under a scratch dir, wrote an independent script constructing [non-satisfying-v1, v2-record, satisfying-v1]; confirmed the leading non-satisfying v1 record ALONE does not crash the pre-fix predicate (observedFailure non-empty), while the mid-array placement genuinely crashes with TypeError: Cannot read properties of undefined (reading 'trim') -- exactly the claimed crux; same fixtures on the current dist do not throw and the verdict is byte-identical to the v1-only baseline. (3) Five-scenario digest re-reproduced by direct execution: sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec (red-w2c-v1-verdict-invariance.mjs, exit 0); chain smoke with the new empty-records section 12 passes (exit 0) and the claimed-unperturbed dist line citations (244/283/506 in red-evidence-chain-smoke.js) verified correct. F-013: command-catalog-smoke.js exits 0 (339 commands), CHK-011:happy:2 correctly re-bound. F-015: 0/94 checklist verificationEvidence notes still match a bare file:line citation pattern. NON-BLOCKING: summary.json#limitations still contains the retracted/fabricated digest 71c267a0...; F-011's own resolvedReason defers this specific correction to the orchestrator's TEST-phase summary_set call (summary_set is allowedPhases:'all' so this is a process choice, not a technical gate) -- must actually be corrected before DONE or the shipped narrative repeats a debunked evidentiary claim. No new finding filed since this is already tracked (F-011) and was independently flagged as the same non-blocker by the concurrent round-4 review-passes note. Clean.",
+      "createdAt": "2026-07-26T02:15:14.368Z",
+      "reviewRound": "2026-07-26T01:55:38.498Z",
+      "reviewRunId": "B-506e:RR-023",
+      "envelopeId": "47cdf75fb8e8ff05506bc1c73b19d57f3a936a5afdf12ca67f335a4cf067b3a0",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/index.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e996e106db516b9341753a6911e02e424932164139fcfcb7048ab5cb9c0f4b73"
+    },
+    {
+      "id": "B-506e:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-4 final evidence-integrity confirmation, no blocker. F-012/F-013/F-014 independently verified (not trusted): ran the new empty-records section against dist (passes, genuine round-trip through real store.readRedEvidence/writeRedEvidence); confirmed command-catalog-smoke deepEqual pins the real MAIN_TOOLS trailing entries incl. the two new commands (dist exits 0, 339 commands); reproduced F-014 myself by building a pre-fix dist from git archive 8727b2db83 and running a standalone repro of the mid-array ordering — THREW TypeError at observedFailure.trim on pre-fix, clean pass on HEAD; same pattern confirmed in schema-failclosed.mjs and chain-smoke section 2. Sampled ~20 re-anchored notes across CHK-001/004/006/008/009/010/011/012 against actual source (record-v2.ts, chain.ts, operation-key.ts, append.ts, red-evidence.ts, chain-smoke.ts, canon.ts): every cited assertion/message/field-list matched exactly; honesty disclosures (isControlRecordV2 only for quarantine; CHK-004 head-resolution split section3/section7; CHK-006 sha256-prefix match not full CANON diff; several items resting on TS-closed-union declarations or on the not-yet-existing W2d/W2e run-record writer) all checked out as accurate, not convenient. Zero residual line-number citations across all 94 notes. Ran all ten red-w2c-*.mjs + chain-smoke + command-ownership-contract + lifecycle-registry-contract + verify-process-fact-contract: all pass; no swallowed catches. tsc --noEmit clean. git diff b4fa4bbfad..HEAD confirms core/proofstory.ts, store.ts, mkdir-lock.ts, core/red-evidence/*, handlers/red-evidence.ts, types.ts byte-identical since round-3 baseline; only test/smoke files changed (in scope). Reconstructed all 94 CHK-xxx:lane:idx intent refs positionally and diffed against verificationEvidence: exact 1:1, zero missing/extra/duplicate; all 94 rows share materialHash 42745cc2...02d85 and storyFilesHash bdd39d8...bf434c matching current story state (fresh). Noted but not filed as a new finding (out of this lane, already tracked by B-506e:F-011 with an explicit deferred-to-TEST-phase correction plan): summary.json:14 and delivery-check.json:42 still cite the retracted sha256 71c267a0... as fact; none of the 94 verificationEvidence notes repeat it.",
+      "createdAt": "2026-07-26T02:19:09.433Z",
+      "reviewRound": "2026-07-26T01:55:38.498Z",
+      "reviewRunId": "B-506e:RR-021",
+      "envelopeId": "f87e6151b8c05301447a35b0ade667a08d859a578c4baec5cd27254eeaa05b06",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/test-evidence.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc04caae16627c5bce2f0631cd88a1988fdd37a62003d636be4de3c9fabd5206"
+    },
+    {
+      "id": "B-506e:RP-015",
+      "agent": "lattice-review-behavior",
+      "note": "Post-merge fresh pass after 124 unrelated commits merged from main (B-ec67/B-3783/B-8b69 etc). Confirmed: (1) this story production sources (append.ts/chain.ts/operation-key.ts/record-v2.ts/target-bindings.ts/handlers/red-evidence.ts) are byte-identical to baseline b4fa4bbfad — zero diff; only red-evidence-chain-smoke.ts changed, and that traces to this story own prior round-3/round-4 fixes (81e88484f8, 85f60fcbf4), not the merge. Collateral diffs in shared files (types.ts, command-catalog.ts, lifecycle-registry.ts, command-catalog-smoke.ts, lattice.config.json) all trace via git log/blame to B-ec67 (VerificationIntentPin/receipt additions to types.ts+command-catalog.ts, unrelated to RedEvidenceData v2), B-3783 (command-catalog-smoke registration), and B-8b69 (lifecycle-registry PLAN->INIT reopen) — none touch red_evidence types or logic; verified merge commit d758f4facd diff vs first-parent shows straightforward union, no manual mis-merge. (2) git log b4fa4bbfad..HEAD for core/proofstory.ts, core/store.ts, core/mkdir-lock.ts returns EMPTY for all three — nothing in the 124 merged commits touches the red-evidence gate predicate, store read path, or mkdir-lock primitives; this story guard and its nested per-(story,target) chain lock are unaffected. (3) Re-ran red-w2c-v1-verdict-invariance.mjs on the merged tree: reproduced pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec exactly (matches RP-013). No code rebuild of pre-fix dists needed (story code unchanged since RP-013). No blocker.",
+      "createdAt": "2026-07-26T03:56:23.273Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-027",
+      "envelopeId": "aa600fb0aa9ff7924d95ca5edb38688a435abcd40ef700f2e18544f7e8f1f9f4",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "63bfb300fbbb9b9ceb30478579cba2e5747abe0ace9819b816306b288769989c"
+    },
+    {
+      "id": "B-506e:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Post-merge (124 commits incl B-ec67) re-confirmation round. Re-ran all 10 red-w2c tests + chain smoke (PASS). checklist.json audited directly: 94/94 verificationEvidence rows command-backed, 0 with a selector, mechanical field absent on all (pre-B-ec67 legacy). Checked B-ec67 verification.ts coverageStatusForCoveredEvidence: mechanical===undefined is explicitly grandfathered as covered so in-flight stories are not hard-broken; the (command,selector) pin + mechanical receipt requirement applies only to NEW writes at verification_evidence_add/_batch_add and to refresh_stale carry-forward, not retroactively. No done-prepare/done-required-evidence/done-oracle files touched by B-ec67. Our 94 rows meet every B-ec67 requirement applicable to them; nothing needs re-running. No cited test files disappeared. Zero blockers.",
+      "createdAt": "2026-07-26T03:57:44.879Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-028",
+      "envelopeId": "14f2d9cca724bf1a8daa293e2faf734bae0f5f0e60f9e8331e886c6a56aea685",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ac1c51a55359cc73812bf880b79145d92c095257434a4392c4c3ff3308fa8a2"
+    },
+    {
+      "id": "B-506e:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge confirmation pass (124 commits from main merged: B-ec67/B-3783/B-8b69/etc). tsc --noEmit -p packages/main clean. Diffed every story-scope + dependency file against reference b4fa4bbfad: append.ts/chain.ts/operation-key.ts/record-v2.ts/target-bindings.ts/store.ts/proofstory.ts/handlers/red-evidence.ts/mkdir-lock.ts/canon.ts all byte-identical (0-line diff) — merge touched none of this story production code or dependency APIs (withMkdirLock/acquireMkdirLock, readRedEvidence/writeRedEvidence, CANON helpers unchanged). Non-zero diffs vs b4fa4bbfad (lattice.config.json, command-catalog.ts, lifecycle-registry.ts, types.ts, command-catalog-smoke.ts) trace entirely to B-8b69/B-ec67/B-3783 via git log per-file; none reference red-evidence/mkdir-lock symbols. red-evidence-chain-smoke.ts diff is this story own round-3/4 fixes already reviewed at RP-012. Ran all 10 red-w2c-*.mjs fixtures fresh on merged+rebuilt tree: all OK. Re-ran pinned five-scenario v1-verdict digest twice: sha256=2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec both times. Ran red-evidence-chain-smoke.js from rebuilt dist: OK. No API drift found.",
+      "createdAt": "2026-07-26T03:57:51.701Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-026",
+      "envelopeId": "5f1c7b8328ede3c68e8cd2f8ec225a56ca24725156513d3af35a49e8fec2ea3a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/story-advance.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4095f4c04d9a540461d10ae35d98953c90494fb6a16285cee5c784088d4fc78e"
+    },
+    {
+      "id": "B-506e:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge fresh pass (124 commits from main: B-ec67, B-3783, B-8b69). (1) All W2c production sources (proofstory.ts, red-evidence/{append,record-v2}.ts, store.ts, handlers/red-evidence.ts) byte-identical to b4fa4bbfad; only red-evidence-chain-smoke.ts + red-w2c-schema-failclosed.mjs differ, and those diffs trace to this story's own already-reviewed round-3/round-4 commits (ad3e39941b, fd22136fe6, 85f60fcbf4), not the merge. Every other diffstat file (checklist.ts, validation-executor.ts, verification.ts, types.ts, worktree.ts, transition-orchestrator.ts, machine.ts, lifecycle-registry.ts, command-catalog*.ts, plan-init-reopen-roundtrip-smoke.ts, tool-executed-evidence-receipt-smoke.ts, proofstory-{acceptance-topology,pre-review-check}-smoke.ts) traces cleanly to B-ec67 (evidence-write contract) or B-8b69 (PLAN->INIT reopen) commits; the proofstory-*-smoke.ts touches are pure call-site migrations to nonMechanicalReason, no schema/concept changes. (2) 71c267a0 inventory re-confirmed post-correction: 15 lines across 6 files (summary.json, delivery-check.json x4, findings.json x3, review-passes.json x4, checklist.json x1, test-evidence.json x2) -- every occurrence is either the named RETRACTION text or a historical TEST-phase reviewer note quoting the old value; summary.json#limitations and F-005 resolvedReason now assert the real digest sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec with an explicit retraction of 71c267a0..., matching the briefing. Spot-checked by re-running red-w2c-v1-verdict-invariance.mjs directly: it reproduces sha256 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec live, confirming the correction is genuine not merely claimed. (3) No naming/concept collision from the merge: grepped classifyRedRecordSchema/RedEvidenceSchemaError/red_evidence.v2/redEvidence across all merge-touched files -- zero hits outside W2c's own files; B-ec67's checklist.ts changes are evidence-contract-only (coverageStatusForCoveredEvidence etc.), no red-evidence schema surface touched. No blocker.",
+      "createdAt": "2026-07-26T03:58:07.541Z",
+      "reviewRound": "2026-07-26T03:52:57.682Z",
+      "reviewRunId": "B-506e:RR-025",
+      "envelopeId": "06c80e35cb4bff0697a90ebab7c74fff0b966f9f0249b40e5b18e6decc424140",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/test-evidence.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "39007f9dfbf03c7057270d58b6ddedd51b848b44fc9875f095181a7f0140ec14"
+    },
+    {
+      "id": "B-506e:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Fast re-pass after 2 more main merges (B-7813, B-1507) invalidated the prompt envelope again; no story-owned work changed. (1) core/store.ts delta vs b4fa4bbfad is exactly B-7813 one type-import add (StallAdjudicationData) plus two new methods readStallAdjudication/writeStallAdjudication targeting a distinct file stall-adjudication.json; classifyRedRecordSchema and readRedEvidence untouched, no naming collision with red-evidence schema-classification. (2) lattice.config.json: valid JSON, validate.commands has 56 entries, red-evidence-chain-smoke.js and review-budget-stall-adjudication-smoke.js both present adjacent (lines 103-104) with no duplicate ids; repo-wide grep for conflict markers (<<<<<<<, =======, >>>>>>>) outside node_modules/dist/.git returns zero. (3) Re-grepped 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc repo-wide: 14 occurrences, all confined to this story own .lattice/story/actives/B-506e/*.json artifacts (summary.json, findings.json x3, checklist.json, delivery-check.json x3, test-evidence.json, review-passes.json x5); every occurrence is either the explicit CORRECTION AND RETRACTION language or a historical reviewer note quoting/describing the retracted value -- none asserts it as current fact. No blocker.",
+      "createdAt": "2026-07-26T11:46:51.371Z",
+      "reviewRound": "2026-07-26T11:41:39.769Z",
+      "reviewRunId": "B-506e:RR-038",
+      "envelopeId": "de11aa4ae6a5c171a2f6f0bbfadcda9811e9f00742a8fad744565359a769647c",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/delivery-check.json",
+          ".lattice/story/actives/B-506e/findings.json",
+          ".lattice/story/actives/B-506e/review-passes.json",
+          ".lattice/story/actives/B-506e/summary.json",
+          ".lattice/story/actives/B-506e/test-evidence.json",
+          "lattice.config.json",
+          "packages/main/src/core/store.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "850e9ff951ff109ee71334b26abde7206b9abf9f216ea550c413ece6e0733696"
+    },
+    {
+      "id": "B-506e:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-pass after 2 more main merges (B-7813, B-1507) since RP-016. Confirmed: (1) evidence_plan reports 94/94 verificationEvidence rows 1:1, 0 missing, 0 rerun (94 refresh-only due to expected storyFilesHash drift from main-merge, not a coverage gap); all 21 distinct cited test/source files present on disk, none disappeared in the merges. (2) red-w2c-validate-registration.mjs passes, confirming the union-resolved lattice.config.json still registers red-evidence-chain-smoke.js among validate.commands. (3) All ten red-w2c-*.mjs and dist/tasks/red-evidence-chain-smoke.js pass. No blocker; consistent with RP-014/RP-016 zero-finding conclusions.",
+      "createdAt": "2026-07-26T11:49:37.335Z",
+      "reviewRound": "2026-07-26T11:41:39.769Z",
+      "reviewRunId": "B-506e:RR-049",
+      "envelopeId": "5b9c01518533b1dfc91405a4b47b74dea2df6f9cd9cd5eaee918db4021f5995f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-506e/checklist.json",
+          "lattice.config.json",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/tasks/command-catalog-smoke.js",
+          "packages/main/dist/tasks/red-evidence-chain-smoke.js",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/red-evidence/chain.ts",
+          "packages/main/src/core/red-evidence/operation-key.ts",
+          "packages/main/src/core/red-evidence/record-v2.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4dd8f8526366c40b9f796abd9fe90b11361dc2925b48bf953c0e6db82c3d612e"
+    },
+    {
+      "id": "B-506e:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Fast re-pass post B-7813/B-1507 merges (envelope re-refresh only, no code changes since RP-017): tsc clean, union-resolve of validate.commands verified lossless (56=54+55 union, no dup), pinned five-scenario digest 2d584cc1 reproduces, store.ts B-7813 additions isolated from readRedEvidence/writeRedEvidence. No blockers.",
+      "createdAt": "2026-07-26T11:53:50.070Z",
+      "reviewRound": "2026-07-26T11:41:39.769Z",
+      "reviewRunId": "B-506e:RR-067",
+      "envelopeId": "020e9c181b741a76831b804c7fd0137002ae5c40ded081a9467118dd9a0f5e82",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/store.ts",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-506e/background.md",
+          ".lattice/story/actives/B-506e/checklist.json",
+          ".lattice/story/actives/B-506e/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-w2c-binding-corrupt-chain.mjs",
+          "packages/main/tests/red/red-w2c-binding-freeze-race.mjs",
+          "packages/main/tests/red/red-w2c-gate-guard.mjs",
+          "packages/main/tests/red/red-w2c-head-consistency.mjs",
+          "packages/main/tests/red/red-w2c-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2c-schema-failclosed.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs",
+          "packages/main/tests/red/red-w2c-wiring-detectability.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "667fed359cba9d05fd4594a99dcbedb7995a2c35bbd778de44af667a348f7417"
+    }
+  ]
+}

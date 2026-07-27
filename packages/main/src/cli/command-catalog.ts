@@ -492,7 +492,7 @@ Behavior:
     note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
     cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
   }},
-  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence (rerun command)', schema: {
+  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence: a pinned verifier is RE-EXECUTED (a real pass keeps its mechanical receipt); without a passing re-run a command-backed result:pass is demoted in place to a non-mechanical attestation with an audit reason, so it can never silently keep covering an executable intent — re-run and re-record via verification_evidence_add to re-earn a mechanical receipt', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},
@@ -3234,11 +3234,25 @@ Behavior:
     derivedChecklistRefs: z.array(z.string()).optional().describe('Derived checklist item refs.'),
     derivedVerificationIntentRefs: z.array(z.string()).optional().describe('Derived verification intent refs.'),
   }},
-  { name: 'red_evidence_binding_set', description: 'W2b: register the per-story target binding {acceptanceTargetRef, adapterId, testCaseRef} that authorizes a RED run (§1.1.3). Owner-lease + mutation-authority gated; exactly one binding per acceptanceTargetRef (duplicate rejects), rejects an out-of-expectedRedTargets ref, records targetBindingDigest = CANON over the createdAt-stripped 3-field subobject.', schema: {
+  { name: 'red_evidence_binding_set', description: 'W2b: register the per-story target binding {acceptanceTargetRef, adapterId, testCaseRef} that authorizes a RED run (§1.1.3). Owner-lease + mutation-authority gated; exactly one binding per acceptanceTargetRef (duplicate rejects), rejects an out-of-expectedRedTargets ref, records targetBindingDigest = CANON over the createdAt-stripped 3-field subobject. W2c adds the §1.1.3 binding-freeze rule (frozen once a run record exists on an unquarantined chain).', schema: {
     storyId: z.string().describe('Story ID'),
     acceptanceTargetRef: z.string().min(1).describe('The acceptance target this binding authorizes; must be in the story\'s expectedRedTargets (§3.3).'),
     adapterId: z.string().min(1).describe('The adapter id that owns the RED run for this target.'),
     testCaseRef: z.string().min(1).describe('The test-case reference the adapter runs for this target.'),
+    agent: z.string().optional().describe('Actor.'),
+    actor: z.string().optional().describe('Actor alias.'),
+  }},
+  { name: 'red_evidence_quarantine', description: 'W2c: append a quarantine chain-control record retiring the referenced record without mutating history (§4.1). recordId MUST be the current head of its (storyId, target) chain whose operation is red-assert/green-confirm/recover. Owner-lease + mutation-authority gated; approvedBy is DERIVED <actor>@<sessionId> (never a caller arg); the derived acceptanceTargetRef must be in expectedRedTargets (§3.3, CHK-012); serialized under one mkdir claim.', schema: {
+    storyId: z.string().describe('Story ID'),
+    recordId: z.string().min(1).describe('The current chain-head record id to quarantine; the acceptanceTargetRef is derived from it (§4.1).'),
+    reason: z.string().min(1).describe('Human-readable reason (whitespace-normalized into the operation key).'),
+    agent: z.string().optional().describe('Actor.'),
+    actor: z.string().optional().describe('Actor alias.'),
+  }},
+  { name: 'red_evidence_recover', description: 'W2c: append a recover chain-control record undoing a mistaken quarantine (§4.1). recordId MUST be the current head of its (storyId, target) chain whose operation is quarantine; reinstates the quarantined record transitively. Owner-lease + mutation-authority gated; approvedBy is DERIVED <actor>@<sessionId> (never a caller arg); the derived acceptanceTargetRef must be in expectedRedTargets (§3.3, CHK-012); serialized under one mkdir claim.', schema: {
+    storyId: z.string().describe('Story ID'),
+    recordId: z.string().min(1).describe('The current chain-head quarantine record id to recover; the acceptanceTargetRef is derived from it (§4.1).'),
+    reason: z.string().min(1).describe('Human-readable reason (whitespace-normalized into the operation key).'),
     agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias.'),
   }},

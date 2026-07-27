@@ -69,6 +69,10 @@ import {
 } from './milestone-status.js';
 import type { MaterialClassificationSnapshot } from './material-code-policy.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
+// W2c (B-506e): the v1 red-evidence gate predicate skips every non-v1 (v2 chain)
+// record — a v2 quarantine/recover record carries no observedFailure and must
+// not crash the LIVE enforce gate.
+import { isRedEvidenceV2, classifyRedRecordSchemaSafe, type RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
@@ -928,7 +932,53 @@ function expectedRedTargets(input: ProofStoryDiagnosticInput): Set<string> {
   return resolveExpectedRedTargets(input);
 }
 
-function redEvidenceRecordSatisfied(record: RedEvidenceRecord, expectedTargets: Set<string>): boolean {
+/**
+ * B-2aa7 CHK-005 (decision D-2): the `'v1'` class returned by
+ * `classifyRedRecordSchemaSafe` is RESIDUAL, not validated — it is returned for
+ * ANY object that merely lacks a `schemaVersion` member, INCLUDING an array
+ * (`typeof [] === 'object'`). So "classified v1" does NOT imply "shaped v1", and
+ * the only per-record field the predicate dereferences rather than merely reads
+ * (`observedFailure.trim()`) can still be `undefined` / `null` / a number.
+ *
+ * This guard exists so the LIVE enforce gate returns a verdict instead of
+ * aborting with a bare `TypeError`, even when a malformed record is injected
+ * DIRECTLY into the diagnostic input and never passes the read boundary. It is
+ * defense-in-depth ONLY: full v1 validation, quarantine and reporting of the
+ * corruption belong to `store.readRedEvidence` (audit §6.2 recommendation —
+ * B/C primary, A retained), which is also where the stricter own-property rule
+ * lives. Here the bar is deliberately narrower: TOTALITY, not validity.
+ *
+ * Deliberately NOT widened past `observedFailure`: the audit's repo-wide sweep
+ * (§2.1) established that every other mandatory-field check in the predicate is
+ * a truthiness test or a short-circuited property read and is therefore already
+ * total on arbitrary input. A blank `observedFailure` (`""` / `"   "`) stays a
+ * shaped v1 record and keeps flowing to the ordinary non-satisfier branch below,
+ * because it is legacy-tolerated input (§8.4 / D-5), not malformed — routing it
+ * here would change scenario 3 of the invariance harness.
+ */
+function isShapedLegacyV1Record(record: unknown): boolean {
+  if (typeof record !== 'object' || record === null || Array.isArray(record)) return false;
+  return typeof (record as { observedFailure?: unknown }).observedFailure === 'string';
+}
+
+function redEvidenceRecordSatisfied(
+  record: RedEvidenceRecord | RedEvidenceRecordV2,
+  expectedTargets: Set<string>,
+): boolean {
+  // W2c (B-506e): ONLY a genuine v1 record can satisfy the v1 predicate. The
+  // schemaVersion discriminant is EXHAUSTIVE — a v2 record (exact literal) AND a
+  // record carrying an UNKNOWN/unsupported schemaVersion (a future v3, a typo, a
+  // corrupted value) are BOTH skipped BEFORE touching any v1-only field. This
+  // keeps the v1 gate verdict byte-identical on a v1-only store and prevents a
+  // non-v1 record (no observedFailure) from falling through to
+  // record.observedFailure.trim() and throwing a TypeError in the LIVE enforce
+  // gate. (Unsupported records are ALSO rejected at load in store.readRedEvidence;
+  // this predicate is defense-in-depth so the gate can never crash on one.)
+  if (isRedEvidenceV2(record)) return false;
+  if (classifyRedRecordSchemaSafe(record) !== 'v1') return false;
+  // B-2aa7 CHK-005: 'v1' above is a RESIDUAL class, so shape it before the one
+  // dereference in this predicate (see isShapedLegacyV1Record).
+  if (!isShapedLegacyV1Record(record)) return false;
   if (record.observedFailure.trim().length === 0) return false;
   if (!record.failingCommand && !record.failureReceiptHash) return false;
   if (!record.acceptanceTargetRef || !expectedTargets.has(record.acceptanceTargetRef)) return false;
