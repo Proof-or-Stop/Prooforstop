@@ -1,0 +1,76 @@
+{
+  "storyId": "B-4043",
+  "checkedAt": "2026-07-27T13:18:38.278Z",
+  "headHash": "51439069926af595e431364aa23e7f5a5b51ce00",
+  "materialHash": "443a65aa66cc50191d971e5316d6f5faa6cdd328a3bf9d270ae38f2173c91929",
+  "storyFilesHash": "f29641b7d99d0b23294bef10bccb9a0a3a2b9d1d3e1cfe70672049a27b9a63ed",
+  "reviewRound": "2026-07-25T22:05:45.751Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
+      "promise": "lattice acceptance_rollout_report / acceptance_rollout_report_read / acceptance_rollout_check commands exist; the report writer is the sole signer, membership is verifier-derived and frozen, and the caller cannot supply window/membership/thresholds/verdict/adapter/quorum/hashes/signature",
+      "verifiedBy": "diff/grep + live CLI invocation",
+      "evidence": "packages/main/src/cli/command-catalog.ts:2694,2702,2707 register all three commands; packages/main/src/core/command-policy.ts:431-433 encode gateEvidence + caller-forbidden-fields policy text matching the doc; live `node bin/lattice.js acceptance_rollout_report_read` and `acceptance_rollout_check` executed successfully against the real persisted artifact and returned the documented schema (membershipDigest, sourceInventoryDigest, per-pair observationReceipts, diagnostics, quorum)."
+    },
+    {
+      "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
+      "promise": "Mode comes only from flat project proofStory.acceptanceRolloutGateMode (observe by default); observe/warn/enforce share status/diagnostics; only enforce blocks DEV->REVIEW",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/config.ts:80,115,125 define the flat-project-only mode field; lattice.config.json for this project has no override so it defaults to observe; packages/main/src/handlers/transition-orchestrator.ts:135-150 runAcceptanceRolloutGate only throws (blocks) when report.blocking, which is mode==='enforce' AND !ok (packages/main/src/core/acceptance-rollout.ts:931); wired into the DEV->REVIEW path at transition-orchestrator.ts:960."
+    },
+    {
+      "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
+      "promise": "Rollback sets acceptanceRolloutGateMode to warn or observe and never deletes/rewrites reports, receipts, failed attempts, diagnostics, or prior evidence",
+      "verifiedBy": "diff/grep + reproduced test",
+      "evidence": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:429-430 assert `runAcceptanceRolloutGate(...).includes('blocking=false')` after rollback to observe and `acceptanceRolloutHistoryDigest(...)` equality before/after, proving history preservation. Independently re-ran `node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --proof-scenarios` and reproduced `ProofStory acceptance rollout smoke: PASS (57 assertions)`, matching the checklist's recorded mechanical receipt."
+    },
+    {
+      "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
+      "promise": "Promotion thresholds: >=3 matched pairs per arm, every seed detected + overall false-pass 0, 100% supported omission detection, 0% false-block, 0 mislabeled 3x1, waiver delta <=0, non-shrinking inventory, only codex-cli+claude-cli adapter, genuine full-3x2",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/acceptance-rollout.ts:35 ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER='codex-cli+claude-cli' consumed at lines 612/711/714 to gate adapterProfile/full3x2; live-read acceptance-rollout-report.json shows eligibleMembership with 6 pairs (3 seeded defect pairs + docs/legacy/ordinary false-block controls), matching the >=3-per-arm and control-pair claims in the doc and decision record."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "promise": "Status header updated to WAVES 1/1A/2/2A/3/4 IMPLEMENTED - WAVE 3A SKIPPED FOR FLAT ROLLOUT (removing prior NOT IMPLEMENTED wording), with a measured-cohort metrics table (3/3 seed detection, 0 false-block, waiver delta 0), a resolved Wave 4 decision record (thresholds/adapters/transcripts/mutations), and rollback procedure, while explicitly not claiming selective per-Story (Wave 3A) applicability or production/public authority",
+      "verifiedBy": "diff read",
+      "evidence": "git diff main...HEAD on the file shows the status line change, the new Section 17 measured-cohort table, resolved Section 19 decision record, and explicit 'not a release, production, public-authority, or selective high-risk claim' language; cross-checked against the code constraints above (adapter constant, mode field, rollback assertions) and none contradict the documented numbers."
+    },
+    {
+      "docPath": ".claude/agents/lattice-review-delivery.md / .lattice-codex/agents/lattice-review-delivery.md (this story's own CHK-001 change)",
+      "promise": "Future delivery reviewers of Wave-4-dependent stories must independently read acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check rather than trust prompt prose, and must require a current signed PASS receipt and genuine full 3x2",
+      "verifiedBy": "live CLI invocation",
+      "evidence": "Both host mirrors contain byte-identical guidance text (verified via grep on both files). Independently invoking `acceptance_rollout_report_read`/`acceptance_rollout_check` right now returns status=fail, receipt=stale, diagnostics=[AR_REPORT_STALE] because B-4043's own storyFilesHash has legitimately moved since the report was issued 2026-07-24T17:34:27Z (many subsequent verification_evidence_add/review_pass_set/quorum_submit/finding_resolve commits changed story-owned files -- confirmed via evidence-freshness.ts:585-595's storyFilesHash-mismatch branch, not a whole-tree-only false positive). This is expected, correct behavior of the freshness check (it is only consumed as a non-blocking DEV->REVIEW gate under this story's own default observe mode, per transition-orchestrator.ts:135-150) rather than a broken promise, and it is NOT a self-referential admission requirement for B-4043 (B-4043 did not gate its own admission on an enforce-mode rollout verdict). Recorded here for future-story reviewers: a fresh regenerate-before-verify step is required before any future story relies on this artifact as a current receipt."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently reran `node scripts/verify-process-fact-contract.mjs --quiet` (exit 0, 'Process fact contract verified') and the pre-review-check proof-scenarios logic test; both matched the checklist's recorded mechanical receipts (exitCode 0, selector matched). Confirms role-guidance mirroring, mode invariance, and adversarial prompt-authority mutations (A-MUT-6 PROMPT_CONTRACT_REJECTED) all pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independently reran `node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --proof-scenarios` end-to-end (spawns real temporary Story trees and real subprocess cohort-runner child processes) and reproduced `ProofStory acceptance rollout smoke: PASS (57 assertions)`. Independently read the persisted acceptance-rollout-report.json via `acceptance_rollout_report_read`/`acceptance_rollout_check` and confirmed real per-pair observationReceipts, membershipDigest, sourceInventoryDigest, and 6 real host_verdict quorum rows (r1/r2/r3 x codex-cli/claude-cli, all decision=pass) in process-events.jsonl matching the checklist's storyFilesHash."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Threshold logic (adapter constant, >=3-pair-per-arm, mislabeled-3x1) confirmed in source (acceptance-rollout.ts) and exercised by the same smoke run (57 assertions, PASS) plus the recorded mechanical receipts for CHK-003's happy/edge/adversarial intents."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Confirmed runAcceptanceRolloutGate is wired into the real DEV->REVIEW transition path (transition-orchestrator.ts:960) and only blocks when mode==='enforce', matching the opt-in-enforcement promise. Rollback/history-preservation assertions (lines 429-430) exercised by the reproduced smoke PASS."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Docs-only checklist item; verified by direct diff read of the decision document rather than an executable test, consistent with its declared type=docs and the non-mechanical manual_transcript evidence kind recorded for its three intents. No waiver needed since evidence (diff-read) was actually supplied."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 checklist items and their docs/CLI promises are independently verified against source and, where executable, reproduced live (57-assertion rollout smoke PASS, process-fact-contract PASS, 6/6 host_verdict quorum rows, all 19 findings resolved with none open). One non-blocking observation: the persisted acceptance-rollout-report.json is currently stale (AR_REPORT_STALE, genuine storyFilesHash drift from later process-metadata commits) when re-verified now, which is expected under this story's own default observe (non-enforcing) mode and does not gate B-4043's own admission or contradict any doc promise -- it is flagged for future Wave-4-dependent story reviewers per this story's own updated reviewer prompt."
+  },
+  "_hash": "27825acba51eaffdde85b21563ab5585e656b6ebc646bd61b528fba7c93a7041"
+}
