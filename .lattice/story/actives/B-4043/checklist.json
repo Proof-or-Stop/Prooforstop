@@ -71,7 +71,11 @@
             "desc": "Targeted mutations that remove a required command from either host prompt, replace full 3x2 with degraded 3x1, or claim prompt text is gate evidence must fail the mirror/process-fact contract with a stable reason, and restoration must return the clean control to PASS.",
             "type": "logic",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
           }
         ]
       },
@@ -117,14 +121,22 @@
         },
         {
           "intentRef": "CHK-001:adversarial:prompt-authority",
-          "kind": "manual_transcript",
-          "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
           "result": "pass",
-          "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): pre-review-check-smoke --proof-scenarios exit 0; this scenario record biting as designed (all 17 mutations bite, 5 positive + 1 transcript PASS). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
-          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
-          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
-          "timestamp": "2026-07-27T02:12:24.908Z"
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7",
+            "outputTail": "\",\"PASS\",true,[[\"mutation-applied\",47],[\"diagnostic-observed\",48],[\"control-rerun\",49]],\"intent:CHK-002:edge:false-block-controls\"],[\"A-MUT-3\",\"mutation\",\"artifact:signature\",\"field-tamper\",\"tamper signed pre-review artifact field\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",12],[\"diagnostic-observed\",13],[\"control-rerun\",14]],\"intent:CHK-003:edge:inconclusive-boundary\"],[\"A-MUT-4\",\"mutation\",\"authority:direct-store-replay\",\"authority-replay\",\"direct StoryStore proof without causal receipt\",\"PR_AUTHORITY_INADMISSIBLE\",\"PR_AUTHORITY_INADMISSIBLE\",true,[[\"mutation-applied\",0],[\"diagnostic-observed\",1],[\"control-rerun\",2]],\"intent:CHK-004:edge:mode-invariant-diagnostics\"],[\"A-MUT-5\",\"mutation\",\"planned-actual:consumer-symbol\",\"planned-actual\",\"remove declared current consumer symbol\",\"PR_PLANNED_PATH_UNRESOLVED\",\"PR_PLANNED_PATH_UNRESOLVED\",true,[[\"mutation-applied\",24],[\"diagnostic-observed\",25],[\"control-rerun\",26]],\"intent:CHK-005:edge:authority-and-exclusions\"],[\"A-MUT-6\",\"mutation\",\"role-guidance:authority-boundary\",\"prompt-contract-mutations\",\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\",\"PROMPT_CONTRACT_REJECTED\",\"PROMPT_CONTRACT_REJECTED\",true,[[\"mutation-applied\",50],[\"diagnostic-observed\",51],[\"control-rerun\",52]],\"intent:CHK-001:adversarial:prompt-authority\"],[\"A-MUT-7\",\"mutation\",\"topology:consumer-omission\",\"topology-omission\",\"remove current topology consumer against retained basis\",\"PR_NEW_PATH_UNMAPPED\",\"PR_NEW_PATH_UNMAPPED\",true,[[\"mutation-applied\",9],[\"diagnostic-observed\",10],[\"control-rerun\",11]],\"intent:CHK-002:adversarial:seeded-defects\"],[\"A-MUT-8\",\"mutation\",\"basis:adapter-record\",\"adapter-tamper\",\"remove signed adapter result\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",15],[\"diagnostic-observed\",16],[\"control-rerun\",17]],\"intent:CHK-003:adversarial:threshold-bypass\"],[\"A-MUT-9\",\"mutation\",\"mutation:observed-polarity\",\"polarity-restore\",\"replace observed mutation outcome then rerun clean control\",\"PR_MUTATION_DID_NOT_BITE\",\"PR_MUTATION_DID_NOT_BITE\",true,[[\"mutation-applied\",21],[\"diagnostic-observed\",22],[\"control-rerun\",23]],\"intent:CHK-004:adversarial:fail-closed-mutations\"],[\"A-POS-1\",\"positive\",\"role-guidance:codex-claude-mirrors\",\"prompt-contract\",\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",39],[\"consumer-verified\",40]],\"intent:CHK-001:happy:role-guidance\"],[\"A-POS-2\",\"positive\",\"rollout:verified-cohort-receipt\",\"rollout-receipt-verification\",\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",41],[\"consumer-verified\",42]],\"intent:CHK-002:happy:real-cohort-receipt\"],[\"A-POS-3\",\"positive\",\"rollout:bounded-threshold-matrix\",\"threshold-contract\",\"evaluate every canonical promotion threshold from the verifier-derived report metrics\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",43],[\"consumer-verified\",44]],\"intent:CHK-003:happy:bounded-thresholds\"],[\"A-POS-4\",\"positive\",\"docs:canonical-wave4-status\",\"docs-contract\",\"execute canonical Wave 4 status and exact live-proof inventory contract check\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",45],[\"consumer-verified\",46]],\"intent:CHK-005:happy:canonical-wave4-status\"],[\"A-POS-5\",\"positive\",\"rollout:focused-enforce-rollback\",\"focused-rollout-control\",\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",59],[\"consumer-verified\",60]],\"intent:CHK-004:happy:enforce-and-rollback\"],[\"A-TRANSCRIPT-1\",\"transcript\",\"events:producer-consumer\",\"event-log-relation\",\"actual producer invocation precedes canonical lifecycle consumer\",\"ORDERED\",\"ORDERED\",true,[[\"producer-evaluated\",6],[\"consumer-verified\",7]],\"intent:CHK-004:happy:enforce-and-rollback\"]]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T11:30:40.869Z"
+          },
+          "headHash": "15f8281c9719eb0f7dfc7e74c5b1f226e902f4bb",
+          "materialHash": "9ce0a676596ff4ae1262795782b9912fb0ae9f11f2c23038b1b2053bd9149a50",
+          "storyFilesHash": "90c3834de9ec1346185103c65a6011127ac8fba47e0029e81e2242317d981e0d",
+          "timestamp": "2026-07-27T11:30:41.055Z"
         }
       ]
     },
