@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-49d4",
+  "records": [
+    {
+      "id": "RED-20260727160310",
+      "trigger": "red_evidence_required: a registration guard bound to a hardcoded list cannot notice a population member nobody registered, and the guard itself never runs under lattice validate",
+      "acceptanceTargetRef": "sha256:3cd510f41afbfbfcd06825621b368697b74a885ab88943c4c98309859be926c6",
+      "baselineHeadHash": "f7f90652f63ed6b8f2e02122de723cbe367dcc05",
+      "baselineMaterialHash": "263d77a57e79f883c185957757f6ef12d535a4dd65aa2c3a5b3398b1d19b07f9",
+      "observedFailure": "The guard exits 0 while an unregistered member of its own population is present on disk and deliberately exits 1. Its success line reports 'all 3 required red-evidence smokes' - the count comes from REQUIRED_VALIDATE_COMMANDS.length, so it reports the size of the expectation and can never reveal the gap. Verified on this worktree at CLI 0.3.247: the repro command exits 1 having observed the guard exit 0. A separate control confirms the same guard DOES exit non-zero when a listed command is de-registered, so this is blindness rather than a broken guard. Separately measured: 18 of 31 packages/main/tests/red/*.mjs are unregistered, 3 are spawned transitively by red-b2aa7-chk007-receipt.mjs, leaving 15 executed by no automated path - including this guard itself.",
+      "failingCommand": "node -e \"const{execFileSync}=require('child_process');const fs=require('fs'),p=require('path');const probe='packages/main/src/tasks/red-evidence-b49d4probe-smoke.ts';const dist='packages/main/dist/tasks/red-evidence-b49d4probe-smoke.js';fs.writeFileSync(probe,'export {};\\n');fs.writeFileSync(dist,'process.exit(1);\\n');let out='',code=0;try{out=execFileSync('node',['packages/main/tests/red/red-w2c-validate-registration.mjs'],{encoding:'utf8'})}catch(e){code=e.status||1;out=String(e.stdout||'')+String(e.stderr||'')}fs.unlinkSync(probe);fs.unlinkSync(dist);const reg=fs.readFileSync('lattice.config.json','utf8').includes('red-evidence-b49d4probe-smoke');if(code===0&&!reg){console.log('BLIND: guard exited 0 with an unregistered failing population member present');console.log(out.trim().slice(0,200));process.exit(1)}console.log('guard bit; not blind');\"",
+      "expectedGreenCommand": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+      "greenRelation": {
+        "targetRef": "sha256:3cd510f41afbfbfcd06825621b368697b74a885ab88943c4c98309859be926c6",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      },
+      "note": "Repro-first. The command plants a genuine member of the guard's own dist-task population, registered nowhere and exiting 1, runs the real guard, and exits 1 only if the guard reported success anyway; it removes both probe files before asserting, so the tree is left clean. This is the CRASH-equivalent row for a guard defect: the failure is a confident success line, not an error.",
+      "createdAt": "2026-07-27T16:03:10.245Z"
+    }
+  ],
+  "createdAt": "2026-07-27T16:03:10.245Z",
+  "updatedAt": "2026-07-27T16:03:10.245Z"
+}

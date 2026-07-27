@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-49d4",
+  "id": "IC-20260727160616",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The operator asked for a repro-first verification round, which confirmed this defect as real and larger than filed. The operator then approved proceeding in risk-times-cost order, this item first. This story faithfully delivers that first item: rewrite two registration guards to derive their populations from disk instead of asserting fixed lists, register or exclude-with-reason every current member, and register the guard itself so it actually runs. Option C (delete the unreached harnesses) was correctly rejected because it does not fix the structural defect in the guard and would destroy regression evidence that still passes. The scope expansion from the narrow original filing to the measured two-population finding is operator-approved faithful elaboration, not scope creep.",
+  "acceptedInterpretationHash": "sha256:d9345c34c3423acc5525be0c0a610b680eca291f4896f2d84df9a3284a86353f",
+  "notes": "Four questions assessed. (1) normalizedOutcome faithfully represents sourceText: the outcome describes the concrete deliverable of the first approved item in the risk-times-cost ordering. (2) acceptanceClaim is compound but indivisible: all sub-conditions (newcomer detection, non-matching prefix, existing members decided, guard self-registered) are necessary for one coherent property. Partial delivery on any axis is not success. (3) Option C rejection is sound for two independent reasons: deleting files does not fix the guard structure (you still need the derivation rewrite, making deletion moot), and these are regression harnesses that still assert true properties about the current codebase. The two genuinely vacuous files (chk001, chk010) are correctly classified as exclusions-with-reason rather than deleted. (4) Scope expanded from the narrow original filing because the repro round measured the defect as larger; sourceText says so explicitly, scope-boundary carries operator confirmation, and both populations share the same defect shape.",
+  "createdAt": "2026-07-27T16:06:16.169Z",
+  "updatedAt": "2026-07-27T16:06:16.169Z"
+}
