@@ -1154,6 +1154,54 @@
         "scanEscalationReason": null
       },
       "_hash": "3e943c919323a7a1571e0128751c55c7df723f6c04e2552eb8cc99d2df03fa12"
+    },
+    {
+      "id": "B-4043:RP-036",
+      "agent": "lattice-review-docs",
+      "note": "Re-verified F-014 fix post-merge (785 commits, main->story/B-4043 merge f9855acc21, conflicts only in lattice.config.json validate.commands and proofstory.ts imports, resolved as clean unions) plus commit 0e43feee84 (F-018 ternary cleanup, no doc impact). Confirmed Wave4 guidance still sourced from packages/main/templates/agents/*.md, materialized shims byte-identical to templates (host-name substitution only diff), thin-shim reviewer roles still bootstrap-only, verify-process-fact-contract.mjs PASS and still references templates/agents. Used review_incremental_context: only docs/requirements/decisions/plan-init-reopen.md entered changedFiles since RP-033, and it is an unmodified passthrough from the main merge (git diff main HEAD empty), not authored by B-4043. docs/CLI.md and execution-plan.md Wave4 sections predate RP-033 and match current command-catalog.ts (acceptance_rollout_report/_report_read/_check registered) and acceptance-rollout.ts (29 AR_* codes). 0 findings.",
+      "createdAt": "2026-07-27T02:18:08.659Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-056",
+      "envelopeId": "d9655bc20f432ec8babfc2e519bcce3be15c29dcaca4e4a6a3a34ba98057a262",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-channel.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/plan-init-reopen.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d286d616ff590bb2e9a09071130aeca8a03b7c7cdf3faf8b5457572cdabcb2d"
     }
   ]
 }
