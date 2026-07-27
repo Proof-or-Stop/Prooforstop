@@ -4,7 +4,7 @@
   "title": "Reject self-contradictory evidence rows and stop refresh_stale from laundering unverified pass assertions",
   "description": "Two mechanical ways false verification evidence enters the ledger today, both fixable with no schema change: (1) verification_evidence_add accepts a row whose own command and file fields name contradictory targets; (2) verification_evidence_refresh_stale re-stamps freshness hashes onto a stale result:pass without ever re-executing, laundering an unverified assertion onto new material. This is the cheapest first slice of the evidence-integrity program.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "evidence",
@@ -112,6 +112,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-27T01:20:13.612Z",
+      "branch": "story/B-3b88",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-27T01:49:19.647Z",
       "branch": "story/B-3b88",
       "user": "Harmonygo",
       "sessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
