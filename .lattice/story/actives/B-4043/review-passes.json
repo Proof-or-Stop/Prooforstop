@@ -1538,6 +1538,34 @@
         "scanEscalationReason": null
       },
       "_hash": "c8a27e0b48d148b39c8ed4867d0d5d9c25c12eea4466c9c7c3f57657ef142cab"
+    },
+    {
+      "id": "B-4043:RP-046",
+      "agent": "lattice-review-docs",
+      "note": "Re-attestation round (quorum rebuild after done_prepare --mergeMain materialHash shift; no source/doc change since RP-043, behind-main=0). Verified F-014 fix still holds: .claude/agents/*.md shims are body-free (9-line bootstrap pointing to lattice agent_prompt / review_run_start), packages/main/templates/agents/*.md is the sole role-guidance source, scripts/verify-process-fact-contract.mjs validates against packages/main/templates/agents. finding_list shows 19/19 findings resolved, 0 open. Cross-checked docs/CLI.md Wave 4 section against packages/main/src/cli/command-catalog.ts: all four verifier-owned commands (acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check) registered exactly as documented. Execution-plan Wave 4 section status IMPLEMENTED matches code. No blockers.",
+      "createdAt": "2026-07-27T15:14:20.962Z",
+      "reviewRound": "2026-07-27T15:11:10.692Z",
+      "reviewRunId": "B-4043:RR-069",
+      "envelopeId": "433e0ee63a8a6455b3d2937996aede108175a0a3e03b534b4a0e259ab1406b70",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-docs.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "717d699aa026c8398ac2c6f64a6cb2ee7a889516ab4040d48aff50fe51b3d32e"
     }
   ]
 }
