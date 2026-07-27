@@ -1422,6 +1422,57 @@
         "scanEscalationReason": null
       },
       "_hash": "3742700669e34288a606f2bec8a678ebdea49d386968c3a81a72a00f137ffae1"
+    },
+    {
+      "id": "B-4043:RP-043",
+      "agent": "lattice-review-docs",
+      "note": "Mechanical re-round for stale_closeout_review remedy after main merge brought only unrelated B-49d4 metadata + new docs/evidence-integrity-program-spec.md. Re-confirmed F-014 fix holds and docs/CLI.md + execution-plan Wave4 section remain consistent with acceptance-rollout.ts/config.ts; 0 open findings; no new symbols or doc drift since RP-039.",
+      "createdAt": "2026-07-27T14:26:43.386Z",
+      "reviewRound": "2026-07-27T14:21:49.118Z",
+      "reviewRunId": "B-4043:RR-065",
+      "envelopeId": "968b019378515378e68edd04d437230d9a9c3a438f9c35d89a50f179131ca75d",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8871c00ba540cef2c24023a666660fc5007123596884ed4cf98a7cd5482cca0"
     }
   ]
 }
