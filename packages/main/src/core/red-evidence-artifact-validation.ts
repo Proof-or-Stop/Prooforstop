@@ -61,7 +61,7 @@
  * digest means the fix is wrong — not that the constant needs re-pinning. See
  * {@link V1_MANDATORY_RECORD_FIELDS}, where the carve-out is `blankTolerated`.
  *
- * ── KNOWN HAND-OFF TO CHK-006 (consumer behaviour) ──────────────────────────
+ * ── HAND-OFF TO CHK-006 (consumer behaviour) — NOW ANSWERED BELOW ───────────
  *
  * Quarantine keeps `records` clean, so a consumer that reads an artifact and
  * writes a REBUILT envelope back would persist the clean `records` and lose the
@@ -71,6 +71,13 @@
  * its verbatim `value`); making the WRITE path preserve it is CHK-006's
  * `red_evidence_add` obligation — "repair by appending, or refuse with an
  * actionable message, never leave the artifact unrepairable" (§10.4 row C2).
+ *
+ * CHK-006 answers it in the CONSUMER SURFACE section at the foot of this file:
+ * {@link restoreQuarantinedRecords} is the write-path counterpart that puts
+ * every quarantined original back at its on-disk index before the rebuilt
+ * envelope is written, and {@link renderRedEvidenceQuarantineNotice} /
+ * {@link describeRedEvidenceReadFailure} give every consumer one corruption
+ * vocabulary so corruption never renders as absence.
  *
  * ── PURITY ──────────────────────────────────────────────────────────────────
  *
@@ -177,6 +184,18 @@ export type RedEvidenceEnvelopeFaultCode =
   | 'records_not_array';
 
 /**
+ * The SHARED corruption vocabulary (B-2aa7 CHK-006).
+ *
+ * Every corruption surface in the system opens with this exact phrase, so a
+ * corrupt artifact can never be mistaken for an absent one by an operator
+ * skimming output or by a grep over a transcript. The ordinary not-configured
+ * wording ("not configured", "unavailable", "no red evidence") never carries it.
+ * That distinction IS the story: §10.2.1 row E5 and the §4 `story_review`
+ * degradation are both cases of corruption reading as absence.
+ */
+export const RED_EVIDENCE_CORRUPT_MARKER = 'red-evidence artifact is corrupt';
+
+/**
  * Typed error for an ENVELOPE fault. Always NAMES THE ARTIFACT PATH, and never
  * describes the fault as a record fault — the whole point of row A8 / §2.4.
  *
@@ -190,7 +209,7 @@ export class RedEvidenceArtifactError extends Error {
   readonly artifactPath: string;
 
   constructor(code: RedEvidenceEnvelopeFaultCode, artifactPath: string, detail: string, options?: { cause?: unknown }) {
-    super(`red-evidence artifact is corrupt [${code}]: ${detail} — file: ${artifactPath}`, options);
+    super(`${RED_EVIDENCE_CORRUPT_MARKER} [${code}]: ${detail} — file: ${artifactPath}`, options);
     this.name = 'RedEvidenceArtifactError';
     this.code = code;
     this.artifactPath = artifactPath;
@@ -468,4 +487,190 @@ export function validateRedEvidenceArtifact(parsed: unknown, artifactPath: strin
   const classified = classifyRedEvidenceArtifact(parsed, artifactPath);
   if (!classified.ok) throw classified.error;
   return classified.data;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSUMER SURFACE (B-2aa7 CHK-006 — audit §9 and §10.4 rows C1 / C2 / C3)
+//
+// CHK-004 stopped the READ boundary crashing and lying. That is only half the
+// defect. A consumer can still take a correctly-classified corrupt artifact and
+// make it read as an ABSENT one — the gate says `missing_red_evidence`,
+// `red_evidence_get` says "not configured", `story_review` says "unavailable" —
+// which is the same silence §10.2.1 row E5 and §4 describe. And one consumer
+// class can do worse than mis-render: it can DESTROY evidence.
+//
+// So there are two obligations here, and they are not the same obligation:
+//
+//   DISPLAY   Every consumer must render corruption DISTINCTLY FROM ABSENCE.
+//             {@link RED_EVIDENCE_CORRUPT_MARKER} is the one phrase they all
+//             share; {@link renderRedEvidenceQuarantineNotice} covers the
+//             quarantined case (no throw) and
+//             {@link describeRedEvidenceReadFailure} the rejected case (throw).
+//
+//   PRESERVE  Quarantine retains rejected entries IN MEMORY ONLY. `records`
+//             reaches the typed domain CLEAN, so any consumer that reads and
+//             writes back a REBUILT envelope silently drops the quarantined
+//             originals from disk — an operator repairing a corrupt artifact
+//             with `red_evidence_create` would delete the very evidence they
+//             came to repair. {@link restoreQuarantinedRecords} is the
+//             write-path counterpart that makes repair-by-append non-destructive
+//             and FAILS CLOSED rather than guessing.
+//
+// Pure, like the rest of this file: these render and re-order values, they never
+// read the filesystem and never decide a gate verdict.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** The sentence appended to every corruption surface, so absence can never be inferred from it. */
+const NOT_ABSENCE = 'This is CORRUPTION, not an absent or unconfigured artifact.';
+
+/**
+ * The entries the read boundary quarantined. Empty for an ABSENT artifact and
+ * empty for a clean one — deliberately the same answer, because neither is
+ * corruption, and the two are already distinguished by `data === null`.
+ */
+export function redEvidenceQuarantinedRecords(
+  data: RedEvidenceData | null | undefined,
+): readonly RedEvidenceMalformedRecord[] {
+  return data?.malformedRecords ?? [];
+}
+
+/**
+ * Operator-facing summary of a QUARANTINED artifact, or `null` when there is
+ * nothing to report.
+ *
+ * Returning `null` — rather than an empty string or a "no corruption" line — is
+ * load-bearing: a caller can only render corruption where corruption exists, so
+ * this cannot be the source of a false corruption report on a clean or absent
+ * artifact (the inverse of the defect, and just as bad).
+ */
+export function renderRedEvidenceQuarantineNotice(
+  storyId: string,
+  data: RedEvidenceData | null | undefined,
+): string | null {
+  const quarantined = redEvidenceQuarantinedRecords(data);
+  if (quarantined.length === 0) return null;
+  const kept = data?.records?.length ?? 0;
+  return [
+    `${RED_EVIDENCE_CORRUPT_MARKER} [quarantined_records]: ${quarantined.length} of ${kept + quarantined.length} ` +
+      `record(s) for story ${storyId} are not well-formed under the legacy v1 schema and were QUARANTINED at the ` +
+      `read boundary. They are RETAINED, not dropped.`,
+    ...quarantined.map((entry) => `  - ${entry.reason}`),
+    `  ${NOT_ABSENCE}`,
+  ].join('\n');
+}
+
+/**
+ * Turn a CAUGHT read-boundary failure into an operator-facing corruption line,
+ * or `null` when the failure is not a red-evidence artifact fault.
+ *
+ * The `null` return is the important half. A caller MUST rethrow on it: the §4
+ * `story_review` degradation exists precisely because a blanket `catch` turned
+ * every failure into one bland "unavailable" string, and a helper that
+ * classified unrelated errors as corruption would just move that bug rather than
+ * remove it.
+ */
+export function describeRedEvidenceReadFailure(error: unknown): string | null {
+  if (error instanceof RedEvidenceArtifactError) {
+    // Already opens with the marker and already names the artifact path.
+    return `${error.message}\n  ${NOT_ABSENCE}`;
+  }
+  if (error instanceof RedEvidenceSchemaError) {
+    // B-506e's per-record fail-closed class. Marked here so the RECORD fault and
+    // the FILE fault share one operator vocabulary while staying separate types.
+    return `${RED_EVIDENCE_CORRUPT_MARKER} [record_schema]: ${error.message}\n  ${NOT_ABSENCE}`;
+  }
+  return null;
+}
+
+/**
+ * The single repair instruction every refusing consumer points at, so §9's
+ * recoverability requirement is discoverable from wherever the operator hits it.
+ */
+export function redEvidenceRepairGuidance(storyId: string): string {
+  return (
+    `→ Inspect it with \`lattice red_evidence_get --storyId=${storyId}\` — that command DISPLAYS corruption ` +
+    `instead of aborting (§9) — then repair red-evidence.json and retry.`
+  );
+}
+
+/**
+ * D-4's WRITE-path counterpart (§10.4 row C2) — the reason quarantine is
+ * non-destructive rather than merely non-crashing.
+ *
+ * Quarantine hands the typed domain a CLEAN `records` array. Every appender in
+ * the system then builds a NEW envelope from that clean array, so writing it
+ * back persists the clean subset and DESTROYS the quarantined originals. This
+ * re-inserts every quarantined entry VERBATIM at the index it occupied on disk,
+ * so what gets written is the on-disk array plus whatever the rebuild appended —
+ * the operator repairs the artifact by appending, and loses nothing.
+ *
+ * The derived `malformedRecords` key is STRIPPED from the result: it is a read-
+ * time classification, not part of the on-disk schema, and persisting it would
+ * both pollute the envelope and let a later non-spreading appender drop the
+ * originals for good. The next read re-derives it from the restored records.
+ *
+ * FAILS CLOSED. If `rebuilt` is not `read.records` followed by a suffix, or the
+ * retained indices are not a unique interleaving, it throws and the caller must
+ * refuse. Silently losing a record is the one outcome D-4 forbids, so guessing
+ * is not an option — and a bad guess here is unrecoverable, unlike a refusal.
+ *
+ * A clean or absent read returns `rebuilt` UNCHANGED (by identity), so the
+ * ordinary write path is exactly what it was before this function existed.
+ */
+export function restoreQuarantinedRecords(
+  read: RedEvidenceData | null | undefined,
+  rebuilt: RedEvidenceData,
+): RedEvidenceData {
+  const quarantined = redEvidenceQuarantinedRecords(read);
+  if (quarantined.length === 0) return rebuilt;
+
+  const refuse = (detail: string): never => {
+    throw new Error(
+      `${RED_EVIDENCE_CORRUPT_MARKER} [quarantine_retention]: refusing to write — ${detail} ` +
+        `Writing anyway would DELETE ${quarantined.length} quarantined record(s) that are still on disk. Nothing written.`,
+    );
+  };
+
+  const clean = read?.records ?? [];
+  if (rebuilt.records.length < clean.length) {
+    refuse(
+      `the rebuilt envelope holds ${rebuilt.records.length} record(s), fewer than the ${clean.length} well-formed ` +
+        `record(s) that were read.`,
+    );
+  }
+  for (let i = 0; i < clean.length; i += 1) {
+    if (rebuilt.records[i] !== clean[i]) {
+      refuse(`the rebuilt envelope reordered or replaced well-formed record ${i}, so on-disk positions cannot be restored.`);
+    }
+  }
+
+  const total = clean.length + quarantined.length;
+  const byIndex = new Map<number, RedEvidenceMalformedRecord>();
+  for (const entry of quarantined) {
+    if (!Number.isInteger(entry.index) || entry.index < 0 || entry.index >= total || byIndex.has(entry.index)) {
+      refuse(`quarantined entry index ${String(entry.index)} is not a unique position in a ${total}-record artifact.`);
+    }
+    byIndex.set(entry.index, entry);
+  }
+
+  const restored: unknown[] = [];
+  let nextClean = 0;
+  for (let i = 0; i < total; i += 1) {
+    const entry = byIndex.get(i);
+    if (entry) {
+      restored.push(entry.value);
+      continue;
+    }
+    restored.push(clean[nextClean]);
+    nextClean += 1;
+  }
+
+  const { malformedRecords: _derived, ...envelope } = rebuilt;
+  return {
+    ...envelope,
+    // The on-disk order verbatim, then whatever the rebuild appended. The values
+    // are re-inserted UNVALIDATED on purpose: they are the operator's original
+    // bytes, and the read boundary will quarantine them again on the next read.
+    records: [...restored, ...rebuilt.records.slice(clean.length)] as RedEvidenceData['records'],
+  };
 }

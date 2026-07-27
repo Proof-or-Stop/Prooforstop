@@ -51,6 +51,11 @@ import {
 } from './proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from './closeout-trust.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from './material-code-policy.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+} from './red-evidence-artifact-validation.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -165,6 +170,10 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string, projectRo
     intentCollision: store.readIntentCollision(storyId),
     scopeContract: store.readScopeContract(storyId),
     scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+    // B-2aa7 CHK-006: deliberately NOT swallowed here. A corrupt artifact must
+    // reach `proofStoryDevGateFailure`, which turns it into a named gate failure;
+    // defaulting it to `null` in this builder would make corruption arrive at the
+    // gate as an ABSENT artifact — the exact conflation this story removes.
     redEvidence: store.readRedEvidence(storyId),
     spikeEvidence: store.readProofStorySpikes(storyId),
     summary: store.readSummary(storyId),
@@ -176,9 +185,36 @@ function proofStoryDevGateFailure(store: StoryStore, projectRoot: string | undef
   if (!projectRoot) return null;
   const mode = loadConfig(projectRoot).proofStory?.devGateMode ?? 'observe';
   if (mode !== 'enforce') return null;
-  const report = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, projectRoot), 'enforce');
+  // B-2aa7 CHK-006. Two ways a corrupt artifact reaches this gate, and they need
+  // different handling:
+  //
+  //   REJECTED (throws) — the typed error would escape an xstate guard as a raw
+  //     stack trace with no gate verdict at all (§10.4 forbids exactly that).
+  //     Convert it into an ordinary DEV-gate failure string that says CORRUPT.
+  //
+  //   QUARANTINED (no throw) — `records` arrives clean, so the report says
+  //     `missing_red_evidence`, which is the wording for an ABSENT artifact.
+  //     Lead the failure with the corruption so the operator is not sent looking
+  //     for a file that is right there and broken.
+  //
+  // The quarantine notice only ever DECORATES an already-blocking failure; it
+  // never turns a passing gate into a blocking one. Rendering is not judging,
+  // and inventing a new block here would move a verdict this story must not move.
+  let input: ProofStoryDiagnosticInput;
+  try {
+    input = proofStoryDiagnosticInput(store, storyId, projectRoot);
+  } catch (e) {
+    const corruption = describeRedEvidenceReadFailure(e);
+    if (corruption === null) throw e;
+    return `Cannot enter DEV: this story's red-evidence artifact is corrupt, so the ProofStory DEV gate has no evidence `
+      + `to evaluate. [red_evidence_corrupt]\n${corruption}\n${redEvidenceRepairGuidance(storyId)}`;
+  }
+  const report = evaluateProofStoryDiagnostics(input, 'enforce');
   if (!report.blocking) return null;
-  return `Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.\n${renderProofStoryDiagnosticReport(report)}`;
+  const corruption = renderRedEvidenceQuarantineNotice(storyId, input.redEvidence);
+  return `Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.\n`
+    + (corruption === null ? '' : `${corruption}\n${redEvidenceRepairGuidance(storyId)}\n`)
+    + renderProofStoryDiagnosticReport(report);
 }
 
 function firstHardScopeIssue(check: ScopeFreezeCheckData): ScopeFreezeIssue | null {

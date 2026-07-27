@@ -32,6 +32,11 @@ import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { evaluateProofStoryDiagnostics, renderProofStoryDiagnosticReport } from '../core/proofstory.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+} from '../core/red-evidence-artifact-validation.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics, type MaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
@@ -283,6 +288,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       }
 
       try {
+        // B-2aa7 CHK-006: hoisted out of the object literal so the QUARANTINED
+        // case (which does NOT throw) can be reported below. Without this the
+        // clean `records` array makes a corrupt artifact indistinguishable from
+        // an unconfigured one in every row this block emits.
+        const redEvidence = store.readRedEvidence(args.storyId);
+        const redEvidenceCorruption = renderRedEvidenceQuarantineNotice(args.storyId, redEvidence);
+        if (redEvidenceCorruption !== null) {
+          issues.push({
+            type: 'proofstory_red_evidence_corrupt',
+            severity: 'advisory',
+            message: `${redEvidenceCorruption}\n${redEvidenceRepairGuidance(args.storyId)}`,
+          });
+        }
         const proofStoryReport = evaluateProofStoryDiagnostics({
           story,
           checklist: cl,
@@ -294,7 +312,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           intentCollision: store.readIntentCollision(args.storyId),
           scopeContract: store.readScopeContract(args.storyId),
           scopeShrinkageDecision: store.readScopeShrinkageDecision(args.storyId),
-          redEvidence: store.readRedEvidence(args.storyId),
+          redEvidence,
           spikeEvidence: store.readProofStorySpikes(args.storyId),
           summary: store.readSummary(args.storyId),
           materialClassification,
@@ -313,18 +331,33 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             message: `${proofGap.code}: ${proofGap.message} Parent roll-up is checked by DONE equivalence when slice plans exist.`,
           });
         }
-        if (proofStoryReport.gaps.length === 0 && proofStoryReport.missingParentRollup.length === 0) {
+        // B-2aa7 CHK-006: a quarantined artifact must not be summarised as
+        // "diagnostics pass" — the gaps list is computed from the CLEAN records,
+        // so it can be empty precisely because the corrupt ones were removed.
+        if (redEvidenceCorruption === null && proofStoryReport.gaps.length === 0 && proofStoryReport.missingParentRollup.length === 0) {
           info.push({
             type: 'proofstory_diagnostics_info',
             message: `ProofStory diagnostics pass in observe mode (${proofStoryReport.hardeningLevel}).`,
           });
         }
       } catch (e) {
-        issues.push({
-          type: 'proofstory_advisory',
-          severity: 'advisory',
-          message: `ProofStory advisory diagnostics could not be evaluated: ${(e as Error).message}`,
-        });
+        // B-2aa7 CHK-006: the read boundary REJECTS an unreadable artifact, and
+        // "could not be evaluated" reads like a missing optional feature. Name
+        // the corruption instead; anything that is not an artifact fault keeps
+        // the original generic wording.
+        const redEvidenceCorruption = describeRedEvidenceReadFailure(e);
+        issues.push(redEvidenceCorruption === null
+          ? {
+            type: 'proofstory_advisory',
+            severity: 'advisory',
+            message: `ProofStory advisory diagnostics could not be evaluated: ${(e as Error).message}`,
+          }
+          : {
+            type: 'proofstory_red_evidence_corrupt',
+            severity: 'advisory',
+            message: `ProofStory advisory diagnostics could not be evaluated because this story's red-evidence `
+              + `artifact is corrupt.\n${redEvidenceCorruption}\n${redEvidenceRepairGuidance(args.storyId)}`,
+          });
       }
 
       // 2.45. RALPLAN-DR decision.json check
@@ -786,8 +819,19 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
               : '';
             return `- ${i.id}: ${i.title}${i.context ? ` (${i.context})` : ''}${intentLines}`;
           }).join('\n')}`;
+          // ── B-2aa7 CHK-006, §10.4 row C3 — "the row that would otherwise let
+          // the fix look complete while a real store degrades silently".
+          //
+          // This is the ONE consumer that already swallowed the read failure and
+          // degraded to a string. `unavailable (…)` reads as "feature not
+          // configured", so hardening the read boundary would have been INVISIBLE
+          // here and a corrupt store would have kept rendering as an absent one.
+          // Corruption now gets its own rendering, in both directions: the
+          // rejected case (throw) and the quarantined case (no throw at all).
           const proofStorySection = (() => {
             try {
+              const redEvidence = store.readRedEvidence(args.storyId);
+              const redEvidenceCorruption = renderRedEvidenceQuarantineNotice(args.storyId, redEvidence);
               const report = evaluateProofStoryDiagnostics({
                 story,
                 checklist: cl,
@@ -799,14 +843,23 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 intentCollision: store.readIntentCollision(args.storyId),
                 scopeContract: store.readScopeContract(args.storyId),
                 scopeShrinkageDecision: store.readScopeShrinkageDecision(args.storyId),
-                redEvidence: store.readRedEvidence(args.storyId),
+                redEvidence,
                 spikeEvidence: store.readProofStorySpikes(args.storyId),
                 summary: store.readSummary(args.storyId),
                 materialClassification,
               }, 'observe');
-              return `\n---\nProofStory Diagnostics (advisory only):\n${renderProofStoryDiagnosticReport(report)}\nReviewer note: prompt text and this advisory section do not satisfy gates; only CLI-written artifacts and signed review evidence do.`;
+              const corruptionSection = redEvidenceCorruption === null
+                ? ''
+                : `\n${redEvidenceCorruption}\n${redEvidenceRepairGuidance(args.storyId)}`;
+              return `\n---\nProofStory Diagnostics (advisory only):${corruptionSection}\n${renderProofStoryDiagnosticReport(report)}\nReviewer note: prompt text and this advisory section do not satisfy gates; only CLI-written artifacts and signed review evidence do.`;
             } catch (e) {
-              return `\n---\nProofStory Diagnostics (advisory only): unavailable (${(e as Error).message})`;
+              const redEvidenceCorruption = describeRedEvidenceReadFailure(e);
+              if (redEvidenceCorruption === null) {
+                return `\n---\nProofStory Diagnostics (advisory only): unavailable (${(e as Error).message})`;
+              }
+              return `\n---\nProofStory Diagnostics (advisory only): CORRUPT — diagnostics could not be evaluated because `
+                + `this story's red-evidence artifact is corrupt. This is NOT an absent or unconfigured artifact.\n`
+                + `${redEvidenceCorruption}\n${redEvidenceRepairGuidance(args.storyId)}`;
             }
           })();
           // When there is no understanding, decision, grill, or rendered experience

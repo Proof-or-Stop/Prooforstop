@@ -45,15 +45,65 @@ import {
 } from '../core/red-evidence/append.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import type { RedEvidenceData } from '../core/types.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+} from '../core/red-evidence-artifact-validation.js';
 
 function withBindingLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
   const lockDir = store.runtimeLockDirPath(storyId, 'red-target-bindings', 'red-target-bindings');
   return withMkdirLock(lockDir, fn, { label: 'red-target-bindings metadata' });
 }
 
+/**
+ * B-2aa7 CHK-006 (§10.4 rows C2/C3) — the chain commands' read of the artifact.
+ *
+ * Both chain commands read `red-evidence.json` and then write a REBUILT envelope
+ * through `appendControlRecord` (`core/red-evidence/append.ts`, owned by the
+ * merged sibling B-506e and OUTSIDE this story's write set). That rebuild does
+ * not restore D-4 quarantined originals to `records`, so running it against a
+ * corrupt artifact would relocate — and, on any later non-spreading append,
+ * destroy — evidence the operator is trying to repair. Since the rebuild cannot
+ * be fixed from here, the command REFUSES instead, which is C2's second branch:
+ * a controlled failure naming the corruption and the repair path, never a silent
+ * rewrite and never an abort that reads as "not configured".
+ *
+ * `red_evidence_create` is unaffected by this refusal and remains the CLI repair
+ * path (it restores quarantined originals before writing), so the artifact is
+ * never left unrepairable through the CLI.
+ */
+function readRedEvidenceForChain(
+  store: StoryStore,
+  storyId: string,
+  command: string,
+): RedEvidenceData | null {
+  let data: RedEvidenceData | null;
+  try {
+    data = store.readRedEvidence(storyId);
+  } catch (e) {
+    const corruption = describeRedEvidenceReadFailure(e);
+    if (corruption === null) throw e;
+    throw new Error(
+      `${command} refused: this story's red-evidence artifact cannot be read, so its chain state is unknown. ` +
+        `Nothing written.\n${corruption}\n${redEvidenceRepairGuidance(storyId)}`,
+    );
+  }
+  const corruption = renderRedEvidenceQuarantineNotice(storyId, data);
+  if (corruption !== null) {
+    throw new Error(
+      `${command} refused: this story's red-evidence artifact holds quarantined record(s), and appending to the chain ` +
+        `rebuilds the envelope without restoring them. Nothing written.\n${corruption}\n` +
+        `${redEvidenceRepairGuidance(storyId)}`,
+    );
+  }
+  return data;
+}
+
 /** Locate a v2 chain record by id within a story's store (§4.1 reference lookup). */
 function findV2Record(store: StoryStore, storyId: string, recordId: string): RedEvidenceRecordV2 {
-  const data = store.readRedEvidence(storyId);
+  const data = readRedEvidenceForChain(store, storyId, 'red_evidence chain reference');
   const record = (data?.records ?? []).find(
     (r): r is RedEvidenceRecordV2 => isRedEvidenceV2(r) && r.id === recordId,
   );
@@ -134,7 +184,11 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
         return withMkdirLock(
           chainLock,
           () => {
-            const evidence = store.readRedEvidence(args.storyId);
+            // B-2aa7 CHK-006: the freeze decision below is derived from the
+            // chain, so a corrupt artifact means the decision would be made from
+            // a PARTIAL view of the file. Fail closed and say so — the same
+            // stance the corrupt-chain guard immediately below already takes.
+            const evidence = readRedEvidenceForChain(store, args.storyId, 'red_evidence_binding_set');
             const chain = partitionChain(evidence?.records ?? [], args.storyId, acceptanceTargetRef);
             const head = resolveChainHead(chain);
             // F-007: a NON-empty chain with no unique head is CORRUPT — never
