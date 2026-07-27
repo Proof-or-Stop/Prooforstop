@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-49d4",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:3cd510f41afbfbfcd06825621b368697b74a885ab88943c4c98309859be926c6",
+  "acceptanceBindings": [
+    {
+      "id": "AB-1",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "The defect is demonstrated before it is fixed, including a differently-prefixed newcomer so a narrowed derivation cannot pass, and a control proving the guard is blind rather than broken."
+    },
+    {
+      "id": "AB-2",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "The instrument is bound to the property instead of a snapshot: both populations enumerated unfiltered from disk, nothing undecided, nothing falling between them, bite observed in both directions, each guard covering itself."
+    },
+    {
+      "id": "AB-3",
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "The population is completed honestly: everything registered was seen to pass first, the guard itself is registered so it actually runs, and the two vacuous pre-fix receipts are excluded with a stated reason rather than padding the suite."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_intent_collision",
+      "severity": "warn",
+      "artifact": "intent-collision.json",
+      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
+      "triggeredBy": [
+        "collision_required_high_assurance",
+        "collision_required_standard"
+      ]
+    }
+  ],
+  "note": "Splits the acceptance claim into the three sub-claims that can independently fail, so partial delivery cannot be reported as success.",
+  "createdAt": "2026-07-27T16:03:43.457Z",
+  "updatedAt": "2026-07-27T16:03:43.457Z"
+}

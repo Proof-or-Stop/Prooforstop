@@ -1,0 +1,31 @@
+{
+  "storyId": "B-49d4",
+  "checkedAt": "2026-07-27T21:03:20.728Z",
+  "headHash": "8eeae3929a33e306d39327a6f7cd15835ac1fad8",
+  "materialHash": "fd777e04376a7775b50e7f4c60fa90625c549a47814b7b70ff3cfc8e50003f69",
+  "storyFilesHash": "9bf241b4e85278c66d7538c350c9eafb8c6a77fec2f2fdb8fca68831257d7c80",
+  "reviewRound": "2026-07-27T19:47:16.995Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Re-ran node packages/main/tests/red/red-b49d4-registration-derivation.mjs live: 26/26 rows GREEN, 0 RED, exit 0. Independently confirmed the final claim line reads exactly '35 *.mjs on disk (unfiltered): 32 registered ... 3 unregistered ... of which 3 are DECIDED ... and 0 are UNACCOUNTED: none. EXECUTION IS A DIFFERENT PROPERTY AND IS NOT CLAIMED HERE' -- the artifact does not elsewhere imply execution was verified. The pinned receipt (red-b49d4-chk001-receipt.mjs) is permanently silent by construction (gated on the derivation artifact still being RED, which is now false); all 3 must-priority verificationEvidence rows are recorded as permanent waivers, not fabricated passes, with an honest note stating this row has 'no live mechanical coverage'. Waiver judged honest: the underlying pre-fix observation genuinely cannot be re-observed on a fixed tree by any command, and the story did not attempt to relabel a different command's pass as satisfying this intentRef."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Re-ran node packages/main/tests/red/red-w2c-validate-registration.mjs (exit 0, 3 dist red-evidence-* members: 3 registered, 0 excluded) and node packages/main/tests/red/red-b49d4-harness-registration.mjs (exit 0, 35 tests/red/*.mjs entries: 32 registered + 3 excluded, isMember=()=>true total enumeration, no name pattern). Re-ran red-b49d4-chk002-receipt.mjs live: all 3 markers (BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN, TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER, BITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION) print and match the recorded mechanical verificationEvidence byte-for-byte (32 registered + 3 excluded, matching the receipt.outputTail on file). This is real mechanical evidence, not waived."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Confirmed lattice.config.json validate.commands now enumerates 32 packages/main/tests/red/*.mjs entries plus 15 previously-unregistered non-B-49d4 harnesses (red-s3-*, red-w2a-*, red-w2b-*, red-w2c-* families); spot-ran 5 of the newly-registered harnesses directly (red-s3-differential-probe.mjs, red-w2a-canon-differential.mjs, red-w2b-binding-store.mjs, red-w2c-gate-guard.mjs, red-w2c-wiring-detectability.mjs) -- all exit 0. Confirmed the 3 excluded entries (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs) each carry a >=40-char machine-checked reason in REGISTRATION_EXCLUSIONS and are independently verified silent (0 bytes stdout/stderr, exit 0) by direct execution. All 3 CHK-003 must-priority verificationEvidence rows are permanent waivers because their pinned selectors quote literal counts (33/2) that a subsequent, correct registration change (moving red-b49d4-chk001-receipt.mjs from registered to excluded, 33/2->32/3) made unmatchable under the immutable command+selector pin; the waiver notes independently re-derive the true current counts and show the underlying proposition still holds. Judged honest, not a dodge: the story's own postmortem (F-009 resolution) explicitly names this as 'the same stale-number anti-pattern this story exists to remove, self-inflicted in the story's own instrument' rather than hiding it."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All three CHK items are backed by live-reproduced mechanical evidence (CHK-002 fully mechanical with byte-matching receipts; CHK-001/CHK-003 honestly recorded as permanent waivers for pinned-selector staleness caused by the story's own later, correct fixes, with the true state independently re-derived in each waiver note). No hardcoded population list or hidden count reintroduces the class of defect the story targets: both registration guards derive membership from readdirSync with a total or auditable predicate, not a fixed array. The two medium/low findings dismissed instead of fixed (F-002, F-008) point at a real, verified blocker -- editing the shared exclusion logic would require modifying red-b2aa7-chk007-receipt.mjs, a byte-pinned verificationEvidence receipt (exact outputDigest/outputTail) of the already-DONE story B-2aa7 -- confirmed by reading that story's checklist.json directly."
+  },
+  "_hash": "b801550caaae57281d9b059d12e57a7bfda6af396a4a8c325ab414dd68bc42b7"
+}

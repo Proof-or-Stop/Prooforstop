@@ -1,0 +1,36 @@
+{
+  "storyId": "B-49d4",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/tests/red/red-w2c-validate-registration.mjs",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+    "packages/main/tests/red/red-b49d4-population-guard.mjs"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red"
+  ],
+  "protectedFiles": [
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+  ],
+  "explicitExcludes": [
+    "packages/main/src"
+  ],
+  "scopeChangeReason": "Derived from the user-confirmed scope boundary. red-w2c-v1-verdict-invariance.mjs is PROTECTED rather than merely untouched: it carries the pinned digest proving no legacy verdict moved, and this story registers harnesses without altering what any of them asserts. packages/main/src is excluded because no runtime behaviour change is in scope; if the work appears to need one, that is a finding to raise rather than an edit to make.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-27T16:03:41.900Z",
+  "updatedAt": "2026-07-27T16:03:41.900Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/tests/red/red-w2c-validate-registration.mjs": "packages/main/tests/red/red-w2c-validate-registration.mjs",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/tests/red/red-b49d4-registration-derivation.mjs": "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+    "packages/main/tests/red/red-b49d4-population-guard.mjs": "packages/main/tests/red/red-b49d4-population-guard.mjs",
+    "packages/main/tests/red": "packages/main/tests/red/",
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+    "packages/main/src": "packages/main/src/"
+  }
+}
