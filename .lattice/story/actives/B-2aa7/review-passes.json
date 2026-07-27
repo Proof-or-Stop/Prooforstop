@@ -39,6 +39,36 @@
         "scanEscalationReason": null
       },
       "_hash": "1e59da6dfd978a6b8558b5377829a4434b118dfa89da4d5a5e94a417b83caa12"
+    },
+    {
+      "id": "B-2aa7:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality re-review scoped to the F-005 fix (commit 0b7217f170) plus the adjoining doc-cluster commit bc16eaf87f, per dispatch. Verified assertTargetInExpected now builds a narrow ExpectedRedTargetsInput (originalIntentSnapshot/proofStoryContract/milestoneLedger via readTrustedProofStoryScopeArtifacts) instead of the full proofStoryDiagnosticInput, so it no longer calls store.readRedEvidence() at all; confirmed by source inspection that this is the exact same three fields/readers/resolver as before (resolveExpectedRedTargets unchanged), so the computed membership Set cannot move -- the new receipt asserts this equivalence on two fixtures (populated + empty) and no counterexample was found. Confirmed the one behavioral change is real and acceptable: on a corrupt artifact plus an out-of-set target, red_evidence_binding_set now reaches the membership refusal (byte-identical to the absent-artifact run) instead of aborting with the bare corruption error; this is a diagnostic-specificity trade-off, not a safety regression -- nothing is written in either case, quarantine/recover still surface corruption first via findV2Record -> readRedEvidenceForChain (order unchanged, verified in source), and binding_set with an in-set target still surfaces the guided corruption error later in the same call via readRedEvidenceForChain. Reproduced red-b2aa7-f005-receipt.mjs against a rebuilt pre-fix tree (parent commit bc16eaf87f, isolated worktree plus build): exit 1 with exactly 2 of 3 required markers withheld (BINDING_SET_CORRUPTION_IS_ACTIONABLE and MEMBERSHIP_GATE_DOES_NOT_READ_RED_EVIDENCE withheld; EXPECTED_RED_TARGETS_SET_UNCHANGED still emitted), matching the commit message claim exactly; post-fix it emits all 3 markers and exits 0. Also reproduced the claim that red-b2aa7-chk006-receipt.mjs passes identically pre- and post-fix (9/9 consumers, exit 0 both times) -- confirming it could not have caught F-005, since it only asserts the corruption is named, which the bare pre-fix error already did. Verified bc16eaf87f only changed one line of comment text in core/red-evidence-artifact-validation.ts (red_evidence_add -> red_evidence_create), no behavior touched; all other changes in that commit are to the decision doc. Ran the full tests/red directory (30 files) plus validate --lint: all green. No new quality-scope defect found in the CL-003 change itself (no dead code, no unnecessary any, no I/O-isolation issue -- the root param was correctly dropped from assertTargetInExpected because it is no longer needed and remains used elsewhere in the same file). Note: F-006 and F-007 (lattice-review-concept, this same round) are open and unresolved -- doc drift and missing lattice.config.json wiring for the new receipt -- but those sit outside this quality-review scope and are already registered by their owning reviewer, so they are not duplicated here.",
+      "createdAt": "2026-07-27T03:17:03.635Z",
+      "reviewRound": "2026-07-27T03:03:06.893Z",
+      "reviewRunId": "B-2aa7:RR-006",
+      "envelopeId": "03c94a20cd681563ebe6bb5bd66bf3f9af98c8226c918ef6622ca1fa594e190b",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/findings.json",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "lattice.config.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc6ba49d09a57a40cceb2cb6bcc6b1b90a1cb3fee13463dc392bff39a9268355"
     }
   ]
 }
