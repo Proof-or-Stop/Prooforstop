@@ -38,6 +38,24 @@
       ],
       "severity": "medium",
       "createdAt": "2026-07-27T18:34:53.201Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "Multiple findings all involve packages/main/tests/red/red-b49d4-harness-registration.mjs, packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+      "findingIds": [
+        "B-49d4:F-005",
+        "B-49d4:F-006"
+      ],
+      "files": [
+        "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+        "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+        "lattice.config.json",
+        "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-27T19:19:38.285Z"
     }
   ]
 }
