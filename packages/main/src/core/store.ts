@@ -912,6 +912,12 @@ export class StoryStore {
    * The W2c / B-506e unsupported-per-record-schemaVersion rejection is unchanged
    * and still runs ahead of the v1 shape check; it now sits behind the envelope
    * check, which is what stops it being handed the characters of a string.
+   *
+   * `malformedRecords` on the returned value is ALWAYS this read's own
+   * classification. The validator strips any occurrence of that key found on
+   * disk, so the file cannot tell this method what was quarantined — which it
+   * must not be able to do, because `writeRedEvidence` below re-inserts every
+   * quarantined `value` back into `records`, and `records` is gate evidence.
    */
   readRedEvidence(storyId: string): RedEvidenceData | null {
     const artifactFile = 'red-evidence.json';

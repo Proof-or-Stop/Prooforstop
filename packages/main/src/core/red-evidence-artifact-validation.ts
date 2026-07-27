@@ -79,6 +79,37 @@
  * {@link describeRedEvidenceReadFailure} give every consumer one corruption
  * vocabulary so corruption never renders as absence.
  *
+ * ── `malformedRecords` IS DERIVED, AND IS NEVER INHERITED ───────────────────
+ *
+ * `malformedRecords` is READ-TIME CLASSIFICATION: it is what THIS validator
+ * concluded about THIS read. It is not part of the on-disk schema and it is
+ * never a fact the artifact gets to assert about itself.
+ *
+ * That distinction was load-bearing and was, for one revision, not enforced.
+ * The two "nothing was malformed" returns below handed back the parsed envelope
+ * UNCHANGED, so an on-disk `malformedRecords` key — planted by a crafted
+ * artifact, or simply left behind by a stale one — travelled into the typed
+ * domain and was then read by {@link redEvidenceQuarantinedRecords} as though
+ * the validator had produced it. {@link retainQuarantinedRecordsOnWrite} duly
+ * re-inserted its `value`s into `records`, so an artifact could fabricate
+ * quarantine state and INJECT arbitrary records into the very evidence the
+ * DEV / REVIEW / DONE gates read. The guard that exists to stop unvalidated
+ * data being trusted was itself trusting an unvalidated on-disk field.
+ *
+ * So EVERY typed value this module produces goes through
+ * {@link withDerivedQuarantine}, which strips any inherited key and re-attaches
+ * only this read's own classification — INCLUDING the all-records-valid case,
+ * where the derived answer is "none" and the key is therefore absent. There is
+ * no path from disk to `RedEvidenceData.malformedRecords`.
+ *
+ * The consumers are TOTAL to match. `malformedRecords` on a hand-built payload
+ * is still arbitrary caller data, so {@link redEvidenceQuarantinedRecords}
+ * accepts only values shaped exactly like {@link partitionRedEvidenceRecords}'
+ * own output: a non-array, or an entry that is not a well-formed quarantine
+ * entry, yields nothing rather than throwing — and nothing is what a consumer
+ * may re-insert from it. Dropping a bogus CLASSIFICATION drops no RECORD:
+ * `records` is untouched, and the next read re-derives the truth from it.
+ *
  * ── PURITY ──────────────────────────────────────────────────────────────────
  *
  * Pure functions only: no fs, no process, no I/O. The read boundary
@@ -429,10 +460,45 @@ export function partitionRedEvidenceRecords(entries: readonly unknown[]): RedEvi
 }
 
 /**
+ * THE DERIVATION AUTHORITY for `malformedRecords`, and the ONLY producer of a
+ * typed {@link RedEvidenceData} in this module.
+ *
+ * `malformedRecords` describes THIS read, so whatever the artifact carried under
+ * that name is discarded and replaced by `malformed` — the classification the
+ * validator just computed. Every outcome goes through here, including the
+ * all-records-valid one, where the derived answer is "none" and the key is
+ * therefore ABSENT rather than empty (an artifact that is merely clean must not
+ * acquire a corruption surface; see the `RedEvidenceData` doc comment).
+ *
+ * The identity fast path is deliberate, not an optimisation: an artifact that
+ * does NOT carry the key and has nothing to quarantine loads UNCHANGED — the
+ * very object that was parsed, with its own `records` array, no copy and no
+ * added key, which is the invariant the row-B / order-independence rows pin.
+ * The copy happens only when there is something to strip or something to add.
+ */
+function withDerivedQuarantine(
+  value: Readonly<Record<string, unknown>>,
+  malformed: readonly RedEvidenceMalformedRecord[],
+): RedEvidenceData {
+  const inherited = hasOwn(value, 'malformedRecords');
+  if (!inherited && malformed.length === 0) return value as unknown as RedEvidenceData;
+
+  // The rest element is what performs the STRIP: an inherited key cannot
+  // survive, whether or not this read has anything of its own to put back.
+  const { malformedRecords: _inherited, ...envelope } = value;
+  if (malformed.length === 0) return envelope as unknown as RedEvidenceData;
+  return { ...envelope, malformedRecords: [...malformed] } as unknown as RedEvidenceData;
+}
+
+/**
  * TOTAL artifact classification: envelope first, then the B-506e per-record
  * version check, then D-4 quarantine of the v1 residual class. Returns a
  * classification instead of throwing, so it is safe to run over arbitrary
  * JSON-representable input.
+ *
+ * Every `ok: true` outcome is built by {@link withDerivedQuarantine}, so the
+ * returned `malformedRecords` is always this read's own classification and never
+ * a value the artifact supplied.
  */
 export function classifyRedEvidenceArtifact(parsed: unknown, artifactPath: string): RedEvidenceArtifactClassification {
   let envelope: RedEvidenceEnvelope;
@@ -446,8 +512,14 @@ export function classifyRedEvidenceArtifact(parsed: unknown, artifactPath: strin
   // A genuinely absent `records` key: hand the envelope back UNCHANGED. Adding a
   // `records: []` here would erase the distinction between "not configured" and
   // "configured but empty" that invariant row B2 pins.
+  //
+  // "Unchanged" means its own members, NOT an on-disk `malformedRecords`: an
+  // envelope with no records cannot have had a record quarantined, so the
+  // derived answer is "none" and any inherited key is stripped. Without that,
+  // a records-less artifact was the shortest injection vector of all — nothing
+  // to validate, and a fabricated classification straight into the typed domain.
   if (envelope.records === undefined) {
-    return { ok: true, data: envelope.value as unknown as RedEvidenceData, malformed: [] };
+    return { ok: true, data: withDerivedQuarantine(envelope.value, []), malformed: [] };
   }
 
   // §6.4 fail-closed forward-compatibility (W2c / B-506e), UNCHANGED and still
@@ -466,16 +538,23 @@ export function classifyRedEvidenceArtifact(parsed: unknown, artifactPath: strin
   if (partition.malformed.length === 0) {
     // A well-formed artifact loads UNCHANGED: the very object that was parsed,
     // with its own `records` array. No copy, no reordering, no added key.
-    return { ok: true, data: envelope.value as unknown as RedEvidenceData, malformed: [] };
+    //
+    // EXCEPT an on-disk `malformedRecords`, which is not one of "its own"
+    // members in any meaningful sense — it is a claim about a read that had not
+    // happened yet. Every record here validated, so THIS read's classification
+    // is "none", and that is what the typed domain gets. This is the exact
+    // return the injection travelled through.
+    return { ok: true, data: withDerivedQuarantine(envelope.value, []), malformed: [] };
   }
 
   // Quarantined. `records` is the clean subset; the rejected entries are
   // retained on a SEPARATE key so absence and corruption stay distinguishable.
-  const data = {
-    ...envelope.value,
-    records: partition.records,
-    malformedRecords: partition.malformed,
-  } as unknown as RedEvidenceData;
+  // The key is written from `partition.malformed` alone — an inherited value is
+  // replaced, never merged with, this read's own findings.
+  const data = withDerivedQuarantine(
+    { ...envelope.value, records: partition.records },
+    partition.malformed,
+  );
   return { ok: true, data, malformed: partition.malformed };
 }
 
@@ -524,14 +603,59 @@ export function validateRedEvidenceArtifact(parsed: unknown, artifactPath: strin
 const NOT_ABSENCE = 'This is CORRUPTION, not an absent or unconfigured artifact.';
 
 /**
+ * Is `value` shaped exactly like an entry {@link partitionRedEvidenceRecords}
+ * emits? That coupling is the whole point, so it is asserted mechanically by
+ * `packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs` rather than
+ * maintained by hand: every derived entry must satisfy this predicate, or
+ * {@link redEvidenceQuarantinedRecords} would be silently discarding real
+ * quarantine state instead of junk.
+ *
+ * `value` is deliberately unconstrained — it is the rejected record VERBATIM,
+ * and constraining it would defeat retain-and-report. What is constrained is
+ * everything the write path DEREFERENCES: the index it restores to, and the
+ * fields the operator-facing notice prints.
+ */
+function isDerivedQuarantineEntry(value: unknown): value is RedEvidenceMalformedRecord {
+  if (!isPlainObject(value)) return false;
+  if (!hasOwn(value, 'index') || !Number.isInteger(value.index) || (value.index as number) < 0) return false;
+  if (!hasOwn(value, 'id') || !(typeof value.id === 'string' || value.id === null)) return false;
+  if (!hasOwn(value, 'reason') || typeof value.reason !== 'string') return false;
+  if (!hasOwn(value, 'violations') || !Array.isArray(value.violations)) return false;
+  if (!value.violations.every((v) => typeof v === 'string')) return false;
+  // Present, but of any shape: this IS the retained original.
+  return hasOwn(value, 'value');
+}
+
+/**
  * The entries the read boundary quarantined. Empty for an ABSENT artifact and
  * empty for a clean one — deliberately the same answer, because neither is
  * corruption, and the two are already distinguished by `data === null`.
+ *
+ * TOTAL, and deliberately unforgiving about shape. On a value that came from
+ * {@link classifyRedEvidenceArtifact} this is a plain read: that function is the
+ * derivation authority and every entry it produces satisfies
+ * {@link isDerivedQuarantineEntry}. But `RedEvidenceData` is also handed around
+ * by callers that build it themselves, so this function treats
+ * `malformedRecords` as UNTRUSTED INPUT rather than as a fact:
+ *
+ *   - a non-array (object, string, number) yields `[]`. It previously reached
+ *     `for…of` and `.map` and produced a bare `TypeError` inside gate rendering
+ *     — and a STRING was worse than a crash: it iterated as its own characters,
+ *     the same misattribution §2.4 removed from the record path.
+ *   - an entry that is not a well-formed quarantine entry is DROPPED, so it can
+ *     never be re-inserted into `records` by the write path.
+ *
+ * Dropping a bogus CLASSIFICATION is not dropping a RECORD: `records` is not
+ * touched here, nothing on disk is lost, and the next read re-derives the true
+ * quarantine from the records themselves. D-4's "never drop" governs rejected
+ * RECORDS; it does not oblige anyone to honour a fabricated report about them.
  */
 export function redEvidenceQuarantinedRecords(
   data: RedEvidenceData | null | undefined,
 ): readonly RedEvidenceMalformedRecord[] {
-  return data?.malformedRecords ?? [];
+  const raw: unknown = data?.malformedRecords;
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(isDerivedQuarantineEntry);
 }
 
 /**
@@ -549,7 +673,10 @@ export function renderRedEvidenceQuarantineNotice(
 ): string | null {
   const quarantined = redEvidenceQuarantinedRecords(data);
   if (quarantined.length === 0) return null;
-  const kept = data?.records?.length ?? 0;
+  // TOTAL: this renders on gate paths (`core/machine.ts`, `handlers/phase-gates.ts`,
+  // `handlers/story-review.ts`), so a payload whose `records` is not an array
+  // must produce a count, not a `TypeError` out of a gate.
+  const kept = Array.isArray(data?.records) ? data.records.length : 0;
   return [
     `${RED_EVIDENCE_CORRUPT_MARKER} [quarantined_records]: ${quarantined.length} of ${kept + quarantined.length} ` +
       `record(s) for story ${storyId} are not well-formed under the legacy v1 schema and were QUARANTINED at the ` +
@@ -631,7 +758,15 @@ export function restoreQuarantinedRecords(
     );
   };
 
-  const clean = read?.records ?? [];
+  // TOTAL over both inputs. `redEvidenceQuarantinedRecords` already refused to
+  // hand back anything that is not a well-formed derived entry; these two guards
+  // do the same for the arrays the reconstruction indexes into, so a malformed
+  // payload produces the TYPED refusal below rather than a bare `TypeError`
+  // (`.length` / `[i]` / `.slice` on a non-array) from inside a writer.
+  const clean: readonly unknown[] = Array.isArray(read?.records) ? read.records : [];
+  if (!Array.isArray(rebuilt.records)) {
+    refuse(`the rebuilt envelope's "records" is ${describeValue(rebuilt.records)}, not an array, so on-disk positions cannot be restored.`);
+  }
   if (rebuilt.records.length < clean.length) {
     refuse(
       `the rebuilt envelope holds ${rebuilt.records.length} record(s), fewer than the ${clean.length} well-formed ` +
@@ -722,6 +857,15 @@ export function restoreQuarantinedRecords(
  * and no cross-process state to be wrong about. What it cannot see, it does not
  * pretend to see: an envelope built from scratch rather than from a read carries
  * no classification and is passed through unchanged.
+ *
+ * Keying off the payload is only safe because the payload's classification can
+ * only have been DERIVED. {@link classifyRedEvidenceArtifact} strips any on-disk
+ * `malformedRecords` and re-attaches its own, so a read can never carry an
+ * artifact's own claim about itself; and {@link redEvidenceQuarantinedRecords}
+ * honours only entries shaped like that derivation, so a hand-built payload
+ * cannot smuggle one in either. Without both, this function is an INJECTION
+ * PRIMITIVE: it re-inserts `entry.value` into `records`, and `records` is the
+ * evidence the DEV / REVIEW / DONE gates read.
  *
  * The derived key is ALWAYS stripped, never persisted. It is read-time
  * classification, not part of the on-disk schema, and a persisted copy would

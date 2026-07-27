@@ -2926,8 +2926,23 @@ export interface RedEvidenceData {
   /**
    * B-2aa7 (D-4): entries the read boundary quarantined. Present ONLY when the
    * artifact actually carried a malformed record, so an artifact that is merely
-   * absent, empty or `records`-less never acquires a corruption surface. Derived
-   * at read time and not part of the on-disk schema.
+   * absent, empty or `records`-less never acquires a corruption surface.
+   *
+   * STRICTLY DERIVED, NEVER INHERITED. This is what the validator concluded on
+   * one read; it is NOT part of the on-disk schema and an artifact does not get
+   * to assert it about itself. `classifyRedEvidenceArtifact`
+   * (`core/red-evidence-artifact-validation.ts`) STRIPS any occurrence found on
+   * disk and re-attaches only its own classification — in every outcome,
+   * including the one where nothing was malformed and the answer is therefore
+   * "absent". Letting an on-disk value through made this an injection vector:
+   * the write boundary re-inserts each entry's `value` into `records`, so a
+   * crafted or stale artifact could fabricate quarantine state and plant records
+   * in the evidence the DEV / REVIEW / DONE gates read.
+   *
+   * Consumers treat it as untrusted regardless: `redEvidenceQuarantinedRecords`
+   * accepts only well-formed derived entries and yields `[]` for anything else,
+   * so a non-array or a junk entry can neither crash a consumer nor be
+   * re-inserted.
    */
   malformedRecords?: RedEvidenceMalformedRecord[];
   createdAt: string;
