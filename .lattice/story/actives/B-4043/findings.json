@@ -395,6 +395,26 @@
       "resolvedAt": "2026-07-27T02:12:45.416Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4043:F-019",
+      "desc": ".lattice/story/actives/B-4043/checklist.json:73-405 — 12 of 15 verificationEvidence rows (CHK-001/002/003/004 happy+edge+adversarial, non-hardening) were NOT genuinely re-run post-merge as claimed. Notes still say Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z) — 40d6da1076 predates the 785-commit main merge at f9855acc21 (2026-07-27T03:02:11+01:00) by two days, and that cohort timestamp does not match the actually-regenerated /tmp/b4043-cohort-r4-final.json (verified mtime 2026-07-27T03:09:46). Yet these 12 rows carry headHash=1a6b726a (post-merge) solely because verification_evidence_refresh_stale (commit df0cdac9; diff shows ONLY hash/timestamp fields changed, note text untouched) unconditionally re-stamps stale non-mechanical rows to current headHash/materialHash/storyFilesHash with no re-execution (packages/main/src/handlers/checklist.ts writeStaleRefresh). I independently called checkEvidenceFreshnessForGit (packages/main/src/core/evidence-freshness.ts) with the ORIGINAL pre-refresh hashes (headHash=40d6da1076, materialHash=bec45105, storyFilesHash=32752b50) against current HEAD: result fresh:false, reason=evidence storyFilesHash does not match current story-owned file state, materialFiles=[<story-files-changed>] — the framework own classifier reports RELATED_STORY_MATERIAL_DRIFT (story-owned files actually changed across the merge), not the KNOWN_UNRELATED_MATERIAL_DRIFT case eligible for a safe metadata-only refresh. writeStaleRefresh does not discriminate the two classifications for manual_transcript evidence, so it silently laundered a must-rerun signal into an apparently-fresh PASS. This reproduces the F-017 pattern via a different mechanism; the claim commands were re-run at the merge head is false for these 12 rows. Only CHK-005 3 rows are independently verified genuine (headHash bound to f9855acc21/793462d8/33adeba1; cohort mtime matches exactly; I re-ran node scripts/verify-process-fact-contract.mjs myself, exit 0). Not re-raising CHK-004:hardening orphan row (accepted-risk per F-015).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-27T02:20:23.954Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-058",
+      "_hash": "7cc8226913652ab8129665c4ef39847db197ac2256f87697a852674b47d6d23d",
+      "files": [
+        ".lattice/story/actives/B-4043/checklist.json",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
