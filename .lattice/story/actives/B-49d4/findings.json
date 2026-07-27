@@ -85,7 +85,7 @@
       "desc": "CHK-001 (all 3 must rows) and CHK-003 (all 3 must rows) verificationEvidence is stale and no longer reproduces on current HEAD 4dcbf91. Re-verified by direct re-execution: (1) CHK-001 pinned command node packages/main/tests/red/red-b49d4-chk001-receipt.mjs now exits 0 with ZERO output (confirmed live) -- none of the recorded markers RED_ARTIFACT_FAILS_ON_PRE_FIX_TREE / DIFFERENTLY_PREFIXED_NEWCOMER_DRIVES_REAL_GUARDS / CONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED appear, because red-b49d4-chk001-receipt.mjs:68-69 gates every marker on the spawned derivation artifact still exiting non-zero, and that artifact was fixed by CHK-002/CHK-003 so it now exits 0 (this is exactly why def4df7f18 excluded the receipt from validate.commands, but the CHK-001 verificationEvidence rows recorded at headHash 782924094/640b83e3/d3bdab57 were never refreshed to reflect the new silent behaviour). (2) CHK-003 pinned selectors literally quote counts that no longer match: happy selector \"33 registered in lattice.config.json validate.commands and 2 excluded\" vs live red-b49d4-harness-registration.mjs output \"32 registered ... and 3 excluded\" (def4df7f18 moved red-b49d4-chk001-receipt.mjs from registered to excluded, 33->32 / 2->3, after evidence was recorded at headHash 501fbe56e/b295a0c1/74963149e1); edge selector \"35 members on disk, 33 registered + 2 excluded\" vs live red-b49d4-chk002-receipt.mjs output \"35 members on disk, 32 registered + 3 excluded\"; adversarial selector \"2 unregistered ... (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs) and 0 are NEVER RUN: none\" vs live red-b49d4-registration-derivation.mjs output \"3 unregistered, of which 3 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs)\". None of the three pinned CHK-003 selector strings appear verbatim in current live output. storyFilesHash moved from 331d993a.../6b3212ad... at evidence-record time to b5091eaf... at current HEAD -- genuine story-owned material drift that was never re-verified via verification_evidence_add after def4df7f18 and 0b1ef6a6f7 landed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-27T19:17:34.984Z",
@@ -101,14 +101,15 @@
       ],
       "signatureTag": "missing|mjs|rows-rows-verificationevidence",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@f1e29db"
     },
     {
       "id": "B-49d4:F-006",
       "desc": "The population reachability claim in red-b49d4-registration-derivation.mjs BLOCK C (the derive function around lines 596-630, row EVERY_RED_HARNESS_IS_RUN_BY_VALIDATE lines 633-642) is factually false for red-b49d4-chk001-receipt.mjs: it is reported as spawned by a registered command (feeding the 0 are NEVER RUN GREEN claim), but it is never actually spawned or executed by anything. Independently confirmed: (a) red-b49d4-harness-registration.mjs has ZERO child_process usage anywhere in the file (no import of node:child_process, no spawnSync, no execFileSync) -- its REGISTRATION_EXCLUSIONS map (lines 116-134) uses the filename red-b49d4-chk001-receipt.mjs only as a Map key for the registered/excluded/undecided bookkeeping classifier, never as a spawn target; (b) red-b2aa7-chk007-receipt.mjs's own spawn loop (around lines 513-520) iterates only over the keys of its own REGISTRATION_EXCLUSIONS map (lines 389-397: red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs only), which does not include red-b49d4-chk001-receipt.mjs; (c) a repo-wide search for the filename across packages/main/tests/red and packages/main/src finds exactly 3 files -- itself, red-b49d4-harness-registration.mjs (bookkeeping map key, no execution), and red-b49d4-registration-derivation.mjs (a comment in the BLOCK D discussion, also no execution). The derive function's textual-inclusion BFS (checking whether a registered file's source text contains a population member's filename, derivation.mjs lines 611-619) conflates a filename appearing as a string inside a registered file with that file being executed by a registered command; the header comment documents this as an intentional over-approximation and calls it conservative for the never-run claim, but it is actually the opposite of conservative for the specific GREEN claim being made (0 are NEVER RUN, all reachable): it lets a file that lattice validate genuinely never executes count as covered, reproducing inside this guard the exact false-confidence defect class B-49d4 exists to remove. Live-confirmed on current HEAD 4dcbf91: node packages/main/tests/red/red-b49d4-registration-derivation.mjs prints 3 unregistered, of which 3 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs) and 0 are NEVER RUN: none -- the third name is misclassified as spawned when it is only textually mentioned.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-27T19:18:23.566Z",
@@ -122,14 +123,15 @@
       ],
       "signatureTag": "adversarial|mjs|population-reachability-claim",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@f1e29db"
     },
     {
       "id": "B-49d4:F-007",
       "desc": "The PLANTED_MEMBER_IS_LOAD_BEARING row in red-b49d4-registration-derivation.mjs (assertion at lines 442-450, probe body constructed at lines 407-416) is tautological and adds no discriminating coverage. The test writes a literal script containing process.exit(3) to a mkdtemp mirror (line 416, 437-438) and then asserts: the spawned probe exits non-zero (guaranteed, since the script it just wrote unconditionally calls process.exit(3)), that its src counterpart exists (guaranteed, since the same test just wrote that exact file at line 438), and that no repo copy exists (guaranteed by construction, since nothing ever writes those paths into the real repo). None of these three conjuncts depend on the guard under test (red-w2c-validate-registration.mjs) at all -- the guard is not even invoked until the next row, GUARD_DETECTS_UNREGISTERED_MEMBER, which is the actual discriminating assertion. This row inflates the reported GREEN count (currently 25 rows, 0 RED / 25 GREEN on current HEAD 4dcbf91) with a self-verifying setup check rather than a guard-behavior assertion. Confirmed still present and unchanged by the two post-review-draft fix commits (def4df7f18, 0b1ef6a6f7), which touched CHK-002/CHK-003 registration logic, not this BLOCK A setup-verification row. Low risk of masking a real gap since the adjacent GUARD_DETECTS_UNREGISTERED_MEMBER row does the real assertion, but the row should either be removed or reworded as a setup-sanity check rather than counted as a guard-behavior proof point.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-27T19:18:39.973Z",
@@ -140,7 +142,8 @@
         "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
       ],
       "signatureTag": "missing|mjs|planted-member-load",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-49d4:F-007@f1e29db"
     }
   ]
 }
