@@ -79,6 +79,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2aa7:F-005",
+      "desc": "handlers/red-evidence.ts:120-126 (assertTargetInExpected), called from red_evidence_binding_set (line 167) and appendChainControl (line 311, shared by red_evidence_quarantine/red_evidence_recover), calls the UNWRAPPED phase-gates.ts:175 proofStoryDiagnosticInput directly (not the withRedEvidenceCorruptionContext-wrapped version used by phase-gates own gate functions). resolveExpectedRedTargets never reads input.redEvidence at all (verified: only originalIntentSnapshot/proofStoryContract/milestoneLedger, proofstory.ts:916-929) yet the shared builder still eagerly calls store.readRedEvidence() as one of its many fields, so a corrupt red-evidence.json makes these three unrelated commands throw. Repro confirmed live (corrupt artifact = bare `[]` root): red_evidence_binding_set throws a bare RedEvidenceArtifactError WITHOUT the redEvidenceRepairGuidance() suffix or NOT_ABSENCE sentence that every other CHK-006 consumer gets (e.g. red_evidence_get, red_evidence_create). This is a genuine 11th consumer that the CHK-006 checklist inventory (explicitly re-derived twice already per its own context note) still missed a third time: it is not one of the counted \"TWO sites in handlers/red-evidence.ts\" (those are findV2Record and the chain-read inside red_evidence_binding_set, both correctly routed through the new readRedEvidenceForChain wrapper). Not silent-as-absent (the typed error message still embeds the corruption marker + path), but it is an inconsistent, uncounted corruption-surfacing gap and an avoidable coupling to a field the caller does not need.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-27T02:41:48.288Z",
+      "reviewRound": "2026-07-27T02:31:52.563Z",
+      "reviewRunId": "B-2aa7:RR-002",
+      "_hash": "06a7cd9191eb61f4fe5c7f02560e587f84cb23fb4d8e981e75b9c9f8921f54ce",
+      "files": [
+        "packages/main/src/handlers/red-evidence.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "missing|ts|handlers-evidence-asserttargetinexpected",
+      "signatureTagSource": "auto"
     }
   ]
 }
