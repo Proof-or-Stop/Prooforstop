@@ -1501,6 +1501,43 @@
         "scanEscalationReason": null
       },
       "_hash": "daff0853e46a3ba0f4f7e870d6b21074bf9f9ca2f2400b46d33fa9fb6c3f55fe"
+    },
+    {
+      "id": "B-4043:RP-045",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation round (RR-067) after done_prepare materialHash shift mid-closeout; no source change since RP-041 (branch behind-main 0, tree clean besides .lattice process artifacts). Re-verified concept-completeness of git diff main...HEAD (74 files): all changes are additive (new acceptance-rollout concept, new semantic-map fn in pre-review-live-proof.ts) or pure hash rotation (prompt-registry.ts). One removed symbol (assertScenarioLedgerComplete in proofstory-pre-review-check-smoke.ts, replaced inline by selectActiveScenarioRecords) grep-confirmed zero repo-wide residue. No concept deletion/replacement requiring residue scan this round; no blocker.",
+      "createdAt": "2026-07-27T15:13:27.882Z",
+      "reviewRound": "2026-07-27T15:11:10.692Z",
+      "reviewRunId": "B-4043:RR-067",
+      "envelopeId": "1b552616990a7122c3c4554a8dd46271f4e7e633d96f76bde1fd15d672229fda",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8a27e0b48d148b39c8ed4867d0d5d9c25c12eea4466c9c7c3f57657ef142cab"
     }
   ]
 }
