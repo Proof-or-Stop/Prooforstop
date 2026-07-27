@@ -7,10 +7,12 @@ Audited tree at intake: `main` @ `1847b3af6d` (CLI 0.3.239). **Superseded — se
 B-506e has since MERGED into `main` (`4d417a0c4b`), and `main` has advanced to CLI 0.3.243+. The
 "cross-check worktree" this document originally compared against no longer exists as a separate tree;
 its contents are now part of `main`. **Every line citation below predates that merge and has drifted:
-re-locate by symbol, never by line number**, and re-derive any inventory (consumer counts especially —
-they have been wrong twice) against CURRENT `main` rather than trusting a number in this text.
+re-locate by symbol, never by line number** (§4.1 is the one exception: it is re-derived and carries
+the commit it was derived at), and re-derive any inventory against CURRENT `main` rather than trusting
+a number in this text. **The consumer count especially: it has been wrong four times, for three
+different reasons, and §4.0 explains why a `grep` is the wrong instrument for it at all.**
 Related spec: `docs/requirements/decisions/red-evidence-subsystem-spec.md` (§0.4, §1.10, §6.4).
-Review rounds: rev 4 — rev 3 was superseded by INIT-004/005/006 (the consumer inventory was stale again after the merge, the E5 row understated the defect, and D-2 contradicted §0.0). Rev 3 — rev 2 was revised after an adversarial cross-host (codex) audit (six findings, all
+Review rounds: rev 5 — rev 4 was superseded by this story's REVIEW round (F-001…F-004): the consumer count was stale a *fourth* time (invalidated by this story's own CHK-006 refactor), two sections still said "seven" after rev 4 had corrected §4 to "ten", the document cited a CLI command `red_evidence_add` that has never existed in any catalog, and §10.2.1 row E5 still described pre-fix behaviour only. Rev 5 replaces the bare count with the reach-enumeration instrument (§4.0-4.2), extends the §10.4 acceptance table past its three original rows, and sweeps the surviving rev-2-era claims about `2d584cc1…` in §7.1/§10.1 that the rev-3 §0.0 rewrite had already falsified. Rev 4 — rev 3 was superseded by INIT-004/005/006 (the consumer inventory was stale again after the merge, the E5 row understated the defect, and D-2 contradicted §0.0). Rev 3 — rev 2 was revised after an adversarial cross-host (codex) audit (six findings, all
 upheld; see §14); rev 3 rewrites §0.0 after sibling story B-506e merged into main mid-audit, which
 inverted rev 2's provenance warning. Caught by the INIT reviewer as INIT-003 (high).
 Decisions: **settled 2026-07-26** — Axis A = (ii) full validation, Axis B = (c) quarantine, and the
@@ -65,8 +67,9 @@ So B-506e closed the *unsupported-schemaVersion* class only, exactly as its own 
 
 §7.1 is UNAFFECTED: `71c267a0…` remains a phantom produced by no artifact, and must never be pinned.
 
-Everything else in this document — the mechanism, both crash classes, the seven consumers, the
-verdict-movement analysis, the decisions in §12 — remains valid.
+Everything else in this document — the mechanism, both crash classes, the consumer analysis in §4
+(whose *count* is volatile and is not the durable claim — §4.0), the verdict-movement analysis, the
+decisions in §12 — remains valid.
 
 ---
 
@@ -243,34 +246,101 @@ true and complete. **This audit must not be framed as a B-506e regression.**
 
 ## 4. Blast radius
 
-`store.readRedEvidence` has **TEN** production call sites on current `main`. Rev 3 said seven; the
-B-506e merge added three more, and they were found by the INIT reviewer, not by this document
-(INIT-004, high). Verified absent at `1847b3af6d`: `handlers/red-evidence.ts` had **zero**
-`readRedEvidence(` calls there. **[CODE]**
+### 4.0 The count is volatile, and `grep` is the wrong instrument for it
 
-| Consumer | Site | Behaviour on a throwing read |
+**This document has asserted a consumer count four times. Every one of them was wrong, usually
+within days:**
+
+| Rev | Claimed | How it broke |
 |---|---|---|
-| machine / phase transitions | `core/machine.ts:167` | aborts |
-| phase gates (dev/review/done) | `handlers/phase-gates.ts:149` | aborts |
-| ProofStory diagnostics handler | `handlers/proofstory.ts:358` | aborts |
-| `red_evidence_add` (read-before-append) | `handlers/proofstory.ts:1094` | aborts — **cannot repair by appending** (§9) |
-| `red_evidence_get` | `handlers/proofstory.ts:1109` | aborts — **cannot inspect** (§9) |
-| `story_review` (review calculation) | `handlers/story-review.ts:297` | aborts |
-| `story_review` (advisory render) | `handlers/story-review.ts:802` | **caught at `:808`** — renders `unavailable (<message>)` |
-| red-evidence append path **(new, B-506e)** | `core/red-evidence/append.ts:167` | aborts |
-| red-evidence handler **(new, B-506e)** | `handlers/red-evidence.ts:56` | aborts |
-| red-evidence handler **(new, B-506e)** | `handlers/red-evidence.ts:137` | aborts |
+| rev 1 | **four** — over a five-row table | incomplete sweep: `grep` output accepted through `head` (§14 F3) |
+| rev 2 | **seven** | true when written; invalidated by the *sibling* B-506e merge, which added three call sites (found by the INIT reviewer, not by this document — INIT-004, high) |
+| rev 4 | **ten** | true when written; invalidated by *this story's own* CHK-006 commit `f342d9464b`, which consolidated the two `handlers/red-evidence.ts` sites into one shared `readRedEvidenceForChain` helper |
+| rev 5 | **nine** | the number in §4.1. Re-derive it. Do not trust it either. |
+
+Three unrelated causes — an incomplete sweep, a sibling merge, and the story's own refactor — so the
+number is not a property of this subsystem that a document can hold. **Treat every count here as a
+dated observation, never as a specification**, and re-derive before relying on one.
+
+The deeper problem is that the instrument which produced all four numbers is itself wrong.
+`grep 'readRedEvidence('` finds only what *names* the boundary. It cannot find a consumer that
+reaches the boundary **through a shared builder** — and this story's REVIEW round found exactly such
+a consumer that four consecutive inventories had all missed: `assertTargetInExpected`
+(`handlers/red-evidence.ts`) calls `proofStoryDiagnosticInput`, which reads the artifact eagerly, so
+`red_evidence_binding_set` / `red_evidence_quarantine` / `red_evidence_recover` all hit the read
+boundary while containing no `readRedEvidence` of their own. No amount of re-grepping would ever have
+surfaced them.
+
+**The correct instrument: enumerate everything that can REACH the read boundary
+(`store.readRedEvidence`, `core/store.ts`), transitively — not everything that mentions it.** In
+practice: start at the boundary, take its direct callers (§4.1), then take the callers of every
+*shared builder* among those, and repeat to closure (§4.2). The builders that currently launder the
+boundary this way are the two `proofStoryDiagnosticInput` functions (`core/machine.ts` — private —
+and `handlers/phase-gates.ts` — exported), the handler-local `diagnosticInput`
+(`handlers/proofstory.ts`), `readRedEvidenceForChain` (`handlers/red-evidence.ts`) and
+`appendControlRecord` (`core/red-evidence/append.ts`). Any new one must be added to §4.2 in the same
+commit that introduces it, or the next inventory will be wrong for a fifth time.
+
+### 4.1 Direct call sites — **NINE**, derived at `2c0ef1ca2d`
+
+Production source only: `packages/main/src`, excluding the `src/tasks/*-smoke.ts` harnesses and
+`packages/main/tests/`. Line numbers are derivation-commit values and *will* drift — **re-locate by
+the enclosing symbol.** **[CODE]**
+
+| # | Site | Enclosing symbol | Pre-fix behaviour on a throwing read |
+|---|---|---|---|
+| 1 | `core/machine.ts:177` | private `proofStoryDiagnosticInput` builder | aborts |
+| 2 | `handlers/phase-gates.ts:198` | exported `proofStoryDiagnosticInput` builder | aborts |
+| 3 | `handlers/proofstory.ts:391` | handler-local `diagnosticInput` builder | aborts |
+| 4 | `handlers/proofstory.ts:1155` | `red_evidence_create` (read-before-append) | aborts — **cannot repair by appending** (§9) |
+| 5 | `handlers/proofstory.ts:1205` | `red_evidence_get` | aborts — **cannot inspect** (§9) |
+| 6 | `handlers/red-evidence.ts:84` | `readRedEvidenceForChain` — **one** site since `f342d9464b`, two before it | aborts |
+| 7 | `handlers/story-review.ts:295` | `story_review` review calculation | aborts |
+| 8 | `handlers/story-review.ts:833` | `story_review` advisory render | **caught in that block's own `try`** — rendered `unavailable (<message>)` |
+| 9 | `core/red-evidence/append.ts:167` | `appendControlRecord` | aborts |
+
+### 4.2 Reachers that name nothing — what a `grep` cannot see
+
+Every row below reaches the boundary transitively through a builder in §4.1. **None of them would
+appear in an inventory built by grepping the boundary's name**, which is why the count kept moving
+while the real blast radius did not. **[CODE]**
+
+| Reached via | Reacher chain | Operator-visible surface |
+|---|---|---|
+| `core/machine.ts` private builder (#1) | `proofStoryDevGateFailure` → the xstate DEV-entry guards + `getGuardFailureReason` | `story_advance` into DEV |
+| `handlers/phase-gates.ts` builder (#2) | `runReviewToTestPreflightGate`, `runLegacyReceiptTransitionGate` (both via `transition-orchestrator.ts`) | `story_advance` REVIEW→TEST and TEST→DONE |
+| `handlers/phase-gates.ts` builder (#2) | `assertTargetInExpected` (`handlers/red-evidence.ts`) ← `red_evidence_binding_set`, and ← `appendChainControl` | `red_evidence_binding_set`, `red_evidence_quarantine`, `red_evidence_recover` |
+| `handlers/proofstory.ts` `diagnosticInput` (#3) | `renderGateReport`, plus four direct callers | `proofstory_gate_check`, `proofstory_contract_set`, `intent_coverage_check`, `done_intent_equivalence_check`, `proofstory_review_completeness_check` |
+| `handlers/red-evidence.ts` `readRedEvidenceForChain` (#6) | `findV2Record` ← `appendChainControl` | `red_evidence_quarantine`, `red_evidence_recover` |
+| `core/red-evidence/append.ts` `appendControlRecord` (#9) | `appendChainControl` (`handlers/red-evidence.ts`) | `red_evidence_quarantine`, `red_evidence_recover` |
+
+Row 3 is the one this story's REVIEW round raised: a shared builder pulled in only for
+`resolveExpectedRedTargets`, which never reads `redEvidence` at all. It is the concrete proof that the
+reach enumeration and the grep enumeration are different sets — four inventories, all built by
+grepping, all missed it.
+
+**Row 3 is also expected to leave this table.** The REVIEW finding it came from is being resolved by
+narrowing `assertTargetInExpected` to the three fields the resolver actually reads, which severs that
+edge. Re-derive against the current tree rather than assuming either state: the durable claim of this
+section is the *instrument* in §4.0, not any individual row.
+
+### 4.3 Consequence
 
 With all three gate modes at `enforce`, a corrupt artifact therefore aborts phase advancement at
 DEV, REVIEW **and** DONE.
 
-The last row is the one rev 1 missed and it changes the acceptance criteria: **one consumer already
-swallows the failure and degrades to an advisory string.** It does interpolate the error message, so
-corruption is not wholly invisible there — but it is rendered as *"ProofStory Diagnostics (advisory
-only): unavailable (…)"*, which reads as "feature not configured", not "your evidence file is corrupt".</br> A fix that makes the read path throw will
-therefore be *invisible* at that site, and a corrupt artifact will render as "unavailable" rather
-than as corruption. §10.4 must assert what `story_review` shows — silently degrading is the failure
-mode this whole audit exists to prevent.
+**§4.1 row 8 is the row rev 1 missed**, and it changes the acceptance criteria: one consumer already
+swallows the failure and degrades to an advisory string. It does interpolate the error message, so
+corruption is not wholly invisible there — but pre-fix it rendered as *"ProofStory Diagnostics
+(advisory only): unavailable (…)"*, which reads as "feature not configured", not "your evidence file
+is corrupt". A fix that makes the read path throw is therefore *invisible* at that site, and a corrupt
+artifact renders as "unavailable" rather than as corruption. §10.4 must assert what `story_review`
+shows — silently degrading is the failure mode this whole audit exists to prevent.
+
+**Post-fix, on the shipped tree:** that catch now discriminates the artifact-fault classes and renders
+a distinct `CORRUPT — … This is NOT an absent or unconfigured artifact` section; the `unavailable (…)`
+wording survives only for errors that are *not* artifact faults. The "Pre-fix behaviour" column in
+§4.1 is retained as the audited baseline, not as a description of current behaviour.
 
 ---
 
@@ -288,7 +358,7 @@ file on any failure (`core/store.ts:133-146`). **[CODE]** So an interrupted `lat
 leave a truncated or half-written artifact — rev 1 listed that as a corruption source and it is
 **wrong**.
 
-A malformed artifact therefore cannot originate from `lattice red_evidence_add` at all. It can
+A malformed artifact therefore cannot originate from `lattice red_evidence_create` at all. It can
 originate from:
 
 1. **manual edit** of `red-evidence.json` (the file is plain JSON in the story dir) — the dominant source, and the one §9's recoverability requirement is about;
@@ -369,9 +439,12 @@ Three things are wrong with that sentence: **[CODE]**
 
    > "REAL digest = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec … NOTE: the digest cited in the story prose (71c267a0…) is not produced by this or any artifact."
 
-**Consequence:** the new story must **not** copy `71c267a0…`. It must also not blindly copy `2d584cc1…`
-— that constant and the file holding it are absent from `main` (§0.0). On a `main`-based story the
-correct move is to port the harness and derive the baseline empirically.
+**Consequence:** the new story must **not** copy `71c267a0…`. *(Rev 2 added here that `2d584cc1…` and
+the file holding it were "absent from `main`" and that the story should port the harness and re-derive
+the baseline. Both statements were falsified by the B-506e merge and by §0.0's rev-3 rewrite, and are
+withdrawn in rev 5: `packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs` and its
+`V1_VERDICT_DIGEST = '2d584cc1…'` are on `main`, that constant is `main`'s own value, and it must be
+used as the invariance baseline and **not re-pinned** — see §0.0.)*
 If it copies `71c267a0…`, the check fails and the likely repair — re-pinning the constant — would
 destroy the invariance proof. **[OPEN-3]** separately, B-506e shipped prose citing a digest no
 artifact produces, and its delivery-check recorded that prose as `verifiedBy` grep. Whether that
@@ -500,8 +573,8 @@ v3 unsupported:      readRedEvidence THREW RedEvidenceSchemaError
 versionless corrupt: readRedEvidence OK (records=1)
 ```
 
-Because `red_evidence_get` (`handlers/proofstory.ts:1109`) and `red_evidence_add`
-(`handlers/proofstory.ts:1094`) both call `store.readRedEvidence`, a throwing read path means:
+Because `red_evidence_get` and `red_evidence_create` (both in `handlers/proofstory.ts`; §4.1 rows 5
+and 4) call `store.readRedEvidence`, a throwing read path means:
 
 - **you cannot inspect the corrupt file through the CLI** — the diagnostic command is the first thing that breaks;
 - **you cannot repair it by appending a good record** — the append reads first;
@@ -532,7 +605,7 @@ Every row must be driven through `proofStoryDiagnosticInput` → `evaluateProofS
 | V2 | valid v2 record | unchanged (skipped by the v1 predicate) |
 | V3 | `observedFailure: "   "` (blank) | **UNSATISFIED, no new diagnostic** — legacy-tolerated, not quarantined (§8.4) |
 | V4 | foreign `acceptanceTargetRef` | non-satisfier, unchanged |
-| V5 | five-scenario FULL diagnostic digest | **derived on `main` pre-fix and pinned by this story** — NOT `2d584cc1…` (a B-506e-tree value) and NOT `71c267a0…` (a phantom). See §0.0. |
+| V5 | five-scenario FULL diagnostic digest | **`2d584cc1…`, the existing `V1_VERDICT_DIGEST` in `red-w2c-v1-verdict-invariance.mjs`** — it is `main`'s own value since the B-506e merge, so it is used as the baseline and **must not be re-pinned or re-derived** (§0.0). Never `71c267a0…` (a phantom). *(Rev 5: this row said "NOT `2d584cc1…`, derive your own" — a rev-2-era instruction that §0.0's rev-3 rewrite had already superseded and that this row kept citing §0.0 in support of.)* |
 
 ### 10.2 Malformed records — must fail closed, never crash
 
@@ -558,7 +631,7 @@ A record-only validator passes every row above and still ships these. **[PROBE]*
 | E2 | `records: "x"` | TypeError / **misleading** `RedEvidenceSchemaError: a record must be an object` |
 | E3 | `records: 42` | TypeError / TypeError `not iterable` |
 | E4 | `records` absent | UNSATISFIED (must stay) |
-| E5 | file root is not an object (`[]`, `"x"`, `null`, `42`) | **WORSE than "crashes"** — see below |
+| E5 | file root is not an object (`[]`, `"x"`, `null`, `42`) | pre-fix: **WORSE than "crashes"** — read as ABSENT, see below. **Must be rejected as an ENVELOPE fault naming the artifact path — it must never read as an absent artifact** |
 | E6 | file-level `schemaVersion` missing / unknown | **must not silently degrade to v1** (§6.1 authority rule) |
 | E7 | file is not valid JSON | typed error naming the path (today: raw `SyntaxError` from `store.ts:121`) |
 
@@ -572,12 +645,20 @@ root 42      -> returned 42   (typeof number)
 invalid JSON -> THREW raw SyntaxError   (E7 confirmed: it escapes untyped)
 ```
 
-None of these crash. They flow into the typed domain as the raw parsed value, and every consumer then
-reads `?.records ?? []` and concludes **there is no red evidence**. So a corrupt artifact is
-*indistinguishable from an absent one*: the gate reports `missing_red_evidence` and `red_evidence_get`
-reports "not configured". It fails closed for the gate — but it fails **silently and misleadingly** for
-the operator, which is the same defect class as the `story_review` degradation in §4. A validator that
-only prevents crashes would leave this untouched.
+**Pre-fix**, none of these crash. They flow into the typed domain as the raw parsed value, and every
+consumer then reads `?.records ?? []` and concludes **there is no red evidence**. So a corrupt artifact
+is *indistinguishable from an absent one*: the gate reports `missing_red_evidence` and
+`red_evidence_get` reports "not configured". It fails closed for the gate — but it fails **silently and
+misleadingly** for the operator, which is the same defect class as the `story_review` degradation in §4.
+A validator that only prevents crashes would leave this untouched.
+
+**Post-fix, on the shipped tree, this row no longer describes current behaviour** — stated here
+explicitly because rows E4 and E6 carry their post-fix requirement and E5 originally did not, which
+left a reader to conclude a non-object root is still silently misread as absence.
+`validateRedEvidenceEnvelope` (`packages/main/src/core/red-evidence-artifact-validation.ts`) now
+throws a typed `RedEvidenceArtifactError` with fault code `root_not_object` for every
+non-plain-object root (`[]`, `"x"`, `null`, `42`), naming the artifact path and the actual value
+type. The probe block above is retained as the pre-fix baseline it was.
 
 ### 10.3 Ordering — the silent-corruption row
 
@@ -592,15 +673,22 @@ DEV / REVIEW / DONE enforce gates each return a controlled failure; the story ph
 advance; the diagnostic names the file path, the record index or id, and the offending field; no
 raw stack trace is surfaced; and repairing the file lets the same command succeed on retry (§9).
 
-Additionally, **all seven consumers in §4 must be asserted, not just the gates**:
+Additionally, **every consumer enumerated in §4.1 *and* §4.2 must be asserted, not just the gates.**
+The assertion list is derived from that enumeration, never from a count (§4.0) — rev 4 corrected the
+count in §4 and left this table at its original three rows, which is exactly how a "complete" fix
+ships with uncovered consumers:
 
 | # | Consumer | Requirement |
 |---|---|---|
 | C1 | `red_evidence_get` | must **display** the corruption, not abort (§9) |
-| C2 | `red_evidence_add` | must either repair-by-append or refuse with an actionable message — never a bare abort |
-| C3 | `story_review` advisory path (`story-review.ts:802`, caught at `:789`) | must **not** silently render "unavailable"; corruption must be distinguishable from absence |
+| C2 | `red_evidence_create` (the read-before-append repair path) | must either repair-by-append or refuse with an actionable message — never a bare abort |
+| C3 | `story_review` advisory path (`handlers/story-review.ts`, the read inside the advisory render's own `try`/`catch`) | must **not** silently render "unavailable"; corruption must be distinguishable from absence |
+| C4 | the chain commands, which reach the boundary only through helpers rather than a read of their own — `red_evidence_binding_set`, `red_evidence_quarantine`, `red_evidence_recover` (§4.2) | must surface corruption in the same vocabulary as C1/C2, not as an incidental abort inherited from a shared builder. A helper that reaches the boundary for data its caller does not need is itself the defect (§4.2 row 3) |
+| C5 | the phase-gate reachers: `story_advance` into DEV, REVIEW→TEST, TEST→DONE (§4.2) | a corrupt artifact must produce a named, gate-shaped failure, never a raw read-boundary throw |
 
 C3 is the row that would otherwise let the fix look complete while a real store degrades silently.
+C4 and C5 are the rows a count-based inventory keeps missing, because neither surface names the read
+boundary anywhere in its own source (§4.0).
 
 ### 10.5 Safety properties
 
@@ -640,7 +728,7 @@ Settled 2026-07-26. `DECIDED` rows are binding on the story; the single `OPEN` r
 | D-3 | Axis A — validation breadth | §8.2 | **DECIDED** | **(ii) Full** — validate every mandatory v1 field, not only the dereferenced one. |
 | D-4 | Axis B — rejection form | §8.2 | **DECIDED** | **(c) Quarantine** — `records` stays clean, malformed entries surface in a separate reported list. The gate fails closed *and* stays diagnosable. Throwing is rejected (breaks §9); silent non-satisfier is rejected (re-creates §2.3 row I). |
 | D-5 | Blank `observedFailure` | §8.4 | **DECIDED** | **Legacy-tolerated**: keeps producing UNSATISFIED with **no new diagnostic** and is **never quarantined** — the one sub-case where D-4 is overridden, because fixture 3 of the invariance test depends on that exact report shape. |
-| D-6 | Recoverability | §9 | **DECIDED** | Follows from D-4: quarantine keeps `red_evidence_get` / `red_evidence_add` / `story_review` usable on a corrupt artifact. |
+| D-6 | Recoverability | §9 | **DECIDED** | Follows from D-4: quarantine keeps `red_evidence_get` / `red_evidence_create` / `story_review` usable on a corrupt artifact. |
 | D-7 | Migration scan | §8.3 | **DECIDED — REQUIRED** | Before merge, scan real story directories for records that are currently SATISFIED but schema-invalid. Every hit is dispositioned in the story. **Without this scan, "no valid verdict moved" is an assumption — the pinned digest cannot detect the difference, since all five fixtures are well-formed.** |
 | D-8 | Scope | §2.4 | **DECIDED** | **The artifact** — file envelope *and* records. A record-only fix passes its own acceptance matrix and still ships the §2.4 crash class. |
 | OPEN-3 | Does B-506e's phantom-digest prose warrant a `B-META` finding against the delivery-check gate? | §7.1 | **OPEN** | Deferred. **Out of scope for this story** — it is a process defect in the delivery-check gate, not in the red-evidence subsystem. |
@@ -710,7 +798,7 @@ accepted on the reviewer's authority alone.
 |---|---|---|---|
 | F1 | high | §8 was **self-contradictory**: it forbade any previously-SATISFIED verdict from changing while simultaneously licensing exactly that flip under full validation | §8 rewritten (§8.1-8.3): constraint scoped to *well-formed* records, flip made explicit and conditioned on a migration scan (OPEN-7) |
 | F2 | high | §2.1's "one field" scope missed the **file envelope**: `records` is trusted as an array at `proofstory.ts:947` and `store.ts:869` | New §2.4 + §10.2.1, both probe-backed. Scope of the story widened from "record" to "artifact" (OPEN-8) |
-| F3 | medium | §4 said "four call sites" over a five-row table; there are **seven**, including two in `story-review.ts` | §4 corrected. The `story-review.ts:802` site **catches** the error and renders "unavailable" — added as acceptance row C3 |
+| F3 | medium | §4 said "four call sites" over a five-row table; there were **seven** *as of rev 2* (the count has moved twice since — §4.0), including two in `story-review.ts` | §4 corrected. The `story-review.ts` advisory-render site **catches** the error and renders "unavailable" — added as acceptance row C3 |
 | F4 | medium | §8 OPEN-5 called blank `observedFailure` "well-formed", contradicting the writer's own schema | Reframed as **legacy-tolerated input** (§8.4); the digest constraint it implies is unchanged |
 | F5 | low | §5's "partial / interrupted write" overstated the risk — `writeJsonFile` is tmp + reparse + atomic rename | §5 corrected with the citation |
 | F6 | low | The B-506e cross-check tree is a **live worktree that moved during the audit** | Header now records all three HEADs and requires a pinned commit for re-verification |

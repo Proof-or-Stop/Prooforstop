@@ -69,7 +69,7 @@
  * and `appendControlRecord` (`core/red-evidence/append.ts`) both rebuild the
  * envelope that way. Retention here is in-memory and complete (each entry keeps
  * its verbatim `value`); making the WRITE path preserve it is CHK-006's
- * `red_evidence_add` obligation — "repair by appending, or refuse with an
+ * `red_evidence_create` obligation — "repair by appending, or refuse with an
  * actionable message, never leave the artifact unrepairable" (§10.4 row C2).
  *
  * CHK-006 answers it in the CONSUMER SURFACE section at the foot of this file:
