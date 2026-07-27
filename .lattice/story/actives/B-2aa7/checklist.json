@@ -345,8 +345,8 @@
       "id": "CHK-004",
       "title": "Add fail-closed full v1 artifact validation at the read boundary with quarantine",
       "context": "Decisions D-1 to D-4. Precedence rule D-1 (which source of schema version wins): the FILE declares the era, the RECORD declares the exception, so a versionless record inside a v1-declared file is only CLAIMED v1 and must be validated against the v1 schema, never assumed to satisfy it. Validate the ENVELOPE before the records. Malformed entries are quarantined - records stays clean, malformed surface in a separate reported list - never thrown, never silently dropped. Mandatory v1 fields per the RedEvidenceRecord interface in core/types.ts (locate by symbol; the line range drifted). Cases that are easy to miss: a record missing only trigger / createdAt / id but otherwise complete is currently SATISFIED and is the WITNESS that full validation rather than the rejected narrow option was implemented; a prototype-inherited observedFailure (Object.create(null) and friends) must not be accepted via the prototype chain; and an ARRAY record must be rejected, since the classifier still returns 'v1' for it. Envelope rows from acceptance section 10.2.1: E5, a JSON root that is not an object ([], 'x', null, 42) currently does NOT crash - it flows through as the raw parsed value and every consumer reads it as ABSENT evidence, making a corrupt artifact indistinguishable from a missing one, which a crash-only validator would leave untouched; E6, a missing or unknown FILE-level schemaVersion must not silently degrade to v1; E7, an unparseable file currently lets a raw SyntaxError escape from readJson and must instead produce a typed error naming the path.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-27T00:42:53.953Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
