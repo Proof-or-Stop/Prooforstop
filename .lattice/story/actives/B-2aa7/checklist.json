@@ -1080,17 +1080,13 @@
         },
         {
           "intentRef": "CHK-010:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
-          "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
-          "result": "pass",
-          "note": "BLOCK B row B3, authored and observed on the PRE-FIX tree at commit 1e03c7c8af, driven through the live gate pair plus store.readRedEvidence (the single read boundary every one of the seven consumers goes through, so pinning it pins the input each consumer sees). SCOPE STATED HONESTLY: pre-fix, a CORRUPT artifact is NOT yet distinguishable from an absent one - that is precisely the defect BLOCK A rows A9-A12 witness live, and asserting the corrupt half here would make this row fail on the pre-fix tree and invert CHK-010 premise. This row therefore owns the ABSENT half, which is the half a fix can break. It pins the ABSENT baseline own shape (a missing artifact reads as null, never a thrown or quarantined corruption verdict) and asserts all four not-configured shapes - no artifact, records key absent, records: [], only a valid v2 record - report identically on the ordinary path, while staying distinct from the SATISFIED path. That is the pincer: BLOCK A demands corrupt become distinguishable from absent, which can be satisfied either by moving the corrupt side (correct) or by moving the absent side (overreach), and BLOCK A alone cannot tell those apart; this row removes the second route, so the distinction can only be created by moving the corrupt side. Negative control: a corrupt records: {} envelope must not join the family on either tree. Falsification runs asserting the opposite for the absent baseline and for each family member aborted inside BLOCK B, and breaking any BLOCK B row suppresses ALL THREE receipt markers because the block failure is fatal before BLOCK A report is printed.",
-          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "a04c82ef8b4afe2701073cc1f880b4ff0abff1b4",
           "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
           "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-07-27T05:20:38.123Z"
+          "timestamp": "2026-07-27T05:25:58.753Z"
         }
       ]
     },
