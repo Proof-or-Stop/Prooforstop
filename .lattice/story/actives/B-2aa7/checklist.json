@@ -1060,17 +1060,13 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-010:happy:0",
-          "kind": "logic_test",
-          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
-          "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
-          "result": "pass",
-          "note": "BLOCK B row B1, authored and observed on the PRE-FIX tree (commit 1e03c7c8af; CHK-004 has not landed, so packages/main/src/core/red-evidence-artifact-validation.ts does not exist and proofstory.ts:950 still dereferences record.observedFailure.trim() unguarded). Driven through proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics, never the predicate in isolation. The row asserts a VALID v2 record (id/operationKey derived, recordDigest recomputes via recordDigestMatches; a red-assert plus a quarantine control record) round-trips through store.readRedEvidence BYTE-IDENTICALLY, is never quarantined, and is skipped by the v1 predicate so the FULL diagnostic report is byte-identical to an ABSENT artifact; and that a v2 record next to a satisfying v1 record leaves the report byte-identical to a v1-only satisfying store in BOTH array orders. \"Skipped\" is proven as a VERDICT FLIP driven by the schemaVersion member ALONE: v1Twin and v2Hybrid are the same object except for that member, v1Twin SATISFIES ([]) and v2Hybrid is skipped ([\"missing_red_evidence\"]) - so the row cannot pass merely because a canonical v2 record happens to lack failingCommand. Non-vacuity is also built in: an UNSUPPORTED schemaVersion (v3) must NOT receive the same handling, a control whose outcome is identical on both trees. Falsification runs confirmed the row is not vacuous: asserting the opposite of the skip, and of the byte-identical round-trip, each aborted inside BLOCK B.",
-          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "68383e91b3df1663b28382869c680f118ad92220",
           "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
           "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-07-27T05:20:38.123Z"
+          "timestamp": "2026-07-27T05:25:57.207Z"
         },
         {
           "intentRef": "CHK-010:edge:0",
