@@ -1,0 +1,32 @@
+{
+  "task": "Two registration guards over two populations are bound to fixed enumerations rather than to the property they exist to guarantee, so neither can notice a member nobody decided about - and one of them never runs at all.",
+  "outcome": "Adding a harness under packages/main/tests/red/ without deciding whether it runs under lattice validate makes a guard FAIL and name the file. Every current member is either registered or excluded with a machine-checked reason. The guard that enforces this itself runs under lattice validate.",
+  "facts": [
+    "red-w2c-validate-registration.mjs walks a hardcoded 3-entry REQUIRED_VALIDATE_COMMANDS and asks whether each is registered; it never enumerates disk, so it cannot ask whether each disk member was decided about.",
+    "Its success line prints REQUIRED_VALIDATE_COMMANDS.length, so it reports the size of the expectation and can never reveal a gap; a probe saw it print 'all 3' while 4 members were on disk.",
+    "A control probe confirmed the same guard DOES fail when a listed command is de-registered, so the blindness result is not a broken experiment.",
+    "The guard's own population is packages/main/dist/tasks/red-evidence-*.js (3 members, currently complete). The 18 unregistered files are packages/main/tests/red/*.mjs - a DIFFERENT population.",
+    "red-b2aa7-chk007-receipt.mjs already derives from disk and requires registered-or-excluded-with-reason, but only over red-b2aa7-*, so the rest of tests/red has no guard at all.",
+    "Of 31 tests/red/*.mjs, 13 are registered, 18 are not, 3 of those are spawned transitively by chk007, leaving 15 executed by no automated path - including red-w2c-validate-registration.mjs itself.",
+    "Four independent measurements of the 18 unregistered harnesses all passed, at 31.7s, 37s, 38.5s and 37.6s total, so nothing is currently broken and the runtime cost of registering them is negligible.",
+    "red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs gate every marker on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED; on a fixed tree that is false, so both emit nothing and exit 0.",
+    "The INIT product reviewer reframed the risk: the blindness is not hypothetical, it has already manifested 18 times; the 15 unreached files ARE the symptom, and its symptom is silence rather than failure."
+  ],
+  "constraints": [
+    "The population enumeration must NOT be narrowed by a name pattern. Mirroring chk007's /^red-b2aa7-.*\\.mjs$/ literally would leave a future differently-prefixed harness outside the population and reproduce this defect one prefix over. This is the single most likely way this story ships a hollow fix.",
+    "The registered side must never be enumerated inside a test file; it is whatever lattice.config.json contains, so it cannot go stale.",
+    "Every exclusion carries a reason checked at runtime, and naming a file that no longer exists must fail.",
+    "Any guard built must include itself in its own population with no self-exception.",
+    "red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs must be EXCLUDED, not registered: they pass forever while asserting nothing on a fixed tree, which is the vacuous-coverage defect this story exists to remove.",
+    "packages/main/src is out of the write set; this is test-infrastructure and configuration only.",
+    "red-w2c-v1-verdict-invariance.mjs carries a protected invariance digest and must not be edited or re-pinned."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/tests/red/red-w2c-validate-registration.mjs",
+    "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+    "packages/main/tests/red/",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-27T13:43:32.718Z"
+}

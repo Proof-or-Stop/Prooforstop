@@ -6,7 +6,30 @@
       "context": "Must FAIL on current main before any fix. Three separate demonstrations, each needing its own assertion shape. BLINDNESS: place a genuine member of the guard's population that is registered nowhere and deliberately exits non-zero, run the guard, assert it exits 0 - and assert its success line reports the expectation's size rather than the population's, since that is why it can never reveal the gap. CONTROL: de-register one currently-listed command against a copy of lattice.config.json and assert the guard DOES exit non-zero, so the blindness result cannot be a broken experiment; the real config must not be edited. POPULATION: measure and assert how many packages/main/tests/red/*.mjs are neither registered in validate.commands nor reachable transitively from a registered command, accounting for the three that red-b2aa7-chk007-receipt.mjs spawns. Do not hard-code 15 or 18 - derive both numbers, because the whole point is that a fixed number goes stale.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed RED artifact runs on the pre-fix tree and FAILS, demonstrating blindness, control and population size.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "It includes a differently-prefixed newcomer, so a derivation narrowed by a name pattern fails this artifact rather than passing it.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The control direction is asserted against a COPY of lattice.config.json and the real config is provably unmodified, so the blindness result cannot be a broken experiment.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
