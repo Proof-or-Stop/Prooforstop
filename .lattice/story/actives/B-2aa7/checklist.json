@@ -375,7 +375,11 @@
           {
             "desc": "Malformed entries are quarantined, not dropped: the rejected entry is retained and reported with index, identifying field and reason, and an envelope fault is never reported as a record fault. An array record and a prototype-inherited observedFailure are both rejected.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+              "selector": "QUARANTINE_RETAINS_AND_ATTRIBUTES"
+            }
           }
         ]
       },
@@ -431,6 +435,26 @@
           "materialHash": "ec829c0a2741dc66ae26045c0a104fbd9e3e1d18a7d5a9116aa072953c23e588",
           "storyFilesHash": "3d8002a0677044efdfdbcc51c47ee7006150058e1121104100073c6c32e8ac37",
           "timestamp": "2026-07-27T00:43:48.699Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "result": "pass",
+          "note": "Quarantine is retain-and-report, and the fault is attributed to the right layer. Six conditions must hold together for this marker. (1) RETENTION: for records [satisfying, {id:'corrupt'}] the read boundary returns records canonically equal to [satisfying] while malformedRecords carries exactly one entry with index=1 (the ON-DISK position, not the post-filter one), id='corrupt' (the identifying field), a reason naming missing:observedFailure, and value canonically equal to the rejected entry VERBATIM - so nothing is dropped and a clean empty array, which reads exactly like an absent artifact, is never produced. (2) FULL breadth (D-3 Axis A (ii)): a record missing ONLY trigger - a mandatory field the gate predicate never reads, so it is SATISFIED pre-fix - is quarantined with violations including missing:trigger. That row is the witness that full validation rather than the rejected narrow option was implemented. (3) D-5 OVERRIDE preserved: a blank observedFailure is NOT quarantined (malformedRecords absent), stays UNSATISFIED via the ordinary missing_red_evidence code, and its report is byte-identical to the ABSENT baseline - no new diagnostic - which is what keeps scenario 3 of the invariance harness intact. (4) NO MISATTRIBUTION: records:'x' yields code=records_not_array naming the path, whose message matches /envelope/ and does NOT match /a record must be an object/, and produces no malformed RECORD entry - pre-fix it iterated the string's characters and blamed a record that does not exist. (5) an ARRAY record is quarantined with a not-a-plain-object violation. (6) a PROTOTYPE-INHERITED observedFailure is rejected: the receipt drives the production leaf partitionRedEvidenceRecords directly because JSON.parse cannot build such a value, first asserting the inherited value IS visible to a plain record.observedFailure read, then that it is quarantined as missing:observedFailure; the control is a null-prototype object whose fields are genuinely OWN, which is accepted - so the rule rejects prototype reach-through, not exotic containers. Gating proven by replay: ABSENT on the pre-fix tree, PRESENT on the fixed tree.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c12d94593c26a376b1517491de48db9be75fd0e825cede0b4ec4190e766d4ae",
+            "outputTail": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; the pre-fix-pinned five-scenario digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec still reproduces; control=one malformed record appended is discriminated)\nENVELOPE_ROWS_E5_E6_E7 (E5: 4/4 non-object roots rejected as root_not_object and no longer read as ABSENT; E6: missing -> schema_version_missing and unknown -> schema_version_unknown, neither degrading to v1 while the same record SATISFIES under a v1 envelope; E7: still THROWS, typed RedEvidenceArtifactError(unparseable) naming the path, not a raw SyntaxError)\nQUARANTINE_RETAINS_AND_ATTRIBUTES (rejected entry RETAINED verbatim at index=1 id=\"corrupt\" with reason and violations while records stays clean; full v1 field set enforced (missing:trigger flips a record the predicate never reads); blank observedFailure legacy-tolerated per D-5 — UNSATISFIED, no new diagnostic, never quarantined; envelope fault reported as records_not_array naming the path, never as \"a record must be an object\"; array record and prototype-inherited observedFailure both rejected, own-field null-prototype control accepted)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:44:06.291Z"
+          },
+          "headHash": "04095e4ea29fa9f8484bdbd476ce088086fefd0d",
+          "materialHash": "ec829c0a2741dc66ae26045c0a104fbd9e3e1d18a7d5a9116aa072953c23e588",
+          "storyFilesHash": "3d8002a0677044efdfdbcc51c47ee7006150058e1121104100073c6c32e8ac37",
+          "timestamp": "2026-07-27T00:44:06.480Z"
         }
       ]
     },
