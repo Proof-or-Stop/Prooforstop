@@ -500,11 +500,12 @@
           "kind": "manual_transcript",
           "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
-          "note": "Genuinely re-executed at head 40d6da1076 against a FRESH cohort (2026-07-25T23:28:10Z): pre-review-check-smoke --proof-scenarios exit 0; this scenario record biting as designed (all 17 mutations bite, 5 positive + 1 transcript PASS). Supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "e1324f04d3217cf29094f8422dbfb68eb4f1a905",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:36.577Z"
+          "note": "Genuinely executed at head f9855acc21 against a cohort regenerated at this same head (2026-07-27T03:09:46Z): exit 0; all mutations BITING, wave leakage absent.",
+          "mechanical": false,
+          "headHash": "33adeba1ab7aeabd8ecdd19b3bf4f87aeb2fcbbf",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:11:48.654Z"
         }
       ]
     }
