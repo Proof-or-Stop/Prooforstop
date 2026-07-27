@@ -1132,6 +1132,28 @@
         "scanEscalationReason": null
       },
       "_hash": "5ee8a4cfbdeb45cb021aabdef3855b386aa9423a7d6fc0ec83a2eb495bc5efac"
+    },
+    {
+      "id": "B-4043:RP-035",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after 785-commit main merge: confirmed F-018 fix landed and both conflict resolutions (config JSON union, proofstory.ts import union) are correct and unused-import-free; tsc clean.",
+      "createdAt": "2026-07-27T02:14:51.215Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-054",
+      "envelopeId": "4d2818f92c53bbe40dc24b009f459422c75e2f8bef2fa929e27b6e6739630349",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3e943c919323a7a1571e0128751c55c7df723f6c04e2552eb8cc99d2df03fa12"
     }
   ]
 }
