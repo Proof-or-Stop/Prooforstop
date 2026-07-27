@@ -1,0 +1,21 @@
+{
+  "storyId": "B-2296",
+  "expected": "A developer runs the new smoke and sees \"normalizeClaim collapses whitespace deterministically\" and \"snapshot record binds {normalizedClaimDigest, materialHash, headHash}\" among the passing assertions.",
+  "actual": {
+    "command": "node bin/lattice.js frozen_claim_drift_check --storyId=B-2296",
+    "exitCode": 0,
+    "stdout": "FROZEN_CLAIM_DRIFT advisory for B-2296 (3 drifted, 1 legacy-unbound, non-blocking)\n  CHK-001 classification=legacy-unbound actionRequired=re_attestation\n  CHK-002 driftKind=material actionRequired=re_attestation\n  CHK-003 driftKind=material actionRequired=re_attestation\n  CHK-004 driftKind=material actionRequired=re_attestation\n",
+    "stderr": "[0.0s] running frozen_claim_drift_check...\n[0.3s] frozen_claim_drift_check done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-27T11:03:03.712Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "85ebd682aea2c38eb0e2868e9b7e68739fa64c3b",
+  "materialHash": "3674fa960f06743cf59ffe7f3312b5adad46ba841b660b135cdf3a342c16ea33"
+}

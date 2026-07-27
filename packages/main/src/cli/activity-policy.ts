@@ -12,6 +12,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'story_get',
   'story_list',
   'checklist_get',
+  'frozen_claim_drift_check',
   'acceptance_matrix',
   'acceptance_topology_check',
   'acceptance_basis',

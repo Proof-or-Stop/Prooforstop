@@ -1,0 +1,95 @@
+{
+  "findings": [
+    {
+      "id": "B-2296:F-001",
+      "desc": "packages/main/src/tasks/frozen-claim-drift-smoke.ts:294-332 (CHK-004:adversarial:0) — the must-intent claims the smoke is deterministic/offline so it cannot flake in CI, but its recorded verificationEvidence reuses the IDENTICAL selector string frozen-claim-drift-smoke: PASS already bound to CHK-004:happy:0 (checklist.json). No assertion in the smoke distinctly verifies determinism/offline-ness (e.g. running the smoke twice and diffing outputDigest, or asserting no network/child_process import) — the selector is a rubber-stamp duplicate, not a distinguishing check for this specific must-intent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T22:12:41.401Z",
+      "reviewRound": "2026-07-26T22:07:48.977Z",
+      "reviewRunId": "B-2296:RR-002",
+      "_hash": "273047c47fb426ab0aeca795decc996bc2f7b06201acbca983274ea9552433eb",
+      "files": [
+        "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedReason": "Added a distinct [determinism] assertion to frozen-claim-drift-smoke.ts (commit 01df7748): buildDriftReport/detectDrift run twice on identical input asserted byte-identical, plus a static scan proving the drift module imports only crypto+types (no fs/child_process/network). Existing pinned selector lines byte-unchanged (B-ec67 pins immutable); the determinism behavior is now genuinely gated by the PASS line the evidence pins to.",
+      "resolvedAt": "2026-07-26T22:43:47.018Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-2296:F-002",
+      "desc": "packages/main/src/handlers/frozen-claim-drift-check.ts:144-146 — CHK-003:happy:0 must-intent explicitly promises \"...for a drifted story and a clean report for a clean story\", but the only verificationEvidence (frozen-claim-drift-smoke.ts:137-231) calls buildDriftReport directly on in-memory fixtures that always include a drifted item; it never exercises the zero-advisory clean branch (the handlers text-mode \"0 drifted, 0 legacy-unbound -- clean\" string) nor the actual registered frozen_claim_drift_check --storyId CLI entry point end-to-end (resolveStoryGitCwd + currentStoryFilesHash + store.readChecklist + JSON/text serialization). Manually running node bin/lattice.js frozen_claim_drift_check confirms the real command works, but no re-runnable mechanical evidence covers that path or the clean-story branch — half of a compound must-intent is unverified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T22:12:49.705Z",
+      "reviewRound": "2026-07-26T22:07:48.977Z",
+      "reviewRunId": "B-2296:RR-002",
+      "_hash": "e39bcbfde8ae1ce0ca4b879628b82d5d8367da15054ac1cf0515ecaa033ab752",
+      "files": [
+        "packages/main/src/handlers/frozen-claim-drift-check.ts",
+        "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedReason": "Added a [clean-branch] assertion to frozen-claim-drift-smoke.ts (commit 01df7748): buildDriftReport over only clean bound items yields zero advisories; the real handler clean-report path is also exercised in the new hook smoke. Compound intent (drifted AND clean) now genuinely covered.",
+      "resolvedAt": "2026-07-26T22:43:47.715Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-2296:F-003",
+      "desc": "missing: packages/main/src/handlers/checklist.ts:286-306 captureUserSeesSnapshot (the real production hook wired into checklist_update at the status->done transition, lines 1381-1386) is exercised by ZERO automated tests. frozen-claim-drift-smoke.ts and every CHK-002 verificationEvidence row only unit-test the pure detectDrift/buildDriftReport Fns against hand-constructed FrozenClaimSnapshot fixtures -- none of them ever invoke checklist_update or the real captureUserSeesSnapshot/evidenceHashes wiring. CHK-002s own verificationIntent explicitly specified type=cli for happy/edge/adversarial (e.g. CHK-002:happy:0 after userSees is snapshotted at status=done...), but the recorded evidence substitutes the same offline pure-Fn smoke script (kind:integration_test) instead of a real CLI-driven test. I manually verified via an isolated scratch repo (spawnSync against dist/cli.js) that the real hook currently behaves correctly (captures on first done, immutable-once on re-persist), so there is no live bug today -- but a future refactor of the status-transition block in checklist.ts (e.g. reordering the oldStatus capture, or the userSees vs status write order) could silently break snapshot capture or the immutable-once guarantee with no automated test catching it.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T22:15:19.336Z",
+      "reviewRound": "2026-07-26T22:07:48.977Z",
+      "reviewRunId": "B-2296:RR-003",
+      "_hash": "5e84f541c1014aff30295480d86e32e983277ecbce57f67bd4a3267161b0a621",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|missing-packages-main",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedReason": "Added integration smoke packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts (commit 01df7748) driving the REAL captureUserSeesSnapshot hook via the shipping checklist_update handler on a temp repo: asserts snapshot pinned on status=done, immutable-once, no-userSees=>no-snapshot, and clean-report path. Registered in validate.commands + package.json; validate green.",
+      "resolvedAt": "2026-07-26T22:43:46.353Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-2296:F-004",
+      "desc": "packages/main/src/cli/activity-policy.ts:1-84 (READ_ONLY_COMMANDS) — frozen_claim_drift_check is registered as strictly read-only in every OTHER map (command-policy.ts ownershipClass=readOnly/destructiveRisk=none, process-fact-levels.ts level=L0 rationale=\"Writes no files/evidence, mutates nothing\", config.ts DEFAULT_PHASE_TOOLS comment=\"writes nothing\", and its own handler header comment) but is MISSING from activity-policy.ts READ_ONLY_COMMANDS, the set cli-engine.ts isReadOnlyCommand()/shouldWriteActivityLog()/writeCodexProcessEvent() consult to decide whether to append a process event. Reproduced: LATTICE_ACTIVITY_SOURCE=codex node bin/lattice.js frozen_claim_drift_check storyId=B-2296 appends a codex_cli entry to .lattice/story/actives/B-2296/process-events.jsonl (git status shows the file dirtied) — a real story-metadata mutation for a command documented and classified everywhere else as never mutating anything. Sibling read-only, all-phase diagnostic commands added alongside similar storyFilesHash-drift features (acceptance_topology_check, pre_review_check_read, topology_critic_receipt_check, checklist_get) ARE all present in this set. Fix: add frozen_claim_drift_check to READ_ONLY_COMMANDS in packages/main/src/cli/activity-policy.ts.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T22:20:24.782Z",
+      "reviewRound": "2026-07-26T22:07:48.977Z",
+      "reviewRunId": "B-2296:RR-001",
+      "_hash": "a2e10dfd99fbbd79ac53d2950f3d521c8da51d16cb4e9984cfcf78d2c3945317",
+      "signatureTag": "missing|unknown|packages-main-activity",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedReason": "Added frozen_claim_drift_check to READ_ONLY_COMMANDS in packages/main/src/cli/activity-policy.ts (commit 01df7748); the command no longer appends a process-event under LATTICE_ACTIVITY_SOURCE=codex, matching command-policy/process-fact-levels/config classification.",
+      "resolvedAt": "2026-07-26T22:43:45.627Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

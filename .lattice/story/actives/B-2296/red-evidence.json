@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-2296",
+  "records": [
+    {
+      "id": "RED-20260726121745",
+      "trigger": "Phase 1 frozen-claim drift detection does not exist: nothing re-checks a frozen userSees after code changes (F-027/F-060 gap)",
+      "acceptanceTargetRef": "M1",
+      "baselineHeadHash": "29948678d98de922a2b5937b55aa76ebfa99f570",
+      "baselineMaterialHash": "8d9655d5e822d594e6c1f899cb64051c7a95c4934982f8e1c50c7565a882fb30",
+      "observedFailure": "node bin/lattice.js frozen_claim_drift_check --storyId=B-2296 exits 1 (unknown command); no FROZEN_CLAIM_DRIFT advisory is produced for a drifted userSees and no frozen-claim-drift smoke is registered in validate.",
+      "failingCommand": "node bin/lattice.js frozen_claim_drift_check --storyId=B-2296",
+      "expectedGreenCommand": "node bin/lattice.js validate",
+      "greenRelation": {
+        "targetRef": "M1",
+        "relation": "same_acceptance",
+        "command": "node bin/lattice.js validate"
+      },
+      "note": "RED-first baseline: the drift-detection command and smoke are absent, proving M1 acceptance is currently unmet. Green when Phase 1 lands and validate runs the deterministic smoke.",
+      "createdAt": "2026-07-26T12:17:45.662Z"
+    }
+  ],
+  "createdAt": "2026-07-26T12:17:45.662Z",
+  "updatedAt": "2026-07-26T12:17:45.662Z"
+}

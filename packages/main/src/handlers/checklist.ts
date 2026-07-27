@@ -6,7 +6,8 @@ import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import type { ChecklistData, ChecklistItem, ChecklistStatus, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
+import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
+import { claimDigest } from '../core/frozen-claim-drift.js';
 import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { createHash } from 'crypto';
@@ -266,6 +267,44 @@ function evidenceHashes(gitCwd: string, metadataRoot: string = gitCwd): { headHa
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
   };
+}
+
+/**
+ * B-2296 CHK-002: pin an immutable {@link FrozenClaimSnapshot} onto a checklist item at
+ * the status→done attestation transition, capturing the item's `userSees` claim digest
+ * bound to the current story-owned material (storyFilesHash, the drift-authoritative field)
+ * + git HEAD. Mutates `item` in place; returns true when a snapshot was written.
+ *
+ * DEFENSIVE — this NEVER throws: a snapshot failure must never break checklist_update.
+ * Skips (no snapshot, returns false) when:
+ *   - the item already has a `userSeesSnapshot` (immutable-once, mirroring the B-ec67
+ *     pin-once model — a snapshot is never re-taken on a re-persist or read), OR
+ *   - `userSees` is empty/absent (no frozen claim to snapshot), OR
+ *   - a required hash / git value cannot be computed (prefer skipping over a partial /
+ *     garbage snapshot: storyFilesHash is the drift signal and headHash anchors provenance).
+ */
+function captureUserSeesSnapshot(item: ChecklistItem, gitCwd: string, metadataRoot: string): boolean {
+  try {
+    if (item.userSeesSnapshot) return false; // immutable-once
+    const userSees = item.userSees;
+    if (!userSees || userSees.trim().length === 0) return false; // no claim to snapshot
+    const hashes = evidenceHashes(gitCwd, metadataRoot);
+    // storyFilesHash is drift-authoritative and headHash anchors provenance; without BOTH
+    // a snapshot would be partial — skip rather than pin a garbage snapshot.
+    if (!hashes.storyFilesHash || !hashes.headHash) return false;
+    const snapshot: FrozenClaimSnapshot = {
+      normalizedClaimDigest: claimDigest(userSees),
+      storyFilesHash: hashes.storyFilesHash,
+      headHash: hashes.headHash,
+      attestedAt: new Date().toISOString(),
+      ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
+    };
+    item.userSeesSnapshot = snapshot;
+    return true;
+  } catch {
+    // Defensive: a snapshot failure must never break checklist_update.
+    return false;
+  }
 }
 
 function normalizeEvidenceKind(kind: VerificationEvidenceKindInput): VerificationEvidence['kind'] {
@@ -1346,6 +1385,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
         if (args.status === 'done') {
           item.endTime = now;
+          // B-2296 CHK-002: pin the immutable frozen-claim snapshot at the attestation
+          // transition — exactly once, on the first pending/in_progress → done (immutable
+          // thereafter; skipped on a re-persist where the item was already done). Defensive:
+          // captureUserSeesSnapshot never throws, so this can never break checklist_update.
+          if (oldStatus !== 'done') {
+            captureUserSeesSnapshot(item, resolveStoryGitCwd(args.storyId), root);
+          }
         }
 
         // Modification operations write audit logs (new pending→pending does not count as a modification)

@@ -114,7 +114,9 @@
       { "command": "node", "args": ["packages/main/tests/red/red-b2aa7-baseline-receipt.mjs"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/tests/red/red-b2aa7-f005-receipt.mjs"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs"], "timeoutMs": 180000 },
-      { "command": "node", "args": ["packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"], "timeoutMs": 180000 }
+      { "command": "node", "args": ["packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"], "timeoutMs": 180000 },
+      "node packages/main/dist/tasks/frozen-claim-drift-smoke.js",
+      "node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
     ]
   },
   "doneRequiredCommands": [

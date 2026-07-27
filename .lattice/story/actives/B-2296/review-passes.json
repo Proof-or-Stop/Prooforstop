@@ -1,0 +1,278 @@
+{
+  "passes": [
+    {
+      "id": "B-2296:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-verification of F-004 fix + full re-scan: frozen_claim_drift_check added to READ_ONLY_COMMANDS in activity-policy.ts, consistently classified read-only across command-policy.ts, process-fact-levels.ts, config.ts, command-catalog.ts, and wired in registry.ts. Reproduced LATTICE_ACTIVITY_SOURCE=codex frozen_claim_drift_check: process-events.jsonl byte-identical before/after (zero new lines). npm run build clean; both new smokes (frozen-claim-drift-smoke.js, frozen-claim-snapshot-hook-smoke.js) run green directly and are registered in lattice.config.json + package.json. git diff main...HEAD re-scanned: this story is purely additive (new types/module/handler/smokes + one hook wired into checklist.ts); no concept deleted or renamed, so no residue surface exists. All 4 round-1 findings independently confirmed resolved. No new findings.",
+      "createdAt": "2026-07-26T22:47:13.834Z",
+      "reviewRound": "2026-07-26T22:42:46.012Z",
+      "reviewRunId": "B-2296:RR-004",
+      "envelopeId": "735f1e54af8d83b1afc36137f09922009a081c777ed0ef7164f6c37e7d7236e0",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-2296/background.md",
+          "docs/story/actives/B-2296/plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/story/actives/B-2296/checklist.json",
+          "docs/story/actives/B-2296/decision.json",
+          "docs/story/actives/B-2296/findings.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2cb399bd8ecdb1deb4a532ac86e498214dcce867c60da245471fe162b9640895"
+    },
+    {
+      "id": "B-2296:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2: verified fix commit 01df7748 resolves F-001 and F-002 with additive-only changes (pinned selectors + final PASS byte-unchanged); all 12 must-intents have valid pass receipts; both smokes re-run PASS/exit 0.",
+      "createdAt": "2026-07-26T22:54:11.051Z",
+      "reviewRound": "2026-07-26T22:42:46.012Z",
+      "reviewRunId": "B-2296:RR-006",
+      "envelopeId": "d0676e68c9a8eb83e4f07dc06eafa423e78cfaea3bfbf42e4f097f6d490ad0d1",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2296/checklist.json",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2296/background.md",
+          ".lattice/story/actives/B-2296/plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68672e98d089e00b5596871b6746278734ce09aa845965befd2701faac44fa51"
+    },
+    {
+      "id": "B-2296:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: verified F-003 fix. New frozen-claim-snapshot-hook-smoke.ts drives the real checklist_update status->done path via the shipping cli.js (spawned subprocess against a temp git repo), asserting snapshot pinning, immutable-once, no-userSees->no-snapshot, and the real read-only frozen_claim_drift_check handler clean-report path. Ran node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js: PASS exit 0. Confirmed captureUserSeesSnapshot in checklist.ts is genuinely exercised (not reimplemented). Sanity-checked whole feature: frozen-claim-drift.ts is a pure Fn (no fs/git/network imports, only crypto via digest.ts); frozen-claim-drift-check.ts handler is read-only/non-blocking (blocking:false hardcoded, mutates nothing); storyFilesHash is the drift-authoritative binding field. The [determinism] assertion runs buildDriftReport/detectDrift twice on identical input asserting byte-identical output plus statically scans source for forbidden fs/child_process/network imports (meaningful, not tautological). The [clean-branch] assertion runs buildDriftReport over only clean snapshot-bound items asserting zero advisories (also meaningful). Ran full lattice validate: all commands including commands[55] frozen-claim-drift-smoke and commands[56] frozen-claim-snapshot-hook-smoke report PASS, no FAIL found in output. No new quality issues found.",
+      "createdAt": "2026-07-26T22:55:52.469Z",
+      "reviewRound": "2026-07-26T22:42:46.012Z",
+      "reviewRunId": "B-2296:RR-005",
+      "envelopeId": "ccc9cedfa2bb4961df16e45a8c0993849adf2a0eedd7a1d593ff3140afc7d4af",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71a0829876abd5e5eda456774214a82d1cb16586b21f67108e2f1c864f4d4751"
+    },
+    {
+      "id": "B-2296:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-attestation (lease/freshness reset only, no material code change per review_run_start incremental basis: changedFiles=[], reasonCodes=[ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS]). Re-verified git diff main...HEAD --stat (37 files, 5262+/13-): all source changes purely additive (new types FrozenClaimSnapshot/FrozenClaimDriftAdvisory in types.ts; new core/frozen-claim-drift.ts; new handlers/frozen-claim-drift-check.ts; registry/command-catalog/command-policy/process-fact-levels/config/activity-policy registrations for frozen_claim_drift_check). No concept deleted or replaced this round. Confirmed prior F-004 fix: grep -n frozen_claim_drift_check packages/main/src/cli/activity-policy.ts -> line 15 inside READ_ONLY_COMMANDS. Grepped repo for frozen_claim_drift_check / frozen-claim-drift / FrozenClaimSnapshot / FrozenClaimDriftAdvisory: only the new, consistently-registered symbol set (handler, schema, policy, catalog, config, process-fact-levels), no half-registered or orphan references. No blocker.",
+      "createdAt": "2026-07-27T10:34:50.374Z",
+      "reviewRound": "2026-07-27T10:32:29.627Z",
+      "reviewRunId": "B-2296:RR-009",
+      "envelopeId": "351557eaabe16551b7a068bb74a7d307ae1ec821e7435d02d3f9b03113c9f4eb",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0312620779e2ae4066fbd20e8c90e8cd37877fca58619ec3580eb3ba0ed0ab08"
+    },
+    {
+      "id": "B-2296:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 re-attestation: code unchanged since RP-002 (review_incremental_context: isFirstPass=false, scopeChanged=false, changedFiles=none). Re-ran frozen-claim-drift-smoke.js and frozen-claim-snapshot-hook-smoke.js, both PASS incl. new [determinism]/[clean-branch] assertions from 01df77481b closing F-001/F-002. All 12 must verificationIntent entries (CHK-001..CHK-004) have verificationEvidence result=pass. No new gaps.",
+      "createdAt": "2026-07-27T10:34:55.890Z",
+      "reviewRound": "2026-07-27T10:32:29.627Z",
+      "reviewRunId": "B-2296:RR-008",
+      "envelopeId": "5bba0a1c60eb92b90cc042a8f0f239d932be6e39c665df577e3bba3048dfc56a",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2296/background.md",
+          ".lattice/story/actives/B-2296/checklist.json",
+          ".lattice/story/actives/B-2296/plan.md",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "016bd287347edd50cac29c43d73737b19735618a256d34514cb23cf4290cb915"
+    },
+    {
+      "id": "B-2296:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-attestation: code unchanged since round-2 PASS RP-003 (review_incremental_context: ELIGIBLE_NO_MATERIAL_CHANGE, changedFiles none). Re-verified smoke test passes and prior findings remain fixed, no new issues.",
+      "createdAt": "2026-07-27T10:35:01.045Z",
+      "reviewRound": "2026-07-27T10:32:29.627Z",
+      "reviewRunId": "B-2296:RR-007",
+      "envelopeId": "a27de384b3c129a299b32001eac0c210613b50c72968352615bc2fcd72f4becd",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/frozen-claim-drift-check.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dcb6db2c6d84a93cdde91b086f426e269f49dcc10cd977304a48e21855efe0a2"
+    },
+    {
+      "id": "B-2296:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 post-main-merge re-review. Verified frozen_claim_drift_check registered consistently across all 6 concept sites post-merge with no half-registration/duplicate; checklist.ts merge conflict resolution keeps FrozenClaimSnapshot/claimDigest (B-2296) and detectEvidenceRowContradiction (main) coexisting with no residue; full-repo grep for the concept symbols shows only the 8 implementing source files + story-metadata artifacts, no orphaned symbol; no merge-conflict markers remain; both frozen-claim smokes retained in lattice.config.json post-resolution. No blocker.",
+      "createdAt": "2026-07-27T10:46:58.919Z",
+      "reviewRound": "2026-07-27T10:45:11.471Z",
+      "reviewRunId": "B-2296:RR-010",
+      "envelopeId": "e5cb53752e20521ffc06c575d7d1ad13761848ba93d65c7a8fbcb54bfc7b5be2",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a92b64695c895fb123b31fe731e2e2aa4fc8fa0eb5cfbdf1c6da8b80ed0cd3e4"
+    },
+    {
+      "id": "B-2296:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 post-merge re-review: all 12 must-intents (CHK-001..004 x happy/edge/adversarial) carry verificationEvidence result=pass, rebound to post-merge materialHash=3674fa96../storyFilesHash=c108d5f7.. matching current task context exactly. Both frozen-claim-drift-smoke.js and frozen-claim-snapshot-hook-smoke.js re-run live: PASS, including required [determinism]/[clean-branch] lines. Both registered in lattice.config.json validate.commands and package.json scripts alongside mains red-evidence entries (merge conflict resolution preserved). All 4 prior findings (F-001..F-004) resolved/verified, zero open blockers. No new gaps found.",
+      "createdAt": "2026-07-27T10:47:22.802Z",
+      "reviewRound": "2026-07-27T10:45:11.471Z",
+      "reviewRunId": "B-2296:RR-012",
+      "envelopeId": "f13ffebe62850dff0ef7338c3f3f958b15732a5881d3c0133f3c1693ed92def1",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2296/background.md",
+          ".lattice/story/actives/B-2296/checklist.json",
+          ".lattice/story/actives/B-2296/plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3e7373b7441cbfefb1bc457e549fe2408b59a1315b861c8bcaf9aba9efe89b1"
+    },
+    {
+      "id": "B-2296:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 (post-main-merge re-review). Rebuilt clean, both smokes PASS/exit0, drift Fn still pure, handler still read-only/non-blocking/storyFilesHash-authoritative, checklist.ts hook intact + merged imports resolve, lint+concept gates green, process-fact-contract passes, no conflict markers/dead code/as any/empty catches found. No blockers.",
+      "createdAt": "2026-07-27T10:48:34.020Z",
+      "reviewRound": "2026-07-27T10:45:11.471Z",
+      "reviewRunId": "B-2296:RR-011",
+      "envelopeId": "c4d38a0b62eea576735670f9f7bc87d2bb7d39a45afb8d65faadaad5e338b083",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2296/checklist.json",
+          ".lattice/story/actives/B-2296/plan.md",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4aa69375bd6e3d4c437a8933516fb497e5a858c6e39fe7863f62ff419b4abbc5"
+    }
+  ]
+}
