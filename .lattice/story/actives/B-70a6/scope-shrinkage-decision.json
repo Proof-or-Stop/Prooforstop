@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "proofstory.scope_shrinkage_decision.v1",
+  "storyId": "B-70a6",
+  "decision": "confirmed",
+  "userConfirmed": true,
+  "removedMilestoneIds": [
+    "CHK-001:audit-completeness-under-concurrent-discard"
+  ],
+  "reason": "This project is checklist-derived with no milestone ledger, so removedMilestoneIds names the specific ASPECT of intent that shrank rather than a real milestone: the audit-completeness guarantee for CHK-001 under a concurrent story_discard race. CHK-001 itself is fully delivered and NOT withdrawn -- the reopen reason and transitionType marker are durably persisted for every sequential reopen, mechanically enforced by the process-fact contract. What narrowed is the CLAIM STRENGTH: AB-001s original unqualified acceptance claim (reopen is always audited) is replaced by a SEQUENTIAL-only guarantee, because a concurrent story_discard racing an in-flight reopen can still destroy the audit record before the event is appended (independent cross-host finding B-70a6:F-013). The correctness-grade fix (a non-advisory per-story fence) was investigated and rejected: the only candidate lock, acquireStoryTransitionLock, is best-effort advisory (disableable via LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK), exposes no fail-fast (would hang the story_discard recovery command behind a 180s poll), and would invert the established lock order for story_reconcile. This narrowing was explicitly approved by the user in this conversation: shown the exact trade-off (2 of 3 independent cross-host rounds passed on identical material; the blocking round re-raised this same known, already-documented residual; a correctness fix needs its own story-sized effort), the user replied with explicit approval (\"批准\"), the same confirmation basis already recorded in review_escalation_fallback_set (B-70a6:REF-ms1prlzh / B-70a6:REF-ms2ciq7r). The residual is tracked as its own follow-up story, B-META-framework-audit:F-003, not silently dropped.",
+  "approvedBy": "user (jek), via explicit chat approval (\"批准\") of the degraded-single-host review-assurance fallback covering this same narrowed guarantee",
+  "decisionId": "SD-d9b01de5",
+  "withdrawnChecklistItemRefs": [],
+  "withdrawnAcceptanceBindingRefs": [
+    "AB-001"
+  ],
+  "evidenceRefs": [
+    "B-70a6:REF-ms1prlzh",
+    "B-70a6:REF-ms2ciq7r",
+    "B-META-framework-audit:F-003",
+    "B-70a6:F-013"
+  ],
+  "createdAt": "2026-07-27T00:34:34.434Z",
+  "updatedAt": "2026-07-27T00:37:22.478Z"
+}

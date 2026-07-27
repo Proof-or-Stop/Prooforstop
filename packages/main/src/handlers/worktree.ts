@@ -25,7 +25,11 @@ import { refContainsStoryMetadata } from '../core/safe-init-commit.js';
 // is minted, the phase_transition process-event is appended, and every gate /
 // hook fires — instead of driving a raw XState actor and writing story.phase
 // directly (which bypassed all of that and mislabeled the event 'TEST').
-import { runStoryTransition } from './transition-orchestrator.js';
+import {
+  reconcileReopenAuditBeforeOutOfBandPhaseChange,
+  renderOutOfBandReopenAuditNotice,
+  runStoryTransition,
+} from './transition-orchestrator.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
 
@@ -573,6 +577,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }
   }
 
+  // `git worktree prune --expire now` only drops registry entries whose recorded gitdir
+  // path (`<worktree>/.git`) no longer resolves — the directory merely being present is
+  // NOT the criterion. It therefore CANNOT remove a live sibling worktree: git leaves
+  // every still-resolving registration alone. Note `--expire now` is repo-wide, NOT
+  // story-scoped: one call clears the currently-missing registrations of every story,
+  // not just this one — safe here (a missing registration is already dead), but callers
+  // must not rely on it to touch only their own entry. Caveat on "every missing entry":
+  // a worktree explicitly `git worktree lock`ed is never pruned even when its directory
+  // is gone, so this is not an absolute guarantee that the registry ends up clean.
   function pruneWorktreeRegistry(cwd: string = root): void {
     git('worktree prune --expire now', cwd);
   }
@@ -1170,7 +1183,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
     /** Discard story: callable at any phase, forcibly cleans up worktree and branch */
     story_discard(args: { storyId: string; reason?: string; force?: boolean; purge?: boolean }): string {
-      const story = store.readStory(args.storyId);
+      let story = store.readStory(args.storyId);
 
       if (story.phase === 'DONE') {
         throw new Error(`Story ${args.storyId} is already DONE, cannot discard (revert completed stories via git revert)`);
@@ -1189,6 +1202,57 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const detectedWorktreePath = story.worktree?.path
         ? resolveWorktreePath(story.worktree.path)
         : findWorktreeResidue(args.storyId, branch, undefined, gitRoot) || findWorktreePathByBranch(branch, gitRoot);
+
+      // B-70a6 F-005: story_discard mutates story.phase OUT OF BAND (see the
+      // writeStory below) — it never routes through runStoryTransitionInner, so
+      // the reopen-audit reconciliation that runs there never runs here. Worse,
+      // the steps just below FORCE-DELETE the worktree and branch, i.e. the only
+      // copy that holds a crashed reopen's pendingReopenAudit record (the reopen
+      // is cwd-gated into the worktree, while cli/runtime-root.ts redirects THIS
+      // command's root to the MAIN root), and DISCARDED is terminal, so no later
+      // transition can ever heal it. Rescue the audit event FIRST, into the
+      // surviving store's append-only log, while the doomed copy still exists.
+      //
+      // Ordering is the whole point: this must precede the worktree removal AND
+      // the phase write. It never throws — discarding is legitimate and must not
+      // be blocked by an audit record; problems are surfaced as ⚠ lines instead.
+      //
+      // CONCURRENCY RESIDUAL (B-70a6 F-013): this is a ONE-TIME SCAN taken
+      // WITHOUT the per-story transition lock, so it rescues only a record that
+      // is ALREADY on disk right now. A PLAN->INIT reopen that commits its record
+      // into the worktree AFTER this line still loses it to the removal below,
+      // and dies against the removed copy — neither record nor event survives.
+      //
+      // Deliberately NOT locked here. CORRECTED BY B-70a6 F-014 — the earlier
+      // note gave two wrong reasons and is retracted: it argued about the 15s
+      // fail-fast transition-cas persist claim, which was never the candidate
+      // primitive, and it implied this handler's withReentrantMainWriteLock calls
+      // forbid an acquire. They do not — those calls all come AFTER the rescue and
+      // after the destruction, so an acquire here would be transitionLock ->
+      // mainWriteLock, the established order, not an inversion. The real reasons:
+      // (1) the only candidate mutex, acquireStoryTransitionLock, is documented as
+      // advisory and is disabled outright by
+      // LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, so it could narrow this
+      // window but never close it; (2) story_discard is the RECOVERY COMMAND, and
+      // that lock exposes no fail-fast option — an acquire polls the 180s deadline
+      // and then throws, and a leaked lock whose pid was recycled by an unrelated
+      // live process is classified `active` and never stale-reclaimed at any age,
+      // so this command would hang behind a lock file exactly when a story is
+      // already wedged. A non-blocking try-acquire (the one shape without that
+      // hazard) was considered and declined: it covers only a reopen that has not
+      // yet taken the lock. Full reasoning + the follow-up scope live on
+      // reconcileReopenAuditBeforeOutOfBandPhaseChange.
+      const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({
+        storyId: args.storyId,
+        store,
+        recordRoots: [detectedWorktreePath],
+      });
+      results.push(...renderOutOfBandReopenAuditNotice(args.storyId, reopenAuditRescue, { metadataWillBePurged: args.purge === true }));
+      if (reopenAuditRescue.status !== 'none') {
+        // The rescue may have cleared the record on the surviving index; re-read so
+        // the DISCARDED write below cannot resurrect it from a pre-rescue snapshot.
+        story = store.readStory(args.storyId);
+      }
 
       // Clean up worktree (if it exists). Any cleanup failure fails closed: do not write
       // DISCARDED, do not delete metadata, do not output a fake "cleaned up" success.

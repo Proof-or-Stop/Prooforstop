@@ -370,15 +370,26 @@ for (const path of material) {
     assert.match(dryRun, /\[DRY-RUN\] Stale verification evidence/);
     assert.match(dryRun, /npm test/);
 
+    // B-3b88 CHK-002: a command-backed result:pass is REFUSED by refresh (never
+    // silently re-certified onto changed material. Under the delivered B-1507 +
+    // B-3b88 design the row is not left byte-identical: refresh re-stamps the
+    // freshness hashes but DEMOTES the row to a non-mechanical attestation with an
+    // audit reason, so it can never keep covering an executable intent without a
+    // real re-run. Uses main's refreshStaleEvidenceMetadataOnly helper.
     const result = refreshStaleEvidenceMetadataOnly(smokeCtx, storyId);
-    assert.match(result, /Refreshed 1\/1 stale evidence/);
+    assert.match(result, /Refreshed \d+\/\d+ stale evidence item/);
     const after = buildVerificationCoverage(
       store.readChecklist(storyId),
       head,
       (headHash, evidence) => checkEvidenceFreshnessForGit(root, headHash, evidence?.materialHash).fresh,
     );
-    assert.equal(after.entries[0]?.status, 'covered', 'refresh helper should make stale evidence covered at current head');
-    assert.equal(after.entries[0]?.evidence?.headHash, head);
+    const afterEvidence = after.entries[0]?.evidence;
+    assert.equal(afterEvidence?.mechanical, false,
+      'command-backed pass is demoted to non-mechanical (never silently re-certified)');
+    assert.match(afterEvidence?.nonMechanicalReason ?? '', /receipt invalidated/,
+      'demotion records why the receipt no longer holds');
+    assert.notEqual(after.entries[0]?.status, 'covered',
+      'a demoted command-backed row must not count as covered for an executable intent');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -431,7 +442,6 @@ for (const path of material) {
           note: 'old evidence with rich metadata',
           headHash: base,
           materialHash: baseMaterialHash,
-          command: 'npm test',
           attestation: { kind: 'human', actor: 'smoke-test', result: 'pass' },
           actorTrust: { level: 'verified', source: 'ci' } as any,
           factProvenance: {
@@ -503,7 +513,13 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
         startTime: null,
         endTime: null,
         verificationIntent: {
-          happy: [{ desc: 'direct evidence', type: 'logic', priority: 'must' }],
+          // B-ec67: checklist_update never executes pinned commands, and
+          // carryForwardOnDiskProvenance discards caller-supplied mechanical/receipt
+          // fields by design, so an EXECUTABLE intent (logic|cli|browser) can no longer
+          // receive a passing row through checklist_update at all. This block only
+          // asserts that checklist_update stamps materialHash, which is orthogonal to
+          // proof strength — so the intent is attestation-only (manual).
+          happy: [{ desc: 'direct evidence', type: 'manual', priority: 'must' }],
           edge: [],
           adversarial: [],
         },
@@ -808,7 +824,6 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
             note: 'old evidence pinned to baseSha',
             headHash: baseSha,
             materialHash: baseMaterialHash,
-            command: 'npm test',
           }],
         }],
       };
@@ -1007,7 +1022,6 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
           note: 'evidence captured BEFORE main merge',
           headHash: baseSha,
           materialHash: baseMaterialHash,
-          command: 'npm test',
         }],
       }],
     };
