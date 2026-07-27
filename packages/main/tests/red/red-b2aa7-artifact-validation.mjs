@@ -66,7 +66,7 @@
  *
  *   BLOCK A  CHK-001  RED rows           — MUST FAIL pre-fix
  *   BLOCK B  CHK-010  invariant rows     — MUST PASS pre-fix (and post-fix)
- *   BLOCK C  CHK-009  order independence — added after CHK-004 lands
+ *   BLOCK C  CHK-009  order independence — MUST FAIL pre-fix (added once CHK-004 landed)
  *   BLOCK D  CHK-011  validator fuzz     — added after CHK-004 lands
  *
  * Run:  node packages/main/tests/red/red-b2aa7-artifact-validation.mjs
@@ -179,6 +179,10 @@ function observe(setup) {
 }
 
 function describe(o) {
+  // BLOCK C rows observe a WHOLE FAMILY of permutations rather than one fixture,
+  // so they carry their own one-line summary; a single `threw`/`report` pair
+  // cannot express "these 24 orders disagreed with each other".
+  if (typeof o.summary === 'string') return o.summary;
   if (o.threw) return `THREW ${o.error?.constructor?.name}(${o.error?.name}): ${o.error?.message}`;
   const read = o.readThrew
     ? `read THREW ${o.readError?.constructor?.name}`
@@ -652,10 +656,314 @@ INVARIANT_ROWS.push({
 });
 
 // ════════════════════════════════════════════════════════════════════════════
-// BLOCK C — CHK-009 · order independence.   Added after CHK-004 lands.
+// BLOCK C — CHK-009 · order independence.  PRE-FIX EXPECTATION: **MUST FAIL**
+//
+// Asserts post-fix behaviour, so its rows live in RED_ROWS with BLOCK A's
+// `required` / `preFixDefect` shape — NOT in INVARIANT_ROWS.
+//
+// ── WHAT THIS BLOCK OWNS THAT BLOCK A DOES NOT ──────────────────────────────
+//
+// `redEvidenceSatisfied` calls `Array.prototype.some`, which SHORT-CIRCUITS on
+// the first satisfying record. So whether corruption was NOTICED depended on
+// where in the array it sat (§2.3 finding on row I, acceptance matrix §10.3):
+//
+//   O1  malformed FIRST      → the malformed record is reached → bare TypeError.
+//   O2  satisfying FIRST     → `some()` returns true at index 0 and the
+//                              malformed record is NEVER EXAMINED → the gate
+//                              says SATISFIED over a corrupt artifact, silently.
+//
+// BLOCK A carries O1 (row A5) and O2 (row A13) as INDIVIDUAL rows. Neither
+// states the property that actually failed, which is a RELATION BETWEEN them:
+// the same record set produced two different outcomes purely because of order.
+// A fix could turn both A5 and A13 green and still be order-dependent (e.g. by
+// only ever examining records up to the first satisfier). These rows compare
+// permutations against EACH OTHER, which is the only shape that can catch that.
+//
+// ── OBSERVED PRE-FIX, NOT ASSUMED ───────────────────────────────────────────
+//
+// The fix had already landed on this tree when these rows were written, so O2's
+// old behaviour was re-observed on a rebuilt archive of the pre-fix commit
+// `6d7c20bb4b` (`git archive` → `npm run build` → same harness). Verbatim:
+//
+//   O1 [malformed, satisfying] → gate THREW TypeError(TypeError):
+//                                Cannot read properties of undefined (reading 'trim')
+//   O2 [satisfying, malformed] → no throw; gate codes []; report byte-identical
+//                                to CLEAN; records loaded verbatim, unreported
+//   O1.report === O2.report ? false      O2.report === CLEAN.report ? true
+//
+// and over whole permutation families the split was exactly 2 outcomes:
+// 2-set → 2 distinct, 3-set (6 perms) → 2 distinct, 4-set (24 perms) → 2
+// distinct, partitioned precisely by whether index 0 was malformed. That is the
+// `preFixDefect` signature below, so these rows go RED on that tree and green
+// here — they are not vacuous.
+//
+// ── WHAT IS COMPARED, AND WHAT IS DELIBERATELY NOT ──────────────────────────
+//
+// `index` and the index embedded in `reason` are POSITION-DEPENDENT BY DESIGN:
+// they are an accurate pointer to where the bad entry sits, not part of the
+// verdict, and an artifact validator that reported the same index for every
+// order would be broken. C1 therefore compares a POSITION-FREE observable with
+// those two members stripped — and row C2 separately asserts the index IS
+// present and correct, so stripping it cannot hide a lost pointer.
+// ════════════════════════════════════════════════════════════════════════════
+
+/** Every permutation of `items`, deterministically ordered. */
+function permutations(items) {
+  if (items.length <= 1) return [items.slice()];
+  const out = [];
+  items.forEach((item, i) => {
+    for (const rest of permutations([...items.slice(0, i), ...items.slice(i + 1)])) out.push([item, ...rest]);
+  });
+  return out;
+}
+
+/** Every entry on a quarantine surface — same surface `hasQuarantineSurface` detects. */
+function quarantineEntries(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return [];
+  const out = [];
+  for (const key of Object.keys(value)) {
+    if (V1_ENVELOPE_KEYS.has(key) || !Array.isArray(value[key])) continue;
+    out.push(...value[key]);
+  }
+  return out;
+}
+
+/** Stripped from C1's comparison because they SHOULD track position (see header). */
+const POSITION_DEPENDENT_KEYS = new Set(['index', 'reason']);
+function positionFreeQuarantine(value) {
+  return quarantineEntries(value)
+    .map((entry) => (entry !== null && typeof entry === 'object' && !Array.isArray(entry)
+      ? canon(Object.fromEntries(Object.entries(entry).filter(([key]) => !POSITION_DEPENDENT_KEYS.has(key))))
+      : canon(entry)))
+    .sort();
+}
+
+/**
+ * Everything observable about a store that must NOT depend on the order records
+ * happen to sit in: what the read boundary threw or returned (as a sorted
+ * multiset), what the gate threw, the gate's gap codes, and the FULL diagnostic
+ * report. Two permutations of one record set must produce the same string.
+ */
+function positionFreeObservable(o) {
+  const records = (o.readValue !== null && typeof o.readValue === 'object' && Array.isArray(o.readValue.records))
+    ? o.readValue.records.map(canon).sort()
+    : null;
+  return canon({
+    threw: o.threw,
+    errorCtor: o.threw ? (o.error?.constructor?.name ?? null) : null,
+    errorName: o.threw ? (o.error?.name ?? null) : null,
+    readThrew: o.readThrew,
+    readErrorCtor: o.readThrew ? (o.readError?.constructor?.name ?? null) : null,
+    codes: o.missingRedEvidence,
+    report: o.report,
+    records,
+    quarantined: positionFreeQuarantine(o.readValue),
+  });
+}
+
+/** Four malformed FLAVOURS, so "order independent" is not proven for one shape only. */
+const malformedNull = { ...satisfying, id: 'corrupt-null', observedFailure: null };
+const malformedNumber = { ...satisfying, id: 'corrupt-number', observedFailure: 123 };
+const malformedArray = [];
+
+function recordLabel(record) {
+  if (Array.isArray(record)) return '[]';
+  return (record !== null && typeof record === 'object' && typeof record.id === 'string') ? record.id : String(record);
+}
+
+/**
+ * The corruption is REPORTED at `index`, in a way an operator can act on.
+ * Phrased as a disjunction so the row states the REQUIREMENT (corruption must
+ * not pass unnoticed) rather than one implementation of it: a wholesale typed
+ * rejection naming the artifact is an equally valid way to not stay silent.
+ */
+function reportsMalformedAtIndex(o, index, entry) {
+  if (o.readThrew || o.threw) {
+    const e = o.readThrew ? o.readError : o.error;
+    return !isRawBuiltinError(e) && namesArtifactPath(e?.message);
+  }
+  const hit = quarantineEntries(o.readValue)
+    .find((q) => q !== null && typeof q === 'object' && !Array.isArray(q) && q.index === index);
+  if (!hit) return false;
+  // RETAIN-AND-REPORT: the rejected entry verbatim, its true index named in the
+  // reason, and gone from the clean set the typed domain sees.
+  if (canon(hit.value) !== canon(entry)) return false;
+  if (!String(hit.reason ?? '').includes(`[${index}]`)) return false;
+  const clean = Array.isArray(o.readValue?.records) ? o.readValue.records : [];
+  return !clean.some((record) => canon(record) === canon(entry));
+}
+
+/** The documented pre-fix signature: `some()` short-circuited past it entirely. */
+function passedThroughSilently(o, storedRecords) {
+  return !o.threw && !o.readThrew
+    && Array.isArray(o.missingRedEvidence) && o.missingRedEvidence.length === 0
+    && o.report === CLEAN.report
+    && !hasQuarantineSurface(o.readValue)
+    && canon(o.readValue?.records) === canon(storedRecords);
+}
+
+// ── C1 · the verdict must not depend on position ────────────────────────────
+const ORDER_FAMILIES = [
+  ['{satisfying, id-only} — the exact §10.3 O1/O2 pair', [satisfying, malformed]],
+  ['{satisfying, id-only, observedFailure:123}', [satisfying, malformed, malformedNumber]],
+  ['{satisfying, id-only, ARRAY record}', [satisfying, malformed, malformedArray]],
+  ['{satisfying, id-only, observedFailure:null, ARRAY record}', [satisfying, malformed, malformedNull, malformedArray]],
+];
+
+function observeOrderFamilies() {
+  const families = ORDER_FAMILIES.map(([label, set]) => {
+    const runs = permutations(set).map((perm) => {
+      const o = observe(() => writeEnvelope(perm));
+      return { order: perm.map(recordLabel).join('|'), leadsWithSatisfier: perm[0] === satisfying, o, observable: positionFreeObservable(o) };
+    });
+    return {
+      label, size: set.length, runs,
+      distinct: [...new Set(runs.map((r) => r.observable))],
+      satisfierFirst: runs.filter((r) => r.leadsWithSatisfier),
+      malformedFirst: runs.filter((r) => !r.leadsWithSatisfier),
+    };
+  });
+
+  // NEGATIVE CONTROLS — the comparator must ignore ORDER and nothing else. All
+  // three were verified to hold on BOTH trees, so a control can never quietly
+  // become a RED row of its own.
+  const oneSatisfier = positionFreeObservable(observe(() => writeEnvelope([satisfying])));
+  const withMalformed = positionFreeObservable(observe(() => writeEnvelope([satisfying, malformed])));
+  const otherFlavour = positionFreeObservable(observe(() => writeEnvelope([satisfying, malformedNumber])));
+  const absent = positionFreeObservable(observe(removeArtifact));
+  assert.notEqual(withMalformed, oneSatisfier, 'negative control FAILED: ADDING a malformed record left the position-free observable unchanged, so C1 would hold for any store whatsoever and pins nothing');
+  assert.notEqual(withMalformed, otherFlavour, 'negative control FAILED: SWAPPING one malformed flavour for another left the position-free observable unchanged — it is insensitive to content, not just to order');
+  assert.notEqual(oneSatisfier, absent, 'negative control FAILED: a SATISFIED store and an ABSENT one share one position-free observable, so the comparator collapses everything');
+
+  const total = families.reduce((n, f) => n + f.runs.length, 0);
+  const distincts = families.map((f) => `${f.size}-set:${f.runs.length}perm->${f.distinct.length}`).join(', ');
+  return {
+    families,
+    summary: `${total} permutations over ${families.length} record sets; distinct position-free observables per set: ${distincts}`,
+    proofLine: `families=${families.length}; permutations=${total}; distinctPerFamily=${families.map((f) => f.distinct.length).join(',')}; `
+      + `bareTypeErrors=${families.reduce((n, f) => n + f.runs.filter((r) => r.o.threw && isBareTypeError(r.o.error)).length, 0)}; `
+      + 'negControls(addMalformed/swapFlavour/absent)=discriminated',
+  };
+}
+
+RED_ROWS.push({
+  id: 'C1-verdict-order-independent',
+  block: 'C.1', klass: 'ORDER-DEPENDENCE',
+  label: 'the SAME record set yields the SAME verdict in EVERY permutation (§10.3 rows O1 + O2, compared against each other)',
+  observeRow: observeOrderFamilies,
+  preFixDefectDesc: 'the verdict SPLITS on array position — every family collapses to exactly TWO outcomes, partitioned precisely by whether index 0 is malformed: satisfier-first is SATISFIED with no throw and a report byte-identical to CLEAN, malformed-first escapes a bare TypeError',
+  preFixDefect: (o) => o.families.length > 0 && o.families.every((f) =>
+    f.distinct.length === 2
+    && f.satisfierFirst.length > 0 && f.malformedFirst.length > 0
+    && new Set(f.satisfierFirst.map((r) => r.observable)).size === 1
+    && new Set(f.malformedFirst.map((r) => r.observable)).size === 1
+    && f.satisfierFirst.every((r) => !r.o.threw && !r.o.readThrew
+      && Array.isArray(r.o.missingRedEvidence) && r.o.missingRedEvidence.length === 0
+      && r.o.report === CLEAN.report && !hasQuarantineSurface(r.o.readValue))
+    && f.malformedFirst.every((r) => r.o.threw && isBareTypeError(r.o.error))),
+  requiredDesc: 'every permutation of every family collapses to ONE position-free observable — same read result, same gap codes, same FULL diagnostic report, same quarantined set — and no permutation escapes a bare TypeError',
+  required: (o) => o.families.length > 0 && o.families.every((f) =>
+    f.distinct.length === 1 && f.runs.every((r) => !(r.o.threw && isBareTypeError(r.o.error)))),
+});
+
+// ── C2 · a malformed entry BEHIND a satisfying record is still reported ─────
+// The half `some()` used to swallow whole. Every malformed flavour, at every
+// depth behind 1-3 satisfying records, so no fix can pass by special-casing
+// index 1 or the one shape BLOCK A row A13 happens to use.
+function observeSatisfierPrefixed() {
+  const flavours = [
+    ['{ id: "corrupt" } — versionless', malformed],
+    ['observedFailure: null', malformedNull],
+    ['observedFailure: 123', malformedNumber],
+    ['the record itself is an ARRAY', malformedArray],
+  ];
+  const cases = [];
+  for (const [flavourLabel, entry] of flavours) {
+    for (const depth of [1, 2, 3]) {
+      const stored = [...Array.from({ length: depth }, () => satisfying), entry];
+      const o = observe(() => writeEnvelope(stored));
+      cases.push({
+        label: `${flavourLabel} behind ${depth} satisfying record(s)`,
+        depth, entry, stored, o,
+        reported: reportsMalformedAtIndex(o, depth, entry),
+        silent: passedThroughSilently(o, stored),
+        // Independent of `reported`: the index this run actually attributed the
+        // entry to. Printed so C1's index-stripping cannot hide a lost pointer.
+        attributedIndex: quarantineEntries(o.readValue)
+          .filter((q) => q !== null && typeof q === 'object' && !Array.isArray(q) && canon(q.value) === canon(entry))
+          .map((q) => q.index).join('&'),
+      });
+    }
+  }
+  const reported = cases.filter((c) => c.reported).length;
+  const silent = cases.filter((c) => c.silent).length;
+  const indicesExact = cases.filter((c) => c.attributedIndex === String(c.depth)).length;
+  return {
+    cases,
+    summary: `${cases.length} (flavour × depth) cases with a satisfying record FIRST: ${reported} reported at the true index, ${silent} passed through silently`,
+    proofLine: `cases=${cases.length}; reportedAtTrueIndex=${reported}/${cases.length}; silentPassThrough=${silent}/${cases.length}; `
+      + `flavours=${flavours.length}; depths=1,2,3; attributedIndexExact=${indicesExact}/${cases.length}; `
+      + `attributedIndices=[${cases.map((c) => c.attributedIndex || 'none').join(',')}]`,
+  };
+}
+
+RED_ROWS.push({
+  id: 'C2-malformed-reported-behind-satisfier',
+  block: 'C.2', klass: 'ORDER-DEPENDENCE',
+  label: 'a malformed entry is REPORTED even when satisfying records precede it (§10.3 row O2, every flavour × every depth)',
+  observeRow: observeSatisfierPrefixed,
+  preFixDefectDesc: 'every case passes through SILENTLY: no throw, verdict SATISFIED, report byte-identical to CLEAN, no quarantine surface, and the records array loads byte-identically to the corrupt bytes on disk — `some()` never examined the entry',
+  preFixDefect: (o) => o.cases.length > 0 && o.cases.every((c) => c.silent),
+  requiredDesc: 'every case REPORTS the entry: retained verbatim at its TRUE index with that index named in the reason and removed from the clean record set — or the artifact is rejected wholesale by a typed error naming the path',
+  required: (o) => o.cases.length > 0 && o.cases.every((c) => c.reported),
+});
+
+// ── C3 · detection is EXHAUSTIVE, not first-match ───────────────────────────
+// `some()` stopped at the first satisfier; a fix that merely stopped at the
+// first MALFORMED entry instead would still be position-sensitive. Three
+// malformed entries behind one satisfier: all three must be accounted for.
+function observeExhaustiveDetection() {
+  const malformedSet = [malformed, malformedNull, malformedArray];
+  const orders = [
+    ['satisfier FIRST (pre-fix: `some()` stopped at index 0)', [satisfying, ...malformedSet], 1],
+    ['malformed FIRST (pre-fix: crashed on index 0)', [...malformedSet, satisfying], 0],
+  ];
+  const runs = orders.map(([label, stored, firstMalformedIndex]) => {
+    const o = observe(() => writeEnvelope(stored));
+    const reported = malformedSet.filter((entry, i) => reportsMalformedAtIndex(o, firstMalformedIndex + i, entry)).length;
+    const wholesale = (o.readThrew && !isRawBuiltinError(o.readError)) || (o.threw && !isRawBuiltinError(o.error));
+    return { label, stored, o, reported, wholesale, observable: positionFreeObservable(o) };
+  });
+  const [satisfierFirst, malformedFirst] = runs;
+  return {
+    runs, satisfierFirst, malformedFirst, expected: malformedSet.length,
+    agree: satisfierFirst.observable === malformedFirst.observable,
+    summary: `3 malformed entries + 1 satisfier: satisfier-first reported ${satisfierFirst.reported}/3, malformed-first reported ${malformedFirst.reported}/3, observables agree=${satisfierFirst.observable === malformedFirst.observable}`,
+    proofLine: `expected=3; satisfierFirstReported=${satisfierFirst.reported}; malformedFirstReported=${malformedFirst.reported}; `
+      + `ordersAgree=${satisfierFirst.observable === malformedFirst.observable}; `
+      + `satisfierFirstThrew=${satisfierFirst.o.threw}; malformedFirstThrew=${malformedFirst.o.threw}`,
+  };
+}
+
+RED_ROWS.push({
+  id: 'C3-detection-exhaustive-not-first-match',
+  block: 'C.3', klass: 'ORDER-DEPENDENCE',
+  label: 'detection examines EVERY entry, not just up to the first match — 3 malformed entries behind a satisfying record are all accounted for',
+  observeRow: observeExhaustiveDetection,
+  preFixDefectDesc: 'the number of corruptions DETECTED depends on position: satisfier-first detects 0 of 3 with no throw and verdict SATISFIED, while malformed-first escapes a bare TypeError, so the two orders disagree',
+  preFixDefect: (o) =>
+    o.satisfierFirst.reported === 0
+    && passedThroughSilently(o.satisfierFirst.o, o.satisfierFirst.stored)
+    && o.malformedFirst.o.threw && isBareTypeError(o.malformedFirst.o.error)
+    && !o.agree,
+  requiredDesc: 'BOTH orders account for all 3 — each entry reported at its true index, or the artifact rejected wholesale by a typed error — and the two orders share ONE position-free observable',
+  required: (o) => o.agree && o.runs.every((r) => r.wholesale || r.reported === o.expected),
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // BLOCK D — CHK-011 · validator totality fuzz over arbitrary acyclic JSON.
 //
-// Both assert post-fix behaviour, so their rows belong in RED_ROWS (same
+// Asserts post-fix behaviour, so its rows belong in RED_ROWS (same
 // `required` / `preFixDefect` shape) — NOT in INVARIANT_ROWS.
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -670,7 +978,10 @@ for (const row of INVARIANT_ROWS) {
 const red = [];
 const green = [];
 for (const row of RED_ROWS) {
-  const o = observe(row.setup);
+  // BLOCK A rows observe ONE fixture. BLOCK C rows observe a FAMILY of
+  // permutations and compare them against each other, which no single
+  // observation can express, so they supply their own observer.
+  const o = row.observeRow ? row.observeRow() : observe(row.setup);
   const met = row.required(o);
   const defect = row.preFixDefect(o);
 
@@ -695,20 +1006,22 @@ for (const row of RED_ROWS) {
   }
 }
 
-console.log('\nred-b2aa7-artifact-validation — BLOCK A (CHK-001), pre-fix expectation: MUST FAIL\n');
+console.log('\nred-b2aa7-artifact-validation — BLOCK A (CHK-001), pre-fix expectation: MUST FAIL  ·  BLOCK C (CHK-009): same expectation\n');
 for (const { row, o } of red) {
   console.log(`  [RED ] ${row.id} (${row.block} ${row.klass}) ${row.label}`);
   console.log(`         witness  : ${row.preFixDefectDesc}`);
   console.log(`         observed : ${describe(o)}`);
   console.log(`         required : ${row.requiredDesc}`);
+  if (o.proofLine) console.log(`         proof ${row.id.split('-')[0]}: ${o.proofLine}`);
 }
-for (const { row } of green) {
+for (const { row, o } of green) {
   // A GREEN row while other rows are still RED is either a partial fix or a
   // VACUOUS row — one added for a defect that was already closed, which proves
   // nothing. Name it so a reader can tell the two apart instead of reading a
   // shrinking RED count as progress.
   const suffix = red.length > 0 ? '  ← already satisfied while BLOCK A is still RED: confirm this row is not vacuous' : '';
   console.log(`  [GREEN] ${row.id} (${row.block} ${row.klass}) ${row.label}${suffix}`);
+  if (o.proofLine) console.log(`         proof ${row.id.split('-')[0]}: ${o.proofLine}`);
 }
 
 const byClass = {};
