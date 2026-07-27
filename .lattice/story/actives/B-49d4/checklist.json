@@ -127,7 +127,11 @@
           {
             "desc": "Every member of both declared populations is either registered or excluded; nothing is undecided and nothing falls between the two populations.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+              "selector": "BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN"
+            }
           }
         ],
         "edge": [
@@ -154,7 +158,29 @@
           "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
           "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "result": "pass",
+          "note": "Two guards with DISJOINT declared populations. Population 1 (packages/main/dist/tasks/red-evidence-*) is decided by the REAL lattice.config.json: 3 on disk = 3 registered + 0 excluded, 0 undecided. Population 2 (packages/main/tests/red/*, TOTAL enumeration) is decided over all 35 members = 33 registered + 2 excluded, 0 undecided, measured against a config COPY because CHK-003 owns lattice.config.json and this receipt never writes to it (sha256 re-checked). Each guard reported population size is cross-checked against an independent disk enumeration, so neither reports the size of its own expectation. Nothing falls between: the two directories are distinct and neither nests in the other, and BOTH guard files are members of population 2 - guard 2 governs guard 1 and governs itself.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0e2a036b2c07b953ae230ee66d40829c396083840258c7d1a4ba8ad0c020c710",
+            "outputTail": "BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN (two guards with DISJOINT declared populations: packages/main/dist/tasks/red-evidence-* — 3 members on disk, 3 registered + 0 excluded, 0 undecided, basis=REAL lattice.config.json — and packages/main/tests/red/* — 35 members on disk, 33 registered + 2 excluded, 0 undecided, basis=a config COPY carrying the registration CHK-003 owns; the real lattice.config.json is byte-unmodified here. Each guard's reported population size was cross-checked against an independent disk enumeration, so neither is reporting the size of its own expectation. The union covers every member: the two directories are distinct and neither nests in the other, and BOTH guard files are themselves members of the second population — guard 2 governs guard 1 and governs itself)\nTOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness carries no red- prefix — the narrowing /^red-b2aa7-.*\\.mjs$/ that the reference guard uses would miss it, and so would /^red-.*\\.mjs$/ or any other name pattern — and it is not even a .mjs, so an extension filter would miss it too. Its only qualifying property is being an entry of packages/main/tests/red, which is exactly what a TOTAL enumeration sees: planting it flipped the real shipped guard from exit 0 to exit 1 naming it, and removing it flipped the guard back to exit 0, so the failure is attributable to the newcomer alone)\nBITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION (guard 1: an unregistered, unexcluded member planted in packages/main/dist/tasks made it exit 1 naming the file, and de-registering packages/main/dist/tasks/red-evidence-chain-smoke.js from a config COPY made it exit 1 naming it. Guard 2: an undecided newcomer made it exit 1, and de-registering packages/main/tests/red/red-b2aa7-artifact-validation.mjs made it exit 1 naming it. NO SELF-EXCEPTION, measured rather than argued: removing guard 2's own registration made guard 2 fail naming ITSELF, and removing guard 1's made guard 2 fail naming guard 1 — so the two files that enforce registration are themselves registered subjects of it. Every mutation lived on a copy: the real lattice.config.json is byte-identical (sha256 96fe2ce743cf1a73… before and after) and every planted probe was removed)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T17:47:05.980Z"
+          },
+          "headHash": "a20480c71ba295144c18b5ef518ce74085cbe1c0",
+          "materialHash": "2e4a1e14fbbc9a97d4ed5d12802aa53fae518a3440c2b608567eea15d121e698",
+          "storyFilesHash": "6b3212ad860b369a603dd2a6181d0b3440cfd9cc7f29ae2ab2869c52e4603e3e",
+          "timestamp": "2026-07-27T17:47:06.792Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
