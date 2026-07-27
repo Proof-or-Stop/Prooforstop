@@ -932,6 +932,35 @@ function expectedRedTargets(input: ProofStoryDiagnosticInput): Set<string> {
   return resolveExpectedRedTargets(input);
 }
 
+/**
+ * B-2aa7 CHK-005 (decision D-2): the `'v1'` class returned by
+ * `classifyRedRecordSchemaSafe` is RESIDUAL, not validated — it is returned for
+ * ANY object that merely lacks a `schemaVersion` member, INCLUDING an array
+ * (`typeof [] === 'object'`). So "classified v1" does NOT imply "shaped v1", and
+ * the only per-record field the predicate dereferences rather than merely reads
+ * (`observedFailure.trim()`) can still be `undefined` / `null` / a number.
+ *
+ * This guard exists so the LIVE enforce gate returns a verdict instead of
+ * aborting with a bare `TypeError`, even when a malformed record is injected
+ * DIRECTLY into the diagnostic input and never passes the read boundary. It is
+ * defense-in-depth ONLY: full v1 validation, quarantine and reporting of the
+ * corruption belong to `store.readRedEvidence` (audit §6.2 recommendation —
+ * B/C primary, A retained), which is also where the stricter own-property rule
+ * lives. Here the bar is deliberately narrower: TOTALITY, not validity.
+ *
+ * Deliberately NOT widened past `observedFailure`: the audit's repo-wide sweep
+ * (§2.1) established that every other mandatory-field check in the predicate is
+ * a truthiness test or a short-circuited property read and is therefore already
+ * total on arbitrary input. A blank `observedFailure` (`""` / `"   "`) stays a
+ * shaped v1 record and keeps flowing to the ordinary non-satisfier branch below,
+ * because it is legacy-tolerated input (§8.4 / D-5), not malformed — routing it
+ * here would change scenario 3 of the invariance harness.
+ */
+function isShapedLegacyV1Record(record: unknown): boolean {
+  if (typeof record !== 'object' || record === null || Array.isArray(record)) return false;
+  return typeof (record as { observedFailure?: unknown }).observedFailure === 'string';
+}
+
 function redEvidenceRecordSatisfied(
   record: RedEvidenceRecord | RedEvidenceRecordV2,
   expectedTargets: Set<string>,
@@ -947,6 +976,9 @@ function redEvidenceRecordSatisfied(
   // this predicate is defense-in-depth so the gate can never crash on one.)
   if (isRedEvidenceV2(record)) return false;
   if (classifyRedRecordSchemaSafe(record) !== 'v1') return false;
+  // B-2aa7 CHK-005: 'v1' above is a RESIDUAL class, so shape it before the one
+  // dereference in this predicate (see isShapedLegacyV1Record).
+  if (!isShapedLegacyV1Record(record)) return false;
   if (record.observedFailure.trim().length === 0) return false;
   if (!record.failingCommand && !record.failureReceiptHash) return false;
   if (!record.acceptanceTargetRef || !expectedTargets.has(record.acceptanceTargetRef)) return false;
