@@ -18,6 +18,25 @@
       ],
       "signatureTag": "adversarial|mjs|packages-main-tests",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-49d4:F-002",
+      "desc": "The registered-or-excluded-with-a-stated-reason exclusion concept now exists in THREE independently authored, near-duplicate implementations: red-w2c-validate-registration.mjs (REGISTRATION_EXCLUSIONS, empty map, MIN_EXCLUSION_REASON_CHARS=40), red-b2aa7-chk007-receipt.mjs:389-397 (REGISTRATION_EXCLUSIONS, 2 entries: red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs, MIN=40, population narrowed by RECEIPT_NAME_RE=/^red-b2aa7-.*\\.mjs$/ at line 370), and red-b49d4-harness-registration.mjs:100-124 (REGISTRATION_EXCLUSIONS, 3 entries incl. the SAME two b2aa7 files plus red-b49d4-chk001-receipt.mjs, MIN=40, total population). chk007's population (red-b2aa7-*) is now a strict subset of harness-registration's total population, so the SAME two exclusion decisions (chk001/chk010) are recorded via independently-worded prose reasons in two files with no shared source of truth and no mechanical cross-check that the two maps agree (only each guard's own internal registered/excluded/undecided/wronglyRegistered classification is checked in isolation). If a future edit adds, removes, or renames an exclusion entry in one map without mirroring it in the other, the two guards will disagree about that file's registration status (one PASS, one FAIL) and nothing states which is authoritative for the red-b2aa7-* subset now that harness-registration.mjs subsumes it -- chk007 has become a live, separately-maintained duplicate rather than a documented-redundant or retired check.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-27T18:33:27.489Z",
+      "reviewRound": "2026-07-27T18:23:36.999Z",
+      "reviewRunId": "B-49d4:RR-004",
+      "_hash": "97e3e4e76c57bad2dbf222f779a9e9ac6887344b8c3372c86be20d68ae8f4b0d",
+      "files": [
+        "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+      ],
+      "signatureTag": "missing|mjs|registered-excluded-stated",
+      "signatureTagSource": "auto"
     }
   ]
 }
