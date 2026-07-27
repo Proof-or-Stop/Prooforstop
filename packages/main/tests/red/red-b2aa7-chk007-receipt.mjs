@@ -34,19 +34,46 @@
  *                  non-vacuous by re-running the same detector over two mutated
  *                  in-memory copies (a re-pin and an edit that leaves the pin
  *                  alone), each of which it must flag.
- *   4.             VALIDATE_REGISTRATION_COMPLETE — every permanent regression
- *                  check of this story is registered in `lattice.config.json`
- *                  `validate.commands`, proven non-vacuous per entry.
+ *   4.             VALIDATE_REGISTRATION_COMPLETE — EVERY `red-b2aa7-*.mjs` in
+ *                  this directory is accounted for: either registered in
+ *                  `lattice.config.json` `validate.commands`, or carrying a
+ *                  stated exclusion reason below. The population is ENUMERATED
+ *                  FROM DISK, so a receipt added without a decision fails this
+ *                  check. Proven non-vacuous per entry and against a newcomer.
  *   5.             VACUOUS_PREFIX_RECEIPTS_EXCLUDED — see below.
+ *
+ * ── WHY CHECK 4 DERIVES ITS EXPECTATION INSTEAD OF LISTING IT ───────────────
+ *
+ * This check used to compare the config against a hardcoded
+ * `REQUIRED_VALIDATE_COMMANDS` array — a SNAPSHOT of the registration decision
+ * rather than the decision's PRINCIPLE. It therefore caught the removal of a
+ * listed command and caught the re-adding of an excluded one, but was
+ * structurally blind to the case that actually occurred: a NEW meaningful
+ * receipt (`red-b2aa7-f005-receipt.mjs`, added by CL-003) that nobody put in
+ * either list. It was absent from the required array, so nothing was "missing";
+ * it was absent from the exclusion array, so nothing was "wrongly registered".
+ * `lattice validate` never ran it and this guard reported complete coverage.
+ *
+ * That is the same defect class this story exists to remove — a check bound to
+ * a fixed enumeration instead of the property it is meant to guarantee (compare
+ * §4.0 of the audit: counting `readRedEvidence` call sites was the wrong
+ * instrument; enumerating what can REACH the read boundary was the right one).
+ *
+ * So the population is now read from the filesystem and every member must be
+ * CLASSIFIED. Adding a receipt without deciding its registration is no longer
+ * silently tolerated: it lands in `undecided` and this check FAILS. This file
+ * is itself part of that population and is deliberately given no self-exception,
+ * since a carve-out is exactly the hardcoded exemption being removed.
  *
  * ── WHY TWO RECEIPTS ARE DELIBERATELY *NOT* REGISTERED ──────────────────────
  *
- * `red-b2aa7-chk001-receipt.mjs` and `red-b2aa7-chk010-receipt.mjs` certify
- * PRE-FIX observations, so both gate every marker on BLOCK A of
- * `red-b2aa7-artifact-validation.mjs` still being RED (chk001: `run.status !== 0`
- * plus `redCount === total`; chk010: the same, via its `preFixTree` gate). On the
- * finished tree BLOCK A is green, so both print NOTHING and exit 0 — measured,
- * not assumed: 0 bytes on stdout and on stderr, exit 0.
+ * The exclusion list is data, and each entry must state WHY. `red-b2aa7-chk001-
+ * receipt.mjs` and `red-b2aa7-chk010-receipt.mjs` certify PRE-FIX observations,
+ * so both gate every marker on BLOCK A of `red-b2aa7-artifact-validation.mjs`
+ * still being RED (chk001: `run.status !== 0` plus `redCount === total`; chk010:
+ * the same, via its `preFixTree` gate). On the finished tree BLOCK A is green, so
+ * both print NOTHING and exit 0 — measured, not assumed: 0 bytes on stdout and on
+ * stderr, exit 0.
  *
  * Registering them would add two `lattice validate` commands that pass forever
  * while asserting nothing: a vacuous check masquerading as coverage, which is
@@ -58,7 +85,7 @@
  * Run from the repository root:
  *   node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -338,35 +365,60 @@ if (pinIntact) {
 //        receipts that are vacuous on the finished tree.
 // ════════════════════════════════════════════════════════════════════════════
 
-/**
- * The story's permanent regression checks. `red-b2aa7-artifact-validation.mjs`
- * is the 20-row regression and `red-b2aa7-migration-scan.mjs` is decision D-7,
- * whose obligation is that the scan is RE-RUN at merge time — `lattice validate`
- * is what actually runs then, so leaving it to a remembered manual run is the
- * "relies on someone remembering" failure mode this story exists to remove.
- *
- * This receipt is itself registered in validate.commands (it is the only check
- * here that fails closed) but is deliberately NOT in this list: the list is the
- * set CHK-007 was asked to guarantee, and keeping this file out of it lets the
- * registration of this file be reconsidered by editing the config alone.
- */
-const REQUIRED_VALIDATE_COMMANDS = [
-  'packages/main/tests/red/red-b2aa7-artifact-validation.mjs',
-  'packages/main/tests/red/red-b2aa7-migration-scan.mjs',
-  'packages/main/tests/red/red-b2aa7-chk004-receipt.mjs',
-  'packages/main/tests/red/red-b2aa7-chk005-receipt.mjs',
-  'packages/main/tests/red/red-b2aa7-chk006-receipt.mjs',
-  'packages/main/tests/red/red-b2aa7-chk009-receipt.mjs',
-  'packages/main/tests/red/red-b2aa7-chk011-receipt.mjs',
-  'packages/main/tests/red/red-b2aa7-doc-receipt.mjs',
-  'packages/main/tests/red/red-b2aa7-baseline-receipt.mjs',
-];
+const RECEIPT_DIR_REL = 'packages/main/tests/red';
+/** The population this rule governs: every receipt this story added. */
+const RECEIPT_NAME_RE = /^red-b2aa7-.*\.mjs$/;
 
-/** Receipts that certify PRE-FIX observations and are therefore silent here. */
-const EXCLUDED_VACUOUS_RECEIPTS = [
-  'packages/main/tests/red/red-b2aa7-chk001-receipt.mjs',
-  'packages/main/tests/red/red-b2aa7-chk010-receipt.mjs',
-];
+/**
+ * THE RULE, stated once: every `red-b2aa7-*.mjs` on disk must be EITHER
+ * registered in `lattice.config.json` `validate.commands` OR listed here with a
+ * reason. Nothing may be silently neither.
+ *
+ * The registered side is not enumerated in this file at all — it is whatever the
+ * config says — so a receipt cannot be covered by an entry here going stale, and
+ * a NEW receipt is `undecided` until somebody decides. Registration therefore
+ * remains reconsiderable by editing the config alone (moving a file between the
+ * registered and excluded sides is a deliberate two-place edit, which is the
+ * point: it is a decision, and it now has to be recorded as one).
+ *
+ * `red-b2aa7-artifact-validation.mjs` is the 20-row regression and
+ * `red-b2aa7-migration-scan.mjs` is decision D-7, whose obligation is that the
+ * scan is RE-RUN at merge time — `lattice validate` is what actually runs then,
+ * so leaving either to a remembered manual run is the "relies on someone
+ * remembering" failure mode this story exists to remove.
+ */
+const REGISTRATION_EXCLUSIONS = new Map([
+  [`${RECEIPT_DIR_REL}/red-b2aa7-chk001-receipt.mjs`,
+    'PRE-FIX attestation. Every marker is gated on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED '
+    + '(run.status !== 0 plus redCount === total), so on the finished tree it prints nothing and exits 0. '
+    + 'Registering it would add a validate command that passes forever while asserting nothing.'],
+  [`${RECEIPT_DIR_REL}/red-b2aa7-chk010-receipt.mjs`,
+    'PRE-FIX attestation. Same BLOCK A gate, applied through its own preFixTree guard, so it is likewise silent '
+    + 'and exits 0 on the finished tree. Registering it would add a second vacuous validate command.'],
+]);
+
+/** A reason must actually be a reason; an empty string is not a decision. */
+const MIN_EXCLUSION_REASON_CHARS = 40;
+
+/** Enumerate the population from DISK, so a new receipt joins it automatically. */
+function discoverReceipts() {
+  return readdirSync(here)
+    .filter((name) => RECEIPT_NAME_RE.test(name))
+    .sort()
+    .map((name) => `${RECEIPT_DIR_REL}/${name}`);
+}
+
+/**
+ * THE CLASSIFIER (run over the real population AND over mutated ones below, so
+ * a clean bill of health cannot be vacuous).
+ */
+function classifyReceipts(population, registeredSet, exclusions) {
+  return {
+    registered: population.filter((s) => registeredSet.has(s)),
+    excluded: population.filter((s) => !registeredSet.has(s) && exclusions.has(s)),
+    undecided: population.filter((s) => !registeredSet.has(s) && !exclusions.has(s)),
+  };
+}
 
 function entryArgv(entry) {
   if (typeof entry === 'string') return entry.trim().split(/\s+/);
@@ -380,28 +432,56 @@ function registeredTokens(config) {
   }
   return tokens;
 }
-const missingRegistrations = (config, required) => {
-  const tokens = registeredTokens(config);
-  return required.filter((script) => !tokens.has(script));
-};
-
 const configRaw = readFileSync(CONFIG_PATH, 'utf8');
 const config = JSON.parse(configRaw);
 
-const missing = missingRegistrations(config, REQUIRED_VALIDATE_COMMANDS);
-if (missing.length > 0) {
-  fail('registration', `these permanent regression checks are NOT in lattice.config.json validate.commands, so \`lattice validate\` would not run them: ${missing.join(', ')}`);
+const population = discoverReceipts();
+const realTokens = registeredTokens(config);
+const real = classifyReceipts(population, realTokens, REGISTRATION_EXCLUSIONS);
+
+// (a) THE RULE. A receipt that is neither registered nor explicitly excluded is
+//     coverage nobody decided on — the F-007 defect, now fatal instead of silent.
+if (real.undecided.length > 0) {
+  fail('registration',
+    `these red-b2aa7 receipts are NEITHER registered in lattice.config.json validate.commands NOR listed in `
+    + `REGISTRATION_EXCLUSIONS with a reason, so \`lattice validate\` never runs them and nobody decided that it should not: `
+    + `${real.undecided.join(', ')}. Register the receipt, or exclude it here and say why.`);
 }
 
-// NON-VACUITY: strip each REGISTERED entry from an in-memory copy and prove the
-// SAME detector names it. Entries that are already missing are reported above;
-// re-reporting them here as "undetected" would be noise, not a second defect.
+// (b) The exclusion list must describe the tree it is on: no entry for a file
+//     that no longer exists (a stale exclusion silently widens the carve-out),
+//     and every entry must carry a real reason.
+const staleExclusions = [...REGISTRATION_EXCLUSIONS.keys()].filter((s) => !population.includes(s));
+if (staleExclusions.length > 0) {
+  fail('registration', `REGISTRATION_EXCLUSIONS names files that do not exist, so the carve-out is stale: ${staleExclusions.join(', ')}`);
+}
+const unreasoned = [...REGISTRATION_EXCLUSIONS.entries()]
+  .filter(([, reason]) => typeof reason !== 'string' || reason.trim().length < MIN_EXCLUSION_REASON_CHARS)
+  .map(([script]) => script);
+if (unreasoned.length > 0) {
+  fail('registration', `these exclusions do not state a reason of at least ${MIN_EXCLUSION_REASON_CHARS} characters: ${unreasoned.join(', ')}`);
+}
+
+// NON-VACUITY 1 — the population is real and the discovery predicate would pick
+// up a newcomer: a synthetic receipt name that exists in neither list must be
+// classified `undecided` by the SAME classifier, not quietly absorbed.
+const SYNTHETIC = `${RECEIPT_DIR_REL}/red-b2aa7-synthetic-newcomer-receipt.mjs`;
+const newcomerDetected =
+  population.length > 0
+  && RECEIPT_NAME_RE.test('red-b2aa7-synthetic-newcomer-receipt.mjs')
+  && classifyReceipts([...population, SYNTHETIC], realTokens, REGISTRATION_EXCLUSIONS).undecided.includes(SYNTHETIC);
+if (!newcomerDetected) {
+  fail('registration', 'the classifier did not place an unregistered, unexcluded newcomer in `undecided`, so it cannot detect the case it exists for');
+}
+
+// NON-VACUITY 2 — per registered entry: strip it from an in-memory copy of the
+// REAL config and prove the SAME classifier moves it to `undecided`.
 const undetected = [];
-for (const script of REQUIRED_VALIDATE_COMMANDS.filter((s) => !missing.includes(s))) {
+for (const script of real.registered) {
   const mutated = JSON.parse(configRaw);
   mutated.validate.commands = mutated.validate.commands.filter((entry) => !entryArgv(entry).includes(script));
   if (mutated.validate.commands.length === config.validate.commands.length
-    || !missingRegistrations(mutated, REQUIRED_VALIDATE_COMMANDS).includes(script)) {
+    || !classifyReceipts(population, registeredTokens(mutated), REGISTRATION_EXCLUSIONS).undecided.includes(script)) {
     undetected.push(script);
   }
 }
@@ -409,17 +489,22 @@ if (undetected.length > 0) {
   fail('registration', `de-registering these would NOT be detected by this check, so the check is vacuous for them: ${undetected.join(', ')}`);
 }
 
-if (missing.length === 0 && undetected.length === 0) {
+const registrationDecided =
+  real.undecided.length === 0 && staleExclusions.length === 0 && unreasoned.length === 0
+  && newcomerDetected && undetected.length === 0;
+
+if (registrationDecided) {
   console.log(
-    `VALIDATE_REGISTRATION_COMPLETE (all ${REQUIRED_VALIDATE_COMMANDS.length} permanent B-2aa7 regression checks are registered in `
-    + 'lattice.config.json validate.commands, including the D-7 migration scan that must be re-run at merge time; '
-    + 'stripping ANY one of them is detected by this check — proven non-vacuous per entry)',
+    `VALIDATE_REGISTRATION_COMPLETE (all ${population.length} red-b2aa7-*.mjs receipts found ON DISK are accounted for: `
+    + `${real.registered.length} registered in lattice.config.json validate.commands — including this file, the D-7 migration scan `
+    + `that must be re-run at merge time, and the F-005 decoupling receipt — and ${real.excluded.length} excluded with a stated reason. `
+    + 'The expectation is DERIVED from the directory, not a hardcoded list, so a receipt added without a registration decision FAILS '
+    + 'this check; proven non-vacuous per registered entry and against a synthetic newcomer)',
   );
 }
 
 // The exclusion, enforced rather than merely documented.
-const tokens = registeredTokens(config);
-const wronglyRegistered = EXCLUDED_VACUOUS_RECEIPTS.filter((script) => tokens.has(script));
+const wronglyRegistered = [...REGISTRATION_EXCLUSIONS.keys()].filter((script) => realTokens.has(script));
 if (wronglyRegistered.length > 0) {
   fail('exclusion',
     `${wronglyRegistered.join(', ')} must NOT be registered in validate.commands: each gates every marker on BLOCK A of `
@@ -428,7 +513,7 @@ if (wronglyRegistered.length > 0) {
 }
 
 const noisy = [];
-for (const script of EXCLUDED_VACUOUS_RECEIPTS) {
+for (const script of REGISTRATION_EXCLUSIONS.keys()) {
   const run = spawnSync(process.execPath, [join(repoRoot, script)], { cwd: repoRoot, encoding: 'utf8' });
   const stdout = (run.stdout ?? '').trim();
   const stderr = (run.stderr ?? '').trim();
@@ -444,7 +529,7 @@ if (noisy.length > 0) {
 
 if (wronglyRegistered.length === 0 && noisy.length === 0) {
   console.log(
-    `VACUOUS_PREFIX_RECEIPTS_EXCLUDED (${EXCLUDED_VACUOUS_RECEIPTS.length} pre-fix receipts verified SILENT — 0 bytes on stdout and stderr, exit 0 — `
+    `VACUOUS_PREFIX_RECEIPTS_EXCLUDED (${REGISTRATION_EXCLUSIONS.size} pre-fix receipts verified SILENT — 0 bytes on stdout and stderr, exit 0 — `
     + 'on the finished tree, because every marker in them is gated on BLOCK A of red-b2aa7-artifact-validation.mjs being RED; '
     + 'they are therefore deliberately absent from validate.commands, and this check fails if either is registered or stops being silent)',
   );
