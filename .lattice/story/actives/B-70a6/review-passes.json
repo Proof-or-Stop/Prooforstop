@@ -1,0 +1,283 @@
+{
+  "passes": [
+    {
+      "id": "B-70a6:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. All 3 items are additive (optional transitionType/reason fields on phase_transition, gated on eventType===REOPEN so normal-transition shape is byte-identical, verified against flow-stability-smoke deepEqual test) or comment-only corrections. Grepped land-together-or-not-at-all (0 hits in code) and confirmed live-sibling comment landed in worktree.ts. No stale references, no promised-but-undelivered CLAUDE.md/README/schema claims.",
+      "createdAt": "2026-07-26T01:50:32.437Z",
+      "reviewRound": "2026-07-26T01:46:45.517Z",
+      "reviewRunId": "B-70a6:RR-001",
+      "envelopeId": "cac10cb17a1f199c10b925af200d6ac3c60716e56aee27a46e3f5e922a082445",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/index.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2755f5b1395206f7cf58543604b302180ecbc13c35fec582658722736c7f7bfc"
+    },
+    {
+      "id": "B-70a6:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2: re-verified concept-residue conclusion over the single file changed since RP-001 (plan-init-reopen-roundtrip-smoke.ts, commit 0f2b9333). Change removed 4 unnecessary (e as any) casts on fromPhase/toPhase/transitionType access and re-recorded a verificationEvidence command string (metadata only). Confirmed zero as any remain in the file; confirmed no rename/deletion of any concept (transitionType/reason/fromPhase/toPhase fields already exist untouched on the ProcessEvent index-signature type used identically by sibling smoke files transition-integrity-smoke.ts, done-prepare-*-smoke.ts, flow-stability-smoke.ts, so the cast removal is a safe no-op, not a residue risk). No deleted-symbol dangling reference found. No blocker.",
+      "createdAt": "2026-07-26T02:31:37.408Z",
+      "reviewRound": "2026-07-26T02:28:17.084Z",
+      "reviewRunId": "B-70a6:RR-006",
+      "envelopeId": "767897331041496fa86ab0336e6ab06b0023f8a6d0f2a96f0af842649b272eca",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/findings.json",
+          ".lattice/story/actives/B-70a6/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1ae27dd6878a4d9a79fa59fa66dc0363de7c5dc0b5d54a9bb256a8206b61ac8a"
+    },
+    {
+      "id": "B-70a6:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2: verified both round-1 fixes land correctly and introduce no new quality issue. F-002 (as any casts in plan-init-reopen-roundtrip-smoke.ts): grep confirms zero as any remain in the file; ProcessEvent has [key: string]: unknown index signature so property access (transitionType/reason/fromPhase/toPhase) typechecks as unknown without casts, and assert.equal/assert.ok/hasOwnProperty.call all accept unknown natively -- npm --prefix packages/main run build exits 0 confirms this on the real tree. Assertions are semantically identical to the pre-fix version (same predicates, same messages), just without the cast. F-001 (verificationEvidence command using bare | alternation): re-ran the recorded grep -Fn command verbatim in this worktree, got exit 0 and exactly the four claimed lines (859/935/937/940) matching the recorded output. Also ran both smokes directly (node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js and flow-stability-smoke.js), both exit 0. No new dead code, no new any-casts, no empty catches, no console/debugger statements in the added lines (git diff main...HEAD on the 3 touched files). worktree.ts change is comment-only (pruneWorktreeRegistry), no code touched. No new quality findings this round.",
+      "createdAt": "2026-07-26T02:35:34.462Z",
+      "reviewRound": "2026-07-26T02:28:17.084Z",
+      "reviewRunId": "B-70a6:RR-004",
+      "envelopeId": "333977fdb5b07753d588e90a9a36690b515f28d85745d1fec113fc0bfa6cb990",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/findings.json",
+          ".lattice/story/actives/B-70a6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c4acbe815e2f0ee7fdfe52d77b8d620753fd0730b9b9a52abc2d9cf845e3c87"
+    },
+    {
+      "id": "B-70a6:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2: verified F-001 fix (re-recorded CHK-002:happy:0 grep -Fn command) reproduces verbatim, exit 0, exact 4 claimed lines. Confirmed exactly one evidence entry per intent (no duplicate left by re-record, grep -c=1). Re-audited all 9 must-intents: all still concrete, non-tautological, evidence commands independently re-run and match claims. Verified F-002 as-any cast removal (plan-init-reopen-roundtrip-smoke.ts) is a semantics-preserving cleanup: ProcessEvent index signature already types as unknown so plain property access type-checks under strict tsc; diff touches only cast expressions, no assertion values changed. Ran npm --prefix packages/main run build (clean), node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js (both success lines, exit 0), node packages/main/dist/tasks/flow-stability-smoke.js (pass, exit 0), and npm run test:process-fact-contract (verified) myself. No blocker.",
+      "createdAt": "2026-07-26T02:39:29.805Z",
+      "reviewRound": "2026-07-26T02:28:17.084Z",
+      "reviewRunId": "B-70a6:RR-005",
+      "envelopeId": "bf8a93dc49660639829f98740c1a52d8435374d9efe474b2e30debcf83087bd8",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "94475d1e5603bfda8879bf1d78d6f6c4bae1d639bf048e23a59fe8cba000bab7"
+    },
+    {
+      "id": "B-70a6:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality re-audit of F-003 fix (commit b964aa7619). Scope: process-fact-registry.ts rationale extension for runtime:closeout_phase_transition, and new assertPhaseTransitionReopenAuditContract() in verify-process-fact-contract.mjs; re-audited full story diff (transition-orchestrator.ts, worktree.ts, plan-init-reopen-roundtrip-smoke.ts). (1) Style convention: the new AST-walker helpers (subtreeReadsMember, hasIdentifierGuardedThrowingBranch, collectConditionalObjectSpreads, isDefinedCheckOnMember, isEmptyObjectLiteral, etc.) match the file established JSDoc-commented, walk()-closure, found/ok-sentinel pattern (compared against subtreeReferencesProperty/subtreeReturnsFalseOk/subtreeThrows) and each is actually called (no dead code). The registry-rationale token-list assertion style (assert(fact.rationale.includes(token))) mirrors the pre-existing pattern used for sibling entries in the same PROCESS_FACT_CLOSEOUT_TELEMETRY array (receiptFact, reattestationBoundaryFact, validationTerminalFact all use the identical token-list-over-rationale idiom) -- not a divergent style. (2) Registry honesty: confirmed by grep that nothing in packages/main/src (done-prepare.ts collectDonePrepareConvergenceFacts and all other phase_transition readers) consumes event.transitionType or event.reason -- only the round-trip smoke test reads them back. The audit-only-not-gate-evidence claim is accurate. I considered whether the audit-only carve-out should have been expressed via consumerGate (as done for artifact:closeout-write-receipts.jsonl) rather than buried only in rationale prose, but runtime:closeout_validation_terminal -- a sibling entry in the same array -- already has this exact pattern (a compound entry with both a blocking counter and a rationale-only-described non-blocking telemetry sub-field, consumerGate left as one generic string), so this is established precedent, not a new inconsistency. (3) Brittleness: builder/call-site checks are AST-anchored (ts.createSourceFile, real conditional-spread/property-initializer inspection) so comment or formatting-only changes cannot fake or break them; only a real code-shape change moves the verdict. The literal-substring checks against smoke-test file contents use plain .includes(), the same established idiom used pervasively elsewhere in this file for asserting executable-anchor content; coupled to code fragments (not prose), so an innocuous variable rename would break it, but consistent with existing risk tolerance in this file for this check category. Rationale-token substring checks are consistent with ~10 pre-existing sibling assertions in the same function. (4) Spot-checked the primary mutation claim myself in an isolated git worktree scratch copy under /private/tmp (git worktree add --detach at the story head, node_modules/dist symlinked for speed, never touched the shared B-70a6 worktree): baseline exits 0 with Process fact contract verified; dropping args.reason from the REOPEN call-site spread (keeping transitionType only) makes test:process-fact-contract exit 1 with the exact expected message; reverting restores exit 0. tsc --noEmit on mutated vs baseline tree produced identical pre-existing unrelated ws-module diagnostics in both cases (no new errors from the mutation), consistent with the compiles-clean claim. Scratch worktree removed after the check; shared worktree git status confirmed touched only by my own review_run_start/dispatch/review_incremental_context process-event writes, no source files. No new quality issues found in the round-3 diff. No blockers.",
+      "createdAt": "2026-07-26T04:09:41.262Z",
+      "reviewRound": "2026-07-26T04:00:24.255Z",
+      "reviewRunId": "B-70a6:RR-007",
+      "envelopeId": "641bc83be6feccbd5a8b1af3a31e9a05931c13648fafb9f967f44c6040d59175",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2cb85192de132cac5626784536bc0053b3b6a71c72d8f38105b252bf4f24dd2b"
+    },
+    {
+      "id": "B-70a6:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 test-coverage review: independently reproduced 2 of the 7 claimed mutations against the new process-fact assertion in an isolated scratch copy (never touching this shared worktree); both fail as claimed with a clean tsc compile. All 9 must-intents (3 items x happy/edge/adversarial) still have exactly 1 passing verificationEvidence, 0 failing, 0 waivers. No blocker.",
+      "createdAt": "2026-07-26T04:18:36.412Z",
+      "reviewRound": "2026-07-26T04:00:24.255Z",
+      "reviewRunId": "B-70a6:RR-008",
+      "envelopeId": "de0de15f1581939f7a9c5cf1b87c147ccd45deb308f5109df7f11f268eac0f76",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "72af34e4096b1666c2bc77d8d4177c19359aa5f010f5b7ecfdbf4f6d73fed43b"
+    },
+    {
+      "id": "B-70a6:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "test note only ten chars",
+      "createdAt": "2026-07-26T07:28:42.880Z",
+      "reviewRound": "2026-07-26T07:19:42.046Z",
+      "reviewRunId": "B-70a6:RR-013",
+      "envelopeId": "a74d628ff1e897d85637515438c8373f75799c0fc36c148592520c23796c2418",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "a.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a917ea3e9de3cce656fc414584cd1dd19d03b4cc3bcd412f00e271700ac1cf9e"
+    },
+    {
+      "id": "B-70a6:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 quality re-audit of commit 6d3901f8c6 (F-008/F-009/F-010/F-012 fixes from round 5). F-008: catch(e) in reconcileReopenAuditBeforeOutOfBandPhaseChange doomed-copy read now warns on every failure except e.name==StoryArtifactMissingError; traced StoryStore.readJson (core/store.ts) and confirmed that class is thrown ONLY for absent metadata (existsSync false on all candidate dirs) while JSON.parse/EACCES failures propagate as SyntaxError/system Error, so the exemption is precisely absent-only; the class is not exported from store.ts so name-matching (not instanceof) is the only option in-scope, and a future rename degrades to an extra warning (loud) not a swallow (verified by reading the unchanged, unexported class StoryArtifactMissingError declaration). F-009: source is genuinely consumed (renderOutOfBandReopenAuditNotice renders record read from ..., the only other repo hit for .source is an unrelated story.source field in story-query.ts); both branches have real executable coverage -- assertReopenAuditSurvivesStoryDiscard asserts the doomed .worktrees path regex and assertReopenAuditSurvivesZombieReconcile asserts the literal the surviving story index string, and both ran green. F-010: confirmed exactly one new CrashBeforeReopenAuditStore site remains (grep); confirmed by diffing before/after that no assertion was dropped -- the 3 that could not move into the shared helper (zero-events-yet, fromPhase, auditId-nonempty) are still present verbatim in assertReopenAuditCrashRecovery, and the message-text-only differences were merged to the strictly longer and stronger wording in the shared helper (verified line by line against the commit diff). F-011 (accepted-risk, not fixed): reasoning is sound -- 681-line file, 6 cohesive drills sharing crashInjectReopen and seedStoryAtInitCheck, all module-private; splitting now would need new exports for zero behavioural gain and risks perturbing the exact AST anchors verify-process-fact-contract.mjs points into, for a LOW naming-only nit; correctly non-blocking under round-6 decay (only critical blocks). Ran build clean, test:process-fact-contract verified, plan-init-reopen-roundtrip-smoke all 6 lines pass, flow-stability-smoke pass. No dead code, as-any, or empty-catch regressions found in the round-5-fix diff. No blocker.",
+      "createdAt": "2026-07-26T07:29:18.946Z",
+      "reviewRound": "2026-07-26T07:19:42.046Z",
+      "reviewRunId": "B-70a6:RR-013",
+      "envelopeId": "a74d628ff1e897d85637515438c8373f75799c0fc36c148592520c23796c2418",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "36da75ae70e4fd2c79d26e8b7ffc54e1e1c0428f54a86c0b2e593391083d2f11"
+    },
+    {
+      "id": "B-70a6:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 convergence check on commit f016942fe4 (F-017). (1) Verified both edited in-function comments (ATTACH site line ~1230-1256, CLEAR site line ~1445-1457) against the actual behavior of reconcilePendingReopenAudit/reconcileReopenAuditBeforeOutOfBandPhaseChange/story_discard/story-query.ts zombie repair: every claim (next ORCHESTRATED transition, out-of-band rescue at story_discard + repairing story_reconcile, never on read-only commands, SEQUENTIAL-only guarantee re racing terminal ops) matches the documented and implemented behavior exactly -- no overclaim, no collateral edits elsewhere. (2) assertReopenAuditLockRejectionRationaleContract() is genuinely overloaded: its own docblock (scripts/verify-process-fact-contract.mjs:3042-3069) still describes only the F-014 lock-rejection-rationale concern, but the function body now also enforces F-016 (types.ts docblock qualification) and F-017 (two anchored orchestrator comment sites + whole-file retired-sentence ban), which are about recovery-TIMING accuracy, a related but distinct concern from lock-REJECTION rationale. This is a real but low-severity maintainability nit (misleading function name/docblock scope), not a defect -- each addition is internally commented and independently correct, all three sub-checks are exercised in isolation without shared mutable state beyond a locally recomputed orchestratorText, and this story's own round-6 precedent (F-011, accepted-risk) already established that splitting cohesive AST-anchored guards this late for a naming-only gain risks perturbing exact anchors for zero behavioral benefit. Recommend a follow-up (not blocking): rename to something like assertReopenAuditGuardCorrectionsContract or split into 3 functions in a future low-risk pass. Not filing as a finding since it does not affect correctness. (3) Spot-checked in an isolated rsync copy (scratchpad, node_modules included for typescript): confirmed pristine script passes (exit 0); mutation A (dropped the 'story_discard' token from the ATTACH-site anchored slice) correctly failed with the exact expected per-site error; restored to pristine, re-verified exit 0; mutation B (reinserted the retired sentence 'the next transition performs the (identical) recovery' at the CLEAR site, deliberately line-wrapped across 3 comment lines to test the flattenComments-based whole-file ban) correctly failed on BOTH the whole-file retired-sentence check and the per-site anchored token checks -- confirming the line-wrap-evasion claim in the finding is true, not aspirational. Restored to pristine, re-verified exit 0. (4) Final sweep of git diff main...HEAD (all non-.lattice files: process-fact-registry.ts, types.ts, story-query.ts, transition-orchestrator.ts, worktree.ts, plan-init-reopen-roundtrip-smoke.ts, verify-process-fact-contract.mjs) found no dead code, no unnecessary as-any, no empty catches (the one catch{} match in the diff is itself a guard assertion string, not real code), no contradictory comments, and no assertion that cannot fail (both new f016942fe4 assertions were shown to fire under real mutation in (3)). Ran in the real worktree: npm --prefix packages/main run build (clean), npm run test:process-fact-contract (verified), node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js (all 6 lines pass, exit 0), node packages/main/dist/tasks/flow-stability-smoke.js (pass, exit 0). No blocker. Story has converged.",
+      "createdAt": "2026-07-26T09:51:24.157Z",
+      "reviewRound": "2026-07-26T09:41:13.846Z",
+      "reviewRunId": "B-70a6:RR-016",
+      "envelopeId": "129644854712002ea98db29b04458e2c803a6e6aecfc61c11f2d6c42c5eb3f8c",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70a6/decision.json",
+          ".lattice/story/actives/B-70a6/findings.json",
+          ".lattice/story/actives/B-70a6/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "320d96392ade4d562bbce5a980d3450414effa037326f3d519f04c9f7b45cc3b"
+    },
+    {
+      "id": "B-70a6:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 re-bind check after sibling merges (B-2296/B-2aa7/B-506e) advanced main and staled RP-009 (RR-009) prompt-envelope binding. This is not a fresh full review -- 9 prior rounds already substantively covered this diff -- but I independently re-verified rather than rubber-stamping: (1) all 4 required assertion functions in scripts/verify-process-fact-contract.mjs are still defined AND invoked -- grep confirms assertPhaseTransitionReopenAuditContract (def L2592, call L7839), assertOutOfBandReopenAuditRescueContract (def L2780, call L7840), assertReopenAuditConcurrencyResidualContract (def L2945, call L7841), assertReopenAuditLockRejectionRationaleContract (def L3077, call L7842) -- none dropped, none stubbed. (2) finding_list confirms exactly 17 findings (F-001..F-017), all status=resolved, 0 open, 0 suspected/disproven in attention block. (3) Re-ran all 4 required commands fresh in this worktree: npm --prefix packages/main run build exits clean (tsc, no errors); npm run test:process-fact-contract prints Process fact contract verified; node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js passes all 6 lines (round-trip, dev_start reuse/re-bootstrap, crash-window recovery, survives story_discard, survives zombie story_reconcile, same-reason reopens audited separately); node packages/main/dist/tasks/flow-stability-smoke.js passes. (4) Checked git diff main...HEAD (current merge-base is 2904baa7fe, confirmed main is an ancestor of HEAD via merge-base --is-ancestor, so the diff reflects the true accumulated material): grep for raw conflict markers (^<<<<<<<, ^=======$, ^>>>>>>>) across packages/main/src and the contract script returns nothing; grepped the added lines of the shared-touch files (transition-orchestrator.ts, worktree.ts, story-query.ts, types.ts) for as-any/bare-catch/console.log patterns -- the one hit is a comment (line documenting the F-008 fix), and I read the actual catch block it documents (L749-772): it discriminates by e.name !== StoryArtifactMissingError before warning, never silently swallows an unexpected error, matching the docblock exactly (no regression). types.ts diff is a clean additive insertion (PendingReopenAudit interface + pendingReopenAudit field), no edits to unrelated pre-existing lines, consistent with the merges having touched other regions of that file. process-fact-registry.ts diff is a single rationale-string extension on the pre-existing runtime:closeout_phase_transition entry, not a new/duplicated entry. No new dead code, no new any-casts, no new empty catches introduced by the accumulated diff. No blockers. This story has no bridge.ts (CLI/core only, no shell/fn.ts split) so I-O isolation check N/A, and no proof/receipt/provider/run/job metadata semantics are touched by this diff so the narrow proof-metadata-coverage rule is N/A. Re-binding to current material with a clean pass.",
+      "createdAt": "2026-07-27T00:17:37.507Z",
+      "reviewRound": "2026-07-27T00:13:12.753Z",
+      "reviewRunId": "B-70a6:RR-017",
+      "envelopeId": "15fa85d5c3122d17ad3bf2d0aaff85055641db82d88d6ab0eadb9ab02f652aec",
+      "writerSessionId": "sess-85650db029f7c7cb5d5d11ce19290909",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-70a6/background.md",
+          ".lattice/story/actives/B-70a6/checklist.json",
+          ".lattice/story/actives/B-70a6/plan.md",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ecf7517944e76468f7bd6beaeab252c509aa434aa18b7c98fc4ab480deb85e60"
+    }
+  ]
+}

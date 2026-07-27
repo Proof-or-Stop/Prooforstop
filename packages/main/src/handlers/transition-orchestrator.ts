@@ -40,13 +40,19 @@
  */
 
 import { execFileSync } from 'child_process';
-import { realpathSync } from 'fs';
+import { randomUUID } from 'crypto';
+import { existsSync, realpathSync } from 'fs';
 import { hostname } from 'os';
 import { join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
-import type { ChecklistData, ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
+// B-70a6 F-005: a VALUE import (not type-only) — the out-of-band rescue must open
+// the DOOMED copy's own store (the worktree about to be deleted) to read the
+// recovery record the surviving store cannot see. core/store.ts imports no
+// handler module, so this stays one-directional (no import cycle).
+import { StoryStore } from '../core/store.js';
+import type { ChecklistData, PendingReopenAudit, ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
@@ -133,7 +139,9 @@ export interface StoryTransitionArgs {
   /**
    * B-8b69: required, audited reason for the gated PLAN->INIT reopen. Ignored for
    * every other transition. Enforced (non-blank, >= REOPEN_REASON_MIN chars) before
-   * the REOPEN event is sent.
+   * the REOPEN event is sent, then persisted (with transitionType:"reopen") into the
+   * append-only phase_transition process event so the reopen is durably auditable —
+   * a validated-but-dropped reason would not be.
    */
   reason?: string;
 }
@@ -425,6 +433,17 @@ export function buildPhaseTransitionProcessEvent(input: {
   materialHash: string;
   storyFilesHash: string;
   reviewRound: string;
+  // B-8b69 follow-up: durable audit of the gated PLAN->INIT reopen. All three are
+  // set ONLY on a REOPEN transition and omitted for every normal transition, so a
+  // normal phase_transition event keeps its exact prior shape (old JSONL readers and
+  // the builder shape test stay green; the fields are strictly additive).
+  transitionType?: string;
+  reason?: string;
+  // B-70a6 F-004: the reopen's recovery idempotency key. Carrying it ON the event
+  // is what lets reconciliation tell "my audit event is already on disk" from "it
+  // is missing" without fuzzy-matching on reason text (two reopens of the same
+  // story CAN carry the same reason), so recovery emits exactly one event.
+  reopenAuditId?: string;
 }): Omit<ProcessEvent, 'timestamp'> {
   return {
     type: 'phase_transition',
@@ -435,7 +454,380 @@ export function buildPhaseTransitionProcessEvent(input: {
     materialHash: input.materialHash,
     storyFilesHash: input.storyFilesHash,
     reviewRound: input.reviewRound,
+    ...(input.transitionType !== undefined ? { transitionType: input.transitionType } : {}),
+    ...(input.reason !== undefined ? { reason: input.reason } : {}),
+    ...(input.reopenAuditId !== undefined ? { reopenAuditId: input.reopenAuditId } : {}),
   };
+}
+
+/** What `reconcilePendingReopenAudit` found and did. */
+export type ReopenAuditReconciliationStatus =
+  /** No recovery record on the index — the overwhelmingly common case, a pure no-op. */
+  | 'none'
+  /** Record present, its event already on disk (crash between append and clear): cleared, nothing appended. */
+  | 'already_audited'
+  /** Record present, event MISSING (crash between phase write and append): the missing event was appended. */
+  | 'recovered';
+
+export interface ReopenAuditReconciliation {
+  status: ReopenAuditReconciliationStatus;
+  /** The story as it stands AFTER reconciliation (recovery record cleared when there was one). */
+  story: StoryInfo;
+  auditId?: string;
+}
+
+/**
+ * B-70a6 F-004: recover a gated PLAN->INIT reopen whose audit event never made it
+ * to disk.
+ *
+ * THE WINDOW THIS CLOSES. `store.writeStory` (phase=INIT) and
+ * `store.appendProcessEvent` (the audit event) are two separate fs operations,
+ * with real git subprocess calls between them. A crash/throw in that window used
+ * to leave a reopen that HAD happened with no audit record — and since REOPEN
+ * only fires from PLAN, the story had already left the only phase that could
+ * retry it, so the event was unrecoverable. Now the reopen's audit facts are
+ * written INSIDE the same atomic `writeStory` rename as phase=INIT (see
+ * StoryInfo.pendingReopenAudit), and this function turns that record back into
+ * the missing event.
+ *
+ * IDEMPOTENT BY CONSTRUCTION. The record's `auditId` is stamped onto the event
+ * as `reopenAuditId`, so "already audited" is an exact identity match, never a
+ * heuristic on reason text. Therefore:
+ *   - crash between phase write and append  -> record present, no matching event -> append (exactly one)
+ *   - crash between append and clear        -> record present, matching event    -> clear only, NO second event
+ *   - normal completion                     -> no record                         -> no-op
+ * The clear happens only AFTER the event is durably on disk, so a crash at any
+ * point simply re-runs the same convergent reconciliation.
+ *
+ * NEVER FABRICATES A TRANSITION. The record can only exist because the phase
+ * write it rode along with committed, so an emitted event always describes a
+ * reopen that really happened. An aborted/refused reopen throws before that
+ * write, leaves no record, and therefore produces no event.
+ *
+ * SCOPE / RESIDUAL (stated, not glossed):
+ *   - The two-write window is not ELIMINATED, it is made RECOVERABLE. After any
+ *     crash the validated reason is already durable on the story index; only the
+ *     event may be late, and no ORCHESTRATED phase transition can run before this
+ *     heals it.
+ *   - CORRECTED BY B-70a6 F-005 — the previous text here said the loss was
+ *     "deferred, not lost", and that was FALSE. `runStoryTransitionInner` is not
+ *     the only writer of `story.phase`: `story_discard` (handlers/worktree.ts)
+ *     and the `story_reconcile` zombie repair (handlers/story-query.ts) mutate it
+ *     out of band, land the story in a TERMINAL phase, and (for discard)
+ *     force-delete the worktree + branch holding the record — so there the event
+ *     was lost PERMANENTLY. Those two sites now call
+ *     `reconcileReopenAuditBeforeOutOfBandPhaseChange` before their destructive
+ *     steps. The accurate statement is the narrower one: reconciliation fires on
+ *     the next TRANSITION or at those two out-of-band sites, NOT on arbitrary
+ *     read-only commands (store.readStory lives in core/store.ts, outside this
+ *     story's permitted scope); until one of them runs, the validated reason is
+ *     still durable and visible on the story index.
+ *   - NARROWED AGAIN BY B-70a6 F-013. Even at those two sites the coverage is
+ *     SEQUENTIAL only: they rescue a record that is ALREADY on disk when they
+ *     start, and they serialize against nothing, so a reopen RACING them is not
+ *     covered. See CONCURRENCY RESIDUAL (B-70a6 F-013) on
+ *     `reconcileReopenAuditBeforeOutOfBandPhaseChange` for the exact interleaving
+ *     and for why it is named rather than locked.
+ *   - The "already audited" test is a read-then-append, not an atomic CAS. On the
+ *     ORCHESTRATED path the caller holds the per-story transition lock, so it is
+ *     exact under the same software-concurrency threat model as the persist
+ *     claim, and it inherits that claim's documented residual (an OS-level freeze
+ *     longer than staleMs); the failure mode there is a DUPLICATE audit event,
+ *     both carrying the same auditId so a reader can dedupe — never a lost one.
+ *     The OUT-OF-BAND callers hold NO such lock, so there the same read-then-append
+ *     is UNSERIALIZED — the F-013 residual below, not a stronger claim in disguise.
+ */
+export function reconcilePendingReopenAudit(
+  store: StoryStore,
+  storyId: string,
+  known?: StoryInfo,
+): ReopenAuditReconciliation {
+  const story = known ?? store.readStory(storyId);
+  const pending = story.pendingReopenAudit;
+  if (!pending) return { status: 'none', story };
+  const alreadyAudited = store.readProcessEvents(storyId).some(
+    (event) => event.type === 'phase_transition'
+      && event.transitionType === 'reopen'
+      && event.reopenAuditId === pending.auditId,
+  );
+  if (!alreadyAudited) {
+    // Rebuilt from the RECORD, not from live state: fromPhase/hashes/reviewRound
+    // are the ones captured with the reopen, so a recovered event matches the one
+    // the crashed run would have appended instead of describing the later tree.
+    store.appendProcessEvent(storyId, buildPhaseTransitionProcessEvent({
+      storyId,
+      fromPhase: pending.fromPhase,
+      toPhase: 'INIT',
+      materialHash: pending.materialHash,
+      storyFilesHash: pending.storyFilesHash,
+      reviewRound: pending.reviewRound,
+      transitionType: 'reopen',
+      reason: pending.reason,
+      reopenAuditId: pending.auditId,
+    }));
+  }
+  // Re-read before clearing so this read-modify-write cannot clobber any other
+  // field written since `known` was read; only the recovery record is dropped.
+  const cleared = store.readStory(storyId);
+  delete cleared.pendingReopenAudit;
+  store.writeStory(storyId, cleared);
+  return {
+    status: alreadyAudited ? 'already_audited' : 'recovered',
+    story: cleared,
+    auditId: pending.auditId,
+  };
+}
+
+/** What `reconcileReopenAuditBeforeOutOfBandPhaseChange` found, did, and could not do. */
+export interface OutOfBandReopenAuditReconciliation {
+  status: ReopenAuditReconciliationStatus;
+  auditId?: string;
+  /**
+   * Which copy held the record: the surviving story index, or a doomed root path.
+   * Rendered by `renderOutOfBandReopenAuditNotice` (B-70a6 F-009) — the doomed-copy
+   * path is the one whose record is deliberately left uncleared (see RESIDUALS
+   * below), so an operator chasing a duplicate audit event needs to see WHICH copy
+   * this rescue read.
+   */
+  source?: string;
+  /** Non-fatal problems. Never thrown: an audit rescue must not block the operation. */
+  warnings: string[];
+}
+
+/**
+ * B-70a6 F-005: rescue a pending reopen audit BEFORE an OUT-OF-BAND phase
+ * mutation destroys the record carrying it.
+ *
+ * WHY THIS EXISTS (the F-004 invariant was narrower than it claimed).
+ * `reconcilePendingReopenAudit` runs at the top of `runStoryTransitionInner`,
+ * which only yields "no ORCHESTRATED phase change can follow an unaudited
+ * reopen" — i.e. only for phase changes that GO THROUGH it. Two production sites write
+ * `story.phase` directly via `store.writeStory`:
+ *   - `story_discard`  (handlers/worktree.ts)  -> DISCARDED
+ *   - the `story_reconcile` zombie repair (handlers/story-query.ts) -> DONE
+ * Both land the story in a TERMINAL phase (no outgoing machine edge), and
+ * story_discard additionally force-deletes the worktree + branch. So the loss
+ * there was not "deferred until the next transition" as the F-004 docblock said:
+ * there IS no next transition, and the copy holding the record is gone. This
+ * function is what those sites call first.
+ *
+ * WHY IT NEEDS `recordRoots` (a plain `reconcilePendingReopenAudit(store, id)`
+ * at those sites does NOT fix it). `cli/runtime-root.ts` deliberately redirects
+ * story_discard's runtime root from the worktree to the MAIN root, and the
+ * reopen is cwd-gated to run INSIDE the worktree — so the record normally lives
+ * in the worktree's own metadata copy, which the handler's store cannot see. The
+ * record must therefore be read from the DOOMED copy while it is still on disk,
+ * and the event appended to the SURVIVING store's append-only log.
+ *
+ * SINGLE APPEND SITE. Both paths delegate to `reconcilePendingReopenAudit`, so
+ * the emitted event, the exact-auditId idempotency test and the
+ * append-then-clear ordering cannot drift from the orchestrator's own recovery.
+ *
+ * NEVER BLOCKS. Discarding or reconciling a story is legitimate; refusing it
+ * because of an audit record would be a worse failure than the one being fixed.
+ * Every failure is captured as a warning for the caller to SURFACE, not thrown.
+ * The ONE deliberate silence (B-70a6 F-008) is a doomed copy that holds no story
+ * metadata at all — StoryStore's typed not-found. That is not a failure: there is
+ * nothing there to rescue. Every other read failure (corrupt index.json, EACCES)
+ * IS warned about, because it may be hiding a record.
+ *
+ * ── CONCURRENCY RESIDUAL (B-70a6 F-013) — NAMED, NOT FIXED ────────────────────
+ * THE HONEST SCOPE OF THIS FUNCTION. It is a ONE-TIME SCAN and it does NOT hold
+ * the per-story transition lock that `runStoryTransitionInner` holds, so it
+ * SERIALIZES AGAINST NOTHING. The interleaving it therefore does NOT cover:
+ *   1. this scan runs and finds no record;
+ *   2. a concurrent PLAN->INIT reopen commits phase=INIT + its recovery record
+ *      into the worktree copy;
+ *   3. story_discard removes that worktree;
+ *   4. the reopen dies against the removed copy.
+ * NEITHER the record NOR the event survives. So the guarantee is:
+ *   - SEQUENTIAL (holds): a reopen whose record is ALREADY on disk when the
+ *     terminal operation starts is recovered — by the next orchestrated
+ *     transition, or here. That is what the drills in
+ *     tasks/plan-init-reopen-roundtrip-smoke.ts actually prove.
+ *   - CONCURRENT (does NOT hold): a reopen that writes its record AFTER this scan
+ *     and loses its copy to that same operation is not covered.
+ * A second, lock-independent case: story_discard --force on a story whose
+ * worktree is ALREADY gone. The record only ever lived there, so there is nothing
+ * to rescue and no mutex could have changed that.
+ *
+ * WHY IT IS NAMED RATHER THAN LOCKED (reasons, not excuses).
+ *
+ * CORRECTED BY B-70a6 F-014 — the middle reason previously given here was
+ * MISDIRECTED and is RETRACTED. It argued that the persist claim below
+ * (`failFastIfHeld`, `staleMs: 15000`, held for MILLISECONDS) could not be
+ * stretched across story_discard's git work. That is true and irrelevant: the
+ * persist claim was never the candidate primitive; nobody proposed reusing it
+ * here. The ONLY candidate is the per-story ADVISORY lock
+ * `acquireStoryTransitionLock` (core/story-transition-lock.ts, `staleMs`
+ * 120_000 / deadline 180_000), whose stale threshold is documented as
+ * "generously exceeds any legitimate non-DONE transition" — i.e. it is sized
+ * for exactly this class of long synchronous section, and story_discard IS one
+ * (declared `story_discard(args): string`, no `await` anywhere in its body,
+ * shelling out only through synchronous `execSync` / `execFileSync`). The
+ * accurate reasons are these three:
+ *   1. NO GUARANTEE COULD REST ON IT, so this is a defence-in-depth question and
+ *      never a correctness one. core/story-transition-lock.ts documents
+ *      `acquireStoryTransitionLock` as a
+ *      "BEST-EFFORT ADVISORY CONTENTION-REDUCER, NOT the correctness guarantee",
+ *      and `LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1` turns its acquire
+ *      into a literal no-op (tasks/transition-integrity-smoke.ts sets exactly that to
+ *      prove the atomic claim alone serializes a persist). A correctness claim
+ *      resting on it would be FALSE under that env while every test stayed
+ *      green. Taking it here would NARROW this window; it could not close it,
+ *      and the shipped claim would still have to be SEQUENTIAL.
+ *   2. THIS IS THE RECOVERY COMMAND, AND THE LOCK'S ONLY EXPOSED SHAPE BLOCKS.
+ *      `StoryTransitionLockOptions` exposes only `deadlineMs` / `staleMs` — there
+ *      is no `failFastIfHeld` — so an acquire here POLLS (synchronously, via the
+ *      mkdir lock's `Atomics.wait`) for the 180s deadline and then THROWS. Worse
+ *      for a recovery tool: `classifyTransitionLockHolder` returns `active` for
+ *      ANY same-host holder whose recorded pid is merely alive, and its PID-REUSE
+ *      guard fires only when the recorded pid is THIS process's own, so a leaked
+ *      lock whose pid has since been recycled by an unrelated live process is
+ *      NEVER stale-reclaimed at any age. story_discard would then hang the full
+ *      deadline and fail — putting the command operators reach for when a story
+ *      is ALREADY wedged behind a lock file that only a manual `rm` clears.
+ *      The one shape that dodges that, a NON-BLOCKING try-acquire that proceeds
+ *      UNLOCKED on failure, was considered and DECLINED: it covers only the
+ *      interleaving in which the racing reopen has not yet taken the lock,
+ *      because a reopen that already holds it (it is acquired before its own
+ *      readStory and held for the whole transition) makes the try-acquire fail
+ *      and discard proceed exactly as it does today. That is a partial narrowing
+ *      bought with a mutex that reads to the next maintainer as the
+ *      serialization this function explicitly does NOT have — the precise
+ *      over-reading this story has already been bitten by.
+ *   3. AT THE story_reconcile SITE THE LOCK ORDER ALSO FORBIDS IT. This reason is
+ *      SITE-SPECIFIC and does NOT apply to story_discard; the earlier text
+ *      wrongly lumped the two together. `story_reconcile`'s repair already runs
+ *      INSIDE `withMainWriteLock`, while this repo's established order is
+ *      transitionLock -> mainWriteLock (runStoryTransitionInner takes the
+ *      transition lock, then the DONE path takes the main write lock). Acquiring
+ *      the transition lock inside that repair would INVERT that order, so a
+ *      reconcile would sit on the main write lock for up to the transition
+ *      deadline while a DONE holding the transition lock fail-fasts on the main
+ *      write lock — turning one rare audit loss into systematic aborts of DONE /
+ *      story_create / gap_log / audit. story_discard is NOT in that position: its
+ *      `withReentrantMainWriteLock` calls all come AFTER the rescue and after the
+ *      worktree/branch destruction, so an acquire there would be transitionLock
+ *      -> mainWriteLock, the established order, not an inversion.
+ * Hardening this race is a FOLLOW-UP STORY. It is not claimed here.
+ *
+ * RESIDUALS (stated, not glossed):
+ *   - The doomed copy's record is deliberately NOT cleared. Writing to a worktree
+ *     that is about to be checked with `git status --porcelain` could turn a clean
+ *     worktree dirty and make a non-force discard refuse. If the destructive step
+ *     then fails and the worktree survives, its record is reconciled again later
+ *     into ITS log; both events carry the SAME auditId, so the failure mode is a
+ *     dedupable duplicate, never a lost event. (`source` names that copy in the
+ *     operator notice so the duplicate is traceable to where it came from.)
+ *   - `story_discard --purge` removes the story metadata directory this event's
+ *     log lives in, so the rescued event does NOT survive a purge. That is an
+ *     explicit erase of ALL of the story's process events, not a silent audit
+ *     loss; the caller surfaces it. Precise scope of that claim (B-70a6 F-012):
+ *     purge's own git rollback may restore an OLDER committed copy of the
+ *     directory, so metadata files can still be on disk afterwards — but that
+ *     older copy predates the rescue and therefore never carries this event.
+ */
+export function reconcileReopenAuditBeforeOutOfBandPhaseChange(args: {
+  storyId: string;
+  /** The store that SURVIVES the operation — where the audit event must land. */
+  store: StoryStore;
+  /** Roots of copies about to be destroyed (e.g. the worktree), searched in order. */
+  recordRoots?: ReadonlyArray<string | null | undefined>;
+}): OutOfBandReopenAuditReconciliation {
+  const warnings: string[] = [];
+  try {
+    const own = reconcilePendingReopenAudit(args.store, args.storyId);
+    if (own.status !== 'none') {
+      return { status: own.status, auditId: own.auditId, source: 'the surviving story index', warnings };
+    }
+  } catch (e: any) {
+    warnings.push(`could not reconcile the pending reopen audit on the story index: ${String(e?.message ?? e)}`);
+  }
+  for (const recordRoot of args.recordRoots ?? []) {
+    if (!recordRoot || !existsSync(recordRoot)) continue;
+    let doomed: StoryInfo | undefined;
+    try {
+      doomed = new StoryStore(recordRoot).readStory(args.storyId);
+    } catch (e: any) {
+      // B-70a6 F-008: this used to be a bare `catch { continue; }`, which
+      // contradicted the docblock above by swallowing REAL failures.
+      //
+      // ABSENT metadata is not a failure: a doomed root can legitimately hold no
+      // copy of this story (a worktree created before the metadata commit, a
+      // residual directory), and there is genuinely nothing to rescue there —
+      // warning on it would bury the real ones in routine noise. StoryStore
+      // signals exactly that case with its typed not-found error.
+      //
+      // ANY OTHER read failure (corrupt-but-present index.json, EACCES) may be a
+      // record sitting right there, unreadable — precisely the silent loss this
+      // function exists to prevent — so it is surfaced as a warning. Still never
+      // thrown: the caller's discard/repair must not be blocked.
+      //
+      // The not-found error class is private to core/store.ts, so it is matched by
+      // NAME. If it is ever renamed this degrades to an EXTRA warning (loud), never
+      // back to a swallowed failure (silent).
+      if (e?.name !== 'StoryArtifactMissingError') {
+        warnings.push(`could not read the pending reopen audit record from ${recordRoot}: ${String(e?.message ?? e)}`);
+      }
+      continue;
+    }
+    if (!doomed?.pendingReopenAudit) continue;
+    try {
+      // The RECORD comes from the doomed copy; the EVENT is appended to the
+      // surviving store — the whole point of this function.
+      const rescued = reconcilePendingReopenAudit(args.store, args.storyId, doomed);
+      if (rescued.status !== 'none') {
+        return { status: rescued.status, auditId: rescued.auditId, source: recordRoot, warnings };
+      }
+    } catch (e: any) {
+      warnings.push(`could not rescue the pending reopen audit from ${recordRoot}: ${String(e?.message ?? e)}`);
+    }
+  }
+  return { status: 'none', warnings };
+}
+
+/**
+ * The operator-facing lines for an out-of-band rescue. Kept next to the rescue so
+ * both call sites report it identically — a silent rescue is the exact complaint
+ * F-005 raised about the silent LOSS.
+ */
+export function renderOutOfBandReopenAuditNotice(
+  storyId: string,
+  result: OutOfBandReopenAuditReconciliation,
+  options?: { metadataWillBePurged?: boolean },
+): string[] {
+  const lines: string[] = [];
+  // B-70a6 F-009: `source` names WHICH copy held the record. It matters to the
+  // operator: a doomed-copy rescue deliberately leaves that copy's record in place
+  // (see the rescue's RESIDUALS), so this is the pointer that makes a later
+  // duplicate event traceable instead of mysterious.
+  const from = result.source ? ` [record read from ${result.source}]` : '';
+  if (result.status === 'recovered') {
+    lines.push(
+      `✓ recovered the audit event for an interrupted PLAN->INIT reopen of ${storyId} (${result.auditId}) ` +
+      `before this out-of-band phase change destroyed its record${from}`,
+    );
+    if (options?.metadataWillBePurged) {
+      // B-70a6 F-012: says only what is verified. The rescued event does NOT
+      // survive purge (its log is removed, and purge's git rollback can only
+      // restore an OLDER committed copy, which predates the rescue). The earlier
+      // wording also claimed the whole directory reliably disappears, which is
+      // not true in the common case — purgeSafeInitCommit resets only the LATEST
+      // commit, so metadata files can remain on disk afterwards.
+      lines.push(
+        `⚠ purge removes this story's metadata directory, so the audit event just recovered will NOT survive it ` +
+        `(an explicit erase of this story's process events, not a silent audit loss); ` +
+        `purge's git rollback may leave an OLDER committed copy of that directory on disk, but it predates this rescue and does not carry the event`,
+      );
+    }
+  } else if (result.status === 'already_audited') {
+    lines.push(`✓ cleared a stale reopen recovery record for ${storyId} (${result.auditId}); its audit event was already durable${from}`);
+  }
+  for (const warning of result.warnings) {
+    lines.push(`⚠ reopen audit rescue: ${warning}`);
+  }
+  return lines;
 }
 
 async function runStoryTransitionInner(
@@ -479,7 +871,38 @@ async function runStoryTransitionInner(
       throw new Error(metaGuardErr);
     }
 
-    const story = store.readStory(args.storyId);
+    // B-70a6 F-004: heal a crash-interrupted reopen BEFORE this transition reads
+    // its own state. Held under the per-story transition lock acquired above, so
+    // it is serialized against concurrent transitions. This is what makes the
+    // recovery record a real recovery rather than a note nobody acts on, and it
+    // yields the load-bearing invariant FOR ORCHESTRATED TRANSITIONS: no phase
+    // transition routed through here can run while an unaudited reopen is pending
+    // — reconciliation always goes first. B-70a6 F-005: that is NOT by itself a
+    // framework-wide invariant, because story_discard and the story_reconcile
+    // zombie repair write story.phase WITHOUT coming through this function; they
+    // get a NARROWER version of it by calling
+    // reconcileReopenAuditBeforeOutOfBandPhaseChange before their own phase write.
+    // B-70a6 F-013: narrower in a specific way — those two sites hold no lock, so
+    // they only cover a record ALREADY on disk when they start, never a reopen
+    // racing them (CONCURRENCY RESIDUAL (B-70a6 F-013) on that function). THIS
+    // call site is the strong one: it runs under the transition lock acquired
+    // above, so a concurrent transition cannot slip a reopen past it.
+    // For every ordinary transition `pendingReopenAudit` is absent and this is a
+    // pure no-op that returns the very object just read.
+    const reconciledReopenAudit = reconcilePendingReopenAudit(
+      store,
+      args.storyId,
+      store.readStory(args.storyId),
+    );
+    if (reconciledReopenAudit.status === 'recovered') {
+      ctx.log?.(
+        `✓ recovered the audit event for an interrupted PLAN->INIT reopen of ${args.storyId} ` +
+        `(${reconciledReopenAudit.auditId}); the reason is now in the append-only process-event log`,
+      );
+    }
+    // Read AFTER reconciliation so this transition never carries (and cannot
+    // re-persist) an already-cleared recovery record.
+    const story = reconciledReopenAudit.story;
     const oldPhase: string = story.phase as string;
     const runtimeGateReport = runRuntimeEnforcementPreflight(ctx, story, args.phase);
 
@@ -804,6 +1227,60 @@ async function runStoryTransitionInner(
     if (args.phase === 'REVIEW') {
       story.currentReviewRound = now;
     }
+    // B-70a6 F-004: the gated PLAN->INIT reopen's DURABLE audit record.
+    //
+    // The audit facts (validated reason + reopen marker) belong to an append-only
+    // process event, but the phase write and the event append are two separate fs
+    // operations with git subprocess calls in between (resolveGitCwd +
+    // currentMaterialHash/currentStoryFilesHash below), so the window is real, not
+    // theoretical. A crash there used to leave phase=INIT with NO audit record,
+    // and — because REOPEN only fires FROM PLAN — the story had already left the
+    // only phase that could retry it, making the event UNRECOVERABLE.
+    //
+    // Fix: attach the audit facts to the STORY OBJECT here, so the writeStory
+    // below persists them in the SAME tmp-write + renameSync as phase=INIT (see
+    // StoryStore.writeJsonFile). One atomic rename, so the two can never disagree:
+    // either the reopen did not commit, or it committed WITH its reason on disk.
+    // The record is cleared right after the event lands. A crash in between leaves
+    // the reopen RECOVERABLE — NOT automatically healed by whatever transition
+    // happens to run next, which is a stronger promise than the code keeps (B-70a6
+    // F-017 retired that unqualified wording here, as F-016 did in the
+    // StoryInfo.pendingReopenAudit docblock).
+    // reconcilePendingReopenAudit re-emits the missing event at the next
+    // ORCHESTRATED transition, OR reconcileReopenAuditBeforeOutOfBandPhaseChange
+    // does it at the two out-of-band phase writers — story_discard and the
+    // repairing story_reconcile — before they destroy the copy holding the record;
+    // never on an arbitrary read-only command. And the guarantee is SEQUENTIAL
+    // (B-70a6 F-013): a record ALREADY on disk when one of those runs is recovered,
+    // while a reopen RACING a concurrent terminal operation is not recovered at all.
+    // Until one of them runs the validated reason is still durable and visible here.
+    //
+    // Built BEFORE the persist claim on purpose: its git reads must not run inside
+    // the claim's deliberately short, fully-synchronous critical section. Nothing
+    // is persisted until the writeStory inside the claim, so an abort at the claim
+    // or at the oldPhase re-read guard leaves NO record — an aborted reopen still
+    // produces neither a record nor an event.
+    let reopenAudit: PendingReopenAudit | undefined;
+    if (eventType === 'REOPEN') {
+      if (!transitionGitCwd) {
+        transitionGitCwd = resolveGitCwd({
+          store,
+          storyId: args.storyId,
+          metadataRoot: ctx.root,
+          projectRoot: ctx.root,
+        });
+      }
+      reopenAudit = {
+        auditId: `${args.storyId}:RA-${randomUUID()}`,
+        reason: (args.reason ?? '').trim(),
+        fromPhase: oldPhase,
+        at: now,
+        materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+        storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+        reviewRound: story.currentReviewRound ?? '',
+      };
+      story.pendingReopenAudit = reopenAudit;
+    }
     // B-d877 R3 FIX A: ATOMIC persist claim — the AUTHORITATIVE correctness fence.
     //
     // The R2 fence was a plain read-then-write ("re-read phase, then writeStory"):
@@ -889,12 +1366,28 @@ async function runStoryTransitionInner(
       // already-done item with no re-verification, silently decoupling the requirement
       // from the delivered code (the tampering the INIT_CHECK freeze prevents, which
       // decision.json promises the reopen preserves). This synchronous read-mutate-write
-      // is co-located INSIDE the atomic persist claim (F-006), right beside the phase
-      // writeStory: the reset and the phase=INIT write land together or not at all, so
-      // an exception can never leave phase=INIT with a stale done item that — since
-      // REOPEN only fires from PLAN — could never be re-triggered. It also aborts at the
-      // oldPhase re-read guard above with the phase write, so a loser concurrent
-      // transition never resets. No-op for the common case (all items already pending).
+      // is co-located INSIDE the persist claim (F-006) and ORDERED so the phase=INIT
+      // writeStory below runs LAST.
+      //
+      // Exact guarantee. CONCURRENCY-atomic: the persist claim is a mkdir lock
+      // (core/mkdir-lock.ts — mkdirSync of a fresh dir IS the atomic acquire, EEXIST means
+      // held), so only one writer at a time runs the reset+phase pair, and a loser aborts at
+      // the oldPhase re-read guard above before writing EITHER file, so it never resets.
+      // NOT crash-transactional: the reset (checklist.json) and the phase write (index.json)
+      // are two separate fs writes, so a crash or kill between them leaves the checklist
+      // reset with the phase still PLAN. Each write is individually tmp+rename
+      // (store.writeJsonFile), so that residual is one of exactly two file-consistent
+      // states — never a torn checklist.
+      //
+      // Why that is the safe direction, and it is safe ONLY because the phase write is LAST:
+      // no crash can produce the dangerous state — phase=INIT (titles unfrozen) still holding
+      // a stale done item — which nothing would later clean up, since REOPEN only fires from
+      // PLAN (see the eventType remap above) and so the reset cannot re-run from INIT. The
+      // reachable residual costs only the done/in_progress markers that this reopen was
+      // deliberately discarding anyway, so a retry converges on exactly the intended end
+      // state. It is not free, though: abandon the reopen and those markers stay lost
+      // (checklist.json has already been overwritten), so "safe" here means integrity-safe,
+      // not recoverable. No-op for the common case (all items already pending).
       if (eventType === 'REOPEN') {
         const reopenChecklist = store.readChecklist(args.storyId);
         let reopenMutated = false;
@@ -921,14 +1414,50 @@ async function runStoryTransitionInner(
         projectRoot: ctx.root,
       });
     }
+    // B-70a6 F-004: for a REOPEN the evidence-binding facts come from the record
+    // that was just persisted atomically with phase=INIT, so this in-line append
+    // and a crash-recovered append describe the SAME reopen with the SAME values
+    // (modulo the event timestamp) instead of merely being expected to agree. An
+    // ordinary transition has no record, so it computes them exactly as before.
+    const transitionEventFacts = reopenAudit ?? {
+      materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+      storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
+      reviewRound: story.currentReviewRound ?? '',
+    };
     store.appendProcessEvent(args.storyId, buildPhaseTransitionProcessEvent({
       storyId: args.storyId,
       fromPhase: oldPhase,
       toPhase: newState,
-      materialHash: currentMaterialHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
-      storyFilesHash: currentStoryFilesHash(transitionGitCwd, 'HEAD', ctx.root) ?? '',
-      reviewRound: story.currentReviewRound ?? '',
+      materialHash: transitionEventFacts.materialHash,
+      storyFilesHash: transitionEventFacts.storyFilesHash,
+      reviewRound: transitionEventFacts.reviewRound,
+      // B-8b69 follow-up: the gated PLAN->INIT reopen reason is validated above
+      // (>= REOPEN_REASON_MIN chars) but was previously dropped here. Persist it —
+      // with a transitionType marker distinguishing a reopen from a forward
+      // transition — into this append-only, only-on-success phase_transition event
+      // so the reopen is durably auditable. Set ONLY for REOPEN; every normal
+      // transition passes none of these fields and keeps its exact prior event shape.
+      // B-70a6 F-004 adds reopenAuditId, the recovery idempotency key.
+      ...(eventType === 'REOPEN'
+        ? { transitionType: 'reopen', reason: args.reason?.trim(), reopenAuditId: reopenAudit?.auditId }
+        : {}),
     }));
+    // B-70a6 F-004: the reopen is now durably audited, so retire its recovery
+    // record. Deliberately the SAME entry point EVERY recovery path uses after a
+    // crash: it re-reads the log, matches THIS auditId, and clears WITHOUT
+    // appending a second event — one code path, so the normal and recovery paths
+    // cannot drift apart. A crash before this line leaves the record on disk, and
+    // the (identical) recovery is performed at the next ORCHESTRATED transition, or
+    // by reconcileReopenAuditBeforeOutOfBandPhaseChange at the out-of-band phase
+    // writers story_discard / the repairing story_reconcile (B-70a6 F-005) — never
+    // on an arbitrary read-only command, and only SEQUENTIALLY (B-70a6 F-013): a
+    // reopen RACING a concurrent terminal operation is not recovered at all.
+    // (B-70a6 F-017: this used to promise the recovery unqualified, as if whatever
+    // transition ran next always performed it — the retired over-claim F-016 fixed
+    // in the StoryInfo.pendingReopenAudit docblock.)
+    if (reopenAudit) {
+      reconcilePendingReopenAudit(store, args.storyId);
+    }
 
     // ── post effects. B-56d3: non-DONE transition effects in
     // transition-effects.ts; each call site stays in the exact order it ran
