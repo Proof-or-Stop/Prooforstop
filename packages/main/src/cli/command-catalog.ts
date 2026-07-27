@@ -48,6 +48,7 @@ import {
   verificationIntentTypeSchema,
 } from './command-schemas.js';
 import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.js';
+import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
@@ -289,6 +290,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     checklist: z.array(z.object({ id: z.string(), title: z.string() })).optional().describe('Development checklist.'),
     dryRun: z.boolean().optional().describe('Preview INIT_CHECK bootstrap only; do not advance phase or create worktree.'),
     confirm: z.boolean().optional().describe('Confirm a side-effecting advance (compatible script argument).'),
+    reason: z.string().optional().describe('B-8b69: required when reopening PLAN->INIT (phase=INIT from PLAN); explains why the frozen checklist title/context must change. Ignored for other transitions.'),
   }},
   { name: 'story_update', description: 'Edit Story metadata', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().optional().describe('New title.'),
@@ -457,9 +459,11 @@ Behavior:
     verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate.'),
     waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, this can mark temporary gate self-test evidence.'),
     file: z.string().optional().describe('Test or documentation file path.'),
-    command: z.string().optional().describe('Command to run.'),
-    result: z.enum(['pass', 'fail']).optional().describe('Command result.'),
+    command: z.string().optional().describe('Command to run. For an executable intent (logic|cli|browser) this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
+    selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it (with command) pins the executable intent and makes evidence tool-executed; result is then derived from the actual exit + selector match.'),
+    result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
     note: z.string().describe('Why this evidence satisfies the intent.'),
+    nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape: record a non-mechanical attestation for an executable intent WITHOUT execution (execution impossible in this environment). Attributable + gate-visible; never grants coverage.'),
   }},
   { name: 'verification_evidence_batch_add', description: 'Batch add/update verificationIntent coverage evidence (concurrency-safe)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -470,10 +474,19 @@ Behavior:
       verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate.'),
       waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, this can mark temporary gate self-test evidence.'),
       file: z.string().optional().describe('Test or documentation file path.'),
-      command: z.string().optional().describe('Command to run.'),
-      result: z.enum(['pass', 'fail']).optional().describe('Command result.'),
+      command: z.string().optional().describe('Command to run. For an executable intent (logic|cli|browser) this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
+      selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it (with command) pins the executable intent and makes evidence tool-executed.'),
+      result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
       note: z.string().describe('Why this evidence satisfies the intent.'),
+      nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape for an executable intent: record a non-mechanical attestation WITHOUT execution. Attributable + gate-visible; never grants coverage.'),
     })).describe('Evidence array; reads and writes the checklist once in the same call.'),
+  }},
+  { name: 'verification_run', description: 'B-1507: execute an intent\'s PINNED verifier and atomically record the tool-executed receipt (the caller never authors the command)', schema: {
+    storyId: z.string().describe('Story ID'),
+    intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID. Resolved to its owning item\'s pinned verification:{command,selector}; the pinned command is what runs.'),
+    itemId: z.string().optional().describe('Checklist item ID owning the intent; optional — inferred from the intentRef when omitted.'),
+    note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
+    cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
   }},
   { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence (rerun command)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2396,6 +2409,21 @@ Behavior:
     })).optional().describe('Open Questions: contradictions/questions reviewers notice in decisions/ but do not classify; main agent must resolve them with scope_question_resolve.'),
   }},
 
+  // B-7813 CHK-002: stall_resolution_set — record one structured, signed,
+  // current-review-round-bound resolution that clears the CHK-001 convergence-stall
+  // mint block for exactly the next ordinary review round. action enum + reason
+  // min length are re-validated at the handler runtime AND at the gate
+  // consumption point (isValidCurrentRoundStallResolution), per the Handler
+  // encoding convention.
+  { name: 'stall_resolution_set', description: 'Record a signed, current-round-bound resolution that clears the convergence-stall mint block (CHK-001) for the next ordinary review round', schema: {
+    storyId: z.string().describe('Story ID'),
+    action: z.enum(STALL_RESOLUTION_ACTIONS as unknown as [string, ...string[]]).describe('Structured stall-resolution action: authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable | override_budget. declare_unreachable additionally withdraws the named checklist item (B-1909 disposition) and closes the loop for it. override_budget (CHK-003) is the PRIVILEGED hard-ceiling override — the ONLY action that clears the mint block once total ordinary review rounds exceed the hard ceiling; an ordinary per-round resolution cannot.'),
+    reason: z.string().min(20, 'reason must be at least 20 characters (why you are consciously clearing the convergence-stall block for this review round).').describe('Why you are consciously clearing the convergence-stall block for this review round (>= 20 chars after trim).'),
+    itemId: z.string().optional().describe('Checklist item ID (CHK-xxx) to withdraw as unreachable; REQUIRED when action=declare_unreachable, ignored otherwise.'),
+    approvedBy: z.string().optional().describe('Optional operator identifier recorded on the resolution (and on the B-1909 decision for declare_unreachable).'),
+    actor: z.string().optional().describe('Optional actor identifier; used for approvedBy attribution when approvedBy is omitted.'),
+  }},
+
   // B-ed3e CHK-003: scope_question_resolve - main agent writes resolution for an OQ raised by reviewer.
   // Design principle: resolution is not included in signed _hash because resolution is a main-agent action and must not pollute the reviewer judgment signature domain.
   { name: 'scope_question_resolve', description: 'Resolve a scope reviewer Open Question in writing (prevents self-approval)', schema: {
@@ -2849,6 +2877,14 @@ Behavior:
     cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
+  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a lattice verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s immutable pin; allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
+    provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
+    toolName: z.string().optional().describe('Name of the shell tool being invoked (e.g. Bash on Claude, the Codex shell tool)'),
+    toolInputJson: z.string().optional().describe('JSON-encoded shell tool input; the command string is read from its .command field when commandString is absent'),
+    commandString: z.string().optional().describe('Explicit shell command string to inspect (overrides toolInputJson extraction)'),
+    cwd: z.string().optional().describe('Working directory (informational; the guard resolves the pin from story metadata)'),
+    json: z.boolean().optional().describe('Output structured JSON'),
+  }},
   { name: 'autopilot_execute', description: 'Execute a bounded unattended Proofbound autopilot loop using local Proofbound commands and local assurance only. Alias: lattice autopilot execute', schema: {
     mode: z.enum(['local']).optional().describe('Autopilot mode: local'),
     storyId: z.string().optional().describe('Story ID to bind the autopilot executor to'),
@@ -3212,11 +3248,25 @@ Behavior:
     derivedChecklistRefs: z.array(z.string()).optional().describe('Derived checklist item refs.'),
     derivedVerificationIntentRefs: z.array(z.string()).optional().describe('Derived verification intent refs.'),
   }},
-  { name: 'red_evidence_binding_set', description: 'W2b: register the per-story target binding {acceptanceTargetRef, adapterId, testCaseRef} that authorizes a RED run (§1.1.3). Owner-lease + mutation-authority gated; exactly one binding per acceptanceTargetRef (duplicate rejects), rejects an out-of-expectedRedTargets ref, records targetBindingDigest = CANON over the createdAt-stripped 3-field subobject.', schema: {
+  { name: 'red_evidence_binding_set', description: 'W2b: register the per-story target binding {acceptanceTargetRef, adapterId, testCaseRef} that authorizes a RED run (§1.1.3). Owner-lease + mutation-authority gated; exactly one binding per acceptanceTargetRef (duplicate rejects), rejects an out-of-expectedRedTargets ref, records targetBindingDigest = CANON over the createdAt-stripped 3-field subobject. W2c adds the §1.1.3 binding-freeze rule (frozen once a run record exists on an unquarantined chain).', schema: {
     storyId: z.string().describe('Story ID'),
     acceptanceTargetRef: z.string().min(1).describe('The acceptance target this binding authorizes; must be in the story\'s expectedRedTargets (§3.3).'),
     adapterId: z.string().min(1).describe('The adapter id that owns the RED run for this target.'),
     testCaseRef: z.string().min(1).describe('The test-case reference the adapter runs for this target.'),
+    agent: z.string().optional().describe('Actor.'),
+    actor: z.string().optional().describe('Actor alias.'),
+  }},
+  { name: 'red_evidence_quarantine', description: 'W2c: append a quarantine chain-control record retiring the referenced record without mutating history (§4.1). recordId MUST be the current head of its (storyId, target) chain whose operation is red-assert/green-confirm/recover. Owner-lease + mutation-authority gated; approvedBy is DERIVED <actor>@<sessionId> (never a caller arg); the derived acceptanceTargetRef must be in expectedRedTargets (§3.3, CHK-012); serialized under one mkdir claim.', schema: {
+    storyId: z.string().describe('Story ID'),
+    recordId: z.string().min(1).describe('The current chain-head record id to quarantine; the acceptanceTargetRef is derived from it (§4.1).'),
+    reason: z.string().min(1).describe('Human-readable reason (whitespace-normalized into the operation key).'),
+    agent: z.string().optional().describe('Actor.'),
+    actor: z.string().optional().describe('Actor alias.'),
+  }},
+  { name: 'red_evidence_recover', description: 'W2c: append a recover chain-control record undoing a mistaken quarantine (§4.1). recordId MUST be the current head of its (storyId, target) chain whose operation is quarantine; reinstates the quarantined record transitively. Owner-lease + mutation-authority gated; approvedBy is DERIVED <actor>@<sessionId> (never a caller arg); the derived acceptanceTargetRef must be in expectedRedTargets (§3.3, CHK-012); serialized under one mkdir claim.', schema: {
+    storyId: z.string().describe('Story ID'),
+    recordId: z.string().min(1).describe('The current chain-head quarantine record id to recover; the acceptanceTargetRef is derived from it (§4.1).'),
+    reason: z.string().min(1).describe('Human-readable reason (whitespace-normalized into the operation key).'),
     agent: z.string().optional().describe('Actor.'),
     actor: z.string().optional().describe('Actor alias.'),
   }},

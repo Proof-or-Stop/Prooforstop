@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7813",
+  "allowedCommands": [
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "npx",
+    "tsx"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Touches the review-convergence + transition-effects + convergence-breaker core, a new resolution-action handler/CLI, and the RED smoke + validate registration.",
+  "createdAt": "2026-07-26T07:26:33.999Z",
+  "updatedAt": "2026-07-26T07:26:33.999Z",
+  "_hash": "79f7b7a19eaf7767d1ba1d8fbc2b3467af5fc3f2845929abf7d699c558f3d6d3"
+}

@@ -79,7 +79,7 @@ import { formatWorktreePollutionDetails } from '../core/validation-executor.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { createChecklistHandlers } from '../handlers/checklist.js';
+import { refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
 import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
 import { buildNextSteps, renderRelatedDocsHint } from '../handlers/transition-effects.js';
@@ -1013,7 +1013,9 @@ const PHASE_FLOW_GET_PHASE_INFO_BASELINE: Record<string, ReturnType<typeof getPh
   IDEA: { phase: 'IDEA', ordinal: 1, total: 8, label: 'IDEA', terminal: false, allowedNext: ['INIT', 'PLAN'], allowedRollback: [] },
   INIT: { phase: 'INIT', ordinal: 2, total: 8, label: 'INIT', terminal: false, allowedNext: ['INIT_CHECK'], allowedRollback: [] },
   INIT_CHECK: { phase: 'INIT_CHECK', ordinal: 3, total: 8, label: 'INIT_CHECK', terminal: false, allowedNext: ['PLAN', 'DEV'], allowedRollback: [] },
-  PLAN: { phase: 'PLAN', ordinal: 4, total: 8, label: 'PLAN', terminal: false, allowedNext: ['DEV'], allowedRollback: [] },
+  // B-8b69: the gated PLAN->INIT reopen edge (unfreeze a scope-flagged title) is a
+  // rollback out of PLAN, so PLAN's derived allowedRollback now includes 'INIT'.
+  PLAN: { phase: 'PLAN', ordinal: 4, total: 8, label: 'PLAN', terminal: false, allowedNext: ['DEV'], allowedRollback: ['INIT'] },
   DEV: { phase: 'DEV', ordinal: 5, total: 8, label: 'DEV', terminal: false, allowedNext: ['REVIEW'], allowedRollback: ['PLAN'] },
   REVIEW: { phase: 'REVIEW', ordinal: 6, total: 8, label: 'REVIEW', terminal: false, allowedNext: ['TEST'], allowedRollback: ['DEV'] },
   TEST: { phase: 'TEST', ordinal: 7, total: 8, label: 'TEST', terminal: false, allowedNext: ['DONE'], allowedRollback: ['DEV'] },
@@ -1024,9 +1026,13 @@ const PHASE_FLOW_GET_PHASE_INFO_BASELINE: Record<string, ReturnType<typeof getPh
   DISCARDED: { phase: 'DISCARDED', ordinal: 8, total: 8, label: 'DISCARDED', terminal: true, allowedNext: [], allowedRollback: [] },
 };
 
-/** sha256 of JSON.stringify(checkPhaseTransition for every ordered phase pair). */
+/**
+ * sha256 of JSON.stringify(checkPhaseTransition for every ordered phase pair).
+ * B-8b69: rebaselined after adding the gated PLAN->INIT reopen edge — the only
+ * intended change to the transition graph (PLAN gains a rollback edge to INIT).
+ */
 const PHASE_FLOW_TRANSITION_HEALTH_BASELINE_HASH =
-  '8cce761d508c5d013bc6962a3052312e89d9b50f69e300b8dd1a3fad3593769f';
+  'd14e6aa25cf0d78f52ce5cbf596dac19760c9157322b004c90327bb113954094';
 
 function assertPhaseFlowDerivedValuesByteIdentical(): void {
   // getPhaseInfo for every lifecycle phase must equal the captured baseline.
@@ -1755,8 +1761,9 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
     );
     assert.equal(staleCoverage.entries[0]?.status, 'stale', 'story-owned file changes must still stale verification evidence');
 
-    const handlers = createChecklistHandlers({ store, root, scanRoot: root });
-    const refreshResult = handlers.verification_evidence_refresh_stale({ storyId });
+    // B-1507 CHK-002: metadata-only writer (this non-pinned row exercises the same
+    // freshness re-stamp path the re-executing CLI handler falls back to).
+    const refreshResult = refreshStaleEvidenceMetadataOnly({ store, root, scanRoot: root }, storyId);
     assert.match(refreshResult, /Refreshed 1\/1 stale evidence/, 'refresh helper should refresh the stale story-owned evidence');
     const refreshed = store.readChecklist(storyId).items[0]?.verificationEvidence?.[0];
     assert.equal(refreshed?.storyFilesHash, currentStoryFilesHash(root), 'refresh helper must preserve the current storyFilesHash binding');

@@ -1,0 +1,70 @@
+{
+  "storyId": "B-1507",
+  "checkedAt": "2026-07-26T07:13:43.211Z",
+  "headHash": "8ee1763598964128cd023a98a9b4a94c006318f9",
+  "materialHash": "7e0dd7666857f9a2940ebcbe0bf31940650894c03753fd578745bc4e2b71de5a",
+  "storyFilesHash": "2922aead42b3b867e222b334a037157dbe73d44544969dd42c0fff6c34f28d56",
+  "reviewRound": "2026-07-26T06:36:03.008Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-1507/plan.md#CHK-001",
+      "promise": "Add a verification_run command that resolves an intentRef, executes ONLY the intent's pinned verifier via the shared enforceAndStampEvidence/runSingleAllowlistedCommand boundary (caller never authors the command), and atomically writes a tool-executed receipt; refuses with no covered row minted when the intent has no pin, the ref is unresolved, or the command exits non-zero; verification_evidence_add stays working (staged migration, not hard-broken).",
+      "status": "verified",
+      "verifiedBy": "diff/grep + live execution of the built smoke",
+      "evidence": "cli/command-catalog.ts registers verification_run{storyId,intentRef,itemId?,note?,cwd?}; handlers/checklist.ts:1664-1751 implements it, passing the PIN's own command/selector (never a caller value) through enforceAndStampEvidence+runSingleAllowlistedCommand, throwing [verification_run_no_pin]/[intent_ref_unresolved] before any write. verification_evidence_add (checklist.ts:1463) is unchanged. Live-ran `node packages/main/dist/tasks/verification-run-and-guard-smoke.js` after a real build: part A/A2 assert receipt.exitCode=0, selectorMatched=true, outputDigest=sha256(outputTail), result derived from the receipt (not caller-supplied), buildVerificationCoverage reports covered, no-pin/unresolved-ref/exit-nonzero all refused with no row minted. PASS, exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1507/plan.md#CHK-002",
+      "promise": "Make verification_evidence_refresh_stale RE-EXECUTE the pinned command for stale rows on an executable intent, re-issuing a fresh mechanical receipt bound to current material when it still passes (instead of only demoting); on any re-run failure the row is left demoted/non-mechanical (no laundering); rows without a pin keep the old demote-only behavior; in-process callers that must never execute a command (evidence_refresh, done_prepare, recover_evidence) use a new synchronous metadata-only variant instead.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + live execution of the built smoke",
+      "evidence": "handlers/checklist.ts:1771-1815 re-runs the pin via the SAME enforceAndStampEvidence/runSingleAllowlistedCommand path used by verification_run; on mechanical+receipt success it re-stamps the row (bound to the new materialHash), on any thrown failure it falls through to the pre-existing demote path. checklist.ts:924-930 adds refreshStaleEvidenceMetadataOnly (never executes); evidence-refresh.ts, done-prepare.ts, and recover-evidence.ts were all switched (diff-confirmed) from the re-executing async handler to this sync variant. Live smoke part B (real temp git repo, material drift via a committed flag.txt flip): B1 a still-passing pinned row is RE-EXECUTED (executedAt changes, materialHash rebinds to the NEW hash, stays mechanical:true); B2 a now-failing pinned row is demoted, receipt stripped, nonMechanicalReason recorded; B3 a pin-less legacy mechanical row stays demote-only (B-3b88 coexistence unaffected). PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1507/plan.md#CHK-003",
+      "promise": "Add a fail-open PreToolUse evidence-pin guard: a new read-only verification_pin_guard_check command parses a verification_evidence_add/verification_run shell invocation, denies (exit 2 in the hook) only an explicit --command/--selector mismatch against the intent's immutable pin, and allows in every ambiguous/error case; wired via a Claude Bash hook shim and, additively, a Codex shell-tool hook shim + .codex/hooks.json matcher; the enforceAndStampEvidence HANDLER still refuses the same mismatch when the hook is bypassed entirely (seatbelt is non-load-bearing).",
+      "status": "verified",
+      "verifiedBy": "diff/grep + live e2e execution of the built Claude hook",
+      "evidence": "core/evidence-pin-guard.ts: pure computeEvidencePinVerdict denies only on an explicit command/selector value mismatch against an existing pin, allows for verification_run/no-pin-yet/matching-values/non-lattice-commands. handlers/evidence-pin-guard.ts wires I/O (checklist read) and is registered in registry.ts + command-catalog.ts. .claude/hooks/lattice-evidence-pretool.cjs matches tool_name==='Bash', spawns the real CLI, exit 2 on deny / exit 0 on allow, and fail-opens (exit 0) on every stdin/parse/spawn/CLI-missing error path (verified by reading every catch/early-return branch). Wired into .claude/settings.json PreToolUse Bash matcher (diff-confirmed) AND into init-assets.ts getClaudeHooks()/cli-init.ts HOOK_FILES so freshly-init'd projects get it (not just this repo's committed file). Live smoke part C (9 unit-level verdict assertions C1-C9, including C9: bypass the hook entirely and hit enforceAndStampEvidence directly -> still refuses [receipt_command_mismatch]) and part D1 (e2e: spawn the real .claude hook binary against a temp repo -> exit 2 on mismatch, exit 0 on match, exit 0/no-op on a non-Bash tool) all PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1507/plan.md#CHK-003 (Codex real-token sub-claim)",
+      "promise": "The Codex hook is proven to fire on Codex's ACTUAL emitted shell-tool name (not merely the documented candidate tokens), via an e2e using the real token; if the token cannot be confirmed, the matcher must use the documented candidate and the e2e must be marked explicitly pending rather than a false green.",
+      "status": "waived",
+      "waiverReason": "Accepted, intentionally staged, documented limitation (not an undelivered promise): the Codex-host REAL emitted shell tool_name could not be confirmed in this authoring environment, so .codex/hooks.json and the Codex hook shim match only the best-documented candidate tokens (shell|local_shell|exec_command), and the smoke's Codex sub-assertion (part D2) is printed verbatim as 'NOTE (Codex): PENDING-REAL-TOKEN' rather than asserting confirmed coverage — an honest non-green rather than a false green. The enforcement floor (enforceAndStampEvidence handler) is unaffected by this gap and the Claude Bash side is fully e2e-asserted (see the prior promise entry), so the CHK-003 deliverable as a whole ships correctly with this one sub-claim explicitly deferred."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1507/plan.md#CHK-004",
+      "promise": "Add a RED-first smoke covering verification_run, the refresh re-execution, and the guard verdict (including both host hook shims), driving all three through their REAL CLI/handler entry points (not reimplemented logic); register it in lattice.config.json validate.commands and package.json.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + live execution",
+      "evidence": "lattice.config.json validate.commands gained the verification-run-and-guard-smoke.js entry; package.json and packages/main/package.json both gained test:verification-run-and-guard-smoke scripts (all diff-confirmed). packages/main/src/tasks/verification-run-and-guard-smoke.ts imports createChecklistHandlers/createEvidencePinGuardHandlers/StoryStore directly (real handlers) and, in part D, spawns the real built dist/cli.js plus the real .claude and .codex hook files on disk (not a reimplementation). Inline comments document specific mutation-kill reasoning (e.g. reverting refresh-to-demote flips B1 to FAIL; forcing the guard to always-allow flips C1 to FAIL). Live-ran after `npm --prefix packages/main run build`: `node packages/main/dist/tasks/verification-run-and-guard-smoke.js` printed the honest Codex PENDING-REAL-TOKEN note followed by `verification-run-and-guard-smoke: PASS`, exit 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "verification-run-and-guard-smoke part A (isolated temp git repo): A1 verification_run against a PINNED intent stamps mechanical:true with receipt.exitCode=0, receipt.selectorMatched=true, receipt.outputDigest==sha256(receipt.outputTail), result derived from the receipt (not caller-supplied), and buildVerificationCoverage reports the intent covered. A3 an intent with NO pin is refused [verification_run_no_pin] with no evidence row minted. A4 an unresolved intentRef is refused [intent_ref_unresolved]. part A2 (separate isolated repo, per F-005 flake-isolation note): a pinned command that exits non-zero is refused [receipt_exit_nonzero] with nothing minted. Live-executed: PASS, exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "verification-run-and-guard-smoke part B: real temp git repo with a committed material drift (flag.txt MARKER_OK -> BROKEN). B1 a pinned row that STILL passes on re-run is RE-EXECUTED (executedAt timestamp changes, materialHash rebinds to the new post-drift hash, mechanical:true retained -- not demoted). B2 a pinned row that NOW FAILS on re-run (selector absent) is left demoted (mechanical:false), receipt stripped, nonMechanicalReason recorded -- no laundering back to covered. B3 a pin-less legacy mechanical row is demoted-only and never re-executed (B-3b88 coexistence preserved). Cross-checked against buildVerificationCoverage (only the re-executed row still covers). Live-executed: PASS."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "verification-run-and-guard-smoke part C (9 assertions): guard verdict DENIES a JSON-blob --command mismatch (C1) and a --k=v --selector mismatch (C2); ALLOWS a matching write (C3), verification_run (C4, nothing to mismatch), an unpinned intent (C5), and a non-lattice command (C6, fail-open no-decision); FAIL-OPEN allow on a nonexistent story (C7) and unparseable tool input (C8); adversarial C9 bypasses the hook entirely and calls enforceAndStampEvidence directly with the same mismatch -- the handler floor still refuses [receipt_command_mismatch], proving the seatbelt is non-load-bearing. part D1 spawns the REAL built .claude/hooks/lattice-evidence-pretool.cjs (via child_process, real stdin payload) against a temp repo with a real dist/cli.js shim: exit 2 on a mismatched Bash command, exit 0 on a matching one, exit 0 (no-op) for a non-Bash tool. Live-executed: PASS."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The smoke itself is the CHK-004 deliverable: 17 assertions across parts A/A2/B/C/D, registered in lattice.config.json validate.commands, package.json, and packages/main/package.json (grep-confirmed). It drives every behavior through real built handlers/CLI/hook binaries, never a reimplemented copy, and documents concrete mutation-kill reasoning inline for each behavior. Live-executed after a fresh `npm --prefix packages/main run build`: `node packages/main/dist/tasks/verification-run-and-guard-smoke.js` printed the honest Codex PENDING-REAL-TOKEN note then `verification-run-and-guard-smoke: PASS`, exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All four B-1507 deliverables (verification_run, re-executing stale-evidence refresh, fail-open dual-host evidence-pin guard, and the registered RED-first smoke) are verified directly against source and confirmed by personally rebuilding and running the smoke live (17 assertions, PASS, exit 0); the story's own 12 verificationEvidence rows are genuine mechanical tool-executed receipts, not attestations. One sub-claim is honestly waived rather than force-verified: Codex's real emitted shell-tool token is not confirmable in this environment, so Codex hook e2e coverage is candidate-token-only and explicitly labeled PENDING-REAL-TOKEN in the smoke output, while the Claude side and the handler enforcement floor are fully delivered and tested."
+  },
+  "_hash": "0c02a64ec3459ff3069b02bcc7a5b8717ef66f1510484ab0a26f6939e8f8e109"
+}

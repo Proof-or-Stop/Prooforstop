@@ -1,0 +1,98 @@
+{
+  "storyId": "B-ec67",
+  "checkedAt": "2026-07-26T03:39:17.329Z",
+  "headHash": "eb1e1a69bae7970b277bfabf0776bdf80a300997",
+  "materialHash": "8db7f4a18f4157708d6bb44fd044ca59d19ded5f37e5d2662f5f987b2c4b7de0",
+  "storyFilesHash": "9b2eae813d154629c11460e6c23825d1f4c22da4ea4bd6ab61002c5c4c0987b3",
+  "reviewRound": "2026-07-26T03:19:27.125Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-ec67/plan.md#CHK-001",
+      "promise": "VerificationIntentItem.verification?:{command,selector} pinned onto the intent immutably on first evidence write",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/core/types.ts adds VerificationIntentPin + verification? field; handlers/checklist.ts applyVerificationPin() sets it once and refuses a differing command/selector on a later write (receipt_command_mismatch); smoke case 6 exercises pin-then-mismatch-refused-then-same-command-reexecutes."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/plan.md#CHK-002",
+      "promise": "verification_evidence_add AND verification_evidence_batch_add both route through ONE shared enforceAndStampEvidence helper that executes the pinned command and refuses on mismatch",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/checklist.ts: verification_evidence_add and verification_evidence_batch_add are both async and both call enforceAndStampEvidence(...) before writing; validation-executor.ts adds runSingleAllowlistedCommand/parseAllowlistedCommand/tokenizeCommandString used by the helper. Smoke cases 3/4/5/6 assert the SAME refusal codes (receipt_selector_absent, receipt_exit_nonzero, intent_ref_unresolved, receipt_command_mismatch) fire through BOTH entry points."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/plan.md#CHK-003",
+      "promise": "Evidence stores a tool-owned receipt {exitCode, outputDigest=sha256(output), outputTail, selectorMatched, executedAt} and result is derived from the actual exit, not echoed from the caller",
+      "verifiedBy": "diff/grep + execution",
+      "evidence": "types.ts VerificationExecutionReceipt; checklist.ts enforceAndStampEvidence computes receipt via sha256Hex(run.output)/boundedOutputTail and sets derivedResult = exitOk && selectorMatched. Smoke case 1 recomputes sha256 independently and asserts equality; case 2b proves the tail is bounded to 4000 chars while the digest covers the full output; case 9 proves a caller-claimed 'fail' is overridden to 'pass' when the receipt says otherwise (and omitted result is derived)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/plan.md#CHK-004",
+      "promise": "manual|docs evidence is demoted at the coverage GATE (buildVerificationCoverage), not only in the handler, so recording an executable intent as type:manual cannot bypass execution",
+      "verifiedBy": "diff/grep",
+      "evidence": "core/verification.ts adds coverageStatusForCoveredEvidence(): mechanical===false -> 'non_mechanical' (never 'covered') regardless of write path; mechanical===undefined stays 'covered' only as legacy grandfather. Smoke case 7 drives this through the real handler (audited escape demoted to non_mechanical, missingRequired=1) and via direct buildVerificationCoverage fixtures (mechanical:false demoted, legacy mechanical:undefined still covered, and a genuinely-manual-typed intent still covered by its own attestation)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/plan.md#CHK-005",
+      "promise": "Legacy prose-only evidence (no pin, mechanical undefined) remains valid/readable, and the non-mechanical escape (nonMechanicalReason >= 30 chars) is enforced at Zod AND handler entry AND the checklist_update gate (per CLAUDE.md handler convention)",
+      "verifiedBy": "diff/grep",
+      "evidence": "command-catalog.ts declares nonMechanicalReason: z.string().min(30) on both verification_evidence_add and _batch_add schemas; checklist.ts re-validates the same 30-char floor at handler entry (MIN_NON_MECHANICAL_ESCAPE_REASON=30, thrown as non_mechanical_reason_too_short) reachable via the internal fn-call path that bypasses Zod (smoke case 11); assertChecklistUpdateEvidenceRowAllowed re-checks the same floor for the third write path (checklist_update) and legacy rows with mechanical undefined still load and are covered (smoke case 7b)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/plan.md#CHK-006",
+      "promise": "A RED-first smoke covering both entry points is registered in lattice.config.json validate.commands and package.json, and prints 'tool-executed-evidence-receipt-smoke: PASS'",
+      "verifiedBy": "diff/grep + execution",
+      "evidence": "lattice.config.json validate.commands adds node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js; package.json and packages/main/package.json both add test:tool-executed-evidence-receipt-smoke scripts; ran `node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js` directly in this review and it printed exactly 'tool-executed-evidence-receipt-smoke: PASS' with exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/findings.json#F-007",
+      "promise": "checklist_update's bulk verificationEvidence setter (the third write path) is routed through enforcement so it cannot become an unguarded bypass of enforceAndStampEvidence",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/checklist.ts checklist_update now calls carryForwardOnDiskProvenance + assertChecklistUpdateEvidenceRowAllowed per row before persisting; a raw fabricated executable pass throws checklist_update_executable_evidence_unenforced. Smoke case 12a/12b assert this; existing regression smokes (proofstory-acceptance-topology-smoke.ts) were updated to expect the new refusal instead of the old silent accept."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/findings.json#F-008",
+      "promise": "verificationEvidenceSchema strips caller-supplied mechanical/receipt/nonMechanicalReason (no injection path) while a genuine on-disk receipt survives a legitimate checklist_update re-persist",
+      "verifiedBy": "diff/grep",
+      "evidence": "cli/command-schemas.ts verificationEvidenceSchema now ends with .strip(); handlers/checklist.ts carryForwardOnDiskProvenance discards caller-supplied provenance up front and only restores mechanical/receipt/nonMechanicalReason from the EXISTING on-disk row for the same intentRef (receipt only when command+result unchanged). Smoke case 12b/12c assert a fabricated caller receipt is refused and a real on-disk receipt survives an unrelated metadata re-persist."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ec67/findings.json#F-001",
+      "promise": "verification_evidence_refresh_stale carries mechanical/receipt/nonMechanicalReason forward instead of dropping them, and demotes a stale mechanical receipt to non-mechanical rather than re-grandfathering it as covered",
+      "verifiedBy": "diff/grep",
+      "evidence": "handlers/checklist.ts refresh_stale path now computes refreshedMechanical/refreshedReceipt/refreshedReason: a prior mechanical:true receipt is demoted to mechanical:false with receipt cleared and an explanatory nonMechanicalReason (since the pinned command was not re-run), and mechanical:false attestations carry their reason forward unchanged."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "tool-executed-evidence-receipt-smoke.ts case 1/2/6 (executed live in this review, dist build, prints PASS): first evidence write for an executable intent pins verification={command,selector} on the intent; a second write with a different command is refused (receipt_command_mismatch) via BOTH single-add and batch-add; the SAME command on a second write is accepted and re-executes."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "smoke case 1/2/3/4/5 (executed live): the pinned command is actually run via runSingleAllowlistedCommand (a real spawned node process, not a stub); refusals for selector-absent, exit!=0-but-pass-claimed, and intentRef-unresolved are asserted identically through verification_evidence_add and verification_evidence_batch_add. Additionally (F-006/F-007/F-008 post-round findings, same smoke, cases 8 and 12): a fresh executable-intent write with neither selector nor nonMechanicalReason is refused via both entry points (executable_intent_requires_selector_or_reason); a raw fabricated executable pass and a fabricated caller receipt via checklist_update (the third write path) are both refused; a legitimate re-persist preserves a real on-disk receipt."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "smoke case 1 (receipt shape + independent sha256 recompute equality), case 2b (long-output tail-bound proof: outputTail truncated to 4000 chars while outputDigest covers the full 5000-char output; the finding F-002 mutation-kill regression is baked into this assertion), case 9 (result derivation overrides a caller-claimed 'fail' to 'pass' and derives 'pass' when result is omitted) — all executed live, all PASS."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "smoke case 7 (executed live): an audited non-mechanical attestation against an executable intent is demoted to status=non_mechanical at buildVerificationCoverage with missingRequired=1; a hand-built mechanical:false fixture is likewise demoted; a hand-built legacy mechanical:undefined row still shows status=covered; a genuinely manual-typed intent's own attestation still covers itself."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "smoke case 10 (genuinely manual|docs-typed intents go through the handler with mechanical:false and no receipt attempted), case 11 (a sub-30-char nonMechanicalReason is refused by the handler even via the internal fn-call path that bypasses Zod, closing the F-005 Zod-only gap), case 7b (legacy prose-only evidence with no pin still loads and is covered) — all executed live, all PASS."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Ran `node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js` directly during this delivery review: prints exactly 'tool-executed-evidence-receipt-smoke: PASS', exit code 0. Confirmed registration in lattice.config.json validate.commands and package.json/packages/main/package.json scripts. The story's own checklist.json shows all 18 verificationEvidence rows (CHK-001..CHK-006 x happy/edge/adversarial) as mechanical:true receipts pinned to this exact smoke command with selectorMatched=true and exitCode=0 — the story dogfoods its own mechanism."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 plan.md checklist promises (CHK-001..CHK-006) and all 4 post-round findings (F-001, F-006, F-007, F-008) are independently verified in the diff and confirmed by running the registered smoke live (prints PASS, exit 0); the story's own 18 evidence rows are real tool-executed receipts against the smoke itself, and no TODO/FIXME/HACK remains in the touched source files."
+  },
+  "_hash": "0ae4acf7e5eb7fb9c7e7363f431b2f8396b99ecca2913a2aff176459d1b3e596"
+}

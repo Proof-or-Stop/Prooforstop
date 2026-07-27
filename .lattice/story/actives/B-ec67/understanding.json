@@ -1,0 +1,39 @@
+{
+  "task": "Make a false verification-evidence pass mechanically impossible for automated intents: pin (command,selector) on the intent and have verification_evidence_add / verification_evidence_batch_add EXECUTE the pinned command and stamp a tool-owned receipt instead of trusting a caller-authored command+result.",
+  "outcome": "For an executable intent type (logic|cli|browser), recording evidence runs the pinned command; the write is refused unless exit==0 (when pass is claimed) AND the selector string appears in captured output AND the intentRef resolves to a real intent on the item AND the command matches the pinned one; the stored evidence carries a receipt (exitCode/outputDigest/outputTail) with the result derived from the actual exit, not the caller. Both single and batch paths enforce identically. manual|docs stay attestation-only and are not scored equal to executed receipts.",
+  "facts": [
+    "verification_evidence_add (packages/main/src/handlers/checklist.ts:888) accepts caller command? + result? and trusts them; it validates only note/kind/waiver/item-existence/hashes; it does NOT resolve intentRef to a real intent on the item; it overwrites existing evidence for the same intentRef.",
+    "verification_evidence_batch_add (checklist.ts:947) is a fully separate handler with independent evidence construction — no delegation — so it must be guarded in parallel or it is an unguarded bypass.",
+    "VerificationIntentItem (packages/main/src/core/types.ts:203-212) has id/desc/type/requiredIn/priority/plannedPathDeclarations and NO command/selector; plannedPathDeclarations (:211) is the precedent for a structured declaration hanging off an intent item.",
+    "VerificationIntentType (types.ts:192) = logic|cli|browser|manual|docs; the command-executable set is logic|cli|browser; manual|docs are attestation-only.",
+    "The only evidence-to-intent binding predicate is evidenceMatches = evidence.intentRef === ref (packages/main/src/core/verification.ts:46-47); intentRef is CHK-nnn:lane:index (lane in happy|edge|adversarial).",
+    "verificationIntentProtectedPhases = ['DEV','REVIEW','TEST','DONE'] (checklist.ts:653) freezes the intent from DEV; pinning verification on first evidence write is a NEW controlled mutation that must be allowed to ADD the field but never change it.",
+    "The reusable executor is runValidationCommand / executeValidationPlan (packages/main/src/core/validation-executor.ts:394 spawn / :492) returning per-command {code, output, timedOut}; DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS applies.",
+    "The tool-owned receipt shape already exists in done-required-validation.ts:892-895 {exitCode, outputDigest: sha256(output), outputTail(:531)} plus the receipt-command-mismatch: expected X, got Y convention (:701).",
+    "buildVerificationCoverage (verification.ts) consumes evidence for the DEV/REVIEW/DONE gates; it currently scores an evidence row as covered on result==='pass' regardless of whether the tool executed anything — so manual/docs demotion and executed-receipt distinction must be added there.",
+    "lattice-dispatch.ts rejects non-allowlisted commands before execution; the executor should reuse that allowlist so a pinned command is executable+argv, not an arbitrary shell program.",
+    "B-3b88 (Step 1, another active session) owns verification_evidence_refresh_stale; this story must not touch it."
+  ],
+  "constraints": [
+    "Pin lives on the intent item, added on the FIRST evidence write for that intentRef, immutable thereafter; any later write changing command/selector is refused (receipt-command-mismatch).",
+    "Both verification_evidence_add and verification_evidence_batch_add must reach the same enforcement boundary — factor a shared helper.",
+    "manual|docs intents cannot execute: keep them attestation-only, mark them non-mechanical, and the coverage gate must NOT score them equal to an executed receipt (else type:manual is an escape hatch).",
+    "Grandfather existing prose-only intents / evidence without a pin so in-flight stories do not hard-break; provide an explicit, attributable, gate-visible escape path (policy mode / audited repair).",
+    "Per CLAUDE.md handler convention, re-validate every constraint at Zod + handler entry + consuming gate, and test the internal-call path that bypasses Zod.",
+    "Do not modify verification_evidence_refresh_stale (owned by B-3b88).",
+    "Command is executable+argv and allowlisted; never a raw shell program.",
+    "TypeScript-only inside packages/main; no network."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "lattice.config.json",
+    "package.json"
+  ],
+  "timestamp": "2026-07-25T23:36:57.234Z"
+}

@@ -4,7 +4,7 @@ import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
   UnderstandingData, DecisionData, StorySummaryData,
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
-  StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
+  StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, StallAdjudicationData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
@@ -18,6 +18,7 @@ import type {
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
 import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
+import { classifyRedRecordSchema } from './red-evidence/record-v2.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
@@ -548,6 +549,21 @@ export class StoryStore {
     this.writeJson(storyId, 'init-check.json', data);
   }
 
+  // ── Stall Adjudication (B-7813 CHK-002: stall_resolution_set writes the signed
+  // stall-adjudication.json consumed by the DEV→REVIEW convergence-stall mint gate) ──
+
+  readStallAdjudication(storyId: string): StallAdjudicationData | null {
+    try {
+      return this.readJson<StallAdjudicationData>(storyId, 'stall-adjudication.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeStallAdjudication(storyId: string, data: StallAdjudicationData): void {
+    this.writeJson(storyId, 'stall-adjudication.json', data);
+  }
+
   // ── Scope Anti-Expansion (B-85ba: INIT→INIT_CHECK boundary freeze gate) ──
 
   readScopeBoundary(storyId: string): ScopeBoundaryData | null {
@@ -860,12 +876,26 @@ export class StoryStore {
   }
 
   readRedEvidence(storyId: string): RedEvidenceData | null {
+    let data: RedEvidenceData | null;
     try {
-      return this.readJson<RedEvidenceData>(storyId, 'red-evidence.json');
+      data = this.readJson<RedEvidenceData>(storyId, 'red-evidence.json');
     } catch (e) {
       if (e instanceof StoryArtifactMissingError) return null;
       throw e;
     }
+    // §6.4 fail-closed forward-compatibility (W2c / B-506e): every stored record
+    // is classified at load time; a record carrying an UNSUPPORTED per-record
+    // schemaVersion (neither absent/legacy-v1 nor the exact v2 literal — a future
+    // v3, a typo, a corrupted value) is REJECTED here with a clear typed
+    // RedEvidenceSchemaError, never silently accepted into records[] where a
+    // downstream v1-only field access would later throw a bare TypeError in the
+    // LIVE enforce gate. v1 (absent version) and v2 (exact literal) load unchanged.
+    if (data) {
+      for (const record of data.records ?? []) {
+        classifyRedRecordSchema(record);
+      }
+    }
+    return data;
   }
 
   writeRedEvidence(storyId: string, data: RedEvidenceData): void {

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-2aa7",
+  "name": "red-evidence-artifact-validation",
+  "title": "Validate the legacy v1 red-evidence artifact before enforce-gate evaluation",
+  "description": "On main at CLI 0.3.243 (after sibling story B-506e merged at 4d417a0c4b) a malformed VERSIONLESS record OR a malformed file envelope in a story's red-evidence.json still crashes the LIVE dev/review/done enforce gate with a bare TypeError instead of failing closed. B-506e closed only the unsupported-schemaVersion class (a null or string record now yields a typed error); the versionless-malformed class, array records, ordering-dependent silent corruption, and the ENTIRE file-envelope class remain live, verified by probe against current main. Root cause is unchanged: readJson is JSON.parse-and-cast with no validation between parse and the typed domain. Fix per the settled decisions in docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md (rev 3): full v1 validation at the read boundary covering envelope and records, malformed entries quarantined rather than thrown, the gate predicate kept total as defense-in-depth, and a mandatory migration scan proving no valid verdict moved. NOTE: re-locate every cited symbol against CURRENT main and never by line number - main advanced repeatedly during this story's INIT (0.3.239 to 0.3.243) and line citations from the original audit have drifted.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "red-evidence",
+    "proofstory",
+    "gate",
+    "schema-validation",
+    "fail-closed",
+    "quarantine"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "machine.ts"
+    }
+  ],
+  "createdAt": "2026-07-26T11:59:09.669Z",
+  "startedAt": "2026-07-26T11:59:09.669Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-26T11:59:10.785Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-26T22:20:18.333Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-2aa7",
+    "branch": "story/B-2aa7",
+    "createdAt": "2026-07-26T22:20:16.280Z"
+  }
+}

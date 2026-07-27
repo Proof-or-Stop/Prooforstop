@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3783",
+  "allowedCommands": [
+    "git",
+    "node packages/main/dist/cli.js",
+    "node packages/main/dist/tasks/command-catalog-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/tasks/command-catalog-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story edits only the smoke source + validate.commands config; build regenerates packages/main/dist as a side effect. No changes to command-catalog.ts or agent-dispatch-registry.ts.",
+  "createdAt": "2026-07-25T21:35:00.794Z",
+  "updatedAt": "2026-07-25T21:35:00.794Z",
+  "_hash": "0fed7085d43301d532893cc540a6318c480653b266af7b67040615f20b61d847"
+}

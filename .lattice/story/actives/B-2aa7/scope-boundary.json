@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2aa7",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Keep redEvidenceRecordSatisfied total on arbitrary input in packages/main/src/core/proofstory.ts (defense-in-depth only)",
+    "Land docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md into the repository",
+    "Migration scan over real story red-evidence artifacts, reporting the affected count even when zero",
+    "New regression tests under packages/main/tests/red/ and their registration in lattice.config.json validate.commands",
+    "Port the five-scenario invariance harness to main and pin a main-derived baseline digest",
+    "Quarantine structure: validated records array stays clean, rejected entries reported separately with index, identifying field and reason",
+    "Read-boundary validation of red-evidence.json in packages/main/src/core/store.ts, covering BOTH the file envelope and the individual records",
+    "Surface behaviour of the seven readRedEvidence consumers: red_evidence_get must display corruption, red_evidence_add must repair-or-refuse, story_review must not render corruption as unavailable"
+  ],
+  "excluded": [
+    "Generalising this validation into a framework for other story artifacts such as spike.json or scope-contract.json",
+    "OPEN-3: whether B-506e prose citing a sha256 no artifact produces warrants a B-META finding against the delivery-check gate - a process defect in another subsystem",
+    "Rewriting the remaining per-record predicate checks at proofstory.ts:933-940 - verified total already",
+    "The SATISFIED verdict for records that are well-formed under the legacy v1 schema - this is the hard invariant the story must preserve, not modify",
+    "The v2 record chain subsystem of story B-506e (core/red-evidence/record-v2.ts, classifyRedRecordSchema*, RedEvidenceSchemaError) - absent from main, owned by a parallel unmerged story",
+    "Write-path validation semantics of red_evidence_add - appendRedEvidence already validates correctly and is not changed"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Derived from the user approval recorded in this session: the user approved the audit decisions D-1..D-8 in docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md (full v1 validation + quarantine rejection form + mandatory migration scan), and the 8-item checklist materialized from a draft that passed three independent draft-review rounds plus two required INIT reviewers. This boundary restates that approved scope; it introduces nothing new.",
+  "createdAt": "2026-07-26T21:40:17.782Z",
+  "updatedAt": "2026-07-26T21:40:17.782Z",
+  "_hash": "1cd76d81910d1487ca6c618cf3279253aafc0372aff0969018c3a5b21d48c3fd"
+}

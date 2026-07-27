@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define the frozen-claim snapshot record and a deterministic claim-normalization Fn",
+      "context": "Add a snapshot/binding record for a checklist userSees claim: { normalizedClaimDigest, materialHash, headHash, attestedAt, attestedBy? }. Reuse existing freshness primitives (currentMaterialHash / checkEvidenceFreshnessForGit in handlers/checklist.ts; storyFilesHash from B-5a9a). normalizeClaim is a pure Fn: trim, collapse internal whitespace runs to one space, strip trailing whitespace — deterministic, no semantic interpretation. Types in core/types.ts; normalize + sha256 digest in a pure fn module (no I/O).",
+      "relatedDocs": [
+        "docs/evidence-integrity-program-spec.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "userSees": "A developer runs the new smoke and sees \"normalizeClaim collapses whitespace deterministically\" and \"snapshot record binds {normalizedClaimDigest, materialHash, headHash}\" among the passing assertions.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Snapshot userSees at attestation time and detect bidirectional drift (claim OR material), classify legacy-unbound",
+      "context": "Capture the snapshot when a checklist item's userSees becomes an attested delivered claim (PLAN pins the exact hook; candidate: on checklist_update status=done). Detect drift by recomputing the normalized digest and re-checking material freshness: drift when normalizedClaimDigest changed (claim edited) OR the bound material is stale (rename-aware `git diff --name-status -M`, mirroring review_incremental_context). A userSees with no snapshot is classified legacy-unbound (not drift, not error). Pure detection Fn + handler wiring; NO gate blocking in this story.",
+      "relatedDocs": [
+        "docs/evidence-integrity-program-spec.md",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "userSees": "A developer runs the smoke and sees \"material drift under frozen userSees -> FROZEN_CLAIM_DRIFT\", \"userSees text edited -> FROZEN_CLAIM_DRIFT\", \"unrelated file change -> no drift\", and \"userSees with no snapshot -> legacy-unbound\".",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Surface drift as a structured, non-blocking FROZEN_CLAIM_DRIFT advisory at a read point",
+      "context": "Expose a read-only structured report: { code: 'FROZEN_CLAIM_DRIFT', claimRef, itemId, previousDigest, currentDigest, previousMaterialHash, currentMaterialHash, driftKind: 'claim'|'material'|'both', classification: 'bound'|'legacy-unbound', actionRequired: 're_attestation' }. Surface via a new read-only CLI (e.g. frozen_claim_drift_check --storyId) and/or fold into story_get, mirroring the B-d243/B-edf1 storyFilesHash drift-advisory. NON-blocking in Phase 1 (no recovery path yet; a gate now would wedge stories). Follow the Handler runtime-revalidation convention — re-check every schema constraint at each consumer at runtime, not only in Zod.",
+      "relatedDocs": [
+        "docs/evidence-integrity-program-spec.md",
+        "CLAUDE.md"
+      ],
+      "userSees": "A developer runs `lattice frozen_claim_drift_check --storyId=B-xxxx` on a story with drifted userSees and sees a JSON advisory carrying code FROZEN_CLAIM_DRIFT, driftKind, and actionRequired: re_attestation; a clean story reports zero drift and exits 0.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "RED-first smoke covering both false-positive guards; register in validate + package.json",
+      "context": "RED-first, deterministic (no live network). Cover: (1) material drift under a frozen userSees -> detected; (2) userSees text edited -> detected; (3) unrelated file change -> NO drift (false-positive guard); (4) whitespace-only userSees edit normalizes to NO drift (false-positive guard); (5) userSees with no snapshot -> legacy-unbound. Assert the advisory is NON-blocking (does not fail any gate) in Phase 1. Register the smoke in lattice.config.json validate.commands and package.json scripts.",
+      "relatedDocs": [
+        "docs/evidence-integrity-program-spec.md",
+        "lattice.config.json",
+        "package.json"
+      ],
+      "userSees": "`lattice validate` runs the new frozen-claim-drift smoke and reports it green among the validate commands; the smoke output shows all five cases including the two false-positive guards passing.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

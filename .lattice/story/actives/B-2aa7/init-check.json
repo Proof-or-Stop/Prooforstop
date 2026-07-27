@@ -1,0 +1,47 @@
+{
+  "storyId": "B-2aa7",
+  "checkedAt": "2026-07-26T22:18:43.005Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "checklist.json CHK-001 ORDERING sub-case only names malformed-FIRST-then-satisfying (decision doc red-evidence-legacy-v1-record-validation-audit.md rev4 section 10.3 row O1); it omits row O2 (satisfying-FIRST-then-malformed, the order-dependent SILENT PASS where Array.prototype.some short-circuits at core/proofstory.ts:964-965 and returns SATISFIED even though a corrupt record follows). Re-verified still live on current main by direct probe through proofStoryDiagnosticInput+evaluateProofStoryDiagnostics: a well-formed record followed by {id\"bad\"} produces NO crash and the same verdict as if the malformed record were absent. Decision doc 10.3 explicitly requires the outcome must not depend on array order, but no checklist item (CHK-001s RED enumeration, or CHK-004/CHK-005s fix requirements) asks for a repro or assertion of this specific row. Previously raised as INIT-002 and deferred to PLAN; re-registered because it is still uncovered in the checklist content itself, not merely a PLAN-scheduling nuance."
+    },
+    {
+      "id": "INIT-007",
+      "severity": "medium",
+      "desc": "checklist.json CHK-001s newly-added SILENT class (which is NOT a crash) bundles two behaviourally different cases under one instruction assert the observable wrong behaviour, not a throw: (a) a non-object JSON root ([]/\"x\"/null/42), confirmed live via store.readRedEvidence to genuinely not throw and return the raw value unchanged; and (b) an unparseable file lets a raw SyntaxError escape, which DOES throw today -- confirmed live: JSON.parse in core/store.ts readJson throws a raw SyntaxError, not a silent pass-through. CHK-004s own requirement for the same case (E7) is must instead produce a typed error naming the path, i.e. the fix keeps a throw, just typed instead of raw -- directly contradicting CHK-001s not a throw framing for that same row. An implementer following CHK-001 literally could write an incorrect RED assertion for the unparseable-file case (e.g. asserting absence of an exception), which matches neither current nor required post-fix behaviour. CHK-001 should separate the unparseable-JSON row out of the non-crash SILENT class and phrase its RED assertion as currently throws an untyped/raw SyntaxError; must instead throw a typed error naming the path."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-26T22:12:01.808Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-001 title says \"proving both crash classes\" but the context adds the SILENT class (E5 non-object root, E7 raw SyntaxError), which is explicitly NOT a crash. Title should read \"all defect classes\" or similar. The context is unambiguous so this does not affect the deliverable, but a future reader of just the title would undercount the assertion types needed."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-26T22:18:43.005Z",
+      "issues": [
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "checklist.json CHK-001 ORDERING sub-case only names malformed-FIRST-then-satisfying (decision doc red-evidence-legacy-v1-record-validation-audit.md rev4 section 10.3 row O1); it omits row O2 (satisfying-FIRST-then-malformed, the order-dependent SILENT PASS where Array.prototype.some short-circuits at core/proofstory.ts:964-965 and returns SATISFIED even though a corrupt record follows). Re-verified still live on current main by direct probe through proofStoryDiagnosticInput+evaluateProofStoryDiagnostics: a well-formed record followed by {id\"bad\"} produces NO crash and the same verdict as if the malformed record were absent. Decision doc 10.3 explicitly requires the outcome must not depend on array order, but no checklist item (CHK-001s RED enumeration, or CHK-004/CHK-005s fix requirements) asks for a repro or assertion of this specific row. Previously raised as INIT-002 and deferred to PLAN; re-registered because it is still uncovered in the checklist content itself, not merely a PLAN-scheduling nuance."
+        },
+        {
+          "id": "INIT-007",
+          "severity": "medium",
+          "desc": "checklist.json CHK-001s newly-added SILENT class (which is NOT a crash) bundles two behaviourally different cases under one instruction assert the observable wrong behaviour, not a throw: (a) a non-object JSON root ([]/\"x\"/null/42), confirmed live via store.readRedEvidence to genuinely not throw and return the raw value unchanged; and (b) an unparseable file lets a raw SyntaxError escape, which DOES throw today -- confirmed live: JSON.parse in core/store.ts readJson throws a raw SyntaxError, not a silent pass-through. CHK-004s own requirement for the same case (E7) is must instead produce a typed error naming the path, i.e. the fix keeps a throw, just typed instead of raw -- directly contradicting CHK-001s not a throw framing for that same row. An implementer following CHK-001 literally could write an incorrect RED assertion for the unparseable-file case (e.g. asserting absence of an exception), which matches neither current nor required post-fix behaviour. CHK-001 should separate the unparseable-JSON row out of the non-crash SILENT class and phrase its RED assertion as currently throws an untyped/raw SyntaxError; must instead throw a typed error naming the path."
+        }
+      ]
+    }
+  ],
+  "_hash": "d6b009bfda6069678546aa535b8f80c5ad6e46fb8b96408eb4ed0edb391e3a76"
+}

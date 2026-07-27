@@ -1,0 +1,28 @@
+{
+  "task": "The command-catalog smoke fails on clean main because it asserts every AGENT_DISPATCH_REGISTRY entry (including the deliberately-retired lattice-review-channel) is dispatch-schema-valid; fix the guard to assert bidirectional consistency and wire it into validate.commands.",
+  "outcome": "Running `node packages/main/dist/tasks/command-catalog-smoke.js` prints `command catalog smoke passed: <N> commands` and exits 0. Running `lattice validate` now executes that same smoke as one of its guard commands, so a future divergence between the dispatch agentType enum and the retired-agent registry — a stale non-dispatchable agent leaking into the enum, or a retired lane like lattice-review-channel being wrongly accepted — fails validate with an AssertionError instead of passing silently.",
+  "facts": [
+    "node packages/main/dist/tasks/command-catalog-smoke.js exits 1 on clean main with AssertionError: registered lattice-review-channel example field agentType must be schema-valid (source ~line 159).",
+    "command-catalog.ts:2416 derives dispatch.agentType from z.enum(AGENT_DISPATCH_ACCEPTED_TYPES); the catalog is already correct.",
+    "agent-dispatch-registry.ts filters lattice-review-channel out of AGENT_DISPATCH_ACCEPTED_TYPES (~line 313-315) and resolveAgentDispatchType throws a retired error for it (~line 336-343); the entry is kept only for read-only historical classification (comment ~line 109-111).",
+    "The smoke loop (command-catalog-smoke.ts ~lines 152-166) iterates the full AGENT_DISPATCH_REGISTRY and asserts each canonicalName is schema-accepted and satisfies validateAgentDispatchRequest.",
+    "command-catalog-smoke.js is absent from lattice.config.json validate.commands; packages/main/package.json has an orphan test:command-catalog-smoke script."
+  ],
+  "constraints": [
+    "Do not modify command-catalog.ts or agent-dispatch-registry.ts; the retirement of lattice-review-channel must remain (ACCEPTED_TYPES filter + resolveAgentDispatchType rejection).",
+    "The smoke must exit 0 on clean main after the fix and must actively assert retired entries are rejected by BOTH the dispatch agentType schema and validateAgentDispatchRequest.",
+    "Register the smoke on validate.commands normal tier (not the fast focus set) because it spawns real CLI subprocesses; do not add a new build dependency (build already runs first in validate).",
+    "All story artifacts and code comments in English (english-artifacts gate)."
+  ],
+  "unknowns": [
+    "Exact matcher for the retired runtime rejection: confirm validateAgentDispatchRequest throws with a message matching /retired|unknown/ before asserting on it.",
+    "Whether the validate.commands entry needs an explicit timeoutMs like sibling CLI-subprocess smokes, or the default timeout suffices."
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "lattice.config.json",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/cli/command-catalog.ts"
+  ],
+  "timestamp": "2026-07-25T21:36:49.839Z"
+}

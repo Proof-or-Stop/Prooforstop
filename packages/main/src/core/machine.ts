@@ -22,6 +22,7 @@ import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
+import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
 import { evaluateReviewerQuorum } from './reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
 import {
@@ -363,6 +364,40 @@ export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
   return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
 }
 
+/**
+ * B-7813 CHK-001: the mint-site stall adjudication for the DEV→REVIEW
+ * (CODE_REVIEW) transition — the site where an ordinary review round is minted.
+ *
+ * Reads the observable round history via the pure-ish store consumer
+ * evaluateReviewMintStallAdjudication (which itself reuses the EXISTING
+ * assessReviewConvergence trend detector — no raw round ceiling here). Returns
+ * the adjudication; the caller refuses the mint when blocked.
+ *
+ * FAIL-OPEN: a guard must never throw (an exception pushes the actor into its
+ * error state). Any store/config read error degrades to { blocked: false } so a
+ * gate/infra error can never strand a legitimate review round. This mirrors the
+ * fail-open discipline of the other DEV-door guards.
+ */
+export function reviewRoundMintStallAdjudication(context: StoryMachineContext): StallAdjudication {
+  try {
+    return evaluateReviewMintStallAdjudication(context.store, context.storyId);
+  } catch {
+    return { blocked: false };
+  }
+}
+
+/**
+ * B-7813 CHK-001: combined guard for the DEV→REVIEW (CODE_REVIEW) mint. The
+ * round is minted only when the checklist/evidence gate passes AND the
+ * convergence-stall adjudication does not block. Order mirrors
+ * getGuardFailureReason's REVIEW branch so the boolean and the rendered reason
+ * cannot drift.
+ */
+export function canMintReviewRoundGuard(context: StoryMachineContext): boolean {
+  if (!checklistAllDoneGuard(context)) return false;
+  return !reviewRoundMintStallAdjudication(context).blocked;
+}
+
 export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
   try {
     const story = context.store.readStory(context.storyId);
@@ -587,6 +622,22 @@ export function canEnterPlanGuard(context: StoryMachineContext): boolean {
     const story = context.store.readStory(context.storyId);
     if (story.phase !== 'IDEA') return true;
     return !evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * B-8b69: gated PLAN->INIT reopen guard. Structurally, the reopen is legal only
+ * from PLAN (the xstate PLAN state is the sole owner of the REOPEN edge, and the
+ * non-xstate parallel table below restricts it to the PLAN case). This guard
+ * fails closed on a missing/unreadable story. The REQUIRED, audited reason is NOT
+ * checked here — the pure machine guard has no access to the command args; the
+ * transition orchestrator enforces the reason before sending the REOPEN event.
+ */
+export function canReopenToInitGuard(context: StoryMachineContext): boolean {
+  try {
+    return context.store.readStory(context.storyId).phase === 'PLAN';
   } catch {
     return false;
   }
@@ -857,9 +908,15 @@ export function canSendStoryEventWithoutSnapshotCan(
     case 'INIT_CHECK':
       return eventType === 'PLAN' || (eventType === 'START' && canSkipPlanGuard(context));
     case 'PLAN':
-      return eventType === 'START' && canStartDevGuard(context);
+      // B-8b69: START advances to DEV; REOPEN is the gated backward edge to INIT
+      // (unfreeze a scope-flagged title). Keep this in sync with the xstate PLAN state.
+      return (eventType === 'START' && canStartDevGuard(context))
+        || (eventType === 'REOPEN' && canReopenToInitGuard(context));
     case 'DEV':
-      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && checklistAllDoneGuard(context));
+      // B-7813 CHK-001: CODE_REVIEW mints a review round — enforce the stall
+      // adjudication here too so the snapshot-can fallback agrees with the
+      // xstate canMintReviewRound guard.
+      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && canMintReviewRoundGuard(context));
     case 'REVIEW':
       // F-006: REVIEW→DEV rollback must consult canReenterDevGuard so this non-xstate path agrees
       // with the machine guard (the parallel block holds on the rollback door too).
@@ -881,12 +938,16 @@ export const storyMachine = setup({
       | { type: 'PLAN' }
       | { type: 'START' }
       | { type: 'REPLAN' }
+      | { type: 'REOPEN' }
       | { type: 'CODE_REVIEW' }
       | { type: 'REVIEW_PASS' }
       | { type: 'FINISH' },
   },
   guards: {
     checklistAllDone: ({ context }) => checklistAllDoneGuard(context),
+    // B-7813 CHK-001: DEV→REVIEW mint gate = checklistAllDone AND not stalled
+    // without a current-round resolution.
+    canMintReviewRound: ({ context }) => canMintReviewRoundGuard(context),
     // B-e71f CHK-006: xstate-side fallback for the INIT→INIT_CHECK hard gate.
     // getGuardFailureReason in phase-gates.ts is only invoked by resolveGuardFailure when actor.can() returns false,
     // so a guard must be attached to the INIT→INIT_CHECK transition here; otherwise can() will always be true and the gate will never fire.
@@ -894,6 +955,10 @@ export const storyMachine = setup({
     // _hash mismatch → false; pass → true. The failure reason is rendered as a human-readable message by getGuardFailureReason.
     canEnterInitCheck: ({ context }) => canEnterInitCheckGuard(context),
     canEnterPlan: ({ context }) => canEnterPlanGuard(context),
+    // B-8b69: gated PLAN->INIT reopen. The guard only certifies the transition is
+    // structurally legal (story is at PLAN); the required, audited reason is
+    // enforced by the transition orchestrator, which owns the command args.
+    canReopenToInit: ({ context }) => canReopenToInitGuard(context),
     canStartDev: ({ context }) => canStartDevGuard(context),
     canSkipPlan: ({ context }) => canSkipPlanGuard(context),
     // F-006: REVIEW→DEV and TEST→DEV rollbacks are also doors into DEV — enforce the parallel block.
@@ -928,13 +993,20 @@ export const storyMachine = setup({
     PLAN: {
       on: {
         START: { target: 'DEV', guard: 'canStartDev' },
+        // B-8b69: gated backward edge to INIT so a PLAN scope review that flags a
+        // frozen checklist title can be honored (INIT is the only phase where
+        // title/context is editable). Reason enforcement lives in the orchestrator.
+        REOPEN: { target: 'INIT', guard: 'canReopenToInit' },
       },
     },
     DEV: {
       on: {
         CODE_REVIEW: {
           target: 'REVIEW',
-          guard: 'checklistAllDone',
+          // B-7813 CHK-001: mint gate — checklistAllDone + convergence-stall
+          // adjudication (refuses another ordinary round when stalled without a
+          // current-round resolution).
+          guard: 'canMintReviewRound',
         },
         REPLAN: {
           target: 'PLAN',
@@ -1179,6 +1251,20 @@ export function getGuardFailureReason(
     const missingEvidence = getBlockingVerificationEvidenceIssues(cl, undefined, reviewPolicy.profile);
     if (missingEvidence.length > 0) {
       return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ Run verification_evidence_add to record logic/integration/browser/manual evidence, or use waiver to explicitly exempt`;
+    }
+    // B-7813 CHK-001: convergence-stall adjudication at the mint site. Ordered
+    // AFTER the checklist/evidence checks to mirror canMintReviewRoundGuard, so
+    // pending items surface first and the stall reason renders only once the
+    // checklist gate is otherwise clear.
+    const stall = (() => {
+      try {
+        return evaluateReviewMintStallAdjudication(store, storyId);
+      } catch {
+        return { blocked: false } as StallAdjudication;
+      }
+    })();
+    if (stall.blocked && stall.prompt) {
+      return `Cannot enter REVIEW: ${stall.prompt}`;
     }
   }
 

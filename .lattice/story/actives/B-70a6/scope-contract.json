@@ -1,0 +1,67 @@
+{
+  "storyId": "B-70a6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/story-query.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/core/process-events.ts"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/decisions/plan-init-reopen.md",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "scopeChangeReason": "THIRD EXPANSION driven by REVIEW round 4 finding B-70a6:F-005 (high, lattice-review-behavior, independently corroborated by lattice-review-test-coverage). The F-004 fix established reconcilePendingReopenAudit at the top of runStoryTransitionInner, but the invariant 'no phase change can follow an unaudited reopen' is NOT framework-wide: story_discard (packages/main/src/handlers/worktree.ts:1428) and the zombie-story DONE-reconcile path (packages/main/src/handlers/story-query.ts:796) both mutate story.phase directly via store.writeStory without reconciling. Proven empirically in an isolated scratch repo: crash-inject the reopen audit append, then story_discard --force deletes the worktree and branch that held the pending record, the story reaches terminal DISCARDED with zero warning, and the audit event is PERMANENTLY lost - falsifying the implementer's documented residual #2 that recovery is merely deferred. Adding exactly one file, packages/main/src/handlers/story-query.ts, so the reconcile can be invoked at both out-of-band phase-mutation sites. machine.ts, version-bump.ts and process-events.ts remain protected.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lifecycle artifact written by the independent lattice-review-story-init reviewer during the INIT gate, not a code change and not scope creep. It has no runtime registry entry so the fail-closed unknown-path rule flags it, but the story contract deliberately declares only material source paths; acknowledging rather than widening allowedModify keeps the contract precise about which CODE may change.",
+      "timestamp": "2026-07-26T01:46:08.428Z",
+      "paths": [
+        ".lattice/story/actives/B-70a6/init-self-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-70a6/init-self-check.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7ffd97c203f93de83f1d5181487c8e91b809d978",
+      "materialHash": "ade8a36d2cdf143362f1dda6676bf177f06bf7f1b64dda1115a2848f77b48693"
+    }
+  ],
+  "createdAt": "2026-07-26T01:06:42.704Z",
+  "updatedAt": "2026-07-26T05:59:09.935Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts",
+    "packages/main/src/core/process-events.ts": "packages/main/src/core/process-events.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "docs/requirements/decisions/plan-init-reopen.md": "docs/requirements/decisions/plan-init-reopen.md",
+    "package.json": "package.json",
+    "packages/main/package.json": "packages/main/package.json",
+    ".lattice/story/actives/B-70a6/init-self-check.json": ".lattice/story/actives/B-70a6/init-self-check.json",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/story-query.ts": "packages/main/src/handlers/story-query.ts"
+  }
+}

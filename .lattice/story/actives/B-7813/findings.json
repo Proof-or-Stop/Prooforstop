@@ -1,0 +1,74 @@
+{
+  "findings": [
+    {
+      "id": "B-7813:F-001",
+      "desc": "stall_resolution_set is unreachable through the real CLI in both phases it is declared for: packages/main/src/core/config.ts DEFAULT_PHASE_TOOLS.DEV and DEFAULT_PHASE_TOOLS.REVIEW (and the global \"*\" bucket) never list stall_resolution_set, even though command-policy.ts declares allowedPhases:[DEV,REVIEW] and command-catalog.ts registers its schema. cli-engine.ts gates every CLI invocation through isCommandAllowed(cmd, activeStory.phase, config.phaseTools) BEFORE dispatch, so lattice stall_resolution_set is rejected with Command not available in <phase> phase in the exact two phases (DEV, REVIEW) the feature exists for. Reproduced live against this very story (B-7813, currently REVIEW): node bin/lattice.js stall_resolution_set {storyId:B-7813,action:authorize_continuation,reason:...} -> exit 1, Command stall_resolution_set is not available in REVIEW phase. The refusal prompt CHK-001 wires into getGuardFailureReason (core/review-convergence.ts buildStallAdjudicationPrompt/buildStallCeilingPrompt) literally tells the operator to run stall_resolution_set, which is a dead end. Root cause of the miss: lifecycle-registry-contract.ts checkCommandDimension only checks that DEFAULT_PHASE_TOOLS is a SUBSET of what command-policy allows (never grants more), never the converse (that every command-policy allowedPhases entry is actually reachable via DEFAULT_PHASE_TOOLS), so node packages/main/dist/tasks/lifecycle-registry-contract.js reports PASS despite this gap. The RED-first smoke (tasks/review-budget-stall-adjudication-smoke.ts) also never catches it because it calls the stall.stall_resolution_set(...) handler function directly, bypassing cli-engine.ts entirely. Fix: add stall_resolution_set to DEFAULT_PHASE_TOOLS.DEV and .REVIEW in packages/main/src/core/config.ts (or the global * bucket), and add a converse cross-check to lifecycle-registry-contract.ts so this direction of drift is caught mechanically going forward.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T09:06:20.987Z",
+      "reviewRound": "2026-07-26T09:00:34.758Z",
+      "reviewRunId": "B-7813:RR-001",
+      "_hash": "515e713d424d47f620995d13b453209126f72c455fd3c72ba394ccf06f1ba682",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/tasks/lifecycle-registry-contract.ts"
+      ],
+      "signatureTag": "missing|ts|stall-resolution-unreachable",
+      "signatureTagSource": "auto",
+      "resolvedReason": "a72c3e5308: added stall_resolution_set to DEFAULT_PHASE_TOOLS.DEV and .REVIEW in core/config.ts (peer of scope_shrinkage_decision_set/finding_cluster). Verified: node bin/lattice.js stall_resolution_set against B-7813 in REVIEW is no longer phase-blocked; lifecycle-registry-contract PASS.",
+      "resolvedAt": "2026-07-26T09:26:47.657Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7813:F-002",
+      "desc": "CHK-002:happy:0 and CHK-002:edge:0 declare verificationIntent.type=\"cli\" (an operator running stall_resolution_set via the real CLI), but the recorded verificationEvidence (kind=manual_transcript, both pinned to review-budget-stall-adjudication-smoke.js) never crosses the CLI boundary: the smoke calls stall.stall_resolution_set(...) directly via createStallAdjudicationHandlers(ctx), bypassing cli-engine.ts/isCommandAllowed entirely. Independently reproduced (node bin/lattice.js stall_resolution_set against this live story, currently REVIEW): exit 1, \"Command stall_resolution_set is not available in REVIEW phase\" -- confirms lattice-review-concept B-7813:F-001 (stall_resolution_set missing from DEFAULT_PHASE_TOOLS.DEV/.REVIEW in core/config.ts). So the declared cli-type intent was never satisfiable by genuine CLI-level verification, and the manual_transcript evidence mislabels a direct in-process handler call as CLI evidence. Same root cause blocks CHK-001/003 operator recovery too: buildStallAdjudicationPrompt/buildStallCeilingPrompt literally instruct the operator to run stall_resolution_set, which is a dead end in both phases it exists for. Fix: once F-001 lands (stall_resolution_set added to phaseTools), re-run/replace this evidence with a genuine CLI-level transcript (spawn lattice stall_resolution_set as a child process) for the cli-typed intents, or downgrade the declared type to logic and add real CLI-reachability coverage separately.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T09:12:14.807Z",
+      "reviewRound": "2026-07-26T09:00:34.758Z",
+      "reviewRunId": "B-7813:RR-003",
+      "_hash": "5b3e2f37e645c08afc01bb57897779d054a0c8721f0fb4e484cc87762b805794",
+      "files": [
+        "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "signatureTag": "missing|ts|happy-edge-declare",
+      "signatureTagSource": "auto",
+      "resolvedReason": "a72c3e5308: smoke partG() now crosses the REAL node cli.js boundary in both DEV and REVIEW — positive control (TEST-only delivery_check_set IS phase-blocked) + asserts stall_resolution_set NOT phase-blocked, so the CHK-002 cli-typed intents genuinely cross the CLI. Smoke PASS.",
+      "resolvedAt": "2026-07-26T09:26:48.958Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7813:F-003",
+      "desc": "doc-promise-undelivered / dead-wiring: stall_resolution_set (packages/main/src/handlers/stall-adjudication.ts, registered in cli/command-catalog.ts + core/command-policy.ts with allowedPhases:[DEV,REVIEW]) is unreachable through the real CLI in exactly those two phases because core/config.ts DEFAULT_PHASE_TOOLS.DEV / .REVIEW (and the \"*\" bucket) never list it. Independently reproduced live against this story: `node bin/lattice.js stall_resolution_set {...}` while B-7813 is in REVIEW -> exit non-zero, \"Command stall_resolution_set is not available in REVIEW phase\". This is exactly the command the new blocking prompts (core/review-convergence.ts buildStallAdjudicationPrompt/buildStallCeilingPrompt, surfaced via getGuardFailureReason) instruct the operator to run — so the entire CHK-002/CHK-003 clearing mechanism (authorize_continuation/replan/escalate_root_cause/resolve_findings/declare_unreachable/override_budget) is inoperable via the real CLI today; only the RED-first smoke exercises it because it calls the handler function directly, bypassing cli-engine.ts isCommandAllowed entirely. Corroborates/aligns with lattice-review-concept finding B-7813:F-001 (same root cause, same fix: add stall_resolution_set to DEFAULT_PHASE_TOOLS.DEV and .REVIEW in core/config.ts). Filed independently under the quality lane because it is precisely the promised-but-undelivered failure mode the Closing Self-Check requires flagging: the guard's own printed remediation text is a dead end for a real operator.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T09:12:55.528Z",
+      "reviewRound": "2026-07-26T09:00:34.758Z",
+      "reviewRunId": "B-7813:RR-002",
+      "_hash": "fa127361c14750784c2895549429210e5cf04d6c164ded10722dd3cd31dbf353",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/handlers/stall-adjudication.ts",
+        "packages/main/src/core/review-convergence.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-dead",
+      "signatureTagSource": "auto",
+      "resolvedReason": "a72c3e5308: same root fix as F-001 (config.ts DEFAULT_PHASE_TOOLS). Systemic root also hardened: lifecycle-registry-contract now checks the CONVERSE (every command-policy allowedPhases reachable in DEFAULT_PHASE_TOOLS); controlled experiment confirmed it flags exactly the 2 stall_resolution_set divergences and zero unrelated commands (empty exemption list). Contract PASS.",
+      "resolvedAt": "2026-07-26T09:26:50.236Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

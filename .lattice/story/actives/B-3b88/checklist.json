@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reject an evidence write whose command and file fields name contradictory targets",
+      "context": "F-049/F-050: a single verification_evidence_add row had command pointing at one script and its own file field pointing at a different file. The contradiction is within one row and is mechanically checkable at write time in handlers/checklist.ts (verification_evidence_add). Refuse the write with a clear message rather than accepting contradictory proof.",
+      "userSees": "verification_evidence_add refuses with an explicit error when a row's command and file fields name different targets.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/evidence-selfcheck-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Stop verification_evidence_refresh_stale from re-certifying pass evidence without re-execution",
+      "context": "checklist.ts:1051-1077 re-stamps head/material/storyFilesHash while copying command/result/note verbatim and never executes anything, laundering a stale result:pass onto new material (F-045/F-046/F-047). Either re-execute the row's command and refresh only on continued pass, or refuse to refresh result:pass rows and require real re-verification; make the documented '(rerun command)' semantics honest.",
+      "userSees": "refresh_stale no longer marks an unverified pass as fresh on new material; it either re-runs the command or refuses.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

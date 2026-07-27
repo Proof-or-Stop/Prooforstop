@@ -508,7 +508,10 @@ try {
     assert.deepEqual(missing.codes, ['PR_ARTIFACT_MISSING']);
     assert.match(missing.remediation.join('\n'), /Run lattice pre_review_check/);
   }
-  cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'caller self-report must not become pre-review authority', attestation: { kind: 'ci', actor: 'self-reported', checkedClaims: ['production-path', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible'] }, actorTrust: { producerActorId: 'claimed-producer', verifierActorId: 'claimed-verifier', trustStatus: 'trusted' } }] });
+  // B-ec67 F-006: an executable (type:cli) intent's evidence write needs a selector or an
+  // audited nonMechanicalReason. This case deliberately records a self-reported attestation
+  // (which pre_review_check must still reject as authority), so it uses the audited escape.
+  cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'caller self-report must not become pre-review authority', nonMechanicalReason: 'self-reported caller attestation recorded without local execution; pre-review authority is proven separately', attestation: { kind: 'ci', actor: 'self-reported', checkedClaims: ['production-path', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible'] }, actorTrust: { producerActorId: 'claimed-producer', verifierActorId: 'claimed-verifier', trustStatus: 'trusted' } }] });
   if (!liveProofMode && !scenarioMode) {
     const selfReported = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(selfReported.ok, false); assert.ok(selfReported.codes.includes('PR_AUTHORITY_INADMISSIBLE'));
@@ -810,7 +813,9 @@ try {
   // basis/evidence after config material changes so the mode assertions test
   // admission semantics rather than unrelated freshness failures.
   const rebindEvidence = (): void => {
-    cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'production evidence writer refreshes current proof binding' }] });
+    // B-ec67 F-006: executable-intent evidence needs a selector or an audited reason;
+    // this rebind is not re-executed in-fixture, so it uses the audited escape.
+    cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'production evidence writer refreshes current proof binding', nonMechanicalReason: 'production evidence rebind after config material change; not re-executed in this smoke fixture' }] });
     captureProof(fixtureProof);
   };
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'enforce' } }));

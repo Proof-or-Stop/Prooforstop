@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1507",
+  "changes": "Adds the ergonomics + seatbelt layer on top of the B-ec67 tool-executed evidence-receipts floor (Step 2 of the evidence-integrity program). (1) A new verification_run command (handlers/checklist.ts + cli/command-catalog.ts) resolves an intent to its immutable pinned verification:{command,selector}, executes it through the SAME enforceAndStampEvidence + runSingleAllowlistedCommand boundary as verification_evidence_add, and atomically writes the tool-owned receipt in one step, so a caller never hand-authors a pass command. (2) verification_evidence_refresh_stale is now async and RE-EXECUTES the pinned command on continued pass, re-issuing a real receipt bound to current material instead of only demoting; a new synchronous refreshStaleEvidenceMetadataOnly export is substituted into the three non-executing in-process callers (evidence-refresh.ts, done-prepare.ts, recover-evidence.ts). A ReexecStamp is minted only after a genuine pass — any failure leaves the row demoted, and pin-less rows keep demote-only behavior. (3) A fail-open PreToolUse evidence-pin guard on both hosts: pure verdict logic in core/evidence-pin-guard.ts, an I/O shell in handlers/evidence-pin-guard.ts (verification_pin_guard_check), thin shims in .claude/hooks/lattice-evidence-pretool.cjs (Bash matcher) and .codex/hooks/lattice-evidence-pretool.cjs, wired through init-assets.ts/cli-init.ts/managed-assets.ts/.claude/settings.json/.codex/hooks.json. The guard denies only an explicit command/selector mismatch and allows every ambiguous case; the enforceAndStampEvidence handler stays the real floor. (4) A RED-first mutation-killing smoke (tasks/verification-run-and-guard-smoke.ts, 17 assertions) drives all three behaviors plus both host shims through their real entry points, registered in lattice.config.json + both package.json.",
+  "usage": "lattice verification_run --storyId=B-xxx --intentRef=CHK-nnn:lane:i executes the intent's pinned verifier and stamps a receipt (the command comes from the pin, not the caller). lattice verification_evidence_refresh_stale --storyId=B-xxx now re-runs pinned rows and re-issues receipts on continued pass. The PreToolUse guard fires automatically before a lattice verification_evidence_add / verification_run shell invocation and prints a teaching message on a pin mismatch; it is fail-open, so it never blocks legitimate work.",
+  "expectedOutcome": "Recording proof for an executable intent is a single verification_run call that runs the pinned verifier and stamps a receipt; a stale mechanical receipt is genuinely re-proven by re-execution rather than invalidated; and a mismatched evidence-write command is caught early with a teaching message on both hosts while the handler remains the enforcement floor.",
+  "actualTranscript": "verification_run executes the pin and writes {exitCode:0, selectorMatched:true, mechanical:true} or refuses with verification_run_no_pin / intent_ref_unresolved / receipt_exit_nonzero and mints no row. verification_evidence_refresh_stale re-executed all 12 of this story's own dogfood evidence rows at fixed material (mechanical:true receipts). The registered smoke prints 'verification-run-and-guard-smoke: PASS' (verified 10/10 runs, no flake), and the exit-nonzero refusal assertion mutation-kills (disabling the refusal makes the smoke fail). lattice validate --story=B-1507 reports status=pass allPass=true.",
+  "outcomeDiff": "No difference. All four milestones (verification_run, refresh re-execution, dual-host fail-open guard, RED-first smoke) are delivered and proven by the registered mutation-killing smoke, the 12 tool-executed dogfood receipts, three reviewer lanes, and the 3x2 quorum. Three reviewer-found validate-red wiring bugs and two others were all fixed and re-verified green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The dual-host guard is fully asserted end-to-end on the Claude Bash host. On the Codex host the hook is wired and the smoke asserts it fires (exit 2 on a mismatch) against the documented shell-tool-name candidate set (shell / local_shell / exec_command); the exact production tool_name that Codex emits for shell execution could not be observed in this environment, so the smoke marks that one Codex sub-assertion with an honest CANDIDATE note and never asserts a false green. This does not weaken evidence integrity: the guard is a fail-open seatbelt on both hosts and the enforceAndStampEvidence handler — not the hook — is the real floor, which the smoke proves still refuses a mismatch when the hook is bypassed.",
+  "pitfalls": "Reviewers caught five real validate-red issues the author missed: a new command registered in command-policy but absent from the process-fact levels (broke lifecycle-registry-contract), a Claude hook file created but never wired into .claude/settings.json, a source fingerprint left stale by a one-line edit to cli-engine.ts, and one genuinely non-reproducing flaky smoke assertion (root-caused to transient host subprocess pressure and hardened by isolating the assertion's fixture, not weakened). Process pitfalls for the next person: (a) dispatching two implementers in parallel into ONE shared story worktree corrupts git state (a sibling git stash + auto-commit swept an in-flight implementer's changes) even with disjoint file sets, because the working tree/index/stash are worktree-global — serialize implementers or give each an isolated worktree. (b) running reviewer_list --forceReviewer AFTER story_advance REVIEW leaves an uncommitted reviewer_forced event in index.json, which fails review_pass_set closeout retention for EVERY reviewer that round — force the roster before advancing, and commit any dirtied story metadata before re-running reviewers. (c) the DEV->REVIEW ProofStory gate needs the verifier-owned acceptance basis to EXIST (an independent topology-critic generates it); the topology_critic_receipt itself is not required for the lifecycle.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 501443
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 54629
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1287909
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 6683315
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 3375070
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 656126
+    }
+  },
+  "totalDurationMs": 12559111,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-26T07:19:28.237Z",
+  "updatedAt": "2026-07-26T07:19:28.237Z"
+}

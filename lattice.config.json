@@ -51,7 +51,10 @@
       "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/production-test-seam-guard.js"], "focus": ["fast"] },
       "node packages/main/dist/tasks/capability-list-smoke.js",
+      { "command": "node", "args": ["packages/main/dist/tasks/command-catalog-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js"], "timeoutMs": 180000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/verification-run-and-guard-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/validate-command-timeout-smoke.js"], "focus": ["fast"] },
       { "command": "node", "args": ["packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"], "focus": ["fast"] },
@@ -97,6 +100,8 @@
       { "command": "node", "args": ["packages/main/dist/tasks/withdrawn-disposition-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/red-evidence-policy-canon-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/red-evidence-target-binding-smoke.js"], "timeoutMs": 180000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js"], "timeoutMs": 180000 },
+      { "command": "node", "args": ["packages/main/dist/tasks/red-evidence-chain-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js", "--issuer-mutations"], "timeoutMs": 180000 }
     ]
   },

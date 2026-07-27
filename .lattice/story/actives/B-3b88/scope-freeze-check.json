@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3b88",
+  "checkedAt": "2026-07-25T22:16:45.976Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "a112016d04ea9c874059451b42d4ee817116ac8d077091ec97184b5e28f8c2fe",
+  "executionBoundaryHash": "78ae94860e3124e6eff0157994269c6b7fb0c82652b57c614548aa973e478dc6",
+  "freshnessHash": "e8bc3afeaa617846697c4cb3606c79e8b1f293760621cbc6980c9822b6427803",
+  "effectiveExcludedKeywords": [
+    "Adding a (command, selector) verification-binding schema field to verificationIntent (Step 2)",
+    "Authority",
+    "customerKeyRef",
+    "Frozen-field / doc-promise drift re-attestation (follow-on)",
+    "Layer4",
+    "Making verification_evidence_add execute the verifier / produce receipts (Step 2)",
+    "quorum/autopilot duplicate-verdict idempotency (class 2, tracked in B-3144)",
+    "repair UX",
+    "Stall-detection adjudication / review-round budget (Step 3, class 3)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding a (command, selector) verification-binding schema field to verificationIntent (Step 2)",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding a (command, selector) verification-binding schema field to verificationIntent (Step 2)",
+      "excluded": true
+    },
+    {
+      "keyword": "Frozen-field / doc-promise drift re-attestation (follow-on)",
+      "source": "scopeBoundary.excluded",
+      "text": "Frozen-field / doc-promise drift re-attestation (follow-on)",
+      "excluded": true
+    },
+    {
+      "keyword": "Making verification_evidence_add execute the verifier / produce receipts (Step 2)",
+      "source": "scopeBoundary.excluded",
+      "text": "Making verification_evidence_add execute the verifier / produce receipts (Step 2)",
+      "excluded": true
+    },
+    {
+      "keyword": "quorum/autopilot duplicate-verdict idempotency (class 2, tracked in B-3144)",
+      "source": "scopeBoundary.excluded",
+      "text": "quorum/autopilot duplicate-verdict idempotency (class 2, tracked in B-3144)",
+      "excluded": true
+    },
+    {
+      "keyword": "Stall-detection adjudication / review-round budget (Step 3, class 3)",
+      "source": "scopeBoundary.excluded",
+      "text": "Stall-detection adjudication / review-round budget (Step 3, class 3)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "c2c2a6c0e92fc676841f8f0897475619fb1cb5a5439171fdf0de58f733207828"
+}

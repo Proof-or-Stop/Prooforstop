@@ -338,7 +338,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'summary_get',   // 全局：读取 summary，任何阶段都可以查
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
     'summary_set',   // 全局：DONE 前强制落总结，lattice short-path story 也需要
-    'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
+    'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', 'verification_run', // verification evidence is metadata, allowed across phases for reviewer/test handoff (verification_run executes the pinned verifier + writes the receipt)
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
@@ -356,6 +356,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'guard_session_status', // B-6bfd CHK-004: read-only guard session projection
     'guard_session_check', // B-6bfd CHK-004: NOT read-only — refreshes/writes guard-session.json + appends a guard_session_check process event, so it is an owner-gated storyScopedMutating write (see command-policy.ts); listed here because the check itself is allowed in every phase, while guard_session_start is phase-scoped below
     'prewrite_guard_check', // B-6bfd CHK-005: read-only pre-write scope gate for Claude Code PreToolUse hooks; called by the hook in any phase, writes nothing
+    'verification_pin_guard_check', // B-1507 CHK-003: read-only fail-open evidence-pin seatbelt for shell-tool PreToolUse hooks; called by the hook in any phase, writes nothing
     'plan_get',
     'workflow_*',    // 全局：profile 查看/设置/解释，任何阶段都可以
     'background_*',  // B-45ed CHK-007: background 是元数据，任何阶段可读写
@@ -469,12 +470,15 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance',
     // B-a4e3 CHK-005: removed dead story_dispatch / finding_dispatch alias entries; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
+    'stall_resolution_set', // B-7813: owner-driven signed structured resolution that clears the convergence-stall DEV→REVIEW mint block; command-policy declares allowedPhases:['DEV','REVIEW'] so both phase buckets must list it
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
     'scope_shrinkage_decision_set',
     'parent_ledger_rollup_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
     'red_evidence_binding_set', // W2b (B-e10d): register the per-story target binding before a RED run; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
+    'red_evidence_quarantine', // W2c (B-506e): retire a bad chain head without mutating history; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
+    'red_evidence_recover', // W2c (B-506e): undo a mistaken quarantine; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
     'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
     'pre_review_check',
     'acceptance_rollout_report',
@@ -488,6 +492,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'understanding_get', 'decision_get',
     // B-a4e3 CHK-005: removed dead finding_dispatch alias entry; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
+    'stall_resolution_set', // B-7813: owner-driven signed structured resolution that clears the convergence-stall DEV→REVIEW mint block; command-policy declares allowedPhases:['DEV','REVIEW'] so both phase buckets must list it
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',

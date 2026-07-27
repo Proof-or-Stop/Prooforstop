@@ -1,0 +1,55 @@
+{
+  "storyId": "B-3783",
+  "changes": "command-catalog-smoke.ts now branches its AGENT_DISPATCH_REGISTRY loop on AGENT_DISPATCH_ACCEPTED_TYPES membership: dispatchable entries are asserted schema-valid and runtime-valid; retired entries (lattice-review-channel) are asserted schema-rejected and runtime-rejected. lattice.config.json wires the smoke into validate.commands on the normal (non-fast) tier.",
+  "usage": "Run node packages/main/dist/tasks/command-catalog-smoke.js (exit 0). It also now runs automatically as one of the guard commands under lattice validate.",
+  "expectedOutcome": "The smoke exits 0 printing 'command catalog smoke passed: <N> commands'; lattice validate executes it; any divergence between the dispatch agentType enum and the retired-agent registry (retired lane accepted, or dispatchable lane rejected) fails loudly instead of passing silently.",
+  "actualTranscript": "command catalog smoke passed: 337 commands (exit 0). lattice validate --story=B-3783 executed it as configured validate.commands[5] (command 6/52) with code=0; overall validate process exit 0.",
+  "outcomeDiff": "No diff: expected and actual match. Pre-fix the smoke exited 1 with the lattice-review-channel AssertionError; post-fix it exits 0 and is reached by validate.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The reverse branch currently exercises only lattice-review-channel (the sole registry entry retired from dispatch); the guard is written generically (ACCEPTED_TYPES membership) so it covers any future retirement or addition without editing the smoke.",
+  "pitfalls": "Do NOT 'fix' this by adding lattice-review-channel to the dispatch agentType enum: that un-retires a deliberately-retired agent (contradicting AGENT_DISPATCH_ACCEPTED_TYPES and resolveAgentDispatchType) and does not even make the smoke pass, since validateAgentDispatchRequest still throws 'retired'. The fix belongs in the smoke guard, not the command catalog.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 217252
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 31809
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 929436
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 945693
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 841342
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1885683
+    }
+  },
+  "totalDurationMs": 4851977,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-25T22:52:29.795Z",
+  "updatedAt": "2026-07-25T22:52:29.795Z"
+}

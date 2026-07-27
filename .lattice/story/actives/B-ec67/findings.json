@@ -1,0 +1,191 @@
+{
+  "findings": [
+    {
+      "id": "B-ec67:F-001",
+      "desc": "packages/main/src/handlers/checklist.ts:1347-1362 verification_evidence_refresh_stale rewrites stale evidence via makeEvidence() without copying evidence.mechanical / evidence.receipt / evidence.nonMechanicalReason (it only preserves verdict/waiverType/file/command/result/attestation/actorTrust/factProvenance). Empirically reproduced: record an audited non-mechanical escape (mechanical:false + nonMechanicalReason) against an executable (cli/logic/browser) intent -> buildVerificationCoverage correctly demotes it to status=non_mechanical (blocking, missingRequired=1). Advance HEAD so the evidence goes stale (normal after any further commit). Call verification_evidence_refresh_stale (the documented `done_prepare --refreshStale` path per CLAUDE.md DONE convergence guidance) -> the rewritten evidence row has mechanical=undefined, nonMechanicalReason=undefined, receipt=undefined. Re-running buildVerificationCoverage at the same head now returns status=covered, missingRequired=0 -- the audited non-mechanical escape silently gets promoted to full coverage with zero re-execution. This directly reopens the gate bypass that CHK-004s adversarial verificationIntent claims is closed (recording an executable intent as type:manual cannot bypass execution at the coverage gate, the escape hatch is closed) and is a NEW gap introduced by this stors mechanical/non_mechanical distinction (pre-B-ec67 there was no tiered trust to launder). Modifying verification_evidence_refresh_stale itself is explicitly out of scope per scope-check.json (owned by B-3b88 per decision.json/understanding.json), so this is not a scope violation by the implementer, but the resulting live bypass is real, reachable via a routine documented operation, and undocumented as a residual risk anywhere in this stors artifacts. Same silent field-drop also destroys mechanical:true receipts (exitCode/outputDigest/outputTail/executedAt all lost on refresh) though that case does not flip the status. Recommend: either (a) have refresh_stale copy forward ev.mechanical/ev.receipt/ev.nonMechanicalReason unchanged (narrow, does not change what gets re-certified, just stops dropping already-recorded fields), or (b) add an explicit handoff/scope note for B-3b88 flagging this exact reachable bypass so it is not silently inherited.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T00:36:12.104Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-001",
+      "_hash": "1851bce64851f4f71714c98e2d7305ea3e8e91da8f4ccb2e9d1272dc71c856b0",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/verification.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "e040952697: verification_evidence_refresh_stale now carries mechanical/receipt/nonMechanicalReason forward and DEMOTES a refreshed mechanical:true receipt to mechanical:false (drops the receipt) so a refresh cannot launder an un-re-executed receipt to covered. Additive, coordinates with B-3b88 (noted in-code). Verified by focused repro.",
+      "resolvedAt": "2026-07-26T01:26:16.765Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-002",
+      "desc": "CHK-003:edge:0 (must) overclaims: evidence note says the smoke asserts outputDigest == sha256(captured output) and outputTail is bounded, but tool-executed-evidence-receipt-smoke.ts:114 only regex-checks the digest looks like a 64-hex string (/^[0-9a-f]{64}$/) and never recomputes sha256 of the actual captured output to compare equality; no test ever produces output longer than VERIFICATION_OUTPUT_TAIL_CHARS (4000, checklist.ts:308) to prove outputTail is actually truncated/bounded rather than just full output. Demonstrated by mutation: patched dist/handlers/checklist.js sha256Hex(value) (src checklist.ts:311-313) to hash a constant wrong string instead of run.output, then reran node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js — it still printed PASS/exit 0. A broken digest computation (or truncation bound) would go undetected by this must-intent evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:36:29.002Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-003",
+      "_hash": "96acbaface2d4ee52801684cba101ac95f46e6d3055c1cac27e1cd8b5cc87738",
+      "files": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|edge-overclaims-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "cb4f966371: smoke now recomputes sha256(captured output) and asserts receipt.outputDigest equals it, and drives a long output to prove the outputTail bound. Mutation-killed (sha256-constant mutation now fails the smoke).",
+      "resolvedAt": "2026-07-26T01:26:18.074Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-003",
+      "desc": "CHK-003:happy:0 (must) overclaims \"the result field is derived from the actual exit code, not the caller\": in every smoke case where caller-claimed result and actual exit could differ, checklist.ts:482-486 THROWS (refuses the whole write) rather than storing an overridden value, so no test ever proves derivation vs echoing the caller — a case where caller under-claims or omits result (e.g. result omitted/'fail' while exit==0 and selector matches) succeeds without throwing and derivedResult (checklist.ts:502,505) silently overrides, but this path is never exercised. Demonstrated by mutation: changed checklist.js line `result: derivedResult,` to `result: input.result ?? derivedResult,` (i.e. echo caller when supplied) and reran the smoke — still PASS/exit 0, because all passing smoke calls pass result:'pass' matching the true outcome. The must-intent claim of tool-derived (not caller-derived) result is therefore unverified for the only case that would distinguish it.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:36:44.103Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-003",
+      "_hash": "47cc664e1d0985cd2787ab4ae44eeef5329d01afc2d51a21dfb54569b9ce9c3f",
+      "files": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|happy-overclaims-result",
+      "signatureTagSource": "auto",
+      "resolvedReason": "cb4f966371: smoke now tests the caller-omits/under-claims-result case (exit==0 + selector present -> result derived as pass from the receipt). Mutation-killed (echo-caller mutation now fails).",
+      "resolvedAt": "2026-07-26T01:26:19.593Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-004",
+      "desc": "CHK-004:happy:0 (must) overclaims \"manual|docs evidence is stored as attestation, marked explicitly non-mechanical, with no command execution attempted\": the smoke never calls verification_evidence_add/batch_add against an intent whose type is literally 'manual' or 'docs' (the genuine attestation-only branch at checklist.ts:400-409, `if (!isExecutableIntentType(intent.type))`). The only 'manual' coverage in the smoke is (a) block 7a which uses kind:manual_transcript against an intent of type 'cli' (an EXECUTABLE type) via the separate audited-escape branch (checklist.ts:413-428), and (b) block 7c which calls buildVerificationCoverage directly on a hand-built fixture, bypassing the handler entirely. Demonstrated by mutation: changed `if (!isExecutableIntentType(intent.type))` to `if (false)` in dist/handlers/checklist.js, disabling the entire attestation-only branch, and reran the smoke — still PASS/exit 0. The actual handler code path for a genuinely manual/docs-typed intent is exercised by zero assertions in this smoke despite being claimed as covered.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:36:53.304Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-003",
+      "_hash": "b23ea904cc6e8c22f8531cb9bffad72d9daa42715a9b96dfaaa937b6f722987f",
+      "files": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|happy-overclaims-manual",
+      "signatureTagSource": "auto",
+      "resolvedReason": "cb4f966371: smoke now drives a genuine type:manual intent through the handler and asserts attestation-only storage with no execution. Mutation-killed (disable-attestation-branch now fails).",
+      "resolvedAt": "2026-07-26T01:26:20.831Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-005",
+      "desc": "CHK-005:edge:0/adversarial:0 (must) overclaim per CLAUDE.md handler convention (Zod min/max must be re-validated at handler entry AND tested via a bypass path): command-catalog.ts:465,480 Zod-enforce nonMechanicalReason.min(30); checklist.ts:309 MIN_NON_MECHANICAL_ESCAPE_REASON=30 re-validates it at handler entry (checklist.ts:414-419, throws non_mechanical_reason_too_short) — matching the convention. But no smoke case ever exercises a sub-30-char nonMechanicalReason through the internal fn-call path (env.handlers.verification_evidence_add bypasses Zod entirely already); the smoke only uses one long reason string (line 264, ~78 chars). Demonstrated by mutation: changed `const MIN_NON_MECHANICAL_ESCAPE_REASON = 30;` to `= 0;` in dist/handlers/checklist.js (fully disabling the runtime re-validation this checklist item exists to guarantee) and reran the smoke — still PASS/exit 0. This is exactly the F-005/F-006/F-019 pattern CLAUDE.md calls out: a runtime constraint with zero test proving the bypass path is still enforced.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-26T00:37:05.459Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-003",
+      "_hash": "5a4a89244d7ea3cb56503be9906071de4676dff371b283a7937c5093eb55af26",
+      "files": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "adversarial|ts|edge-adversarial-overclaim",
+      "signatureTagSource": "auto",
+      "resolvedReason": "cb4f966371: smoke now exercises a sub-30-char nonMechanicalReason through the internal fn-call path (bypassing Zod) and asserts handler re-validation refuses it. Mutation-killed (min=0 now fails).",
+      "resolvedAt": "2026-07-26T01:26:21.949Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-006",
+      "desc": "packages/main/src/handlers/checklist.ts:429-438 (enforceAndStampEvidence legacy-shaped branch: `if (!existingPin && !callerSelector) return { evidencePatch: { ...(input.result?{result}:{}), ...(callerCommand?{command}:{}) } }`) + core/verification.ts:86 (`mechanical === undefined -> return 'covered'` in coverageStatusForCoveredEvidence) together mean the whole tool-execution enforcement this story exists to build is opt-in per write, not mandatory for new work: the FIRST evidence write for ANY executable (logic|cli|browser) must-priority intent -- including one created fresh in DEV after this story ships, never pinned before -- is accepted verbatim with a caller-authored command+result:pass and ZERO execution, as long as the caller simply omits `selector` (and omits nonMechanicalReason). Nothing distinguishes a genuinely pre-existing legacy row from a brand-new intent whose evidence writer chooses not to supply a selector; the branch is keyed purely on `!existingPin && !callerSelector` of THIS write, not on any provenance/cutoff signal. Live repro (fresh checklist item never seen before; command that actually exits 1 if run; claimed result:pass; no selector): verification_evidence_add stores it, ev.mechanical is undefined (NOT flagged non-mechanical), and buildVerificationCoverage(cl).entries[0].status === 'covered' with missingRequired:0 -- a fabricated pass on a command that was never executed is scored identically to a real tool-executed receipt. This reproduces exactly the F-045/F-049/F-050/F-061 vulnerability class (agent authors command+result:pass, tool trusts it) for every future intent, defeating the stated purpose of the story. It also contradicts this story's own decision.json preMortem #4 mitigation text, which says grandfathered legacy rows are 'flagged non-mechanical' -- the implementation instead leaves mechanical undefined and the gate scores undefined identically to a genuine receipt ('covered'), not 'non_mechanical'. The story's own smoke (tasks/tool-executed-evidence-receipt-smoke.ts:308-325, case 8, INT-H) actually codifies this as intended behavior on a freshly-created checklist item within the same test run, so it is not a theoretical gap -- it is asserted-as-correct by the story's own test suite. Fix should distinguish genuinely-preexisting legacy evidence (e.g. gate the grandfather branch on whether the intent already had prior evidence BEFORE this write, or require selector whenever an intent has zero prior verificationEvidence rows) from a brand-new intent's first write, and/or have the coverage gate treat mechanical===undefined the same as non_mechanical when there is no other legacy-provenance signal, so selector cannot be silently skipped to bypass execution on new work.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T00:37:55.758Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-002",
+      "_hash": "1d23e0d78e655fe93cf016131f4f155b308763cb6a411772e507562e444d87ba",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "e040952697: enforceAndStampEvidence refuses a NEW executable-intent (logic|cli|browser) write that has neither a selector (execute) nor a nonMechanicalReason (audited attestation) [executable_intent_requires_selector_or_reason], so the handler never mints mechanical:undefined for new executable work. Verified: a fresh no-selector cli write with fabricated result:pass is now refused; legacy grandfather at the gate is unchanged and provably legacy-only. 18 dogfood rows still cover 18/18.",
+      "resolvedAt": "2026-07-26T01:26:23.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-007",
+      "desc": "packages/main/src/handlers/checklist.ts:993-995 (checklist_update handler) is a THIRD verificationEvidence write path that completely bypasses the entire B-ec67 enforcement mechanism (enforceAndStampEvidence / runSingleAllowlistedCommand / pin / selector / receipt). checklist_update accepts args.verificationEvidence: VerificationEvidenceInput[] and does `item.verificationEvidence = args.verificationEvidence.map(ev => normalizeEvidence(...))` -- normalizeEvidence (line 277) only ever passes through the pre-existing fields (verdict/waiverType/file/command/result/note/headHash/materialHash/storyFilesHash/attestation); it never calls enforceAndStampEvidence, never resolves/executes the pinned command, and never sets mechanical/receipt. Empirically reproduced (dist build): created a checklist item with an executable (type:cli, priority:must) intent, then called handlers.checklist_update({storyId,itemId,verificationEvidence:[{intentRef,kind:logic_test,command:\"this-command-does-not-even-exist --lies\",result:\"pass\",note:\"trust me\"}]}) directly -- succeeded, wrote evidence with mechanical=undefined/receipt=undefined/result=pass/command=<fabricated nonexistent command>, and buildVerificationCoverage reported status=covered, missingRequired=0 with ZERO command execution. This is precisely the class of bug (F-045/F-049/F-050/F-061, caller-authored command+result trusted at face value) that this entire story exists to eliminate, reproduced through a pre-existing, always-reachable, ordinarily-permitted command (checklist_update is allowed in INIT/PLAN/DEV per command-policy) with no special/audited escape needed. Unlike the verification_evidence_refresh_stale exclusion (explicitly documented in scope-check.json/decision.json/understanding.json as owned by B-3b88), checklist_update.verificationEvidence is NOT mentioned anywhere in this stors decision.json, understanding.json, plan.md, or scope-check.json excludedScope -- it was never considered during PLAN, so this is an unacknowledged gap rather than a ratified exclusion. It also means the CLI-facing schema for this path (verificationEvidenceSchema in packages/main/src/cli/command-schemas.ts:94-104) was never updated with a selector/mechanical/nonMechanicalReason field, so even a well-intentioned caller using checklist_update has no way to opt into the new mechanism -- every write through this path is silently legacy-shaped and grandfathered as covered forever, for OLD and NEW evidence alike. Fix: route checklist_update.verificationEvidence writes (at minimum for executable-intent entries) through the same enforceAndStampEvidence helper used by verification_evidence_add/batch_add, or explicitly close this path (reject execute-intent evidence writes via checklist_update, directing callers to verification_evidence_add/batch_add) so there is exactly one enforcement boundary instead of three.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T00:39:02.259Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-001",
+      "_hash": "98f0e094160328f46e15748f8ac108f65b1bf830314c3533486f5af8c7f34414",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "e040952697: checklist_update bulk verificationEvidence setter now runs assertChecklistUpdateEvidenceRowAllowed per row — executable intents accept only a valid mechanical receipt or an audited attestation and reject a raw fabricated pass [checklist_update_executable_evidence_unenforced]; normalizeEvidence carries provenance forward. The third write-path bypass is closed.",
+      "resolvedAt": "2026-07-26T01:26:24.737Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ec67:F-008",
+      "desc": "packages/main/src/cli/command-schemas.ts:94-104 (verificationEvidenceSchema, used by checklist_update's verificationEvidence array field) still does NOT declare mechanical/receipt/nonMechanicalReason/selector. Verified against the ACTUAL production Zod schema (not a synthetic example): parsing `{storyId,itemId,verificationEvidence:[{intentRef,kind:'logic_test',note:'n',result:'pass',mechanical:true,receipt:{exitCode:0,outputDigest:'fake',outputTail:'fake',selectorMatched:true,executedAt:'now'}}]}` through `z.object(MAIN_TOOLS.find(t=>t.name==='checklist_update').schema).strict()` silently STRIPS mechanical/receipt (top-level .strict() does not recurse into the nested per-element verificationEvidenceSchema, which has no .strict()/.passthrough()). Consequence: through the real CLI, `mechanical`/`receipt`/`nonMechanicalReason` can NEVER arrive at assertChecklistUpdateEvidenceRowAllowed (checklist.ts:378-412) — every executable-intent verificationEvidence row submitted via the real `lattice checklist_update` will always see mechanical===undefined and hit the final throw branch, regardless of caller intent. This is NOT a live security bypass (I confirmed no other internal caller invokes handlers.checklist_update directly with attacker-shaped fields, so the fabricated-receipt path I hypothesized is unreachable via any real production entry point), and it is consistent with one of the two remediations the ORIGINAL finding this round fixes (B-ec67:F-007) itself proposed ('or explicitly close this path'). But it does mean: (1) the accept branches in assertChecklistUpdateEvidenceRowAllowed (mechanical===true-with-receipt, mechanical===false-with-reason) are dead code from the real CLI's perspective — reachable only by an internal fn-call that bypasses Zod entirely; (2) the story's own smoke (tool-executed-evidence-receipt-smoke.ts case 12b, comment 'proves the guard does not over-restrict legitimate re-persist') calls env.handlers.checklist_update(...) directly in-process, so it exercises exactly that Zod-bypassed path and its claim of 'legitimate re-persist' is not actually exercisable by any real caller going through the documented CLI — the test passes but proves something that cannot happen in production. Recommend either: (a) add optional mechanical/receipt/nonMechanicalReason fields to verificationEvidenceSchema so a genuine internal/future caller can actually exercise the accept path through the real CLI too (matching CLAUDE.md's Zod/handler/gate parity convention), or (b) amend the smoke's comment + this story's decision docs to state explicitly that checklist_update's accept branches are intentionally unreachable via the real CLI (internal-only, defense-in-depth), so a future reader does not assume checklist_update is a supported re-persist path. Not a blocker to this round's fix (F-006/F-007/F-001 all verified independently as genuinely resolved); flagging for precision/maintainability only.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-26T01:34:49.002Z",
+      "reviewRound": "2026-07-26T00:29:27.476Z",
+      "reviewRunId": "B-ec67:RR-004",
+      "_hash": "c32668c39492b1f40bbcda952212c3157ee42a72b4f05a57703e5ce5a1f29789",
+      "files": [
+        "packages/main/src/cli/command-schemas.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "64bf559611: verificationEvidenceSchema now explicitly .strip()s caller-supplied mechanical/receipt/nonMechanicalReason (no passthrough → no receipt injection); checklist_update re-persist carries forward the EXISTING on-disk receipt via carryForwardOnDiskProvenance (mechanical receipt only when command+result unchanged), fixing receipt-loss; the guard accept-branch keys off the preserved on-disk receipt. Smoke test 12 rewritten to CLI-reachable behavior (fabricated caller receipt stripped+refused; legit re-persist preserves the seeded receipt), mutation-killed. tsc clean, 18/18 dogfood cover, no injection path.",
+      "resolvedAt": "2026-07-26T02:13:28.483Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

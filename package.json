@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.237",
+  "version": "0.3.244",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -23,6 +23,8 @@
     "test:main-write-lock-coverage": "node packages/main/dist/tasks/main-write-lock-coverage.js",
     "test:production-test-seam-guard": "node packages/main/dist/tasks/production-test-seam-guard.js",
     "test:review-convergence-smoke": "node packages/main/dist/tasks/review-convergence-smoke.js",
+    "test:tool-executed-evidence-receipt-smoke": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+    "test:verification-run-and-guard-smoke": "npm --prefix packages/main run test:verification-run-and-guard-smoke",
     "test:review-loop-smoke": "npm --prefix packages/main run test:review-loop-smoke",
     "test:delivery-context-pack-smoke": "npm --prefix packages/main run test:delivery-context-pack-smoke",
     "test:flow-stability-smoke": "npm --prefix packages/main run test:flow-stability-smoke",
@@ -30,6 +32,7 @@
     "test:proofstory-intent-hardening-smoke": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
     "test:scope-shrinkage-withdrawal-floor-smoke": "npm --prefix packages/main run test:scope-shrinkage-withdrawal-floor-smoke",
     "test:withdrawn-disposition-smoke": "npm --prefix packages/main run test:withdrawn-disposition-smoke",
+    "test:review-budget-stall-adjudication-smoke": "npm --prefix packages/main run test:review-budget-stall-adjudication-smoke",
     "test:proofstory-acceptance-topology-smoke": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
     "test:proofstory-acceptance-basis-smoke": "npm --prefix packages/main run test:proofstory-acceptance-basis-smoke",
     "test:milestone-status": "npm --prefix packages/main run test:milestone-status",

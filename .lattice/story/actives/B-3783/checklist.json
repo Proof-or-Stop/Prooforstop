@@ -1,0 +1,289 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "command-catalog-smoke asserts bidirectional dispatch/registry consistency and exits 0",
+      "context": "In packages/main/src/tasks/command-catalog-smoke.ts, replace the full-registry loop (currently ~lines 152-166) so it branches on whether entry.canonicalName is in AGENT_DISPATCH_ACCEPTED_TYPES. Dispatchable entries: every example field schema-valid AND validateAgentDispatchRequest returns the entry. Retired entries (e.g. lattice-review-channel): dispatch agentType schema rejects the canonicalName AND validateAgentDispatchRequest throws. Verify: node packages/main/dist/tasks/command-catalog-smoke.js exits 0.",
+      "status": "done",
+      "startTime": "2026-07-25T21:51:52.264Z",
+      "endTime": "2026-07-25T21:54:01.747Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node packages/main/dist/tasks/command-catalog-smoke.js -> exits 0 with stdout matching /command catalog smoke passed: \\d+ commands/; WHY: proves the bidirectional consistency guard passes on clean main after the fix",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect source: for every AGENT_DISPATCH_REGISTRY entry whose canonicalName IS in AGENT_DISPATCH_ACCEPTED_TYPES, the loop asserts schemaAccepts(dispatch, agentType, entry.canonicalName) === true AND validateAgentDispatchRequest({...example, phase}) returns the entry; WHY: forward direction — dispatchable entries pass schema + runtime contract",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect source: for every AGENT_DISPATCH_REGISTRY entry whose canonicalName is NOT in AGENT_DISPATCH_ACCEPTED_TYPES, the loop asserts schemaAccepts(dispatch, agentType, entry.canonicalName) === false AND validateAgentDispatchRequest throws with message matching /retired|unknown/; WHY: reverse direction — retired entries (lattice-review-channel) actively rejected by both schema and runtime",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The branch condition uses AGENT_DISPATCH_ACCEPTED_TYPES.includes(entry.canonicalName) (or equivalent Set lookup), not a hardcoded name like lattice-review-channel; WHY: any future retired entry automatically covered by the guard without code changes",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The existing dispatchable-entry assertions (schema-valid example fields + validateAgentDispatchRequest returns entry) are structurally preserved from the original loop, not weakened; WHY: forward-direction coverage must not regress while adding reverse direction",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The success message still reports MAIN_TOOLS.length (command count), not AGENT_DISPATCH_REGISTRY.length; WHY: existing output contract preserved — the smoke tests the catalog, count reflects commands not registry entries",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutation test: if AGENT_DISPATCH_ACCEPTED_TYPES were changed to include lattice-review-channel (removing the filter on line 314 of agent-dispatch-registry.ts), the smoke must fail because the retired-branch assertions (schema rejects + throws /retired|unknown/) would fire on an entry that now passes schema validation; WHY: the guard is un-gameable — widening the accepted set triggers the reverse assertion",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Mutation test: if the retired-entry assertion block were deleted entirely (keeping only dispatchable-entry assertions), the smoke would silently skip retired entries without verifying rejection; the fix must actively assert rejection, not just omit retired entries from the positive-path loop; WHY: bidirectional contract requires both directions — skip is not proof of rejection",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "validateAgentDispatchRequest must throw (not return a falsy/null value) for retired types, and the smoke must use assert.throws with a regex matching /retired|unknown/ on the error message; WHY: fail-closed contract — a silent null return would let a retired agent pass the guard without detection",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "GREEN in worktree: printed 'command catalog smoke passed: 337 commands' and exited 0 (pre-fix exit 1 with the lattice-review-channel AssertionError).",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "Command-backed (exit 0): the smoke run executes the forward branch, asserting for every dispatchable AGENT_DISPATCH_ACCEPTED_TYPES entry that each example field schemaAccepts==true and validateAgentDispatchRequest(...).entry===entry.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T22:20:38.108Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "Command-backed (exit 0): the same smoke run executes the reverse branch, asserting the retired lattice-review-channel is schema-rejected (schemaAccepts==false) AND validateAgentDispatchRequest throws matching /retired|unknown/i.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T22:20:38.108Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Branch predicate is a Set built from AGENT_DISPATCH_ACCEPTED_TYPES with .has(entry.canonicalName); no agent name is hardcoded, so future retirements/additions are covered automatically.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "The pre-existing dispatchable assertions are preserved verbatim inside the forward branch; only the assertion message prefix changed from 'registered' to 'dispatchable'.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Final line unchanged: 'command catalog smoke passed: ${MAIN_TOOLS.length} commands'; GREEN printed 337 (MAIN_TOOLS.length), not the registry size.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "note": "Live mutation proof: z.enum([...AGENT_DISPATCH_ACCEPTED_TYPES,'lattice-review-channel']) makes the reverse assert.equal(accepts,false) THROW, so the reverse assertion is non-vacuous and catches a stale non-dispatchable agent leaking into the enum.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "note": "Deleting the else-branch would drop every reverse assertion and stop exercising the retired entry; the mutation proof shows the reverse branch is the sole guard against enum/registry divergence, so its removal is a detectable coverage loss.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "note": "Verified live: validateAgentDispatchRequest({agentType:'lattice-review-channel'}) THROWS AgentDispatchRegistryError (code unknown_agent_type, message 'retired agentType ...'), not a falsy return; assert.throws with /retired|unknown/i requires a real throw.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "command-catalog-smoke registered in validate.commands normal tier",
+      "context": "Add node packages/main/dist/tasks/command-catalog-smoke.js to lattice.config.json validate.commands (NOT the fast focus set; it spawns real CLI subprocesses and compares help output). The build step already runs first in validate, so no new build dependency is introduced.",
+      "status": "done",
+      "startTime": "2026-07-25T21:54:02.855Z",
+      "endTime": "2026-07-25T21:55:17.095Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice.config.json validate.commands contains an entry for node packages/main/dist/tasks/command-catalog-smoke.js (either as a plain string or as an object with command/args pointing to it); WHY: proves the smoke is registered in the validation pipeline",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The entry does NOT have focus: [\"fast\"] (or any focus property); WHY: the smoke spawns real CLI subprocesses and compares help output, so it belongs on the normal tier, not the fast focus set",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The command-catalog-smoke entry appears after the build step (npm run build or equivalent) in the validate.commands array; WHY: the smoke imports from dist/ so it depends on a fresh build — ordering must satisfy this dependency",
+            "type": "logic",
+            "priority": "should"
+          },
+          {
+            "desc": "The entry format is consistent with other normal-tier entries in validate.commands (string or {command,args} without focus); WHY: config consistency — avoids silent parse-skip by the validate runner",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run node packages/main/dist/cli.js validate --story=B-3783 and confirm command-catalog-smoke.js appears in the execution output (not silently skipped); WHY: wiring must be reached by lattice validate — a malformed or unreachable config entry would make the guard toothless",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "If the entry were removed from validate.commands, lattice validate would no longer exercise the bidirectional consistency guard; verify the entry is present and not duplicated; WHY: single-point enforcement — the smoke is only useful if validate runs it",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "command": "node -e \"const c=require('./lattice.config.json');const m=c.validate.commands.filter(e=>typeof e==='object'&&(e.args||[]).join(' ').includes('command-catalog-smoke.js'));process.exit(m.length===1&&!m[0].focus?0:1)\"",
+          "result": "pass",
+          "note": "Command-backed (exit 0): parses lattice.config.json and asserts exactly one validate.commands object entry references command-catalog-smoke.js.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T22:20:38.108Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "command": "node -e \"const c=require('./lattice.config.json');const m=c.validate.commands.filter(e=>typeof e==='object'&&(e.args||[]).join(' ').includes('command-catalog-smoke.js'));process.exit(m.length===1&&!m[0].focus?0:1)\"",
+          "result": "pass",
+          "note": "Command-backed (exit 0): the same parse asserts the command-catalog-smoke entry has no focus property, so it runs on the normal (non-fast) validate tier.",
+          "headHash": "15515243d77b2860539051a5b8b4522167d145ab",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T22:20:38.108Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "The entry is placed after validate.commands[0] (npm --prefix packages/main run build) and after capability-list-smoke, so the dist it runs is freshly built by validate's first step.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "Format matches sibling normal-tier CLI-subprocess smokes review-pass-discard-smoke and init-window-data-loss-smoke: {command:node,args:[...],timeoutMs:180000}.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "note": "lattice validate executes exactly the validate.commands list; removing this entry removes the smoke from the executed set (the pre-fix silent-gap state this story closes). Confirmed by the structural parse showing the guard is present only because of this entry.",
+          "headHash": "3889a2c7504c8af00fd9c6096cec4ae9b7d3b816",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T21:56:58.032Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/cli.js validate --story=B-3783",
+          "result": "pass",
+          "note": "lattice validate (process exit 0) executed command-catalog-smoke.js as configured validate.commands[5] (command 6/52) with code=0 in 5852ms; the command-execution summary recorded commandCount=52, requiredFailureCount=0, status=PASS, so the smoke is genuinely reached and passes under validate (not silently skipped). Precision note: that same run's validate coverage verdict read fail at that instant only because it was the run closing the last missing verificationIntent (this very intent) - a self-referential artifact; process exitCode for validate is governed solely by structuredDoneFailure (hardwired false for validate), confirming genuine exit 0.",
+          "headHash": "5065ff67a32b7cd104097c60820752dcc0482309",
+          "materialHash": "aadd07420e6abeba8b96a04a6582eba8f0892dab982fc3f28a13af9cde362967",
+          "storyFilesHash": "1e2cc2520e91e898dbc5be78728f55adf512951efc99cd2410f89aa8818e185b",
+          "timestamp": "2026-07-25T22:15:57.595Z"
+        }
+      ]
+    }
+  ]
+}

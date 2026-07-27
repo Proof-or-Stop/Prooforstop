@@ -14,6 +14,12 @@ export type {
 } from './validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationCommandExecution } from './validation-types.js';
 import type { SignatureTagSource } from './experience-layer-types.js';
+// W2c (B-506e): the RED-evidence subsystem's v2 record union (chain / control
+// records). RedEvidenceData.records is a mixed v1+v2 array, schemaVersion-
+// discriminated — the on-disk layout is unchanged (still one append-only
+// records[] under the v1 FILE schemaVersion).
+import type { RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
+export type { RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
 
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVIEW' | 'TEST' | 'DONE' | 'DISCARDED'
   // Legacy phases kept for backward compat with existing story data
@@ -79,7 +85,11 @@ export type AgentDispatchMutationCommand =
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
   // implementer registers the per-story target binding before a RED run.
-  | 'red_evidence_binding_set';
+  | 'red_evidence_binding_set'
+  // B-506e (W2c): the two owner-gated chain-control commands — retire a bad
+  // record without mutating history, and undo a mistaken quarantine (§4.1).
+  | 'red_evidence_quarantine'
+  | 'red_evidence_recover';
 
 export type AgentDispatchReviewerLane =
   | 'lattice-review-story-init'
@@ -139,6 +149,64 @@ export interface StoryEvent {
   reviewer?: string;
 }
 
+/**
+ * B-70a6 F-004: the durable crash-recovery record for the gated PLAN->INIT
+ * reopen audit.
+ *
+ * WHY IT EXISTS. The reopen's audit facts (the validated reason + the reopen
+ * marker) live in an append-only `phase_transition` process event, but the
+ * phase write and the event append are two separate fs operations. A crash
+ * between them used to leave phase=INIT with NO audit record at all — and
+ * because REOPEN only fires FROM PLAN, the story had already left the only
+ * phase that could retry it, so that audit event was UNRECOVERABLE.
+ *
+ * HOW IT CLOSES THAT WINDOW. This record is set on the story index in the SAME
+ * `store.writeStory` that persists phase=INIT. `StoryStore.writeJsonFile` is
+ * tmp-write + `renameSync`, so the record and the new phase land in ONE atomic
+ * rename: either the reopen did not happen, or it happened AND the reason is
+ * already durably on disk. `reconcilePendingReopenAudit`
+ * (handlers/transition-orchestrator.ts) then emits the missing event and clears
+ * this record — but ONLY at the points enumerated in the next paragraph, NOT on
+ * every command and under NO concurrency guarantee; `auditId` is the idempotency
+ * key that makes that recovery emit EXACTLY ONE event, never two.
+ *
+ * (B-70a6 F-016: the sentence above used to promise that recovery "on the next
+ * transition", with no qualifier at all. It is EDITED IN PLACE rather than merely
+ * supplemented by the paragraph below, so a reader who stops reading here is not
+ * left with the pre-F-005 impression that some later transition always heals it.)
+ *
+ * WHAT THAT DOES AND DOES NOT GUARANTEE. Recovery fires on the next ORCHESTRATED
+ * transition, and — since B-70a6 F-005 — at the two out-of-band phase writers
+ * (story_discard, the story_reconcile zombie repair) before they destroy the copy
+ * holding this record. It is NOT a concurrency guarantee: those two sites hold no
+ * lock, so a reopen that writes this record while one of them is already running
+ * can still lose both the record and its event — see
+ * CONCURRENCY RESIDUAL (B-70a6 F-013), documented in full on
+ * `reconcileReopenAuditBeforeOutOfBandPhaseChange`. Finding this record on disk
+ * therefore means "a reopen committed whose audit event may be missing", not
+ * "every committed reopen is guaranteed to leave one".
+ *
+ * It is audit/recovery bookkeeping, NOT gate evidence: no gate consumes it.
+ */
+export interface PendingReopenAudit {
+  /**
+   * Unique per reopen. The idempotency key: reconciliation appends the audit
+   * event only when NO `phase_transition` event carries this `reopenAuditId`,
+   * so a crash between the append and the clear cannot double-emit.
+   */
+  auditId: string;
+  /** The operator reason, verbatim, already validated (>= REOPEN_REASON_MIN, non-blank). */
+  reason: string;
+  /** The phase the reopen left (PLAN — the only phase REOPEN fires from). */
+  fromPhase: string;
+  /** ISO 8601 timestamp of the reopen persist. */
+  at: string;
+  /** Evidence-binding facts captured with the reopen, so a recovered event matches the in-line one. */
+  materialHash: string;
+  storyFilesHash: string;
+  reviewRound: string;
+}
+
 export interface StoryInfo {
   storyId: string;
   name: string;
@@ -179,6 +247,16 @@ export interface StoryInfo {
    */
   priorityElevatedFrom?: string;
 
+  /**
+   * B-70a6 F-004: present ONLY between a gated PLAN->INIT reopen's phase write
+   * and its audit-event append. Written in the SAME atomic writeStory rename as
+   * phase=INIT and cleared immediately after the event is durably appended, so
+   * finding it on disk means "a reopen committed whose audit event may be
+   * missing" — the recoverable state that replaces the old unrecoverable one.
+   * See PendingReopenAudit and reconcilePendingReopenAudit.
+   */
+  pendingReopenAudit?: PendingReopenAudit;
+
   // Parallel policy fields (B-c622)
   lane?: 'mainline' | 'supporting' | 'exploratory';
   parallelSafe?: 'yes' | 'no' | 'plan_only';
@@ -200,6 +278,18 @@ export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceV
   return verdict.replaceAll('_', '-');
 }
 
+/**
+ * B-ec67: the tool-executed proof unit pinned onto an executable verification
+ * intent. `command` is the executable+argv string the evidence writer runs;
+ * `selector` is the string that MUST appear in captured output to prove the
+ * intent. Pinned on the FIRST selector-bearing evidence write and IMMUTABLE
+ * thereafter (a later write with a different command/selector is refused).
+ */
+export interface VerificationIntentPin {
+  command: string;
+  selector: string;
+}
+
 export interface VerificationIntentItem {
   /** Optional stable id. If absent, Proofbound derives CHK-001:happy:0 from lane/index. */
   id?: string;
@@ -209,6 +299,12 @@ export interface VerificationIntentItem {
   priority?: VerificationPriority;
   /** PLAN-only, verification-intent-owned declarations for paths DEV will add. */
   plannedPathDeclarations?: VerificationPlannedPathDeclarationV1[];
+  /**
+   * B-ec67: tool-executed evidence proof unit for an executable intent
+   * (logic|cli|browser). Absent until the first selector-bearing evidence write
+   * pins it; immutable once set. Never present on manual|docs intents.
+   */
+  verification?: VerificationIntentPin;
 }
 
 export type VerificationPlannedPathArtifactKind = 'source_file' | 'handler' | 'dispatch' | 'process_fact';
@@ -870,12 +966,46 @@ export interface FactProvenanceMetadata {
   conflictingSources?: string[];
 }
 
+/**
+ * B-ec67: tool-owned execution receipt. Stamped by the evidence-write handler when
+ * it runs the intent's pinned command, so a reviewer/gate reads the ACTUAL exit +
+ * output digest instead of a caller-authored prose number.
+ */
+export interface VerificationExecutionReceipt {
+  /** Real exit code of the pinned command. */
+  exitCode: number;
+  /** sha256 of the full captured stdout+stderr. */
+  outputDigest: string;
+  /** Bounded tail of the captured output for human inspection. */
+  outputTail: string;
+  /** Whether the pinned selector string appeared in the captured output. */
+  selectorMatched: boolean;
+  /** ISO timestamp when the command was executed. */
+  executedAt: string;
+}
+
 export interface VerificationEvidence {
   /** Reference like CHK-001:happy:0 or a custom VerificationIntentItem.id. */
   intentRef: string;
   kind: VerificationEvidenceKind;
   /** Human-facing classification; does not override result/pass/fail gate semantics. */
   verdict?: VerificationEvidenceVerdict;
+  /**
+   * B-ec67: true when this evidence is a tool-executed receipt (the write handler ran
+   * the pinned command and derived `result` from the actual exit + selector match);
+   * false when it is a non-mechanical attestation (manual|docs intent, or an explicit
+   * audited escape). Undefined on legacy evidence written before B-ec67 (grandfathered).
+   */
+  mechanical?: boolean;
+  /** B-ec67: tool-owned execution receipt, present only when mechanical === true. */
+  receipt?: VerificationExecutionReceipt;
+  /**
+   * B-ec67: attributable, gate-visible reason recorded when an executable intent is
+   * deliberately covered by a non-mechanical attestation via the audited escape path
+   * (execution impossible in this environment). Never grants coverage — the gate still
+   * demotes non-mechanical evidence on executable intents.
+   */
+  nonMechanicalReason?: string;
   /** Deferred waivers are temporary gate-self-test receipts and must be replaced by real evidence before TEST. */
   waiverType?: 'permanent' | 'deferred_gate_evidence';
   file?: string;
@@ -1530,7 +1660,12 @@ export interface VerificationCoverageEntry {
   desc: string;
   type: VerificationIntentType;
   priority: VerificationPriority;
-  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale' | 'weak';
+  /**
+   * B-ec67: `non_mechanical` — an executable intent (logic|cli|browser) whose evidence
+   * is an explicit non-mechanical attestation (mechanical === false). It is NOT covered:
+   * only an executed receipt (or grandfathered legacy evidence) covers an executable intent.
+   */
+  status: 'covered' | 'missing' | 'failed' | 'waived' | 'deferred' | 'stale' | 'weak' | 'non_mechanical';
   evidence?: VerificationEvidence;
 }
 
@@ -1985,6 +2120,57 @@ export interface InitCheckData {
    * Signature: sha256(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
    * Computed by signInitCheck. issues / agentId / fallback are not included in the signature domain (issues are reviewer subjective judgment, allowed to be modified later;
    * agentId is self-reported by reviewer and easily forged, backed by reviewer template fence; fallback is surface/audit metadata).
+   */
+  _hash: string;
+}
+
+// ── Stall Adjudication (B-7813 CHK-002: stall_resolution_set writes a signed
+// stall-adjudication.json consumed by the DEV→REVIEW mint gate) ──
+
+/**
+ * B-7813: the structured actions an operator may record to clear the
+ * convergence-stall block. The first five are the ordinary per-round resolutions
+ * (CHK-001/CHK-002); `override_budget` (CHK-003) is the PRIVILEGED hard-ceiling
+ * override. Kept in lock-step with the canonical STALL_RESOLUTION_ACTIONS tuple
+ * in core/review-convergence.ts — that tuple is the runtime source of truth for
+ * membership validation; this union is the compile-time mirror.
+ */
+export type StallResolutionActionName =
+  | 'authorize_continuation'
+  | 'replan'
+  | 'escalate_root_cause'
+  | 'resolve_findings'
+  | 'declare_unreachable'
+  | 'override_budget';
+
+/**
+ * B-7813 CHK-002: the signed stall-adjudication record persisted at
+ * .lattice/story/actives/<id>/stall-adjudication.json. It authorizes clearing
+ * the convergence-stall mint block for EXACTLY the review round it is bound to
+ * (reviewRound === story.currentReviewRound at record time). Consumed on read by
+ * the CHK-001 seam (hasCurrentRoundStallResolution) which re-validates reason
+ * length + current-round binding + signature — a stale/previous-round/empty/
+ * unsigned record never clears the block.
+ */
+export interface StallAdjudicationData {
+  storyId: string;
+  /** One of StallResolutionActionName (validated at runtime against STALL_RESOLUTION_ACTIONS). */
+  action: StallResolutionActionName;
+  /** Why the operator is consciously clearing the block (trim().length >= STALL_RESOLUTION_REASON_MIN). */
+  reason: string;
+  /** Snapshot of story.currentReviewRound the resolution is bound to (ISO 8601). Part of the signature domain. */
+  reviewRound: string;
+  /** Required only for action=declare_unreachable: the checklist item withdrawn as unreachable. Part of the signature domain. */
+  itemId?: string;
+  /** Audit-only: who recorded the resolution (operator/actor). Not part of the signature domain. */
+  approvedBy?: string;
+  /** ISO 8601 write timestamp. Not part of the signature domain. */
+  recordedAt: string;
+  /** Audit link stamped when declare_unreachable withdrew the item (the B-1909 scope-shrinkage decisionId). Not part of the signature domain. */
+  withdrawalDecisionRef?: string;
+  /**
+   * Signature: sha256(`${storyId}:${action}:${sha256(reason)}:${reviewRound}:${itemId ?? ''}:${STALL_ADJUDICATION_SALT}`)
+   * Computed by signStallAdjudication. approvedBy / recordedAt / withdrawalDecisionRef are audit fields, NOT in the signature domain.
    */
   _hash: string;
 }
@@ -2904,9 +3090,16 @@ export interface RedEvidenceRecord {
 }
 
 export interface RedEvidenceData {
+  /**
+   * The FILE-level schema stays `proofstory.red_evidence.v1` — the on-disk layout
+   * is unchanged (W2c / B-506e). Individual records are discriminated by their
+   * OWN `schemaVersion`: a legacy v1 record has none, a v2 record carries
+   * `proofstory.red_evidence.v2`. No migration of existing v1 stores.
+   */
   schemaVersion: 'proofstory.red_evidence.v1';
   storyId: string;
-  records: RedEvidenceRecord[];
+  /** Append-only, mixed v1 (legacy) + v2 (chain) records in one array. */
+  records: (RedEvidenceRecord | RedEvidenceRecordV2)[];
   createdAt: string;
   updatedAt: string;
 }
