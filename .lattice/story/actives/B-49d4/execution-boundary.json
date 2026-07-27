@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-49d4",
+  "allowedCommands": [
+    "git diff",
+    "git grep",
+    "git log",
+    "git show",
+    "lattice validate",
+    "lattice validate --lint",
+    "node packages/main/dist/tasks/*.js",
+    "node packages/main/tests/red/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm install"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/tests/red/"
+  ],
+  "excludedCommands": [
+    "git checkout main",
+    "git push",
+    "git reset --hard",
+    "lattice release_approve_push",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".githooks",
+    "packages/main/src/",
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Deliberately narrow: this story changes test harnesses and their registration only. packages/main/src is BLOCKED because no runtime behaviour change is in scope; if the work appears to require one, that is a finding to report rather than an edit to make. red-w2c-v1-verdict-invariance.mjs is blocked because it carries the protected digest proving no legacy verdict moved. Remote publish stays blocked outright.",
+  "createdAt": "2026-07-27T13:41:58.092Z",
+  "updatedAt": "2026-07-27T13:41:58.092Z",
+  "_hash": "418d04b19dcbb0d6bb06d4285f9130fb9b51d5758c901fa58b601260a406a69b"
+}

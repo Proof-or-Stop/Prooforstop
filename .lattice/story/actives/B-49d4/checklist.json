@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Commit a repro-first RED artifact proving the guard is blind and measuring what validate never runs",
+      "context": "Must FAIL on current main before any fix. Three separate demonstrations, each needing its own assertion shape. BLINDNESS: place a genuine member of the guard's population that is registered nowhere and deliberately exits non-zero, run the guard, assert it exits 0 - and assert its success line reports the expectation's size rather than the population's, since that is why it can never reveal the gap. CONTROL: de-register one currently-listed command against a copy of lattice.config.json and assert the guard DOES exit non-zero, so the blindness result cannot be a broken experiment; the real config must not be edited. POPULATION: measure and assert how many packages/main/tests/red/*.mjs are neither registered in validate.commands nor reachable transitively from a registered command, accounting for the three that red-b2aa7-chk007-receipt.mjs spawns. Do not hard-code 15 or 18 - derive both numbers, because the whole point is that a fixed number goes stale.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the registration guard derive its population from disk instead of asserting a fixed list",
+      "context": "Mirror the shape red-b2aa7-chk007-receipt.mjs already uses: enumerate the population from disk, partition into registered / explicitly-excluded-with-a-stated-reason / undecided, and FAIL when anything is undecided. The registered side must never be enumerated in the test file - it is whatever lattice.config.json actually contains, so it cannot go stale. Exclusions must carry a reason checked at runtime and must fail when they name a file that no longer exists. Include the guard file itself in its own population with no self-exception; a carve-out is precisely the exemption being removed. TWO POPULATIONS NEED COVER, and conflating them is the trap: the w2c guard's own population is the dist tasks packages/main/dist/tasks/red-evidence-*.js, while the 18 unregistered files are packages/main/tests/red/*.mjs, which chk007 covers only for red-b2aa7-*. Fixing the dist-task guard alone would leave the next tests/red addition to slip through exactly as these did. Decide deliberately whether that is one derived guard over both populations or two guards with disjoint declared populations, and make sure no member of either falls between them. Prove the bite in BOTH directions for whatever you build - an undecided newcomer and a de-registered member - and show the output of each; a guard whose bite has not been observed is not proven.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register every harness that should run, with a stated reason for each deliberate exclusion",
+      "context": "Measured on 2026-07-27: all 18 unregistered harnesses in packages/main/tests/red/ currently pass and take well under a minute in total, so the runtime budget objection does not apply - but re-measure rather than trusting that number. Register each one in lattice.config.json validate.commands following the surrounding entry convention including timeoutMs, and RUN each before registering it; do not register anything you have not personally seen pass. TWO MEMBERS MUST BE EXCLUDED, NOT REGISTERED, and the reasoning must be recorded rather than rediscovered: red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs are pre-fix-only attestations whose every marker is gated on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED. On a fixed tree that is false, so they emit nothing and exit 0. Registering them would add commands that pass forever while asserting nothing - a vacuous check masquerading as coverage, which is the exact defect class this story exists to remove, and it would be self-inflicted at the last step. Record them as explicit exclusions carrying that reason. Apply the same test to every other member: an exclusion needs a reason, and silent absence is not a decision.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
