@@ -45,7 +45,11 @@
             "desc": "Build and contract checks prove the mirrored Codex and Claude implementer/reviewer guidance names the canonical acceptance_topology_check, pre_review_check_read, acceptance rollout report/check, current-receipt, full-3x2, and rollback commands, while registered CLI/handler/process-fact consumers—not prompt prose—remain the only admission authority.",
             "type": "cli",
             "requiredIn": "strict",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs --quiet",
+              "selector": "Process fact contract verified"
+            }
           }
         ],
         "edge": [
@@ -72,13 +76,21 @@
         {
           "intentRef": "CHK-001:happy:role-guidance",
           "kind": "manual_transcript",
-          "command": "node scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs --quiet",
           "result": "pass",
-          "note": "Genuinely re-executed at head 40d6da1076 (post F-014 fix): verify-process-fact-contract.mjs exit 0 (Process fact contract verified). This supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "1a6b726a486ce1eb3ebb96adfc3c61f1ed030160",
-          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
-          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
-          "timestamp": "2026-07-27T02:12:24.908Z"
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "65ccc6426a927354c034ebac7123408d0ce09f1656b11d292f7102e966419d3d",
+            "outputTail": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 444 (345 CLI, 39 runtime, 10 reviewer lanes, 46 artifacts)\n- levels: L0=160, L1=44, L2=67, L3=12, L4=161\n- kinds: artifact=25, command=272, execution-status=6, finding=3, flow-policy=7, gate-evidence=54, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=39, signed-artifact=21, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nPrompt drift scan: 35 reviewer prompt files checked\n\nProcess Fact Inventory\n- entries: 15 (55 files checked)\n\nProcess fact contract verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T11:28:47.391Z"
+          },
+          "headHash": "8d222ec75014ec75f50b755a9a54758aca929040",
+          "materialHash": "9ce0a676596ff4ae1262795782b9912fb0ae9f11f2c23038b1b2053bd9149a50",
+          "storyFilesHash": "90c3834de9ec1346185103c65a6011127ac8fba47e0029e81e2242317d981e0d",
+          "timestamp": "2026-07-27T11:28:47.576Z"
         },
         {
           "intentRef": "CHK-001:edge:mirror-mode",
