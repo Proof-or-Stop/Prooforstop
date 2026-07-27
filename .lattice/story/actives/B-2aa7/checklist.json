@@ -1122,7 +1122,11 @@
           {
             "desc": "The property is asserted over generated inputs rather than the enumerated failure rows, so it can catch shapes nobody thought to list - the same blind spot that produced this defect.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+              "selector": "FUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST"
+            }
           }
         ]
       },
@@ -1166,6 +1170,26 @@
           "materialHash": "dd3c033ea7310fb56c1343a42adee8a22423ac5fcb1cb22ab4eadf18648709c6",
           "storyFilesHash": "d348fd4a16e4163e5536d5b3890a0fe9a26a794fbd91bf65e5b6148438c6bf3b",
           "timestamp": "2026-07-27T01:46:15.142Z"
+        },
+        {
+          "intentRef": "CHK-011:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+          "result": "pass",
+          "note": "Four independent facts, all read off observed counters: NOVELTY - 3528 distinct generated shapes appear in no enumerated row; POTENCY - the same corpus still crashes an unguarded transcription of the pre-fix read path on 1786/4846 values, so 0 throws is a fact about the validator rather than about harmless inputs; DETERMINISM - two runs at the default seed produced byte-identical BLOCK D proof lines and the same sha256 corpusDigest; SEEDED - a third run at a different seed produced a different corpusDigest and still held. Mutation-tested out of band: two deliberately broken rebuilt copies of the validator (unguarded .trim() in v1RecordViolations; E5 root guard removed) each left all 17 enumerated rows GREEN and were caught only by BLOCK D, and this receipt withheld all three markers under them.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2b873678fd950973dd3c10612e3dc8618846b6a57b4bf6f38bef5bb3936b2664",
+            "outputTail": "VALIDATOR_TOTAL_ON_ARBITRARY_JSON (4846 generated acyclic JSON values: classifyRedEvidenceArtifact threw 0 and returned a well-formed classification for every one; partitionRedEvidenceRecords threw 0 over 7705 arrays and lost, duplicated or reordered nothing; 1212 of them written to disk let 0 raw builtins escape the live read boundary and 0 escape the full gate pair, with 773 typed rejections all naming the artifact)\nFUZZ_COVERS_STRUCTURAL_EDGE_SHAPES (walked the corpus: emptyObjects=2919, emptyArrays=1272, Object.create(null)=1485, prototype-inherited=819, own \"__proto__\" keys=508, mixed-primitive arrays=150, maxDepth=204, distinctKeys=47, acyclic=true — and those inputs drove the validator through ALL SEVEN outcomes: all four envelope fault codes, the record-schema fault, quarantine and clean accept)\nFUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST (3528 of the distinct generated shapes appear in NO enumerated row; the SAME corpus still crashes an unguarded transcription of the pre-fix read path on 1786/4846 values, so \"the validator never threw\" is a fact about the validator and not about harmless inputs; two runs at the default seed produced byte-identical BLOCK D proof lines and corpusDigest=a5bbd628a393426b14a0b84277c67181d8c4face5ffa07393c0d56c82d628ef9; a third run at a different seed produced corpusDigest=c6a722824aeea8ac7b47b1b63ec6e1b5514eef7965e3d5349ee89869aa76c6cb and still held the property, so the seed is load-bearing and the corpus was not tuned to pass)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:46:50.551Z"
+          },
+          "headHash": "574d70d5d73d89f7ae04998f7a45229b2739646a",
+          "materialHash": "dd3c033ea7310fb56c1343a42adee8a22423ac5fcb1cb22ab4eadf18648709c6",
+          "storyFilesHash": "d348fd4a16e4163e5536d5b3890a0fe9a26a794fbd91bf65e5b6148438c6bf3b",
+          "timestamp": "2026-07-27T01:46:50.724Z"
         }
       ]
     }
