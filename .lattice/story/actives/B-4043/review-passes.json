@@ -1202,6 +1202,32 @@
         "scanEscalationReason": null
       },
       "_hash": "7d286d616ff590bb2e9a09071130aeca8a03b7c7cdf3faf8b5457572cdabcb2d"
+    },
+    {
+      "id": "B-4043:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "Verified the 3 commit sets since RP-035: (1) --quiet in verify-process-fact-contract.mjs is minimal and additive-only (isolated behind quiet flag, default path unchanged code, output confirmed byte-size-unchanged 52901 chars, and --quiet output measured 1848 chars, well inside the 12000-char selector window, success marker present); (2) --story= in proofstory-pre-review-check-smoke.ts and --cohort= in both proofstory-acceptance-rollout-smoke.ts / proofstory-pre-review-check-smoke.ts and --out= in run-proofstory-acceptance-rollout-cohort.mjs all follow argv-wins/env-fallback pattern, ran each directly (node dist/tasks/proofstory-pre-review-check-smoke.js --story=B-4043-quality-check -> PASS; node dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json -> PASS 57 assertions); --live-proof forwarding of --cohort/--story to child confirmed in diff. (3) Both main-merge commits (1c9601dfb6, 7ec19d7e45) cleanly union lattice.config.json validate.commands and package.json scripts with zero duplicate entries (programmatically verified: 72 validate.commands, 0 dup keys by content-hash; grep for dup script keys found none); proofstory.ts import merge correctly dropped unused ScopeShrinkageDecisionData (0 references in file) while preserving all of main's new red-evidence imports/usages (each used >=2x) -- matches resolved finding B-4043:F-013 (status=resolved). `npm --prefix packages/main run build` is clean (tsc, no errors). `npm run test:process-fact-contract` passes (\"Process fact contract verified\"). findings.json: 0 open findings (F-013 resolved). No dead code, no lost merge-side changes, no config duplicates found.",
+      "createdAt": "2026-07-27T11:59:59.671Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-060",
+      "envelopeId": "100023521089cb2469f836a52b03af8bed9705e2fb8f2b79d0df6e773d44d584",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "63e09d481d8ee856adcf3001b91ab2dd06cfbf88edee5177f67131deaf3dcb75"
     }
   ]
 }
