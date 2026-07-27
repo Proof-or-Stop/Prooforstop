@@ -264,7 +264,11 @@
           {
             "desc": "red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs are excluded with a stated machine-checked reason, not registered, because they pass forever while asserting nothing on a fixed tree.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+              "selector": "2 unregistered, of which 2 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs) and 0 are NEVER RUN: none"
+            }
           }
         ]
       },
@@ -317,6 +321,26 @@
           "materialHash": "b7b426da0e2cdc14c4ff73c821a76b6f406d1fcd0f32767f14cc0a73482a9356",
           "storyFilesHash": "331d993a4c623feb4656b1662e4325db6ff12dbab38ae41b9f57dbe33df6344f",
           "timestamp": "2026-07-27T18:04:25.059Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "lattice.config.json",
+          "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "result": "pass",
+          "note": "The selector names the ONLY two members of the 35 that are not in validate.commands, so it is an exhaustive complement proof that red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs were deliberately NOT registered while everything else was. I verified the stated reason rather than re-deriving it: both gate every marker they emit on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED, so on this fixed tree they print nothing and exit 0 - registering them would have added commands that pass forever while asserting nothing, the vacuous-coverage defect this story removes, self-inflicted at the last step. They still get RUN: the same row shows both are spawned by the registered red-b2aa7-chk007-receipt.mjs, so excluding them removes a vacuous command without removing execution. The reason is MACHINE-CHECKED on every run of red-b49d4-harness-registration.mjs, not merely written down: auditExclusions fails an entry shorter than 40 characters, fails an entry naming a file no longer in the population (a stale carve-out silently widens itself), and fails an entry that is ALSO registered because the two records would disagree - and the same auditor is re-run each time over a synthetic map that is stale in one entry and unreasoned in the other, so a non-biting audit cannot be mistaken for a clean one. Post-fix the whole artifact is 0 RED / 18 GREEN of 18 rows, exit 0, with REAL_CONFIG_BYTE_UNMODIFIED GREEN (git status --porcelain -- lattice.config.json empty), so this registration is committed rather than a stray working-tree mutation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4ebba20099fd5a4239a2ef8843965be70c5a1d3e925b6ee4983b1540fe05964c",
+            "outputTail": "OT_THE_EXPECTATION (BLOCK A)\n      observed: exit=1; largest count in the success line=null while 4 members exist on disk; line=\"\"\n  [GREEN] SANDBOX_IS_FAITHFUL (BLOCK B)\n      observed: exit=0 out=\"red-w2c-validate-registration: OK (all 3 packages/main/dist/tasks/red-evidence-* members found ON DISK are accounted for: 3 registered in lattice.config.json validate.commands — including the red-evid…\"\n  [GREEN] SANDBOX_REDIRECTS_THE_CONFIG_READ (BLOCK B)\n      observed: with validate.commands=[] the guard exited 1: \"red-w2c-validate-registration: lattice.config.json must declare a non-empty validate.commands array\"\n  [GREEN] CONTROL_DEREGISTRATION_BITES (BLOCK B)\n      observed: removed packages/main/dist/tasks/red-evidence-chain-smoke.js (91 → 90 commands); exit=1; names the victim=true\n  [GREEN] CONTROL_USED_A_COPY_NOT_THE_REAL_CONFIG (BLOCK B)\n      observed: sandbox copy differs from the real file=true; real lattice.config.json sha256 still b5a4cab28f4e2fee…\n  [GREEN] EVERY_RED_HARNESS_IS_RUN_BY_VALIDATE (BLOCK C)\n      observed: 35 *.mjs on disk (unfiltered): 33 registered, 2 unregistered, of which 2 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs) and 0 are NEVER RUN: none\n  [GREEN] SELF_IS_INSIDE_THE_POPULATION (BLOCK C)\n      observed: red-b49d4-registration-derivation.mjs present in the derived population=true\n  [GREEN] REACHABILITY_ARM_IS_LIVE (BLOCK C)\n      observed: unregistered but spawned by a registered command: red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs\n  [GREEN] DERIVATION_IS_NON_VACUOUS (BLOCK C)\n      observed: de-registering red-b2aa7-chk004-receipt.mjs moves it into unreached (0 → 1)\n  [GREEN] NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS (BLOCK D)\n      observed: spawned 4 committed guard(s) as child processes: red-w2c-validate-registration.mjs(exit=0, 68ms), red-b2aa7-chk007-receipt.mjs(exit=0, 28027ms), red-b49d4-chk002-receipt.mjs(exit=0, 662ms), red-b49d4-harness-registration.mjs(exit=1, 63ms)\n  [GREEN] DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION (BLOCK D)\n      observed: packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs planted, registered nowhere and excluded nowhere; guards that caught it: red-b49d4-harness-registration.mjs; guards that reported success anyway: red-w2c-validate-registration.mjs(\"red-w2c-validate-registration: OK (all 3 packages/main/dist/tasks/red-evidence-* members f…\") | red-b2aa7-chk007-receipt.mjs(\"INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f…\") | red-b49d4-chk002-receipt.mjs(\"BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN (two guards with DISJOINT declared populations: p…\")\n  [GREEN] REAL_CONFIG_BYTE_UNMODIFIED (BLOCK E)\n      observed: sha256 before=b5a4cab28f4e2fee… after=b5a4cab28f4e2fee…; git status --porcelain -- lattice.config.json => \"\"\n  [GREEN] PROBES_CLEANED_UP (BLOCK E)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js=removed, packages/main/src/tasks/red-evidence-b49d4-blindness-probe.ts=removed, packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs=removed\n  [OBS  ] NARROWED_ENUMERATION_MISSES_NEWCOMER — red-b2aa7-chk007-receipt.mjs, red-b49d4-chk002-receipt.mjs derive their population from disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration.\n\n0 RED / 18 GREEN of 18 rows (29207ms in child processes)\nred-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of packages/main/dist/tasks/red-evidence-*.js is caught, every packages/main/tests/red/*.mjs is registered or reachable from something registered, a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a config COPY while the real lattice.config.json stays byte-identical)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T18:05:09.008Z"
+          },
+          "headHash": "74963149e19febb982668e618168dd57e3003461",
+          "materialHash": "b7b426da0e2cdc14c4ff73c821a76b6f406d1fcd0f32767f14cc0a73482a9356",
+          "storyFilesHash": "331d993a4c623feb4656b1662e4325db6ff12dbab38ae41b9f57dbe33df6344f",
+          "timestamp": "2026-07-27T18:05:09.264Z"
         }
       ]
     }
