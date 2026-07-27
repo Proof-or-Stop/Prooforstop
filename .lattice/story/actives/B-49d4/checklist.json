@@ -66,23 +66,14 @@
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
-          "file": "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
-          "command": "node packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
-          "result": "pass",
-          "note": "The planted newcomer b49d4-newcomer-probe-unprefixed.mjs carries no red- prefix at all, so a derivation narrowed by any name pattern leaves it outside the population and fails this artifact. It is judged by SPAWNING the real shipped guards as child processes (targets derived from disk: the named guard plus every red-dir *.mjs that reads lattice.config.json and enumerates a directory), never by a simulation written inside the artifact; the marker additionally requires that red-b2aa7-chk007-receipt.mjs was among the spawned guards, so its narrowed regex missing the newcomer is measured rather than argued.",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "75d723b2b57b930e8d3093cc5e31540920517e20339fba6686f20fe5e83a5ce2",
-            "outputTail": "RED_ARTIFACT_FAILS_ON_PRE_FIX_TREE (exit=1; 4/18 rows red with 14 green controls; the guard exited 0 with an unregistered, non-zero-exiting member of its own population on disk and its success line still counted 3 of 4; DERIVED population: 33 tests/red/*.mjs enumerated unfiltered = 13 registered + 20 unregistered, of which 3 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-w2c-v1-verdict-invariance.mjs) leaving 17 that lattice validate NEVER runs)\nDIFFERENTLY_PREFIXED_NEWCOMER_DRIVES_REAL_GUARDS (b49d4-newcomer-probe-unprefixed.mjs carries neither the red-b2aa7- nor the red-w2c- prefix — nor any red- prefix — so only an UNFILTERED enumeration can see it; it was judged by spawning 2 REAL committed guards as child processes rather than by any simulation written in the artifact (red-w2c-validate-registration.mjs exit=0 in 66ms; red-b2aa7-chk007-receipt.mjs exit=0 in 27768ms), and NONE of them caught it — including red-b2aa7-chk007-receipt.mjs, which does derive its population from disk but through /^red-b2aa7-.*\\.mjs$/, the narrowing this artifact exists to forbid)\nCONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED (de-registering packages/main/dist/tasks/red-evidence-chain-smoke.js from a COPY of lattice.config.json (71 → 70 commands) made the SAME guard exit non-zero and name it, while an unmutated copy in the same sandbox still passed and an empty-commands copy still failed — so the sandbox provably redirected the read and blindness is not a broken experiment; the real lattice.config.json is byte-identical (sha256 96fe2ce743cf1a73… before and after), git status reports it clean, and every planted probe was removed)\n",
-            "selectorMatched": true,
-            "executedAt": "2026-07-27T16:39:29.856Z"
-          },
-          "headHash": "640b83e31b188ff4476630ec6d2ec4dd6a16b9a5",
-          "materialHash": "51156b00ea5f514897062cdcd0456199e1413ea38e36c2982e13703e957705ea",
-          "storyFilesHash": "ceae053c62d77ac2c8c90b7ffbcd738ecac7d76ca210ba9ba11e13b21ddd1be3",
-          "timestamp": "2026-07-27T16:39:30.113Z"
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005. NOT re-earnable, and deliberately NOT repointed. Measured on HEAD dfa21181: the pinned command node packages/main/tests/red/red-b49d4-chk001-receipt.mjs exits 0 with zero output, and lattice verification_run --intentRef=CHK-001:edge:0 was REFUSED with [receipt_selector_absent] for pinned selector DIFFERENTLY_PREFIXED_NEWCOMER_DRIVES_REAL_GUARDS. Same permanent construction: every marker in that receipt is gated on the derivation artifact still exiting non-zero. This marker additionally required the pre-fix fact that NO shipped guard caught the newcomer (its condition includes /guards that caught it: NONE/); on the fixed tree red-b49d4-harness-registration.mjs DOES catch it, so the marker condition is not merely unobserved but now false by design. The live successor proposition IS proven on HEAD by a DIFFERENT command (red-b49d4-registration-derivation.mjs row DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION, observed: guards that caught it: red-b49d4-harness-registration.mjs) - that is stated for the reader only and is expressly NOT claimed as this row receipt, because it proves a different proposition than the pinned pre-fix one. Original receipt genuine at headHash 640b83e31b188ff4476630ec6d2ec4dd6a16b9a5.",
+          "headHash": "53af581aa4847114bb4abaa5d9a518ac8d86a59c",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:40:56.860Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
