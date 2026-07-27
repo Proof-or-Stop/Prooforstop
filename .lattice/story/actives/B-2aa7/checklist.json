@@ -1070,17 +1070,13 @@
         },
         {
           "intentRef": "CHK-010:edge:0",
-          "kind": "logic_test",
-          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
-          "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
-          "result": "pass",
-          "note": "BLOCK B row B2 (audit section 10.2.1 row E4), authored and observed on the PRE-FIX tree at commit 1e03c7c8af, driven through proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics. A v1 envelope with NO records member at all is asserted to stay on the ORDINARY not-configured path on five independent observables: the read boundary does not throw, the envelope still loads as an object with the records key genuinely absent (asserted via the in operator, so a null or [] fixture cannot masquerade as this case), the gate emits exactly [\"missing_red_evidence\"], no quarantine surface appears on the loaded value, and the FULL diagnostic report is byte-identical to an ABSENT artifact. An empty records array is asserted to land on that identical report, so a validator demanding a present non-empty records member would fail here rather than silently reclassify E4 as corruption. The rows built-in negative control falsifies the SAME shared predicate (onOrdinaryNotConfiguredPath) on a genuinely corrupt envelope, records: {} - BLOCK A row A6 - which must never be read as ordinary not-configured on either tree (pre-fix it escapes as a bare TypeError; post-fix it must be rejected or quarantined). A falsification run asserting the opposite - that E4 IS reclassified - aborted inside BLOCK B, so the row is not vacuous.",
-          "headHash": "d0e564872116f7f1f0efc909a2f32abaa9b28041",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "note": "PERMANENT WAIVER, not a deferral. This intent is a PRE-FIX observation by construction: it asserts the RED artifact FAILED on the unfixed tree. Once the fix landed that can never be re-observed, and its pinned receipt gates every marker on BLOCK A still being RED, so the receipt is silent and exit-0 by design and would assert nothing if re-run. The observation WAS made mechanically before the fix (recorded in this story's earlier evidence and reproduced independently by the test-coverage reviewer, who rebuilt the pre-fix trees at b207d4645b and 357ab0f07f and confirmed the regressions bite). Repointing this row at a passing post-fix command would be dishonest - it would claim a pass proves a failure. What remains mechanically guarded post-fix is the SUBSTANCE: red-b2aa7-artifact-validation.mjs is registered in validate.commands, is fail-closed, and re-checks BLOCK A (CHK-001) and BLOCK B (CHK-010) on every run.",
+          "headHash": "5584ae3f4129e48d75a512172a6a8963a6e3c294",
           "materialHash": "e3689801578fbe3f49d4b208e176f26d6731fd43391973dc04e01f5b06bba713",
           "storyFilesHash": "bc7f68d10daf4e9e2eeedbc95f1601f11a1f61fdce80a4436849cbb9619e65ed",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-07-27T05:20:38.123Z"
+          "timestamp": "2026-07-27T05:25:57.973Z"
         },
         {
           "intentRef": "CHK-010:adversarial:0",
