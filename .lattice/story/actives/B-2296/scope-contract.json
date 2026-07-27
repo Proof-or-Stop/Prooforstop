@@ -1,0 +1,47 @@
+{
+  "storyId": "B-2296",
+  "mode": "shadow",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/frozen-claim-drift.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/frozen-claim-drift.ts",
+    "packages/main/src/handlers/frozen-claim-drift-check.ts",
+    "packages/main/src/tasks/frozen-claim-drift-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+    "packages/main/src/tasks/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "docs/**",
+    ".lattice/**",
+    "packages/main/src/handlers/verification.ts"
+  ],
+  "scopeChangeReason": "Phase 1 detect+report scope from plan.md: packages/main CLI (types, checklist snapshot hook, new frozen-claim-drift fn + handler, command-catalog, smoke) + lattice.config.json + package.json. shadow mode: warn on drift, do not block unforeseen-but-legitimate routing files.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-26T12:14:18.337Z",
+  "updatedAt": "2026-07-26T12:14:48.863Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/**": "docs/**",
+    "packages/main/src/handlers/verification.ts": "packages/main/src/handlers/verification.ts",
+    ".lattice/**": ".lattice/**",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/frozen-claim-drift.ts": "packages/main/src/core/frozen-claim-drift.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "lattice.config.json": "lattice.config.json",
+    "package.json": "package.json",
+    "packages/main/src/handlers/frozen-claim-drift-check.ts": "packages/main/src/handlers/frozen-claim-drift-check.ts",
+    "packages/main/src/tasks/frozen-claim-drift-smoke.ts": "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+    "packages/main/src/tasks/**": "packages/main/src/tasks/**"
+  }
+}

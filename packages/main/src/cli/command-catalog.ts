@@ -411,6 +411,10 @@ Behavior:
     slim: z.boolean().optional().describe('Opt-in compact checklist view. Default output is unchanged when omitted.'),
     fields: z.array(z.string()).optional().describe('Opt-in top-level field filter. With slim=true, filter storyId/counts/items.'),
   }},
+  { name: 'frozen_claim_drift_check', description: 'B-2296 Phase 1: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory — reports checklist userSees whose normalized claim OR story-owned material (storyFilesHash) drifted since attestation; classifies no-snapshot userSees as legacy-unbound.', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output the structured advisory array + summary object as JSON.'),
+  }},
   { name: 'checklist_add', description: 'Append a checklist item to an existing story', schema: {
     storyId: z.string().describe('Story ID'), title: z.string().describe('What to do, in one sentence.'),
     context: z.string().optional().describe('Root cause or reference approach.'),

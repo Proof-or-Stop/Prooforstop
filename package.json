@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.246",
+  "version": "0.3.247",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -119,7 +119,9 @@
     "test:experiments": "node experiments/recovery-runner/run-selfchecks.mjs",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js",
     "test:proofstory-acceptance-rollout": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
-    "test:convergence-breaker": "node packages/main/dist/tasks/convergence-breaker-smoke.js"
+    "test:convergence-breaker": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+    "test:frozen-claim-drift-smoke": "node packages/main/dist/tasks/frozen-claim-drift-smoke.js",
+    "test:frozen-claim-snapshot-hook-smoke": "node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
   },
   "repository": {
     "type": "git"

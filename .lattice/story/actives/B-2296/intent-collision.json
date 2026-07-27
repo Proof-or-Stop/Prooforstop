@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-2296",
+  "id": "IC-20260726121416",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Phase 1 of a two-phase follow-on: detect + report only. Build a NON-blocking FROZEN_CLAIM_DRIFT advisory that binds each checklist userSees to a snapshot at status=done -- material bound to storyFilesHash (drift-authoritative) with the normalized claim-digest as a co-equal secondary trigger (bidirectional) -- flags drift when either moves, and classifies no-snapshot userSees as legacy-unbound. The blocking gate, reviewer re-attestation recovery, legacy migration policy, and general plan.md DoneWhen/Verify drift are explicitly deferred to Phase 2 or other stories; scope is userSees only. This interpretation was settled with the operator on 2026-07-26 and recorded in decision_set (chosen option B: storyFilesHash).",
+  "acceptedInterpretationHash": "sha256:3c58bb4eb45aba7d5e9c9557057b22e1bbdd844fc9d751d37ca9992e7bb0d3b3",
+  "notes": "Re-confirming after milestone ledger M1 configured; binds the candidate ledger for gate consumption.",
+  "ledgerHashBeforeDecision": "sha256:17052aeb3817eb5e02da6d79d51dc94ff65e28318d23638dee9f7f347b59b053",
+  "confirmedLedgerHash": "sha256:17052aeb3817eb5e02da6d79d51dc94ff65e28318d23638dee9f7f347b59b053",
+  "createdAt": "2026-07-26T12:14:16.545Z",
+  "updatedAt": "2026-07-26T12:18:40.061Z"
+}

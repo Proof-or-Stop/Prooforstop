@@ -321,6 +321,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_get', 'story_list', 'story_reconcile', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
+    'frozen_claim_drift_check', // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory; allowed in any phase, writes nothing
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
