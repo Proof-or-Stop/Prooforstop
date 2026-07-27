@@ -114,7 +114,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §4.2 (table row 3) and §10.4 (row C4, citing '(§4.2 row 3)') still describe assertTargetInExpected as reaching store.readRedEvidence only through the shared handlers/phase-gates.ts proofStoryDiagnosticInput builder, and the prose under the §4.2 table hedges only in future tense (\"Row 3 is also expected to leave this table... is being resolved by narrowing assertTargetInExpected\"). But CL-003 (0b7217f170), committed within this same REVIEW round after CL-004 (bc16eaf87f) wrote that text, already landed the narrowing: assertTargetInExpected now takes ExpectedRedTargetsInput and never calls proofStoryDiagnosticInput or reads redEvidence at all (packages/main/src/handlers/red-evidence.ts). On the final reviewed tree the table row and the C4 cross-reference are stale — they describe a reach-path that no longer exists, without the \"Post-fix, on the shipped tree...\" treatment this same commit applied elsewhere (§4.3, §10.2.1 E5) for an identical pre/post-fix split. This is exactly the residue the restructure was supposed to prevent (§4.0's own warning: any change to the reach graph must be reflected in §4.2 in the same commit).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-27T03:10:20.526Z",
@@ -126,14 +126,16 @@
         "packages/main/src/handlers/red-evidence.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-005",
+      "resolvedBy": "CL-005@aa00b5c"
     },
     {
       "id": "B-2aa7:F-007",
       "desc": "missing: packages/main/tests/red/red-b2aa7-f005-receipt.mjs (added by CL-003, 0b7217f170) is not wired into lattice.config.json validate.commands. Every sibling standalone regression receipt from this same REVIEW round (red-b2aa7-chk004/005/006/007/009/011-receipt.mjs, red-b2aa7-doc-receipt.mjs, red-b2aa7-baseline-receipt.mjs) IS registered there, and f005-receipt.mjs is structurally identical to them (imports dist/, drives handlers directly, fail-closed marker ledger) rather than a wrapper like chk001/chk010-receipt.mjs (which legitimately skip registration because they only re-derive markers from an already-registered artifact-validation.mjs run). f005-receipt.mjs is also not referenced anywhere in checklist.json verificationEvidence. Result: lattice validate never runs this proof, so a future regression that re-couples assertTargetInExpected to the red-evidence artifact (the exact F-005 defect CL-003 just fixed) would go undetected by the standard validate pipeline -- the same silent-coverage-gap class this story's own CHK-007 (\"Register the new tests in lattice.config.json validate.commands\") and C4/C5 acceptance rows exist to prevent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-27T03:10:31.588Z",
@@ -145,14 +147,15 @@
         "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
       ],
       "signatureTag": "missing|json|missing-packages-main",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-2aa7:F-007@d019411"
     },
     {
       "id": "B-2aa7:F-008",
       "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §4.2 (lines 302-325) is stale/incomplete at CURRENT HEAD. Row 3 (assertTargetInExpected -> handlers/phase-gates.ts proofStoryDiagnosticInput) is now FALSE: commit 0b7217f170 (CL-003) removed that import from packages/main/src/handlers/red-evidence.ts and replaced the call with a narrow expectedRedTargetsInput builder that never touches store.readRedEvidence -- verified by reading the current file (no proofStoryDiagnosticInput import remains). The doc text at lines 322-325 (\"Row 3 is also expected to leave this table... Re-derive against the current tree rather than assuming either state\") was written in commit bc16eaf87f, which landed BEFORE the severing commit 0b7217f170 -- so at current HEAD this is a settled fact, not an open question, and the hedged/future-tense wording is now stale. More importantly, simply deleting Row 3 (as the hedge anticipates) would create a real completeness gap, not just a tense problem: red_evidence_binding_set still reaches store.readRedEvidence post-fix, directly, via readRedEvidenceForChain at handlers/red-evidence.ts:224 (const evidence = readRedEvidenceForChain(store, args.storyId, (quote)red_evidence_binding_set(quote));) -- a path that pre-dates CL-003 too (CL-003s own commit message says red_evidence_binding_set read the artifact TWICE, once through readRedEvidenceForChain, once through the now-removed call). But §4.2s readRedEvidenceForChain (#6) row (line 315) lists only findV2Record <- appendChainControl as reachers and only red_evidence_quarantine, red_evidence_recover as the operator-visible surface -- it omits red_evidence_binding_sets direct call. This omission predates CL-003 (present since the CL-004 doc restructure) but becomes load-bearing now that Row 3 is retiring: it is the only place red_evidence_binding_sets reach to the boundary should be documented, and today it is not documented there. This recreates, inside the very section built to fix it, the exact failure mode §4.0 narrates (a consumer reaching the boundary through a shared builder that a grep-based/stale inventory misses). Separately CONFIRMED ACCURATE at current HEAD: §4.1s direct-call-site count of NINE (re-derived independently via grep of store.readRedEvidence( across packages/main/src excluding tests/ and src/tasks/*-smoke.ts, matching all 9 listed symbols/rows exactly) and §4.2 rows 1, 2, 4, 6 (verified against current core/machine.ts, handlers/phase-gates.ts, handlers/proofstory.ts, handlers/red-evidence.ts, core/red-evidence/append.ts). Fix: state Row 3s severing definitively (not hedged) and add red_evidence_binding_set to the readRedEvidenceForChain (#6) row (or a dedicated row) so the enumeration stays complete for the current tree.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-27T03:11:27.721Z",
@@ -164,7 +167,9 @@
         "packages/main/src/handlers/red-evidence.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-005",
+      "resolvedBy": "CL-005@aa00b5c"
     }
   ]
 }

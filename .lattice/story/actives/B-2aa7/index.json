@@ -4,7 +4,7 @@
   "title": "Validate the legacy v1 red-evidence artifact before enforce-gate evaluation",
   "description": "On main at CLI 0.3.243 (after sibling story B-506e merged at 4d417a0c4b) a malformed VERSIONLESS record OR a malformed file envelope in a story's red-evidence.json still crashes the LIVE dev/review/done enforce gate with a bare TypeError instead of failing closed. B-506e closed only the unsupported-schemaVersion class (a null or string record now yields a typed error); the versionless-malformed class, array records, ordering-dependent silent corruption, and the ENTIRE file-envelope class remain live, verified by probe against current main. Root cause is unchanged: readJson is JSON.parse-and-cast with no validation between parse and the typed domain. Fix per the settled decisions in docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md (rev 3): full v1 validation at the read boundary covering envelope and records, malformed entries quarantined rather than thrown, the gate predicate kept total as defense-in-depth, and a mandatory migration scan proving no valid verdict moved. NOTE: re-locate every cited symbol against CURRENT main and never by line number - main advanced repeatedly during this story's INIT (0.3.239 to 0.3.243) and line citations from the original audit have drifted.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "red-evidence",
@@ -86,6 +86,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-27T03:03:06.893Z",
+      "branch": "story/B-2aa7",
+      "user": "Harmonygo",
+      "sessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-27T03:19:45.990Z",
       "branch": "story/B-2aa7",
       "user": "Harmonygo",
       "sessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
