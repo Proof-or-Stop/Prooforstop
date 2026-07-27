@@ -1,0 +1,44 @@
+{
+  "passes": [
+    {
+      "id": "B-2aa7:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage audit of all 11 checklist items / 33 intent-evidence pairs: reproduced every pinned command and outputDigest by hand (sha256 matched exactly for chk004/chk011/doc and eyeballed for all others); mutation-tested all 7 fail-closed receipts (chk004,chk005,chk006,chk009,chk011,doc,baseline) by suppressing one required-marker condition in a throwaway copy and confirming non-zero exit, then removed the copies (HEAD clean); confirmed chk001/chk010 receipts are correctly silent+exit0 post-fix and that their underlying invariants (Block A defect classes, Block B CHK-010 invariants) remain live-guarded via the registered shared artifact-validation.mjs file, not orphaned; verified Block A/B/C/D (20 RED_ROWS + 3 invariant rows) are structurally labeled, mutually-exclusive-asserted, and stale-row-detected so no row can be silently weakened; investigated the one apparent gap (core/red-evidence/append.ts read call site absent from CHK-006 9-consumer list) and confirmed it is architecturally unreachable with corrupt data because handlers/red-evidence.ts readRedEvidenceForChain refuses upstream before appendControlRecord runs, and that upstream guard is itself exercised by the registered consumer tests. No blocking test-coverage defects found.",
+      "createdAt": "2026-07-27T02:47:22.202Z",
+      "reviewRound": "2026-07-27T02:31:52.563Z",
+      "reviewRunId": "B-2aa7:RR-003",
+      "envelopeId": "901ed7c14b66340427860cd99bec9373f4bffc0b92f9ce5a19a6f37b117a1281",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          ".lattice/story/actives/B-2aa7/findings.json",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk010-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk011-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1e59da6dfd978a6b8558b5377829a4434b118dfa89da4d5a5e94a417b83caa12"
+    }
+  ]
+}
