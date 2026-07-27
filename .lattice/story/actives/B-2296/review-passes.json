@@ -157,6 +157,29 @@
         "scanEscalationReason": null
       },
       "_hash": "016bd287347edd50cac29c43d73737b19735618a256d34514cb23cf4290cb915"
+    },
+    {
+      "id": "B-2296:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-attestation: code unchanged since round-2 PASS RP-003 (review_incremental_context: ELIGIBLE_NO_MATERIAL_CHANGE, changedFiles none). Re-verified smoke test passes and prior findings remain fixed, no new issues.",
+      "createdAt": "2026-07-27T10:35:01.045Z",
+      "reviewRound": "2026-07-27T10:32:29.627Z",
+      "reviewRunId": "B-2296:RR-007",
+      "envelopeId": "a27de384b3c129a299b32001eac0c210613b50c72968352615bc2fcd72f4becd",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/frozen-claim-drift-check.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dcb6db2c6d84a93cdde91b086f426e269f49dcc10cd977304a48e21855efe0a2"
     }
   ]
 }
