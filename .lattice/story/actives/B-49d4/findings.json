@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-49d4:F-001",
+      "desc": "packages/main/tests/red/red-b49d4-registration-derivation.mjs:140-146 (PROBE_RELS/sweepProbes), :479-490 (BLOCK D writeFileSync of the newcomer probe), :210 and :580-581 (pre-run sweep + try/finally) plant packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs on disk and rely on sweepProbes() reached via try/finally to remove it; that cannot run across a SIGKILL/watchdog-killed process (this repo has documented validate-timeout watchdog kills). LIVE REPRO during this review: git status --porcelain showed `?? packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs` present before I ran any B-49d4 test; running red-b49d4-harness-registration.mjs against it failed (exit 1), citing that exact file as undecided -- a spurious failure of an unrelated, already-registered validate command. The file then REAPPEARED mid-review (ps aux showed a concurrently-running `node .../red-b49d4-registration-derivation.mjs` process spawned by chk001-receipt.mjs, i.e. this is a live, currently-active hazard, not a one-off). The file is not gitignored, so an interrupted run can also be accidentally committed. A single interrupted run of the CHK-001 RED artifact corrupts the total-enumeration population that red-b49d4-harness-registration.mjs polices, breaking `lattice validate` for reasons unrelated to any real registration gap.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-27T18:33:02.773Z",
+      "reviewRound": "2026-07-27T18:23:36.999Z",
+      "reviewRunId": "B-49d4:RR-004",
+      "_hash": "41e4919ce706191fbb7c6b0ec84d1a156bdb6e57ae6fcb5f11b1334f453c14e5",
+      "files": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+        "packages/main/tests/red/red-b49d4-harness-registration.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
