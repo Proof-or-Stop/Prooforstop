@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-70a6",
+  "allowedCommands": [
+    "git cherry-pick",
+    "git diff",
+    "git log",
+    "node bin/lattice.js validate",
+    "node packages/main/dist/tasks/flow-stability-smoke.js",
+    "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build",
+    "npm run test:process-fact-contract"
+  ],
+  "allowedTools": [
+    "editor",
+    "shell"
+  ],
+  "allowedPaths": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "npm publish",
+    "rm -rf"
+  ],
+  "excludedTools": [
+    "remote-publish"
+  ],
+  "excludedPaths": [
+    "docs/requirements/decisions/plan-init-reopen.md",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/version-bump.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Verification-only command set for a LOW-severity cleanup. No remote publish: per project discipline, story branches are local-only and any push to main requires a human-run release_approve_push. The CLI version bump is deliberately NOT in this boundary because it is performed mechanically by bumpVersionOnDoneMerge during the DONE merge; there is no manual version command and hand-editing the 5 version sync points would collide with that auto-bump.",
+  "createdAt": "2026-07-25T23:18:45.504Z",
+  "updatedAt": "2026-07-25T23:18:45.504Z",
+  "_hash": "703eb3daaa1e22c6055ac57aa1a960ff238e854203ea28ba155a137d5e7772e6"
+}

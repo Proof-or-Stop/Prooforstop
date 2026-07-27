@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "An audit claim must be backed by a durable artifact, not by a validation that discards its input.",
+    "Prefer append-only history over mutable last-write-wins fields, so repeated reopens each leave their own record.",
+    "Additive-only changes to shared event shapes: existing consumers and shape tests must stay byte-identical.",
+    "Keep a LOW-severity cleanup minimal (YAGNI); do not smuggle unrelated hardening into the same change.",
+    "Never manufacture process evidence to satisfy a gate."
+  ],
+  "drivers": [
+    "A codex host-B review found the reason validated but dropped, making the 'gated and auditable' claim false in its second half.",
+    "phase_transition events are already append-only and already emitted only after a successful phase write.",
+    "The user explicitly directed that the two comment corrections be separate low-priority items, not folded into the audit fix.",
+    "The repo has many parallel stories, so a shared-event change must not perturb other consumers."
+  ],
+  "options": [
+    {
+      "name": "additive-phase-transition-fields",
+      "pros": [
+        "Reuses the existing append-only phase_transition event, so each reopen keeps its own historical record.",
+        "No new event type, storage, or reader; the event already carries storyId/fromPhase/toPhase/timestamp.",
+        "Strictly additive optional fields set only on REOPEN, so normal transitions stay byte-identical.",
+        "Emitted only after a successful writeStory, so no event can claim a transition that did not happen."
+      ],
+      "cons": [
+        "Adds two keys to a widely-consumed event shape, requiring a backward-compat audit of consumers.",
+        "Does not by itself add actor/eventId provenance."
+      ]
+    },
+    {
+      "name": "dedicated-reopen-audit-event",
+      "pros": [
+        "A dedicated reopen_audit event type would isolate reopen provenance from the generic transition event.",
+        "Room for a richer bespoke schema."
+      ],
+      "cons": [
+        "Requires a new ProcessEventType plus new readers, for a LOW-severity cleanup (violates YAGNI).",
+        "Introduces a second write that can diverge from the phase_transition event, creating exactly the transition/audit inconsistency the review warns about."
+      ]
+    },
+    {
+      "name": "mutable-story-index-field",
+      "pros": [
+        "A reopenReason field on the story index would be trivial to write and read."
+      ],
+      "cons": [
+        "Mutable and last-write-wins: a second reopen silently overwrites the first, destroying history.",
+        "Splits audit data across mutable fields, which the reviewer explicitly called insufficient for a real audit chain."
+      ]
+    }
+  ],
+  "chosen": "additive-phase-transition-fields",
+  "rationale": "Option additive-phase-transition-fields makes the audit claim true with the smallest possible change and the strongest history guarantee. The phase_transition event is already append-only and already emitted only after a successful writeStory, so carrying the reason there yields a per-reopen record and inherits the correct failure semantics for free, with no new event type or reader. Option mutable-story-index-field was rejected because a single mutable field loses history on a second reopen. Option dedicated-reopen-audit-event was rejected as disproportionate for a LOW finding and because a second independent write could diverge from the phase write. The additive-only shape (fields present only on REOPEN) was chosen specifically so the existing builder shape test and every existing consumer remain byte-identical.",
+  "preMortem": [
+    {
+      "scenario": "A phase_transition consumer somewhere validates the event's exact key set, or hashes/signs the serialized event, so the two new keys break it or change a signature.",
+      "trigger": "A consumer performs strict schema validation or includes the whole event in a hash domain.",
+      "consequence": "Gate failures or signature mismatches on unrelated stories that merely read transition events.",
+      "mitigation": "Enumerate every phase_transition consumer and confirm none does key-set validation, hashing, or full-event equality; confirm ProcessEvent uses an open index signature; keep the fields absent (not undefined) on normal transitions; run flow-stability (builder deepEqual) and process-fact-contract before REVIEW."
+    },
+    {
+      "scenario": "The new fields leak onto NON-reopen transitions, changing the event shape for every story in the repo.",
+      "trigger": "The conditional is written on args.reason instead of on eventType, so any caller passing a stray reason pollutes normal transitions.",
+      "consequence": "Every phase_transition event repo-wide changes shape, breaking the shape test and potentially other parallel stories.",
+      "mitigation": "Gate the spread strictly on eventType === 'REOPEN' (the value only assigned for the PLAN->INIT remap), and assert in the smoke that a normal transition's event is unchanged; the builder deepEqual test covers the no-fields path."
+    },
+    {
+      "scenario": "The reason is persisted but the test that proves it is a tautology, so a future refactor silently drops persistence again.",
+      "trigger": "Asserting against a mock/in-memory object rather than the real persisted JSONL, or writing the test after the code so it never failed.",
+      "consequence": "The audit guarantee regresses undetected and the same finding returns.",
+      "mitigation": "Write the assertion first and confirm it RED before implementing; read the event back through StoryStore.readProcessEvents (real JSONL) in the existing round-trip smoke rather than asserting on a constructed object."
+    },
+    {
+      "scenario": "The two comment corrections get folded into the behavioral commit, so a reviewer nit on wording blocks the audit fix.",
+      "trigger": "Committing all three tasks together for convenience.",
+      "consequence": "Acceptance criteria blur and a LOW documentation quibble can stall the real fix, contradicting the explicit user directive.",
+      "mitigation": "Keep three separate single-purpose commits (one behavioral, two comment-only) and record the separation in the scope boundary."
+    }
+  ],
+  "timestamp": "2026-07-26T00:59:55.231Z"
+}

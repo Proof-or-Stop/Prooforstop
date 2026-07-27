@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2aa7",
+  "checkedAt": "2026-07-26T22:08:54.866Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "1cd76d81910d1487ca6c618cf3279253aafc0372aff0969018c3a5b21d48c3fd",
+  "executionBoundaryHash": "c8b8da8125db27f51de063a1b66caf415039199cec3fdca158a864500dded479",
+  "freshnessHash": "09faeafd55e6371cf75a8659829c2d3b5a3a861556bd4632de307ec4cf05e6ab",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Generalising this validation into a framework for other story artifacts such as spike.json or scope-contract.json",
+    "Layer4",
+    "OPEN-3: whether B-506e prose citing a sha256 no artifact produces warrants a B-META finding against the delivery-check gate - a process defect in another subsystem",
+    "repair UX",
+    "Rewriting the remaining per-record predicate checks at proofstory.ts:933-940 - verified total already",
+    "The SATISFIED verdict for records that are well-formed under the legacy v1 schema - this is the hard invariant the story must preserve, not modify",
+    "The v2 record chain subsystem of story B-506e (core/red-evidence/record-v2.ts, classifyRedRecordSchema*, RedEvidenceSchemaError) - absent from main, owned by a parallel unmerged story",
+    "Write-path validation semantics of red_evidence_add - appendRedEvidence already validates correctly and is not changed"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Generalising this validation into a framework for other story artifacts such as spike.json or scope-contract.json",
+      "source": "scopeBoundary.excluded",
+      "text": "Generalising this validation into a framework for other story artifacts such as spike.json or scope-contract.json",
+      "excluded": true
+    },
+    {
+      "keyword": "OPEN-3: whether B-506e prose citing a sha256 no artifact produces warrants a B-META finding against the delivery-check gate - a process defect in another subsystem",
+      "source": "scopeBoundary.excluded",
+      "text": "OPEN-3: whether B-506e prose citing a sha256 no artifact produces warrants a B-META finding against the delivery-check gate - a process defect in another subsystem",
+      "excluded": true
+    },
+    {
+      "keyword": "Rewriting the remaining per-record predicate checks at proofstory.ts:933-940 - verified total already",
+      "source": "scopeBoundary.excluded",
+      "text": "Rewriting the remaining per-record predicate checks at proofstory.ts:933-940 - verified total already",
+      "excluded": true
+    },
+    {
+      "keyword": "The SATISFIED verdict for records that are well-formed under the legacy v1 schema - this is the hard invariant the story must preserve, not modify",
+      "source": "scopeBoundary.excluded",
+      "text": "The SATISFIED verdict for records that are well-formed under the legacy v1 schema - this is the hard invariant the story must preserve, not modify",
+      "excluded": true
+    },
+    {
+      "keyword": "The v2 record chain subsystem of story B-506e (core/red-evidence/record-v2.ts, classifyRedRecordSchema*, RedEvidenceSchemaError) - absent from main, owned by a parallel unmerged story",
+      "source": "scopeBoundary.excluded",
+      "text": "The v2 record chain subsystem of story B-506e (core/red-evidence/record-v2.ts, classifyRedRecordSchema*, RedEvidenceSchemaError) - absent from main, owned by a parallel unmerged story",
+      "excluded": true
+    },
+    {
+      "keyword": "Write-path validation semantics of red_evidence_add - appendRedEvidence already validates correctly and is not changed",
+      "source": "scopeBoundary.excluded",
+      "text": "Write-path validation semantics of red_evidence_add - appendRedEvidence already validates correctly and is not changed",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "4bd6730c98fe06497fc899e491db70ad27963ee465a52e98d381819d16601024"
+}

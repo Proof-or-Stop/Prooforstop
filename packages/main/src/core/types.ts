@@ -149,6 +149,64 @@ export interface StoryEvent {
   reviewer?: string;
 }
 
+/**
+ * B-70a6 F-004: the durable crash-recovery record for the gated PLAN->INIT
+ * reopen audit.
+ *
+ * WHY IT EXISTS. The reopen's audit facts (the validated reason + the reopen
+ * marker) live in an append-only `phase_transition` process event, but the
+ * phase write and the event append are two separate fs operations. A crash
+ * between them used to leave phase=INIT with NO audit record at all — and
+ * because REOPEN only fires FROM PLAN, the story had already left the only
+ * phase that could retry it, so that audit event was UNRECOVERABLE.
+ *
+ * HOW IT CLOSES THAT WINDOW. This record is set on the story index in the SAME
+ * `store.writeStory` that persists phase=INIT. `StoryStore.writeJsonFile` is
+ * tmp-write + `renameSync`, so the record and the new phase land in ONE atomic
+ * rename: either the reopen did not happen, or it happened AND the reason is
+ * already durably on disk. `reconcilePendingReopenAudit`
+ * (handlers/transition-orchestrator.ts) then emits the missing event and clears
+ * this record — but ONLY at the points enumerated in the next paragraph, NOT on
+ * every command and under NO concurrency guarantee; `auditId` is the idempotency
+ * key that makes that recovery emit EXACTLY ONE event, never two.
+ *
+ * (B-70a6 F-016: the sentence above used to promise that recovery "on the next
+ * transition", with no qualifier at all. It is EDITED IN PLACE rather than merely
+ * supplemented by the paragraph below, so a reader who stops reading here is not
+ * left with the pre-F-005 impression that some later transition always heals it.)
+ *
+ * WHAT THAT DOES AND DOES NOT GUARANTEE. Recovery fires on the next ORCHESTRATED
+ * transition, and — since B-70a6 F-005 — at the two out-of-band phase writers
+ * (story_discard, the story_reconcile zombie repair) before they destroy the copy
+ * holding this record. It is NOT a concurrency guarantee: those two sites hold no
+ * lock, so a reopen that writes this record while one of them is already running
+ * can still lose both the record and its event — see
+ * CONCURRENCY RESIDUAL (B-70a6 F-013), documented in full on
+ * `reconcileReopenAuditBeforeOutOfBandPhaseChange`. Finding this record on disk
+ * therefore means "a reopen committed whose audit event may be missing", not
+ * "every committed reopen is guaranteed to leave one".
+ *
+ * It is audit/recovery bookkeeping, NOT gate evidence: no gate consumes it.
+ */
+export interface PendingReopenAudit {
+  /**
+   * Unique per reopen. The idempotency key: reconciliation appends the audit
+   * event only when NO `phase_transition` event carries this `reopenAuditId`,
+   * so a crash between the append and the clear cannot double-emit.
+   */
+  auditId: string;
+  /** The operator reason, verbatim, already validated (>= REOPEN_REASON_MIN, non-blank). */
+  reason: string;
+  /** The phase the reopen left (PLAN — the only phase REOPEN fires from). */
+  fromPhase: string;
+  /** ISO 8601 timestamp of the reopen persist. */
+  at: string;
+  /** Evidence-binding facts captured with the reopen, so a recovered event matches the in-line one. */
+  materialHash: string;
+  storyFilesHash: string;
+  reviewRound: string;
+}
+
 export interface StoryInfo {
   storyId: string;
   name: string;
@@ -188,6 +246,16 @@ export interface StoryInfo {
    * the high-risk gate cost derived from auto-elevation, without erroneously downgrading user-explicitly-set high/critical.
    */
   priorityElevatedFrom?: string;
+
+  /**
+   * B-70a6 F-004: present ONLY between a gated PLAN->INIT reopen's phase write
+   * and its audit-event append. Written in the SAME atomic writeStory rename as
+   * phase=INIT and cleared immediately after the event is durably appended, so
+   * finding it on disk means "a reopen committed whose audit event may be
+   * missing" — the recoverable state that replaces the old unrecoverable one.
+   * See PendingReopenAudit and reconcilePendingReopenAudit.
+   */
+  pendingReopenAudit?: PendingReopenAudit;
 
   // Parallel policy fields (B-c622)
   lane?: 'mainline' | 'supporting' | 'exploratory';

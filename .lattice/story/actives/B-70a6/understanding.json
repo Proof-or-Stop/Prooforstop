@@ -1,0 +1,28 @@
+{
+  "task": "The gated PLAN->INIT reopen validates a mandatory reason but never persists it, so the documented claim that the reopen is auditable is not durably true; also correct two overstated code comments flagged by the same review.",
+  "outcome": "A successful PLAN->INIT reopen leaves an append-only phase_transition process event carrying the verbatim reason and a transitionType=reopen marker, provable by a smoke assertion that reads the persisted JSONL; and two comments state their real guarantees instead of overstating them.",
+  "facts": [
+    "transition-orchestrator.ts validates args.reason (non-blank, >= REOPEN_REASON_MIN=10 chars) at the REOPEN remap, then never reads it again.",
+    "buildPhaseTransitionProcessEvent had no reason field and its single call site never passed one.",
+    "ProcessEvent is an open record type ({ type, timestamp, [key: string]: unknown }); appendProcessEvent JSON.stringifies it with no schema validation, hashing, or signing.",
+    "The phase_transition event is appended only AFTER a successful writeStory, so a failed transition cannot already leave an event claiming success.",
+    "No consumer of phase_transition performs key-set validation or full-event equality; done-prepare.ts reads named fields only.",
+    "The REOPEN checklist reset and the phase write are two separate fs writes under a mkdir persist claim, ordered so the phase write lands last.",
+    "pruneWorktreeRegistry runs `git worktree prune --expire now`, which cannot remove a live sibling worktree but does clear every currently-missing registration repo-wide.",
+    "CLI version bump is performed mechanically by bumpVersionOnDoneMerge during the DONE merge; there is no manual version command."
+  ],
+  "constraints": [
+    "Normal transitions must keep a byte-identical phase_transition event shape so the flow-stability builder deepEqual test and all existing consumers stay green.",
+    "The two comment corrections must not be folded into the behavioral commit (explicit user directive), so a documentation nit cannot block the audit fix.",
+    "No forged or manufactured dispatch/review evidence; Proof-or-Stop requires mechanical evidence only.",
+    "Scope excludes actor/eventId provenance plumbing and any crash-transactionality hardening (recorded in scope-boundary.json as excluded).",
+    "Story branches stay local; no remote push."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "timestamp": "2026-07-26T00:59:39.110Z"
+}
