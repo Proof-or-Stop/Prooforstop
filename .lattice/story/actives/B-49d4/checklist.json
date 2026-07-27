@@ -253,7 +253,11 @@
           {
             "desc": "red-w2c-validate-registration.mjs, the guard itself, is registered and therefore actually runs under lattice validate.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+              "selector": "35 members on disk, 33 registered + 2 excluded, 0 undecided, basis=REAL lattice.config.json"
+            }
           }
         ],
         "adversarial": [
@@ -293,6 +297,26 @@
           "materialHash": "b7b426da0e2cdc14c4ff73c821a76b6f406d1fcd0f32767f14cc0a73482a9356",
           "storyFilesHash": "331d993a4c623feb4656b1662e4325db6ff12dbab38ae41b9f57dbe33df6344f",
           "timestamp": "2026-07-27T18:04:09.771Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "lattice.config.json",
+          "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "result": "pass",
+          "note": "red-w2c-validate-registration.mjs - the guard itself - was unregistered, which is exactly why it never ran; it is now entry {command:node,args:[packages/main/tests/red/red-w2c-validate-registration.mjs],timeoutMs:180000} in validate.commands. The proof is the basis= field flipping. When CHK-002 ran this same receipt it reported basis=a config COPY carrying the registration CHK-003 owns, because the real config did not yet carry it; on the committed tree the identical unmodified receipt now reports basis=REAL lattice.config.json for BOTH populations, so the decision is read out of the shipped config rather than a synthesized one. Within that real-config verdict the guard file is necessarily among the 33 registered: it is one of the 35 members enumerated from disk, and the only 2 non-registered members are named exhaustively by red-b49d4-registration-derivation.mjs as red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs. The same receipt additionally measures NO SELF-EXCEPTION against the real config: removing guard 1s own registration from a copy makes guard 2 exit 1 naming guard 1, and removing guard 2s makes guard 2 exit 1 naming ITSELF - so both registration-enforcing files are registered subjects of the rule they enforce. Independently corroborated: node packages/main/tests/red/red-w2c-validate-registration.mjs exits 0 in 62ms, so registering it costs essentially nothing.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9fba31c56b5868daef041506dad33e47b2e4df29cca9a00222ecfc2f51e47d80",
+            "outputTail": "BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN (two guards with DISJOINT declared populations: packages/main/dist/tasks/red-evidence-* — 3 members on disk, 3 registered + 0 excluded, 0 undecided, basis=REAL lattice.config.json — and packages/main/tests/red/* — 35 members on disk, 33 registered + 2 excluded, 0 undecided, basis=REAL lattice.config.json. Each guard's reported population size was cross-checked against an independent disk enumeration, so neither is reporting the size of its own expectation. The union covers every member: the two directories are distinct and neither nests in the other, and BOTH guard files are themselves members of the second population — guard 2 governs guard 1 and governs itself)\nTOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness carries no red- prefix — the narrowing /^red-b2aa7-.*\\.mjs$/ that the reference guard uses would miss it, and so would /^red-.*\\.mjs$/ or any other name pattern — and it is not even a .mjs, so an extension filter would miss it too. Its only qualifying property is being an entry of packages/main/tests/red, which is exactly what a TOTAL enumeration sees: planting it flipped the real shipped guard from exit 0 to exit 1 naming it, and removing it flipped the guard back to exit 0, so the failure is attributable to the newcomer alone)\nBITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION (guard 1: an unregistered, unexcluded member planted in packages/main/dist/tasks made it exit 1 naming the file, and de-registering packages/main/dist/tasks/red-evidence-chain-smoke.js from a config COPY made it exit 1 naming it. Guard 2: an undecided newcomer made it exit 1, and de-registering packages/main/tests/red/red-b2aa7-artifact-validation.mjs made it exit 1 naming it. NO SELF-EXCEPTION, measured rather than argued: removing guard 2's own registration made guard 2 fail naming ITSELF, and removing guard 1's made guard 2 fail naming guard 1 — so the two files that enforce registration are themselves registered subjects of it. Every mutation lived on a copy: the real lattice.config.json is byte-identical (sha256 b5a4cab28f4e2fee… before and after) and every planted probe was removed)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T18:04:24.791Z"
+          },
+          "headHash": "b295a0c11534e7bd68b6a1601f90190be895af9b",
+          "materialHash": "b7b426da0e2cdc14c4ff73c821a76b6f406d1fcd0f32767f14cc0a73482a9356",
+          "storyFilesHash": "331d993a4c623feb4656b1662e4325db6ff12dbab38ae41b9f57dbe33df6344f",
+          "timestamp": "2026-07-27T18:04:25.059Z"
         }
       ]
     }
