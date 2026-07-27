@@ -353,7 +353,11 @@
           {
             "desc": "A well-formed v1 artifact loads unchanged and its gate verdict is identical to pre-fix.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+              "selector": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED"
+            }
           }
         ],
         "edge": [
@@ -382,7 +386,29 @@
         "test": [
           "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk004-receipt.mjs",
+          "result": "pass",
+          "note": "A well-formed v1 artifact loads UNCHANGED and its verdict is IDENTICAL TO PRE-FIX, both observed rather than claimed. 'Unchanged' is checked at the real read boundary: store.readRedEvidence returns an envelope whose canonical form equals the bytes on disk, malformedRecords is absent (no quarantine surface is manufactured for a clean artifact), and the live pair proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics reports zero missingRedEvidence rows. 'Identical to pre-fix' is not self-reported: the receipt spawns the PROTECTED harness red-w2c-v1-verdict-invariance.mjs and requires exit 0 plus the digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec, which CHK-002 pinned on the pre-fix tree at 6d7c20bb4b - so a match is a direct pre-fix/post-fix comparison. The pinned constant was NOT edited and that file is untouched in this diff. Non-vacuity comes from a discriminating control rather than from flipping (this is a no-change intent, so it necessarily holds on both trees): the same envelope with ONE malformed record appended must NOT canonicalise to the clean envelope, so 'unchanged' cannot hold for an arbitrary artifact.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1c12d94593c26a376b1517491de48db9be75fd0e825cede0b4ec4190e766d4ae",
+            "outputTail": "WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; the pre-fix-pinned five-scenario digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec still reproduces; control=one malformed record appended is discriminated)\nENVELOPE_ROWS_E5_E6_E7 (E5: 4/4 non-object roots rejected as root_not_object and no longer read as ABSENT; E6: missing -> schema_version_missing and unknown -> schema_version_unknown, neither degrading to v1 while the same record SATISFIES under a v1 envelope; E7: still THROWS, typed RedEvidenceArtifactError(unparseable) naming the path, not a raw SyntaxError)\nQUARANTINE_RETAINS_AND_ATTRIBUTES (rejected entry RETAINED verbatim at index=1 id=\"corrupt\" with reason and violations while records stays clean; full v1 field set enforced (missing:trigger flips a record the predicate never reads); blank observedFailure legacy-tolerated per D-5 — UNSATISFIED, no new diagnostic, never quarantined; envelope fault reported as records_not_array naming the path, never as \"a record must be an object\"; array record and prototype-inherited observedFailure both rejected, own-field null-prototype control accepted)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:43:32.848Z"
+          },
+          "headHash": "53afa24245da0d9f89bba861bf1887f30c50bcb8",
+          "materialHash": "ec829c0a2741dc66ae26045c0a104fbd9e3e1d18a7d5a9116aa072953c23e588",
+          "storyFilesHash": "3d8002a0677044efdfdbcc51c47ee7006150058e1121104100073c6c32e8ac37",
+          "timestamp": "2026-07-27T00:43:33.051Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
