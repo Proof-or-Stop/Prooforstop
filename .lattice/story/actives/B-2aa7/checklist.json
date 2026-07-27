@@ -462,9 +462,9 @@
       "id": "CHK-005",
       "title": "Extend the existing two-layer guard so the gate predicate is total on arbitrary input",
       "context": "Decision D-2. SUPERSEDES the earlier framing that main had no two-layer idiom to mirror: since the B-506e merge, main already classifies at the read boundary in store.ts and skips non-v1 records in the predicate. This story EXTENDS that shape rather than establishing it. The remaining hole is that the 'v1' class is RESIDUAL, not validated - classifyRedRecordSchemaSafe returns 'v1' for any object lacking a schemaVersion member without checking the legacy v1 shape, and it returns 'v1' for arrays too. So redEvidenceRecordSatisfied must never throw on arbitrary input even when a malformed record is injected directly into the diagnostic input, bypassing the read path. The audit verified observedFailure is the ONLY unguarded per-record dereference - every other check in the predicate is a truthiness test or a short-circuited read - so do not widen this into a rewrite of those checks.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-27T00:47:15.077Z",
       "verificationIntent": {
         "happy": [
           {
