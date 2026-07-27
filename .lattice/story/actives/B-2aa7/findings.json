@@ -36,6 +36,30 @@
       ],
       "signatureTag": "missing|md|concept-exist-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2aa7:F-003",
+      "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §4 (\"`store.readRedEvidence` has TEN production call sites on current main\") is wrong a third time on the shipped tree. Grep of `store.readRedEvidence(` in packages/main/src (excluding tests) gives NINE call sites: core/machine.ts:177, handlers/phase-gates.ts:198, handlers/proofstory.ts:391/1155/1205 (3), handlers/story-review.ts:295/833 (2), core/red-evidence/append.ts:167, handlers/red-evidence.ts:84 (1). The doc's two cited handlers/red-evidence.ts sites (:56 and :137) were real at the B-506e-merge baseline (verified: `git show f342d9464b^:packages/main/src/handlers/red-evidence.ts` has calls at exactly those two lines) but this story's own CHK-006 commit (f342d9464b) consolidated both into a single shared `readRedEvidenceForChain` helper with one `store.readRedEvidence` call at :84, called from two command paths (findV2Record:106, red_evidence_binding_set:191). The doc never notes this consolidation and still asserts TEN as the current count; a reader who greps to verify (exactly what §0.0 instructs: \"re-derive any inventory... against CURRENT main rather than trusting a number in this text\") gets NINE. Functionally all consumers still surface corruption correctly (verified read-through of red-evidence.ts, proofstory.ts:1205, story-review.ts:833) so this is a documentation count, not a functional gap.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-27T02:40:09.264Z",
+      "reviewRound": "2026-07-27T02:31:52.563Z",
+      "reviewRunId": "B-2aa7:RR-004",
+      "_hash": "9b29b6b4929648f55104ce528da7d8d311894ee33911af1a0cc7da03c220240c",
+      "files": [
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+        "packages/main/src/handlers/red-evidence.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/core/red-evidence/append.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
