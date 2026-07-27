@@ -389,9 +389,267 @@ RED_ROWS.push({
 // are plain checks that hold BOTH before and after the fix, so they use a
 // different shape: `check(ctx)` throws on failure and a failure is immediately
 // fatal — unlike BLOCK A, where failure is the expected pre-fix state.
-// CHK-010 owns this block. Leave it empty until then.
+//
+// ── WHY THIS BLOCK EXISTS: THE PINCER ───────────────────────────────────────
+//
+// BLOCK A requires the fix to make a CORRUPT artifact distinguishable from an
+// ABSENT one. There are two ways to satisfy that and only one is correct:
+//
+//   ✓ move the CORRUPT side  — reject it, quarantine it, report it.
+//   ✗ move the ABSENT side   — make "not configured" throw, or emit a
+//                              corruption verdict for an artifact that is
+//                              merely empty, `records`-less, or v2-only.
+//
+// BLOCK A cannot tell those two apart: both turn its rows green. THIS block
+// pins the ABSENT side so the second route fails, and pins the v2 record union
+// so a read-boundary validator cannot buy the distinction by rejecting records
+// it does not recognise. Together they force the distinction to be created by
+// moving the corrupt side, which is the only route that fixes anything.
+//
+// These rows were authored ON THE PRE-FIX TREE and observed to PASS there
+// (CHK-010 depends on CHK-001, not on CHK-004, for exactly that reason: after
+// the fix lands, "this already held before" is no longer observable). CHK-007
+// re-runs them post-fix; unchanged behaviour there is the regression proof.
+//
+// ── EVERY ROW CARRIES ITS OWN NEGATIVE CONTROL ──────────────────────────────
+//
+// A row that would hold no matter what pins nothing. Each row therefore also
+// asserts that its OWN predicate FAILS on a deliberately wrong fixture. Each
+// control is chosen so its outcome is the same on BOTH trees (a corrupt
+// envelope, an unsupported `schemaVersion`) — a control must never quietly
+// become a RED row.
 // ════════════════════════════════════════════════════════════════════════════
+const {
+  RED_EVIDENCE_V2_SCHEMA_VERSION, computeRecordDigest, computeSpecDigest,
+  recordDigestMatches, isRedEvidenceV2, classifyRedRecordSchemaSafe,
+} = await import(`${DIST}/core/red-evidence/record-v2.js`);
+const { redAssertOperationKey, controlOperationKey, deriveRecordId } = await import(`${DIST}/core/red-evidence/operation-key.js`);
+
+const V2 = RED_EVIDENCE_V2_SCHEMA_VERSION;
+
+/** A GENUINELY valid v2 red-assert record: derived id, derived operationKey, self-omitting digest. */
+function makeV2Assert(target, seq, prior, supersedes) {
+  const greenRelation = { targetRef: target, relation: 'same_acceptance' };
+  const specDigest = computeSpecDigest(target, greenRelation);
+  const operationKey = redAssertOperationKey({
+    storyId, acceptanceTargetRef: target, baselineHeadHash: 'v2-base-head', baselineMaterialHash: 'v2-base-mat',
+    specDigest, assertionDigest: 'sha256:a', policyDigest: 'sha256:p',
+  });
+  const draft = {
+    id: deriveRecordId('red-assert', operationKey, seq), schemaVersion: V2, operation: 'red-assert',
+    seq, priorRecordDigest: prior, supersedes, storyId, acceptanceTargetRef: target,
+    trigger: 'auth regression', observedFailure: 'v2 observed failure',
+    baselineHeadHash: 'v2-base-head', baselineMaterialHash: 'v2-base-mat', greenRelation,
+    assertion: {}, policySnapshot: {}, specDigest, operationKey, runReceipt: {}, createdAt: NOW,
+  };
+  return { ...draft, recordDigest: computeRecordDigest(draft) };
+}
+
+/** A GENUINELY valid v2 QUARANTINE control record — one of the two operations this repo writes. */
+function makeV2Quarantine(target, seq, prior, supersedes, recoversRecordId, referencedRecordDigest) {
+  const reason = 'quarantined by the CHK-010 invariant fixture';
+  const operationKey = controlOperationKey({
+    operation: 'quarantine', storyId, acceptanceTargetRef: target, recoversRecordId, referencedRecordDigest, reason,
+  });
+  const draft = {
+    id: deriveRecordId('quarantine', operationKey, seq), schemaVersion: V2, operation: 'quarantine',
+    seq, priorRecordDigest: prior, supersedes, storyId, acceptanceTargetRef: target,
+    recoversRecordId, referencedRecordDigest, linkKind: 'quarantines', reason,
+    approvedBy: 'lattice-implementer@sess-chk010', operationKey, createdAt: NOW,
+  };
+  return { ...draft, recordDigest: computeRecordDigest(draft) };
+}
+
+const v2Assert = makeV2Assert('M1', 1, null, null);
+const v2Quarantine = makeV2Quarantine('M1', 2, v2Assert.recordDigest, v2Assert.id, v2Assert.id, v2Assert.recordDigest);
+
+// The DISCRIMINATOR-ISOLATION pair. `v1Twin` and `v2Hybrid` are the SAME object
+// except for the single `schemaVersion` member, and both carry every field the
+// v1 predicate needs to be SATISFIED. So "the v1 predicate skips v2" is
+// observable as a VERDICT FLIP caused by that one member — not as an accident
+// of a canonical v2 record happening to lack `failingCommand`.
+const v1Twin = { ...satisfying, operation: 'red-assert', seq: 1, priorRecordDigest: null, supersedes: null, storyId };
+const v2Hybrid = { ...v1Twin, schemaVersion: V2 };
+
+/** E4: a v1 envelope with NO `records` member at all. */
+const E4_TEXT = JSON.stringify(
+  { schemaVersion: 'proofstory.red_evidence.v1', storyId, createdAt: NOW, updatedAt: NOW }, null, 2,
+) + '\n';
+/** The shared negative control: a genuinely CORRUPT envelope (`records: {}`, BLOCK A row A6). */
+const CORRUPT_ENVELOPE_TEXT = JSON.stringify(
+  { schemaVersion: 'proofstory.red_evidence.v1', storyId, records: {}, createdAt: NOW, updatedAt: NOW },
+);
+
+/**
+ * The one shared predicate every BLOCK B row is built on: "this artifact is on
+ * the ORDINARY not-configured path". Kept in one place so the negative controls
+ * falsify the SAME predicate the positive assertions use — a control that
+ * falsified a paraphrase would prove nothing.
+ */
+function onOrdinaryNotConfiguredPath(o) {
+  return !o.threw && !o.readThrew
+    && Array.isArray(o.missingRedEvidence) && o.missingRedEvidence.length === 1
+    && o.missingRedEvidence[0] === 'missing_red_evidence'
+    && !hasQuarantineSurface(o.readValue)
+    && o.report === ABSENT.report;
+}
+function assertOrdinaryNotConfigured(o, label) {
+  assert.ok(!o.readThrew, `${label}: the read boundary must NOT throw — this is the ordinary not-configured path, not a fault (got ${o.readError?.constructor?.name}: ${o.readError?.message})`);
+  assert.ok(!o.threw, `${label}: the live enforce gate must NOT throw (got ${o.error?.constructor?.name}: ${o.error?.message})`);
+  assert.deepEqual(o.missingRedEvidence, ['missing_red_evidence'], `${label}: must stay UNSATISFIED via the ORDINARY not-configured gap code`);
+  assert.ok(!hasQuarantineSurface(o.readValue), `${label}: must NOT be quarantined — ABSENT is not MALFORMED, and conflating them regresses the distinction this story exists to create`);
+  assert.equal(o.report, ABSENT.report, `${label}: the FULL diagnostic report must remain byte-identical to an ABSENT artifact. Reclassifying it as corruption is exactly the overreach CHK-010 exists to catch.`);
+  assert.ok(onOrdinaryNotConfiguredPath(o), `${label}: shared predicate disagrees with the assertions above — fix the row, not the tree`);
+}
+
 const INVARIANT_ROWS = [];
+
+// ── B1 · V2 (§10.1 row V2) — a valid v2 record is skipped, and UNCHANGED ─────
+INVARIANT_ROWS.push({
+  id: 'B1-v2-record-skipped-unchanged',
+  label: 'a valid v2 record loads byte-identically and is still correctly SKIPPED by the v1 predicate',
+  check: (c) => {
+    // The fixtures must really be v2, or every assertion below is about
+    // something else. Proven through the production classifier + digest check.
+    for (const [name, record] of [['red-assert', v2Assert], ['quarantine', v2Quarantine]]) {
+      assert.ok(isRedEvidenceV2(record), `fixture: the ${name} fixture must be a v2 record`);
+      assert.equal(classifyRedRecordSchemaSafe(record), 'v2', `fixture: the ${name} fixture must CLASSIFY as v2`);
+      assert.ok(recordDigestMatches(record), `fixture: the ${name} fixture must be VALID — its recordDigest must recompute from its own bytes`);
+    }
+
+    // (i) The read boundary ACCEPTS it: no throw, no quarantine, and the stored
+    //     bytes round-trip unchanged. A validator that rejected records it does
+    //     not recognise would fail here.
+    const chain = c.observe(() => c.writeEnvelope([v2Assert, v2Quarantine]));
+    assert.ok(!chain.readThrew, `V2: a valid v2 chain must LOAD, not be rejected (got ${chain.readError?.constructor?.name}: ${chain.readError?.message})`);
+    assert.equal(
+      c.canon(chain.readValue?.records), c.canon([v2Assert, v2Quarantine]),
+      'V2: a valid v2 record must round-trip through the read boundary BYTE-IDENTICALLY — not dropped, not mutated, not reordered',
+    );
+    assert.ok(!hasQuarantineSurface(chain.readValue), 'V2: a VALID v2 record must never be quarantined');
+    // (ii) …and the v1 predicate skips it, so it contributes NOTHING to the v1
+    //      diagnostic: the report is byte-identical to having no artifact at all.
+    assertOrdinaryNotConfigured(chain, 'V2 (valid v2 chain, no v1 record)');
+
+    // (iii) THE SKIP IS LOAD-BEARING, not an accident. `v1Twin` and `v2Hybrid`
+    //       differ by the `schemaVersion` member ALONE, and both carry every
+    //       field the v1 predicate needs. The verdict must flip on that member.
+    assert.equal(
+      c.canon({ ...v2Hybrid, schemaVersion: undefined }), c.canon(v1Twin),
+      'fixture: v2Hybrid and v1Twin must differ by the schemaVersion member ALONE, else the flip below proves nothing',
+    );
+    const asV1 = c.observe(() => c.writeEnvelope([v1Twin]));
+    assert.ok(!asV1.threw && !asV1.readThrew, 'fixture: the v1 twin must evaluate cleanly');
+    assert.deepEqual(asV1.missingRedEvidence, [], 'fixture: the v1 twin MUST satisfy the gate — otherwise "v2 is skipped" is unobservable');
+    const asV2 = c.observe(() => c.writeEnvelope([v2Hybrid]));
+    assert.ok(!asV2.threw && !asV2.readThrew, 'V2: a hybrid v2 record must not crash the gate — the DISCRIMINATOR governs, not field presence');
+    assert.deepEqual(
+      asV2.missingRedEvidence, ['missing_red_evidence'],
+      'V2: a record carrying the v2 discriminator must be SKIPPED even though it carries every v1 satisfier field',
+    );
+    assertOrdinaryNotConfigured(asV2, 'V2 (hybrid v2 record carrying all v1 fields)');
+
+    // (iv) NON-INTERFERENCE, in both orders: a valid v2 record next to a
+    //      satisfying v1 record leaves the verdict and the whole report alone.
+    for (const [order, records] of [['v2 first', [v2Assert, c.satisfying]], ['v1 first', [c.satisfying, v2Assert]]]) {
+      const mixed = c.observe(() => c.writeEnvelope(records));
+      assert.ok(!mixed.threw && !mixed.readThrew, `V2: a mixed v1+v2 store must not throw (${order})`);
+      assert.equal(mixed.report, c.CLEAN.report, `V2: a valid v2 record must not perturb the v1 verdict (${order}) — the report must stay byte-identical to a v1-only satisfying store`);
+    }
+
+    // (v) NEGATIVE CONTROL — the "accepted unchanged" predicate DISCRIMINATES.
+    //     An UNSUPPORTED per-record schemaVersion must NOT get the v2 treatment
+    //     (B-506e's fail-closed property, §10.5 "must not regress"). Phrased as
+    //     a disjunction so it holds whether the fix throws or quarantines.
+    const unsupported = { ...v2Assert, schemaVersion: 'proofstory.red_evidence.v3' };
+    const bad = c.observe(() => c.writeEnvelope([unsupported]));
+    assert.ok(
+      !onOrdinaryNotConfiguredPath(bad),
+      'negative control FAILED: an UNSUPPORTED schemaVersion was handled exactly like a valid v2 record, so this row would pass for any record whatsoever and pins nothing',
+    );
+    console.log(`      proof B1: v2Loads=byte-identical; v2Quarantined=false; skipFlip=${JSON.stringify(asV1.missingRedEvidence)}->${JSON.stringify(asV2.missingRedEvidence)} on schemaVersion alone; nonInterference=2/2 orders; negControl(schemaVersion=v3)=discriminated`);
+  },
+});
+
+// ── B2 · E4 (§10.2.1 row E4) — an ABSENT `records` key is NOT corruption ─────
+INVARIANT_ROWS.push({
+  id: 'B2-records-key-absent-stays-not-configured',
+  label: 'an artifact whose `records` key is ABSENT still yields UNSATISFIED via the ordinary not-configured path',
+  check: (c) => {
+    const o = c.observe(() => c.writeRawArtifact(E4_TEXT));
+    // The fixture must really be the E4 shape: the envelope loads, and `records`
+    // is genuinely ABSENT (not null, not [], not a mangled value).
+    assert.ok(o.readValue !== null && typeof o.readValue === 'object' && !Array.isArray(o.readValue), 'fixture E4: the envelope itself must still load as an object');
+    assert.ok(!('records' in o.readValue), 'fixture E4: the `records` key must be genuinely ABSENT, otherwise this row tests a different case');
+    assertOrdinaryNotConfigured(o, 'E4 (`records` key absent)');
+
+    // An EMPTY records array is the same not-configured case and must land on
+    // the same path — a validator that demanded a present, non-empty `records`
+    // would reclassify one or both of these as corruption.
+    const empty = c.observe(() => c.writeEnvelope([]));
+    assertOrdinaryNotConfigured(empty, 'E4 sibling (`records: []`)');
+    assert.equal(o.report, empty.report, 'E4: an absent `records` key and an empty `records` array must be reported identically — both are "not configured"');
+
+    // NEGATIVE CONTROL — the predicate DISCRIMINATES. A genuinely corrupt
+    // envelope (`records: {}`, BLOCK A row A6) must never be read as ordinary
+    // not-configured. True on BOTH trees: pre-fix it escapes as a bare
+    // TypeError, post-fix it must be rejected or quarantined.
+    const corrupt = c.observe(() => c.writeRawArtifact(CORRUPT_ENVELOPE_TEXT));
+    assert.ok(
+      !onOrdinaryNotConfiguredPath(corrupt),
+      'negative control FAILED: a CORRUPT envelope (`records: {}`) was accepted as ordinary not-configured, so this row would pass for any artifact whatsoever and pins nothing',
+    );
+    console.log(`      proof B2: recordsKeyPresent=false; readThrew=false; codes=${JSON.stringify(o.missingRedEvidence)}; report==ABSENT=true; quarantined=false; recordsAbsent==recordsEmpty=true; negControl(records:{})=discriminated`);
+  },
+});
+
+// ── B3 · the ABSENT side of the distinction must not move ───────────────────
+INVARIANT_ROWS.push({
+  id: 'B3-absent-side-not-reclassified-as-corruption',
+  label: 'the whole NOT-CONFIGURED family stays on one path — the fix must earn BLOCK A by moving the CORRUPT side, not this one',
+  check: (c) => {
+    // (i) The ABSENT baseline's OWN observable shape, pinned. A fix that made
+    //     "no artifact" throw, or emit a corruption code, would "distinguish"
+    //     corruption from absence by moving the wrong side and would still turn
+    //     BLOCK A's SILENT rows green. This is the assertion that stops it.
+    const absent = c.observe(c.removeArtifact);
+    assert.equal(absent.readValue, null, 'ABSENT: a missing artifact must read as null — never a thrown or quarantined corruption verdict');
+    assertOrdinaryNotConfigured(absent, 'ABSENT (no artifact at all)');
+
+    // (ii) Every member of the not-configured family reports identically. Each
+    //      is a shape a read-boundary validator could plausibly mistake for
+    //      malformed input; none of them is malformed.
+    const family = [
+      ['no artifact at all', c.removeArtifact],
+      ['`records` key absent', () => c.writeRawArtifact(E4_TEXT)],
+      ['`records: []`', () => c.writeEnvelope([])],
+      ['only a valid v2 record', () => c.writeEnvelope([v2Assert])],
+    ];
+    for (const [label, setup] of family) {
+      assertOrdinaryNotConfigured(c.observe(setup), `not-configured family — ${label}`);
+    }
+
+    // (iii) …and that path stays DISTINCT from the SATISFIED one, so "identical
+    //       to absent" never degenerates into "identical to everything".
+    assert.notEqual(c.ABSENT.report, c.CLEAN.report, 'the not-configured path must stay distinct from the satisfied path');
+
+    // (iv) NEGATIVE CONTROL — the family predicate DISCRIMINATES. A corrupt
+    //      envelope is NOT a family member on either tree.
+    //
+    //      NOTE the deliberate asymmetry: this row does NOT assert that a
+    //      corrupt artifact is currently distinguishable from an absent one.
+    //      Pre-fix it is NOT (BLOCK A rows A9-A12 are the live witnesses of
+    //      exactly that), and asserting it here would make this row fail on the
+    //      pre-fix tree — inverting CHK-010's entire premise. The corrupt half
+    //      is BLOCK A's job; this row owns the absent half.
+    const corrupt = c.observe(() => c.writeRawArtifact(CORRUPT_ENVELOPE_TEXT));
+    assert.ok(
+      !onOrdinaryNotConfiguredPath(corrupt),
+      'negative control FAILED: a CORRUPT envelope joined the not-configured family, so the family predicate admits anything and pins nothing',
+    );
+    console.log(`      proof B3: absentReadsNull=true; family=${family.length}/4 on the ordinary not-configured path; notConfigured!=satisfied=true; negControl(records:{})=discriminated`);
+  },
+});
 
 // ════════════════════════════════════════════════════════════════════════════
 // BLOCK C — CHK-009 · order independence.   Added after CHK-004 lands.
