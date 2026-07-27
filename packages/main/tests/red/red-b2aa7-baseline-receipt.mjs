@@ -7,10 +7,11 @@
  * same harness after the fix and assert the digest did not move. Two of CHK-002's
  * three verification intents are not answered by that harness's own output:
  *
- *   - edge:1        the baseline must NAME the commit it was taken at, and that
- *                   commit must genuinely predate the fix;
- *   - adversarial:2 the pinned constant must not have been edited, and the phantom
- *                   digest of audit §7.1 must appear nowhere as a pinned value.
+ *   - CHK-002:edge:0        the baseline must NAME the commit it was taken at, and
+ *                           that commit must genuinely predate the fix;
+ *   - CHK-002:adversarial:0 the pinned constant must not have been edited, and the
+ *                           phantom digest of audit §7.1 must appear nowhere as a
+ *                           pinned value.
  *
  * Those intents are `type: logic`, i.e. EXECUTABLE (B-ec67): the tool refuses a
  * caller-authored "result: pass" and derives the verdict from a pinned command's
