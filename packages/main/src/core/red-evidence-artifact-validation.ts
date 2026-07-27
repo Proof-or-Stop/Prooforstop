@@ -674,3 +674,69 @@ export function restoreQuarantinedRecords(
     records: [...restored, ...rebuilt.records.slice(clean.length)] as RedEvidenceData['records'],
   };
 }
+
+/**
+ * D-4's LAST LINE OF DEFENCE — the same retention rule applied at the WRITE
+ * boundary itself, to whatever envelope is about to be persisted.
+ *
+ * ── WHY A CALLER-LEVEL REMEDY WAS NOT ENOUGH ────────────────────────────────
+ *
+ * {@link restoreQuarantinedRecords} makes retention available to a caller that
+ * remembers to ask for it. `red_evidence_create` does. The chain commands could
+ * not — `core/red-evidence/append.ts` is owned by the merged sibling B-506e — so
+ * they were given a corruption PRECHECK instead, refusing when the artifact they
+ * read holds quarantined records.
+ *
+ * That precheck runs BEFORE the chain lock, and `appendControlRecord` takes the
+ * lock and performs its OWN second read inside it, rebuilding from THAT read's
+ * clean `records`. The two reads are different reads, so the precheck guards a
+ * value the write is not derived from: if the artifact becomes malformed in the
+ * window between them, the locked read quarantines the new entries and the
+ * rebuild writes back only the clean subset. A pre-lock refusal cannot close a
+ * post-lock window, and the loss is silent.
+ *
+ * Placing the rule at the write boundary protects EVERY writer instead of one
+ * caller — including the blocked one, and including writers that do not exist
+ * yet, which is the class of defect that produced this one.
+ *
+ * ── WHY IT RESTORES RATHER THAN REJECTS ─────────────────────────────────────
+ *
+ * A payload carrying `malformedRecords` descends from a quarantining read whose
+ * rebuild did not restore. Refusing the write would also prevent the loss, but
+ * it would fail an otherwise-correct operation to do it, and it would answer a
+ * "never drop" rule with "never write". Restoring is the rule itself: the
+ * artifact keeps what it had, plus whatever the caller appended. It is not a
+ * guess — {@link restoreQuarantinedRecords} FAILS CLOSED when the reconstruction
+ * cannot be proven, so refusal still happens exactly where a guess would
+ * otherwise be needed.
+ *
+ * A writer that genuinely intends to drop malformed records still can: it must
+ * hand over an envelope that does not carry the read's classification, which is
+ * the explicit act this guard asks of it.
+ *
+ * ── WHY IT KEYS OFF THE PAYLOAD ─────────────────────────────────────────────
+ *
+ * The quarantined originals travel WITH the envelope (`malformedRecords` carries
+ * each entry verbatim plus its on-disk index), so the payload is self-describing
+ * and the guard needs no memory of a prior read — no per-store cache to go stale
+ * and no cross-process state to be wrong about. What it cannot see, it does not
+ * pretend to see: an envelope built from scratch rather than from a read carries
+ * no classification and is passed through unchanged.
+ *
+ * The derived key is ALWAYS stripped, never persisted. It is read-time
+ * classification, not part of the on-disk schema, and a persisted copy would
+ * both pollute the envelope and be re-derived as stale corruption by every later
+ * read.
+ */
+export function retainQuarantinedRecordsOnWrite(data: RedEvidenceData): RedEvidenceData {
+  // Self-restore: the payload is both the read that quarantined and the envelope
+  // being written. `clean` is therefore the payload's own `records`, so the
+  // prefix-identity check is trivially satisfied and the interleave re-inserts
+  // each retained entry at its recorded on-disk index, leaving anything the
+  // caller appended after it. The index bounds / uniqueness checks — and the
+  // fail-closed refusal — still apply.
+  const restored = restoreQuarantinedRecords(data, data);
+  if (!hasOwn(restored, 'malformedRecords')) return restored;
+  const { malformedRecords: _derived, ...envelope } = restored;
+  return envelope as RedEvidenceData;
+}

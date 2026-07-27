@@ -17,7 +17,11 @@ import type {
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
 import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
-import { redEvidenceArtifactParseError, validateRedEvidenceArtifact } from './red-evidence-artifact-validation.js';
+import {
+  redEvidenceArtifactParseError,
+  retainQuarantinedRecordsOnWrite,
+  validateRedEvidenceArtifact,
+} from './red-evidence-artifact-validation.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
@@ -922,8 +926,30 @@ export class StoryStore {
     return validateRedEvidenceArtifact(candidate.data, candidate.filePath);
   }
 
+  /**
+   * The WRITE counterpart of {@link StoryStore.readRedEvidence}, and the point
+   * where D-4's "never drop" stops depending on every caller remembering it.
+   *
+   * `readRedEvidence` hands the typed domain a CLEAN `records` array and retains
+   * the rejected entries on the derived `malformedRecords` key, so any writer
+   * that rebuilds an envelope from that clean array persists the clean subset and
+   * DELETES the quarantined originals. `restoreQuarantinedRecords` lets a caller
+   * avoid that; `red_evidence_create` calls it. The chain appender cannot — it
+   * lives under `core/red-evidence/`, owned by the merged sibling B-506e — and
+   * the corruption precheck the chain commands were given instead runs BEFORE
+   * the chain lock, while the appender re-reads INSIDE it. An artifact that
+   * becomes malformed between those two reads is quarantined by the locked read
+   * and dropped by the rebuild, with the pre-lock refusal none the wiser.
+   *
+   * So the rule is applied HERE, to whatever is about to be persisted, and it
+   * therefore holds for every writer, present and future, blocked or not.
+   * `retainQuarantinedRecordsOnWrite` is pure and fails closed: it re-inserts
+   * each retained entry at its on-disk index, strips the derived key so it is
+   * never persisted, and throws rather than write a lossy envelope when the
+   * reconstruction cannot be proven.
+   */
   writeRedEvidence(storyId: string, data: RedEvidenceData): void {
-    this.writeJson(storyId, 'red-evidence.json', data);
+    this.writeJson(storyId, 'red-evidence.json', retainQuarantinedRecordsOnWrite(data));
   }
 
   // ── Red target bindings (W2b / B-e10d, §1.1.3) ──
