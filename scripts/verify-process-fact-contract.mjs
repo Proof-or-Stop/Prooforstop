@@ -7,6 +7,10 @@ import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 const root = process.cwd();
+// --quiet suppresses only the verbose listings (registry entries, inventory
+// file paths). Verification logic and asserted literals are unchanged; the
+// default (no flag) output stays byte-identical.
+const quiet = process.argv.slice(2).includes('--quiet');
 const failures = [];
 const warnings = [];
 const hanCharacterPattern = /[\u3400-\u9fff]/;
@@ -7423,9 +7427,11 @@ function printProcessFactLevelRegistrySummary() {
       console.log(`flow fact policy: ${policyId}${dispositionSuffix}${artifactSuffix}${gateSuffix}`);
     }
   }
-  console.log('- registry entries:');
-  for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
-    console.log(formatProcessFactRegistryEntry(entry));
+  if (!quiet) {
+    console.log('- registry entries:');
+    for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
+      console.log(formatProcessFactRegistryEntry(entry));
+    }
   }
 }
 
@@ -7987,13 +7993,16 @@ if (warnings.length) {
 }
 console.log('');
 console.log('Process Fact Inventory');
+let inventoryFileCount = 0;
 for (const entry of inventory) {
-  console.log(`- ${entry.name}`);
+  if (!quiet) console.log(`- ${entry.name}`);
   for (const file of entry.files) {
     assertFilePatterns(entry.name, file.relPath, file.patterns);
-    console.log(`  ${file.relPath}`);
+    inventoryFileCount += 1;
+    if (!quiet) console.log(`  ${file.relPath}`);
   }
 }
+if (quiet) console.log(`- entries: ${inventory.length} (${inventoryFileCount} files checked)`);
 
 if (failures.length) {
   console.error('');

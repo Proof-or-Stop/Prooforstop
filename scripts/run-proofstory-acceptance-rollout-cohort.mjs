@@ -192,5 +192,15 @@ export function runProofStoryAcceptanceRolloutCohort() {
 }
 
 if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
-  process.stdout.write(`${JSON.stringify(runProofStoryAcceptanceRolloutCohort(), null, 2)}\n`);
+  const outArgPath = process.argv.find(arg => arg.startsWith('--out='))?.slice('--out='.length);
+  const cohort = runProofStoryAcceptanceRolloutCohort();
+  const serialized = `${JSON.stringify(cohort, null, 2)}\n`;
+  if (outArgPath) {
+    const outPath = resolve(outArgPath);
+    mkdirSync(dirname(outPath), { recursive: true });
+    writeFileSync(outPath, serialized);
+    process.stdout.write(`acceptance rollout cohort written: ${outPath} (${cohort.sourceRecords.length} records)\n`);
+  } else {
+    process.stdout.write(serialized);
+  }
 }

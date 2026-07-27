@@ -42,6 +42,7 @@ const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
 const cohortArgPath = process.argv.find(arg => arg.startsWith('--cohort='))?.slice('--cohort='.length);
+const activeStoryArgId = process.argv.find(arg => arg.startsWith('--story='))?.slice('--story='.length);
 const consumerControlSource = "import { produceFact } from './producer.js'; export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n";
 const scenarioLedger = new Map<string, PreReviewCaseRecordV1>();
 let scenarioEventSequence = 0;
@@ -54,11 +55,11 @@ const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
   ['A-TRANSCRIPT-1', 'transcript'] as const,
 ]);
 const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
-const activeScenarioStoryId = scenarioMode ? process.env.LATTICE_ACTIVE_STORY_ID : undefined;
+const activeScenarioStoryId = scenarioMode ? (activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID) : undefined;
 
 if (scenarioMode) {
   const activeStoryId = activeScenarioStoryId;
-  if (!activeStoryId) throw new Error('--proof-scenarios requires LATTICE_ACTIVE_STORY_ID');
+  if (!activeStoryId) throw new Error('--proof-scenarios requires --story=<id> or LATTICE_ACTIVE_STORY_ID');
   const activeContract = new StoryStore(repositoryRoot).readProofStoryContract(activeStoryId);
   if (!activeContract) throw new Error(`proof-scenarios contract missing for ${activeStoryId}`);
   for (const binding of activeContract.acceptanceBindings) {
@@ -182,10 +183,11 @@ function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohor
 }
 
 if (liveProofMode) {
-  const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
-  if (!activeStoryId) throw new Error('--live-proof requires LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
+  const activeStoryId = activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID;
+  if (!activeStoryId) throw new Error('--live-proof requires --story=<id> or LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
   const scenarioArgs = [fileURLToPath(import.meta.url), '--proof-scenarios'];
   if (cohortArgPath) scenarioArgs.push(`--cohort=${cohortArgPath}`);
+  if (activeStoryArgId) scenarioArgs.push(`--story=${activeStoryArgId}`);
   const scenarioOutput = execFileSync(process.execPath, scenarioArgs, {
     cwd: repositoryRoot,
     env: { ...process.env, LATTICE_PRE_REVIEW_SCENARIO_NESTED: '1' },
