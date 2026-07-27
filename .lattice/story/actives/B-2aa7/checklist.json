@@ -418,7 +418,11 @@
           {
             "desc": "The other per-record checks are unchanged; only the missing shape guard is added, verified by diffing the predicate.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+              "selector": "ONLY_THE_SHAPE_GUARD_WAS_ADDED"
+            }
           }
         ]
       },
@@ -471,6 +475,26 @@
           "materialHash": "5594f85944deb9ad35426d61b2efebfabe8da9cf504e753d317a8b4428779aa5",
           "storyFilesHash": "1825de80d66636fa0c8c8af24aa3028140fd7d0ac3128ef512e860984e1247b7",
           "timestamp": "2026-07-27T00:39:43.511Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk005-receipt.mjs",
+          "result": "pass",
+          "note": "The predicate body is DIFFED against the blob at 3826486e80, the last commit before this guard landed, not against a remembered shape. Comment and blank lines are dropped on both sides; of the remaining executable lines, removing the ones that mention the new helper must leave a sequence byte-identical to the pre-fix one IN THE SAME ORDER, so a reordered, rewritten or deleted check cannot pass. Observed: exactly 1 executable line added, the other 17 unchanged and in order. Three conditions were added after controls found the check too weak or too brittle: the added line must equal the guard VERBATIM (a control that replaced it with a no-op still mentioning the helper kept this marker alive until that equality was pinned, while the edge marker correctly went red); the guard must sit BEFORE the dereference it protects; and the helper must be genuinely absent at the pinned commit. Re-pinning to the wrong history withholds the marker instead of crashing the receipt - verified by re-pointing it at pre-B-506e main 1847b3af6d and at an unresolvable sha, both of which suppress only this marker.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2264616eba764b89988f85d2e97b88b85c79e7d590fc34d6668c971b61f7491c",
+            "outputTail": "WELL_FORMED_VERDICTS_UNCHANGED (5 well-formed fixtures re-driven through direct injection; protected harness re-run exits 0 at its own pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; blank/empty observedFailure still UNSATISFIED via the ordinary non-satisfier route, not via the new guard)\nPREDICATE_TOTAL_ON_DIRECT_INJECTION (9/9 malformed records: each still classifies as the RESIDUAL 'v1', each still crashes the pre-fix unguarded dereference with a TypeError, and each now yields a verdict in every position (alone / first / last); artifact on disk still holds 0 records, so nothing was read through store.readRedEvidence)\nONLY_THE_SHAPE_GUARD_WAS_ADDED (predicate body diffed against 3826486e80: 1 executable line added — if (!isShapedLegacyV1Record(record)) return false; — placed before the dereference it protects; the other 17 executable lines are byte-identical and in the same order)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:39:55.279Z"
+          },
+          "headHash": "f9397c2d4d090db49053feb224ed3a2068032f2f",
+          "materialHash": "5594f85944deb9ad35426d61b2efebfabe8da9cf504e753d317a8b4428779aa5",
+          "storyFilesHash": "1825de80d66636fa0c8c8af24aa3028140fd7d0ac3128ef512e860984e1247b7",
+          "timestamp": "2026-07-27T00:39:55.454Z"
         }
       ]
     },
