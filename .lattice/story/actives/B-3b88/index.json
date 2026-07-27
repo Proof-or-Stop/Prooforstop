@@ -4,7 +4,7 @@
   "title": "Reject self-contradictory evidence rows and stop refresh_stale from laundering unverified pass assertions",
   "description": "Two mechanical ways false verification evidence enters the ledger today, both fixable with no schema change: (1) verification_evidence_add accepts a row whose own command and file fields name contradictory targets; (2) verification_evidence_refresh_stale re-stamps freshness hashes onto a stale result:pass without ever re-executing, laundering an unverified assertion onto new material. This is the cheapest first slice of the evidence-integrity program.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "evidence",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-07-25T21:28:22.449Z",
   "startedAt": "2026-07-25T21:28:22.449Z",
-  "endedAt": null,
+  "endedAt": "2026-07-27T02:08:03.041Z",
   "events": [
     {
       "phase": "INIT",
@@ -125,12 +125,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-27T02:08:03.041Z",
+      "branch": "story/B-3b88",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-3b88",
-    "branch": "story/B-3b88",
-    "createdAt": "2026-07-25T22:17:00.021Z"
-  },
   "currentReviewRound": "2026-07-27T01:20:13.611Z"
 }
