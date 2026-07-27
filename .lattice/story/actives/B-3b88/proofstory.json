@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-3b88",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:cc353de258080169f7156df2b4b90d8b55f235acfbdcdf36e22bbf2923560dca",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "milestoneIds": [],
+      "note": "contradiction guard on verification_evidence_add"
+    },
+    {
+      "id": "AB-002",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0"
+      ],
+      "milestoneIds": [],
+      "note": "refresh_stale honesty for command-backed pass"
+    }
+  ],
+  "diagnosticGaps": [],
+  "createdAt": "2026-07-25T22:46:52.764Z",
+  "updatedAt": "2026-07-25T22:46:52.764Z"
+}

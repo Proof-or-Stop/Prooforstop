@@ -14,9 +14,355 @@
           "packages/main/src/tasks/evidence-selfcheck-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-25T23:08:14.715Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verification_evidence_add({command:\"node dist/tasks/gate-repeat-block-smoke.js\", file:\"convergence-breaker-smoke.ts\"}) with different stems -> throws error naming both stems; WHY: exact F-049 reproduction, covers primary reject path",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"node dist/tasks/evidence-selfcheck-smoke.js\", file:\"src/tasks/evidence-selfcheck-smoke.ts\"}) same stem via dist/src + .js/.ts normalization -> accepted; WHY: proves normalization does not false-positive on dist<->src and .js<->ts variants",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"npm test\", file:\"packages/main/src/tasks/foo.ts\"}) no-stem command + any file -> accepted; WHY: no-stem commands must never trigger false contradiction",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "verification_evidence_add({command:\"lattice validate\", file:\"some-file.ts\"}) command with no file-like argument at all -> accepted; WHY: non-file-bearing commands cannot yield a stem so no contradiction is possible",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"node dist/tasks/foo.js\"}) command present but file field absent -> accepted; WHY: contradiction requires BOTH fields present",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({file:\"packages/main/src/tasks/foo.ts\"}) file present but command absent -> accepted; WHY: no command means no stem to compare",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"node dist/tasks/foo.js\", file:\"src/tasks/foo.cjs\"}) same stem foo, different extensions .js/.cjs -> accepted; WHY: .cjs extension must be normalized alongside .js/.ts",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"node --require setup.js packages/main/dist/tasks/alpha.js\", file:\"beta.ts\"}) multiple path args where last .js/.ts arg differs from file stem -> refused; WHY: stem extraction must pick the correct target argument, not an intermediate one like setup.js",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verification_evidence_batch_add with one entry having contradictory command/file (same F-049 shape) -> should also be refused; WHY: batch_add has identical write path and is an obvious bypass if only _add is guarded",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"node dist/tasks/A.js | tee log\", file:\"B.ts\"}) shell pipe obfuscation -> refused; WHY: shell metacharacters must not prevent stem extraction from the primary target before the pipe",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"node dist/tasks/../tasks/alpha.js\", file:\"beta.ts\"}) path traversal in command -> refused; WHY: ../ must be resolved before stem comparison so traversal cannot trick the check",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          },
+          {
+            "desc": "verification_evidence_add({command:\"\", file:\"foo.ts\"}) empty-string command + real file -> accepted without crash; WHY: degenerate empty command must not throw from stem extractor",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+              "selector": "evidence-selfcheck-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "evidence-selfcheck-smoke passes: contradictory row refused; benign shapes accepted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:38:53.831Z"
+          },
+          "headHash": "e63cf8d33a108340f9626d6d8425dc6ccd48d7a6",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:38:53.990Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "same-stem dist/src + .js/.ts variants accepted (normalization does not false-positive)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:02.027Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "no-stem command (npm test) never triggers a false contradiction",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:04.101Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "command with no file-like argument (lattice validate) is accepted",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:05.928Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "command present but file absent is accepted (contradiction needs both fields)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:07.729Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "file present but command absent is accepted (no command means no stem)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:09.502Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": ".js and .cjs of the same stem are accepted (extension normalized)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:11.288Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "multi-arg command compares the last script target (alpha), not the intermediate setup.js",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:13.073Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "verification_evidence_batch_add contradictory entry is also refused (bypass closed)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:14.848Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "shell pipe: primary target extracted before the pipe, contradiction refused",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:16.621Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "path traversal in command: basename resolved before comparison, contradiction refused",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:18.471Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+          "command": "node packages/main/dist/tasks/evidence-selfcheck-smoke.js",
+          "result": "pass",
+          "note": "empty-string command with a real file is accepted without crashing",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f3b1c030d05159834ab747f442e136761bc6389645203d64568093291fec9a58",
+            "outputTail": "evidence-selfcheck-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:20.320Z"
+          },
+          "headHash": "3a9f96f4ca8988d6d3edd16b62e8a6ac077c4fb1",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:20.453Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -32,9 +378,327 @@
           "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-25T23:08:19.618Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call refresh_stale on a stale row with command=\"node dist/tasks/X.js\" and result=pass -> row is left stale (NOT refreshed), output says requires real re-verification; WHY: core behavior change, the exact laundering channel that produced F-045/F-046/F-047",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Call refresh_stale on a stale attestation row (no command field, result=pass) -> row IS refreshed with new hashes; WHY: attestation-only rows are safe to re-stamp since they have no executable claim",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "refresh_stale output summary distinguishes refused command-backed rows from refreshed attestation rows; WHY: the user must see which rows need manual re-verification vs which were auto-refreshed",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call refresh_stale with dryRun=true on mix of command-backed pass + attestation stale rows -> output reports which rows WOULD be refused vs refreshed, no mutation; WHY: dryRun path must also reflect the new classification",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Call refresh_stale on a stale row with command present but result=fail -> behavior per current implementation (not a pass, so not the laundering channel); WHY: the fix targets result:pass specifically, non-pass rows are out of scope per plan",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Call refresh_stale when all stale rows are attestation-only (no command) -> all refreshed normally; WHY: no command-backed passes means no rows are refused, regression test for the base case",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Call refresh_stale when zero rows are stale -> returns no stale evidence message; WHY: boundary case, must not crash when there is nothing to classify",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call refresh_stale where ALL stale rows are command-backed passes -> zero rows refreshed, output clearly states every row requires real re-verification; WHY: the worst-case laundering scenario where the agent tries to bulk-wash all evidence via refresh",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Call refresh_stale on a stale row with command=\" \" (whitespace-only) and result=pass -> must be treated as command-backed (non-empty command field); WHY: whitespace command must not slip through as command-less",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "After refresh_stale refuses a command-backed pass row, immediately call verification_evidence_add with the same intentRef and a new real result:pass -> accepted; WHY: the fix must not block the legitimate re-verification path, only the no-execution refresh shortcut",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Call refresh_stale on stale rows where two rows share the same item but one is command-backed pass and one is attestation -> only the attestation row is refreshed; WHY: per-row classification must be independent, not per-item",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+              "selector": "refresh-stale-honesty-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "refresh-stale-honesty-smoke passes: command-backed pass never laundered.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:38:58.948Z"
+          },
+          "headHash": "6e9f65830f52100aab4e8f3d5f71cd99ca4249d9",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:38:59.083Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "command-less attestation row is refreshed with new hashes",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:24.814Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "output distinguishes refused command-backed rows from refreshed attestation rows",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:28.209Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "dryRun on a mix reports classification with no mutation",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:31.617Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "command with result=fail is not a pass, so not re-stamped (out of the laundering channel)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:35.068Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "all-attestation base case: every row refreshed normally",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:38.700Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "zero stale rows: reports nothing stale, does not crash",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:42.747Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "all command-backed passes: zero refreshed (bulk-wash blocked), output reports all refused",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:46.490Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "whitespace-only command is treated as command-backed and left stale",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:50.140Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "genuine re-verification via verification_evidence_add accepted after a refusal",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:53.528Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "command": "node packages/main/dist/tasks/refresh-stale-honesty-smoke.js",
+          "result": "pass",
+          "note": "per-row independence: only the attestation row refreshes, command-backed stays stale",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3c05f8999ffc344828b826bfe0d0cc17356b6bcb57d79f14f096368a8c9ca987",
+            "outputTail": "refresh-stale-honesty-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:39:57.171Z"
+          },
+          "headHash": "72711abbfb1e856ae580a1d4c79b6b6b91f8bf00",
+          "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+          "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+          "timestamp": "2026-07-27T01:39:57.356Z"
+        }
+      ]
     }
   ]
 }
