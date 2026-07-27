@@ -119,8 +119,8 @@
       "id": "CHK-002",
       "title": "Make the registration guard derive its population from disk instead of asserting a fixed list",
       "context": "Mirror the shape red-b2aa7-chk007-receipt.mjs already uses: enumerate the population from disk, partition into registered / explicitly-excluded-with-a-stated-reason / undecided, and FAIL when anything is undecided. The registered side must never be enumerated in the test file - it is whatever lattice.config.json actually contains, so it cannot go stale. Exclusions must carry a reason checked at runtime and must fail when they name a file that no longer exists. Include the guard file itself in its own population with no self-exception; a carve-out is precisely the exemption being removed. TWO POPULATIONS NEED COVER, and conflating them is the trap: the w2c guard's own population is the dist tasks packages/main/dist/tasks/red-evidence-*.js, while the 18 unregistered files are packages/main/tests/red/*.mjs, which chk007 covers only for red-b2aa7-*. Fixing the dist-task guard alone would leave the next tests/red addition to slip through exactly as these did. Decide deliberately whether that is one derived guard over both populations or two guards with disjoint declared populations, and make sure no member of either falls between them. Prove the bite in BOTH directions for whatever you build - an undecided newcomer and a de-registered member - and show the output of each; a guard whose bite has not been observed is not proven.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-27T17:29:04.796Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
