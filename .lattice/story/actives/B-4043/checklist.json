@@ -476,11 +476,12 @@
           "kind": "manual_transcript",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Genuinely re-executed at head 40d6da1076 (post F-014 fix): verify-process-fact-contract.mjs exit 0 (Process fact contract verified). This supersedes the earlier hash-only re-stamp (F-017).",
-          "headHash": "bdd1ac4649317ed87ebeb6a6f9b6e4b0ab8690ee",
-          "materialHash": "bec45105d5f779268b90d575067b1febf56528b601cc5eaae57cd3aba0a167b6",
-          "storyFilesHash": "32752b50c10e84b60aaef0436f41d09b49aa5f51648c6badbe5e4f86d1b57831",
-          "timestamp": "2026-07-25T22:31:31.392Z"
+          "note": "Genuinely executed at head f9855acc21 (post main-merge): exit 0, 'Process fact contract verified'.",
+          "mechanical": false,
+          "headHash": "f9855acc21e3978c1f4f8cd24aef02186bb00e0b",
+          "materialHash": "f216fac02f58cc2a808ca1aa789e522d37daef998eaf550c279812f3bb150018",
+          "storyFilesHash": "87295dc1f02dd72c7f9736dde1f4f6e6ea5b56aeae43daafd3ac10959ae6eebf",
+          "timestamp": "2026-07-27T02:11:46.319Z"
         },
         {
           "intentRef": "CHK-005:edge:authority-and-exclusions",
