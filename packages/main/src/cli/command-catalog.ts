@@ -488,7 +488,7 @@ Behavior:
     note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
     cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
   }},
-  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale command-less attestation evidence; command-backed result:pass rows are refused and must be re-run + re-recorded via verification_evidence_add (never silently re-certified)', schema: {
+  { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence: a pinned verifier is RE-EXECUTED (a real pass keeps its mechanical receipt); without a passing re-run a command-backed result:pass is demoted in place to a non-mechanical attestation with an audit reason, so it can never silently keep covering an executable intent — re-run and re-record via verification_evidence_add to re-earn a mechanical receipt', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},

@@ -84,7 +84,7 @@ export function findStaleEvidence(projectRoot: string, storyId: string): StaleEv
  *   ⚠ EVIDENCE STALE (materialHash drift after abc1234): 2 verification intent(s) stale for B-xxxx
  *     Meaning: stale means the recorded HEAD/material hash binding changed; it does not necessarily mean the verification logic failed.
  *     Drift class: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift (refresh, do not re-review); a storyFilesHash change is story-owned drift that needs re-review/re-quorum.
- *     Run to recover (refresh re-stamps command-less attestation only; a command-backed result:pass is REFUSED — re-run it and re-record via verification_evidence_add):
+ *     Run to recover (refresh re-executes a pinned verifier; without a passing re-run a command-backed result:pass is demoted to a non-mechanical attestation — re-run it and re-record via verification_evidence_add):
  *       lattice verification_evidence_refresh_stale --storyId=B-xxxx
  *       lattice validate --story=B-xxxx --json
  *     Or, when converging TEST to DONE, do the ordered recovery in one step:
@@ -104,7 +104,7 @@ export function renderEvidenceStaleHint(
     `${EVIDENCE_STALE_MARKER}${headSuffix}: ${count} verification intent(s) stale for ${storyId}`,
     `  Meaning: stale means the recorded HEAD/material hash binding changed; it does not necessarily mean the verification logic failed.`,
     `  Drift class: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift (refresh, do not re-review); a storyFilesHash change is story-owned drift that needs re-review/re-quorum.`,
-    `  Run to recover (refresh re-stamps command-less attestation only; a command-backed result:pass is REFUSED — re-run it and re-record via verification_evidence_add):`,
+    `  Run to recover (refresh re-executes a pinned verifier; without a passing re-run a command-backed result:pass is demoted to a non-mechanical attestation — re-run it and re-record via verification_evidence_add):`,
     `    lattice verification_evidence_refresh_stale --storyId=${storyId}`,
     `    lattice validate --story=${storyId} --json`,
     `  Or, when converging TEST to DONE, do the ordered recovery in one step:`,
