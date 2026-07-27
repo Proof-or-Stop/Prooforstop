@@ -27,8 +27,8 @@ import type { HandlerContext } from './context.js';
 import { StoryStore } from '../core/store.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { getSessionId } from '../core/owner-session.js';
-import { resolveExpectedRedTargets } from '../core/proofstory.js';
-import { proofStoryDiagnosticInput } from './phase-gates.js';
+import { resolveExpectedRedTargets, type ExpectedRedTargetsInput } from '../core/proofstory.js';
+import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import {
   appendTargetBinding,
   emptyRedTargetBindingsFile,
@@ -116,9 +116,42 @@ function findV2Record(store: StoryStore, storyId: string, recordId: string): Red
   return record;
 }
 
+/**
+ * The EXACT slice `resolveExpectedRedTargets` reads (§3.3), and nothing else.
+ *
+ * B-2aa7 F-005. This used to build a whole `proofStoryDiagnosticInput`, whose
+ * many fields include an eager `store.readRedEvidence()`. `resolveExpectedRedTargets`
+ * never looks at `redEvidence` — it reads only the three fields below (proofstory.ts
+ * `ExpectedRedTargetsInput`) — so that coupling made a corrupt `red-evidence.json`
+ * abort a membership decision that does not depend on it, through the ONE call site
+ * of the shared builder that was not wrapped in `withRedEvidenceCorruptionContext`
+ * (phase-gates.ts wraps both of its own). The operator got a bare
+ * `RedEvidenceArtifactError` with no repair guidance.
+ *
+ * Dropping the read is preferred over wrapping it because wrapping would report a
+ * failure this gate cannot honestly claim: the membership inputs ARE readable, so
+ * "the gate has no evidence to evaluate" would be false and misattributed. Each read
+ * should report its own failure. `red_evidence_binding_set` still surfaces the
+ * corruption — at `readRedEvidenceForChain`, the read that genuinely needs the
+ * artifact and already attaches `redEvidenceRepairGuidance` — and because that is now
+ * the command's ONLY artifact read, which message the operator sees no longer depends
+ * on which of two reads fires first. `red_evidence_quarantine` / `red_evidence_recover`
+ * are unaffected: their `findV2Record` already reads through that same wrapper first.
+ *
+ * The computed set is UNCHANGED (same three fields, same store readers, same
+ * resolver), so no membership verdict moves.
+ */
+function expectedRedTargetsInput(store: StoryStore, storyId: string): ExpectedRedTargetsInput {
+  return {
+    originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
+    proofStoryContract: store.readProofStoryContract(storyId),
+    milestoneLedger: readTrustedProofStoryScopeArtifacts(store, storyId).ledger,
+  };
+}
+
 /** §3.3 write-time expectedRedTargets membership gate (CHK-012), case-sensitive. */
-function assertTargetInExpected(store: StoryStore, root: string, storyId: string, acceptanceTargetRef: string, command: string): void {
-  const expected = resolveExpectedRedTargets(proofStoryDiagnosticInput(store, storyId, root));
+function assertTargetInExpected(store: StoryStore, storyId: string, acceptanceTargetRef: string, command: string): void {
+  const expected = resolveExpectedRedTargets(expectedRedTargetsInput(store, storyId));
   if (!expected.has(acceptanceTargetRef)) {
     throw new Error(
       `${command}: derived acceptanceTargetRef "${acceptanceTargetRef}" is not in expectedRedTargets for ${storyId} ` +
@@ -164,7 +197,7 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
       }
 
       // §3.3 write-time membership gate (case-sensitive).
-      assertTargetInExpected(store, root, args.storyId, acceptanceTargetRef, 'red_evidence_binding_set');
+      assertTargetInExpected(store, args.storyId, acceptanceTargetRef, 'red_evidence_binding_set');
 
       return withBindingLock(store, args.storyId, () => {
         // §1.1.3 binding-FREEZE (W2c): a binding is FROZEN once a run record
@@ -308,7 +341,7 @@ function appendChainControl(ctx: HandlerContext, dispatch: ChainControlDispatch)
   const referencedRecordDigest = referenced.recordDigest;
 
   // CHK-012 §3.3 write-time membership gate on the DERIVED target.
-  assertTargetInExpected(store, root, args.storyId, acceptanceTargetRef, command);
+  assertTargetInExpected(store, args.storyId, acceptanceTargetRef, command);
 
   const operationKey = controlOperationKey({
     operation,
