@@ -87,7 +87,30 @@
       "context": "Measured on 2026-07-27: all 18 unregistered harnesses in packages/main/tests/red/ currently pass and take well under a minute in total, so the runtime budget objection does not apply - but re-measure rather than trusting that number. Register each one in lattice.config.json validate.commands following the surrounding entry convention including timeoutMs, and RUN each before registering it; do not register anything you have not personally seen pass. TWO MEMBERS MUST BE EXCLUDED, NOT REGISTERED, and the reasoning must be recorded rather than rediscovered: red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs are pre-fix-only attestations whose every marker is gated on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED. On a fixed tree that is false, so they emit nothing and exit 0. Registering them would add commands that pass forever while asserting nothing - a vacuous check masquerading as coverage, which is the exact defect class this story exists to remove, and it would be self-inflicted at the last step. Record them as explicit exclusions carrying that reason. Apply the same test to every other member: an exclusion needs a reason, and silent absence is not a decision.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every registered harness was run and seen to pass before being registered, and total runtime after registration is re-measured and recorded.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "red-w2c-validate-registration.mjs, the guard itself, is registered and therefore actually runs under lattice validate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs are excluded with a stated machine-checked reason, not registered, because they pass forever while asserting nothing on a fixed tree.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
