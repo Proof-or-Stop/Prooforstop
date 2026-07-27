@@ -1473,6 +1473,34 @@
         "scanEscalationReason": null
       },
       "_hash": "a8871c00ba540cef2c24023a666660fc5007123596884ed4cf98a7cd5482cca0"
+    },
+    {
+      "id": "B-4043:RP-044",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at current head after unrelated main merge: all 15 verificationIntents (CHK-001..CHK-005 x3) remain declared and bound to matching intentRef evidence; 12 executable intents (CHK-001..CHK-004) hold mechanical:true receipts with real exitCode/outputDigest/executedAt from CLI-executed pinned {command,selector}; 3 docs intents (CHK-005) are non-executable by design with honest mechanical:false + nonMechanicalReason attestations. git diff 7ec19d7e45..HEAD confirms zero content drift to checklist.json beyond metadata stamp fields (headHash/materialHash/storyFilesHash/timestamp/receipt/mechanical/nonMechanicalReason/executedAt/outputDigest/outputTail/selectorMatched/exitCode/note); repo-wide diff outside .lattice/story/actives/B-4043 touches only B-49d4 story metadata and docs/evidence-integrity-program-spec.md, neither in B-4043 scope. writeStaleRefresh code path (checklist.ts) confirmed to unconditionally demote any command-backed mechanical:true row lacking a fresh reexec stamp rather than re-stamping it, so the F-017/F-019 laundering condition (hash re-stamp without genuine re-run) cannot recur. F-015 orphan CHK-004:hardening row remains accepted-risk, not re-raised. finding_list shows 19/19 findings resolved, zero open/suspected/disproven. No blocker.",
+      "createdAt": "2026-07-27T14:32:02.017Z",
+      "reviewRound": "2026-07-27T14:21:49.118Z",
+      "reviewRunId": "B-4043:RR-066",
+      "envelopeId": "0da6f0aec2c3835d611770234d7d248da65fb7e146cf3574cf4b044d76e3afd4",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-refresh.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "daff0853e46a3ba0f4f7e870d6b21074bf9f9ca2f2400b46d33fa9fb6c3f55fe"
     }
   ]
 }
