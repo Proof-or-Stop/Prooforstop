@@ -709,7 +709,11 @@
           {
             "desc": "Absent and malformed remain distinguishable end to end: an absent artifact reports as not configured while a corrupt one reports as corrupt, at every consumer.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
+              "selector": "ABSENT_NOT_RECLASSIFIED_AS_CORRUPTION"
+            }
           }
         ]
       },
@@ -753,6 +757,26 @@
           "materialHash": "4b6aacf41d21fe35f70781294d551d34f696527bfdb06471c6694649546e15a0",
           "storyFilesHash": "7a180339f4a146dcf009d8ed73e7d35fcffd9736b6a72101e75180f459e88a41",
           "timestamp": "2026-07-27T00:23:24.337Z"
+        },
+        {
+          "intentRef": "CHK-010:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk010-receipt.mjs",
+          "result": "pass",
+          "note": "BLOCK B row B3, authored and observed on the PRE-FIX tree at commit 1e03c7c8af, driven through the live gate pair plus store.readRedEvidence (the single read boundary every one of the seven consumers goes through, so pinning it pins the input each consumer sees). SCOPE STATED HONESTLY: pre-fix, a CORRUPT artifact is NOT yet distinguishable from an absent one - that is precisely the defect BLOCK A rows A9-A12 witness live, and asserting the corrupt half here would make this row fail on the pre-fix tree and invert CHK-010 premise. This row therefore owns the ABSENT half, which is the half a fix can break. It pins the ABSENT baseline own shape (a missing artifact reads as null, never a thrown or quarantined corruption verdict) and asserts all four not-configured shapes - no artifact, records key absent, records: [], only a valid v2 record - report identically on the ordinary path, while staying distinct from the SATISFIED path. That is the pincer: BLOCK A demands corrupt become distinguishable from absent, which can be satisfied either by moving the corrupt side (correct) or by moving the absent side (overreach), and BLOCK A alone cannot tell those apart; this row removes the second route, so the distinction can only be created by moving the corrupt side. Negative control: a corrupt records: {} envelope must not join the family on either tree. Falsification runs asserting the opposite for the absent baseline and for each family member aborted inside BLOCK B, and breaking any BLOCK B row suppresses ALL THREE receipt markers because the block failure is fatal before BLOCK A report is printed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "aa162c379498f9c5c2615e7bae5252cda09c5c09a370edd36f137485dcb127ef",
+            "outputTail": "V2_RECORD_SKIPPED_UNCHANGED (loads byte-identically, never quarantined, verdict flips [] -> [\"missing_red_evidence\"] on the schemaVersion member alone, 2/2 mixed orders unperturbed; observed while BLOCK A is 14/14 RED)\nRECORDS_KEY_ABSENT_STAYS_NOT_CONFIGURED (UNSATISFIED via the ordinary missing_red_evidence gap, report byte-identical to an ABSENT artifact, never quarantined; a corrupt `records: {}` envelope is discriminated from it on this same predicate)\nABSENT_NOT_RECLASSIFIED_AS_CORRUPTION (4/4 not-configured shapes on one path, distinct from SATISFIED, corrupt envelope discriminated; the corrupt half of the distinction is BLOCK A's 14 still-RED rows, deliberately not claimed here)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:23:40.253Z"
+          },
+          "headHash": "49d61167d09ebba2936be8b6c6bee86500f339f8",
+          "materialHash": "4b6aacf41d21fe35f70781294d551d34f696527bfdb06471c6694649546e15a0",
+          "storyFilesHash": "7a180339f4a146dcf009d8ed73e7d35fcffd9736b6a72101e75180f459e88a41",
+          "timestamp": "2026-07-27T00:23:40.446Z"
         }
       ]
     },
