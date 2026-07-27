@@ -242,7 +242,11 @@
           {
             "desc": "Every registered harness was run and seen to pass before being registered, and total runtime after registration is re-measured and recorded.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-harness-registration.mjs",
+              "selector": "33 registered in lattice.config.json validate.commands and 2 excluded with a stated reason"
+            }
           }
         ],
         "edge": [
@@ -268,7 +272,29 @@
         "test": [
           "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "lattice.config.json",
+          "command": "node packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "result": "pass",
+          "note": "Every one of the 20 newly registered harnesses was RUN INDIVIDUALLY BEFORE being registered, serially from the repo root, and 18 exited 0 on the spot: red-w2c-validate-registration 88ms, red-s3-differential-probe 1368ms, red-s3-digest-collapse 73ms, red-w2a-canon-differential 75ms, red-w2a-policy-failclosed 74ms, red-w2b-binding-store 339ms, red-w2b-wiring-contract 11909ms, red-w2c-binding-corrupt-chain 629ms, red-w2c-binding-freeze-race 3250ms, red-w2c-gate-guard 1300ms, red-w2c-head-consistency 875ms, red-w2c-quarantine-race 785ms, red-w2c-rejection-matrix 857ms, red-w2c-schema-failclosed 1207ms, red-w2c-v1-verdict-invariance 1252ms, red-w2c-wiring-detectability 2868ms, red-b49d4-chk002-receipt 748ms, red-b49d4-chk001-receipt 31383ms. The only two that did not exit 0 pre-registration were red-b49d4-harness-registration.mjs and red-b49d4-registration-derivation.mjs, which failed SOLELY on the undecided members this registration resolves and both exit 0 with it. RE-MEASURED AFTER REGISTRATION rather than trusting the four prior numbers (31.7s/37s/38.5s/37.6s): all 20 run serially in 85.3s wall, 20 pass / 0 fail. That does NOT reproduce the prior figures and the plan was right to forbid asserting them: the population grew by the two most expensive members, red-b49d4-registration-derivation.mjs (28791ms) and red-b49d4-chk001-receipt.mjs (30101ms), which each spawn red-b2aa7-chk007-receipt.mjs (~28s) - the other 18 total only 26.4s. Both got a deliberate timeoutMs of 300000 rather than inheriting a default; every other new entry states 180000, matching the surrounding tests/red convention.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c9b4c88066ae96eecb6dd4d646b19511a2e7cb3a58f9d1608e3783054b5187ae",
+            "outputTail": "red-b49d4-harness-registration: OK (all 35 entries of packages/main/tests/red found ON DISK are accounted for: 33 registered in lattice.config.json validate.commands and 2 excluded with a stated reason. The enumeration is TOTAL — no name pattern, no extension filter — so a differently-prefixed newcomer is inside the population rather than invisible to it, and this file is inside it too with no self-exception. Proven non-vacuous in both directions: an unregistered, unexcluded newcomer lands in undecided, and de-registering any of the 33 registered entries is detected. packages/main/dist/tasks/red-evidence-* is governed by packages/main/tests/red/red-w2c-validate-registration.mjs, which exists)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T18:04:09.512Z"
+          },
+          "headHash": "501fbe56e5c4b172cb8ec7cf298329962188213f",
+          "materialHash": "b7b426da0e2cdc14c4ff73c821a76b6f406d1fcd0f32767f14cc0a73482a9356",
+          "storyFilesHash": "331d993a4c623feb4656b1662e4325db6ff12dbab38ae41b9f57dbe33df6344f",
+          "timestamp": "2026-07-27T18:04:09.771Z"
+        }
+      ]
     }
   ]
 }
