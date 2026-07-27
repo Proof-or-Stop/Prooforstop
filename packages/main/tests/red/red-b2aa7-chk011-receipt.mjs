@@ -44,6 +44,51 @@ const here = dirname(fileURLToPath(import.meta.url));
 const ARTIFACT = join(here, 'red-b2aa7-artifact-validation.mjs');
 const SECOND_SEED = 'B-2aa7/CHK-011/receipt/second-seed';
 
+// ── Fail-closed marker ledger ───────────────────────────────────────────────
+// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// only when a check holds is what makes the pinned selectors meaningful, but on
+// its own it makes this file a crash-detector when run by validate: a regression
+// would print fewer markers and STILL exit 0. Every marker below is therefore
+// REQUIRED. `emit` records what was actually printed and the epilogue exits
+// non-zero naming any marker that was withheld, and why that is a regression.
+// The `[receipt-incomplete]` diagnostics below stay on stdout and are printed
+// alongside — they explain WHICH sub-fact collapsed; the epilogue is what makes
+// the run fail.
+const REQUIRED_MARKERS = new Map([
+  ['VALIDATOR_TOTAL_ON_ARBITRARY_JSON',
+    'the validator is no longer TOTAL over the generated corpus: classifyRedEvidenceArtifact threw or returned a non-'
+    + 'classification, partitionRedEvidenceRecords threw or lost/duplicated/reordered records, or a raw builtin escaped the '
+    + 'live read boundary or the full gate pair — the corpus may also have shrunk below its required size, which would make '
+    + '"nothing threw" a statement about a small corpus rather than about the validator'],
+  ['FUZZ_COVERS_STRUCTURAL_EDGE_SHAPES',
+    'the corpus no longer CONTAINS the named structural shapes (empty objects/arrays, Object.create(null), prototype-'
+    + 'inherited fields, own "__proto__" keys, mixed-primitive arrays, depth >= 100, >= 20 distinct keys), or it no longer '
+    + 'REACHES all seven validator outcomes — so the fuzz stopped exercising the edges it claims to cover'],
+  ['FUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST',
+    'the fuzz decayed into a decorative case list: too few generated shapes are novel versus the enumerated rows, the corpus '
+    + 'lost POTENCY (it no longer crashes an unguarded transcription of the pre-fix read path, so "nothing threw" would be a '
+    + 'fact about harmless inputs), it stopped being deterministic at a fixed seed, or the seed stopped being load-bearing'],
+]);
+
+const emitted = new Set();
+/**
+ * Print a marker line and record it. The recorded name is derived from the line
+ * ACTUALLY printed, so the ledger cannot silently drift from the output — and a
+ * reworded marker (which would invalidate the recorded verificationEvidence
+ * selectors) is rejected outright rather than quietly passing.
+ */
+function emit(line) {
+  const name = String(line).split(/[\s(]/)[0];
+  if (!REQUIRED_MARKERS.has(name)) {
+    throw new Error(
+      `red-b2aa7-chk011-receipt: emitted unregistered marker "${name}". Marker text is a pinned selector in this story's `
+      + 'recorded verificationEvidence; renaming one invalidates that evidence. Update the ledger and the evidence together.',
+    );
+  }
+  emitted.add(name);
+  console.log(line);
+}
+
 /** Run the artifact once and parse the machine-readable facts out of its stdout. */
 function runArtifact(seed) {
   const env = { ...process.env };
@@ -133,7 +178,7 @@ const total =
   && num(d3, 'artifacts') >= 1000
   && /acyclic=true;/.test(d0);
 if (total) {
-  console.log(
+  emit(
     `VALIDATOR_TOTAL_ON_ARBITRARY_JSON (${cases} generated acyclic JSON values: classifyRedEvidenceArtifact threw 0 and returned a `
     + `well-formed classification for every one; partitionRedEvidenceRecords threw 0 over ${num(d2, 'arrays')} arrays and lost, `
     + `duplicated or reordered nothing; ${num(d3, 'artifacts')} of them written to disk let 0 raw builtins escape the live read `
@@ -164,7 +209,7 @@ const covered =
     'envelope/records_not_array', 'record_schema', 'ok-clean', 'ok-quarantined']
     .every((outcome) => new RegExp(`${outcome.replace('/', '\\/')}:[1-9]`).test(d1));
 if (covered) {
-  console.log(
+  emit(
     `FUZZ_COVERS_STRUCTURAL_EDGE_SHAPES (walked the corpus: emptyObjects=${num(d0, 'emptyObjects')}, `
     + `emptyArrays=${num(d0, 'emptyArrays')}, Object.create(null)=${num(d0, 'nullPrototype')}, `
     + `prototype-inherited=${num(d0, 'inheritedPrototype')}, own "__proto__" keys=${num(d0, 'ownProtoKeys')}, `
@@ -190,7 +235,7 @@ const isProperty =
   && novel >= 3000
   && potency !== null && Number(potency[1]) >= 100;
 if (isProperty) {
-  console.log(
+  emit(
     `FUZZ_IS_A_PROPERTY_NOT_A_CASE_LIST (${novel} of the distinct generated shapes appear in NO enumerated row; the SAME corpus `
     + `still crashes an unguarded transcription of the pre-fix read path on ${potency[1]}/${potency[2]} values, so "the validator `
     + `never threw" is a fact about the validator and not about harmless inputs; two runs at the default seed produced `
@@ -212,4 +257,15 @@ if (!(total && covered && isProperty)) {
   console.log(`[receipt-incomplete] D1: ${d1}`);
   console.log(`[receipt-incomplete] D2: ${d2}`);
   console.log(`[receipt-incomplete] D3: ${d3}`);
+}
+
+// ── Fail closed ─────────────────────────────────────────────────────────────
+const withheld = [...REQUIRED_MARKERS.keys()].filter((marker) => !emitted.has(marker));
+if (withheld.length > 0) {
+  console.error(
+    `\nred-b2aa7-chk011-receipt: ${withheld.length} of ${REQUIRED_MARKERS.size} required marker(s) WITHHELD. `
+    + 'Each marker is printed ONLY when its check genuinely holds, so a withheld marker is a REGRESSION, not a neutral result:',
+  );
+  for (const marker of withheld) console.error(`  - ${marker}: ${REQUIRED_MARKERS.get(marker)}`);
+  process.exitCode = 1;
 }

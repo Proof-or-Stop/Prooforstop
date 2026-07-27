@@ -27,12 +27,50 @@ const SCOPE_REVIEW_COMMIT = '45ab9155f1';
 
 const doc = readFileSync(DOC, 'utf8');
 
+// ── Fail-closed marker ledger ───────────────────────────────────────────────
+// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// only when a check holds is what makes the pinned selectors meaningful, but on
+// its own it makes this file a crash-detector when run by validate: a regression
+// would print fewer markers and STILL exit 0. Every marker below is therefore
+// REQUIRED. `emit` records what was actually printed and the epilogue exits
+// non-zero naming any marker that was withheld, and why that is a regression.
+const REQUIRED_MARKERS = new Map([
+  ['DOC_LANDED_WITH_DECISIONS',
+    `the decision record ${DOC} is no longer part of commit ${DOC_COMMIT}'s diff, or no longer carries the D-8 `
+    + 'decisions the other ten checklist items cite — so those citations no longer resolve for a reader outside the authoring session'],
+  ['DOC_PRECEDES_SCOPE_REVIEW',
+    `commit ${DOC_COMMIT} is no longer an ancestor of the scope-review commit ${SCOPE_REVIEW_COMMIT}, i.e. the record no `
+    + 'longer demonstrably predates the PLAN scope review it was supposed to inform'],
+  ['STALE_HEADER_REMOVED',
+    'the stale pre-merge header is back, or the "Superseded" rewrite is gone — the document once again contradicts its own '
+    + '§0.0 about which tree its citations describe, which is the INIT-006 defect class this row exists to keep out'],
+]);
+
+const emitted = new Set();
+/**
+ * Print a marker line and record it. The recorded name is derived from the line
+ * ACTUALLY printed, so the ledger cannot silently drift from the output — and a
+ * reworded marker (which would invalidate the recorded verificationEvidence
+ * selectors) is rejected outright rather than quietly passing.
+ */
+function emit(line) {
+  const name = String(line).split(/[\s(]/)[0];
+  if (!REQUIRED_MARKERS.has(name)) {
+    throw new Error(
+      `red-b2aa7-doc-receipt: emitted unregistered marker "${name}". Marker text is a pinned selector in this story's `
+      + 'recorded verificationEvidence; renaming one invalidates that evidence. Update the ledger and the evidence together.',
+    );
+  }
+  emitted.add(name);
+  console.log(line);
+}
+
 // 1. happy — the record is in this story's diff AND carries the decisions the
 //    other ten checklist items cite, so those citations resolve for a reader
 //    with no access to the authoring session.
 const landedFiles = execFileSync('git', ['show', '--name-only', '--format=', DOC_COMMIT], { encoding: 'utf8' });
 if (landedFiles.includes(DOC) && doc.includes('D-8')) {
-  console.log('DOC_LANDED_WITH_DECISIONS');
+  emit('DOC_LANDED_WITH_DECISIONS');
 }
 
 // 2. edge — ORDERING, proven rather than asserted. `--ancestry-path` yields the
@@ -44,7 +82,7 @@ const ancestry = execFileSync(
   { encoding: 'utf8' },
 );
 if (ancestry.includes(SCOPE_REVIEW_COMMIT)) {
-  console.log('DOC_PRECEDES_SCOPE_REVIEW');
+  emit('DOC_PRECEDES_SCOPE_REVIEW');
 }
 
 // 3. adversarial — the stale pre-merge header was actually rewritten, not merely
@@ -52,5 +90,16 @@ if (ancestry.includes(SCOPE_REVIEW_COMMIT)) {
 //    tree the citations describe; that self-contradiction was the INIT-006 defect
 //    class, so this asserts the contradiction is GONE, not that new text was added.
 if (doc.includes('Superseded') && !doc.includes('Cross-check tree: the')) {
-  console.log('STALE_HEADER_REMOVED');
+  emit('STALE_HEADER_REMOVED');
+}
+
+// ── Fail closed ─────────────────────────────────────────────────────────────
+const withheld = [...REQUIRED_MARKERS.keys()].filter((marker) => !emitted.has(marker));
+if (withheld.length > 0) {
+  console.error(
+    `\nred-b2aa7-doc-receipt: ${withheld.length} of ${REQUIRED_MARKERS.size} required marker(s) WITHHELD. `
+    + 'Each marker is printed ONLY when its check genuinely holds, so a withheld marker is a REGRESSION, not a neutral result:',
+  );
+  for (const marker of withheld) console.error(`  - ${marker}: ${REQUIRED_MARKERS.get(marker)}`);
+  process.exitCode = 1;
 }

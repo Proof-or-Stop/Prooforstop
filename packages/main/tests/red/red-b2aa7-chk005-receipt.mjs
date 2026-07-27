@@ -44,9 +44,50 @@ const PREDICATE = 'packages/main/src/core/proofstory.ts';
 const PRE_FIX_COMMIT = '3826486e80342e12370e869408be08c82ba4dbd5';
 
 // stderr is discarded: an unresolvable pin is handled below by withholding the
-// marker, so git's own `fatal:` chatter would only add noise to a receipt whose
-// contract is "print a marker or print nothing".
+// marker, and a withheld marker is reported by name in this file's own
+// fail-closed epilogue, so git's raw `fatal:` chatter would only bury it.
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+
+// ── Fail-closed marker ledger ───────────────────────────────────────────────
+// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// only when a check holds is what makes the pinned selectors meaningful, but on
+// its own it makes this file a crash-detector when run by validate: a regression
+// would print fewer markers and STILL exit 0. Every marker below is therefore
+// REQUIRED. `emit` records what was actually printed and the epilogue exits
+// non-zero naming any marker that was withheld, and why that is a regression.
+const REQUIRED_MARKERS = new Map([
+  ['WELL_FORMED_VERDICTS_UNCHANGED',
+    'a well-formed fixture changed verdict under direct injection, or the protected invariance harness no longer exits 0 at '
+    + 'its own pinned digest, or a blank/empty observedFailure is now UNSATISFIED via the new shape guard instead of via the '
+    + 'ordinary non-satisfier route — i.e. the guard changed behaviour on input that was never broken'],
+  ['PREDICATE_TOTAL_ON_DIRECT_INJECTION',
+    'the predicate is no longer TOTAL on a malformed record injected past the read boundary: some row stopped classifying as '
+    + `the residual 'v1', stopped crashing the pre-fix unguarded dereference (so the row proves nothing), or failed to yield a `
+    + 'verdict in some position (alone / first / last). A withheld marker here means the crash class is reachable again'],
+  ['ONLY_THE_SHAPE_GUARD_WAS_ADDED',
+    `the predicate body no longer diffs against ${PRE_FIX_COMMIT.slice(0, 10)} as exactly one added executable line placed `
+    + 'before the dereference it protects — so the fix is no longer minimal and some other check moved, was reordered or was '
+    + 'silently relaxed alongside it'],
+]);
+
+const emitted = new Set();
+/**
+ * Print a marker line and record it. The recorded name is derived from the line
+ * ACTUALLY printed, so the ledger cannot silently drift from the output — and a
+ * reworded marker (which would invalidate the recorded verificationEvidence
+ * selectors) is rejected outright rather than quietly passing.
+ */
+function emit(line) {
+  const name = String(line).split(/[\s(]/)[0];
+  if (!REQUIRED_MARKERS.has(name)) {
+    throw new Error(
+      `red-b2aa7-chk005-receipt: emitted unregistered marker "${name}". Marker text is a pinned selector in this story's `
+      + 'recorded verificationEvidence; renaming one invalidates that evidence. Update the ledger and the evidence together.',
+    );
+  }
+  emitted.add(name);
+  console.log(line);
+}
 
 const { StoryStore } = await import(`${DIST}/core/store.js`);
 const { evaluateProofStoryDiagnostics, computeMilestoneLedgerHash } = await import(`${DIST}/core/proofstory.js`);
@@ -162,7 +203,7 @@ const blankStaysOrdinary = [blankObservedFailure, emptyObservedFailure].every((r
   && verdictFor([record]).satisfied === false);
 
 if (digestHeld && wellFormedHeld && blankStaysOrdinary) {
-  console.log(
+  emit(
     `WELL_FORMED_VERDICTS_UNCHANGED (${WELL_FORMED.length} well-formed fixtures re-driven through direct injection; `
     + `protected harness re-run exits 0 at its own pinned digest ${printedDigest}; `
     + 'blank/empty observedFailure still UNSATISFIED via the ordinary non-satisfier route, not via the new guard)',
@@ -230,7 +271,7 @@ const totalOnInjection =
   && bypassedReadBoundary;
 
 if (totalOnInjection) {
-  console.log(
+  emit(
     `PREDICATE_TOTAL_ON_DIRECT_INJECTION (${rowResults.length}/${rowResults.length} malformed records: each still classifies as the RESIDUAL 'v1', `
     + 'each still crashes the pre-fix unguarded dereference with a TypeError, and each now yields a verdict in every position '
     + '(alone / first / last); artifact on disk still holds 0 records, so nothing was read through store.readRedEvidence)',
@@ -314,9 +355,20 @@ if (preFixBody && currentBody) {
 }
 
 if (onlyGuardAdded) {
-  console.log(
+  emit(
     `ONLY_THE_SHAPE_GUARD_WAS_ADDED (predicate body diffed against ${PRE_FIX_COMMIT.slice(0, 10)}: `
     + `1 executable line added — ${addedLines[0]} — placed before the dereference it protects; `
     + `the other ${executable(preFixBody ?? []).length} executable lines are byte-identical and in the same order)`,
   );
+}
+
+// ── Fail closed ─────────────────────────────────────────────────────────────
+const withheld = [...REQUIRED_MARKERS.keys()].filter((marker) => !emitted.has(marker));
+if (withheld.length > 0) {
+  console.error(
+    `\nred-b2aa7-chk005-receipt: ${withheld.length} of ${REQUIRED_MARKERS.size} required marker(s) WITHHELD. `
+    + 'Each marker is printed ONLY when its check genuinely holds, so a withheld marker is a REGRESSION, not a neutral result:',
+  );
+  for (const marker of withheld) console.error(`  - ${marker}: ${REQUIRED_MARKERS.get(marker)}`);
+  process.exitCode = 1;
 }

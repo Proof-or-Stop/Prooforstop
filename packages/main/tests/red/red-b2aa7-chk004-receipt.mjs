@@ -57,6 +57,52 @@ const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..'); // packages/main
 const DIST = join(pkgRoot, 'dist');
 
+// ── Fail-closed marker ledger ───────────────────────────────────────────────
+// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// only when a check holds is what makes the pinned selectors meaningful, but on
+// its own it makes this file a crash-detector when run by validate: a regression
+// would print fewer markers and STILL exit 0. Every marker below is therefore
+// REQUIRED. `emit` records what was actually printed and the epilogue exits
+// non-zero naming any marker that was withheld, and why that is a regression.
+//
+// NOTE ON THE PRE-FIX REPLAY described above: this file is fail-closed by
+// design. On a tree without the fix its markers are SUPPOSED to be withheld, so
+// the replay's expected outcome is a NON-ZERO exit naming them — which is the
+// negative control stated positively, not a contradiction of it.
+const REQUIRED_MARKERS = new Map([
+  ['WELL_FORMED_ARTIFACT_LOADS_UNCHANGED',
+    'a well-formed artifact no longer round-trips byte-identically through the read boundary, or it grew a quarantine '
+    + 'surface, or the gate stopped returning SATISFIED, or the pre-fix-pinned five-scenario digest stopped reproducing — '
+    + 'i.e. the fix changed behaviour on input that was never broken'],
+  ['ENVELOPE_ROWS_E5_E6_E7',
+    'an envelope row regressed: a non-object JSON root is read as ABSENT again (E5), a missing/unknown file-level '
+    + 'schemaVersion silently degrades to v1 again (E6), or an unparseable file leaks a raw SyntaxError instead of a '
+    + 'typed RedEvidenceArtifactError naming the path (E7)'],
+  ['QUARANTINE_RETAINS_AND_ATTRIBUTES',
+    'quarantine stopped RETAINING the rejected entry verbatim with its index/reason/violations, or the v1 field set is no '
+    + 'longer fully enforced, or a blank observedFailure is no longer legacy-tolerated per D-5, or an envelope fault is '
+    + 'misattributed as a record fault, or array / prototype-inherited records are no longer rejected'],
+]);
+
+const emitted = new Set();
+/**
+ * Print a marker line and record it. The recorded name is derived from the line
+ * ACTUALLY printed, so the ledger cannot silently drift from the output — and a
+ * reworded marker (which would invalidate the recorded verificationEvidence
+ * selectors) is rejected outright rather than quietly passing.
+ */
+function emit(line) {
+  const name = String(line).split(/[\s(]/)[0];
+  if (!REQUIRED_MARKERS.has(name)) {
+    throw new Error(
+      `red-b2aa7-chk004-receipt: emitted unregistered marker "${name}". Marker text is a pinned selector in this story's `
+      + 'recorded verificationEvidence; renaming one invalidates that evidence. Update the ledger and the evidence together.',
+    );
+  }
+  emitted.add(name);
+  console.log(line);
+}
+
 const { StoryStore } = await import(`${DIST}/core/store.js`);
 const { evaluateProofStoryDiagnostics, computeMilestoneLedgerHash } = await import(`${DIST}/core/proofstory.js`);
 const { proofStoryDiagnosticInput } = await import(`${DIST}/handlers/phase-gates.js`);
@@ -193,7 +239,7 @@ const loadsUnchanged =
 const verdictIdenticalToPreFix = invariance.status === 0 && invarianceOut.includes(V1_VERDICT_DIGEST);
 
 if (loadsUnchanged && verdictIdenticalToPreFix) {
-  console.log(
+  emit(
     `WELL_FORMED_ARTIFACT_LOADS_UNCHANGED (envelope + records round-trip byte-identically, no quarantine surface, gate SATISFIED; `
     + `the pre-fix-pinned five-scenario digest ${V1_VERDICT_DIGEST} still reproduces; control=one malformed record appended is discriminated)`,
   );
@@ -238,7 +284,7 @@ const e7Typed =
   && namesPath(e7.readError);
 
 if (e5Rejected && e6NoDegrade && e7Typed) {
-  console.log(
+  emit(
     `ENVELOPE_ROWS_E5_E6_E7 (E5: 4/4 non-object roots rejected as root_not_object and no longer read as ABSENT; `
     + `E6: missing -> schema_version_missing and unknown -> schema_version_unknown, neither degrading to v1 while the same record SATISFIES under a v1 envelope; `
     + `E7: still THROWS, typed RedEvidenceArtifactError(unparseable) naming the path, not a raw SyntaxError)`,
@@ -325,7 +371,7 @@ const prototypeRejected =
   && protoPartition.records.length === 1;
 
 if (retainedAndReported && fullFieldSetEnforced && blankToleratedNotQuarantined && notMisattributed && arrayRejected && prototypeRejected) {
-  console.log(
+  emit(
     `QUARANTINE_RETAINS_AND_ATTRIBUTES (rejected entry RETAINED verbatim at index=1 id="corrupt" with reason and violations while records stays clean; `
     + `full v1 field set enforced (missing:trigger flips a record the predicate never reads); `
     + `blank observedFailure legacy-tolerated per D-5 — UNSATISFIED, no new diagnostic, never quarantined; `
@@ -335,3 +381,14 @@ if (retainedAndReported && fullFieldSetEnforced && blankToleratedNotQuarantined 
 }
 
 rmSync(root, { recursive: true, force: true });
+
+// ── Fail closed ─────────────────────────────────────────────────────────────
+const withheld = [...REQUIRED_MARKERS.keys()].filter((marker) => !emitted.has(marker));
+if (withheld.length > 0) {
+  console.error(
+    `\nred-b2aa7-chk004-receipt: ${withheld.length} of ${REQUIRED_MARKERS.size} required marker(s) WITHHELD. `
+    + 'Each marker is printed ONLY when its check genuinely holds, so a withheld marker is a REGRESSION, not a neutral result:',
+  );
+  for (const marker of withheld) console.error(`  - ${marker}: ${REQUIRED_MARKERS.get(marker)}`);
+  process.exitCode = 1;
+}

@@ -47,6 +47,47 @@ const here = dirname(fileURLToPath(import.meta.url));
 const pkgRoot = join(here, '..', '..'); // packages/main
 const DIST = join(pkgRoot, 'dist');
 
+// ── Fail-closed marker ledger ───────────────────────────────────────────────
+// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// only when a check holds is what makes the pinned selectors meaningful, but on
+// its own it makes this file a crash-detector when run by validate: a regression
+// would print fewer markers and STILL exit 0. Every marker below is therefore
+// REQUIRED. `emit` records what was actually printed and the epilogue exits
+// non-zero naming any marker that was withheld, and why that is a regression.
+const REQUIRED_MARKERS = new Map([
+  ['RED_EVIDENCE_GET_DISPLAYS_CORRUPTION',
+    'the read path stopped DISPLAYING corruption and went back to aborting on it, or the quarantined original is no longer '
+    + 'shown verbatim at records[1] with json status=corrupt, or a control broke (absent no longer renders "not configured", '
+    + 'clean no longer renders "configured", or one of them now carries the corruption marker)'],
+  ['RED_EVIDENCE_ADD_REPAIRS_WITHOUT_LOSS',
+    'the repair round trip stopped being lossless: the malformed original is no longer preserved byte-identically on disk, a '
+    + 'derived quarantine key is now persisted, the next read no longer re-quarantines the same entry, an unreadable envelope '
+    + 'is no longer refused with an actionable "Nothing written" + repair command, or the clean write path changed'],
+  ['EVERY_CONSUMER_DISTINGUISHES_CORRUPTION_FROM_ABSENCE',
+    'some consumer re-derived by symbol no longer NAMES corruption for a rejected envelope or a quarantined record, no longer '
+    + 'differs from its own absent-artifact output, or now marks an absent/clean artifact — i.e. corrupt evidence can read as '
+    + 'merely absent again, which is the C3 silent-downgrade defect this row exists to keep out'],
+]);
+
+const emitted = new Set();
+/**
+ * Print a marker line and record it. The recorded name is derived from the line
+ * ACTUALLY printed, so the ledger cannot silently drift from the output — and a
+ * reworded marker (which would invalidate the recorded verificationEvidence
+ * selectors) is rejected outright rather than quietly passing.
+ */
+function emit(line) {
+  const name = String(line).split(/[\s(]/)[0];
+  if (!REQUIRED_MARKERS.has(name)) {
+    throw new Error(
+      `red-b2aa7-chk006-receipt: emitted unregistered marker "${name}". Marker text is a pinned selector in this story's `
+      + 'recorded verificationEvidence; renaming one invalidates that evidence. Update the ledger and the evidence together.',
+    );
+  }
+  emitted.add(name);
+  console.log(line);
+}
+
 const { StoryStore } = await import(`${DIST}/core/store.js`);
 const { computeMilestoneLedgerHash, appendRedEvidence } = await import(`${DIST}/core/proofstory.js`);
 const { createProofStoryHandlers } = await import(`${DIST}/handlers/proofstory.js`);
@@ -203,7 +244,7 @@ const displaysWithoutAborting =
   && getClean.text.includes('Red evidence: configured');
 
 if (displaysWithoutAborting) {
-  console.log(
+  emit(
     'RED_EVIDENCE_GET_DISPLAYS_CORRUPTION (both a rejected envelope and a quarantined record are DISPLAYED, not aborted; '
     + 'the quarantined original is shown verbatim at records[1] and json status=corrupt; controls: absent still renders '
     + '"not configured" and clean still renders "configured", neither carrying the corruption marker)',
@@ -295,7 +336,7 @@ const cleanPathUnchanged =
   && afterCleanAppend.malformedRecords === undefined;
 
 if (naiveAppendLosesTheOriginal && roundTripPreservesOriginals && refusesActionably && cleanPathUnchanged) {
-  console.log(
+  emit(
     'RED_EVIDENCE_ADD_REPAIRS_WITHOUT_LOSS (round trip: corrupt artifact -> red_evidence_create -> re-read; the malformed '
     + 'original is still on disk byte-identically at records[1], the repair record is appended, no derived quarantine key '
     + 'is persisted, and the next read quarantines the same entry again; the un-restored append is shown LIVE to lose it; '
@@ -358,7 +399,7 @@ const c3NoLongerReadsAsUnconfigured =
   && !hasMarker(reviewAbsent);
 
 if (everyConsumerDistinguishes && c3NoLongerReadsAsUnconfigured) {
-  console.log(
+  emit(
     `EVERY_CONSUMER_DISTINGUISHES_CORRUPTION_FROM_ABSENCE (${rows.length}/${rows.length} consumers re-derived by symbol: `
     + `${rows.map((r) => r.name).join('; ')} — each names the corruption for BOTH a rejected envelope and a quarantined `
     + `record, each differs from its own absent-artifact output, and none marks an absent or clean artifact; C3: the `
@@ -367,3 +408,14 @@ if (everyConsumerDistinguishes && c3NoLongerReadsAsUnconfigured) {
 }
 
 rmSync(root, { recursive: true, force: true });
+
+// ── Fail closed ─────────────────────────────────────────────────────────────
+const withheld = [...REQUIRED_MARKERS.keys()].filter((marker) => !emitted.has(marker));
+if (withheld.length > 0) {
+  console.error(
+    `\nred-b2aa7-chk006-receipt: ${withheld.length} of ${REQUIRED_MARKERS.size} required marker(s) WITHHELD. `
+    + 'Each marker is printed ONLY when its check genuinely holds, so a withheld marker is a REGRESSION, not a neutral result:',
+  );
+  for (const marker of withheld) console.error(`  - ${marker}: ${REQUIRED_MARKERS.get(marker)}`);
+  process.exitCode = 1;
+}

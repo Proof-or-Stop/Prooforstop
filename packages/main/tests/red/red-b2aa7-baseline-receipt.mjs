@@ -51,6 +51,44 @@ const AUDIT_DOC = 'docs/requirements/decisions/red-evidence-legacy-v1-record-val
 
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
 
+// ── Fail-closed marker ledger ───────────────────────────────────────────────
+// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// only when a check holds is what makes the pinned selectors meaningful, but on
+// its own it makes this file a crash-detector when run by validate: a regression
+// would print fewer markers and STILL exit 0. Every marker below is therefore
+// REQUIRED. `emit` records what was actually printed and the epilogue exits
+// non-zero naming any marker that was withheld, and why that is a regression.
+const REQUIRED_MARKERS = new Map([
+  ['BASELINE_COMMIT_PREDATES_FIX',
+    `the pinned baseline commit ${BASELINE_COMMIT} no longer resolves, is no longer an ancestor of HEAD, or its BLOB no longer `
+    + 'shows the PRE-FIX shape (unguarded dereference adjacent to the schema classify, and no CHK-004 validation leaf). '
+    + 'The CHK-002 invariance baseline would then be pinned to a tree that already contains the fix, making the '
+    + 'CHK-007 "digest unchanged" comparison vacuous'],
+  ['PINNED_CONSTANT_INTACT_PHANTOM_UNPINNED',
+    `the protected harness ${HARNESS} is no longer byte-identical to main's copy (its pinned digest was re-pinned or an `
+    + 'assertion around it was relaxed), or the phantom digest of audit §7.1 has been written back into the tree as a '
+    + 'literal — the exact mistake §7.1 exists to prevent'],
+]);
+
+const emitted = new Set();
+/**
+ * Print a marker line and record it. The recorded name is derived from the line
+ * ACTUALLY printed, so the ledger cannot silently drift from the output — and a
+ * reworded marker (which would invalidate the recorded verificationEvidence
+ * selectors) is rejected outright rather than quietly passing.
+ */
+function emit(line) {
+  const name = String(line).split(/[\s(]/)[0];
+  if (!REQUIRED_MARKERS.has(name)) {
+    throw new Error(
+      `red-b2aa7-baseline-receipt: emitted unregistered marker "${name}". Marker text is a pinned selector in this story's `
+      + 'recorded verificationEvidence; renaming one invalidates that evidence. Update the ledger and the evidence together.',
+    );
+  }
+  emitted.add(name);
+  console.log(line);
+}
+
 // ── 1. edge — the named baseline commit exists, is on this story's history, and
 //    its tree genuinely predates the fix. ────────────────────────────────────
 //
@@ -84,7 +122,7 @@ if (baselineOk) {
   const leafAtBaseline = git('ls-tree', '--name-only', BASELINE_COMMIT, '--', VALIDATION_LEAF).trim();
 
   if (derefIsNextLine && leafAtBaseline === '') {
-    console.log(`BASELINE_COMMIT_PREDATES_FIX ${BASELINE_COMMIT}`);
+    emit(`BASELINE_COMMIT_PREDATES_FIX ${BASELINE_COMMIT}`);
   }
 }
 
@@ -129,5 +167,16 @@ if (
   && harnessUntouched
   && phantomPinned === false
 ) {
-  console.log('PINNED_CONSTANT_INTACT_PHANTOM_UNPINNED');
+  emit('PINNED_CONSTANT_INTACT_PHANTOM_UNPINNED');
+}
+
+// ── Fail closed ─────────────────────────────────────────────────────────────
+const withheld = [...REQUIRED_MARKERS.keys()].filter((marker) => !emitted.has(marker));
+if (withheld.length > 0) {
+  console.error(
+    `\nred-b2aa7-baseline-receipt: ${withheld.length} of ${REQUIRED_MARKERS.size} required marker(s) WITHHELD. `
+    + 'Each marker is printed ONLY when its check genuinely holds, so a withheld marker is a REGRESSION, not a neutral result:',
+  );
+  for (const marker of withheld) console.error(`  - ${marker}: ${REQUIRED_MARKERS.get(marker)}`);
+  process.exitCode = 1;
 }

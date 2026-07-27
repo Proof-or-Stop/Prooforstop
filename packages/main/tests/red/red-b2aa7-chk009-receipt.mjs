@@ -49,6 +49,47 @@ const pkgRoot = join(here, '..', '..'); // packages/main
 const DIST = join(pkgRoot, 'dist');
 const ARTIFACT = join(here, 'red-b2aa7-artifact-validation.mjs');
 
+// ── Fail-closed marker ledger ───────────────────────────────────────────────
+// `lattice validate` grades a command by its EXIT CODE alone. Printing a marker
+// only when a check holds is what makes the pinned selectors meaningful, but on
+// its own it makes this file a crash-detector when run by validate: a regression
+// would print fewer markers and STILL exit 0. Every marker below is therefore
+// REQUIRED. `emit` records what was actually printed and the epilogue exits
+// non-zero naming any marker that was withheld, and why that is a regression.
+const REQUIRED_MARKERS = new Map([
+  ['ORDER_INDEPENDENT_VERDICT',
+    "the artifact's BLOCK C1 no longer shows the 38 permutations over 4 record sets collapsing to one position-free "
+    + 'observable each, or a bare TypeError escaped, or the comparator stopped being discriminated by all three negative '
+    + 'controls — i.e. the verdict depends on record ORDER again, or the check that says so went vacuous'],
+  ['MALFORMED_REPORTED_BEHIND_SATISFIER',
+    'BLOCK C2/C3 no longer show all 12 flavour x depth cases retained at their TRUE index with 0 silent pass-throughs, or 3 '
+    + 'malformed entries stacked behind one satisfier are no longer ALL reported — i.e. `Array.prototype.some` '
+    + 'short-circuiting can hide a malformed record behind a satisfying one again'],
+  ['O2_SILENT_CORRUPTION_PINNED',
+    'the live O2 reproduction broke: with the read boundary BYPASSED the gate no longer silently returns SATISFIED while the '
+    + 'malformed record sits unreported (so the pinned defect is no longer being demonstrated), or through the VALIDATED '
+    + 'boundary the same bytes are no longer quarantined verbatim at index 1 with the verdict unchanged (so the fix regressed)'],
+]);
+
+const emitted = new Set();
+/**
+ * Print a marker line and record it. The recorded name is derived from the line
+ * ACTUALLY printed, so the ledger cannot silently drift from the output — and a
+ * reworded marker (which would invalidate the recorded verificationEvidence
+ * selectors) is rejected outright rather than quietly passing.
+ */
+function emit(line) {
+  const name = String(line).split(/[\s(]/)[0];
+  if (!REQUIRED_MARKERS.has(name)) {
+    throw new Error(
+      `red-b2aa7-chk009-receipt: emitted unregistered marker "${name}". Marker text is a pinned selector in this story's `
+      + 'recorded verificationEvidence; renaming one invalidates that evidence. Update the ledger and the evidence together.',
+    );
+  }
+  emitted.add(name);
+  console.log(line);
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // PART 1 — the artifact's own BLOCK C evidence
 // ════════════════════════════════════════════════════════════════════════════
@@ -99,7 +140,7 @@ const orderIndependent =
   && /bareTypeErrors=0;/.test(c1)
   && /negControls\(addMalformed\/swapFlavour\/absent\)=discriminated/.test(c1);
 if (orderIndependent) {
-  console.log(`ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)`);
+  emit(`ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)`);
 }
 
 // 2. edge — a malformed entry is REPORTED even when satisfying records precede
@@ -119,7 +160,7 @@ const reportedBehindSatisfier =
   && /satisfierFirstReported=3;/.test(proofs.C3 ?? '')
   && /ordersAgree=true/.test(proofs.C3 ?? '');
 if (reportedBehindSatisfier) {
-  console.log(`MALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)`);
+  emit(`MALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)`);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -238,5 +279,16 @@ try {
 //    read boundary; the same bytes through the validated boundary are
 //    quarantined at index 1. Same verdict, opposite visibility.
 if (o2Pinned) {
-  console.log(`O2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in \`records\` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — ${detail})`);
+  emit(`O2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in \`records\` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — ${detail})`);
+}
+
+// ── Fail closed ─────────────────────────────────────────────────────────────
+const withheld = [...REQUIRED_MARKERS.keys()].filter((marker) => !emitted.has(marker));
+if (withheld.length > 0) {
+  console.error(
+    `\nred-b2aa7-chk009-receipt: ${withheld.length} of ${REQUIRED_MARKERS.size} required marker(s) WITHHELD. `
+    + 'Each marker is printed ONLY when its check genuinely holds, so a withheld marker is a REGRESSION, not a neutral result:',
+  );
+  for (const marker of withheld) console.error(`  - ${marker}: ${REQUIRED_MARKERS.get(marker)}`);
+  process.exitCode = 1;
 }
