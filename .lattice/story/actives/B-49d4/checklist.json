@@ -110,6 +110,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ]
       }
     }
   ]
