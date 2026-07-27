@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-49d4",
+  "mode": "correctness_fix",
+  "allowed": [
+    "A committed repro-first RED artifact proving the blindness, the control direction, and the size of the unreached population",
+    "Ensure the packages/main/tests/red/*.mjs population is covered by a derived guard, either by extending an existing one or adding one, with no member falling between declared populations",
+    "Record explicit exclusions with a stated machine-checked reason for any harness that should deliberately not run under validate",
+    "Register currently-unregistered harnesses in lattice.config.json validate.commands, following the surrounding entry convention",
+    "Rewrite packages/main/tests/red/red-w2c-validate-registration.mjs so it enumerates its population from disk instead of asserting a hardcoded list"
+  ],
+  "excluded": [
+    "Changing what any existing harness asserts, or fixing a harness that fails; measurement showed all currently pass and this story does not alter their content",
+    "packages/main/src runtime source - this story is test-infrastructure and configuration only",
+    "Re-pinning or editing packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs, which carries a protected invariance digest",
+    "The INIT gate defect where one reviewer re-signing clears init_check_tampered for all required reviewers - sequenced as a separate story after this one",
+    "Whether the process-fact registry should model gate-evidence validation semantics - a separate modelling question"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Derived from the operator's approval of a risk-times-cost ordering after a repro-first verification round on 2026-07-27: this item was ranked first because its cost collapsed once measurement showed a reference implementation exists and the runtime objection was false. The operator said to proceed in that order. This boundary restates that approved scope and introduces nothing new.",
+  "createdAt": "2026-07-27T13:41:57.573Z",
+  "updatedAt": "2026-07-27T13:41:57.573Z",
+  "_hash": "579ced66ca13e2589c57b5268cd8c97471a1b0318ae9a5b75e95d6819c62bcec"
+}
