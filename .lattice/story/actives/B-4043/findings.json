@@ -382,7 +382,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/story6-role-migration-smoke.ts:93 `const roleLimit = roleId === 'lattice-implementer' ? 12_000 : 12_000;` is a vacuous ternary left over from the F-014 budget-bump fix (prior value was `roleId === 'lattice-implementer' ? 10_000 : 12_000`). Both branches now evaluate to the same literal, so the conditional no longer expresses any real distinction and misleadingly implies lattice-implementer still has a special-cased, tighter budget. Should be simplified to `const roleLimit = 12_000;` (or the per-role branch removed) to avoid future readers assuming a role-specific limit exists.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-25T22:17:36.482Z",
@@ -390,7 +390,11 @@
       "reviewRunId": "B-4043:RR-050",
       "_hash": "c2d5f5b00a9b0022ee902cf0ca8198b9c357382426061aad7df834d242670d33",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 0e43feee84: replaced the vacuous ternary (roleId==='lattice-implementer' ? 12_000 : 12_000) with a single const roleLimit = 12_000 and updated the comment to state all complex roles share one budget. Build clean; story6-role-migration-smoke PASS.",
+      "resolvedAt": "2026-07-27T02:12:45.416Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
