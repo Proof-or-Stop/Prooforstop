@@ -176,7 +176,11 @@
           {
             "desc": "The scan reports its result even when the affected set is empty, so 'scanned N artifacts, 0 affected' is positive evidence rather than silence.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+              "selector": "ZERO_AFFECTED_STATED_POSITIVELY"
+            }
           }
         ],
         "adversarial": [
@@ -216,6 +220,26 @@
           "materialHash": "45569e5af7d11ee037bd268bc2591a88e99c4e6aeb341c888838496ed8096ea3",
           "storyFilesHash": "c3937f1bc356cd55366c55ebcc1637f43b2cc140ab3005bf96b6cd9380f4332d",
           "timestamp": "2026-07-27T00:08:55.457Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-migration-scan.mjs",
+          "result": "pass",
+          "note": "D-7 obligation 4: the result is stated even when empty. The scan always prints scanned N artifacts / M records, K affected plus the denominator (how many records satisfy the predicate today and therefore COULD have moved), and prints this marker only when K is genuinely 0. If any record flipped the marker is absent and one AFFECTED line per record is printed instead, so silence can never be read as zero.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "776768a72b26cc35329a61c405b1ef8253558b71f3ddf951d16c637e47b02bef",
+            "outputTail": "mandatory v1 fields derived from RedEvidenceRecord: id, trigger, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, observedFailure, greenRelation, createdAt\n  of which the pre-fix predicate never reads: id, trigger, createdAt\nself-test: synthetic corpus (4 artifacts / 6 records, 5 satisfying today) -> 4 affected [FLIPS_MISSING_TRIGGER:missing:trigger, FLIPS_MISSING_CREATEDAT:missing:createdAt, <no id>:missing:id, FLIPS_BLANK_TRIGGER:blank:trigger], 1 v2 skipped, 3 envelope faults reported\nSCAN_RECOMPUTES_NOT_PINNED\n\nroots: /Users/jek/Documents/Work/proofbound/.worktrees/B-2aa7 (repository root)\nscanned 106 artifacts / 145 records, 0 affected\n  (of 145 records: 144 SATISFY the pre-fix predicate today and are the only records whose verdict could move — 0 of them are schema-invalid; 0 carry their own schemaVersion and are not v1; 0 crash the pre-fix predicate today, which is a crash class, not a verdict movement; 0 artifacts have envelope faults)\nMIGRATION_SCAN_ENUMERATED_AND_COUNTED\nZERO_AFFECTED_STATED_POSITIVELY\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:09:02.526Z"
+          },
+          "headHash": "a0f0c2977c3a3835a63123754fc4c8b8b5cb2f14",
+          "materialHash": "45569e5af7d11ee037bd268bc2591a88e99c4e6aeb341c888838496ed8096ea3",
+          "storyFilesHash": "c3937f1bc356cd55366c55ebcc1637f43b2cc140ab3005bf96b6cd9380f4332d",
+          "timestamp": "2026-07-27T00:09:02.645Z"
         }
       ]
     },
