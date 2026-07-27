@@ -93,11 +93,16 @@ const isMember = () => true;
 /**
  * Exclusions are DATA and each entry must state WHY.
  *
- * The two pre-fix receipts below gate every marker they print on BLOCK A of
- * `red-b2aa7-artifact-validation.mjs` still being RED, so on the finished tree
- * they print nothing and exit 0. Registering them would add validate commands
- * that pass forever while asserting nothing — a vacuous check masquerading as
- * coverage, which is the defect class this story exists to remove.
+ * The three pre-fix receipts below gate every marker they print on their subject
+ * artifact still being RED, so on the finished tree they print nothing and exit 0.
+ * Registering them would add validate commands that pass forever while asserting
+ * nothing — a vacuous check masquerading as coverage, which is the defect class
+ * this story exists to remove.
+ *
+ * CAUTION FOR WHOEVER ADDS AN ENTRY: keep reasons free of the B-49d4 derivation
+ * artifact's filename. That artifact picks its BLOCK D targets by skipping any
+ * file that mentions it by name, so naming it in a reason here would silently
+ * drop THIS guard from the newcomer check — the same trap the header flags.
  */
 const REGISTRATION_EXCLUSIONS = new Map([
   [`${POPULATION_DIR_REL}/red-b2aa7-chk001-receipt.mjs`,
@@ -109,6 +114,14 @@ const REGISTRATION_EXCLUSIONS = new Map([
     'PRE-FIX attestation. Same BLOCK A gate applied through its own preFixTree guard, so it is likewise silent and '
     + 'exits 0 on the finished tree. Registering it would add a second vacuous validate command. Also spawned and '
     + 'enforced by red-b2aa7-chk007-receipt.mjs.'],
+  [`${POPULATION_DIR_REL}/red-b49d4-chk001-receipt.mjs`,
+    'PRE-FIX attestation, exactly like the two b2aa7 receipts above. It spawns the B-49d4 derivation artifact and '
+    + 'gates EVERY marker it prints on that run still exiting non-zero (ranToCompletion requires run.status !== 0). '
+    + 'On this fixed tree the artifact exits 0, so the receipt prints nothing and exits 0 — measured: exit=0, 0 bytes '
+    + 'on both stdout and stderr. Registering it would add a validate command that passes forever while asserting '
+    + 'nothing, which is the vacuous-coverage defect this story exists to remove; its own file header says it belongs '
+    + 'on this side. It stays inside the population and is reached from this registered guard, so it is decided here '
+    + 'rather than silently dropped.'],
 ]);
 
 /** A reason must actually be a reason; an empty string is not a decision. */
