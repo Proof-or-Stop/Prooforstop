@@ -23,7 +23,11 @@
           {
             "desc": "Rows that B-506e already closed (record is null or a bare string) are absent from the artifact, so no row passes vacuously.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+              "selector": "NO_ROW_PASSES_VACUOUSLY"
+            }
           }
         ],
         "adversarial": [
@@ -64,6 +68,26 @@
           "materialHash": "e04e5eaeea9b1b2678f84e72a190d5477ccf07f7dde5e81d7ad6d12ffffc4e20",
           "storyFilesHash": "ec2930d2d48b132960f95bb15f8ff68ec429cb20e1dc55caa69bc8185e23fa40",
           "timestamp": "2026-07-27T00:09:52.198Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk001-receipt.mjs",
+          "result": "pass",
+          "note": "Non-vacuity is proven two ways: ZERO of the 14 rows are green on the pre-fix tree, and the artifact's exclusion guard re-verifies that the two rows B-506e closed at 4d417a0c4b (record null / a bare string) still fail closed with a typed RedEvidenceSchemaError and are therefore rightly absent. Had that guard aborted it would have owned the AssertionError instead of the row tally.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "23e1d2762fa1e81d9a77f2dbae50d516249d44abd1e6e7c1d42736570dceb5dd",
+            "outputTail": "RED_ARTIFACT_FAILS_WITH_ALL_CLASSES_LIVE (14/14 rows red; classes: CRASH,ENVELOPE-MISATTRIBUTION,SILENT,UNTYPED-THROW)\nNO_ROW_PASSES_VACUOUSLY (0 green of 14; B-506e-closed rows excluded and that exclusion re-verified)\nTHREE_CLASSES_THREE_SHAPES (CRASH=7 asserts bare TypeError; SILENT=5 asserts wrong value + no throw; UNTYPED-THROW=1 asserts raw SyntaxError, requires a TYPED throw)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:10:03.856Z"
+          },
+          "headHash": "a239898368f5d5c5bc76c325b52617ef60f0f77b",
+          "materialHash": "e04e5eaeea9b1b2678f84e72a190d5477ccf07f7dde5e81d7ad6d12ffffc4e20",
+          "storyFilesHash": "ec2930d2d48b132960f95bb15f8ff68ec429cb20e1dc55caa69bc8185e23fa40",
+          "timestamp": "2026-07-27T00:10:03.999Z"
         }
       ]
     },
