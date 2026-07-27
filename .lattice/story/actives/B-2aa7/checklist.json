@@ -694,9 +694,9 @@
       "id": "CHK-007",
       "title": "Assert the invariance digest is unchanged post-fix and register the regressions in validate",
       "context": "Depends on the baseline recorded in CHK-002. Re-run packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs after the fix and assert it still passes with the SAME pinned digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec - that is the 'no valid v1 verdict moved' proof, scoped per decision D-3 to records that are well-formed under the legacy v1 schema. If that digest moves, the fix changed a verdict it was not permitted to change; do not re-pin the constant to make it pass. Decision D-5: a blank observedFailure (empty or whitespace) is legacy-tolerated - it must keep producing UNSATISFIED with NO new diagnostic and must never be quarantined, because scenario 3 of that harness depends on exactly that report shape; this is the single sub-case where quarantine is overridden. Register the new tests in lattice.config.json validate.commands alongside the existing red-evidence smokes.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-27T02:28:15.339Z",
       "verificationIntent": {
         "happy": [
           {
