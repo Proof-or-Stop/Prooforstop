@@ -857,7 +857,11 @@
           {
             "desc": "After the fix, the same record set produces the same verdict regardless of the position of the malformed entry.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+              "selector": "ORDER_INDEPENDENT_VERDICT"
+            }
           }
         ],
         "edge": [
@@ -883,7 +887,29 @@
         "test": [
           "packages/main/tests/red/red-b2aa7-artifact-validation.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk009-receipt.mjs",
+          "result": "pass",
+          "note": "BLOCK C row C1 in red-b2aa7-artifact-validation.mjs, driven through the live pair proofStoryDiagnosticInput -> evaluateProofStoryDiagnostics, never the predicate in isolation. Order independence is asserted as a RELATION BETWEEN permutations, which is the only shape that can catch it: BLOCK A rows A5 (malformed first) and A13 (satisfying first) can both be green while the read boundary is still position-sensitive. C1 takes 4 record sets - {satisfying, id-only}, plus a third and fourth malformed flavour (observedFailure:123, observedFailure:null, an ARRAY record) - and evaluates ALL 38 permutations (2+6+6+24), requiring each set to collapse to exactly ONE position-free observable: same read result, same gap codes, same FULL canonical diagnostic report, same sorted quarantined set, and no permutation escaping a bare TypeError. Observed 38 permutations, distinctPerFamily=1,1,1,1, bareTypeErrors=0. The malformed entry's index and the index embedded in its reason are deliberately stripped from the comparison because they SHOULD track position - an accurate pointer, not a verdict - and row C2 separately asserts they are present and exact, so stripping cannot hide a lost pointer. Non-vacuity is proven three ways, all observed rather than claimed. (1) PRE-FIX: this exact file, run on a rebuilt archive of 6d7c20bb4b (git archive, npm --prefix packages/main run build, same harness), reports C1 RED with distinctPerFamily=2,2,2,2 and 27 bare TypeErrors - every family split into exactly two outcomes, partitioned precisely by whether index 0 was malformed. (2) MUTATION: in an isolated rebuilt copy of HEAD, re-introducing the some()-style short-circuit into partitionRedEvidenceRecords makes C1 fail and the file exit 1. (3) THREE NEGATIVE CONTROLS, asserted fatally and verified to hold on BOTH trees, prove the comparator ignores ORDER and nothing else: adding a malformed record, and swapping one malformed flavour for another, must each change the observable, and a SATISFIED store must differ from an ABSENT one.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed25886b63e7949e42b492236320d3672e3c3ff6b9d3177147c9b7640095b756",
+            "outputTail": "ORDER_INDEPENDENT_VERDICT (38 permutations over 4 record sets collapse to 1 position-free observable each — same read result, same gap codes, same FULL diagnostic report, same quarantined set; 0 bare TypeErrors; comparator discriminated by all 3 negative controls)\nMALFORMED_REPORTED_BEHIND_SATISFIER (12/12 flavour x depth cases retained verbatim at their true index 1/2/3, 0/12 silent; and 3 malformed entries stacked behind one satisfier are ALL reported, so detection is exhaustive rather than first-match)\nO2_SILENT_CORRUPTION_PINNED (row O2 [satisfying, malformed]: with the read boundary BYPASSED the gate returns SATISFIED with no throw and the malformed record stays in `records` unreported; through the validated boundary the SAME bytes are quarantined verbatim at index 1 and removed from the clean set, with the verdict unchanged — unvalidatedCodes=[], unvalidatedQuarantined=0, validatedCodes=[], validatedQuarantinedIndex=1)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T01:20:15.543Z"
+          },
+          "headHash": "f342d9464b6765af8aa2bd3c8761e39ca1f16c31",
+          "materialHash": "decb351dcf6ae7fe4296b3a2a0675ebb322eb6b91bba64c55ba10470de684e8d",
+          "storyFilesHash": "705bced5d932735d17c681e1e92d54ca92c78857c5517f220f93387812acd040",
+          "timestamp": "2026-07-27T01:20:15.692Z"
+        }
+      ]
     },
     {
       "id": "CHK-010",
