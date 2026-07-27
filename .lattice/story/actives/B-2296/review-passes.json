@@ -103,6 +103,37 @@
         "scanEscalationReason": null
       },
       "_hash": "71a0829876abd5e5eda456774214a82d1cb16586b21f67108e2f1c864f4d4751"
+    },
+    {
+      "id": "B-2296:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-attestation (lease/freshness reset only, no material code change per review_run_start incremental basis: changedFiles=[], reasonCodes=[ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS]). Re-verified git diff main...HEAD --stat (37 files, 5262+/13-): all source changes purely additive (new types FrozenClaimSnapshot/FrozenClaimDriftAdvisory in types.ts; new core/frozen-claim-drift.ts; new handlers/frozen-claim-drift-check.ts; registry/command-catalog/command-policy/process-fact-levels/config/activity-policy registrations for frozen_claim_drift_check). No concept deleted or replaced this round. Confirmed prior F-004 fix: grep -n frozen_claim_drift_check packages/main/src/cli/activity-policy.ts -> line 15 inside READ_ONLY_COMMANDS. Grepped repo for frozen_claim_drift_check / frozen-claim-drift / FrozenClaimSnapshot / FrozenClaimDriftAdvisory: only the new, consistently-registered symbol set (handler, schema, policy, catalog, config, process-fact-levels), no half-registered or orphan references. No blocker.",
+      "createdAt": "2026-07-27T10:34:50.374Z",
+      "reviewRound": "2026-07-27T10:32:29.627Z",
+      "reviewRunId": "B-2296:RR-009",
+      "envelopeId": "351557eaabe16551b7a068bb74a7d307ae1ec821e7435d02d3f9b03113c9f4eb",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/frozen-claim-drift.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/frozen-claim-drift-check.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0312620779e2ae4066fbd20e8c90e8cd37877fca58619ec3580eb3ba0ed0ab08"
     }
   ]
 }
