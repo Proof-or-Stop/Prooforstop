@@ -1,82 +1,52 @@
 {
   "storyId": "B-3b88",
-  "checkedAt": "2026-07-26T04:37:51.937Z",
-  "headHash": "f0ae3a2e59b2fd78442efe14cb20a15be901eaa3",
-  "materialHash": "e6f223340a6aae5efe97f3588980efc9bcb2a226cb3313a855f95d77491986a6",
-  "storyFilesHash": "94d22824e825f3ba978a3fbbdadb1051ee43cf1afe10338796bc5e3d21858cad",
-  "reviewRound": "2026-07-25T23:21:13.602Z",
+  "checkedAt": "2026-07-27T00:50:25.733Z",
+  "headHash": "b7a1689d229892a9c878f109b40283cd24bc1a9f",
+  "materialHash": "20e4a04f01beef41786d27827fb932356f0b448f69ac89864a6641b064e1601b",
+  "storyFilesHash": "3c656ba43ff514768a239f883b659f0587786ca974c7a98c98a0c1cbf6604c9f",
+  "reviewRound": "2026-07-26T11:14:01.717Z",
   "agentId": "",
   "docsPromises": [
     {
-      "docPath": "packages/main/src/core/verification.ts#detectEvidenceRowContradiction",
-      "promise": "A pure helper compares an evidence row's command target-file stem against its file field stem (normalizing dist/src, .js/.ts/.cjs/.mjs) and returns a contradiction reason when both are derivable and differ, per CHK-001/plan.md.",
-      "verifiedBy": "diff/read",
-      "evidence": "packages/main/src/core/verification.ts adds scriptFileStem/commandTargetStem/detectEvidenceRowContradiction; basename-only comparison naturally resolves path traversal and shell-pipe tokens without special-casing."
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#stale-evidence-cannot-be-overridden-by-tests-passed",
+      "promise": "verification_evidence_refresh_stale must never silently re-certify a stale command-backed result:pass row; re-run the command and re-record via verification_evidence_add",
+      "verifiedBy": "diff/grep + command re-run",
+      "evidence": "packages/main/src/handlers/checklist.ts writeStaleRefresh demotes unconditionally on ev.mechanical===true || unexecutedCommandBackedPass (command non-empty and result:pass); node packages/main/dist/tasks/refresh-stale-honesty-smoke.js -> PASS (11 happy/edge/adversarial cases independently re-run)"
     },
     {
-      "docPath": "packages/main/src/handlers/checklist.ts#verification_evidence_add",
-      "promise": "verification_evidence_add refuses, with an explicit error, an evidence row whose command and file fields name contradictory targets (F-049/F-050 shape).",
-      "verifiedBy": "diff/grep + fresh test run",
-      "evidence": "checklist.ts calls detectEvidenceRowContradiction(...) before persistence in verification_evidence_add and throws `verification_evidence_add: ${contradiction}`; reproduced by running node packages/main/dist/tasks/evidence-selfcheck-smoke.js after a clean tsc build -> PASS."
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#command-reference-table verification_evidence_refresh_stale row",
+      "promise": "table description updated to state refusal/re-record semantics instead of generic rerun wording",
+      "verifiedBy": "diff/grep",
+      "evidence": "docs/requirements/decisions/story-lifecycle.md diff line changes description to command-less attestation only + refuses command-backed pass; matching CLI help text updated in packages/main/src/cli/command-catalog.ts (verification_evidence_refresh_stale description)"
     },
     {
-      "docPath": "packages/main/src/handlers/checklist.ts#verification_evidence_batch_add",
-      "promise": "verification_evidence_batch_add is guarded identically so batch entries cannot bypass the single-add contradiction check.",
-      "verifiedBy": "diff/grep + fresh test run",
-      "evidence": "checklist.ts batch loop calls detectEvidenceRowContradiction(entry) per entry and throws with itemId/intentRef context; covered by evidence-selfcheck-smoke.ts adversarial:0."
+      "docPath": "docs/requirements/decisions/testing-infra.md#command-reference-table verification_evidence_refresh_stale row",
+      "promise": "same restatement of refuse/re-record semantics in the testing-infra command reference table",
+      "verifiedBy": "diff/grep",
+      "evidence": "docs/requirements/decisions/testing-infra.md diff shows identical wording change to story-lifecycle.md"
     },
     {
-      "docPath": "packages/main/src/handlers/checklist.ts#verification_evidence_refresh_stale",
-      "promise": "refresh_stale leaves a command-backed result:pass row stale (REFUSED) instead of re-certifying it without re-execution; command-less attestation rows still refresh normally; dryRun reflects the same classification without mutating.",
-      "verifiedBy": "diff/grep + fresh test run",
-      "evidence": "checklist.ts classifies isCommandBackedPass (non-empty command, incl. whitespace-only, AND result==='pass'), skips re-stamping and reports REFUSED, otherwise refreshes as before; summary line reports refused count. Reproduced by running node packages/main/dist/tasks/refresh-stale-honesty-smoke.js after a clean tsc build -> PASS."
-    },
-    {
-      "docPath": "docs/requirements/decisions/story-lifecycle.md#L195 (stale-evidence guidance)",
-      "promise": "Docs state refresh only re-stamps command-less attestation freshness; a stale command-backed result:pass row is REFUSED (never silently re-certified) and must be re-run + re-recorded via verification_evidence_add.",
-      "verifiedBy": "diff/read",
-      "evidence": "story-lifecycle.md prose paragraph and the TEST-phase command table row for verification_evidence_refresh_stale were both updated to this wording; matches implemented behavior in checklist.ts."
-    },
-    {
-      "docPath": "docs/requirements/decisions/story-lifecycle.md#L278 (evidence-consumption notes)",
-      "promise": "verification_evidence_refresh_stale note updated: it only re-stamps command-less attestation rows already stale; never re-executes; stale command-backed result:pass is REFUSED.",
-      "verifiedBy": "diff/read",
-      "evidence": "story-lifecycle.md evidence-consumption bullet list entry rewritten to match; consistent with code."
-    },
-    {
-      "docPath": "docs/requirements/decisions/testing-infra.md#L166",
-      "promise": "Command-catalog summary table row for verification_evidence_refresh_stale updated to state it only re-stamps command-less attestation evidence and refuses command-backed result:pass rows.",
-      "verifiedBy": "diff/read",
-      "evidence": "testing-infra.md table row text matches the new behavior."
-    },
-    {
-      "docPath": "packages/main/src/cli/command-catalog.ts#verification_evidence_refresh_stale schema description",
-      "promise": "CLI help/description text for verification_evidence_refresh_stale reflects the refuse-command-backed-pass behavior instead of the old generic 'Refresh HEAD/material hashes for stale verificationEvidence (rerun command)' wording.",
-      "verifiedBy": "diff/read",
-      "evidence": "command-catalog.ts description string updated to: 'Refresh HEAD/material hashes for stale command-less attestation evidence; command-backed result:pass rows are refused and must be re-run + re-recorded via verification_evidence_add (never silently re-certified)'."
-    },
-    {
-      "docPath": "packages/main/src/core/evidence-stale-hint.ts (JSDoc + renderEvidenceStaleHint)",
-      "promise": "The stale-evidence recovery hint (rendered in session_brief / story_advance pre-check / validate output, per F-002) carries the same command-backed-refusal caveat, and stays byte-identical across all call sites.",
-      "verifiedBy": "diff/read + existing pinned test",
-      "evidence": "Both the JSDoc example block and the renderEvidenceStaleHint() 'Run to recover' line were updated identically; verification-freshness-smoke.ts's byte-identical cross-surface pin (assertStaleEvidenceHintCrossSurface, not modified by this diff) still holds against the new wording since both source strings changed together."
+      "docPath": ".lattice/story/actives/B-3b88/plan.md#CHK-001",
+      "promise": "verification_evidence_add / verification_evidence_batch_add refuse an evidence row whose command and file fields name contradictory targets (F-049/F-050 class)",
+      "verifiedBy": "diff/grep + command re-run",
+      "evidence": "packages/main/src/core/verification.ts exports detectEvidenceRowContradiction; wired into both verification_evidence_add and verification_evidence_batch_add in packages/main/src/handlers/checklist.ts; node packages/main/dist/tasks/evidence-selfcheck-smoke.js -> PASS (12 happy/edge/adversarial cases incl. batch-add bypass check, independently re-run)"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "packages/main/src/tasks/evidence-selfcheck-smoke.ts (139 lines): builds a real tmp git repo + StoryStore + handler registry, then exercises verification_evidence_add / _batch_add through all 12 CHK-001 verificationIntent slots -- F-049 exact-shape contradiction refused, dist/src+.js/.ts normalization accepted, no-stem npm test accepted, command-only/file-only accepted, .js/.cjs normalization accepted, multi-arg last-target extraction, shell-pipe obfuscation refused, path-traversal refused, empty-command no-crash, and batch_add bypass closed. Independently re-ran after `npm run build` (tsc) in the worktree: `evidence-selfcheck-smoke: PASS`."
+      "transcript": "evidence-selfcheck-smoke.ts (new, 139 lines): 12 intents across happy/edge/adversarial exercise both verification_evidence_add and verification_evidence_batch_add against detectEvidenceRowContradiction. Covers the exact F-049 repro (command targets gate-repeat-block-smoke.js, file names convergence-breaker-smoke.ts -> refused), same-stem normalization across dist/src and .js/.ts/.cjs (accepted), no-stem commands like npm test / lattice validate (accepted), multi-arg commands where only the last script token is the target, shell-pipe obfuscation, path-traversal basename normalization, empty-command no-crash, and a batch_add contradictory entry (bypass-closure). Independently re-ran on B-3b88 HEAD: node packages/main/dist/tasks/evidence-selfcheck-smoke.js -> evidence-selfcheck-smoke: PASS."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "packages/main/src/tasks/refresh-stale-honesty-smoke.ts (169 lines): builds a real tmp git repo + StoryStore + handler registry, seeds stale command-backed-pass and command-less-attestation rows, and exercises verification_evidence_refresh_stale through all 11 CHK-002 verificationIntent slots -- command-backed pass left stale, attestation refreshed, output distinguishes REFUSED vs refreshed, dryRun reflects classification with no mutation, fail-result rows untouched, all-attestation base case, zero-stale no-crash, all-command-backed bulk-wash blocked, whitespace-only command treated as command-backed, genuine re-verification via verification_evidence_add accepted after refusal, per-row independence within one item. Independently re-ran after `npm run build` (tsc) in the worktree: `refresh-stale-honesty-smoke: PASS`."
+      "transcript": "refresh-stale-honesty-smoke.ts (new, 196 lines): 11 intents across happy/edge/adversarial prove a stale command-backed result:pass is never laundered by verification_evidence_refresh_stale -- it is either left stale or demoted to mechanical:false plus an invalidation reason, never re-stamped as a still-valid pass. Covers command-less attestation rows refreshing normally, dry-run mutating nothing, failed command rows being outside the laundering channel, whitespace-only commands still counting as command-backed, per-row independence in mixed items, and genuine re-verification via verification_evidence_add being accepted after a refusal. Independently re-ran: node packages/main/dist/tasks/refresh-stale-honesty-smoke.js -> refresh-stale-honesty-smoke: PASS. Also independently confirmed by reading packages/main/src/core/verification.ts coverageStatusForCoveredEvidence: a demoted row (mechanical:false) resolves to coverage status non_mechanical, never covered, for an executable intent -- matching the updated CHK-002 block in verification-freshness-smoke.ts which now asserts mechanical:false, a receipt invalidated reason, and status !== covered (that block was independently re-run and passes on this branch)."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Both checklist items are backed by dedicated real-machine smoke tests (not just unit stubs) that I independently rebuilt with tsc and re-ran outside any recorded evidence, covering all 23 declared verificationIntent slots including adversarial bypass attempts (batch_add, shell pipe, path traversal, whitespace-command, bulk-wash). All 9 doc-promise sites I found in the diff (help text, JSDoc, two decision docs, stale-hint renderer) match the implemented refuse-not-relaunder semantics; the 4 reviewer-found doc-drift findings (F-001..F-004) are recorded resolved. One unrelated pre-existing failure exists in verification-freshness-smoke.ts (assertChecklistUpdateEvidenceGetsMaterialHash rejects a nonMechanicalReason-less checklist_update row) but I reproduced it identically on main HEAD before this branch's changes, so it is not attributable to this story and is not one of its two owned test files."
+    "summary": "Both CHK-001 and CHK-002 promises are independently verified in source (verification.ts, checklist.ts) and pass dedicated regression smokes with real happy/edge/adversarial assertions, re-run fresh in this session. Updated docs (story-lifecycle.md, testing-infra.md, CLI help text) accurately describe the delivered refuse/demote semantics. verification-freshness-smoke.ts on this branch now progresses past both CHK-001/CHK-002-relevant blocks and stops only at a third, independently reproduced failure (pre_review_check requires the verifier-owned PLAN acceptance basis, gate introduced by pre-existing commit fb2170f016) that is confirmed identically red on main -- there it surfaces even earlier, at the B-ec67 checklist_update guard -- and is untouched by this story's diff (proofstory.ts / transition-orchestrator.ts pre-review-check logic is not in the story diff). This story's own diff to that file only removes stale command fields from three unrelated fixtures so they are not newly tripped by the CHK-002 demotion logic; it does not alter or fix the acceptance-basis gate."
   },
-  "_hash": "ce27a7325abfa304703c019d709a291f425f4514cc4321b57f9f887158894e3b"
+  "_hash": "b31f12c90fa7c776a77e0a2b80888c5f91a0d2599fc3cba2e1bf7337c407ce3c"
 }
