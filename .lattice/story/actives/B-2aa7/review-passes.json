@@ -69,6 +69,38 @@
         "scanEscalationReason": null
       },
       "_hash": "bc6ba49d09a57a40cceb2cb6bcc6b1b90a1cb3fee13463dc392bff39a9268355"
+    },
+    {
+      "id": "B-2aa7:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 incremental test-coverage review of CL-003/CL-004. Independently reproduced (pre-fix vs post-fix builds) that red-b2aa7-f005-receipt.mjs genuinely distinguishes fixed-from-broken while red-b2aa7-chk006-receipt.mjs is byte-identical before/after CL-003. Confirmed doc-receipt and baseline-receipt digests still reproduce exactly despite the doc rewrite (no evidence staleness). The two real coverage gaps I found (f005-receipt unregistered in lattice.config.json/verificationEvidence; doc reachability table stale for readRedEvidenceForChain) are already open as B-2aa7:F-007 and B-2aa7:F-006/F-008 from this same round, filed by other reviewer lanes with matching or more precise detail; no new test-coverage-specific blocker to add.",
+      "createdAt": "2026-07-27T03:18:58.695Z",
+      "reviewRound": "2026-07-27T03:03:06.893Z",
+      "reviewRunId": "B-2aa7:RR-008",
+      "envelopeId": "2691900413edfd1101869daf3f3bd767ceb15140fdc5fbe28d8288666093eb61",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2aa7/background.md",
+          ".lattice/story/actives/B-2aa7/plan.md",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+          "lattice.config.json",
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/tests/red/red-b2aa7-baseline-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-doc-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "01cd36c4330daa0bbf45687dd29a15fb1573ad2d05b0ad478474ed06292a154e"
     }
   ]
 }
