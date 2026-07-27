@@ -371,18 +371,25 @@ for (const path of material) {
     assert.match(dryRun, /npm test/);
 
     // B-3b88 CHK-002: a command-backed result:pass is REFUSED by refresh (never
-    // silently re-certified onto changed material) — it stays stale until it is
-    // re-run and re-recorded via verification_evidence_add. Uses main's
-    // refreshStaleEvidenceMetadataOnly helper.
+    // silently re-certified onto changed material. Under the delivered B-1507 +
+    // B-3b88 design the row is not left byte-identical: refresh re-stamps the
+    // freshness hashes but DEMOTES the row to a non-mechanical attestation with an
+    // audit reason, so it can never keep covering an executable intent without a
+    // real re-run. Uses main's refreshStaleEvidenceMetadataOnly helper.
     const result = refreshStaleEvidenceMetadataOnly(smokeCtx, storyId);
-    assert.match(result, /refused 1 command-backed pass/);
+    assert.match(result, /Refreshed \d+\/\d+ stale evidence item/);
     const after = buildVerificationCoverage(
       store.readChecklist(storyId),
       head,
       (headHash, evidence) => checkEvidenceFreshnessForGit(root, headHash, evidence?.materialHash).fresh,
     );
-    assert.equal(after.entries[0]?.status, 'stale', 'command-backed pass stays stale (refused, not re-certified)');
-    assert.equal(after.entries[0]?.evidence?.headHash, base);
+    const afterEvidence = after.entries[0]?.evidence;
+    assert.equal(afterEvidence?.mechanical, false,
+      'command-backed pass is demoted to non-mechanical (never silently re-certified)');
+    assert.match(afterEvidence?.nonMechanicalReason ?? '', /receipt invalidated/,
+      'demotion records why the receipt no longer holds');
+    assert.notEqual(after.entries[0]?.status, 'covered',
+      'a demoted command-backed row must not count as covered for an executable intent');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -506,7 +513,13 @@ function assertChecklistUpdateEvidenceGetsMaterialHash(): void {
         startTime: null,
         endTime: null,
         verificationIntent: {
-          happy: [{ desc: 'direct evidence', type: 'logic', priority: 'must' }],
+          // B-ec67: checklist_update never executes pinned commands, and
+          // carryForwardOnDiskProvenance discards caller-supplied mechanical/receipt
+          // fields by design, so an EXECUTABLE intent (logic|cli|browser) can no longer
+          // receive a passing row through checklist_update at all. This block only
+          // asserts that checklist_update stamps materialHash, which is orthogonal to
+          // proof strength — so the intent is attestation-only (manual).
+          happy: [{ desc: 'direct evidence', type: 'manual', priority: 'must' }],
           edge: [],
           adversarial: [],
         },
