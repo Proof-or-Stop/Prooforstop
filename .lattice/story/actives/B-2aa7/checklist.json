@@ -724,7 +724,11 @@
           {
             "desc": "If the digest moves, it is treated as a defect in the fix; the constant is not re-pinned to make the test pass.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+              "selector": "PIN_NOT_REPINNED_HARNESS_UNTOUCHED"
+            }
           }
         ]
       },
@@ -777,6 +781,26 @@
           "materialHash": "dd3c033ea7310fb56c1343a42adee8a22423ac5fcb1cb22ab4eadf18648709c6",
           "storyFilesHash": "d348fd4a16e4163e5536d5b3890a0fe9a26a794fbd91bf65e5b6148438c6bf3b",
           "timestamp": "2026-07-27T02:08:49.756Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "result": "pass",
+          "note": "The digest was matched, not made to match: the working-tree red-w2c-v1-verdict-invariance.mjs is byte-identical to its blob at the CHK-002 baseline commit 6d7c20bb4b and has no uncommitted changes, so neither the pinned constant nor any assertion around it was relaxed. The re-pin detector is proven non-vacuous by re-running it over two mutated in-memory copies: one whose pin is flipped (flagged as repinned) and one edited elsewhere with the pin left alone (flagged as edited only).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c6701b6b0d075fe3d4cdb95ee9e18f6101d0374aff9a437f603176689471ff9c",
+            "outputTail": "INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec — identical to the digest pinned by the CHK-002 baseline commit 6d7c20bb4b, read from that commit's blob rather than from the working tree; the harness exited 0 with its own per-scenario v1 semantics asserted by name; comparator discriminated a perturbed pin)\nD5_BLANK_OBSERVED_FAILURE_TOLERATED (observedFailure \"   \" and \"\" both: read without throwing, retained in the clean set, NEVER quarantined (malformedRecords absent), UNSATISFIED via the ordinary missing_red_evidence gap, and a FULL diagnostic byte-identical to an ABSENT artifact — no new diagnostic, so scenario 3's report shape is untouched; controls: the same record with a real observedFailure SATISFIES and a malformed record IS quarantined)\nPIN_NOT_REPINNED_HARNESS_UNTOUCHED (packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs is byte-identical to its blob at the CHK-002 baseline commit 6d7c20bb4b and has no uncommitted changes, so the digest above was matched rather than made to match; detector proven non-vacuous against a re-pinned copy and against an edited copy whose pin was left alone)\nVALIDATE_REGISTRATION_COMPLETE (all 9 permanent B-2aa7 regression checks are registered in lattice.config.json validate.commands, including the D-7 migration scan that must be re-run at merge time; stripping ANY one of them is detected by this check — proven non-vacuous per entry)\nVACUOUS_PREFIX_RECEIPTS_EXCLUDED (2 pre-fix receipts verified SILENT — 0 bytes on stdout and stderr, exit 0 — on the finished tree, because every marker in them is gated on BLOCK A of red-b2aa7-artifact-validation.mjs being RED; they are therefore deliberately absent from validate.commands, and this check fails if either is registered or stops being silent)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T02:09:21.089Z"
+          },
+          "headHash": "04820809efb3dfebd1ef47853707af40b84a96af",
+          "materialHash": "dd3c033ea7310fb56c1343a42adee8a22423ac5fcb1cb22ab4eadf18648709c6",
+          "storyFilesHash": "d348fd4a16e4163e5536d5b3890a0fe9a26a794fbd91bf65e5b6148438c6bf3b",
+          "timestamp": "2026-07-27T02:09:21.320Z"
         }
       ]
     },
