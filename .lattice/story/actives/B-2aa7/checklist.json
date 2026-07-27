@@ -53,7 +53,11 @@
           {
             "desc": "red-w2c-v1-verdict-invariance.mjs is run on the pre-fix tree and recorded as passing with digest 2d584cc1...",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+              "selector": "2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec"
+            }
           }
         ],
         "edge": [
@@ -77,7 +81,29 @@
         "test": [
           "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "command": "node packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs",
+          "result": "pass",
+          "note": "Pre-fix invariance baseline. main's own five-scenario harness was run unmodified on the pre-fix tree at commit 6d7c20bb4ba5bca0d7197c414284cbc4c56b3f02 and exited 0, printing five-scenario FULL-diagnostic sha256 = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec. That tree is pre-fix by inspection: packages/main/src/core/proofstory.ts still reaches record.observedFailure.trim() immediately after the schema classify with no shape guard, and packages/main/src/core/red-evidence-artifact-validation.ts does not exist. The selector is the digest itself, so this evidence cannot pass unless the harness really recomputes that value. CHK-007 re-runs the same command post-fix and must observe the same digest; if it moves, the fix is wrong and the constant must NOT be re-pinned.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "44d9f55ae2da9e9e32069c5fb56236d76a7dc6373c8eac25bf7b7c372b7fec86",
+            "outputTail": "red-w2c-v1-verdict-invariance: five-scenario FULL-diagnostic sha256 = 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec\nred-w2c-v1-verdict-invariance: OK (5 v1-only scenarios; per-scenario v1 semantics asserted by name; one sha256 over the concatenated FULL diagnostics equals the pinned digest)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T00:04:31.343Z"
+          },
+          "headHash": "2786eff18bfb6745ca179e71d83d102e0d1e00f5",
+          "materialHash": "ac749a849e5176f58cd69d865f9c72f1f93d8ccbd1ff28e4c329c2f33f2c90a4",
+          "storyFilesHash": "d5aca3a419c81bc4e402ba01c362d36c427ac5e543808ac10c67d00106e5f802",
+          "timestamp": "2026-07-27T00:04:31.499Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
