@@ -60,6 +60,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-2aa7:F-004",
+      "desc": "doc-code-drift: docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md §10.2.1 row E5 (\"file root is not an object ([], \\\"x\\\", null, 42) | WORSE than crashes\") plus its follow-up prose (\"None of these crash. They flow into the typed domain as the raw parsed value... a corrupt artifact is indistinguishable from an absent one\") is the PRE-FIX probe result only, and unlike sibling rows E4 (\"must stay\") and E6 (\"must not silently degrade... §6.1\") it carries no post-fix requirement/outcome statement. On the shipped tree this is no longer true: `validateRedEvidenceEnvelope` in packages/main/src/core/red-evidence-artifact-validation.ts:287-300 now throws a typed `RedEvidenceArtifactError` with fault code `root_not_object` for any non-plain-object root ([], string, null, number), naming the artifact path and the actual value type (`describeValue`) - verified by reading the function body. So a reader hitting E5 in the landed doc, without noting it describes the pre-fix state, would reasonably (and now incorrectly) conclude a non-object JSON root is still silently misread as absent evidence on current main.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-27T02:40:20.633Z",
+      "reviewRound": "2026-07-27T02:31:52.563Z",
+      "reviewRunId": "B-2aa7:RR-004",
+      "_hash": "ca82172e45da2dcd4e505af760dd0a2c1a5d8a2e4eee64273bd79b3454d56836",
+      "files": [
+        "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+        "packages/main/src/core/red-evidence-artifact-validation.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
