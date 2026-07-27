@@ -65,6 +65,37 @@
         "scanEscalationReason": null
       },
       "_hash": "3757a1bed7e03831adf32a127eff5d7666328fc83ce1353edd542918a46941f4"
+    },
+    {
+      "id": "B-49d4:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified F-005/F-006/F-007 fixes are genuine (not narrower framing): reproduced DECIDED-arm bite by removing an exclusion entry from the real committed decider (both the decider and the spawning derivation guard correctly went RED naming the dropped member), reproduced the shape-arm bite by removing a src/tasks .ts counterpart (row went RED), confirmed no live code claims execution/reachability anymore (only dead code in the excluded, 0-byte, unregistered pre-fix receipt), and swept all 32 registered red/*.mjs for vacuity (none silent) plus the 3 excluded ones (all confirmed silent/0-byte, matching their stated reasons). Filed F-009 (medium, non-blocking) for a real but trivially-fixable gap: CHK-002 evidence is storyFilesHash-stale after the fix commits, unlike CHK-001/CHK-003 it reproduces cleanly on re-run and should just be refreshed before DONE. No other blocking gaps found in this round.",
+      "createdAt": "2026-07-27T20:11:32.824Z",
+      "reviewRound": "2026-07-27T19:47:16.995Z",
+      "reviewRunId": "B-49d4:RR-011",
+      "envelopeId": "81cc41ffe9e2c8a4fc812c261497536bccd36453eb6fe47102acd68df6d861fe",
+      "writerSessionId": "sess-14ce788c48429840fd642741e2150a60",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49d4/background.md",
+          ".lattice/story/actives/B-49d4/checklist.json",
+          ".lattice/story/actives/B-49d4/plan.md",
+          "lattice.config.json",
+          "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "506fcb1c6bb1c4bb49128fe4a5ad6fda3b79a4a44007b943b353e0dee32f4a5f"
     }
   ]
 }
