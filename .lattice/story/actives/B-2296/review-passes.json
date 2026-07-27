@@ -134,6 +134,29 @@
         "scanEscalationReason": null
       },
       "_hash": "0312620779e2ae4066fbd20e8c90e8cd37877fca58619ec3580eb3ba0ed0ab08"
+    },
+    {
+      "id": "B-2296:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 re-attestation: code unchanged since RP-002 (review_incremental_context: isFirstPass=false, scopeChanged=false, changedFiles=none). Re-ran frozen-claim-drift-smoke.js and frozen-claim-snapshot-hook-smoke.js, both PASS incl. new [determinism]/[clean-branch] assertions from 01df77481b closing F-001/F-002. All 12 must verificationIntent entries (CHK-001..CHK-004) have verificationEvidence result=pass. No new gaps.",
+      "createdAt": "2026-07-27T10:34:55.890Z",
+      "reviewRound": "2026-07-27T10:32:29.627Z",
+      "reviewRunId": "B-2296:RR-008",
+      "envelopeId": "5bba0a1c60eb92b90cc042a8f0f239d932be6e39c665df577e3bba3048dfc56a",
+      "writerSessionId": "sess-b3df43d6f6efb1eef7a2231269f3b375",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-2296/background.md",
+          ".lattice/story/actives/B-2296/checklist.json",
+          ".lattice/story/actives/B-2296/plan.md",
+          "packages/main/src/tasks/frozen-claim-drift-smoke.ts",
+          "packages/main/src/tasks/frozen-claim-snapshot-hook-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "016bd287347edd50cac29c43d73737b19735618a256d34514cb23cf4290cb915"
     }
   ]
 }
