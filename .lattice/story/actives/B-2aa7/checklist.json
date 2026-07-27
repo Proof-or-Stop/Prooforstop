@@ -119,9 +119,9 @@
       "id": "CHK-002",
       "title": "Establish the pre-fix invariance baseline from main's existing five-scenario harness",
       "context": "SUPERSEDES the original plan to port a harness: packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs is now ON main (it arrived with the B-506e merge) and passes there, printing 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec. That constant is therefore main's OWN pinned value, not a foreign import, and it must NOT be re-pinned. Run it BEFORE the fix to record that it passes on the pre-fix tree; that run is the baseline CHK-007 asserts against. Its five v1-only scenarios are empty store, satisfying record, blank-observedFailure record, foreign-acceptance-target record, and mixed store, each anchored by name so the digest cannot be silently re-pinned to a different verdict. Separately: 71c267a0a7372e9679d00b84be2e2b3480151bfa88939bddcae251aa750d95bc remains a phantom produced by no artifact (audit section 7.1) and must never be pinned.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-27T00:02:09.401Z",
-      "endTime": null,
+      "endTime": "2026-07-27T00:10:52.307Z",
       "verificationIntent": {
         "happy": [
           {
