@@ -170,6 +170,40 @@
         "scanEscalationReason": null
       },
       "_hash": "aad38d183db6138ed5b3d31375e9b13999515a3ed1daeb51de1436f4779db334"
+    },
+    {
+      "id": "B-2aa7:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 6, F-009 fix (cd11bab5c7) verified by hostile re-derivation, not by re-reading the diff. Registration route, freeze consequence, DoS reachability, legitimate-writer safety, and comment accuracy all re-derived and confirmed true; all pinned smokes rerun green with digest unchanged. No blocking issue found.",
+      "createdAt": "2026-07-27T05:05:50.857Z",
+      "reviewRound": "2026-07-27T04:59:05.649Z",
+      "reviewRunId": "B-2aa7:RR-012",
+      "envelopeId": "b8e2d2a3fd8d13cdd2bbc0a0c8d88a55f1c7529e20620f01b5540dde2199628b",
+      "writerSessionId": "sess-b84bc151fc5a5e550bd052dd87e009d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-evidence-artifact-validation.ts",
+          "packages/main/src/core/red-evidence/append.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+          "packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "packages/main/tests/red/red-b2aa7-write-quarantine-race.mjs",
+          "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5fb43a356fa0e4a6eb2210b0b7306cbb5cf167de5d3651796c20bc71dbf4e993"
     }
   ]
 }
