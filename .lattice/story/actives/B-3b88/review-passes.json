@@ -395,6 +395,30 @@
         "scanEscalationReason": null
       },
       "_hash": "603be019f0351390439f24dcb2155dc396d756e905f5ee6e1194ab48e748cae1"
+    },
+    {
+      "id": "B-3b88:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "F-005 re-verified fixed: all 5 surfaces now describe re-execute-pinned-verifier-else-demote-in-place, matching writeStaleRefresh/enforceAndStampEvidence in checklist.ts. Symbols extracted from diff: 0 (docs-only commit f2ed3cd, fallback-1 full-text scan of the named files); paragraphs compared: 6. No blockers.",
+      "createdAt": "2026-07-27T01:28:10.591Z",
+      "reviewRound": "2026-07-27T01:20:13.611Z",
+      "reviewRunId": "B-3b88:RR-025",
+      "envelopeId": "d69a94a9a1c7f119e3ce983bfe4a98c6c8f48f50f434f0fe4d00713de560d066",
+      "writerSessionId": "sess-a0e199574ccb4d916d1f4d554aac39c2",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "fallback-1: docs-only commit f2ed3cd had zero exported-symbol diff hits, so did full-text scan of the 5 surfaces named in F-005 plus the implementation they describe"
+      },
+      "_hash": "3bb1aa95da0c608624a4e4d2912f5ddcf6830fca40a39fe31ee74e973a2841e4"
     }
   ]
 }
