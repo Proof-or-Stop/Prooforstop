@@ -43,6 +43,13 @@
  *   4. NO REGRESSION. A genuinely malformed record is still quarantined, still
  *      survives the write verbatim and in place, and is still re-derived by the
  *      next read. (The concurrent case is `red-b2aa7-write-quarantine-race.mjs`.)
+ *   5. HONOURED BY PROVENANCE, NOT SHAPE. Rules 1-2 are asserted through a FILE,
+ *      where the read boundary strips the planted key first. The write boundary
+ *      takes ANY caller-supplied `RedEvidenceData`, so an IN-MEMORY payload
+ *      reaches it with `malformedRecords` intact and no shape check can tell it
+ *      from a derived one. Only entries this module derived are honoured, and a
+ *      payload claiming otherwise is REFUSED rather than quietly written without
+ *      the records it claims are quarantined.
  *
  * Every case is driven through the REAL `store.readRedEvidence` /
  * `store.writeRedEvidence` and the REAL gate pair the enforce gates call
@@ -74,6 +81,8 @@ const { loadConfig } = await import(`${DIST}/core/config.js`);
 const {
   redEvidenceQuarantinedRecords,
   renderRedEvidenceQuarantineNotice,
+  retainQuarantinedRecordsOnWrite,
+  classifyRedEvidenceArtifact,
 } = await import(`${DIST}/core/red-evidence-artifact-validation.js`);
 
 const NOW = '2026-07-25T00:00:00.000Z';
@@ -394,6 +403,183 @@ if (!failures.some((f) => f.startsWith('regression:'))) {
     + 'it, the original survives the write verbatim and in place, the derived key is not persisted, and the next read '
     + 're-derives the same quarantine. The acceptance rule kept 100% of the derived entries, so the junk rejected above was '
     + 'rejected for being junk)',
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// 5. adversarial — PROVENANCE, NOT SHAPE, AT THE WRITE BOUNDARY (F-009).
+//
+//    Sections 1-3 plant through a FILE, so the read boundary strips the key
+//    before any consumer sees it. That is not the whole surface.
+//    `store.writeRedEvidence` hands ANY caller-supplied `RedEvidenceData`
+//    straight to `retainQuarantinedRecordsOnWrite`, so an IN-MEMORY payload
+//    that never went through `store.readRedEvidence` arrives at the write path
+//    with its `malformedRecords` intact. The cross-host reviewer reproduced it
+//    on the pre-fix tree by calling that guard directly on an object literal:
+//
+//      retainQuarantinedRecordsOnWrite({ records:[OK_RECORD], malformedRecords:
+//        [{ index:0, id:'INJECTED-PAYLOAD', reason:'…', violations:['…'],
+//           value: PAYLOAD }] })
+//        -> records = [ 'INJECTED-PAYLOAD', 'RED-ok' ]   and the key is GONE
+//
+//    A SHAPE check cannot close that, and no stricter shape check ever will: a
+//    derived entry has no shape a caller cannot type out, so `plantedEntry`
+//    below is INDISTINGUISHABLE from the real thing by inspection of its bytes.
+//    The acceptance rule must therefore be PROVENANCE — only entries this
+//    module's own derivation produced are honoured — and provenance is a fact
+//    about WHERE A VALUE CAME FROM, which is not carried in the value.
+//
+//    Two properties are pinned here, because closing the injection by ignoring
+//    an underived claim would open a second hole in the other direction:
+//
+//      INJECTION   nothing a caller hand-builds may reach `records`.
+//      NOT SILENT  a payload that CLAIMS quarantined records the write path
+//                  cannot honour is REFUSED, not quietly written without them.
+//                  Writing it anyway drops those records from disk — the one
+//                  outcome D-4 forbids — and the caller would never know.
+// ════════════════════════════════════════════════════════════════════════════
+const attempt = (fn) => {
+  try {
+    return { threw: false, value: fn() };
+  } catch (e) {
+    return { threw: true, error: e };
+  }
+};
+
+/** The reviewer's exact payload: never read from disk, structurally perfect. */
+const handBuiltPayload = () => ({
+  schemaVersion: 'proofstory.red_evidence.v1',
+  storyId: STORY_ID,
+  records: [OK_RECORD],
+  createdAt: NOW,
+  updatedAt: NOW,
+  malformedRecords: [plantedEntry(0, PAYLOAD)],
+});
+
+// 5a. The guard, called directly — the reviewer's reproduction.
+{
+  const payload = handBuiltPayload();
+  if (redEvidenceQuarantinedRecords(payload).length !== 0) {
+    fail('provenance',
+      'a hand-built `malformedRecords` entry was accepted as derived read-time classification. It is shaped exactly like '
+      + 'one the validator emits — because a derived entry has no shape a caller cannot type out — so SHAPE cannot be the '
+      + 'acceptance rule here.');
+  }
+  const r = attempt(() => retainQuarantinedRecordsOnWrite(payload));
+  if (r.threw && isRawBuiltin(r.error)) {
+    fail('provenance', `the write boundary crashed on a hand-built payload instead of refusing it: ${r.error.constructor.name}: ${r.error.message}`);
+  }
+  if (!r.threw && injectedInto(r.value?.records)) {
+    fail('provenance',
+      `THE WRITE BOUNDARY INJECTED A HAND-BUILT PAYLOAD INTO \`records\`: ${canon(ids(r.value?.records))}. `
+      + '`records` is the evidence the live DEV / REVIEW / DONE gates read, so an in-process caller that never read the '
+      + 'artifact just wrote an unvalidated record into it — and the `malformedRecords` key is stripped on the way out, so '
+      + 'nothing on disk records that it happened.');
+  }
+  if (!r.threw) {
+    fail('provenance',
+      'the write boundary silently ACCEPTED a payload claiming quarantined records it cannot have derived. Even when the '
+      + 'claim is not honoured, passing it through writes an envelope whose `records` omits every record the payload says '
+      + 'is quarantined — a silent deletion of on-disk evidence. It must REFUSE.');
+  }
+}
+
+// 5b. The same payload through the REAL production write boundary.
+{
+  const { root, store, artifactPath } = seed([OK_RECORD]);
+  attempt(() => store.writeRedEvidence(STORY_ID, handBuiltPayload()));
+  const disk = attempt(() => readRaw(artifactPath));
+  if (injectedInto(disk.value?.records)) {
+    fail('provenance', `\`store.writeRedEvidence\` put a hand-built payload on disk: ${canon(ids(disk.value?.records))}`);
+  }
+  if (canon(disk.value?.records) !== canon([OK_RECORD])) {
+    fail('provenance', `a refused write still altered the artifact on disk: ${canon(ids(disk.value?.records))}, expected ${canon(ids([OK_RECORD]))}`);
+  }
+  rmSync(root, { recursive: true, force: true });
+}
+
+// 5c. NON-VACUITY + THE DISCRIMINATOR. The genuine article must still be
+//     honoured by the very same call, and a BYTE-IDENTICAL copy of it must not
+//     be — which is only possible if the rule reads provenance rather than bytes.
+{
+  const { root, store } = seed([GENUINELY_MALFORMED, OK_RECORD]);
+  const derived = store.readRedEvidence(STORY_ID);
+  if ((derived?.malformedRecords ?? []).length !== 1) {
+    fail('provenance', 'the fixture did not derive a real quarantine, so this row proves nothing about provenance');
+  } else {
+    const kept = attempt(() => retainQuarantinedRecordsOnWrite(derived));
+    if (kept.threw) {
+      fail('provenance',
+        `the write boundary refused a GENUINELY derived payload: ${kept.error?.message ?? String(kept.error)}. The rule must `
+        + 'accept everything the validator produces, or the refusals above are a function that refuses everything.');
+    } else if (canon(kept.value?.records) !== canon([GENUINELY_MALFORMED, OK_RECORD])) {
+      fail('provenance',
+        `the write boundary did not restore the genuinely quarantined original: ${canon(ids(kept.value?.records))}, expected `
+        + `${canon(ids([GENUINELY_MALFORMED, OK_RECORD]))}. Retention must survive the provenance rule.`);
+    }
+
+    // Same bytes, different provenance. A copy is a value a caller built.
+    const copy = JSON.parse(JSON.stringify(derived));
+    if (canon(copy) !== canon(derived)) {
+      fail('provenance', 'the copy is not byte-identical to the derived payload, so it cannot isolate provenance from shape');
+    }
+    if (redEvidenceQuarantinedRecords(copy).length !== 0) {
+      fail('provenance',
+        'a byte-identical COPY of a derived payload was accepted as derived classification. It serialises to the same bytes '
+        + 'as the real one, so accepting it means the rule is reading the bytes — and anything a caller can type out then '
+        + 'passes too, which is exactly the hole.');
+    }
+    const copied = attempt(() => retainQuarantinedRecordsOnWrite(copy));
+    if (!copied.threw) {
+      fail('provenance',
+        'a byte-identical COPY of a derived payload was written without refusal. It is not the object graph the read '
+        + 'produced, so its retention claim cannot be honoured — and writing it silently drops the quarantined original '
+        + 'that is still on disk.');
+    }
+  }
+  rmSync(root, { recursive: true, force: true });
+}
+
+// 5d. THE LIMIT OF THE RULE, pinned so the source comment cannot outrun it.
+//
+//     `classifyRedEvidenceArtifact` is EXPORTED, so a caller can run bytes of
+//     their own through the derivation and receive registered entries without
+//     touching a file. The rule does not claim otherwise, and must not: what it
+//     guarantees is that a registered entry's `index`/`value` were COMPUTED from
+//     a `records` array rather than DECLARED about one. So the payload can only
+//     come back out of `records` if the caller put it into `records` first — at
+//     which point they have written nothing they could not have written by
+//     handing the same array to `store.writeRedEvidence`, which validates none
+//     of it. What 5a-5c close is the DECLARED entry whose `value` was never in
+//     `records` at all.
+{
+  const own = attempt(() => retainQuarantinedRecordsOnWrite(
+    classifyRedEvidenceArtifact({
+      schemaVersion: 'proofstory.red_evidence.v1', storyId: STORY_ID,
+      records: [PAYLOAD, OK_RECORD], createdAt: NOW, updatedAt: NOW,
+    }, 'in-memory').data,
+  ));
+  if (own.threw) {
+    fail('provenance', `self-classified bytes were refused: ${own.error?.message ?? String(own.error)}. The derivation must accept its own output.`);
+  } else if (canon(own.value?.records) !== canon([PAYLOAD, OK_RECORD])) {
+    fail('provenance',
+      `self-classifying an in-memory array did not reproduce it verbatim: ${canon(ids(own.value?.records))}, expected `
+      + `${canon(ids([PAYLOAD, OK_RECORD]))}. The documented limit is that a caller gets back the array they supplied — `
+      + 'no more (which would be an injection) and no less (which would be a loss).');
+  }
+}
+
+if (!failures.some((f) => f.startsWith('provenance:'))) {
+  console.log(
+    'CLASSIFICATION_IS_HONOURED_BY_PROVENANCE_NOT_SHAPE (a hand-built `RedEvidenceData` carrying a structurally PERFECT '
+    + '`malformedRecords` entry — the cross-host reviewer\'s own reproduction — is reported as zero quarantined records and '
+    + 'is REFUSED by the write boundary rather than crashed on, silently accepted, or injected: neither the direct guard nor '
+    + '`store.writeRedEvidence` puts INJECTED-PAYLOAD into `records`, and the on-disk artifact is untouched. Controls: the '
+    + 'GENUINELY derived payload from a real read is still accepted by the same call and still restores its quarantined '
+    + 'original in place, while a BYTE-IDENTICAL JSON copy of that same payload is not — so the rule provably reads '
+    + 'provenance and not the bytes. Its documented LIMIT is pinned too: bytes self-classified through the exported '
+    + '`classifyRedEvidenceArtifact` are accepted, and reproduce the caller\'s own array verbatim — no record the caller '
+    + 'did not already supply)',
   );
 }
 

@@ -102,13 +102,28 @@
  * where the derived answer is "none" and the key is therefore absent. There is
  * no path from disk to `RedEvidenceData.malformedRecords`.
  *
- * The consumers are TOTAL to match. `malformedRecords` on a hand-built payload
- * is still arbitrary caller data, so {@link redEvidenceQuarantinedRecords}
- * accepts only values shaped exactly like {@link partitionRedEvidenceRecords}'
- * own output: a non-array, or an entry that is not a well-formed quarantine
- * entry, yields nothing rather than throwing — and nothing is what a consumer
- * may re-insert from it. Dropping a bogus CLASSIFICATION drops no RECORD:
- * `records` is untouched, and the next read re-derives the truth from it.
+ * That closes the path from DISK. It does not close the path from a CALLER, and
+ * for one further revision that distinction was missed. `malformedRecords` on a
+ * hand-built payload is arbitrary caller data, and it reaches the write boundary
+ * intact because `store.writeRedEvidence` passes whatever it is given: an
+ * in-memory `RedEvidenceData` never went through a read, so nothing had stripped
+ * anything. A SHAPE check could not tell it apart — a quarantine entry is five
+ * ordinary members, so anything the check accepts, a caller can type out — and
+ * an object literal was duly re-inserted into `records` by direct call.
+ *
+ * So the acceptance rule is PROVENANCE, not shape: {@link
+ * DERIVED_QUARANTINE_ENTRIES} registers the objects this module derived, and
+ * {@link redEvidenceQuarantinedRecords} honours only those. It stays TOTAL —
+ * a non-array or an unregistered entry yields nothing rather than throwing,
+ * because it renders on gate paths — and nothing is what a consumer may
+ * re-insert from it. Dropping a bogus CLASSIFICATION drops no RECORD: `records`
+ * is untouched, and the next read re-derives the truth from it.
+ *
+ * At the WRITE boundary dropping is not free, because the envelope would then be
+ * persisted WITHOUT the records the payload claims are quarantined, so {@link
+ * retainQuarantinedRecordsOnWrite} REFUSES an unregistered claim rather than
+ * ignoring it. Neither guard is a statement about the caller's intent: a copied
+ * payload and a forged one are the same value here, and both are refused.
  *
  * ── PURITY ──────────────────────────────────────────────────────────────────
  *
@@ -460,6 +475,55 @@ export function partitionRedEvidenceRecords(entries: readonly unknown[]): RedEvi
 }
 
 /**
+ * THE PROVENANCE REGISTER for quarantine entries — the record of which objects
+ * THIS MODULE derived, held OFF the values themselves.
+ *
+ * A derived entry has no shape a caller cannot type out: `index`, `id`,
+ * `reason`, `violations`, `value` are five ordinary members, so a hand-written
+ * object literal can satisfy any predicate that inspects only the value. Being
+ * derived is not a property OF the value, so it cannot be checked BY the value,
+ * and the register therefore lives beside it.
+ *
+ * A `WeakSet` rather than a branding property, symbol-keyed or otherwise,
+ * because a property is a channel and this must not be one. It cannot be
+ * serialised (so it can never appear on disk, never survive `JSON.stringify`,
+ * and never make a written envelope differ by a byte); and it cannot be
+ * enumerated or reflected off a genuine entry with
+ * `Object.getOwnPropertySymbols`, so holding a real entry does not hand anyone
+ * the means to mint a fake one. Entries are weakly held, so registering them
+ * retains nothing.
+ *
+ * ── WHAT THIS DOES AND DOES NOT CLAIM ───────────────────────────────────────
+ *
+ * PRECISELY: a registered entry's `index` and `value` are what THIS MODULE
+ * computed from some `records` array, not what anyone DECLARED about one. That
+ * is the whole property, and it is exactly the property the write path needs,
+ * because the write path re-inserts `value` at `index`.
+ *
+ * It is NOT a claim that the input was authentic. {@link
+ * classifyRedEvidenceArtifact} is exported, so a caller may run bytes of their
+ * own through it and receive registered entries — no file required. That buys
+ * nothing: every `value` it registers was, by construction, an element of the
+ * `records` array the caller passed in, at the index they put it, so restoring
+ * the lot reproduces that same array. The reviewer's payload is the case this
+ * closes — a DECLARED entry whose `value` was never in `records` at all, which
+ * is how the write path was made to insert a record from nowhere. Note also
+ * that an in-process caller holding `store.writeRedEvidence` needs none of
+ * this: that method writes `records` verbatim and validates nothing, so this
+ * register removes a laundering route, not a caller's ability to write.
+ *
+ * It is NOT value equality, and NOT cross-instance. Provenance identifies THE
+ * OBJECT, so a copy of a derived entry — `structuredClone`, a JSON round trip,
+ * a spread of the ENTRY — is a value the caller built and is treated as one.
+ * (Spreading the DATA or the array keeps entry identity, which is why all three
+ * live writers are unaffected.) That is deliberate, and is why {@link
+ * retainQuarantinedRecordsOnWrite} REFUSES an unregistered claim instead of
+ * ignoring it: a copying writer must be told, not silently written without the
+ * records it says are quarantined.
+ */
+const DERIVED_QUARANTINE_ENTRIES = new WeakSet<object>();
+
+/**
  * THE DERIVATION AUTHORITY for `malformedRecords`, and the ONLY producer of a
  * typed {@link RedEvidenceData} in this module.
  *
@@ -480,6 +544,14 @@ function withDerivedQuarantine(
   value: Readonly<Record<string, unknown>>,
   malformed: readonly RedEvidenceMalformedRecord[],
 ): RedEvidenceData {
+  // PROVENANCE, registered in the derivation authority itself, because it is the
+  // ONE place that knows an entry was derived rather than supplied. Freezing
+  // first means a registered entry cannot afterwards be RE-TARGETED — `index`
+  // and `value` are exactly what the write path dereferences.
+  for (const entry of malformed) {
+    Object.freeze(entry);
+    DERIVED_QUARANTINE_ENTRIES.add(entry);
+  }
   const inherited = hasOwn(value, 'malformedRecords');
   if (!inherited && malformed.length === 0) return value as unknown as RedEvidenceData;
 
@@ -603,12 +675,24 @@ export function validateRedEvidenceArtifact(parsed: unknown, artifactPath: strin
 const NOT_ABSENCE = 'This is CORRUPTION, not an absent or unconfigured artifact.';
 
 /**
- * Is `value` shaped exactly like an entry {@link partitionRedEvidenceRecords}
- * emits? That coupling is the whole point, so it is asserted mechanically by
- * `packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs` rather than
- * maintained by hand: every derived entry must satisfy this predicate, or
- * {@link redEvidenceQuarantinedRecords} would be silently discarding real
- * quarantine state instead of junk.
+ * Did THIS MODULE derive `value`, and is it shaped the way its derivation shapes
+ * one? Both, in that order, and the order is the point.
+ *
+ * PROVENANCE is the acceptance rule. Shape cannot be: an entry is five ordinary
+ * members, so anything a shape check accepts, a caller can type out — which is
+ * how a hand-built payload reached the write path and had its `value` inserted
+ * into `records`. {@link DERIVED_QUARANTINE_ENTRIES} answers the question shape
+ * cannot, and it answers it about the object rather than about its bytes.
+ *
+ * SHAPE is kept as the second half, and is now defence in depth rather than the
+ * guarantee. A registered entry is frozen at registration and comes from one
+ * construction site, so these checks are expected to be redundant; they stay
+ * because {@link restoreQuarantinedRecords} DEREFERENCES `index` and `value`,
+ * and because their coupling to {@link partitionRedEvidenceRecords}' output is
+ * asserted mechanically by
+ * `packages/main/tests/red/red-b2aa7-quarantine-derivation.mjs` — every derived
+ * entry must satisfy this predicate, or {@link redEvidenceQuarantinedRecords}
+ * would be silently discarding real quarantine state instead of junk.
  *
  * `value` is deliberately unconstrained — it is the rejected record VERBATIM,
  * and constraining it would defeat retain-and-report. What is constrained is
@@ -617,6 +701,7 @@ const NOT_ABSENCE = 'This is CORRUPTION, not an absent or unconfigured artifact.
  */
 function isDerivedQuarantineEntry(value: unknown): value is RedEvidenceMalformedRecord {
   if (!isPlainObject(value)) return false;
+  if (!DERIVED_QUARANTINE_ENTRIES.has(value)) return false;
   if (!hasOwn(value, 'index') || !Number.isInteger(value.index) || (value.index as number) < 0) return false;
   if (!hasOwn(value, 'id') || !(typeof value.id === 'string' || value.id === null)) return false;
   if (!hasOwn(value, 'reason') || typeof value.reason !== 'string') return false;
@@ -631,7 +716,7 @@ function isDerivedQuarantineEntry(value: unknown): value is RedEvidenceMalformed
  * empty for a clean one — deliberately the same answer, because neither is
  * corruption, and the two are already distinguished by `data === null`.
  *
- * TOTAL, and deliberately unforgiving about shape. On a value that came from
+ * TOTAL, and it honours PROVENANCE rather than shape. On a value that came from
  * {@link classifyRedEvidenceArtifact} this is a plain read: that function is the
  * derivation authority and every entry it produces satisfies
  * {@link isDerivedQuarantineEntry}. But `RedEvidenceData` is also handed around
@@ -642,8 +727,17 @@ function isDerivedQuarantineEntry(value: unknown): value is RedEvidenceMalformed
  *     `for…of` and `.map` and produced a bare `TypeError` inside gate rendering
  *     — and a STRING was worse than a crash: it iterated as its own characters,
  *     the same misattribution §2.4 removed from the record path.
- *   - an entry that is not a well-formed quarantine entry is DROPPED, so it can
- *     never be re-inserted into `records` by the write path.
+ *   - an entry this module did not derive is DROPPED — however well-formed it
+ *     looks, and a hand-built one can look perfect — so it can never be
+ *     re-inserted into `records` by the write path.
+ *
+ * It stays TOTAL, and silent, because it renders on GATE paths: a caller-built
+ * payload must produce a count here, never a throw out of a gate. The loud half
+ * belongs to the write boundary, where dropping a claim would cost records:
+ * {@link retainQuarantinedRecordsOnWrite} REFUSES what this function drops. The
+ * two are answering different questions — "what did this read quarantine"
+ * (nothing, if nothing was derived) versus "am I about to write an envelope
+ * missing records something claims are quarantined" (then stop).
  *
  * Dropping a bogus CLASSIFICATION is not dropping a RECORD: `records` is not
  * touched here, nothing on disk is lost, and the next read re-derives the true
@@ -811,6 +905,47 @@ export function restoreQuarantinedRecords(
 }
 
 /**
+ * Refuse to write an envelope whose `malformedRecords` this module did not
+ * derive — the loud counterpart to {@link redEvidenceQuarantinedRecords}'
+ * silent drop, placed where dropping would COST something.
+ *
+ * A caller-built classification cannot be honoured (it would inject its `value`s
+ * into `records`), but it also cannot be ignored: ignoring it writes an envelope
+ * whose `records` omits every record the payload says is quarantined, which
+ * deletes them from disk with nobody told. Both halves are avoided by refusing,
+ * and refusing costs the honest caller nothing — the object `readRedEvidence`
+ * returned, and any spread of it, keeps its entries and passes.
+ *
+ * A non-array or empty `malformedRecords` claims NOTHING, so there is nothing to
+ * lose and nothing to inject: it passes and is stripped like any other junk key.
+ * That keeps a file-borne value harmless — the read boundary strips such keys
+ * before any writer sees them, so this refusal is reachable only from an
+ * in-process payload that never went through `store.readRedEvidence`, never from
+ * an artifact on disk. A crafted file cannot make a write fail here.
+ *
+ * NOT a {@link RED_EVIDENCE_CORRUPT_MARKER} error, deliberately. The artifact on
+ * disk is not corrupt and the operator has nothing to repair; the fault is in
+ * the calling code, and pointing an operator at `red_evidence_get` would be a
+ * diagnosis the evidence does not support.
+ */
+function refuseUnderivedQuarantineClaim(data: RedEvidenceData): void {
+  const raw: unknown = data?.malformedRecords;
+  if (!Array.isArray(raw) || raw.length === 0) return;
+  const derived = raw.filter(isDerivedQuarantineEntry).length;
+  if (derived === raw.length) return;
+  throw new Error(
+    `red-evidence write refused [quarantine_provenance]: the envelope carries ${raw.length} \`malformedRecords\` ` +
+      `entr(ies), ${raw.length - derived} of which this process did not derive. \`malformedRecords\` is READ-TIME ` +
+      `CLASSIFICATION, so only the value \`store.readRedEvidence\` produced can be honoured — a caller-built entry is ` +
+      `indistinguishable from a fabricated one by its shape, and honouring it would insert its \`value\` into \`records\`, ` +
+      `which is the evidence the DEV / REVIEW / DONE gates read. Ignoring it instead would write this envelope WITHOUT ` +
+      `those ${raw.length} record(s), deleting them from disk. Nothing written.\n` +
+      `  → Write the object \`store.readRedEvidence\` returned, or a spread of it (which keeps its entries), or omit ` +
+      `\`malformedRecords\` to state explicitly that this write retains nothing.`,
+  );
+}
+
+/**
  * D-4's LAST LINE OF DEFENCE — the same retention rule applied at the WRITE
  * boundary itself, to whatever envelope is about to be persisted.
  *
@@ -859,13 +994,29 @@ export function restoreQuarantinedRecords(
  * no classification and is passed through unchanged.
  *
  * Keying off the payload is only safe because the payload's classification can
- * only have been DERIVED. {@link classifyRedEvidenceArtifact} strips any on-disk
- * `malformedRecords` and re-attaches its own, so a read can never carry an
- * artifact's own claim about itself; and {@link redEvidenceQuarantinedRecords}
- * honours only entries shaped like that derivation, so a hand-built payload
- * cannot smuggle one in either. Without both, this function is an INJECTION
- * PRIMITIVE: it re-inserts `entry.value` into `records`, and `records` is the
- * evidence the DEV / REVIEW / DONE gates read.
+ * only have been DERIVED, and that has to hold against a caller as well as
+ * against a file, because this function re-inserts `entry.value` into `records`
+ * and `records` is the evidence the DEV / REVIEW / DONE gates read. Two
+ * different sources, two different guards:
+ *
+ *   FROM A FILE     {@link classifyRedEvidenceArtifact} strips any on-disk
+ *                   `malformedRecords` and re-attaches its own, so a read can
+ *                   never carry an artifact's own claim about itself.
+ *   FROM A CALLER   {@link redEvidenceQuarantinedRecords} honours only entries
+ *                   registered in {@link DERIVED_QUARANTINE_ENTRIES}, i.e. the
+ *                   objects this module derived. Shape alone would not do it —
+ *                   a quarantine entry is five ordinary members and a hand-
+ *                   written literal can satisfy any check of its bytes, which
+ *                   is precisely how this function was reproduced as an
+ *                   injection primitive by direct call.
+ *
+ * So a caller-built classification is not honoured. This function does not stop
+ * there and pass it through, because passing it through is its own defect: the
+ * envelope would be written WITHOUT the records it claims are quarantined, and
+ * D-4's one forbidden outcome is losing a record silently. An unregistered claim
+ * is therefore REFUSED — see {@link refuseUnderivedQuarantineClaim} — so the
+ * dishonest case and the merely-copied case both stop here instead of one being
+ * injected and the other being deleted.
  *
  * The derived key is ALWAYS stripped, never persisted. It is read-time
  * classification, not part of the on-disk schema, and a persisted copy would
@@ -873,6 +1024,7 @@ export function restoreQuarantinedRecords(
  * read.
  */
 export function retainQuarantinedRecordsOnWrite(data: RedEvidenceData): RedEvidenceData {
+  refuseUnderivedQuarantineClaim(data);
   // Self-restore: the payload is both the read that quarantined and the envelope
   // being written. `clean` is therefore the payload's own `records`, so the
   // prefix-identity check is trivially satisfied and the interleave re-inserts

@@ -953,6 +953,15 @@ export class StoryStore {
    * each retained entry at its on-disk index, strips the derived key so it is
    * never persisted, and throws rather than write a lossy envelope when the
    * reconstruction cannot be proven.
+   *
+   * `data` is whatever the caller passes, and this method does not read the
+   * artifact first, so an IN-MEMORY payload arrives here with its
+   * `malformedRecords` intact — nothing had stripped it. Only entries the
+   * validator itself derived are honoured (provenance, not shape: an entry is
+   * five ordinary members and a literal can look perfect), and a payload
+   * claiming any other is REFUSED rather than written, because writing it would
+   * persist an envelope missing the records it claims are quarantined. Pass the
+   * object `readRedEvidence` returned, or a spread of it, and this is a no-op.
    */
   writeRedEvidence(storyId: string, data: RedEvidenceData): void {
     this.writeJson(storyId, 'red-evidence.json', retainQuarantinedRecordsOnWrite(data));

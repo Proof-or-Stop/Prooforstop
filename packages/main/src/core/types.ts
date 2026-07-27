@@ -2939,10 +2939,15 @@ export interface RedEvidenceData {
    * crafted or stale artifact could fabricate quarantine state and plant records
    * in the evidence the DEV / REVIEW / DONE gates read.
    *
-   * Consumers treat it as untrusted regardless: `redEvidenceQuarantinedRecords`
-   * accepts only well-formed derived entries and yields `[]` for anything else,
-   * so a non-array or a junk entry can neither crash a consumer nor be
-   * re-inserted.
+   * Consumers treat it as untrusted regardless, and by PROVENANCE rather than by
+   * shape: `redEvidenceQuarantinedRecords` honours only the entry OBJECTS the
+   * validator itself derived and yields `[]` for anything else, so a non-array,
+   * a junk entry, or a structurally perfect hand-built one can neither crash a
+   * consumer nor be re-inserted. Shape alone would not be enough — an entry is
+   * five ordinary members, so any check of its bytes can be typed out by a
+   * caller, and this member reaches the write boundary intact on any payload
+   * that was built in memory instead of read. That case is REFUSED there rather
+   * than ignored, because writing it would drop the records it claims.
    */
   malformedRecords?: RedEvidenceMalformedRecord[];
   createdAt: string;
