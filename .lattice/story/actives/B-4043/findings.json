@@ -425,7 +425,7 @@
       "desc": "All 15 verificationEvidence rows (12 mechanical pin-based receipts on CHK-001..CHK-004 + 3 docs manual_transcript on CHK-005) are bound to headHash=7ec19d7e45 (CHK-004:hardening bound to an older ce0d2c98b) and storyFilesHash=f29641b7d9... , which no longer match current HEAD=f63e431b0 / storyFilesHash=f25bb43b73... after the 68-commit main merge (83c7af7167). Root cause verified: lattice.config.json is a genuinely story-touched path (F-007 fix added test:proofstory-acceptance-rollout / --issuer-mutations registrations there) that the merge also modified from the main side (B-49d4 red-w2c/red-b49d4 entries), so its post-merge blob differs from the pre-merge blob even though B-4043 own edit is unchanged -- this is real story-owned drift per storyFilesHash, not unrelated whole-tree drift, so it cannot be downgraded to a re-attestation advisory. I could not run verification_evidence_refresh_stale --dryRun myself (owner-gated command; active lease held by session b4043-closeout-session in this same worktree), so I cannot mechanically confirm the exact stale-item list, but the raw headHash/storyFilesHash mismatch on every evidence row is unambiguous. Per F-017/F-019 precedent: do NOT accept a hash-only re-stamp as coverage. The 12 executable intents carry a pin (command+selector) so a real verification_evidence_refresh_stale run should genuinely re-execute them (per its own --help contract); the 3 CHK-005 docs intents are non-mechanical manual_transcript and need a fresh transcript captured at current HEAD. Until refreshed with receipts/timestamps bound to current HEAD, coverage should not be considered current.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-28T15:40:12.549Z",
@@ -437,7 +437,11 @@
         "lattice.config.json"
       ],
       "signatureTag": "missing|json|verificationevidence-rows-mechanical",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved by genuine re-execution, exactly as the finding demanded. F-020 correctly classified the post-merge drift as story-owned material drift (the 68-commit main merge modified lattice.config.json, a file B-4043 itself edits) rather than downgradeable whole-tree drift, and required real re-execution instead of a hash-only re-stamp. Action taken: ran the non-dry verification_evidence_refresh_stale, which re-EXECUTES each pinned {command, selector} rather than re-stamping. Result: 15/15 refreshed; the 12 executable intents carry fresh mechanical receipts executed 2026-07-28T15:40:53Z-15:48:05Z (seconds before this resolve), and the authoritative stale scan now reports 'No stale verification evidence'. The 3 CHK-005 intents remain docs-type non-mechanical by design.",
+      "resolvedAt": "2026-07-28T15:49:12.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
