@@ -1810,6 +1810,29 @@
         "scanEscalationReason": null
       },
       "_hash": "5aed3724c52351fa772bbec9a8d469574c84d2c3d876ce0ab800a5888c5a5365"
+    },
+    {
+      "id": "B-4043:RP-052",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently verified F-020 remediation is genuine re-execution, not laundered re-stamping. All 12 executable verificationEvidence rows (CHK-001..CHK-004) carry receipt.executedAt 2026-07-28T15:40:53Z-15:48:05Z, post-dating the F-020-triggering merge commit, with materialHash/storyFilesHash equal to current story context. I independently re-ran all 3 distinct pinned commands right now; sha256 of my own stdout+stderr byte-for-byte matches the stored receipt.outputDigest for all 3 (374685..., fde2c15..., 3611bff...) -- proving the receipts are real reproducible executions, not fabricated text. finding_list shows 0 open findings; F-020 resolved/verified. F-015 orphan row correctly remains the sole stale-hash row, still resolved/low/non-blocking, not re-raised per instruction. No blocker.",
+      "createdAt": "2026-07-28T15:54:25.903Z",
+      "reviewRound": "2026-07-28T15:34:42.889Z",
+      "reviewRunId": "B-4043:RR-075",
+      "envelopeId": "4bdfaf3a50a16c6fe92de4002282e27a52bc3341fd57311b50fd5d219d43e89d",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "385ec17b9a0e92853289bfb1bba89081d379e219afd5e1ceeab175042e8decf4"
     }
   ]
 }
