@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3202",
+  "mode": "maintenance",
+  "allowed": [
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/tasks"
+  ],
+  "excluded": [
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved M0 characterization only; production semantics remain outside scope.",
+  "createdAt": "2026-07-28T21:32:57.325Z",
+  "updatedAt": "2026-07-28T21:32:57.325Z",
+  "_hash": "dd7e53b8d8416469e97476f46e305c6fb6d7c3987523e2134dc1c6d86f7e6766"
+}
