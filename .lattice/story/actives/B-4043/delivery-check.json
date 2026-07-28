@@ -1,76 +1,76 @@
 {
   "storyId": "B-4043",
-  "checkedAt": "2026-07-27T13:18:38.278Z",
-  "headHash": "51439069926af595e431364aa23e7f5a5b51ce00",
-  "materialHash": "443a65aa66cc50191d971e5316d6f5faa6cdd328a3bf9d270ae38f2173c91929",
-  "storyFilesHash": "f29641b7d99d0b23294bef10bccb9a0a3a2b9d1d3e1cfe70672049a27b9a63ed",
-  "reviewRound": "2026-07-25T22:05:45.751Z",
-  "agentId": "",
+  "checkedAt": "2026-07-28T17:16:46.994Z",
+  "headHash": "7102b54b2cffd8c370dff90bebb6a85e09aa9217",
+  "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+  "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+  "reviewRound": "2026-07-28T16:26:25.720Z",
+  "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
       "promise": "lattice acceptance_rollout_report / acceptance_rollout_report_read / acceptance_rollout_check commands exist; the report writer is the sole signer, membership is verifier-derived and frozen, and the caller cannot supply window/membership/thresholds/verdict/adapter/quorum/hashes/signature",
-      "verifiedBy": "diff/grep + live CLI invocation",
-      "evidence": "packages/main/src/cli/command-catalog.ts:2694,2702,2707 register all three commands; packages/main/src/core/command-policy.ts:431-433 encode gateEvidence + caller-forbidden-fields policy text matching the doc; live `node bin/lattice.js acceptance_rollout_report_read` and `acceptance_rollout_check` executed successfully against the real persisted artifact and returned the documented schema (membershipDigest, sourceInventoryDigest, per-pair observationReceipts, diagnostics, quorum)."
+      "verifiedBy": "diff/grep + live CLI invocation (re-bind)",
+      "evidence": "Re-verified at current head 7102b54b2cffd8c370dff90bebb6a85e09aa9217 after the 68-commit main merge: packages/main/src/cli/command-catalog.ts:2694,2702,2707 still register all three commands; packages/main/src/core/command-policy.ts:431-433 unchanged text encoding gateEvidence + caller-forbidden-fields policy. Live-invoked `node bin/lattice.js acceptance_rollout_check '{\"storyId\":\"B-4043\"}'` right now and it returned the documented schema (mode=observe, status/blocking/receipt/quorum/codes) reading the real persisted report."
     },
     {
       "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
       "promise": "Mode comes only from flat project proofStory.acceptanceRolloutGateMode (observe by default); observe/warn/enforce share status/diagnostics; only enforce blocks DEV->REVIEW",
-      "verifiedBy": "diff/grep",
-      "evidence": "packages/main/src/core/config.ts:80,115,125 define the flat-project-only mode field; lattice.config.json for this project has no override so it defaults to observe; packages/main/src/handlers/transition-orchestrator.ts:135-150 runAcceptanceRolloutGate only throws (blocks) when report.blocking, which is mode==='enforce' AND !ok (packages/main/src/core/acceptance-rollout.ts:931); wired into the DEV->REVIEW path at transition-orchestrator.ts:960."
+      "verifiedBy": "diff/grep (re-bind)",
+      "evidence": "Re-checked packages/main/src/core/config.ts resolveAcceptanceRolloutGateMode (defaults to observe when unset); this project's lattice.config.json has no override, and the live acceptance_rollout_check invocation above returned mode=observe, blocking=false despite status=fail (stale receipt), confirming enforce alone would block. transition-orchestrator.ts runAcceptanceRolloutGate (current line ~135-150) only throws when report.blocking, matching source at current head."
     },
     {
       "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
       "promise": "Rollback sets acceptanceRolloutGateMode to warn or observe and never deletes/rewrites reports, receipts, failed attempts, diagnostics, or prior evidence",
-      "verifiedBy": "diff/grep + reproduced test",
-      "evidence": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:429-430 assert `runAcceptanceRolloutGate(...).includes('blocking=false')` after rollback to observe and `acceptanceRolloutHistoryDigest(...)` equality before/after, proving history preservation. Independently re-ran `node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --proof-scenarios` and reproduced `ProofStory acceptance rollout smoke: PASS (57 assertions)`, matching the checklist's recorded mechanical receipt."
+      "verifiedBy": "diff/grep + reproduced test (re-bind)",
+      "evidence": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:332,348,361,429-430 still assert mode-invariant blocking=false plus acceptanceRolloutHistoryDigest byte-for-byte equality across observe/warn/enforce/rollback. Independently re-ran node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json at current head and reproduced 'ProofStory acceptance rollout smoke: PASS (57 assertions)', confirming the merge did not regress this behavior."
     },
     {
       "docPath": "docs/CLI.md#acceptance-rollout-report-and-admission-check-wave-4",
       "promise": "Promotion thresholds: >=3 matched pairs per arm, every seed detected + overall false-pass 0, 100% supported omission detection, 0% false-block, 0 mislabeled 3x1, waiver delta <=0, non-shrinking inventory, only codex-cli+claude-cli adapter, genuine full-3x2",
-      "verifiedBy": "diff/grep",
-      "evidence": "packages/main/src/core/acceptance-rollout.ts:35 ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER='codex-cli+claude-cli' consumed at lines 612/711/714 to gate adapterProfile/full3x2; live-read acceptance-rollout-report.json shows eligibleMembership with 6 pairs (3 seeded defect pairs + docs/legacy/ordinary false-block controls), matching the >=3-per-arm and control-pair claims in the doc and decision record."
+      "verifiedBy": "diff/grep (re-bind)",
+      "evidence": "packages/main/src/core/acceptance-rollout.ts:35 ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER='codex-cli+claude-cli' unchanged, still consumed at 612/711/714; the 57-assertion smoke reproduced above exercises these exact thresholds and passed at current head."
     },
     {
       "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-      "promise": "Status header updated to WAVES 1/1A/2/2A/3/4 IMPLEMENTED - WAVE 3A SKIPPED FOR FLAT ROLLOUT (removing prior NOT IMPLEMENTED wording), with a measured-cohort metrics table (3/3 seed detection, 0 false-block, waiver delta 0), a resolved Wave 4 decision record (thresholds/adapters/transcripts/mutations), and rollback procedure, while explicitly not claiming selective per-Story (Wave 3A) applicability or production/public authority",
-      "verifiedBy": "diff read",
-      "evidence": "git diff main...HEAD on the file shows the status line change, the new Section 17 measured-cohort table, resolved Section 19 decision record, and explicit 'not a release, production, public-authority, or selective high-risk claim' language; cross-checked against the code constraints above (adapter constant, mode field, rollback assertions) and none contradict the documented numbers."
+      "promise": "Status header updated to WAVES 1/1A/2/2A/3/4 IMPLEMENTED - WAVE 3A SKIPPED FOR FLAT ROLLOUT, with a measured-cohort metrics table, a resolved Wave 4 decision record, and rollback procedure, while explicitly not claiming selective per-Story (Wave 3A) applicability or production/public authority",
+      "verifiedBy": "diff read (re-bind)",
+      "evidence": "grep at current head confirms line 3 still reads 'Status: WAVES 1/1A/2/2A/3/4 IMPLEMENTED - WAVE 3A SKIPPED FOR FLAT ROLLOUT' and per-section 'Status: IMPLEMENTED' markers at lines 1437/1452/1479/1494/1529/1566 survived the main merge intact; no reversion to NOT IMPLEMENTED wording found."
     },
     {
       "docPath": ".claude/agents/lattice-review-delivery.md / .lattice-codex/agents/lattice-review-delivery.md (this story's own CHK-001 change)",
       "promise": "Future delivery reviewers of Wave-4-dependent stories must independently read acceptance_topology_check/pre_review_check_read/acceptance_rollout_report_read/acceptance_rollout_check rather than trust prompt prose, and must require a current signed PASS receipt and genuine full 3x2",
-      "verifiedBy": "live CLI invocation",
-      "evidence": "Both host mirrors contain byte-identical guidance text (verified via grep on both files). Independently invoking `acceptance_rollout_report_read`/`acceptance_rollout_check` right now returns status=fail, receipt=stale, diagnostics=[AR_REPORT_STALE] because B-4043's own storyFilesHash has legitimately moved since the report was issued 2026-07-24T17:34:27Z (many subsequent verification_evidence_add/review_pass_set/quorum_submit/finding_resolve commits changed story-owned files -- confirmed via evidence-freshness.ts:585-595's storyFilesHash-mismatch branch, not a whole-tree-only false positive). This is expected, correct behavior of the freshness check (it is only consumed as a non-blocking DEV->REVIEW gate under this story's own default observe mode, per transition-orchestrator.ts:135-150) rather than a broken promise, and it is NOT a self-referential admission requirement for B-4043 (B-4043 did not gate its own admission on an enforce-mode rollout verdict). Recorded here for future-story reviewers: a fresh regenerate-before-verify step is required before any future story relies on this artifact as a current receipt."
+      "verifiedBy": "live CLI invocation (re-bind)",
+      "evidence": "Re-diffed both host mirrors at current head: byte-identical (diff .claude/agents/lattice-review-delivery.md .lattice-codex/agents/lattice-review-delivery.md produces no output). Independently re-invoked acceptance_rollout_check just now: still status=fail, receipt=stale, codes=AR_REPORT_STALE, blocking=false (mode=observe) -- same expected non-blocking staleness as previously documented, now reconfirmed at the post-merge material. review_escalation_status independently re-confirmed review-assurance-floor SATISFIED (assuranceLevel=full-3x2, voluntaryLocalRounds=3/3 rounds x 2 hosts complete=true) bound to current materialHash 1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb / storyFilesHash f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26, matching the checklist verificationEvidence bindings exactly."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Independently reran `node scripts/verify-process-fact-contract.mjs --quiet` (exit 0, 'Process fact contract verified') and the pre-review-check proof-scenarios logic test; both matched the checklist's recorded mechanical receipts (exitCode 0, selector matched). Confirms role-guidance mirroring, mode invariance, and adversarial prompt-authority mutations (A-MUT-6 PROMPT_CONTRACT_REJECTED) all pass."
+      "transcript": "Re-ran node scripts/verify-process-fact-contract.mjs --quiet at current head: exit 0, output digest matches the checklist-recorded receipt (374685801e...), 'Process fact contract verified'. Confirms role-guidance mirroring, mode invariance, and adversarial prompt-authority mutations survive the merge."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Independently reran `node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --proof-scenarios` end-to-end (spawns real temporary Story trees and real subprocess cohort-runner child processes) and reproduced `ProofStory acceptance rollout smoke: PASS (57 assertions)`. Independently read the persisted acceptance-rollout-report.json via `acceptance_rollout_report_read`/`acceptance_rollout_check` and confirmed real per-pair observationReceipts, membershipDigest, sourceInventoryDigest, and 6 real host_verdict quorum rows (r1/r2/r3 x codex-cli/claude-cli, all decision=pass) in process-events.jsonl matching the checklist's storyFilesHash."
+      "transcript": "Re-ran node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json at current head: PASS (57 assertions), matching prior recorded receipts. Real per-pair observationReceipts, membershipDigest, and 6 host_verdict quorum rows independently reconfirmed via review_escalation_status (voluntaryLocalRounds 3/3 rounds x 2 hosts, complete=true) at current materialHash."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Threshold logic (adapter constant, >=3-pair-per-arm, mislabeled-3x1) confirmed in source (acceptance-rollout.ts) and exercised by the same smoke run (57 assertions, PASS) plus the recorded mechanical receipts for CHK-003's happy/edge/adversarial intents."
+      "transcript": "Threshold logic (adapter constant, >=3-pair-per-arm, mislabeled-3x1) reconfirmed in source at current head and exercised by the same reproduced 57-assertion smoke PASS."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Confirmed runAcceptanceRolloutGate is wired into the real DEV->REVIEW transition path (transition-orchestrator.ts:960) and only blocks when mode==='enforce', matching the opt-in-enforcement promise. Rollback/history-preservation assertions (lines 429-430) exercised by the reproduced smoke PASS."
+      "transcript": "Reconfirmed runAcceptanceRolloutGate wiring into the real DEV->REVIEW transition path at current head; only blocks when mode==='enforce'. Rollback/history-preservation assertions exercised by the reproduced smoke PASS. 0 open findings (20/20 resolved) independently confirmed via finding_list, including critical F-014 and high F-017/F-019/F-020."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Docs-only checklist item; verified by direct diff read of the decision document rather than an executable test, consistent with its declared type=docs and the non-mechanical manual_transcript evidence kind recorded for its three intents. No waiver needed since evidence (diff-read) was actually supplied."
+      "transcript": "Docs-only checklist item; independently reconfirmed by direct diff/grep read of the decision document at current head (status header + per-section IMPLEMENTED markers all present), consistent with its declared type=docs."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 5 checklist items and their docs/CLI promises are independently verified against source and, where executable, reproduced live (57-assertion rollout smoke PASS, process-fact-contract PASS, 6/6 host_verdict quorum rows, all 19 findings resolved with none open). One non-blocking observation: the persisted acceptance-rollout-report.json is currently stale (AR_REPORT_STALE, genuine storyFilesHash drift from later process-metadata commits) when re-verified now, which is expected under this story's own default observe (non-enforcing) mode and does not gate B-4043's own admission or contradict any doc promise -- it is flagged for future Wave-4-dependent story reviewers per this story's own updated reviewer prompt."
+    "summary": "Re-binding review after a 68-commit main merge moved materialHash from 443a65aa66cc to 1c2d6c3c89f6. Independently re-verified all 6 docs promises and 5 checklist items against the current head: all CLI commands still registered, gate wiring unchanged, thresholds unchanged, rollout/pre-review-check smokes and process-fact-contract reproduced clean (57 assertions, exit 0), 0 open findings (20 resolved), 4/4 reviewer lanes passed in the current round (RP-053..056), and review-assurance floor SATISFIED (3/3 rounds x 2 hosts) bound to the current materialHash/storyFilesHash. No regression or delivery gap found from the merge."
   },
-  "_hash": "27825acba51eaffdde85b21563ab5585e656b6ebc646bd61b528fba7c93a7041"
+  "_hash": "a9e15db0dc730317a2dc1bb3aa796a029c224366031816e7a4e2789afcb982a0"
 }
