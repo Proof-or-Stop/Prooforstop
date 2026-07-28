@@ -520,6 +520,44 @@ Neither command accepts caller-authored verdict, authority, mode, hashes,
 evidence, timestamps, or signatures. Wave 3 does not add per-Story selective
 applicability (Wave 3A) or measured rollout/telemetry (Wave 4).
 
+### Acceptance rollout report and admission check (Wave 4)
+
+`lattice acceptance_rollout_report --storyId=<id> [--json]` runs the registered
+`runProofStoryAcceptanceRolloutCohort` producer over real temporary Story
+artifact trees and is the sole writer of signed
+`acceptance-rollout-report.json`. Membership is verifier-derived and frozen
+from every eligible comparable record in the declared window. The caller
+cannot provide the window, membership, source rows, thresholds, aggregates,
+verdict, adapter, provider, quorum, hashes, receipt, or signature.
+
+`lattice acceptance_rollout_report_read --storyId=<id> [--json]` verifies the
+stored signature, report/source/membership digests, current
+`headHash`/`materialHash`/`storyFilesHash`, registered runner digest, threshold
+verdict, supported adapter profile, and genuine full 3 rounds × 2 hosts.
+
+`lattice acceptance_rollout_check --storyId=<id> [--json]` is the canonical
+flat-project policy projection consumed by DEV→REVIEW. Promotion requires:
+
+- at least three matched baseline/candidate pairs in each arm;
+- every registered seeded defect detected and overall false-pass count `0`;
+- supported omission detection `100%` and false-block rate `0%`;
+- mislabeled degraded 3×1 count `0`;
+- waiver delta `<= 0` and non-shrinking check inventory;
+- transcripts for user-visible/orchestration claims and biting mutations for
+  behavior/lifecycle/proof/safety claims (docs-only is exempt);
+- only the registered `codex-cli+claude-cli` adapter profile and genuine
+  `full-3x2` quorum.
+
+Mode comes only from flat project
+`proofStory.acceptanceRolloutGateMode` (`observe` by default). Observe, warn,
+and enforce return the same status, receipt classification, threshold result,
+and ordered `AR_*` diagnostics. Observe/warn remain non-blocking; enforce alone
+blocks DEV→REVIEW. Rollback sets that config to `warn` or `observe`; it never
+deletes or rewrites reports, receipts, failed attempts, diagnostics, or prior
+evidence. Wave 3A selective per-Story applicability remains unimplemented and
+excluded. The report is local assurance, not release, production, or public
+Authority evidence.
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing

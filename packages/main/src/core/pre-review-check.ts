@@ -21,7 +21,11 @@ import { verifyAcceptanceBasisReceipt } from './acceptance-basis-receipt.js';
 import { verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
 import { latestCausallyValidCloseoutReceipt } from './closeout-trust.js';
 import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-evidence.js';
-import { canonicalPreReviewAssertionSourceRef, decodePreReviewCaseRecords, preReviewExecutableProvenanceIsCurrent } from './pre-review-live-proof.js';
+import {
+  canonicalPreReviewAssertionSourceRef,
+  decodePreReviewCaseRecords,
+  preReviewExecutableProvenanceIsCurrent,
+} from './pre-review-live-proof.js';
 
 const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
@@ -185,7 +189,8 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   const assertionsById = new Map(assertionRows);
   const exactKindsAndSources = records.every(record => {
     const expected = assertionsById.get(record[0]);
-    return expected?.[0] === record[1] && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
+    return expected?.[0] === record[1]
+      && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
   });
   const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
   const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);

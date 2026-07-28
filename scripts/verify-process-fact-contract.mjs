@@ -7,6 +7,10 @@ import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 const root = process.cwd();
+// --quiet suppresses only the verbose listings (registry entries, inventory
+// file paths). Verification logic and asserted literals are unchanged; the
+// default (no flag) output stays byte-identical.
+const quiet = process.argv.slice(2).includes('--quiet');
 const failures = [];
 const warnings = [];
 const hanCharacterPattern = /[\u3400-\u9fff]/;
@@ -152,6 +156,9 @@ const requiredProcessFactSemantics = {
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
   pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  acceptance_rollout_report: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_report_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
@@ -181,6 +188,7 @@ const requiredProcessFactSemantics = {
 };
 const requiredRuntimeFactSemantics = {
   'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
+  'runtime:acceptance_rollout_dev_review_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
@@ -236,6 +244,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
   { name: 'artifact:topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true, signaturePattern: /Ed25519\(canonical scope-plan approval binding exclusion\/basis\/topology\/scope\/story\/closure\/provenance\)/ },
   { name: 'artifact:topology-critic-receipt.json', path: 'topology-critic-receipt.json', signed: true, signaturePattern: /Ed25519\(canonical critic receipt binding role\/provenance\/basis\/topology\/scope\/story\/closure\/findings\/exclusions\/verdict\/time\)/ },
+  { name: 'artifact:acceptance-rollout-report.json', path: 'acceptance-rollout-report.json', signed: true, signaturePattern: /Ed25519\(canonical verifier-derived report binding frozen membership\/source inventory\/window\/thresholds\/verdict\/workspace\/full-3x2\)/ },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
   { name: 'artifact:red-evidence.json', path: 'red-evidence.json', signed: false },
@@ -617,6 +626,18 @@ function read(relPath) {
   }
   if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
     text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
+  }
+  if (mutation === 'drop-acceptance-rollout-prompt' && /\/agents\/(?:lattice-implementer|test-case-reviewer|lattice-review-(?:topology-critic|concept|quality|test-coverage|docs|delivery))\.md$/.test(relPath)) {
+    text = text.replace(/acceptance_rollout_check/g, 'rollout_check_removed');
+  }
+  if (mutation === 'drop-acceptance-rollout-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/acceptance_rollout_report/g, 'rollout_report_removed');
+  }
+  if (mutation === 'drop-acceptance-rollout-consumer' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace(/runAcceptanceRolloutGate/g, 'rollout_gate_removed');
+  }
+  if (mutation === 'weaken-acceptance-rollout-3x2' && relPath === 'packages/main/src/core/acceptance-rollout.ts') {
+    text = text.replace("record.quorum.rounds === 3", 'record.quorum.rounds >= 1');
   }
   return text;
 }
@@ -1313,6 +1334,9 @@ function assertProofStoryProgressiveBoundary() {
     'acceptance_basis',
     'pre_review_check',
     'pre_review_check_read',
+    'acceptance_rollout_report',
+    'acceptance_rollout_report_read',
+    'acceptance_rollout_check',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',
@@ -1441,6 +1465,117 @@ function assertProofStoryProgressiveBoundary() {
       && preReviewPolicy.gateEvidence === true
       && policyBlockHasOwnershipClass(preReviewPolicy, 'storyScopedMutating'),
     'pre-review contract must keep one signed verifier writer, read-only verifier parity, stable PR_* semantics, process-fact registration, and the DEV to REVIEW lifecycle consumer',
+  );
+  const acceptanceRolloutText = read('packages/main/src/core/acceptance-rollout.ts');
+  const acceptanceRolloutSmokeText = read('packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts');
+  const acceptanceRolloutRunnerText = read('scripts/run-proofstory-acceptance-rollout-cohort.mjs');
+  const preReviewScenarioText = read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts');
+  const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
+  const rolloutPromptNames = [
+    'lattice-implementer',
+    'test-case-reviewer',
+    'lattice-review-topology-critic',
+    'lattice-review-concept',
+    'lattice-review-quality',
+    'lattice-review-test-coverage',
+    'lattice-review-docs',
+    'lattice-review-delivery',
+  ];
+  // B-4043 F-014: the acceptance-rollout role guidance is sourced from the
+  // canonical package templates (the REAL delivery path — review_run_start /
+  // agent_prompt resolve each role body from templates/agents), NOT from the
+  // regenerable host shims under .claude/agents / .lattice-codex/agents (those
+  // are thin/mirror adapters that `lattice init --upgrade` rewrites). Validate
+  // the tokens in the template source, and prove the guidance does not depend
+  // on the bootstrap-only modular-reviewer shims.
+  const rolloutPromptTemplates = rolloutPromptNames.map(
+    name => `packages/main/templates/agents/${name}.md`,
+  );
+  // Modular reviewer roles render as a body-free review_run_start bootstrap in
+  // the host shim; their guidance must live in the template and reach them via
+  // review_run_start, never via the shim.
+  const rolloutBootstrapOnlyReviewerNames = [
+    'lattice-review-concept',
+    'lattice-review-quality',
+    'lattice-review-test-coverage',
+    'lattice-review-docs',
+  ];
+  const rolloutPromptTokens = [
+    'acceptance_topology_check',
+    'pre_review_check_read',
+    'acceptance_rollout_report_read',
+    'acceptance_rollout_check',
+    'full 3 rounds',
+    'codex-cli',
+    'claude-cli',
+    '3x1',
+    'rollback',
+  ];
+  const rolloutPolicy = commandPolicyEntries.get('acceptance_rollout_report');
+  assert(
+    catalogText.includes("name: 'acceptance_rollout_report'")
+      && catalogText.includes("name: 'acceptance_rollout_report_read'")
+      && catalogText.includes("name: 'acceptance_rollout_check'")
+      && catalogText.includes('eligibleMembership: z.never()')
+      && catalogText.includes('aggregate: z.never()')
+      && handlerText.includes('acceptance_rollout_report(args')
+      && handlerText.includes('acceptance_rollout_report_read(args')
+      && handlerText.includes('acceptance_rollout_check(args')
+      && handlerText.includes('deriveAcceptanceRolloutReport')
+      && handlerText.includes('issueAcceptanceRolloutArtifact')
+      && handlerText.includes('evaluateAcceptanceRolloutForContext')
+      && acceptanceRolloutText.includes('export function deriveAcceptanceRolloutReport')
+      && acceptanceRolloutText.includes('ACCEPTANCE_ROLLOUT_MIN_MATCHED_PAIRS = 3')
+      && acceptanceRolloutText.includes('issueAcceptanceRolloutObservationFromProduction')
+      && acceptanceRolloutText.includes("quorum.schemaVersion !== 'lattice.quorum_submit.v1'")
+      && acceptanceRolloutText.includes("['cat-file', '-e'")
+      && acceptanceRolloutText.includes('quorum.reviewerPasses.some')
+      && acceptanceRolloutText.includes("run('acceptance_topology_check')")
+      && acceptanceRolloutText.includes("run('pre_review_check_read')")
+      && acceptanceRolloutText.includes('mutationCommitSha')
+      && acceptanceRolloutText.includes('restorationCommitSha')
+      && acceptanceRolloutText.includes('restored control did not rerun PASS')
+      && acceptanceRolloutText.includes('caller ${label} does not match production command replay')
+      && acceptanceRolloutText.includes('AR_REGISTERED_CAMPAIGN_INCOMPLETE')
+      && acceptanceRolloutText.includes('AR_OMISSION_DETECTION_BELOW_100')
+      && acceptanceRolloutText.includes('AR_FALSE_BLOCK_NONZERO')
+      && acceptanceRolloutText.includes('AR_MISLABELED_3X1_NONZERO')
+      && acceptanceRolloutText.includes('AR_WAIVER_DELTA_POSITIVE')
+      && acceptanceRolloutText.includes('AR_CHECK_INVENTORY_SHRANK')
+      && acceptanceRolloutText.includes('checkEvidenceFreshnessForGit')
+      && acceptanceRolloutRunnerText.includes('export function runProofStoryAcceptanceRolloutCohort')
+      && acceptanceRolloutRunnerText.includes("'.lattice', 'story', 'actives'")
+      && acceptanceRolloutSmokeText.includes('export async function runProofStoryAcceptanceRolloutSmoke')
+      && acceptanceRolloutSmokeText.includes('runAcceptanceRolloutGate')
+      && acceptanceRolloutSmokeText.includes('mode changes preserve report byte-for-byte')
+      && acceptanceRolloutSmokeText.includes('--issuer-mutations')
+      && acceptanceRolloutSmokeText.includes('restoration commit is missing or malformed')
+      && acceptanceRolloutSmokeText.includes('restoration commit must be later than mutation commit')
+      && preReviewScenarioText.includes('Array.from({ length: 5 }')
+      && preReviewScenarioText.includes('Array.from({ length: 17 }')
+      && preReviewScenarioText.includes("['A-TRANSCRIPT-1', 'transcript']")
+      && preReviewScenarioText.includes('LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE')
+      && preReviewScenarioText.includes('scenario execution refuses to spawn the expensive registered cohort runner')
+      && !preReviewScenarioText.includes("execFileSync(process.execPath, [join(repositoryRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs')")
+      && acceptancePlanText.includes('five positive paths and the seventeen')
+      && acceptancePlanText.includes('5 positive / 17 mutation / 1 transcript')
+      && acceptancePlanText.includes('illustrative, abridged shape of the implemented canonical')
+      && transitionOrchestratorText.includes('runAcceptanceRolloutGate')
+      && transitionOrchestratorText.includes('if (report.blocking)')
+      && configText.includes('acceptanceRolloutGateMode')
+      && configText.includes('resolveAcceptanceRolloutGateMode')
+      && processRegistryText.includes('runtime:acceptance_rollout_dev_review_gate')
+      && processRegistryText.includes('artifact:acceptance-rollout-report.json')
+      && processLevelText.includes('runtime:acceptance_rollout_dev_review_gate')
+      && rolloutPolicy?.status === 'gateEvidence'
+      && rolloutPolicy.gateEvidence === true
+      && policyBlockHasOwnershipClass(rolloutPolicy, 'storyScopedMutating')
+      && rolloutPromptTemplates.every(templatePath =>
+        rolloutPromptTokens.every(token => read(templatePath).toLowerCase().includes(token)))
+      && rolloutBootstrapOnlyReviewerNames.every(name =>
+        !read(`.claude/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')
+        && !read(`.lattice-codex/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
+    'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [
@@ -7292,9 +7427,11 @@ function printProcessFactLevelRegistrySummary() {
       console.log(`flow fact policy: ${policyId}${dispositionSuffix}${artifactSuffix}${gateSuffix}`);
     }
   }
-  console.log('- registry entries:');
-  for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
-    console.log(formatProcessFactRegistryEntry(entry));
+  if (!quiet) {
+    console.log('- registry entries:');
+    for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
+      console.log(formatProcessFactRegistryEntry(entry));
+    }
   }
 }
 
@@ -7856,13 +7993,16 @@ if (warnings.length) {
 }
 console.log('');
 console.log('Process Fact Inventory');
+let inventoryFileCount = 0;
 for (const entry of inventory) {
-  console.log(`- ${entry.name}`);
+  if (!quiet) console.log(`- ${entry.name}`);
   for (const file of entry.files) {
     assertFilePatterns(entry.name, file.relPath, file.patterns);
-    console.log(`  ${file.relPath}`);
+    inventoryFileCount += 1;
+    if (!quiet) console.log(`  ${file.relPath}`);
   }
 }
+if (quiet) console.log(`- entries: ${inventory.length} (${inventoryFileCount} files checked)`);
 
 if (failures.length) {
   console.error('');

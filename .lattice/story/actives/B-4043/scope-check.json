@@ -1,0 +1,143 @@
+{
+  "storyId": "B-4043",
+  "checkedAt": "2026-07-23T16:58:58.890Z",
+  "features": [
+    {
+      "feature": "All in-scope Codex/Claude role prompts carry lane-appropriate canonical rollout guidance without becoming gate authority",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-001; checklist CHK-001"
+    },
+    {
+      "feature": "Verifier-owned rollout report rejects caller membership, verdict and aggregate fields",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 happy"
+    },
+    {
+      "feature": "Real cohort freezes eligibility, window and full membership with at least three matched pairs and three cases per arm",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 happy/adversarial"
+    },
+    {
+      "feature": "Cohort mutations reject eligible omission, ineligible addition, window/membership/order/digest drift and insufficient cardinality",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 adversarial"
+    },
+    {
+      "feature": "Report receipt binds membership, records, hashes, cost, rounds, waivers, adapters and full-3x2 provenance",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 happy"
+    },
+    {
+      "feature": "Every created runner/evaluator/smoke producer-consumer path is artifact-kind-correct and mapped into the canonical verification topology",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 plannedPathDeclarations; acceptance_basis verified complete paths=13; acceptance_topology_check pass diagnostics=[]"
+    },
+    {
+      "feature": "Docs-only, legacy and single-outcome controls prove zero supported false blocks",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 edge"
+    },
+    {
+      "feature": "Every registered seeded defect class has overall false-pass rate 0, omission detection 100%, and incomplete/non-omission misses fail closed",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003 happy/adversarial"
+    },
+    {
+      "feature": "Flat thresholds also require zero false blocks and mislabeled 3x1, nonpositive waiver delta, nonshrinking checks and supported adapters",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003"
+    },
+    {
+      "feature": "Unknown, partial, unsupported, incomplete or disagreeing campaigns fail promotion deterministically",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-003; checklist CHK-003"
+    },
+    {
+      "feature": "Opt-in enforce consumes the exact current signed PASS report at CLI and lifecycle consumers",
+      "covered_by": "CHK-002,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "W4-ROLLOUT-REPORT-GATE-PATH; checklist CHK-004"
+    },
+    {
+      "feature": "Enforcement requires genuine current full three rounds by two independent supported hosts; degraded 3x1 is non-authority",
+      "covered_by": "CHK-002,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json; checklist CHK-002/004"
+    },
+    {
+      "feature": "Missing, stale, tampered, failing or weakened report/quorum/threshold input fails closed at the real consumer",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-004 adversarial"
+    },
+    {
+      "feature": "Rollback changes blocking only and preserves all reports, receipts, transitions, diagnostics and history",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-004"
+    },
+    {
+      "feature": "Canonical plan/CLI docs update only after real evidence with exact measured results, commands and authority boundary",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-005"
+    },
+    {
+      "feature": "Selective per-Story/per-policy enforcement stays excluded until Wave 3A exists",
+      "covered_by": "CHK-003,CHK-005",
+      "status": "excluded",
+      "excluded_by": "Flat Wave 4 explicitly excludes selective applicability; Wave 3A remains mandatory for that claim.",
+      "source": "canonical execution plan Wave 3A; checklist CHK-005 excludes"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-4043/background.md",
+      ".lattice/story/actives/B-4043/checklist.json",
+      ".lattice/story/actives/B-4043/decision.json",
+      ".lattice/story/actives/B-4043/plan.md",
+      ".lattice/story/actives/B-4043/understanding.json",
+      "AGENTS.md",
+      "docs/CLI.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 16,
+    "covered": 15,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "84a671ca81e0017db2d387bd4b532d9144370f26e30e664614ccf320f057ba77",
+  "openQuestions": []
+}

@@ -114,7 +114,7 @@ import {
   readLifecycleMetadataOutputHashes,
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
-import { evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext } from './proofstory.js';
+import { evaluateAcceptanceRolloutForContext, evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext } from './proofstory.js';
 
 export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): string {
   const report = evaluatePreReviewCheckForContext(ctx, storyId);
@@ -127,6 +127,24 @@ export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): str
   ].join('\n');
   if (report.blocking) {
     throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run lattice pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);
+  }
+  return rendered;
+}
+
+/** Wave 4 flat-project consumer. Diagnostics are mode-invariant; enforce alone blocks. */
+export function runAcceptanceRolloutGate(ctx: HandlerContext, storyId: string): string {
+  const report = evaluateAcceptanceRolloutForContext(ctx, storyId);
+  const rendered = [
+    '\nAcceptance rollout enforcement:',
+    `  mode=${report.mode}; status=${report.status}; blocking=${report.blocking}`,
+    `  receipt=${report.receipt}; quorum=${report.quorum}`,
+    `  codes=${report.diagnostics.join(',') || 'none'}`,
+  ].join('\n');
+  if (report.blocking) {
+    throw new Error(
+      `Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.${rendered}\n\n` +
+      '-> Run lattice acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.',
+    );
   }
   return rendered;
 }
@@ -939,7 +957,7 @@ async function runStoryTransitionInner(
     }
     let preReviewGateReport = '';
     if (story.phase === 'DEV' && args.phase === 'REVIEW') {
-      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId);
+      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId) + runAcceptanceRolloutGate(ctx, args.storyId);
     }
 
     // Dependency completion check (soft warning, non-blocking)

@@ -671,6 +671,7 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
   // future-capability domain; see B-5e4a scope-boundary excludedScope).
   'acceptance-basis.json',
   'pre-review-check.json',
+  'acceptance-rollout-report.json',
   'topology-critic-receipt.json',
   'topology-exclusion-approvals.json',
   // REVIEW loop ledger written via REVIEW_LOOP_FILENAME constant

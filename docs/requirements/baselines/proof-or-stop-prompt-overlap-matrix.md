@@ -1,7 +1,7 @@
 # Proof-or-Stop Prompt Overlap Matrix
 
 Source plan: `docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md`
-Registry material hash: `00137a57552c13b33512942b6eb757e4fd8d9f7173570631d41decd34f73065b`
+Registry material hash: `7e1df99e7adf53779aab5390adc0b700f448bfeb4c43faec9a194598a323415d`
 Role count: 17
 
 ## Audit Boundary

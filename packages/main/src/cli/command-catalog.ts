@@ -2691,6 +2691,24 @@ Behavior:
     status: z.never().optional(), codes: z.never().optional(), ok: z.never().optional(), mode: z.never().optional(),
     artifact: z.never().optional(), evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(), write: z.never().optional(),
   }},
+  { name: 'acceptance_rollout_report', description: 'Run the registered real-Story cohort and persist a verifier-derived signed Wave 4 rollout report', schema: {
+    storyId: z.string().min(1), json: z.boolean().optional(),
+    evaluationWindow: z.never().optional(), membership: z.never().optional(), eligibleMembership: z.never().optional(),
+    sourceRecords: z.never().optional(), registeredSeedIds: z.never().optional(), adapterProfile: z.never().optional(),
+    thresholds: z.never().optional(), metrics: z.never().optional(), aggregate: z.never().optional(), verdict: z.never().optional(),
+    quorum: z.never().optional(), providers: z.never().optional(), signature: z.never().optional(), receipt: z.never().optional(),
+    headHash: z.never().optional(), materialHash: z.never().optional(), storyFilesHash: z.never().optional(),
+  }},
+  { name: 'acceptance_rollout_report_read', description: 'Read and verify the current signed frozen-membership Wave 4 rollout report', schema: {
+    storyId: z.string().min(1), json: z.boolean().optional(),
+    write: z.never().optional(), apply: z.never().optional(), membership: z.never().optional(),
+    metrics: z.never().optional(), verdict: z.never().optional(), receipt: z.never().optional(),
+  }},
+  { name: 'acceptance_rollout_check', description: 'Evaluate the flat project rollout policy with mode-invariant diagnostics; enforce alone blocks', schema: {
+    storyId: z.string().min(1), json: z.boolean().optional(),
+    mode: z.never().optional(), status: z.never().optional(), blocking: z.never().optional(),
+    thresholds: z.never().optional(), verdict: z.never().optional(), evidence: z.never().optional(),
+  }},
   { name: 'intent_collision_set', description: 'Persist a structured ProofStory intent-collision decision', schema: {
     storyId: z.string().describe('Story ID'),
     decision: proofStoryIntentCollisionDecisionSchema.describe('Collision decision. Only pass with acceptedInterpretation confirms a candidate ledger.'),

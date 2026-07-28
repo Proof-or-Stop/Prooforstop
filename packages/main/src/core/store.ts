@@ -14,6 +14,7 @@ import type {
   RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
   AcceptanceBasisArtifactV1,
   PreReviewCheckArtifactV1,
+  AcceptanceRolloutArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
 import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
@@ -843,6 +844,15 @@ export class StoryStore {
 
   writePreReviewCheck(storyId: string, data: PreReviewCheckArtifactV1): void {
     this.writeJson(storyId, 'pre-review-check.json', data);
+  }
+
+  readAcceptanceRolloutReport(storyId: string): AcceptanceRolloutArtifactV1 | null {
+    try { return this.readJson<AcceptanceRolloutArtifactV1>(storyId, 'acceptance-rollout-report.json'); }
+    catch (e) { if (e instanceof StoryArtifactMissingError) return null; throw e; }
+  }
+
+  writeAcceptanceRolloutReport(storyId: string, data: AcceptanceRolloutArtifactV1): void {
+    this.writeJson(storyId, 'acceptance-rollout-report.json', data);
   }
 
   readTopologyCriticReceipt(storyId: string): TopologyCriticReceiptV1 | null {
