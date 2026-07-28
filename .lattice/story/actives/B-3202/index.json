@@ -4,7 +4,7 @@
   "title": "Establish current-main characterization baselines for seven Lattice closeout integrity defects",
   "description": "On current Proofbound CLI 0.3.249, create an isolated non-blocking characterization harness for F1-F7 covering workspace authority, validation persistence, convergence, DONE merge ordering, boundary diagnostics, scope canonicalization, and shrinkage/parent-rollup disagreement. M0 records current faulty behavior and desired-state inversion points without changing production semantics.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "closeout-integrity",
@@ -33,6 +33,27 @@
       "user": "Harmonygo",
       "sessionId": "sess-b92df336b34613bb0e944c3e6e961cb9",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-28T21:36:27.536Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-b92df336b34613bb0e944c3e6e961cb9",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "The word production appears only in an explicit non-goal stating M0 will not change runtime or production semantics; this Story adds isolated characterization tests and documentation only.",
+      "at": "2026-07-28T21:34:57.701Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-3202",
+    "branch": "story/B-3202",
+    "createdAt": "2026-07-28T21:36:24.627Z"
+  }
 }

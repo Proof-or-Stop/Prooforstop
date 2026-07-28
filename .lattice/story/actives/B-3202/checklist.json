@@ -60,6 +60,18 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Prove the characterization baseline is deterministic across fresh isolated runs",
+      "context": "Bind the baseline to exact git HEAD and CLI version, then require two newly created temporary repositories to produce identical F1-F7 statuses, structured reason codes, control outcomes, and checkout-cleanliness results, addressing the product-reviewer INIT advisory.",
+      "relatedDocs": [
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "The characterization report names the current HEAD and CLI version and shows two identical isolated-run result sets.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }
