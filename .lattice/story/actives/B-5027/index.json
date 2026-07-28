@@ -4,7 +4,7 @@
   "title": "Reproduce Story 6 evaluator-envelope and checkout-replay HIGH findings",
   "description": "Add failing regression coverage that proves evaluate binds Prompt Envelopes to the dispatched evaluator role for CLI-only and browser+CLI configurations, and proves Story 6 report selfcheck is reproducible from tracked checkout inputs rather than ignored runtime receipts.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "story6",
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-2d4a3f9dfe8be04aa918a4feef03cf9a",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-28T21:22:28.212Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-2d4a3f9dfe8be04aa918a4feef03cf9a",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5027",
+    "branch": "story/B-5027",
+    "createdAt": "2026-07-28T21:22:22.359Z"
+  }
 }
