@@ -1684,6 +1684,53 @@
         "scanEscalationReason": null
       },
       "_hash": "448f921cba4f845d79a5b8942e145aa194f57417f64334854d4a24d3946a5d7b"
+    },
+    {
+      "id": "B-4043:RP-049",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation after 68 clean main commits merged (behind-main 0, zero conflicts, B-4043 own source unchanged since RP-045). Re-verified concept-completeness of git diff main...HEAD (74 files, 38122 insertions/204 deletions): diff content unchanged from RP-045/RP-067 baseline. Only removed symbol is assertScenarioLedgerComplete in proofstory-pre-review-check-smoke.ts, replaced inline by selectActiveScenarioRecords -- grep-reconfirmed zero repo-wide residue (only hit is this reviewers own prior review-passes.json note). No new concept deletion/replacement introduced by the main merge. No blocker.",
+      "createdAt": "2026-07-28T15:36:28.821Z",
+      "reviewRound": "2026-07-28T15:34:42.889Z",
+      "reviewRunId": "B-4043:RR-072",
+      "envelopeId": "bf5daa02fdb7a16f6b74fc59edae924ac0da47b451296b2870f22f8eb15d8d92",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfc1e8609a6810e21294ac418272ebf7301aa4ea3ac0434a3c1f3f2cb9257c83"
     }
   ]
 }
