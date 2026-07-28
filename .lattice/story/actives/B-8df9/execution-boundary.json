@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8df9",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*.js",
+    "node packages/main/tests/red/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "npx tsc --noEmit -p *",
+    "rg *"
+  ],
+  "allowedTools": [
+    "lattice-implementer",
+    "lattice-review-*",
+    "product-reviewer"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-8df9/",
+    "lattice.config.json",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/tasks/",
+    "packages/main/tests/red/"
+  ],
+  "excludedCommands": [
+    "gh *",
+    "git push*",
+    "lattice release_approve_push*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/red-evidence/",
+    "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-27T22:20:08.237Z",
+  "updatedAt": "2026-07-27T22:20:08.237Z",
+  "_hash": "3fe7dd3d176200f6f3c73765789eafcc43482355b7c5483b5e62b514ba02dc97"
+}
