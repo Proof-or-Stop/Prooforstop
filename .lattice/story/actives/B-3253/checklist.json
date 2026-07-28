@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind carried non-mechanical provenance to the unchanged evidence identity",
+      "context": "carryForwardOnDiskProvenance currently preserves mechanical:false and nonMechanicalReason by intentRef alone, allowing a changed command/result row to inherit an unrelated prior attestation. Preserve legitimate metadata-only re-persistence, but drop stale provenance and reject executable rows when evidence identity changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#freshness-temporal-binding-and-drift"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Synchronize acceptance coverage-basis temporary repositories with the registered closure inventory",
+      "context": "proofstory-acceptance-basis-smoke, proofstory-acceptance-topology-gate-smoke, and proofstory-topology-critic-smoke omit current pre-review and/or Wave 4 rollout producer source refs, so snapshot sealing correctly returns partial before the intended assertions execute. Repair fixtures without bypassing snapshot sealing or removing registry obligations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#independently-derived-coverage-basis"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove all four focused regressions exercise their intended production failures and restored controls",
+      "context": "Run the real negative controls: changed-command attestation must be refused; complete fixture controls must seal complete; topology/basis/critic mutations must still fail closed; restored controls must pass. Do not replace semantic assertions with weaker output checks.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#verification-and-mutation-matrix"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a bounded routine validation entry that prevents these focused tests from silently rotting",
+      "context": "The default npm test chain currently omits these focused tasks, and topology-gate/critic lack package scripts. Add a bounded non-duplicative validation surface that runs the four tests without triggering duplicate full rollout cohorts, and retain build/process-fact/pre-review compatibility.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#bounded-implementation-waves"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3253",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a bounded routine validation entry for these focused regressions",
+    "Add or strengthen focused positive, negative-mutation, and restored-control assertions for the four currently failing ProofStory acceptance smokes",
+    "Fix non-mechanical verification provenance carry-forward so it is retained only when the evidence identity is unchanged",
+    "Only touch the checklist handler, the four focused smoke tasks, directly related package scripts/lock metadata, and a small shared test helper if needed",
+    "Update the three ProofStory acceptance temporary-repository smoke fixtures to include every registered source required by their exercised capability"
+  ],
+  "excluded": [
+    "No edits to docs/story or tests/fixtures",
+    "No full rollout cohort rerun unless a lifecycle gate explicitly requires it",
+    "No redesign of Acceptance Topology or milestone-ledger semantics",
+    "No unrelated B-4043 plan/schema/error-code expansion",
+    "No weakening of coverage-basis completeness, pre-review, topology-critic, process-fact, or provenance gates"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User explicitly requested opening a story and executing the entire lifecycle after the four focused regressions were root-caused.",
+  "createdAt": "2026-07-28T22:21:04.259Z",
+  "updatedAt": "2026-07-28T22:21:04.259Z",
+  "_hash": "0b063bc3b6f332cada38a293634da1afb4c24e8ca54ee6037ef2858a38bff17a"
+}
