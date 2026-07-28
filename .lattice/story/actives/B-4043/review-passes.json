@@ -1939,6 +1939,35 @@
         "scanEscalationReason": null
       },
       "_hash": "352683c9f5eb56ae9700c71a107d47573688790df1ecbe9340200b8bfb73cb36"
+    },
+    {
+      "id": "B-4043:RP-056",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attested at head 52b504b (unchanged since RP-052; incremental basis shows ELIGIBLE_NO_MATERIAL_CHANGE, zero changedFiles). Re-verified checklist.json: all 15 declared intents (CHK-001..CHK-005 x happy/edge/adversarial) covered by verificationEvidence with result=pass. The 12 executable (cli/logic-typed) intents in CHK-001..CHK-004 hold genuine mechanical receipts (mechanical:true, exitCode 0, matching outputDigest/selectorMatched, same 3 pinned commands byte-verified in RP-052: verify-process-fact-contract.mjs, proofstory-pre-review-check-smoke.js --proof-scenarios, proofstory-acceptance-rollout-smoke.js), all bound to identical headHash/materialHash/storyFilesHash (f25bb43b...) with no discrepancy from the RP-052 snapshot. CHK-005s 3 docs-typed intents have honestly-disclosed manual_transcript evidence marked mechanical:false with an explicit nonMechanicalReason (auto-demoted by a prior verification_evidence_refresh_stale run reacting to whole-tree materialHash churn from this storys own .lattice/story/actives/B-4043/* metadata writes, per runtime-artifact-registry.ts materialHash:include for that subtree); storyFilesHash is unchanged and no actual docs/ or decisions/ content drifted (git diff d765daf7..HEAD touches only .lattice/story/actives/B-4043/* bookkeeping files) -- this is honest disclosure of an auto-downgrade, not laundering. Confirmed all prior findings including F-015 (orphan CHK-004:hardening row), F-017, F-019, F-020 are status=resolved; F-015 remains accepted-risk per instruction and is not re-raised. No new blocking findings. verification_evidence_refresh_stale --dryRun (attempted independently) is owner-gated in this session so I could not re-run it myself, but its dry-run reason chain is consistent with the classifyEvidenceFreshness KNOWN_UNRELATED_MATERIAL_DRIFT path I traced in evidence-freshness.ts. No blocker.",
+      "createdAt": "2026-07-28T16:33:39.183Z",
+      "reviewRound": "2026-07-28T16:26:25.720Z",
+      "reviewRunId": "B-4043:RR-079",
+      "envelopeId": "46035f4a6952c08f61fb1d4cb2478fb018a12431ebd5d732120eff226b81aa8e",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/index.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ca82fbadffbbe04ebf927fdc7adff7679f058be25a1b33fecf1dfda02c78208"
     }
   ]
 }
