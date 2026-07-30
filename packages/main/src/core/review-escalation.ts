@@ -980,7 +980,7 @@ export function eventsWithStoryFilesHashDowngrade(
     if (event.type !== 'host_verdict') continue;
     if (normalizeString(event.materialDigest) !== currentMaterialHash) continue;
     const runId = normalizeString(event.runId);
-    for (const identity of hostIdentityKeys(event)) liveIdentities.add(`${runId} ${identity}`);
+    for (const identity of hostIdentityKeys(event)) liveIdentities.add(`${runId}::${identity}`);
   }
 
   return events.map((event, index) => {
@@ -993,7 +993,7 @@ export function eventsWithStoryFilesHashDowngrade(
     // current hash is the empty-set digest, so an empty per-event hash cannot get this far.
     if (!storyFilesHash || storyFilesHash !== currentStoryFilesHash) return event;
     const runId = normalizeString(event.runId);
-    if (hostIdentityKeys(event).some(identity => liveIdentities.has(`${runId} ${identity}`))) {
+    if (hostIdentityKeys(event).some(identity => liveIdentities.has(`${runId}::${identity}`))) {
       // Already superseded by a live verdict of the same identity: leave it at its original
       // material so it is simply not counted, rather than colliding with the one that is.
       return event;
