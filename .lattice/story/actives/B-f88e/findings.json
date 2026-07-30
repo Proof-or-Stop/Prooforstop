@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/review-escalation.ts:994 the per-verdict `if (storyFilesHash === EMPTY_STORY_FILES_HASH) return event;` inside eventsWithStoryFilesHashDowngrade is unreachable dead code: the earlier `if (currentStoryFilesHash === EMPTY_STORY_FILES_HASH) return events;` at line 971 already short-circuits the whole function whenever currentStoryFilesHash is empty, so by the time control reaches the inner check storyFilesHash===currentStoryFilesHash can never equal EMPTY_STORY_FILES_HASH. Bite-verified: commenting out only the inner check (line 994 site in dist) with false&&... left both red-f88e-quorum-downgrade-collision.mjs and red-f88e-downgrade-non-regression.mjs passing, including the EMPTY_STORY_FILES_HASH assertion in non-regression part 3 (that assertion is actually satisfied by the outer guard, not this one). Not a functional bug and not a coverage gap for the stated intent (the no-signal guarantee is genuinely covered end-to-end by the outer check), but the inner check gives false confidence that a second, independent guard exists at the per-verdict level. Recommend either removing the inner check as redundant or adding one fixture where currentStoryFilesHash is non-empty while a per-verdict storyFilesHash independently equals EMPTY_STORY_FILES_HASH (impossible today given the equality gate above it, so realistically: just delete it) so the comment/code no longer implies untested defense-in-depth.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-30T01:14:48.263Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/review-escalation.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the unreachable inner check and replaced it with a comment explaining why no per-event check is needed: reaching that line implies storyFilesHash === currentStoryFilesHash, and the function already returns early when the current hash is EMPTY_STORY_FILES_HASH. Re-verified after the change: both registered tests stay green, and the no-signal guarantee is still load-bearing — temporarily removing the OUTER guard from dist flips red-f88e-downgrade-non-regression to exit 1, and restoring it returns exit 0.",
+      "resolvedAt": "2026-07-30T01:16:17.766Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
