@@ -226,10 +226,11 @@
       "q": "Should the CHK-001 red reproduction be registered through the formal v2 RED-evidence chain (red_evidence_assert / registered target binding, per red-evidence-subsystem-spec.md) instead of (or in addition to) a plain .mjs script registered only in lattice.config.json validate.commands, given repro-first-gate-enforce-execution-plan.md documents Workstream 2 (the v2 record subsystem) as already having implementation code in-repo (packages/main/src/core/red-evidence/, handlers/red-evidence.ts), even though Workstream 3 enforcement wiring is not yet flipped on and this story's own story_review already lists 'missing_red_evidence' as an advisory?",
       "evidence": "repro-first-gate-enforce-execution-plan.md: 'Sequencing: W0.* (parallel, now) -> W1 (now, parallel with W0) -> W2 spec story -> W2 implementation -> W3 -> enforce flip.' story_review issue: 'missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only.' CHK-001 plan.md: 'Port it as-is ... matching the red-b2aa7-*.mjs convention'.",
       "sourcePointers": [
-        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#Sequencing",
-        "docs/requirements/decisions/red-evidence-subsystem-spec.md#0.1",
-        ".lattice/story/actives/B-f88e/plan.md#CHK-001"
-      ]
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#workstream-3",
+        "lattice.config.json#validate.commands"
+      ],
+      "resolution": "Use the plain .mjs convention, matching every currently-registered red test. The v2 RED-evidence chain exists in-repo but its enforcement is Workstream 3 of repro-first-gate-enforce-execution-plan.md and is not landed; this story's own story_review reports missing_red_evidence as advisory only. Every red test registered in lattice.config.json today (the red-b2aa7-* family) uses the plain .mjs form, so CHK-001 follows the live convention rather than an unenforced future one. Coupling a narrow correctness fix to an in-flight subsystem migration is the larger risk; this test migrates with the family when enforcement lands.",
+      "resolvedAt": "2026-07-30T01:00:12.131Z"
     }
   ]
 }
