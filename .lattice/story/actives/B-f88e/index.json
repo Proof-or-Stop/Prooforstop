@@ -4,7 +4,7 @@
   "title": "Stop the storyFilesHash downgrade from colliding a superseded quorum into permanent invalidity",
   "description": "eventsWithStoryFilesHashDowngrade (core/review-escalation.ts) rewrites a host verdict's materialDigest to the current value when the verdict was recorded at an older material but its storyFilesHash still matches. The intent is benign. However quorum runIds are fixed (<storyId>-q-r1..r3) and quorum_submit reuses one synthetic hostId/sessionId/keyId per host, so when a story has submitted a quorum at two different materials that share a storyFilesHash, the older set is rewritten onto the current material and every runId ends up holding two verdicts per host. evaluateHostVerdictRounds (core/host-independence.ts) then invalidates all rounds with 'duplicate host/session/key identity', so the review-assurance floor reports 0/3 while a complete, on-disk-distinct 3x2 quorum genuinely exists at the current material. The story is then wedged: quorum_submit refuses to re-emit because (runId, materialDigest) already carries verdicts, and a fresh review round does not help because runIds are not round-scoped. The only exits are an unrelated material change or the human-gated review_escalation_fallback_set. Fix direction: when downgrading, skip the rewrite for a verdict whose (runId, host identity) is already represented by a verdict natively at the current material, keeping the advisory but never manufacturing a duplicate.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "quorum",
@@ -52,11 +52,21 @@
       "user": "Harmonygo",
       "sessionId": "bf88e-session",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-30T01:07:39.328Z",
+      "branch": "story/B-f88e",
+      "user": "Harmonygo",
+      "sessionId": "bf88e-session",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-f88e",
     "branch": "story/B-f88e",
     "createdAt": "2026-07-30T00:45:51.825Z"
-  }
+  },
+  "currentReviewRound": "2026-07-30T01:07:39.328Z"
 }
