@@ -27,7 +27,11 @@
           {
             "desc": "Before the fix the same test exits 1 with the 0/3 collision message, proving it is genuinely red",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+              "selector": "red-quorum-downgrade-collision: OK"
+            }
           }
         ],
         "adversarial": [
@@ -57,6 +61,25 @@
           "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
           "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
           "timestamp": "2026-07-30T01:05:31.008Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+          "result": "pass",
+          "note": "Tool-executed. Red-before-green was measured on the pre-fix tree at head 4dcfbfa: the same command exited 1 with 'DOWNGRADE COLLISION: ... counted as 0/3 valid rounds' and six duplicate host/session/key identity reasons; it exits 0 at this head.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
+            "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:05:32.220Z"
+          },
+          "headHash": "01728cb560902f4636844962a943cd6e21e79912",
+          "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
+          "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
+          "timestamp": "2026-07-30T01:05:32.358Z"
         }
       ]
     },
