@@ -24,6 +24,7 @@ import {
   type HostVerdictRound,
   type IgnoredHostVerdict,
 } from './host-independence.js';
+import { normalizeIdentity } from './host-independence.js';
 import { isReviewerAgent } from './review-run.js';
 import type { Finding, ProcessEvent, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
@@ -946,15 +947,18 @@ function evaluateVoluntaryLocalRounds(
 }
 
 /**
- * B-f88e: identity key for the collision precondition below. This MUST stay aligned with
- * `groupByIndependentHost` in core/host-independence.ts, which unions verdicts sharing ANY of
- * hostId / sessionId / keyId — if that comparison changes, change this alongside it.
+ * B-f88e: identity key for the collision precondition below. It must reason about identity
+ * exactly as `groupByIndependentHost` (core/host-independence.ts) does — that function unions
+ * verdicts sharing ANY of hostId / sessionId / keyId, compared through `normalizeIdentity`
+ * (trim + lowercase). We import that very function rather than re-deriving the rule: a
+ * trim-only copy previously let mixed-case host ids slip past this guard while the grouping
+ * still folded them, which reproduced the collision this precondition exists to prevent.
  */
 function hostIdentityKeys(event: ProcessEvent): string[] {
   return [
-    `host:${normalizeString(event.hostId)}`,
-    `session:${normalizeString(event.sessionId)}`,
-    `key:${normalizeString(event.keyId)}`,
+    `host:${normalizeIdentity(event.hostId)}`,
+    `session:${normalizeIdentity(event.sessionId)}`,
+    `key:${normalizeIdentity(event.keyId)}`,
   ].filter(part => !part.endsWith(':'));
 }
 

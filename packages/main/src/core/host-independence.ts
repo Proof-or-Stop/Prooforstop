@@ -50,7 +50,13 @@ function normalizeString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function normalizeIdentity(value: unknown): string {
+/**
+ * Independent-host identity normalisation. Exported (B-f88e) so any caller that needs to reason
+ * about the SAME identity notion `groupByIndependentHost` uses — such as the collision
+ * precondition in core/review-escalation.ts — shares this function instead of re-deriving it and
+ * silently drifting (a trim-only copy let mixed-case host ids slip past that guard).
+ */
+export function normalizeIdentity(value: unknown): string {
   return normalizeString(value).toLowerCase();
 }
 

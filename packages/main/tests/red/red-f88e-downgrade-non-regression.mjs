@@ -123,6 +123,34 @@ const failures = [];
   }
 }
 
+// ── 4. Identity comparison is case-folded, exactly like groupByIndependentHost.
+//    The collision precondition must reason about identity the same way the grouping does
+//    (`normalizeIdentity` = trim + lowercase). A trim-only copy would let a differently-cased
+//    hostId slip past the guard, let the downgrade proceed, and then be folded back together by
+//    the grouping — reproducing the very collision this fix removes, via case variance.
+{
+  const events = [
+    verdict({ material: OLD_MATERIAL, tag: 'old', hostId: 'Claude-CLI', runId: 'B-X-q-r1' }),
+    verdict({ material: CUR_MATERIAL, tag: 'cur', hostId: 'claude-cli', runId: 'B-X-q-r1' }),
+    verdict({ material: CUR_MATERIAL, tag: 'cur', hostId: 'codex-cli', runId: 'B-X-q-r1' }),
+  ];
+  const advisories = [];
+  const out = eventsWithStoryFilesHashDowngrade(events, CUR_MATERIAL, STORY_FILES, advisories);
+  const rounds = evaluateHostVerdictRounds(out, CUR_MATERIAL, 2);
+  const duplicateReasons = rounds.invalidRounds
+    .flatMap(round => round.reasons)
+    .filter(reason => reason.startsWith('duplicate host/session/key identity'));
+  if (duplicateReasons.length > 0 || rounds.validRounds.length !== 1) {
+    failures.push(
+      'CASE-VARIANT IDENTITY SLIPPED THE GUARD: a superseded verdict for host "Claude-CLI" was downgraded on top of '
+      + 'the live "claude-cli" verdict, so the grouping folded them back together and invalidated the round '
+      + `(validRounds=${rounds.validRounds.length}, duplicates=${JSON.stringify(duplicateReasons)}). `
+      + 'The collision precondition must compare identity through normalizeIdentity (trim + lowercase), the same '
+      + 'function groupByIndependentHost uses, not a trim-only copy.',
+    );
+  }
+}
+
 if (failures.length > 0) {
   console.error('red-f88e-downgrade-non-regression: FAIL\n');
   for (const line of failures) console.error(`  - ${line}\n`);
