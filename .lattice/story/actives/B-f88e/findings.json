@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-f88e:F-001",
+      "desc": "packages/main/src/core/review-escalation.ts:994 the per-verdict `if (storyFilesHash === EMPTY_STORY_FILES_HASH) return event;` inside eventsWithStoryFilesHashDowngrade is unreachable dead code: the earlier `if (currentStoryFilesHash === EMPTY_STORY_FILES_HASH) return events;` at line 971 already short-circuits the whole function whenever currentStoryFilesHash is empty, so by the time control reaches the inner check storyFilesHash===currentStoryFilesHash can never equal EMPTY_STORY_FILES_HASH. Bite-verified: commenting out only the inner check (line 994 site in dist) with false&&... left both red-f88e-quorum-downgrade-collision.mjs and red-f88e-downgrade-non-regression.mjs passing, including the EMPTY_STORY_FILES_HASH assertion in non-regression part 3 (that assertion is actually satisfied by the outer guard, not this one). Not a functional bug and not a coverage gap for the stated intent (the no-signal guarantee is genuinely covered end-to-end by the outer check), but the inner check gives false confidence that a second, independent guard exists at the per-verdict level. Recommend either removing the inner check as redundant or adding one fixture where currentStoryFilesHash is non-empty while a per-verdict storyFilesHash independently equals EMPTY_STORY_FILES_HASH (impossible today given the equality gate above it, so realistically: just delete it) so the comment/code no longer implies untested defense-in-depth.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-30T01:14:48.263Z",
+      "reviewRound": "2026-07-30T01:07:39.328Z",
+      "reviewRunId": "B-f88e:RR-001",
+      "_hash": "b83184ab2fbc276fc02055b3223a36d209277e7f79c617d5a2445c846476cb22",
+      "files": [
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
