@@ -21,6 +21,21 @@
       "resolvedAt": "2026-07-30T01:16:17.766Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f88e:F-002",
+      "desc": "packages/main/src/core/review-escalation.ts:953-958 hostIdentityKeys() is not actually faithful to groupByIndependentHost as its own comment (line 949-951) claims it must be: it builds keys from normalizeString(event.hostId/sessionId/keyId) (trim only, no case-folding), whereas host-independence.ts identityKeys()/groupByIndependentHost() (host-independence.ts:53-55,61-67) compares AcceptedHostVerdict fields that were built via normalizeIdentity() (trim + toLowerCase()). Confirmed reachable: quorum-submit.ts:421-422 stores hostId as normalizeString(args.hostA)/normalizeString(args.hostB) (case preserved, not folded) on the host_verdict event, so a resubmission with a different case for the same logical host (e.g. hostA=\"Claude-CLI\" vs \"claude-cli\") produces two on-disk hostIds that host-independence.ts treats as the SAME identity (duplicate) but hostIdentityKeys() treats as DIFFERENT identities. Concretely: eventsWithStoryFilesHashDowngrade would then fail to detect the collision and would rewrite the superseded verdict onto the current material, after which evaluateHostVerdictRounds folds case and flags duplicate host/session/key identity anyway -- reproducing exactly the B-4043 defect this story fixes, just triggered by a case-varying host identity instead of a bit-identical one. Neither red-f88e-quorum-downgrade-collision.mjs nor red-f88e-downgrade-non-regression.mjs cover mixed-case hostId/sessionId/keyId, so this gap is untested. Fix: hostIdentityKeys should lowercase (or otherwise normalizeIdentity-match) each component the same way host-independence.ts does, and a case-varying fixture should be added to the non-regression guard.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-30T01:25:58.162Z",
+      "reviewRound": "2026-07-30T01:22:14.283Z",
+      "reviewRunId": "B-f88e:RR-003",
+      "_hash": "e14e189edd86abf3c137ba4aef3636e56babb7ccb60b8d405d7d962d1529b533",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
