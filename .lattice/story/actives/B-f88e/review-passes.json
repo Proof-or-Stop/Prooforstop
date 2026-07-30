@@ -26,6 +26,30 @@
         "scanEscalationReason": null
       },
       "_hash": "56ad85b868fe555904b276316d496bded453f64b1af29453b8066f71d8582bb8"
+    },
+    {
+      "id": "B-f88e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation after F-001 dead-code removal (commit faad981b). All 6 must intents (CHK-001/CHK-002 happy/edge/adversarial) remain covered by mechanical evidence bound to current materialHash/storyFilesHash; drift is headHash-only. Re-ran both tests directly (exit 0) and bite-verified via dist mutation of the outer EMPTY_STORY_FILES_HASH guard, which flips red-f88e-downgrade-non-regression to exit 1; restored, exit 0. F-001 resolved, 0 open findings.",
+      "createdAt": "2026-07-30T01:20:39.353Z",
+      "reviewRound": "2026-07-30T01:07:39.328Z",
+      "reviewRunId": "B-f88e:RR-002",
+      "envelopeId": "fadd7147a5d0cb2fe41ec3b7d0f688379b1d1eae17d3fcc7308c1c844bf9e579",
+      "writerSessionId": "sess-0226e87a8b163753214c0dbd71c5d27f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-f88e/background.md",
+          "docs/story/actives/B-f88e/checklist.json",
+          "docs/story/actives/B-f88e/plan.md",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs",
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "79c7600a56c5fa31de317314807761202badab51e3ef66b4ed0f7e019471c62d"
     }
   ]
 }
