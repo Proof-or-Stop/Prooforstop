@@ -10,7 +10,30 @@
       "userSees": "The registered red test fails before the fix with 'DOWNGRADE COLLISION: ... counted as 0/3 valid rounds' and passes after it",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The registered red test exits 0 once the fix lands, printing the OK line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Before the fix the same test exits 1 with the 0/3 collision message, proving it is genuinely red",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The test refuses to pass vacuously: if the current-material quorum alone did not already yield 3/3 it reports FIXTURE IS VACUOUS, and if the fixture verdicts were not distinct on disk it reports FIXTURE ERROR",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

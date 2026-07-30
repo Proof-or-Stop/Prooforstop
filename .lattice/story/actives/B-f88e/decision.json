@@ -1,0 +1,82 @@
+{
+  "principles": [
+    "A gate must never manufacture the violation it is checking for: a duplicate identity may only come from the recorded evidence, never from a helper that rewrote it.",
+    "Fix the mechanism that fabricates the false signal, not the check that reports it, so the genuine double-vote protection keeps its full strength.",
+    "Preserve the existing benign behaviour exactly: unrelated whole-tree drift must still be accepted with its re-attestation advisory.",
+    "A wedge whose only escape is a human-gated override is a defect, because ordinary parallel development reaches it and the escape is not discoverable."
+  ],
+  "drivers": [
+    "B-4043 lost hours to an unreachable DONE and was rescued only by an accidental storyFilesHash change.",
+    "Any story that submits a quorum at two materials sharing one storyFilesHash reaches the same wedge.",
+    "The reproduction already exists and isolates the cause, so the fix can be verified red-to-green immediately."
+  ],
+  "options": [
+    {
+      "name": "A-skip-colliding-downgrade",
+      "pros": [
+        "Smallest change, one precondition in the helper that creates the collision",
+        "Both existing mechanisms keep their semantics",
+        "Advisory path for genuine drift is untouched",
+        "Directly turns the existing red test green"
+      ],
+      "cons": [
+        "Needs the helper to know how host identity is compared, duplicating a little of groupByIndependentHost's notion of identity"
+      ]
+    },
+    {
+      "name": "B-round-scoped-runids",
+      "pros": [
+        "Round-scoped quorum runIds would make the gate's own prescribed remedy (a fresh review round) actually work"
+      ],
+      "cons": [
+        "Changes the quorum identity scheme and every consumer assuming the fixed -q-r1..r3 names",
+        "Much larger blast radius for a bug that has one narrow cause",
+        "Does not stop the downgrade from fabricating duplicates in other runId spaces"
+      ]
+    },
+    {
+      "name": "C-grouping-prefers-newest",
+      "pros": [
+        "A single change in the grouping would cover every producer of colliding verdicts"
+      ],
+      "cons": [
+        "Silently preferring the newest verdict per identity weakens the real double-vote check",
+        "Turns an integrity signal into a resolution heuristic"
+      ]
+    },
+    {
+      "name": "D-rely-on-human-fallback",
+      "pros": [
+        "No code change; the human-gated fallback already exists"
+      ],
+      "cons": [
+        "Leaves a reachable wedge in ordinary parallel development",
+        "The escape requires a human signature that the owner session is explicitly forbidden to make",
+        "Guarantees repeat incidents"
+      ]
+    }
+  ],
+  "chosen": "A-skip-colliding-downgrade",
+  "rationale": "Option A-skip-colliding-downgrade removes the fabrication at its source with the smallest blast radius: the downgrade simply declines to rewrite a superseded verdict onto the current material when an identity-equal verdict is already there natively. Both the drift allowance and the double-vote check keep their exact semantics, the advisory still fires for genuine drift, and the already-written red test flips from 0/3 to 3/3 as the proof. B-round-scoped-runids and C-grouping-prefers-newest were rejected for changing the identity scheme and for weakening a real integrity check respectively; D-rely-on-human-fallback was rejected because the wedge is reachable by ordinary work.",
+  "preMortem": [
+    {
+      "scenario": "The precondition is written so broadly that it also suppresses a genuine double vote recorded twice at the current material.",
+      "trigger": "Red test passes but the double-vote protection silently stops firing.",
+      "consequence": "A real integrity check is disabled while looking green.",
+      "mitigation": "Only skip the rewrite for verdicts whose materialDigest is NOT already the current one; verdicts recorded natively at the current material are never touched by the downgrade, so genuine duplicates there still collide."
+    },
+    {
+      "scenario": "The helper's notion of identity drifts from groupByIndependentHost, so a collision the grouping would flag is not detected by the precondition.",
+      "trigger": "A verdict pair sharing only sessionId (not hostId) still gets rewritten and re-collides.",
+      "consequence": "The wedge returns in a narrower form and the red test does not catch it.",
+      "mitigation": "Match on the same triple the grouping unions on (hostId/sessionId/keyId, any-field overlap), and state that coupling in a comment next to both sites."
+    },
+    {
+      "scenario": "Suppressing the rewrite hides a case where the superseded verdict was the ONLY evidence for that round.",
+      "trigger": "A round that used to count via a downgraded verdict now reports missing hosts.",
+      "consequence": "A story that previously passed the floor starts failing it.",
+      "mitigation": "Skip only when an identity-equal verdict already exists natively at the current material, i.e. exactly the case where the downgraded copy adds nothing; a lone superseded verdict is still downgraded and still counts."
+    }
+  ],
+  "timestamp": "2026-07-30T00:47:31.476Z"
+}
