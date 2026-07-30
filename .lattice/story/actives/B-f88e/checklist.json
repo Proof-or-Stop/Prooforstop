@@ -38,7 +38,11 @@
           {
             "desc": "The test refuses to pass vacuously: if the current-material quorum alone did not already yield 3/3 it reports FIXTURE IS VACUOUS, and if the fixture verdicts were not distinct on disk it reports FIXTURE ERROR",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+              "selector": "red-quorum-downgrade-collision: OK"
+            }
           }
         ]
       },
@@ -80,6 +84,25 @@
           "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
           "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
           "timestamp": "2026-07-30T01:05:32.358Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+          "result": "pass",
+          "note": "Tool-executed. The test's own non-vacuity and on-disk-distinctness assertions are inside the command the CLI runs: it fails with FIXTURE IS VACUOUS if the current-material quorum alone does not already yield 3/3, and with FIXTURE ERROR if the twelve fixture verdicts are not distinct on disk.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
+            "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:05:33.484Z"
+          },
+          "headHash": "d98648641b6886b59f1400495763735461c02a1c",
+          "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
+          "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
+          "timestamp": "2026-07-30T01:05:33.605Z"
         }
       ]
     },
