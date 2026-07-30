@@ -5,7 +5,7 @@ identity-equal verdict on top of one already native to the current material.
 
 ## CHK-001: Land the red reproduction as a registered test that fails on the current defect
 
-**Owner**: lattice-implementer
+**Owner**: main-agent (fast channel: 2 checklist items, no riskSignals)
 **DependsOn**: none
 **Files**:
 - Create: `packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs`
@@ -36,7 +36,7 @@ failure and `process.exit(1)` when non-empty, otherwise print an OK line and `pr
 
 ## CHK-002: Skip the downgrade rewrite when it would collide with a live verdict of the same identity
 
-**Owner**: lattice-implementer
+**Owner**: main-agent (fast channel: 2 checklist items, no riskSignals)
 **DependsOn**: CHK-001
 **Files**:
 - Modify: `packages/main/src/core/review-escalation.ts` (`eventsWithStoryFilesHashDowngrade`)
