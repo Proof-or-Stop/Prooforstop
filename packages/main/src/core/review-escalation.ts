@@ -18,7 +18,7 @@
 import { spawnSync } from 'node:child_process';
 import { accessSync, constants, realpathSync } from 'node:fs';
 import { delimiter, extname, join } from 'node:path';
-import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from './evidence-freshness.js';
 import {
   evaluateHostVerdictRounds,
   type HostVerdictRound,
@@ -945,6 +945,19 @@ function evaluateVoluntaryLocalRounds(
   };
 }
 
+/**
+ * B-f88e: identity key for the collision precondition below. This MUST stay aligned with
+ * `groupByIndependentHost` in core/host-independence.ts, which unions verdicts sharing ANY of
+ * hostId / sessionId / keyId — if that comparison changes, change this alongside it.
+ */
+function hostIdentityKeys(event: ProcessEvent): string[] {
+  return [
+    `host:${normalizeString(event.hostId)}`,
+    `session:${normalizeString(event.sessionId)}`,
+    `key:${normalizeString(event.keyId)}`,
+  ].filter(part => !part.endsWith(':'));
+}
+
 export function eventsWithStoryFilesHashDowngrade(
   events: ProcessEvent[],
   currentMaterialHash: string,
@@ -952,12 +965,37 @@ export function eventsWithStoryFilesHashDowngrade(
   advisories: string[],
 ): ProcessEvent[] {
   if (!currentStoryFilesHash) return events;
+  // B-f88e: EMPTY_STORY_FILES_HASH is sha256('') — a well-formed hash meaning "this story owns
+  // no files". Two such values are NOT evidence that the story-owned material is unchanged, so
+  // they must never authorise a downgrade. Same no-signal precedent as delivery-check-hash.ts.
+  if (currentStoryFilesHash === EMPTY_STORY_FILES_HASH) return events;
+
+  // B-f88e: verdicts recorded NATIVELY at the current material, indexed by runId + identity.
+  // A superseded verdict must not be rewritten on top of one of these: it would be byte-distinct
+  // on disk yet identity-identical after the rewrite, and `evaluateHostVerdictRounds` would then
+  // invalidate the whole round on `duplicate host/session/key identity` — fabricating a double
+  // vote that never happened and wedging the review-assurance floor at 0/N.
+  const liveIdentities = new Set<string>();
+  for (const event of events) {
+    if (event.type !== 'host_verdict') continue;
+    if (normalizeString(event.materialDigest) !== currentMaterialHash) continue;
+    const runId = normalizeString(event.runId);
+    for (const identity of hostIdentityKeys(event)) liveIdentities.add(`${runId} ${identity}`);
+  }
+
   return events.map((event, index) => {
     if (event.type !== 'host_verdict') return event;
     const materialDigest = normalizeString(event.materialDigest);
     const storyFilesHash = normalizeString(event.storyFilesHash);
     if (!materialDigest || materialDigest === currentMaterialHash) return event;
     if (!storyFilesHash || storyFilesHash !== currentStoryFilesHash) return event;
+    if (storyFilesHash === EMPTY_STORY_FILES_HASH) return event;
+    const runId = normalizeString(event.runId);
+    if (hostIdentityKeys(event).some(identity => liveIdentities.has(`${runId} ${identity}`))) {
+      // Already superseded by a live verdict of the same identity: leave it at its original
+      // material so it is simply not counted, rather than colliding with the one that is.
+      return event;
+    }
     const verdictId = normalizeString(event.verdictId) || `event#${index}`;
     advisories.push(`host verdict ${verdictId}: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required`);
     return {
