@@ -215,9 +215,11 @@
       "q": "story-files-hash-material-drift.md says the storyFilesHash downgrade path 'is not a silent rebind... and not permission to rewrite stored hashes', but the story's own understanding.json describes eventsWithStoryFilesHashDowngrade as literally rewriting a verdict's materialDigest to the current value whenever storyFilesHash matches. Is the existing rewrite-in-place behaviour itself already spec-compliant (e.g. an in-memory evaluation view, not a persisted-file mutation), or should CHK-002's fix be scoped more broadly than just the colliding-identity case to honor the 'not permission to rewrite stored hashes' rule?",
       "evidence": "story-files-hash-material-drift.md: 'The warning is mandatory. This is not a silent rebind, not an automatic evidence refresh, and not permission to rewrite stored hashes.' vs understanding.json fact: 'eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948) rewrites materialDigest to the current value whenever the verdict's storyFilesHash matches the current one, with no exemption for identities already present natively at the current material.'",
       "sourcePointers": [
-        "docs/requirements/decisions/story-files-hash-material-drift.md#Freshness-Semantics",
-        ".lattice/story/actives/B-f88e/understanding.json#facts"
-      ]
+        "docs/requirements/decisions/story-files-hash-material-drift.md#L59-L64",
+        "packages/main/src/core/review-escalation.ts#L948-L969"
+      ],
+      "resolution": "No wider scope needed: the spec prohibition is about STORED hashes, and this rewrite never stores anything. story-files-hash-material-drift.md:62-64 prohibits a silent rebind, an automatic evidence refresh, and rewriting stored hashes, and requires the drift to be visible. Verified in source (review-escalation.ts:948-969): zero writeFile/appendFile/fs calls, returns only an in-memory events.map projection, preserves the pre-rewrite value as originalMaterialDigest, and emits the mandatory advisory. The mechanism is therefore spec-compliant on all three prohibitions and on visibility; CHK-002 correctly stays narrow and removes only the case where that projection fabricates a duplicate identity that never existed on disk.",
+      "resolvedAt": "2026-07-30T01:00:11.111Z"
     },
     {
       "id": "OQ-2",
