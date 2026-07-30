@@ -77,6 +77,33 @@
         "scanEscalationReason": null
       },
       "_hash": "3f6dafa08b2c94c0f9449873f249c7a70d21269baca5f9368c114e5ff0af571d"
+    },
+    {
+      "id": "B-f88e:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage audit of all 6 verificationIntent entries (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial): all bound to must-priority manual_transcript/logic_test evidence with matching intentRef, non-fail result, materialHash equal to current story materialHash (headHash differs only via trailing metadata-only Lattice bookkeeping commits after evidence capture; git diffstat confirms only .lattice/story/actives/B-f88e/* JSON changed, no src/test files -- headHash-only drift, not a re-verify signal). Independently rebuilt dist and re-ran both registered red tests green at HEAD. Bite-verified case-4 mixed-case assertion is not vacuous: patched compiled hostIdentityKeys back to trim-only, confirmed non-regression test fails exactly on CASE-VARIANT IDENTITY SLIPPED THE GUARD (validRounds=0), restored and confirmed green + diff-clean vs backup. Confirmed src imports normalizeIdentity from host-independence.ts at both call sites so the two cannot re-drift. Confirmed NUL byte replaced with literal '::' (grep -aP for \\x00 returns 0 matches; commit c39d9f78d0) and file(1) now reports UTF-8 text not binary. Both red tests registered in lattice.config.json validate.commands. finding_list shows F-001 and F-002 resolved/verified with strong evidence. No gaps found.",
+      "createdAt": "2026-07-30T01:34:43.155Z",
+      "reviewRound": "2026-07-30T01:29:05.428Z",
+      "reviewRunId": "B-f88e:RR-005",
+      "envelopeId": "a1df50d33df12f7e52152547a6344f6da5dffbe71b231a83fd16d933c7644567",
+      "writerSessionId": "sess-0226e87a8b163753214c0dbd71c5d27f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f88e/background.md",
+          ".lattice/story/actives/B-f88e/checklist.json",
+          ".lattice/story/actives/B-f88e/plan.md",
+          "packages/main/src/core/host-independence.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs",
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b0f1430744bf39d320d2f1e990eade8d103d2b7237b8a1316f6fc4a8280866a4"
     }
   ]
 }
