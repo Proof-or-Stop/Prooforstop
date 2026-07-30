@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f88e",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "node",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/tests/red"
+  ],
+  "excludedCommands": [
+    "git push",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/host-independence.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/handlers/quorum-submit.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Red test plus a single guarded precondition in the downgrade helper. The identity-grouping and quorum-submit sides are deliberately untouched per the decision.",
+  "createdAt": "2026-07-30T00:45:43.064Z",
+  "updatedAt": "2026-07-30T00:45:43.064Z",
+  "_hash": "c523863ff7776b5a2900e751c92b7800fbcdbcfeddb7f41579be935066947cf5"
+}
