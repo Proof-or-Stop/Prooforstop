@@ -215,9 +215,11 @@
       "q": "story-files-hash-material-drift.md says the storyFilesHash downgrade path 'is not a silent rebind... and not permission to rewrite stored hashes', but the story's own understanding.json describes eventsWithStoryFilesHashDowngrade as literally rewriting a verdict's materialDigest to the current value whenever storyFilesHash matches. Is the existing rewrite-in-place behaviour itself already spec-compliant (e.g. an in-memory evaluation view, not a persisted-file mutation), or should CHK-002's fix be scoped more broadly than just the colliding-identity case to honor the 'not permission to rewrite stored hashes' rule?",
       "evidence": "story-files-hash-material-drift.md: 'The warning is mandatory. This is not a silent rebind, not an automatic evidence refresh, and not permission to rewrite stored hashes.' vs understanding.json fact: 'eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948) rewrites materialDigest to the current value whenever the verdict's storyFilesHash matches the current one, with no exemption for identities already present natively at the current material.'",
       "sourcePointers": [
-        "docs/requirements/decisions/story-files-hash-material-drift.md#Freshness-Semantics",
-        ".lattice/story/actives/B-f88e/understanding.json#facts"
-      ]
+        "docs/requirements/decisions/story-files-hash-material-drift.md#L59-L64",
+        "packages/main/src/core/review-escalation.ts#eventsWithStoryFilesHashDowngrade"
+      ],
+      "resolution": "No wider scope needed: the spec prohibition is about STORED hashes, and this rewrite never stores anything. story-files-hash-material-drift.md lines 62-64 read 'This is not a silent rebind, not an automatic evidence refresh, and not permission to rewrite stored hashes. Operators and reviewers must see that unrelated whole-tree material drift occurred.' Verified in source: eventsWithStoryFilesHashDowngrade performs zero filesystem writes (0 writeFile/appendFile/fs calls in the function body), returns only an in-memory events.map projection used for evaluation, preserves the original value as originalMaterialDigest, and emits the mandatory advisory ('materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required'). So the existing mechanism is spec-compliant on all three prohibitions and the visibility requirement, and CHK-002 correctly stays narrow: it removes only the case where that in-memory projection FABRICATES a duplicate identity that never existed on disk.",
+      "resolvedAt": "2026-07-30T00:55:46.225Z"
     },
     {
       "id": "OQ-2",
