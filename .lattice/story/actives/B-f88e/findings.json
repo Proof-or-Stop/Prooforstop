@@ -1,0 +1,45 @@
+{
+  "findings": [
+    {
+      "id": "B-f88e:F-001",
+      "desc": "packages/main/src/core/review-escalation.ts:994 the per-verdict `if (storyFilesHash === EMPTY_STORY_FILES_HASH) return event;` inside eventsWithStoryFilesHashDowngrade is unreachable dead code: the earlier `if (currentStoryFilesHash === EMPTY_STORY_FILES_HASH) return events;` at line 971 already short-circuits the whole function whenever currentStoryFilesHash is empty, so by the time control reaches the inner check storyFilesHash===currentStoryFilesHash can never equal EMPTY_STORY_FILES_HASH. Bite-verified: commenting out only the inner check (line 994 site in dist) with false&&... left both red-f88e-quorum-downgrade-collision.mjs and red-f88e-downgrade-non-regression.mjs passing, including the EMPTY_STORY_FILES_HASH assertion in non-regression part 3 (that assertion is actually satisfied by the outer guard, not this one). Not a functional bug and not a coverage gap for the stated intent (the no-signal guarantee is genuinely covered end-to-end by the outer check), but the inner check gives false confidence that a second, independent guard exists at the per-verdict level. Recommend either removing the inner check as redundant or adding one fixture where currentStoryFilesHash is non-empty while a per-verdict storyFilesHash independently equals EMPTY_STORY_FILES_HASH (impossible today given the equality gate above it, so realistically: just delete it) so the comment/code no longer implies untested defense-in-depth.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-30T01:14:48.263Z",
+      "reviewRound": "2026-07-30T01:07:39.328Z",
+      "reviewRunId": "B-f88e:RR-001",
+      "_hash": "b83184ab2fbc276fc02055b3223a36d209277e7f79c617d5a2445c846476cb22",
+      "files": [
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the unreachable inner check and replaced it with a comment explaining why no per-event check is needed: reaching that line implies storyFilesHash === currentStoryFilesHash, and the function already returns early when the current hash is EMPTY_STORY_FILES_HASH. Re-verified after the change: both registered tests stay green, and the no-signal guarantee is still load-bearing — temporarily removing the OUTER guard from dist flips red-f88e-downgrade-non-regression to exit 1, and restoring it returns exit 0.",
+      "resolvedAt": "2026-07-30T01:16:17.766Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f88e:F-002",
+      "desc": "packages/main/src/core/review-escalation.ts:953-958 hostIdentityKeys() is not actually faithful to groupByIndependentHost as its own comment (line 949-951) claims it must be: it builds keys from normalizeString(event.hostId/sessionId/keyId) (trim only, no case-folding), whereas host-independence.ts identityKeys()/groupByIndependentHost() (host-independence.ts:53-55,61-67) compares AcceptedHostVerdict fields that were built via normalizeIdentity() (trim + toLowerCase()). Confirmed reachable: quorum-submit.ts:421-422 stores hostId as normalizeString(args.hostA)/normalizeString(args.hostB) (case preserved, not folded) on the host_verdict event, so a resubmission with a different case for the same logical host (e.g. hostA=\"Claude-CLI\" vs \"claude-cli\") produces two on-disk hostIds that host-independence.ts treats as the SAME identity (duplicate) but hostIdentityKeys() treats as DIFFERENT identities. Concretely: eventsWithStoryFilesHashDowngrade would then fail to detect the collision and would rewrite the superseded verdict onto the current material, after which evaluateHostVerdictRounds folds case and flags duplicate host/session/key identity anyway -- reproducing exactly the B-4043 defect this story fixes, just triggered by a case-varying host identity instead of a bit-identical one. Neither red-f88e-quorum-downgrade-collision.mjs nor red-f88e-downgrade-non-regression.mjs cover mixed-case hostId/sessionId/keyId, so this gap is untested. Fix: hostIdentityKeys should lowercase (or otherwise normalizeIdentity-match) each component the same way host-independence.ts does, and a case-varying fixture should be added to the non-regression guard.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-30T01:25:58.162Z",
+      "reviewRound": "2026-07-30T01:22:14.283Z",
+      "reviewRunId": "B-f88e:RR-003",
+      "_hash": "e14e189edd86abf3c137ba4aef3636e56babb7ccb60b8d405d7d962d1529b533",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by sharing the function rather than restating the rule: normalizeIdentity is now exported from core/host-independence.ts and imported by core/review-escalation.ts, so hostIdentityKeys and groupByIndependentHost cannot drift apart again. Your analysis was exact — quorum-submit.ts stores hostId via normalizeString without folding case, so a differently-cased resubmission would have slipped the guard and then been folded back together by the grouping. Added the missing mixed-case fixture to red-f88e-downgrade-non-regression.mjs and bite-verified it: precisely downgrading the compiled hostIdentityKeys calls back to trim-only fires exactly the CASE-VARIANT IDENTITY SLIPPED THE GUARD assertion and exits 1; restoring returns exit 0.",
+      "resolvedAt": "2026-07-30T01:28:37.523Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

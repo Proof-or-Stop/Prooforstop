@@ -1,0 +1,25 @@
+{
+  "task": "Stop eventsWithStoryFilesHashDowngrade from rewriting a superseded host verdict onto the current material when that rewrite would collide with a live verdict of the same independent host identity.",
+  "outcome": "A complete 3x2 quorum at the current material counts as 3/3 valid rounds even when a superseded quorum for the same runIds exists at an older material sharing its storyFilesHash, and a registered red test permanently guards that.",
+  "facts": [
+    "eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948) rewrites materialDigest to the current value whenever the verdict's storyFilesHash matches the current one, with no exemption for identities already present natively at the current material.",
+    "groupByIndependentHost (core/host-independence.ts:69) unions verdicts sharing ANY of hostId/sessionId/keyId; evaluateHostVerdictRounds (:127) then marks a round invalid with 'duplicate host/session/key identity'.",
+    "Quorum runIds are the fixed names ${storyId}-q-r1..r3 (handlers/quorum-submit.ts:480,506), and sessionId/keyId are derived per host without any material salt (:89-97,444-452), so a second submission reuses the identical identity triple.",
+    "Reproduced before any fix: the current-material submission alone yields 3/3 valid rounds; adding a superseded submission that shares storyFilesHash drops it to 0/3 with six manufactured duplicate-identity reasons, while all twelve verdicts remain distinct on disk.",
+    "Observed live on B-4043 on 2026-07-27: verdicts at materials 443a65aa66cc and 329b38c4807a both carried storyFilesHash f29641b7d99d, the floor reported 0/3 (submitted=3, complete=false), and it cleared only when a main merge moved storyFilesHash to f25bb43b739c.",
+    "Once wedged, quorum_submit refuses to re-emit because (runId, materialDigest) already carries verdicts, and a fresh review round does not help because runIds are not round-scoped."
+  ],
+  "constraints": [
+    "Only packages/main/src/core/review-escalation.ts, packages/main/tests/red/, and lattice.config.json may change; host-independence.ts, quorum-submit.ts and review-assurance-floor.ts stay untouched.",
+    "The re-attestation advisory for genuinely downgraded verdicts must keep firing, so unrelated whole-tree drift behaves exactly as today.",
+    "The fix must not weaken the real double-vote check: two genuine same-identity verdicts at the current material must still invalidate the round.",
+    "The red test must fail before the fix and pass after, and must keep its own non-vacuity assertion."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/tests/red/",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-07-30T00:46:44.879Z"
+}

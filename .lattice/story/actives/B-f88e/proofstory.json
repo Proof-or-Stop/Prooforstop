@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-f88e",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:b59409370ff04f64db407f2c59c13a0885aa7fc7f3e020c94c74202a6e608729",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The registered red test red-f88e-quorum-downgrade-collision.mjs exits 1 before the fix with the 0/3 collision message and exits 0 after it, with no manufactured duplicate-identity reasons.",
+      "note": "CHK-001 lands the red guard (red before the fix, green after); CHK-002 removes the fabricated duplicate at its source in eventsWithStoryFilesHashDowngrade and adds the EMPTY_STORY_FILES_HASH no-signal guard."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_intent_collision",
+      "severity": "warn",
+      "artifact": "intent-collision.json",
+      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
+      "triggeredBy": [
+        "collision_required_high_assurance",
+        "collision_required_standard"
+      ]
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-30T01:01:51.042Z",
+  "updatedAt": "2026-07-30T01:01:51.042Z"
+}
