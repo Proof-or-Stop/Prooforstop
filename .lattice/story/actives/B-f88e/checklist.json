@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Land the red reproduction as a registered test that fails on the current defect",
+      "context": "A working reproduction already exists and has been run: it imports eventsWithStoryFilesHashDowngrade from core/review-escalation.js and evaluateHostVerdictRounds from core/host-independence.js, builds two quorum submissions (3 rounds x 2 hosts) at different materialDigests sharing one storyFilesHash, and asserts the correct behaviour of 3/3 valid rounds with no manufactured duplicate-identity reasons. It also asserts non-vacuity (the current-material submission alone must already yield 3/3) and that all verdicts are distinct on disk. Land it under packages/main/tests/red/ following the existing red-b2aa7-*.mjs convention and register it in lattice.config.json validate.commands.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "The registered red test fails before the fix with 'DOWNGRADE COLLISION: ... counted as 0/3 valid rounds' and passes after it",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Skip the downgrade rewrite when it would collide with a live verdict of the same identity",
+      "context": "In eventsWithStoryFilesHashDowngrade (core/review-escalation.ts), a verdict from an older materialDigest is rewritten to the current one whenever storyFilesHash matches. Add a precondition: do not rewrite when a verdict with the same runId and the same independent host identity (hostId/sessionId/keyId, matching how groupByIndependentHost in core/host-independence.ts compares them) already exists natively at the current materialDigest. Keep emitting the re-attestation advisory for genuinely downgraded verdicts so the existing behaviour for unrelated drift is unchanged.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "review_escalation_status reports the floor satisfied with 3/3 rounds x 2 hosts when a complete quorum exists at the current material, even though a superseded quorum shares its storyFilesHash",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
