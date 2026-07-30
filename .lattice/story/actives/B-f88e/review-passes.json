@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-f88e:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verification-intent coverage audited for both checklist items; all 6 must-priority intents have mechanical, tool-executed evidence bound to current head/material/storyFilesHash. Bite-verified both red tests by disabling the fix in dist and confirming red-f88e-quorum-downgrade-collision.mjs reproduces the exact B-4043 0/3 duplicate-identity failure, and by over-broadening the guard to confirm red-f88e-downgrade-non-regression.mjs catches the too-broad pre-mortem risk. One low-severity non-blocking finding filed for a dead inner EMPTY_STORY_FILES_HASH check (F-001); the stated no-signal guarantee is still genuinely covered end-to-end by the outer guard, so no coverage gap.",
+      "createdAt": "2026-07-30T01:15:03.997Z",
+      "reviewRound": "2026-07-30T01:07:39.328Z",
+      "reviewRunId": "B-f88e:RR-001",
+      "envelopeId": "9d932baee204d6aa6b1887fb5174b1f1f06092e191aad5aafa5ee001a48c806f",
+      "writerSessionId": "sess-0226e87a8b163753214c0dbd71c5d27f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/story/actives/B-f88e/background.md",
+          "docs/story/actives/B-f88e/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/tests/red/red-f88e-downgrade-non-regression.mjs",
+          "packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/host-independence.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "56ad85b868fe555904b276316d496bded453f64b1af29453b8066f71d8582bb8"
+    }
+  ]
+}
