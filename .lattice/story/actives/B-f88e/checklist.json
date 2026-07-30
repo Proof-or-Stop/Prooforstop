@@ -45,7 +45,30 @@
       "userSees": "review_escalation_status reports the floor satisfied with 3/3 rounds x 2 hosts when a complete quorum exists at the current material, even though a superseded quorum shares its storyFilesHash",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A complete 3x2 quorum at the current material counts as 3/3 valid rounds despite a superseded quorum sharing its storyFilesHash",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A lone superseded verdict with no live identity-equal counterpart is still downgraded and still emits the re-attestation advisory, so unrelated whole-tree drift is unchanged",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two genuine same-identity verdicts recorded natively at the current material still invalidate the round, proving the double-vote check was not weakened",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
