@@ -53,18 +53,18 @@
           "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
           "result": "pass",
           "note": "Tool-executed: the CLI runs the registered red test itself and derives the result from the real exit code plus selector match. It now exits 0 with the OK line.",
+          "headHash": "2aec8a2b660ce8a6cbaea50d1d121ee7cade7c96",
+          "materialHash": "4ce2977fb6525daff041634809a168139529e895f0526cb4fe26fc685fa9a27b",
+          "storyFilesHash": "96507bef0869b791ef402673db7a79970e5fbe9fb95c5710516e27d375836226",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
             "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
             "selectorMatched": true,
-            "executedAt": "2026-07-30T01:05:30.848Z"
+            "executedAt": "2026-07-30T01:07:27.815Z"
           },
-          "headHash": "6131d5de820dd35e169ec9e5d9bd79b03f35e0f9",
-          "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
-          "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
-          "timestamp": "2026-07-30T01:05:31.008Z"
+          "timestamp": "2026-07-30T01:07:29.116Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -72,18 +72,18 @@
           "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
           "result": "pass",
           "note": "Tool-executed. Red-before-green was measured on the pre-fix tree at head 4dcfbfa: the same command exited 1 with 'DOWNGRADE COLLISION: ... counted as 0/3 valid rounds' and six duplicate host/session/key identity reasons; it exits 0 at this head.",
+          "headHash": "2aec8a2b660ce8a6cbaea50d1d121ee7cade7c96",
+          "materialHash": "4ce2977fb6525daff041634809a168139529e895f0526cb4fe26fc685fa9a27b",
+          "storyFilesHash": "96507bef0869b791ef402673db7a79970e5fbe9fb95c5710516e27d375836226",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
             "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
             "selectorMatched": true,
-            "executedAt": "2026-07-30T01:05:32.220Z"
+            "executedAt": "2026-07-30T01:07:28.320Z"
           },
-          "headHash": "01728cb560902f4636844962a943cd6e21e79912",
-          "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
-          "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
-          "timestamp": "2026-07-30T01:05:32.358Z"
+          "timestamp": "2026-07-30T01:07:29.116Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -91,18 +91,18 @@
           "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
           "result": "pass",
           "note": "Tool-executed. The test's own non-vacuity and on-disk-distinctness assertions are inside the command the CLI runs: it fails with FIXTURE IS VACUOUS if the current-material quorum alone does not already yield 3/3, and with FIXTURE ERROR if the twelve fixture verdicts are not distinct on disk.",
+          "headHash": "2aec8a2b660ce8a6cbaea50d1d121ee7cade7c96",
+          "materialHash": "4ce2977fb6525daff041634809a168139529e895f0526cb4fe26fc685fa9a27b",
+          "storyFilesHash": "96507bef0869b791ef402673db7a79970e5fbe9fb95c5710516e27d375836226",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
             "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
             "selectorMatched": true,
-            "executedAt": "2026-07-30T01:05:33.484Z"
+            "executedAt": "2026-07-30T01:07:28.726Z"
           },
-          "headHash": "d98648641b6886b59f1400495763735461c02a1c",
-          "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
-          "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
-          "timestamp": "2026-07-30T01:05:33.605Z"
+          "timestamp": "2026-07-30T01:07:29.116Z"
         }
       ],
       "userSeesSnapshot": {
@@ -166,18 +166,18 @@
           "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
           "result": "pass",
           "note": "Tool-executed: the same registered test asserts a complete 3x2 quorum at the current material counts 3/3 valid rounds despite a superseded quorum sharing its storyFilesHash. It passes only because eventsWithStoryFilesHashDowngrade now skips the colliding rewrite.",
+          "headHash": "2aec8a2b660ce8a6cbaea50d1d121ee7cade7c96",
+          "materialHash": "4ce2977fb6525daff041634809a168139529e895f0526cb4fe26fc685fa9a27b",
+          "storyFilesHash": "96507bef0869b791ef402673db7a79970e5fbe9fb95c5710516e27d375836226",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
             "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
             "selectorMatched": true,
-            "executedAt": "2026-07-30T01:05:34.873Z"
+            "executedAt": "2026-07-30T01:07:29.105Z"
           },
-          "headHash": "82e62da4bb6aff344627f1b57d9a86bb2f1f8281",
-          "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
-          "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
-          "timestamp": "2026-07-30T01:05:35.012Z"
+          "timestamp": "2026-07-30T01:07:29.116Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
