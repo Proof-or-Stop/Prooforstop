@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f88e",
+  "changes": "packages/main/src/core/review-escalation.ts: eventsWithStoryFilesHashDowngrade no longer rewrites a superseded host verdict onto the current material when a verdict of the same runId and overlapping host identity is already there natively, and treats EMPTY_STORY_FILES_HASH as no-signal rather than a match. packages/main/src/core/host-independence.ts: normalizeIdentity is exported so the collision guard and groupByIndependentHost share one identity rule instead of restating it. Two registered red tests added under packages/main/tests/red/.",
+  "usage": "No command changes. lattice review_escalation_status and the review-assurance floor now count a quorum that genuinely exists at the current material instead of scoring it 0/N. The two guards run automatically as part of lattice validate.",
+  "expectedOutcome": "A complete 3x2 quorum at the current material counts as 3/3 valid rounds even when a superseded quorum for the same runIds exists at an older material sharing its storyFilesHash, and a registered test permanently guards that.",
+  "actualTranscript": "red-f88e-quorum-downgrade-collision.mjs exited 1 before the fix with \"DOWNGRADE COLLISION: ... counted as 0/3 valid rounds\" and six manufactured duplicate host/session/key identity reasons; it exits 0 after the fix with all twelve fixture verdicts still distinct on disk and the non-vacuity assertion (current-material quorum alone already yields 3/3) satisfied. red-f88e-downgrade-non-regression.mjs exits 0, pinning that a lone superseded verdict is still downgraded with its mandatory advisory and preserved originalMaterialDigest, that genuine same-identity verdicts recorded natively at the current material still invalidate the round, that two EMPTY_STORY_FILES_HASH values never authorise a downgrade, and that a mixed-case hostId cannot slip the guard. Every guard was bite-verified by downgrading the compiled dist and confirming the matching assertion fires, then restoring. Three reviewer lanes passed the current round (quality RP-003, test-coverage RP-004, concept RP-005) with 0 open findings, and the review-assurance floor reports satisfied with quorum 3/3 rounds x 2 hosts.",
+  "outcomeDiff": "No difference: the red test flips from 0/3 to 3/3 exactly as expected, and the floor counts the quorum.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The fix removes the fabrication at its source only. Quorum runIds remain fixed and not round-scoped (option B, deliberately rejected), so a fresh review round still reuses the same runIds; that is now harmless because a superseded set can no longer collide with a live one, but it means the gate remedy text for stale_closeout_review still does not by itself mint new quorum runs. Already-recorded verdicts of past stories are not retroactively repaired.",
+  "pitfalls": "Three reviewer findings were real defects I had introduced, each caught by a different lane and each fixed rather than accepted: an unreachable inner EMPTY_STORY_FILES_HASH branch (F-001); a literal NUL byte used as the identity-key separator, which made file(1) classify review-escalation.ts as binary and made plain grep skip it entirely - a silent blind spot for this repo grep-based scanners, and the cause of an earlier grep returning nothing that I had wrongly dismissed as a tooling glitch; and F-002, where hostIdentityKeys compared with trim-only while groupByIndependentHost folds case, so a differently-cased hostId would have slipped the guard and reproduced the very collision being fixed. The lesson that generalises: when a new guard must agree with an existing comparison, import that function rather than restating the rule in a comment. Also note each source fix invalidates the evidence and the reviewer passes, so batch corrections before re-running lanes, and refresh evidence BEFORE the reviewers rather than after.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 234167
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 30220
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 982707
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 309430
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 2513072
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 47356
+    }
+  },
+  "totalDurationMs": 4117863,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-30T01:50:37.270Z",
+  "updatedAt": "2026-07-30T01:50:37.270Z"
+}
