@@ -1,6 +1,6 @@
 {
   "storyId": "B-f88e",
-  "checkedAt": "2026-07-30T00:54:23.281Z",
+  "checkedAt": "2026-07-30T00:59:10.934Z",
   "features": [
     {
       "feature": "Land the already-executed red reproduction as a permanent registered test (packages/main/tests/red/, red-b2aa7-*.mjs convention) that asserts the CORRECT 3/3 behaviour, including non-vacuity and on-disk-distinctness assertions, and register it in lattice.config.json validate.commands",
@@ -45,24 +45,24 @@
       "source": "decisions:three-round-two-host-review-escalation-execution-plan.md"
     },
     {
-      "feature": "story-files-hash-material-drift.md states the storyFilesHash downgrade path is 'not a silent rebind... and not permission to rewrite stored hashes', while the story's own facts describe eventsWithStoryFilesHashDowngrade as rewriting a verdict's materialDigest to the current value whenever storyFilesHash matches; the checklist does not state whether this existing rewrite behaviour itself is spec-compliant (e.g. an in-memory evaluation view vs. a literal persisted-record mutation) or whether CHK-002's fix should narrow more than just the colliding-identity case",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "story-files-hash-material-drift.md states the storyFilesHash downgrade path is 'not a silent rebind... and not permission to rewrite stored hashes'; whether eventsWithStoryFilesHashDowngrade's rewrite of materialDigest is itself spec-compliant, resolved via OQ-1",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:story-files-hash-material-drift.md"
     },
     {
-      "feature": "review-run-binding-race.md establishes a precedent that 'the storyFilesHash drift-advisory downgrade must treat EMPTY_STORY_FILES_HASH ... as no-signal on BOTH the stored and the live side and fall through to strict materialHash', already implemented in delivery-check-hash.ts / evidence-freshness.ts / milestone-status.ts, but grep confirms review-escalation.ts (the file this story edits) has no EMPTY_STORY_FILES_HASH guard, and CHK-002 does not mention this edge case",
-      "covered_by": null,
-      "status": "orphan-suspect",
+      "feature": "review-run-binding-race.md establishes a precedent that the storyFilesHash drift-advisory downgrade must treat EMPTY_STORY_FILES_HASH as no-signal on both stored and live side and fall through to strict materialHash, already implemented in delivery-check-hash.ts / evidence-freshness.ts / milestone-status.ts but confirmed missing (independently verified: lines 954/960 of review-escalation.ts only check falsy/mismatch, so two EMPTY_STORY_FILES_HASH values compare equal and authorise a downgrade on no evidence) in review-escalation.ts; accepted into scope and now explicit in plan.md CHK-002 with a dedicated Verify line",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:review-run-binding-race.md"
     },
     {
-      "feature": "red-evidence-subsystem-spec.md / repro-first-gate-enforce-execution-plan.md define a formal v2 RED-evidence chain (red_evidence_assert, registered target binding, GREEN predicate) as the trusted way to record RED reproductions; CHK-001 instead plans a plain shebang .mjs script registered only in lattice.config.json validate.commands (the older red-b2aa7 convention), and this story's own story_review already surfaces a 'missing_red_evidence' advisory noting no red-evidence.json record exists",
+      "feature": "red-evidence-subsystem-spec.md / repro-first-gate-enforce-execution-plan.md define a formal v2 RED-evidence chain (red_evidence_assert, registered target binding, GREEN predicate) as an alternative way to record RED reproductions",
       "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "status": "excluded",
+      "excluded_by": "OQ-2 resolution: v2 enforcement is Workstream 3 of repro-first-gate-enforce-execution-plan.md and is not wired; story_review's missing_red_evidence is advisory only; every currently-registered red test (red-b2aa7-* family) uses the plain .mjs convention, so CHK-001 deliberately follows the live convention rather than an unenforced future one, migrating with the family later.",
       "source": "decisions:red-evidence-subsystem-spec.md"
     }
   ],
@@ -201,37 +201,33 @@
   },
   "summary": {
     "total": 9,
-    "covered": 6,
-    "excluded": 0,
-    "gaps": 2,
-    "orphanSuspect": 1,
+    "covered": 8,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "07540b846834fc5031c7345f389a6fee9ee4116d957c7f18d6241d99c9925390",
+  "_hash": "88647f5b576b0cd2245be3d20714ebbb6f68d10ca3a81e09713089038b816a9e",
   "openQuestions": [
     {
       "id": "OQ-1",
       "q": "story-files-hash-material-drift.md says the storyFilesHash downgrade path 'is not a silent rebind... and not permission to rewrite stored hashes', but the story's own understanding.json describes eventsWithStoryFilesHashDowngrade as literally rewriting a verdict's materialDigest to the current value whenever storyFilesHash matches. Is the existing rewrite-in-place behaviour itself already spec-compliant (e.g. an in-memory evaluation view, not a persisted-file mutation), or should CHK-002's fix be scoped more broadly than just the colliding-identity case to honor the 'not permission to rewrite stored hashes' rule?",
       "evidence": "story-files-hash-material-drift.md: 'The warning is mandatory. This is not a silent rebind, not an automatic evidence refresh, and not permission to rewrite stored hashes.' vs understanding.json fact: 'eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948) rewrites materialDigest to the current value whenever the verdict's storyFilesHash matches the current one, with no exemption for identities already present natively at the current material.'",
       "sourcePointers": [
-        "docs/requirements/decisions/story-files-hash-material-drift.md#L59-L64",
-        "packages/main/src/core/review-escalation.ts#eventsWithStoryFilesHashDowngrade"
-      ],
-      "resolution": "No wider scope needed: the spec prohibition is about STORED hashes, and this rewrite never stores anything. story-files-hash-material-drift.md lines 62-64 read 'This is not a silent rebind, not an automatic evidence refresh, and not permission to rewrite stored hashes. Operators and reviewers must see that unrelated whole-tree material drift occurred.' Verified in source: eventsWithStoryFilesHashDowngrade performs zero filesystem writes (0 writeFile/appendFile/fs calls in the function body), returns only an in-memory events.map projection used for evaluation, preserves the original value as originalMaterialDigest, and emits the mandatory advisory ('materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required'). So the existing mechanism is spec-compliant on all three prohibitions and the visibility requirement, and CHK-002 correctly stays narrow: it removes only the case where that in-memory projection FABRICATES a duplicate identity that never existed on disk.",
-      "resolvedAt": "2026-07-30T00:55:46.225Z"
+        "docs/requirements/decisions/story-files-hash-material-drift.md#Freshness-Semantics",
+        ".lattice/story/actives/B-f88e/understanding.json#facts"
+      ]
     },
     {
       "id": "OQ-2",
       "q": "Should the CHK-001 red reproduction be registered through the formal v2 RED-evidence chain (red_evidence_assert / registered target binding, per red-evidence-subsystem-spec.md) instead of (or in addition to) a plain .mjs script registered only in lattice.config.json validate.commands, given repro-first-gate-enforce-execution-plan.md documents Workstream 2 (the v2 record subsystem) as already having implementation code in-repo (packages/main/src/core/red-evidence/, handlers/red-evidence.ts), even though Workstream 3 enforcement wiring is not yet flipped on and this story's own story_review already lists 'missing_red_evidence' as an advisory?",
       "evidence": "repro-first-gate-enforce-execution-plan.md: 'Sequencing: W0.* (parallel, now) -> W1 (now, parallel with W0) -> W2 spec story -> W2 implementation -> W3 -> enforce flip.' story_review issue: 'missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only.' CHK-001 plan.md: 'Port it as-is ... matching the red-b2aa7-*.mjs convention'.",
       "sourcePointers": [
-        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#workstream-3",
-        "docs/requirements/decisions/red-evidence-subsystem-spec.md",
-        "lattice.config.json#validate.commands"
-      ],
-      "resolution": "Use the plain .mjs convention, matching every currently-registered red test. The v2 RED-evidence chain (red_evidence_assert, target binding, GREEN predicate) exists in-repo but its enforcement is Workstream 3 of repro-first-gate-enforce-execution-plan.md and is NOT wired; this story's own story_review surfaces missing_red_evidence only as an advisory, not a blocker. Every red test registered in lattice.config.json today (the red-b2aa7-* family) uses the plain .mjs form, so CHK-001 follows the live convention rather than an unenforced future one. Adopting v2 here would couple a narrow correctness fix to an in-flight subsystem migration; when Workstream 3 lands and enforcement turns on, this test migrates with the rest of the family.",
-      "resolvedAt": "2026-07-30T00:55:47.162Z"
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md#Sequencing",
+        "docs/requirements/decisions/red-evidence-subsystem-spec.md#0.1",
+        ".lattice/story/actives/B-f88e/plan.md#CHK-001"
+      ]
     }
   ]
 }

@@ -49,9 +49,19 @@ overlap must be compared the same way `groupByIndependentHost`
 (`packages/main/src/core/host-independence.ts:69`) does — union on ANY of `hostId` / `sessionId` /
 `keyId` — and a short comment at both sites should record that coupling.
 
+**Also in this item (scope-plan orphan-suspect, accepted into scope)**: `review-escalation.ts` is
+missing the `EMPTY_STORY_FILES_HASH` no-signal guard that `delivery-check-hash.ts:184-188`,
+`evidence-freshness.ts` and `milestone-status.ts` already apply. `EMPTY_STORY_FILES_HASH` is
+`sha256('')`, i.e. a well-formed hash meaning "this story owns no files" — the current
+`!currentStoryFilesHash` / `!storyFilesHash` checks only reject null/empty strings, so two
+no-signal hashes currently compare EQUAL and authorise a downgrade on no evidence at all. Treat
+`EMPTY_STORY_FILES_HASH` on either side as no-signal and skip the downgrade, matching the
+established repo precedent from `review-run-binding-race.md`.
+
 **Verify**:
 - `npm --prefix packages/main run build` clean.
 - `node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs` exits 0.
+- A verdict pair whose storyFilesHash is `EMPTY_STORY_FILES_HASH` on both sides is NOT downgraded.
 - `node packages/main/dist/tasks/review-assurance-floor-smoke.js` and
   `review-assurance-floor-storyfileshash-smoke.js` still pass (the drift-acceptance behaviour
   they cover must be unchanged).
