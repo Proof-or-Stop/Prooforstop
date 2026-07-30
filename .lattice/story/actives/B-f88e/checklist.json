@@ -122,7 +122,11 @@
           {
             "desc": "A complete 3x2 quorum at the current material counts as 3/3 valid rounds despite a superseded quorum sharing its storyFilesHash",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+              "selector": "red-quorum-downgrade-collision: OK"
+            }
           }
         ],
         "edge": [
@@ -139,7 +143,28 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+          "result": "pass",
+          "note": "Tool-executed: the same registered test asserts a complete 3x2 quorum at the current material counts 3/3 valid rounds despite a superseded quorum sharing its storyFilesHash. It passes only because eventsWithStoryFilesHashDowngrade now skips the colliding rewrite.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
+            "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:05:34.873Z"
+          },
+          "headHash": "82e62da4bb6aff344627f1b57d9a86bb2f1f8281",
+          "materialHash": "2551cdc25a332f52e5cfe7d0233dde8b52905c78e960bae15db5923ac2443ba6",
+          "storyFilesHash": "ba4c7fdd6a5f44fd680eb57bfab3f6696971ed07e30ca350c722d6ab7bfef1a1",
+          "timestamp": "2026-07-30T01:05:35.012Z"
+        }
+      ]
     }
   ]
 }
