@@ -988,8 +988,10 @@ export function eventsWithStoryFilesHashDowngrade(
     const materialDigest = normalizeString(event.materialDigest);
     const storyFilesHash = normalizeString(event.storyFilesHash);
     if (!materialDigest || materialDigest === currentMaterialHash) return event;
+    // No per-event EMPTY_STORY_FILES_HASH check is needed here: reaching this line means
+    // storyFilesHash === currentStoryFilesHash, and the guard above already returned when the
+    // current hash is the empty-set digest, so an empty per-event hash cannot get this far.
     if (!storyFilesHash || storyFilesHash !== currentStoryFilesHash) return event;
-    if (storyFilesHash === EMPTY_STORY_FILES_HASH) return event;
     const runId = normalizeString(event.runId);
     if (hostIdentityKeys(event).some(identity => liveIdentities.has(`${runId} ${identity}`))) {
       // Already superseded by a live verdict of the same identity: leave it at its original
