@@ -27,7 +27,7 @@
       "desc": "packages/main/src/core/review-escalation.ts:953-958 hostIdentityKeys() is not actually faithful to groupByIndependentHost as its own comment (line 949-951) claims it must be: it builds keys from normalizeString(event.hostId/sessionId/keyId) (trim only, no case-folding), whereas host-independence.ts identityKeys()/groupByIndependentHost() (host-independence.ts:53-55,61-67) compares AcceptedHostVerdict fields that were built via normalizeIdentity() (trim + toLowerCase()). Confirmed reachable: quorum-submit.ts:421-422 stores hostId as normalizeString(args.hostA)/normalizeString(args.hostB) (case preserved, not folded) on the host_verdict event, so a resubmission with a different case for the same logical host (e.g. hostA=\"Claude-CLI\" vs \"claude-cli\") produces two on-disk hostIds that host-independence.ts treats as the SAME identity (duplicate) but hostIdentityKeys() treats as DIFFERENT identities. Concretely: eventsWithStoryFilesHashDowngrade would then fail to detect the collision and would rewrite the superseded verdict onto the current material, after which evaluateHostVerdictRounds folds case and flags duplicate host/session/key identity anyway -- reproducing exactly the B-4043 defect this story fixes, just triggered by a case-varying host identity instead of a bit-identical one. Neither red-f88e-quorum-downgrade-collision.mjs nor red-f88e-downgrade-non-regression.mjs cover mixed-case hostId/sessionId/keyId, so this gap is untested. Fix: hostIdentityKeys should lowercase (or otherwise normalizeIdentity-match) each component the same way host-independence.ts does, and a case-varying fixture should be added to the non-regression guard.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-30T01:25:58.162Z",
@@ -35,7 +35,11 @@
       "reviewRunId": "B-f88e:RR-003",
       "_hash": "e14e189edd86abf3c137ba4aef3636e56babb7ccb60b8d405d7d962d1529b533",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by sharing the function rather than restating the rule: normalizeIdentity is now exported from core/host-independence.ts and imported by core/review-escalation.ts, so hostIdentityKeys and groupByIndependentHost cannot drift apart again. Your analysis was exact — quorum-submit.ts stores hostId via normalizeString without folding case, so a differently-cased resubmission would have slipped the guard and then been folded back together by the grouping. Added the missing mixed-case fixture to red-f88e-downgrade-non-regression.mjs and bite-verified it: precisely downgrading the compiled hostIdentityKeys calls back to trim-only fires exactly the CASE-VARIANT IDENTITY SLIPPED THE GUARD assertion and exits 1; restoring returns exit 0.",
+      "resolvedAt": "2026-07-30T01:28:37.523Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
