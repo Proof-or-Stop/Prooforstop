@@ -2,6 +2,54 @@
 
 ## Unreleased
 
+## Proofbound 0.3.250 - 2026-07-31
+
+Rolls up CLI versions 0.3.234 through 0.3.250 — eighteen stories landed since
+v0.3.233. The theme is **evidence integrity**: verification evidence becomes
+mechanically executed and receipted instead of caller-asserted, a
+content-addressed red-evidence record chain lands behind recovery commands,
+review convergence gets a mandatory circuit breaker, and the ProofStory
+acceptance-topology pipeline completes with Wave 4.
+
+**Highlights**
+
+- **Mechanical evidence receipts (B-ec67, B-1507, B-3b88, B-2296).**
+  Verification intents now pin a (command, selector) pair and the tool executes
+  them itself instead of trusting a caller-authored pass (B-ec67); a new
+  `verification_run` command lands, the stale-evidence refresh re-executes the
+  pinned command, and a fail-open PreToolUse early-warning hook is added
+  (B-1507); self-contradictory evidence rows are rejected and `refresh_stale`
+  can no longer launder unverified pass assertions (B-3b88); checklist
+  `userSees` claims are bound to a normalized claim-digest + materialHash
+  snapshot, surfacing a non-blocking FROZEN_CLAIM_DRIFT advisory when either
+  drifts (B-2296, Phase 1 of 2).
+- **Red-evidence record chain (B-c054, B-e10d, B-506e, B-2aa7, B-49d4).**
+  RFC 8785 canonicalization and fail-closed red-evidence policy resolution
+  land, surfaced in doctor (B-c054); a registered target-binding store with the
+  owner-gated `red_evidence_binding_set` command (B-e10d); the v2 record-chain
+  plane behind `red_evidence_quarantine` / `red_evidence_recover` (B-506e);
+  legacy v1 red-evidence artifacts are validated before enforce-gate
+  evaluation (B-2aa7); and red-harness validate registration is derived
+  instead of asserting a fixed allowlist (B-49d4).
+- **Review convergence and lifecycle (B-7813, B-bf52, B-f88e, B-1909, B-8b69,
+  B-70a6).** The advisory review-convergence stall detector becomes a
+  mandatory blocking adjudication, so a story can no longer mint unlimited
+  ordinary review rounds without a recorded escalation, re-plan, finding
+  resolution, or unreachable-item declaration (B-7813); the convergence
+  breaker no longer collapses substantively different gate failures into one
+  repeat counter (B-bf52); a storyFilesHash downgrade no longer collides a
+  superseded quorum into permanent invalidity (B-f88e); undeliverable
+  checklist items and acceptance bindings are recorded as withdrawn instead of
+  delivered (B-1909); and a gated PLAN→INIT reopen lets a scope-flagged frozen
+  title on a worktree story be fixed (B-8b69), with the reopen reason
+  persisted into the phase_transition audit event (B-70a6).
+- **Acceptance topology Wave 4 (B-4043).** Prompt integration and measured
+  rollout complete the ProofStory acceptance-topology pipeline begun in
+  0.3.233.
+- **Cleanups (B-a539, B-3783).** The duplicated reviewer-scan-budget smoke
+  entry is removed from validate.commands (B-a539), and command-catalog-smoke
+  respects retired dispatch agents via bidirectional consistency (B-3783).
+
 ## Proofbound 0.3.233 - 2026-07-24
 
 Rolls up CLI versions 0.3.224 through 0.3.233 — eleven stories landed since
