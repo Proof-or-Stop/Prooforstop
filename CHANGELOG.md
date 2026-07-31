@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+## Proofbound 0.3.251 - 2026-07-31
+
+Dependency-security maintenance round: clears every high-severity advisory
+surfaced by `npm audit` across the root and workspaces by bumping the direct
+dependencies that carried the vulnerable transitives.
+
+**Security**
+
+- **Root `@modelcontextprotocol/sdk` ^1.29.0 → ^1.30.0.** Pulls patched
+  transitives: `hono` 4.12.9 → 4.12.33 (a large batch of cookie / path-traversal
+  / JSX-injection / cache-leak advisories), `@hono/node-server` → 2.0.12
+  (serve-static path traversal / middleware bypass), `fast-uri` → 3.1.5 (path
+  traversal + host-confusion), and patched `body-parser` / `qs` / `ip-address` /
+  `express-rate-limit`.
+- **Root `c8` ^11.0.0 → ^12.0.0.** Clears the `brace-expansion` DoS advisories
+  (GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg).
+- **`packages/main` `ws` ^8.20.0 → ^8.21.1.** Clears the ws uninitialized-memory
+  disclosure and fragment-DoS advisories (GHSA-58qx-3vcg-4xpx,
+  GHSA-96hv-2xvq-fx4p).
+
+**Tooling**
+
+- Added `scripts/audit-gate.mjs`, a cross-workspace audit gate that fails on any
+  high/critical advisory outside a documented allowlist. Run RED before this
+  round (4 high-severity packages), GREEN after.
+
+**Known exception**
+
+- `pkg` (GHSA-22r3-9w55-cj54, moderate local privilege escalation) has no
+  upstream fix and is a build-only devtool used by `scripts/package-desktop.mjs`;
+  it is allowlisted and tracked for migration to the maintained `@yao-pkg/pkg`
+  fork.
+
 ## Proofbound 0.3.250 - 2026-07-31
 
 Rolls up CLI versions 0.3.234 through 0.3.250 — eighteen stories landed since
