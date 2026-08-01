@@ -240,6 +240,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts"
+        ]
       }
     }
   ]
