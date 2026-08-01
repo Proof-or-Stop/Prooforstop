@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-8df9",
+  "sourceText": "User asked, of the INIT-check signature defect: '你说的这个伪造问题，是客观存在的吗？？你说的是我们机制上允许伪造？？为啥允许？？证据是什么？？' and then '测试一下，验证一下'. After the evidence was produced they approved the ranked order with '可以，执行吧'. The underlying defect was found while closing B-49d4 and was twice mis-framed by the main agent before execution settled it.",
+  "normalizedOutcome": "Advancing a story whose init-check.json agentResults or issues were edited by hand is refused with [init_check_tampered] naming the modified fields, where today the identical command prints 'advanced to INIT_CHECK' and creates the worktree.",
+  "acceptanceClaim": "A registered RED artifact that today FAILS by showing hand-edited agentResults and hand-erased critical issues both advancing the gate with zero init_check_set calls, while its in-domain control (title edit) is correctly rejected, turns GREEN after the signature domain covers agentResults and issues.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:241de230152a232b54adbc52137951a2962832ef166e3bf2f6f307c72fa674c2",
+  "createdAt": "2026-08-01T12:52:07.433Z",
+  "updatedAt": "2026-08-01T12:52:07.433Z"
+}
