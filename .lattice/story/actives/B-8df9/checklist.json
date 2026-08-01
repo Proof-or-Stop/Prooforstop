@@ -134,7 +134,31 @@
       "context": "Re-derive the counts first; do not trust the background's figures. Structure of the argument: only files whose owning story is in INIT are operationally gated (canEnterInitCheckGuard early-returns otherwise, core/machine.ts:440) - at the measured commit that was 1 of 637 - so the real choice is one operational break versus roughly 636 audit-replay breaks. Critically, about 195 of 637 files carry a registry-invalid actor, overwhelmingly the pre-rename koala-review-story-init (zero occurrences in AGENT_DISPATCH_REGISTRY), so re-signing the corpus by routing through the handler is not implementable and any design assuming it is must be rejected. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The chosen migration position and its audit-replay consequence are stated in the decision record, with counts re-derived rather than copied.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Counts are re-derived at implementation time rather than copied from the background, and the position names what breaks",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The single INIT-phase story is identified by id before landing, and its recorded actors are confirmed still registry-valid",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The position explicitly rejects any design that assumes the corpus can be re-signed through the handler, since ~195 files carry registry-invalid actors",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
