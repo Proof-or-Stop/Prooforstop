@@ -156,7 +156,11 @@
           {
             "desc": "The four smoke tests asserting single-caller dual-agentId accumulation still PASS unchanged. If they fail, the change is wrong, not the tests",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+              "selector": "init check required agents smoke passed"
+            }
           }
         ]
       },
@@ -216,6 +220,25 @@
           "materialHash": "43b1b37d2f0444a914746f971964fd96b01bef5a9b8436ad095c1cd46b8b6aee",
           "storyFilesHash": "0ceee86365e60caa4f6581b01c92e264a8efe9ec0ccbf4e89c7201bcbcb7b4c0",
           "timestamp": "2026-08-01T15:19:04.655Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
+          "result": "pass",
+          "note": "This smoke is UNMODIFIED by CHK-002 (not in the commit diff) and carries two of the four cited assertions: init-check-required-agents-smoke.ts:103-115 and :139-140, where ONE caller records lattice-review-story-init and then product-reviewer through the CLI and the advance SUCCEEDS. It still passes, so widening the signature domain did not close the single-caller accumulation the design deliberately allows (EXP-001). The other two citations were run unmodified in the same session and also pass: node packages/main/dist/tasks/init-check-fallback-smoke.js prints init check fallback/repair smoke passed (covers :230-231), and npm --prefix packages/main run test:e2e prints ALL PASS (covers test-flow-e2e.ts:391-392 via cli-e2e). Neither of those two is registered in lattice.config.json validate.commands, so they must be run directly.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a7dafc3915201f989cf63d71a63a1320a6d3f0f4e3a3537fadc82689ea71f9bb",
+            "outputTail": "✓ init check required agents smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-01T15:19:37.519Z"
+          },
+          "headHash": "e88ca46ecfc1d94775a8f0336ddf5d5e4d00ee00",
+          "materialHash": "43b1b37d2f0444a914746f971964fd96b01bef5a9b8436ad095c1cd46b8b6aee",
+          "storyFilesHash": "0ceee86365e60caa4f6581b01c92e264a8efe9ec0ccbf4e89c7201bcbcb7b4c0",
+          "timestamp": "2026-08-01T15:19:37.773Z"
         }
       ]
     },
