@@ -145,7 +145,11 @@
           {
             "desc": "All six on-disk agentResults shapes hash deterministically, including the five files with no agentResults where the value is synthesized",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "PASS: total and deterministic over every documented shape"
+            }
           }
         ],
         "adversarial": [
@@ -193,6 +197,25 @@
           "materialHash": "43b1b37d2f0444a914746f971964fd96b01bef5a9b8436ad095c1cd46b8b6aee",
           "storyFilesHash": "0ceee86365e60caa4f6581b01c92e264a8efe9ec0ccbf4e89c7201bcbcb7b4c0",
           "timestamp": "2026-08-01T15:18:28.864Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "The same focused validate run also executes the CHK-002 receipt red-b8df9-chk002-verdict-shapes.mjs, which constructs each documented on-disk shape (canonical pair, koala pair, both @fallback pairs, three-entry historical actor, and the record with NO agentResults where initCheckAgentResults synthesizes) and requires each to hash without throwing, stably across calls and across a JSON round trip with reordered keys, with no two shapes colliding. Rows X1/X2 record the absence answer mechanically: an absent agentResults is a DISTINCT value from its explicit synthesized encoding, and editing the top-level agentId the synthesis reads still moves the digest. Row L1 re-derives the live corpus on every run instead of trusting a copied count, and L2 reports which documented shapes have left this corpus rather than asserting them away. The selector is the receipt conclusion marker, printed only when no row failed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ef77d1f49449f1033c9692df466f7cdea394eb3369734072ab0017d4a4f53c69",
+            "outputTail": "e the defect stands and becomes FATAL once every row is GREEN)\n      GREEN: both verdict fields are inside the signature domain.\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=267 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-01T15:19:04.300Z"
+          },
+          "headHash": "e9da0e37e16b418b1100519201b69e6705a17795",
+          "materialHash": "43b1b37d2f0444a914746f971964fd96b01bef5a9b8436ad095c1cd46b8b6aee",
+          "storyFilesHash": "0ceee86365e60caa4f6581b01c92e264a8efe9ec0ccbf4e89c7201bcbcb7b4c0",
+          "timestamp": "2026-08-01T15:19:04.655Z"
         }
       ]
     },
