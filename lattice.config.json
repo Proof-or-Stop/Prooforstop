@@ -499,9 +499,14 @@
       "node packages/main/dist/tasks/frozen-claim-drift-smoke.js",
       "node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js",
       {
+        "label": "B-8df9 RED: INIT_CHECK verdict fields outside the signature domain (pre-fix; optional until CHK-002 lands, and the artifact itself fails while this waiver survives the fix)",
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "optional": true,
+        "focus": [
+          "b8df9-init-check-signature"
         ],
         "timeoutMs": 600000
       }
