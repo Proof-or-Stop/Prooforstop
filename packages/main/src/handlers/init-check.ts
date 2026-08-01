@@ -35,6 +35,7 @@ import {
   blockingInitCheckIssues,
   computeBackgroundHash,
   computeChecklistHash,
+  computeInitCheckVerdictHash,
   signInitCheck,
   recomputeInitCheckHash,
 } from '../core/init-check-gate.js';
@@ -54,6 +55,7 @@ export {
   blockingInitCheckIssues,
   computeBackgroundHash,
   computeChecklistHash,
+  computeInitCheckVerdictHash,
   signInitCheck,
   recomputeInitCheckHash,
 };
@@ -129,10 +131,8 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       }
       const checklistHash = computeChecklistHash(items);
 
-      // 4) invoke the signing function (shares signInitCheck with recomputeInitCheckHash — single source of truth)
-      const _hash = signInitCheck(args.storyId, backgroundHash, title, description, checklistHash, reviewRound);
-
-      // 5) construct InitCheckData and persist to disk
+      // 4) construct InitCheckData (the verdict is part of the signature domain since
+      //    B-8df9 CHK-002, so the record must exist BEFORE it can be signed)
       const checkedAt = new Date().toISOString();
       const agentId = normalizeAgentId(authority.actor);
       const previous = store.readInitCheck(args.storyId);
@@ -148,8 +148,22 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
         agentId,
         issues,
         agentResults,
-        _hash,
+        _hash: '',
       };
+
+      // 5) sign the record being written and persist it. The verdict hash is computed from
+      //    `data` itself rather than from copies of its fields, so what is signed and what is
+      //    stored cannot drift apart. Shares signInitCheck with recomputeInitCheckHash —
+      //    single source of truth for the domain.
+      data._hash = signInitCheck(
+        args.storyId,
+        backgroundHash,
+        title,
+        description,
+        checklistHash,
+        reviewRound,
+        computeInitCheckVerdictHash(data),
+      );
       store.writeInitCheck(args.storyId, data);
 
       // 6) return value contains issue counts bucketed by severity (advisory mode: critical does not block here either,
@@ -177,8 +191,9 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
      * `canEnterInitCheck` / `getGuardFailureReason` accept — WITHOUT weakening the gate:
      *
      *  - The signature is computed by the SAME `signInitCheck` over the SAME domain
-     *    (background/title/description/checklist). Editing any signed story content
-     *    afterwards still triggers `init_check_tampered` (the recompute diverges).
+     *    (INIT_CHECK_SIGNATURE_DOMAIN, which since B-8df9 CHK-002 also covers the
+     *    reviewer verdict). Editing any signed content afterwards — including the
+     *    attested issues — still triggers `init_check_tampered` (the recompute diverges).
      *  - Required-reviewer coverage is satisfied by recording each required agent as
      *    `<required>@fallback`; `initCheckAgentMatches` accepts the `<required>@`
      *    prefix, so missingRequiredInitCheckAgents is empty, while the `@fallback`
@@ -256,7 +271,6 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
           // checklist absent → empty array hash (matches recomputeInitCheckHash).
         }
         const checklistHash = computeChecklistHash(items);
-        const _hash = signInitCheck(args.storyId, backgroundHash, title, description, checklistHash, reviewRound);
 
         // 3) Required-reviewer coverage via `<required>@fallback` records. The bare
         //    operator-supplied issues land on the story-init record (so they flow
@@ -310,8 +324,20 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
             ...(headHash ? { headHash } : {}),
             ...(materialHash ? { materialHash } : {}),
           },
-          _hash,
+          _hash: '',
         };
+        // Sign the record being written: the verdict (agentResults + issues) is part of the
+        // domain since B-8df9 CHK-002, so signing must follow construction. The `fallback`
+        // block stays OUT of the domain (audit/surface metadata, unchanged by this story).
+        data._hash = signInitCheck(
+          args.storyId,
+          backgroundHash,
+          title,
+          description,
+          checklistHash,
+          reviewRound,
+          computeInitCheckVerdictHash(data),
+        );
         store.writeInitCheck(args.storyId, data);
 
         // 5) Durable audit event in the process timeline (advisory; init-check.json

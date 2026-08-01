@@ -10,17 +10,35 @@
  * functions and re-exports them for backward compatibility.
  *
  * The signature structure follows the signScopeCheck approach in scope-check.ts (architecture already landed in B-d4d1 / B-ed3e),
- * differing in the signature domain: scope-check uses `storyId:timestamp:gaps:covered:reviewRound:salt`,
- * init-check uses `storyId:backgroundHash:title:description:checklistHash:reviewRound:salt`,
- * incorporating the entire "source of truth at story creation by the main agent (background + metadata + initial checklist)" into the signature.
+ * differing in the signature domain. The domain is declared ONCE, as data, in
+ * INIT_CHECK_SIGNATURE_DOMAIN below; every consumer (the signing function, the
+ * recompute entry point, and the human-readable tamper message) derives from that
+ * declaration instead of restating it, so widening the domain cannot leave a stale
+ * hand-written field list behind.
  *
- * If the main agent modifies background.md / title / description / any of checklist.items[*].{title,context}
- * → recomputeInitCheckHash recalculates → mismatches init-check.json._hash →
- * story_advance INIT_CHECK reports init_check_tampered blocker.
+ * If the main agent modifies any signed component (background.md / title / description /
+ * checklist.items[*].{title,context} / the reviewer verdict) → recomputeInitCheckHash
+ * recalculates → mismatches init-check.json._hash → story_advance INIT_CHECK reports
+ * init_check_tampered blocker.
  *
- * The agentId field does not participate in the signature (EXP-001 has disproved the mechanical verifiability of agentId, see
- * docs/story/actives/B-e71f/experiments/exp-001.md), used only for audit traceability.
- * The issues field does not participate in the signature (reviewer subjective judgment, advisory mode, allows later fixes).
+ * B-8df9 CHK-002: `agentResults` and `issues` — the two fields the INIT_CHECK gate
+ * actually DECIDES on (missingRequiredInitCheckAgents / blockingInitCheckIssues) — are
+ * inside the domain, via computeInitCheckVerdictHash. Before that they were outside it,
+ * so a hand-edited file that injected reviewer coverage, or erased a recorded critical
+ * issue, stayed signature-VALID and the gate accepted it with zero init_check_set calls
+ * (proven by packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs).
+ *
+ * SCOPE OF THAT PROPERTY: it makes the record TAMPER-EVIDENT, it does not make reviewer
+ * coverage trustworthy. One caller can still legally satisfy both required reviewers by
+ * calling init_check_set twice (EXP-001: caller identity is not mechanically verifiable
+ * from inside a Bash invocation), which is by design and asserted by shipped smoke tests.
+ * What tampering additionally bought was zero audit trail and a bypass of the actor
+ * registry; that is what closes here.
+ *
+ * The agentId field does not participate in the signature DIRECTLY (EXP-001 has disproved the mechanical verifiability of agentId, see
+ * docs/story/actives/B-e71f/experiments/exp-001.md), used only for audit traceability — but when `agentResults`
+ * is absent it is one of the inputs initCheckAgentResults synthesizes the gate's decision array from, and in
+ * that shape it is bound through the synthesized value (see computeInitCheckVerdictHash).
  */
 
 import { createHash } from 'crypto';
@@ -68,11 +86,20 @@ export function initCheckAgentMatches(agentId: string | undefined, required: str
   return normalized === required || normalized.startsWith(`${required}@`);
 }
 
-export function initCheckAgentResults(data: InitCheckData): NonNullable<InitCheckData['agentResults']> {
+/**
+ * The subset of init-check.json the verdict hash and the gate read. Every field is
+ * optional because the corpus contains files that predate each of them, and because
+ * producers call computeInitCheckVerdictHash on a record they are still assembling.
+ */
+export type InitCheckVerdictSource = Partial<
+  Pick<InitCheckData, 'agentResults' | 'issues' | 'agentId' | 'checkedAt'>
+>;
+
+export function initCheckAgentResults(data: InitCheckVerdictSource): NonNullable<InitCheckData['agentResults']> {
   if (Array.isArray(data.agentResults) && data.agentResults.length > 0) return data.agentResults;
   return [{
     agentId: normalizeAgentId(data.agentId),
-    checkedAt: data.checkedAt,
+    checkedAt: data.checkedAt ?? '',
     issues: Array.isArray(data.issues) ? data.issues : [],
   }];
 }
@@ -124,11 +151,109 @@ export function computeChecklistHash(
 }
 
 /**
+ * Deterministic serialization used by the verdict hash. Object keys are sorted, so the
+ * key order a file happens to be written in cannot change the digest, and `undefined`
+ * members are dropped exactly as JSON.stringify drops them — the producer hashes an
+ * in-memory object while the verifier hashes the same object after a round trip through
+ * disk, and those two must agree.
+ */
+function canonicalJson(value: unknown): string {
+  if (value === null || value === undefined) return 'null';
+  if (Array.isArray(value)) return `[${value.map(entry => canonicalJson(entry)).join(',')}]`;
+  if (typeof value === 'object') {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([, v]) => v !== undefined)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+    return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonicalJson(v)}`).join(',')}}`;
+  }
+  return JSON.stringify(value) ?? 'null';
+}
+
+/**
+ * B-8df9 CHK-002: hash of the reviewer VERDICT — the two fields the INIT_CHECK gate
+ * decides on (`agentResults`, consumed by missingRequiredInitCheckAgents, and `issues`,
+ * consumed by blockingInitCheckIssues). This is the component that makes a hand-edited
+ * verdict fail the signature instead of passing it.
+ *
+ * Two components are hashed, on purpose, because either one alone leaves a hole:
+ *
+ *  - `raw` is what is PERSISTED, verbatim (unknown keys included — no projection to a
+ *    field list that could go stale). An ABSENT field hashes to the JSON `null` sentinel
+ *    and is therefore a DISTINCT value: absence is NOT equated with the value a reader
+ *    would synthesize for it. Signing a synthesized value in place of an absent field
+ *    would silently accept re-encodings of a record nobody wrote.
+ *  - `consumed` is what the GATE reads: the array initCheckAgentResults() returns. For a
+ *    record carrying NO `agentResults` field at all, that array is
+ *    SYNTHESIZED from top-level `agentId` / `checkedAt` / `issues`; hashing only `raw`
+ *    would leave those synthesis inputs outside the domain, i.e. the same defect one
+ *    layer down (edit top-level `agentId`, change who the gate believes reviewed, hash
+ *    unmoved). Hashing the consumed array binds them for exactly the shapes that use them.
+ *
+ * Accepts a partial record so a producer can hash the object it is about to write; a
+ * missing file (null/undefined) hashes as the empty record rather than throwing, since
+ * the gate reports missing_init_check before it ever compares a digest.
+ */
+export function computeInitCheckVerdictHash(source: InitCheckVerdictSource | null | undefined): string {
+  const data: InitCheckVerdictSource = source ?? {};
+  const payload = {
+    raw: {
+      agentResults: data.agentResults ?? null,
+      issues: data.issues ?? null,
+    },
+    consumed: initCheckAgentResults(data),
+  };
+  return createHash('sha256').update(canonicalJson(payload)).digest('hex');
+}
+
+/**
+ * THE signature domain of init-check.json, declared once as data.
+ *
+ * `key` is the component's slot in the signed string (order is the concatenation order);
+ * `label` is how that component is named to a human when the signature fails. The tamper
+ * message renders these labels rather than restating them, so a domain change updates the
+ * message by construction. A hand-written field list standing in for the real domain is
+ * the defect family this story exists to remove — do not reintroduce one downstream.
+ */
+export const INIT_CHECK_SIGNATURE_DOMAIN = [
+  { key: 'storyId', label: 'storyId' },
+  { key: 'backgroundHash', label: 'background.md' },
+  { key: 'title', label: 'title' },
+  { key: 'description', label: 'description' },
+  { key: 'checklistHash', label: 'checklist' },
+  { key: 'reviewRound', label: 'reviewRound' },
+  { key: 'verdictHash', label: 'reviewer verdict (agentResults + issues)' },
+] as const;
+
+export type InitCheckSignatureComponent = typeof INIT_CHECK_SIGNATURE_DOMAIN[number]['key'];
+export type InitCheckSignatureInput = Record<InitCheckSignatureComponent, string>;
+
+/** Human-readable names of the signed components, in signing order. */
+export function initCheckSignatureDomainLabels(): string[] {
+  return INIT_CHECK_SIGNATURE_DOMAIN.map(component => component.label);
+}
+
+/** One-line rendering of the domain for error/diagnostic text. */
+export function describeInitCheckSignatureDomain(): string {
+  return initCheckSignatureDomainLabels().join(' / ');
+}
+
+/**
  * Signature function for init-check.json. Deterministic (same input produces same output).
+ * Derives both the component order and the component set from INIT_CHECK_SIGNATURE_DOMAIN.
+ */
+export function signInitCheckDomain(input: InitCheckSignatureInput): string {
+  const ordered = INIT_CHECK_SIGNATURE_DOMAIN.map(component => input[component.key]);
+  return createHash('sha256')
+    .update(`${ordered.join(':')}:${INIT_CHECK_SALT}`)
+    .digest('hex');
+}
+
+/**
+ * Positional wrapper over signInitCheckDomain, kept for the existing producers.
  *
- * Signature domain: storyId / backgroundHash / title / description / checklistHash / reviewRound + salt
- *
- * Not in signature domain: agentId / issues / checkedAt (avoiding reviewer reruns producing different _hash for the same input).
+ * `verdictHash` is REQUIRED (computeInitCheckVerdictHash over the record being written).
+ * It is deliberately not optional-with-a-default: a producer that forgot to pass it would
+ * otherwise sign "no verdict" and silently restore the gap this parameter closes.
  */
 export function signInitCheck(
   storyId: string,
@@ -137,19 +262,38 @@ export function signInitCheck(
   description: string,
   checklistHash: string,
   reviewRound: string,
+  verdictHash: string,
 ): string {
-  return createHash('sha256')
-    .update(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
-    .digest('hex');
+  return signInitCheckDomain({
+    storyId,
+    backgroundHash,
+    title,
+    description,
+    checklistHash,
+    reviewRound,
+    verdictHash,
+  });
 }
 
 /**
  * Recomputation entry point reused by the gate: reads current story.title / story.description /
- * background.md / initial checklist → calls signInitCheck → returns the expected current _hash value.
+ * background.md / initial checklist / the PERSISTED reviewer verdict → calls signInitCheck →
+ * returns the expected current _hash value.
  *
  * When checklist does not exist, treated as empty array (in theory it exists at INIT phase, but this guards fs boundary).
+ *
+ * `verdictSource` (B-8df9 CHK-002) defaults to the persisted init-check.json, which is what a
+ * VERIFIER wants: recompute over what is on disk and compare with the `_hash` stored beside it.
+ * A PRODUCER passes the record it is about to write, because at that moment the file on disk is
+ * either absent or still holds the previous verdict. Pass `null` to recompute against no verdict
+ * at all.
  */
-export function recomputeInitCheckHash(storyId: string, store: StoryStore, projectRoot: string): string {
+export function recomputeInitCheckHash(
+  storyId: string,
+  store: StoryStore,
+  projectRoot: string,
+  verdictSource?: InitCheckVerdictSource | null,
+): string {
   const story = store.readStory(storyId);
   const backgroundHash = computeBackgroundHash(projectRoot, storyId);
   let items: Array<{ title: string; context?: string }> = [];
@@ -161,6 +305,7 @@ export function recomputeInitCheckHash(storyId: string, store: StoryStore, proje
   }
   const checklistHash = computeChecklistHash(items);
   const reviewRound = story.currentReviewRound || '';
+  const verdict = verdictSource !== undefined ? verdictSource : store.readInitCheck(storyId);
   return signInitCheck(
     storyId,
     backgroundHash,
@@ -168,5 +313,6 @@ export function recomputeInitCheckHash(storyId: string, store: StoryStore, proje
     story.description,
     checklistHash,
     reviewRound,
+    computeInitCheckVerdictHash(verdict),
   );
 }

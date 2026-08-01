@@ -1868,15 +1868,17 @@ export interface ScopeCheckData {
 }
 
 // ── Init Check (B-e71f: signed init-check.json written by lattice-review-story-init agent) ──
-// INIT → INIT_CHECK hard gate artifact. Written by reviewer subagent after reviewing background.md + initial checklist,
-// `_hash` covers storyId / sha256(background.md) / title / description / sha256(initial checklist) / reviewRound + INIT_CHECK_SALT.
-// After main agent modifies background / title / description / initial checklist, _hash mismatches → story_advance INIT_CHECK
+// INIT → INIT_CHECK hard gate artifact. Written by reviewer subagent after reviewing background.md + initial checklist.
+// The signed components are declared, once, by INIT_CHECK_SIGNATURE_DOMAIN in core/init-check-gate.ts —
+// consult that declaration rather than any restatement of it (B-8df9 CHK-002 widened the domain and every
+// hand-written copy of the old list was wrong the moment it did).
+// After any signed component is modified, _hash mismatches → story_advance INIT_CHECK
 // reports init_check_tampered blocker (CHK-005 / CHK-006).
 // agentId field is reviewer's self-reported id, **for audit traceability only** (EXP-001 disproved mechanical verifiability of agentId, see
-// docs/story/actives/B-e71f/experiments/exp-001.md), not involved in signing nor gate decisions.
-// issues are advisory: critical / high do not block INIT_CHECK advancement, relying on reviewer template self-discipline to refuse calling the CLI as fallback
-// (on critical, reviewer should print issue list to stdout for main agent to fix background then restart reviewer,
-// without calling init_check_set).
+// docs/story/actives/B-e71f/experiments/exp-001.md), and is not a gate decision input on its own; when `agentResults`
+// is absent it is one of the inputs the gate's decision array is synthesized from, and is bound through that value.
+// issues DO gate: blockingInitCheckIssues treats critical / high as blockers of INIT_CHECK advancement
+// (a reviewer that records one self-blocks); medium / low are advisory and only echoed after the advance.
 
 export interface InitCheckIssue {
   /**
@@ -1925,14 +1927,19 @@ export interface InitCheckData {
    */
   agentId: string;
   /**
-   * List of issues raised by the reviewer, advisory mode: does not block INIT_CHECK advancement, only echoed in the advance success message.
-   * Empty array allowed (when the reviewer considers it fully qualified).
+   * List of issues raised by the reviewer. critical / high BLOCK the INIT_CHECK advance
+   * (blockingInitCheckIssues); medium / low are advisory and only echoed in the advance
+   * success message. Empty array allowed (when the reviewer considers it fully qualified).
+   * B-8df9 CHK-002: part of the signature domain — erasing a recorded blocker by hand
+   * invalidates `_hash` instead of quietly clearing the gate.
    */
   issues: InitCheckIssue[];
   /**
    * Per-reviewer records. New writes upsert by agentId so separate init reviewers
    * cannot silently overwrite each other. Legacy init-check.json files without
    * this field are interpreted as one record from `agentId`.
+   * B-8df9 CHK-002: part of the signature domain — injecting reviewer coverage by hand
+   * invalidates `_hash` instead of satisfying missingRequiredInitCheckAgents for free.
    */
   agentResults?: Array<{
     agentId: string;
@@ -1946,7 +1953,7 @@ export interface InitCheckData {
    * `init_check_repair` command (environments that cannot spawn the init
    * reviewer subagent), NOT by an independent reviewer run via `init_check_set`.
    * An audit/surface field, **not part of the signature / not part of gate validation** — signature is still produced by signInitCheck
-   * Computed from background/title/description/checklist; gate is still validated by missingRequiredInitCheckAgents
+   * over INIT_CHECK_SIGNATURE_DOMAIN; gate is still validated by missingRequiredInitCheckAgents
    * + blockingInitCheckIssues (fallback passes by marking agentResults as `<required>@fallback`
    * to satisfy the required reviewer check, rather than relaxing the gate). story_get / dashboard use this field to distinguish fallback/manual
    * attestation from independent reviewers.
@@ -1970,9 +1977,14 @@ export interface InitCheckData {
     materialHash?: string;
   };
   /**
-   * Signature: sha256(`${storyId}:${backgroundHash}:${title}:${description}:${checklistHash}:${reviewRound}:${INIT_CHECK_SALT}`)
-   * Computed by signInitCheck. issues / agentId / fallback are not included in the signature domain (issues are reviewer subjective judgment, allowed to be modified later;
-   * agentId is self-reported by reviewer and easily forged, backed by reviewer template fence; fallback is surface/audit metadata).
+   * Signature over the components declared by INIT_CHECK_SIGNATURE_DOMAIN (core/init-check-gate.ts),
+   * joined in that order and salted with INIT_CHECK_SALT. Computed by signInitCheck; the reviewer
+   * verdict enters through computeInitCheckVerdictHash (B-8df9 CHK-002), which covers BOTH the
+   * persisted `agentResults` / `issues` values AND the array the gate consumes.
+   * Still OUT of the domain: `fallback` (surface/audit metadata) and the top-level `agentId` as such —
+   * self-reported by the reviewer and not mechanically verifiable (EXP-001), backed by the reviewer
+   * template fence, though it is bound indirectly for records that carry no `agentResults`.
+   * Do not restate the component list here or anywhere else; read the declaration.
    */
   _hash: string;
 }
