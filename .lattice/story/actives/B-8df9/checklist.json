@@ -46,7 +46,31 @@
       "context": "store.readInitCheck (core/store.ts:566-572) is a bare readJson; the carry-forward at handlers/init-check.ts:138-142 trusts it. This does not cause the gate bypass but does admit data no caller wrote into a subsequently re-signed file. Decide what happens on mismatch: refusing to carry forward is not the same as refusing to read, and that difference decides whether the audit-only majority of the corpus becomes unreadable. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A story whose init-check.json has a corrupted _hash reports the corruption by name rather than silently carrying the unverified records forward.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A _hash mismatch on read refuses to carry previous.agentResults forward",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Reading a historical file with a legacy hash still RENDERS (story_get / audit paths work); refusing to trust is not refusing to read",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A file whose _hash was recomputed by an attacker over tampered content is still refused, because the domain now covers the tampered fields",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
