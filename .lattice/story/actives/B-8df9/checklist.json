@@ -166,7 +166,31 @@
       "context": "core/command-policy.ts:396 marks init_check_set ownershipClass reviewerWrite, exempt from the owner lease, justified as 'bound by its INIT signature gate'. If items 1-3 confirm that gate did not bind the verdict, the exemption rested on a false premise: either restate a justification that is now true, or record why the exemption holds independently of the signature. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "command-policy.ts no longer justifies the init_check_set lease exemption with a claim this story falsified.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The exemption's stated reason is either restated so it is true after the domain change, or replaced with a reason that holds independently of the signature",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The restated reason is checked against what the code actually does, not against what the old comment claimed",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If no honest justification survives, the exemption itself is flagged rather than left standing on rewritten prose",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
