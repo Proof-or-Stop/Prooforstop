@@ -199,6 +199,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/init-check-gate.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ]
       }
     },
     {
