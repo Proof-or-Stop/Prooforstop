@@ -158,6 +158,15 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-check-fallback-smoke.ts"
+        ]
       }
     },
     {
