@@ -30,6 +30,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ]
       }
     },
     {
