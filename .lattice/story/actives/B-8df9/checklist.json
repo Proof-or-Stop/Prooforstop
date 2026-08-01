@@ -125,8 +125,8 @@
       "id": "CHK-002",
       "title": "Bind agentResults and issues into the signature domain",
       "context": "signInitCheck at core/init-check-gate.ts:133-143 and recomputeInitCheckHash at :133-172. Both fields must be covered; fixing agentResults alone leaves an equivalent hole because the same edit can erase a recorded critical issue. Handle all six on-disk shapes (canonical pair, koala pair, two distinct @fallback pairs, three-entry historical-actor files, and files with no agentResults where initCheckAgentResults synthesizes from top-level fields). Decide explicitly what an absent field hashes to. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-01T14:27:54.315Z",
       "endTime": null,
       "userSees": "Advancing a story whose agentResults was hand-edited now prints:\n  Cannot enter INIT_CHECK: init-check.json _hash mismatch (agentResults/issues/background/title/description/checklist were modified); please re-run the lattice-review-story-init agent. [init_check_tampered]",
       "verificationIntent": {
