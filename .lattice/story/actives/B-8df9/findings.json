@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-8df9:F-001",
+      "desc": "CHK-002 userSees pins a literal tamper message that is itself the stale-enumeration defect this story removes, and the implementer correctly REFUSED to ship it. The pinned text names the signed fields as \"(agentResults/issues/background/title/description/checklist were modified)\" - a hand-written enumeration that goes wrong the next time the domain changes. What shipped instead renders the domain from its single declaration (INIT_CHECK_SIGNATURE_DOMAIN), which is what plan.md DoneWhen and the dispatch both asked for. AUTHOR OF THE DEFECT: the main agent, when writing the acceptance field in PLAN. The implementer flagged the conflict and reported it rather than silently self-correcting or silently complying, which is the correct behaviour. userSees is frozen from DEV (checklist_update refuses it by design, so the executor cannot move the acceptance goalposts) - this finding is the sanctioned channel for recording that the pinned criterion was superseded. RESOLUTION SOUGHT: accept the rendered message as satisfying CHK-002 acceptance, on the record, rather than reopening PLAN to edit the field. The shipped behaviour is strictly better than the pinned text.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-01T15:23:28.833Z",
+      "reviewRound": "",
+      "_hash": "4261db281e43fc96f47ed61d81a78d27efb4b15163db180bf86d509f8a0bcfea",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        ".lattice/story/actives/B-8df9/checklist.json"
+      ],
+      "signatureTag": "missing|ts|usersees-pins-literal",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
