@@ -4,16 +4,20 @@
       "id": "CHK-001",
       "title": "Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged",
       "context": "Repro-first, and note the corrected premise: signInitCheck never takes agentResults as input, so the test is NOT the discarded draft's two-step 'tamper then re-sign' sequence. Test the one-step claim: in an isolated fixture (never a real story), edit agentResults directly, make NO init_check_set call, then check whether _hash still validates and whether the INIT->INIT_CHECK guard accepts it. Record the observed outcome even if it refutes the premise; a refutation re-scopes items 2-6 rather than being a failure. Probe the fallback-block-drop separately, checking it is lost after the FIRST ordinary call rather than when the attestationMode label flips.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-01T14:22:09.267Z",
       "userSees": "node packages/main/tests/red/<artifact>.mjs prints one line per claim with RED/CONTROL-OK, ends with a RED count, and exits non-zero while the defect stands.",
       "verificationIntent": {
         "happy": [
           {
             "desc": "The artifact reproduces the PLAN probe: injected agentResults advances the gate with zero init_check_set calls",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "the gate ACCEPTS hand-injected reviewer coverage"
+            }
           }
         ],
         "edge": [
@@ -41,7 +45,35 @@
         "test": [
           "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
         ]
-      }
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "77f95f968ec3263c8ba38d43a9b3ef8f65df531dcf8bc3d189c5edec949a0e01",
+        "storyFilesHash": "1106961e102141c8826920bce8bcdcf5888ab96e89ec9d175f4dea2bde22dec5",
+        "headHash": "bda45f159b6abe7a5be3396f09ec04587bf9f097",
+        "attestedAt": "2026-08-01T14:22:09.560Z",
+        "materialHash": "b366cd30c905416fe9de510e84b2305d224517d1349e7bb2cae3a87dce6a5e5d"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Runs the registered RED artifact through the product own validate runner (focused on the tag that selects it), so the row is produced by a real execution rather than asserted. The selector is the B3 claim marker, printed on every run regardless of verdict, so this evidence survives the CHK-002 fix instead of going stale the way a literal count would. On this tree that row reads RED: a hand-injected agentResults entry leaves the file signature-valid and the gate advances with zero init_check_set calls for it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "74daf06ceb30e4d207fc3d7716bd20fb79cf337a0b26150524db19c587804c35",
+            "outputTail": "ocus=b8df9-init-check-signature: not final full validation and not DONE-required proof.\n  ⚠ B-8df9 RED: INIT_CHECK verdict fields outside the signature domain (pre-fix; optional until CHK-002 lands, and the artifact itself fails while this waiver survives the fix): node packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs\n    === B-8df9: the INIT_CHECK verdict fields are outside the signature domain ===\n      S1  [CONTROL-OK] the required-reviewer roster read from the product supports this construction\n          observed: roster size read at runtime=2; a fabricated record needs at least one reviewer to withhold\n      S2  [CONTROL-OK] the shipped guard still emits every blocker code this artifact keys on\n          observed: codes found in the compiled guard=missingAgent, tampered, blockingIssues of missingAgent, tampered, blockingIssues\n      S3  [CONTROL-OK] the product declares a severity vocabulary and treats part of it as blocking\n          observed: vocabulary read from the CLI schema=critical|high|medium|low; blocking per the product's own predicate=critical|high\n      A   [CONTROL-OK] GATE CONTROL: withholding one required reviewer refuses the advance and names the missing one\n          observed: advanced=false phase=INIT namesTheMissingReviewer=true blocker=true outDigest=90b51363149b\n      D0  [CONTROL-OK] FLOOR: an untouched story with legally recorded full coverage ADVANCES\n          observed: advanced=true phase=INIT_CHECK outDigest=b2d107cdaa05\n      D1  [CONTROL-OK] SIGNATURE CONTROL: editing an IN-DOMAIN field changes the recomputed signature\n          observed: recomputed signature moved=true\n      D2  [CONTROL-OK] SIGNATURE CONTROL: the gate REFUSES that in-domain edit as tampering, where its untouched twin advanced\n          observed: advanced=false phase=INIT tamperBlocker=true untouchedTwinAdvanced=true outDigest=d11f058a03c3\n      B1  [RED       ] the recomputed signature is UNCHANGED by injecting a fabricated reviewer record\n          observed: recomputation responded to the injection=false\n      B2  [RED       ] the tampered file is still signature-VALID (recomputed matches what is stored)\n          observed: stored hash still verifies after the edit=true\n      B3  [RED       ] the gate ACCEPTS hand-injected reviewer coverage, with zero init_check_set calls for it\n          observed: advanced=true phase=INIT_CHECK outDigest=3cde03e8d288\n      C1  [CONTROL-OK] GATE CONTROL: a genuinely recorded blocking-severity issue refuses the advance\n          observed: advanced=false phase=INIT blocker=true severityUsed=critical outDigest=a2efcf155824\n      C2  [RED       ] erasing a recorded blocking-severity issue leaves the file signature-VALID\n          observed: stored hash still verifies after the erasure=true\n      C3  [RED       ] the gate ADVANCES after that blocker was erased by hand\n          observed: advanced=true phase=INIT_CHECK outDigest=5042257ce2cb\n      5 RED / 0 BROKEN / 13 rows\n      registration in lattice.config.json: readable=true found=true optional=true → waiverWithdrawn=false (a surviving waiver is reported while the defect stands and becomes FATAL once every row is GREEN)\n      RED. The signature RESPONDS to an in-domain field (D1/D2, against an untouched\n      twin that advanced) yet IGNORES both agentResults (B1/B2) and issues (C2), so\n      the gate accepts records no legal caller wrote (B3, C3). \"The signature check is\n      dead for everything\" is ruled out by D, \"it advances for everything\" by A and C1,\n      and \"it refuses for everything\" by D0.\n      This is about AUDIT INTEGRITY, not access control: both outcomes are already\n      reachable through legal CLI calls by design. Tampering adds only the absence of\n      a trail and a bypass of the actor registry.\n  warning: optional validation failed: B-8df9 RED: INIT_CHECK verdict fields outside the signature domain (pre-fix; optional until CHK-002 lands, and the artifact itself fails while this waiver survives the fix)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-01T14:23:20.425Z"
+          },
+          "headHash": "bda45f159b6abe7a5be3396f09ec04587bf9f097",
+          "materialHash": "b366cd30c905416fe9de510e84b2305d224517d1349e7bb2cae3a87dce6a5e5d",
+          "storyFilesHash": "1106961e102141c8826920bce8bcdcf5888ab96e89ec9d175f4dea2bde22dec5",
+          "timestamp": "2026-08-01T14:23:20.714Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
