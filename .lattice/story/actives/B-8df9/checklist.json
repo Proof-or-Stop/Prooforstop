@@ -116,6 +116,16 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/init-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/init-preflight-smoke.ts"
+        ]
       }
     },
     {
