@@ -4,7 +4,7 @@
   "title": "Bind the INIT-check verdict into its signature so tampered coverage fails closed",
   "description": "The INIT_CHECK gate decides on agentResults and issues inside init-check.json, but signInitCheck does not take either as input, so hand-editing agentResults leaves _hash still valid and the gate accepts the tampered file with zero subsequent calls. readInitCheck also performs no _hash verification before the handler carries previous.agentResults forward. Prove the end-to-end behaviour by execution first, then cover the verdict fields with the signature and verify before trusting on read, choosing and arguing a migration position for a corpus in which roughly 30 percent of files carry an actor that is no longer registry-valid.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "init-check",
@@ -43,6 +43,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-06dd4489fd479d1db793de165bd2b865",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-27T22:21:17.679Z",
+      "branch": "story/B-8df9",
+      "user": "Harmonygo",
+      "sessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
       "agent": "main"
     }
   ],

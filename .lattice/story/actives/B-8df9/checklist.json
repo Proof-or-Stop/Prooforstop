@@ -6,7 +6,31 @@
       "context": "Repro-first, and note the corrected premise: signInitCheck never takes agentResults as input, so the test is NOT the discarded draft's two-step 'tamper then re-sign' sequence. Test the one-step claim: in an isolated fixture (never a real story), edit agentResults directly, make NO init_check_set call, then check whether _hash still validates and whether the INIT->INIT_CHECK guard accepts it. Record the observed outcome even if it refutes the premise; a refutation re-scopes items 2-6 rather than being a failure. Probe the fallback-block-drop separately, checking it is lost after the FIRST ordinary call rather than when the attestationMode label flips.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node packages/main/tests/red/<artifact>.mjs prints one line per claim with RED/CONTROL-OK, ends with a RED count, and exits non-zero while the defect stands.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The artifact reproduces the PLAN probe: injected agentResults advances the gate with zero init_check_set calls",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The artifact also covers the issues field (erasing a recorded critical still advances), so a partial fix cannot turn it green",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "It carries a SIGNATURE control (in-domain title edit must be rejected). If that control fails the run reports BROKEN and draws no conclusion, so a dead signature check cannot masquerade as this defect",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
