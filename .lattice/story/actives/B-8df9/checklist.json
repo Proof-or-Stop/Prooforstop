@@ -78,7 +78,31 @@
       "context": "handlers/init-check.ts:144-152 constructs the output without the fallback block written by init_check_repair (reason/actor/session/headHash). It is lost after the first ordinary call, before the initCheckAttestationMode label flips, so the durable evidence of a human attestation disappears earlier than the label advertising it. Preserve it and cover the transition with a test. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After a manual init_check_repair, an ordinary init_check_set no longer erases the fallback block; story_get still reports initCheckAttestation: fallback.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An ordinary init_check_set following init_check_repair preserves the fallback block (reason/actor/session/headHash)",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "initCheckAttestation stays 'fallback' across the first ordinary call, where today the block is dropped one call before the label flips",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The preserved block cannot be forged into existence by an ordinary call on a story that never ran init_check_repair",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
