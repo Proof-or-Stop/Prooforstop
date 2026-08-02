@@ -255,7 +255,11 @@
           {
             "desc": "A _hash mismatch on read refuses to carry previous.agentResults forward",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+              "selector": "injectedRecordSurvivedByItsHandWrittenTimestampMarker=false"
+            }
           }
         ],
         "edge": [
@@ -289,7 +293,28 @@
         "headHash": "2dd07f6789731e27a8a19312fcd15bd582c2665e",
         "attestedAt": "2026-08-02T02:52:52.472Z",
         "materialHash": "3d828ca8115dab15c9191763047531ce0616fa1d99da5666d3f59c0e45732409"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node bin/lattice.js validate --focus=b8df9-init-check-signature",
+          "result": "pass",
+          "note": "Row E3 of the registered RED artifact, run through the product own validate runner. The fixture hand-injects a reviewer record identified by a checkedAt marker no legal call can produce, then makes ONE ordinary init_check_set call by a DIFFERENT reviewer; the marker is absent from the newly signed record, so the unverifiable predecessor was refused rather than carried forward and re-signed. Selector is the marker name, not a count, so it stays re-earnable. Same run carries E0 (an UNTOUCHED predecessor is still carried forward verbatim and still advances) which rules out the degenerate fix of never carrying anything forward, and E2 (the written record is itself validly signed) which rules out the write simply breaking. Measured pre-fix on the same artifact: E3 RED.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e261ee64caca53c891eaa4cfceb089ec63bb341b203cb714e7f7c88d3002a64b",
+            "outputTail": "s not verify — while an untouched predecessor\n      is still carried forward (E0) and an unverifiable record still RENDERS (G1).\n  ✓ B-8df9 CHK-002: the verdict hash is total, deterministic and discriminating over every on-disk agentResults shape: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs\n    === B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n      C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n          observed: distinct=true digestLength=64\n      S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S3  [PASS      ] shape hashes deterministically and does not throw: lattice-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n          observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n      S7  [PASS      ] the documented shapes do not collide onto one digest\n          observed: distinctDigests=6 of shapes=6; collisions=none\n      X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n          observed: absentDigestDiffersFromExplicitEncoding=true\n      X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n          observed: digestMoved=true\n      D1  [PASS      ] INJECTING a reviewer record moves the digest\n          observed: digestMoved=true\n      D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n          observed: digestMoved=true\n      D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n          observed: digestMoved=true\n      M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n          observed: componentsDeclared=7 allRendered=true\n      M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n          observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n      L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n          observed: filesMeasuredOnThisRun=267 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n      L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n          observed: present=[lattice-*@fallback pair | canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n      0 FAILED / 0 BROKEN / 17 rows\n      signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n      PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-02T02:53:46.712Z"
+          },
+          "headHash": "f4cb0ba3ddaec0119d2888ec80ff28ea563d16a3",
+          "materialHash": "3d828ca8115dab15c9191763047531ce0616fa1d99da5666d3f59c0e45732409",
+          "storyFilesHash": "5e76b9b17b6c287b02332779b434d6a5d3fd395c5d079f4d41b33e078b2dee94",
+          "timestamp": "2026-08-02T02:53:46.957Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
