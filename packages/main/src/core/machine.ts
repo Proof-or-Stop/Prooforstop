@@ -9,7 +9,7 @@ import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './lattice-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
-import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, initCheckSignatureIsValid, missingRequiredInitCheckAgents } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
@@ -444,8 +444,9 @@ export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
     // Verify against the SNAPSHOT already read, not a second read of the file: the
     // verdict is inside the domain since B-8df9 CHK-002, so re-reading would leave a
     // window in which the record that is hashed is not the record that is judged.
-    const expected = recomputeInitCheckHash(context.storyId, context.store, context.projectRoot, initCheck);
-    return initCheck._hash === expected
+    // The comparison rule itself is initCheckSignatureIsValid (B-8df9 CHK-003) — the
+    // same one the carry-forward crosses — so "trusted" cannot mean two things.
+    return initCheckSignatureIsValid(context.storyId, context.store, context.projectRoot, initCheck)
       && missingRequiredInitCheckAgents(initCheck).length === 0
       && blockingInitCheckIssues(initCheck).length === 0;
   } catch (err) {
@@ -1142,9 +1143,9 @@ export function getGuardFailureReason(
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
-    // Same snapshot discipline as canEnterInitCheckGuard: judge the record that was read.
-    const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd(), initCheck);
-    if (initCheck._hash !== expected) {
+    // Same snapshot discipline as canEnterInitCheckGuard: judge the record that was read,
+    // through the one shared trust predicate (B-8df9 CHK-003).
+    if (!initCheckSignatureIsValid(storyId, store, projectRoot ?? process.cwd(), initCheck)) {
       // The signed components are RENDERED from the domain declaration
       // (INIT_CHECK_SIGNATURE_DOMAIN), never restated here: a hand-written list would
       // go stale the next time the domain moves and send the reader to debug fields

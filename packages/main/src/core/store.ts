@@ -563,6 +563,28 @@ export class StoryStore {
 
   // ── Init Check (B-e71f: read/write init-check.json written by lattice-review-story-init agent) ──
 
+  /**
+   * UNVERIFIED read, BY DECISION (B-8df9 CHK-003) — returns whatever bytes are on disk,
+   * with the stored `_hash` NOT checked. Refusing to TRUST is not the same as refusing to
+   * READ, and this function deliberately does only the second-weakest of those:
+   *
+   *  - Verifying here is not even well-defined at this layer: the expected hash is a
+   *    function of the story's title / description / background.md / checklist / review
+   *    round, and the module that computes it (core/init-check-gate.ts) obtains all of
+   *    them THROUGH this store — `recomputeInitCheckHash` calls `readInitCheck` for the
+   *    persisted verdict it hashes, so a verifying read would recurse into its own verifier.
+   *  - Most callers are read-only surfaces — `story_get`, the INIT preflight report, the
+   *    session brief, the artifact-contract probe — and the gate's own tamper path is one
+   *    of them: it must hold the untrusted record in hand to be able to REPORT
+   *    `init_check_tampered` at all. Throwing here would make an unverifiable record
+   *    unreportable and would strand every historical file signed under an older domain.
+   *
+   * Consequently the trust boundary lives one layer up and is explicit: any caller that
+   * DECIDES on this record's contents (which reviewers are covered, which issues were
+   * raised, what gets carried into a re-signed file) must first pass it through
+   * `initCheckSignatureIsValid` / `initCheckHashMatches` in core/init-check-gate.ts.
+   * Rendering it is fine. Believing it is not.
+   */
   readInitCheck(storyId: string): InitCheckData | null {
     try {
       return this.readJson<InitCheckData>(storyId, 'init-check.json');

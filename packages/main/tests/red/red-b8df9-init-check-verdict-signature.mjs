@@ -11,6 +11,26 @@
  * calls for the fabricated reviewer. There is no laundering step: the stored
  * `_hash` never depended on those fields, so editing them cannot invalidate it.
  *
+ * ── AND THE HOLE THAT OUTLIVES THAT FIX (rows E/F/G) ────────────────────────
+ *
+ * Putting those fields inside the domain makes a hand-edited file fail its own
+ * signature. It does NOT, by itself, make the tampering stick: `init_check_set`
+ * COPIES the previous file's reviewer records into the record it then signs. If
+ * it copies them without checking the signature it is replacing, the tampering
+ * never has to survive the gate — only until the next ordinary reviewer call,
+ * which re-signs it into validity. Tamper once, wait for any legitimate call,
+ * and the tamper-evidence is laundered away.
+ *
+ * Rows E and F measure exactly that, one per tampering direction (inject a
+ * reviewer / erase a recorded blocker), each identifying the laundered record by
+ * a MARKER carried on the record itself — never by counting entries.
+ *
+ * Row G measures the other half of the position, which is a real choice and not
+ * a detail: refusing to TRUST is not refusing to READ. A fix that made the read
+ * throw would close E/F and simultaneously strand every historical file, since
+ * the audit surfaces and the gate's own tamper report must hold the untrusted
+ * bytes in hand to say anything about them at all.
+ *
  * ── WHY THE CONTROLS ARE NOT DECORATION ─────────────────────────────────────
  *
  * Three rival explanations would produce the same "it advanced" observation and
@@ -43,7 +63,10 @@
  * not mechanically verifiable) and is positively asserted by shipped smoke tests.
  * What tampering adds is the absence of an audit trail and a bypass of the actor
  * registry. A green run here must never be read as "reviewer coverage is
- * trustworthy" — it never was, and this story does not make it so.
+ * trustworthy" — it never was, and this story does not make it so. Row H1
+ * MEASURES that boundary rather than asserting it: an editor who ALSO re-signs
+ * with the product's own signing function is accepted, because the salt is a
+ * public constant and this is a checksum, not a secret-keyed MAC.
  *
  * ── EVERYTHING IS DERIVED AT RUNTIME ────────────────────────────────────────
  *
@@ -85,8 +108,10 @@
  * after the fix a regression fails `validate` for real.
  *
  * RED while the defect stands (exit 1). GREEN only once BOTH `agentResults` AND
- * `issues` are inside the domain (exit 0); covering one field alone must leave
- * this artifact RED.
+ * `issues` are inside the domain AND the carry-forward refuses to re-sign a
+ * record that does not verify (exit 0). Covering one field alone, or covering
+ * both while still laundering them through the carry-forward, must leave this
+ * artifact RED.
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
@@ -122,6 +147,15 @@ const BLOCKER = {
 
 /** The phase this artifact drives stories into; our own input, not a product string. */
 const TARGET_PHASE = 'INIT_CHECK';
+
+/**
+ * A `checkedAt` value no legal call can produce — the handler always stamps
+ * `new Date()`. Used as the MARKER for "this record was written by hand", so the
+ * laundering rows below identify the injected record by a property of the record
+ * itself rather than by counting entries (a count would go stale the moment the
+ * required roster changes, and could not be re-derived from a later run).
+ */
+const INJECTED_AT = new Date(0).toISOString();
 
 const digest = (text) => createHash('sha256').update(String(text ?? '')).digest('hex').slice(0, 12);
 
@@ -357,6 +391,170 @@ try {
         r.advanced,
         `advanced=${r.advanced} phase=${r.phase} outDigest=${r.outDigest}`);
     }
+
+    // ── E: THE LAUNDERING PATH — one legal call must not re-sign what nobody wrote ──
+    //
+    // Making the file tamper-EVIDENT (B/C above) is not the whole property. The
+    // handler COPIES the previous file's reviewer records into the record it is about
+    // to sign. If it copies them without first checking the signature it is replacing,
+    // tampering does not have to survive the gate — it only has to survive until the
+    // next ordinary reviewer call, which re-signs it into validity. Tamper once, wait,
+    // and the evidence of tampering is gone.
+    //
+    // E0 is the FLOOR this whole section rests on: an untouched predecessor MUST still
+    // be carried forward. Without it, "never carry anything forward" would turn every
+    // row below green while destroying the multi-reviewer flow the gate is built on —
+    // a fix that passes the test by breaking the feature.
+    {
+      const sid = makeStory(root, 'ctl-carryforward', 'Control clean carry forward');
+      const first = partial[0];
+      record(root, sid, first);
+      const firstStamp = (readJ(icPath(root, sid)).agentResults ?? [])
+        .find((r) => r.agentId === first)?.checkedAt ?? null;
+      record(root, sid, withheld);
+      const after = readJ(icPath(root, sid));
+      const survived = (after.agentResults ?? []).some((r) => r.agentId === first && r.checkedAt === firstStamp);
+      const validAfter = recompute(root, sid) === after._hash;
+      const adv = tryAdvance(root, sid);
+      ctl('E0', 'CARRY-FORWARD FLOOR: an UNTOUCHED predecessor record survives the next legal call verbatim, still signed, and the gate advances',
+        firstStamp !== null && survived && validAfter && adv.advanced,
+        `predecessorStampCaptured=${firstStamp !== null} survivedVerbatim=${survived} signedAfter=${validAfter} advanced=${adv.advanced} phase=${adv.phase}`);
+    }
+
+    {
+      const sid = makeStory(root, 'red-launder-inject', 'Laundered injected coverage');
+      // The laundering caller is a reviewer that is ALREADY legally recorded and is NOT
+      // the injected one: a call by the injected reviewer would replace that record with
+      // its own and mask the defect being measured.
+      const caller = partial[0];
+      record(root, sid, caller);
+
+      const ic = readJ(icPath(root, sid));
+      ic.agentResults.push({ agentId: withheld, checkedAt: INJECTED_AT, issues: [] });
+      writeJ(icPath(root, sid), ic);
+      const rejectedBefore = recompute(root, sid) !== readJ(icPath(root, sid))._hash;
+      const blockedBefore = !tryAdvance(root, sid).advanced;
+      ctl('E1', 'PRECONDITION: before any laundering call the injected record is signature-INVALID and the gate refuses it',
+        rejectedBefore && blockedBefore,
+        `signatureRejectsTheInjection=${rejectedBefore} gateRefuses=${blockedBefore}`);
+
+      // ONE ordinary, fully legal call. Nothing about it is unusual.
+      record(root, sid, caller);
+      const laundered = readJ(icPath(root, sid));
+      const injectedSurvived = (laundered.agentResults ?? [])
+        .some((r) => r.agentId === withheld && r.checkedAt === INJECTED_AT);
+      const signedAfter = recompute(root, sid) === laundered._hash;
+
+      ctl('E2', 'the record that legal call wrote is itself validly signed, whatever it contains',
+        signedAfter,
+        `signatureValidAfterTheLegalCall=${signedAfter} (without this, a green E3 could just mean the write broke)`);
+      red('E3', 'the hand-injected reviewer record is carried into that newly signed record — one legal call LAUNDERS it into a valid signature',
+        injectedSurvived && signedAfter,
+        `injectedRecordSurvivedByItsHandWrittenTimestampMarker=${injectedSurvived} underAValidSignature=${signedAfter}`);
+      const r = tryAdvance(root, sid);
+      red('E4', 'the gate ACCEPTS that laundered coverage: tampering survived by waiting for one legitimate call',
+        r.advanced,
+        `advanced=${r.advanced} phase=${r.phase} outDigest=${r.outDigest}`);
+    }
+
+    // ── F: THE SAME LAUNDERING, applied to an erased blocking issue ────────────
+    {
+      const sid = makeStory(root, 'red-launder-erase', 'Laundered issue erasure');
+      const flagger = partial[0];
+      record(root, sid, flagger, [{ severity: blockingSeverity, desc: 'Fixture blocking issue that must stop the advance.' }]);
+      record(root, sid, withheld);
+      const blockedBefore = tryAdvance(root, sid);
+      const stored = readJ(icPath(root, sid))._hash;
+      const flaggerStamp = (readJ(icPath(root, sid)).agentResults ?? [])
+        .find((r) => r.agentId === flagger)?.checkedAt ?? null;
+
+      const ic = readJ(icPath(root, sid));
+      for (const r of ic.agentResults ?? []) if (r.agentId === flagger) r.issues = [];
+      writeJ(icPath(root, sid), ic);
+      const rejectedBefore = recompute(root, sid) !== stored;
+      ctl('F1', 'PRECONDITION: the recorded blocking issue blocks, and hand-erasing it leaves the file signature-INVALID',
+        !blockedBefore.advanced && blockedBefore.out.includes(BLOCKER.blockingIssues) && rejectedBefore && flaggerStamp !== null,
+        `blockedWhileRecorded=${!blockedBefore.advanced} blocker=${blockedBefore.out.includes(BLOCKER.blockingIssues)} signatureRejectsTheErasure=${rejectedBefore} flaggerStampCaptured=${flaggerStamp !== null} severityUsed=${blockingSeverity}`);
+
+      // ONE ordinary, fully legal call by the OTHER reviewer.
+      record(root, sid, withheld);
+      const laundered = readJ(icPath(root, sid));
+      const erasedSurvived = (laundered.agentResults ?? [])
+        .some((r) => r.agentId === flagger && r.checkedAt === flaggerStamp && (r.issues ?? []).length === 0);
+      const signedAfter = recompute(root, sid) === laundered._hash;
+      const blockersGone = blockingInitCheckIssues(laundered).length === 0;
+
+      ctl('F2', 'the record that legal call wrote is itself validly signed, whatever it contains',
+        signedAfter,
+        `signatureValidAfterTheLegalCall=${signedAfter} (without this, a green F3 could just mean the write broke)`);
+      red('F3', 'the hand-erased verdict is carried into that newly signed record — the recorded blocker is laundered away under a valid signature',
+        erasedSurvived && blockersGone && signedAfter,
+        `erasedVerdictSurvivedByItsOriginalTimestampMarker=${erasedSurvived} productSeesNoBlockingIssue=${blockersGone} underAValidSignature=${signedAfter}`);
+      const r = tryAdvance(root, sid);
+      red('F4', 'the gate ADVANCES: a genuinely recorded blocker was removed by tampering plus one legitimate call',
+        r.advanced,
+        `advanced=${r.advanced} phase=${r.phase} outDigest=${r.outDigest}`);
+    }
+
+    // ── G: THE READ SIDE — refusing to TRUST is not refusing to READ ───────────
+    //
+    // The fix for E/F could have been "make the read itself throw". That would close
+    // the hole and simultaneously strand every historical file: the audit surfaces and
+    // the gate's OWN tamper report all have to hold the untrusted bytes in hand to say
+    // anything about them. This row measures that the chosen position actually holds.
+    {
+      const sid = makeStory(root, 'ctl-render', 'Control unverifiable record still renders');
+      for (const agentId of required) record(root, sid, agentId);
+      const ic = readJ(icPath(root, sid));
+      ic.agentResults.push({ agentId: withheld, checkedAt: INJECTED_AT, issues: [] });
+      writeJ(icPath(root, sid), ic);
+      const unverifiable = recompute(root, sid) !== readJ(icPath(root, sid))._hash;
+
+      let rendered = false;
+      let renderedVerbatim = false;
+      try {
+        const view = JSON.parse(run(root, 'story_get', { storyId: sid }));
+        rendered = Boolean(view?.initCheck);
+        renderedVerbatim = Array.isArray(view?.initCheck?.agentResults)
+          && view.initCheck.agentResults.some((r) => r.agentId === withheld && r.checkedAt === INJECTED_AT);
+      } catch { /* PROBE: leave both false; the control then reports BROKEN */ }
+
+      const r = tryAdvance(root, sid);
+      ctl('G1', 'READ vs TRUST: a record that does NOT verify still RENDERS through story_get, verbatim, while the gate refuses to act on it',
+        unverifiable && rendered && renderedVerbatim && !r.advanced && r.out.includes(BLOCKER.tampered),
+        `signatureRejectsIt=${unverifiable} storyGetStillRendersIt=${rendered} rendersTheUnverifiedContentVerbatim=${renderedVerbatim} gateRefuses=${!r.advanced} tamperBlocker=${r.out.includes(BLOCKER.tampered)}`);
+    }
+
+    // ── H: THE BOUNDARY OF THE CLAIM, MEASURED RATHER THAN ASSERTED ────────────
+    //
+    // Everything above buys tamper-EVIDENCE. It does not buy secrecy: the salt is a
+    // public constant in this repository, so whoever can edit the file can also run
+    // the product's own signing function over their edit and produce a record that
+    // verifies. That is measured here instead of being written down, because a
+    // sentence in a comment cannot go BROKEN when it stops being true — and the
+    // failure mode this whole story is about is a stale hand-written claim outliving
+    // the code it described. If a real secret is ever introduced this control flips
+    // and the reader is TOLD the scope moved, rather than inheriting rows B/C/E/F as
+    // if they had ever meant "reviewer coverage is trustworthy". They never did.
+    {
+      const sid = makeStory(root, 'scope-resign', 'Scope re-signed tampering is accepted');
+      record(root, sid, partial[0]);
+      const ic = readJ(icPath(root, sid));
+      ic.agentResults.push({ agentId: withheld, checkedAt: INJECTED_AT, issues: [] });
+      writeJ(icPath(root, sid), ic);
+      const refusedBeforeReSigning = recompute(root, sid) !== readJ(icPath(root, sid))._hash;
+
+      // The editor now runs the product's own signing function over their own edit.
+      const resigned = readJ(icPath(root, sid));
+      resigned._hash = recompute(root, sid);
+      writeJ(icPath(root, sid), resigned);
+      const verifiesAfterReSigning = recompute(root, sid) === readJ(icPath(root, sid))._hash;
+
+      const r = tryAdvance(root, sid);
+      ctl('H1', 'SCOPE BOUND: this is a checksum over public inputs, NOT a secret-keyed MAC — an editor who also RE-SIGNS is accepted, so what this story buys is tamper-evidence, never reviewer trustworthiness',
+        refusedBeforeReSigning && verifiesAfterReSigning && r.advanced,
+        `refusedBeforeReSigning=${refusedBeforeReSigning} verifiesAfterReSigning=${verifiesAfterReSigning} gateAdvancesOnTheReSignedRecord=${r.advanced} phase=${r.phase}`);
+    }
   } catch (e) {
     // Reported as a digest, never as text: child-process failures carry command
     // lines, and this repository's environment holds live-looking credentials.
@@ -399,7 +597,7 @@ function registrationState() {
 const registration = registrationState();
 const waiverWithdrawn = registration.readable && registration.found && !registration.optional;
 
-console.log('=== B-8df9: the INIT_CHECK verdict fields are outside the signature domain ===\n');
+console.log('=== B-8df9: the INIT_CHECK verdict is outside the signature domain, and the carry-forward re-signs it ===\n');
 let redCount = 0;
 let brokenCount = 0;
 for (const { id, claim, verdict, observed } of rows) {
@@ -435,6 +633,11 @@ if (redCount > 0) {
     '  dead for everything" is ruled out by D, "it advances for everything" by A and C1,',
     '  and "it refuses for everything" by D0.',
     '',
+    '  And/or: the carry-forward re-signs a record that does not verify (E3/E4, F3/F4),',
+    '  so one ordinary reviewer call launders tampering into a valid signature. E0 rules',
+    '  out "just stop carrying anything forward" — an untouched predecessor must still',
+    '  survive — and E2/F2 rule out "the write simply broke".',
+    '',
     '  This is about AUDIT INTEGRITY, not access control: both outcomes are already',
     '  reachable through legal CLI calls by design. Tampering adds only the absence of',
     '  a trail and a bypass of the actor registry.',
@@ -459,4 +662,10 @@ if (!waiverWithdrawn) {
   ].join('\n'));
   process.exit(1);
 }
-console.log('\n  GREEN: both verdict fields are inside the signature domain.\n');
+console.log([
+  '',
+  '  GREEN: both verdict fields are inside the signature domain, and the carry-forward',
+  '  refuses to re-sign a record that does not verify — while an untouched predecessor',
+  '  is still carried forward (E0) and an unverifiable record still RENDERS (G1).',
+  '',
+].join('\n'));

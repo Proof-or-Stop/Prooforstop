@@ -28,6 +28,15 @@
  * issue, stayed signature-VALID and the gate accepted it with zero init_check_set calls
  * (proven by packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs).
  *
+ * B-8df9 CHK-003: a signature nobody CHECKS before trusting the data is not a signature.
+ * `store.readInitCheck` is an unverified read by decision (refusing to TRUST is not the
+ * same as refusing to READ — see its contract note), so the trust boundary is here:
+ * initCheckSignatureIsValid / initCheckHashMatches. Every consumer that DECIDES on the
+ * record — the gate, and `init_check_set`'s carry-forward of the previous file's
+ * agentResults — crosses it. Without the carry-forward check, one ordinary reviewer call
+ * would re-sign hand-edited reviewer records into validity: tamper once, wait for any
+ * legitimate call, and CHK-002's tamper-evidence is laundered away.
+ *
  * SCOPE OF THAT PROPERTY: it makes the record TAMPER-EVIDENT, it does not make reviewer
  * coverage trustworthy. One caller can still legally satisfy both required reviewers by
  * calling init_check_set twice (EXP-001: caller identity is not mechanically verifiable
@@ -273,6 +282,50 @@ export function signInitCheck(
     reviewRound,
     verdictHash,
   });
+}
+
+/**
+ * B-8df9 CHK-003: THE comparison rule for "is this record one this tool signed?",
+ * declared once so no consumer re-invents it.
+ *
+ * An absent record, an absent/blank `_hash`, and an expected hash that could not be
+ * computed are all UNTRUSTED — never "assume valid because there is nothing to compare".
+ * Callers pass the hash they recomputed over the SAME story snapshot the record is being
+ * judged against; see the two entry points below/next to this one for the two ways that
+ * snapshot is obtained.
+ */
+export function initCheckHashMatches(
+  data: Pick<InitCheckData, '_hash'> | null | undefined,
+  expectedHash: string,
+): boolean {
+  if (!data) return false;
+  const stored = typeof data._hash === 'string' ? data._hash.trim() : '';
+  const expected = typeof expectedHash === 'string' ? expectedHash.trim() : '';
+  return stored.length > 0 && expected.length > 0 && stored === expected;
+}
+
+/**
+ * B-8df9 CHK-003: verifier entry point — recompute over the story's CURRENT content and
+ * compare with the `_hash` stored beside the record.
+ *
+ * `store.readInitCheck` is deliberately an UNVERIFIED read (see its contract note in
+ * core/store.ts): refusing to TRUST is not the same as refusing to READ, and the paths
+ * that render / diagnose / audit an init-check.json — including the one that has to
+ * report `init_check_tampered` — need the untrusted bytes in hand to say anything useful
+ * about them. This function is where a caller crosses from reading to TRUSTING, and every
+ * caller that DECIDES on the record's contents must cross it.
+ *
+ * `false` covers every not-trusted cause on purpose (missing record, blank/legacy hash,
+ * hand-edited content); a caller that needs to tell those apart already has the record.
+ */
+export function initCheckSignatureIsValid(
+  storyId: string,
+  store: StoryStore,
+  projectRoot: string,
+  data: InitCheckData | null | undefined,
+): boolean {
+  if (!data) return false;
+  return initCheckHashMatches(data, recomputeInitCheckHash(storyId, store, projectRoot, data));
 }
 
 /**
