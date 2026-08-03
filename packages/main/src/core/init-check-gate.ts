@@ -165,6 +165,31 @@ export function computeChecklistHash(
  * members are dropped exactly as JSON.stringify drops them — the producer hashes an
  * in-memory object while the verifier hashes the same object after a round trip through
  * disk, and those two must agree.
+ *
+ * B-8df9 F-003 — WHY THIS IS NOT core/digest.ts's EXPORTED `canonicalJson`. That module is
+ * a leaf built for reuse and this file imports nothing else from it, so reuse looks free.
+ * It is not: the two canonicalizations were compared and they DISAGREE on shapes an
+ * on-disk init-check.json can carry, so swapping would silently change the digest of
+ * already-signed records. Measured differences:
+ *
+ *  - digest.ts sorts keys with `a.localeCompare(b)`, i.e. by the VERIFIER'S DEFAULT LOCALE
+ *    (measured on this Node: under LANG=sv_SE a key "ä" sorts after "z"; under en-US/de-DE
+ *    it sorts right after "a"; and 'a' orders before 'B'). This function uses code-unit
+ *    order, which is identical on every host. A signature canonicalized by locale would
+ *    report `init_check_tampered` on a record nobody touched, purely because it was
+ *    verified on a differently configured machine — the opposite of what it exists for.
+ *  - digest.ts rebuilds a plain object and lets JSON.stringify emit it, so integer-like
+ *    keys come out FIRST in ascending numeric order no matter what the sort decided
+ *    (`{"2":..,"10":..}`); this function emits its own sorted entry list (`{"10":..,"2":..}`).
+ *  - producer-side only (cannot come back off disk): digest.ts drops function/symbol-valued
+ *    members entirely and stringifies a bigint, where this function keeps such a member as
+ *    `null` and lets a bigint throw.
+ *
+ * The first two are reachable from a hand-edited file, which is precisely the input class
+ * this hash exists to catch. The swap happens to move none of the 267 init-check.json files
+ * in the live corpus (measured), but the domain's claim is totality over ARBITRARY on-disk
+ * content, so "the corpus today is unaffected" is not the property being defended. Removing
+ * this copy is a deliberate, migrated change of the signature algorithm — never a cleanup.
  */
 function canonicalJson(value: unknown): string {
   if (value === null || value === undefined) return 'null';
