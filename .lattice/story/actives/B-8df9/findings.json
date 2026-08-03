@@ -5,7 +5,7 @@
       "desc": "CHK-002 userSees pins a literal tamper message that is itself the stale-enumeration defect this story removes, and the implementer correctly REFUSED to ship it. The pinned text names the signed fields as \"(agentResults/issues/background/title/description/checklist were modified)\" - a hand-written enumeration that goes wrong the next time the domain changes. What shipped instead renders the domain from its single declaration (INIT_CHECK_SIGNATURE_DOMAIN), which is what plan.md DoneWhen and the dispatch both asked for. AUTHOR OF THE DEFECT: the main agent, when writing the acceptance field in PLAN. The implementer flagged the conflict and reported it rather than silently self-correcting or silently complying, which is the correct behaviour. userSees is frozen from DEV (checklist_update refuses it by design, so the executor cannot move the acceptance goalposts) - this finding is the sanctioned channel for recording that the pinned criterion was superseded. RESOLUTION SOUGHT: accept the rendered message as satisfying CHK-002 acceptance, on the record, rather than reopening PLAN to edit the field. The shipped behaviour is strictly better than the pinned text.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-08-01T15:23:28.833Z",
@@ -16,7 +16,11 @@
         ".lattice/story/actives/B-8df9/checklist.json"
       ],
       "signatureTag": "missing|ts|usersees-pins-literal",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Accepting the shipped behaviour as satisfying CHK-002, on the record. The pinned userSees text was authored by me in PLAN and is itself the stale-enumeration defect this story removes; the implementer refused to ship it and reported the conflict rather than silently complying or silently self-correcting, which is the behaviour the freeze exists to produce. What shipped renders the field list from INIT_CHECK_SIGNATURE_DOMAIN, which is strictly better and is what plan.md DoneWhen asked for. Reopening PLAN to edit one acceptance sentence would cost a phase round-trip to make the record cosmetically consistent with a worse requirement. The docs lane independently verified the shipped message against source and found it correct.",
+      "dismissedAt": "2026-08-03T04:47:53.057Z",
+      "dismissReasonType": "already_covered",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-8df9:F-002",
@@ -53,7 +57,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:839 states in the current-code-backed-contracts table that init-check.json _hash \"covers story background/title/description/checklist hash/reviewRound\" only. That is now stale/incomplete: B-8df9 CHK-002 widened INIT_CHECK_SIGNATURE_DOMAIN (packages/main/src/core/init-check-gate.ts) to also cover the reviewer verdict (agentResults + issues, via computeInitCheckVerdictHash) so that a hand-edited verdict fails the signature. This is the second surviving instance of the pre-CHK-002 formula (the first, packages/main/src/handlers/init-preflight.ts:143, is a known/accepted survivor named in the story scope contract); this row in a decisions/*.md file was in this story's explicit allowedModify scope (docs/requirements/decisions/*.md) and was not updated. A reader consulting this plan for the proof-or-stop migration would inherit the wrong belief that the signature does not bind reviewer coverage, risking re-introduction of the exact defect B-8df9 fixed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-03T04:37:25.720Z",
@@ -66,7 +70,10 @@
         "packages/main/src/handlers/init-preflight.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:839 no longer hand-writes the pre-CHK-002 field list. The anti-forgery cell now points at INIT_CHECK_SIGNATURE_DOMAIN as the single declaration and tells the reader to render the live list via describeInitCheckSignatureDomain() (same deferral CLAUDE.md:535 and story-lifecycle.md:73 adopted), states that since B-8df9 CHK-002 the domain also binds the reviewer verdict (agentResults + issues via computeInitCheckVerdictHash), and keeps the tamper-evidence-not-trust boundary explicit because INIT_CHECK_SALT/signInitCheck are exported source. Verified by grepping the whole repo for the stale formula: the only remaining instances are the known/accepted survivor handlers/init-preflight.ts:143 (out of scope contract) and the unrelated draft-check domain (CLAUDE.md:599, story-create.ts:630). Commit 77fe1de4ae.",
+      "resolvedAt": "2026-08-03T04:49:10.213Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-8df9:F-005",
@@ -126,7 +133,7 @@
       "desc": "CHK-003:adversarial:0 (.lattice/story/actives/B-8df9/checklist.json) frozen desc claims \"A file whose _hash was recomputed by an attacker over tampered content is still refused\" -- execution REFUTES this (row H1 of tests/red/red-b8df9-init-check-verdict-signature.mjs:528-557, reconfirmed live just now: refusedBeforeReSigning=true verifiesAfterReSigning=true gateAdvancesOnTheReSignedRecord=true). INIT_CHECK_SALT is a public source constant, so an editor who re-signs with the product's own signInitCheck IS accepted. The implementer correctly recorded verdict=audit_only rather than a clean pass and, since checklist metadata is frozen from DEV, explicitly deferred \"whether to re-word the intent or waive it\" to the main agent. That deferred question IS substantively answered in docs/requirements/decisions/story-lifecycle.md:121-124 (\"Scope of the property this buys ... An editor who also re-signs is accepted ... never reviewer trustworthiness\"), which names row H1 directly -- so I judge audit_only the honest disposition here, not a gap dressed as satisfaction; no reword/waiver is substantively required. The one loose end: CHK-002's analogous frozen-metadata conflict was closed with a discoverable finding (B-8df9:F-001, described in its own text as \"the sanctioned channel for recording\" a superseded pinned criterion), but CHK-003:adversarial:0 has no equivalent finding, so a reader of findings.json alone (without cross-referencing the decision doc or the evidence note) would not learn the adversarial intent is, as literally worded, false. Filing this low/non-blocking finding purely for audit-trail symmetry with F-001; recommend resolving by referencing story-lifecycle.md:121-124 rather than reopening PLAN.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-03T04:44:03.601Z",
@@ -139,7 +146,11 @@
         "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
       ],
       "signatureTag": "missing|md|adversarial-lattice-story",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "The filer itself judged audit_only the honest disposition and filed this only as a symmetry gap against the F-001 precedent. CHK-003's adversarial intent is empirically false - a re-signed tampered file IS accepted, because the salt is a public source constant - and the implementer recorded verdict=audit_only rather than a false pass, made the fact durable as artifact row H1, and the substantive question is resolved in docs/requirements/decisions/story-lifecycle.md:121-124. The intent text is frozen from DEV by design and the honest disposition is already recorded. Rewording it would change nothing about what is true or what is proven.",
+      "dismissedAt": "2026-08-03T04:47:53.998Z",
+      "dismissReasonType": "already_covered",
+      "dismissEvidenceStrength": "medium"
     }
   ]
 }
