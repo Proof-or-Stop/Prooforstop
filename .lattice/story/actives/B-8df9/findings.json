@@ -82,6 +82,26 @@
       "_hash": "4f2c04e2d40690fbbef59c1097542e5880600e0120030b0f1e91ef8c232dbdf3",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-006",
+      "desc": "packages/main/src/handlers/checklist.ts:645 (selectorMatched = run.output.includes(pinSelector), exact substring) means CHK-002:happy:0's pinned selector \"GREEN: both verdict fields are inside the signature domain.\" (checklist.json, recorded 2026-08-01T15:18 against red-b8df9-init-check-verdict-signature.mjs) is now permanently unmatchable: CHK-003 legitimately extended the SAME artifact's final conclusion print (tests/red/red-b8df9-init-check-verdict-signature.mjs:665-671) to \"GREEN: both verdict fields are inside the signature domain, and the carry-forward refuses to re-sign...\" (comma, not period, after domain). Reconfirmed live by re-running node bin/lattice.js validate --focus=b8df9-init-check-signature just now: the exact pinned string does not appear in current output. Because VerificationIntentPin is immutable once set (core/types.ts:287-291) and this artifact is a PERMANENT lattice.config.json validate.commands regression check (the CHK-002 waiver was withdrawn), this must-priority happy-path evidence can never again be re-earned as literally recorded. verification_evidence_refresh_stale (handlers/checklist.ts:1833-1877) re-executes the pinned command on staleness; on selector mismatch it falls to the demote path (checklist.ts:906-926), silently converting a mechanical:true receipt into mechanical:false with an auto-generated \"receipt invalidated\" reason while leaving result:pass untouched. Not currently blocking REVIEW->TEST (recorded receipt is intact), but materialHash has moved since this evidence was recorded (init-check-gate.ts/store.ts/handlers/init-check.ts/command-policy.ts all changed afterward via CHK-003/005/006), so the next legitimate refresh -- e.g. done_prepare --refreshStale, which CLAUDE.md requires before DONE -- will trigger the demotion. This is exactly the class of durability defect the review task flagged (a selector anchored to a mutable summary sentence rather than a stable per-row claim id), the same class that produced a finding against predecessor story B-49d4.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-03T04:43:35.324Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-003",
+      "_hash": "eb0c364fb26194f17304abd9e8839f71f608481d10dcaecbccbde0637011b74a",
+      "files": [
+        "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs",
+        "packages/main/src/handlers/checklist.ts",
+        ".lattice/story/actives/B-8df9/checklist.json"
+      ],
+      "signatureTag": "missing|mjs|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
