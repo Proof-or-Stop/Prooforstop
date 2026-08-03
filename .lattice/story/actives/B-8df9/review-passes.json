@@ -119,6 +119,36 @@
         "scanEscalationReason": null
       },
       "_hash": "4b46122164dc630b0e3ffc1b7ccf3475ea5cc6871ae46a988fb92c09cb0c74b5"
+    },
+    {
+      "id": "B-8df9:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-attestation at current HEAD. Audited disposition of my own 3 round-1 findings rather than redoing the coverage sweep. (1) F-006 CONFIRMED-then-WAIVED at CHK-002:happy:0: re-ran grep -F of the immutable pinned selector against live artifact output, confirms mismatch exactly as diagnosed (CHK-003 legitimately extended the conclusion line). The waiver is the correct instrument, not a laundering: verification.ts buildVerificationCoverage treats kind=waiver as status=waived unconditionally (bypassing staleness), and waived is in the covered-statuses set for must-priority gating, so this is the designed escape hatch, not an ad hoc bypass. Independently re-ran red-b8df9-init-check-verdict-signature.mjs at HEAD ac5b058: 0 RED/0 BROKEN/24 rows, registered non-optional in lattice.config.json (no optional flag set), waiverWithdrawn=true, and rows B1/B2/B3 mechanically cover exactly CHK-002 happy intent (hand-injected agentResults now refused). Waiver honest. (2) F-007 FIXED: diffed command-policy.ts. finding_add and init_check_set reasons now state deposit-only bound to owner-gated consumers; scope_check_save now states the true wholesale-replace limit, the deposit-only claim does NOT hold and is correctly not claimed; scope_question_resolve reviewerWrite premise is flagged FALSE in the comment rather than reworded, matching handlers/scope-question-resolve.ts anti-self-pardon design. Confirmed review_run_start and review_pass_set at lines 209-210 were left with the old signature-gate framing, exactly as disclosed as an unresolved follow-up, not silently dropped. (3) F-008 DISMISSED: symmetry-only filing against F-001, also dismissed on a verified stronger basis (docs lane confirmed shipped message beats the PLAN-pinned text); CHK-003 adversarial intent is recorded audit_only, the honest disposition for a refuted intent, consistent with story-lifecycle.md around lines 121-124 and RED row H1. Re-verified CHK-005 and CHK-006 evidence still resolves after the F-003, F-004, F-007 fix commits: re-ran chk006-exemption-claims.mjs (10 PASS, 0 FAILED, EXEMPTION_REASON_MATCHES_CODE_MARKER=true) and chk005-corpus-derivation.mjs (GATED_INIT_STORY_ID=B-dcf9, GATED_INIT_STORY_COUNT_MARKER=1, actors registry-valid=true; the small drift in pre-CHK002-domain-verifying counts is expected post-INIT churn per story-lifecycle.md, not a defect), both green, both read-only against private mkdtemp fixtures and compiled dist, no mutation of shared state. Re-ran both red artifacts fresh: red-b8df9-init-check-verdict-signature.mjs 0 RED, 0 BROKEN, 24 rows, exit 0; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED, 0 BROKEN, 17 rows, exit 0. CHK-004 withdrawal verified via .lattice/story/actives/B-8df9/scope-shrinkage-decision.json, decisionId SD-7319de10, userConfirmed true, approvedBy user explicit instruction. No new blocker found; all three round-1 findings are honestly disposed and the underlying coverage they protect is still mechanically green at current HEAD.",
+      "createdAt": "2026-08-03T05:37:13.053Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-008",
+      "envelopeId": "9a349c07503b0b12a07523cc978c854b2e90f9d5ba49d05cfabfc0172ff2797e",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "lattice.config.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fd6d866b5f52b42349d563eb5f9450368a24a4d1158f31c18a48175cec9fd7f8"
     }
   ]
 }
