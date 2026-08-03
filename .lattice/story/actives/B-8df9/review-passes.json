@@ -93,6 +93,32 @@
         "scanEscalationReason": null
       },
       "_hash": "4c223c35b1a67a7b7096bdf0e6a578a7aef9b16a2b4bd1e3312db43a42511c20"
+    },
+    {
+      "id": "B-8df9:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-attestation at HEAD ac5b058, scoped to the 3 files changed since RP-001 per review_incremental_context (docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md, packages/main/src/core/command-policy.ts, packages/main/src/core/init-check-gate.ts). Verified by execution, not by reading the prose: (1) the kept private canonicalJson in init-check-gate.ts:162-204 vs core/digest.ts exported canonicalJson - reproduced both claimed divergences independently: with LANG=sv_SE/LC_ALL=sv_SE.UTF-8 (Node resolves Intl default locale to sv-SE), digest.ts default-locale-dependent a.localeCompare(b) sorts [z,a-umlaut,a] to [a,z,a-umlaut] (a-umlaut after z), while en-US/de-DE/no-locale sort to [a,a-umlaut,z] (a-umlaut right after a) - confirms the claimed host-locale-dependent signature risk is real, not hypothetical; separately confirmed digest.ts round-trips through a plain JS object so integer-like keys 10 and 2 get force-reordered to ascending order regardless of the sort, where the private copy builds the string directly from the sorted entries and preserves lexicographic order - matches the comment verbatim. Function-member and bigint claims also verified (function becomes null via JSON.stringify undefined-coalesce; bigint throws in the private copy, is stringified in digest.ts). Both divergences are reachable from a hand-edited file, i.e. exactly the tamper-detection input class this hash exists to catch, so keeping the copy is measured correctness, not laziness - the comment states this. (2) command-policy.ts reviewerWrite reasons re-derived, not reworded in place: read finding.ts finding_add handler (lines approx 549-594) and confirmed it only readFindings then push then writeFindings under the finding lock, never mutates an existing entry, and a pass-only record is diverted to recordReviewPass before the push (isPassOnlyReviewFindingRecord branch) - matches the finding_add reason claim exactly, including that signFinding does not take the agent field (verified the actual signFinding call site omits agent). Read store.writeScopeCheck (store.ts:559-562, writeJson wholesale) and scope-check.ts scope_check_save (constructs a fresh ScopeCheckData object each call) - confirmed scope_check_save reason claim that re-saving replaces the file wholesale and drops prior openQuestions resolutions unless re-passed. Read scope-question-resolve.ts in full - confirmed its own header comment already states this is the main agent (owner), not the reviewer, resolving via anti-self-pardon design, with no re-signing and no caller-identity check, which matches the new reason text. ownershipClass value itself was left as reviewerWrite (not changed) per the stated design constraint that changing it needs its own story. (3) decision-doc row now defers to describeInitCheckSignatureDomain() instead of a hand-written field list, and correctly narrates the new verdictHash binding and the tamper-evidence-not-trustworthiness caveat; consistent with the actual INIT_CHECK_SIGNATURE_DOMAIN array in init-check-gate.ts. One pre-existing, non-blocking observation, not new in this round, left out of CHK-006 scope by explicit disclosure in the F-007 resolvedReason: review_run_start and review_pass_set entries at command-policy.ts:209-210 still phrase their exemption as bound by a reviewer-run/signature gate, the exact pattern the new class comment at lines 46-54 tells future entries not to use - pre-existing lines, untouched by this round diff, explicitly called out as deferred rather than hidden; not filing as a finding since it is disclosed, non-regressive, and out of this round changed-file scope. npx tsc --noEmit -p packages/main clean (no destructive rebuild of the shared dist, per the lane constraint).",
+      "createdAt": "2026-08-03T05:33:29.940Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-007",
+      "envelopeId": "cd98ea52c6b8572dc10149acbf1bb258616ed9c09d7a1bfee573ea3058f12ddc",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/scope-check.ts",
+          "packages/main/src/handlers/scope-question-resolve.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4b46122164dc630b0e3ffc1b7ccf3475ea5cc6871ae46a988fb92c09cb0c74b5"
     }
   ]
 }
