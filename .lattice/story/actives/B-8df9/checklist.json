@@ -425,7 +425,11 @@
           {
             "desc": "The single INIT-phase story is identified by id before landing, and its recorded actors are confirmed still registry-valid",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+              "selector": "GATED_INIT_STORY_ID=B-dcf9"
+            }
           }
         ],
         "adversarial": [
@@ -465,6 +469,26 @@
           "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3",
           "storyFilesHash": "9a06ef0ebdbfedb8dad0e63a15232e43bbc801e1f6f5e1072977fd2537baa627",
           "timestamp": "2026-08-03T03:30:48.866Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": ".lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "The single operationally gated story is identified BY ID before landing. The pinned command prints GATED_INIT_STORY_ID=B-dcf9 ACTORS=lattice-review-story-init+product-reviewer ACTORS_REGISTRY_VALID_FOR_INIT_CHECK_SET=true, and GATED_INIT_STORY_COUNT_MARKER confirms it is the only one (same in the main working tree). Registry validity is derived through the product resolveRegisteredAgentActor plus entryPermitsMutation for init_check_set, so the recorded actors can still re-run the command and re-sign under the new domain.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "7b6c93130d6069bddef397a946d859de283f10e3d24f53cd61e9b49bab0ea65a",
+            "outputTail": "CORPUS_ROOT=/Users/jek/Documents/Work/proofbound/.worktrees/B-8df9\nCORPUS_FILES_ON_DISK_MARKER=267\nCORPUS_FILES_TRACKED_MARKER=267\nCORPUS_FILES_UNTRACKED_LOCAL_ONLY_MARKER=0\nTRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nTRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=14\nON_DISK_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER=0\nON_DISK_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER=14\nGATED_INIT_STORY_COUNT_MARKER=1\nTRACKED_WITH_UNREGISTERED_ACTOR_MARKER=2\nON_DISK_WITH_UNREGISTERED_ACTOR_MARKER=2\nGATED_INIT_STORY_ID=B-dcf9 ACTORS=lattice-review-story-init+product-reviewer ACTORS_REGISTRY_VALID_FOR_INIT_CHECK_SET=true SIGNATURE_VERIFIES_UNDER_CURRENT_DOMAIN=false SIGNATURE_VERIFIED_UNDER_PRE_CHK002_DOMAIN=true\nUNREGISTERED_ACTOR_MARKER name=codex-init-reviewer files=1\nUNREGISTERED_ACTOR_MARKER name=codex-host files=1\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-03T03:32:18.709Z"
+          },
+          "headHash": "5c58d98f0cdcaacde5e7025aa99459ace4f716ca",
+          "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3",
+          "storyFilesHash": "9a06ef0ebdbfedb8dad0e63a15232e43bbc801e1f6f5e1072977fd2537baa627",
+          "timestamp": "2026-08-03T03:32:19.068Z"
         }
       ]
     },
