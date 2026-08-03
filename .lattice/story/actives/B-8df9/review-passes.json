@@ -66,6 +66,33 @@
         "scanEscalationReason": null
       },
       "_hash": "aa727ac8f57bc3eb36a518077185f1440371f7d571ce94885bbcbd3ac0110261"
+    },
+    {
+      "id": "B-8df9:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 re-attestation at HEAD ac5b058 (isFirstPass=true, full diff reviewed, 68 files). F-002/F-004 confirmed: consolidation-plan.md:839 now defers to INIT_CHECK_SIGNATURE_DOMAIN / describeInitCheckSignatureDomain() same as CLAUDE.md:535 / story-lifecycle.md:73; re-ran survivor grep for the old hand-written formula — only init-preflight.ts:143 (out-of-scope, tracked follow-up) and story-create.ts:630 (unrelated draft-check domain) remain, no new hand-written enumeration introduced. F-003 confirmed sound by independent re-derivation: read init-check-gate.ts:162-194 against core/digest.ts line by line and reproduced all 4 divergences in the actual code (locale-dependent localeCompare sort vs code-unit sort; plain-object rebuild reordering integer-like keys vs manual sorted-entry join immune to that; dropped function/symbol + stringified bigint vs JSON null for function/symbol + throwing bigint). git diff main...HEAD -- core/digest.ts is empty (untouched, outside allowedModify). Reproduced both red artifacts myself: red-b8df9-init-check-verdict-signature.mjs 0 RED/0 BROKEN/24 rows; red-b8df9-chk002-verdict-shapes.mjs 0 FAILED/0 BROKEN/17 rows (M2 confirms guard renders domain, not old list). npx tsc --noEmit -p packages/main clean. Verdict: keeping the duplicate as a documented deliberate non-cleanup is correct; not reversing further. No blocker.",
+      "createdAt": "2026-08-03T05:32:31.175Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-006",
+      "envelopeId": "cf03ce40b05d93e831fe0f704a960c98d17295f2e109ecac1251f0e748251cb3",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/digest.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c223c35b1a67a7b7096bdf0e6a578a7aef9b16a2b4bd1e3312db43a42511c20"
     }
   ]
 }
