@@ -17,6 +17,21 @@
       ],
       "signatureTag": "missing|ts|usersees-pins-literal",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-002",
+      "desc": "concept-cleanup: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:839 still asserts the PRE-CHK-002 init-check.json signature domain as current fact — \"`_hash` covers story background/title/description/checklist hash/reviewRound; high/critical issues block\" — implying issues/agentResults are outside the signature, which B-8df9 CHK-002 falsified (INIT_CHECK_SIGNATURE_DOMAIN now covers agentResults+issues via computeInitCheckVerdictHash). This same file explicitly states its Artifact Schema table \"records current code-backed contracts\", so this is not historical narrative, it is a live factual claim now wrong. CHK-005/CHK-006 fixed the equivalent stale assertions in CLAUDE.md:538/544/580 and docs/requirements/decisions/story-lifecycle.md:73, but this decision doc (also inside the story scope contracts allowedModify wildcard docs/requirements/decisions/*.md) was left unfixed — a residual reference to the redefined concept.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-03T04:34:56.723Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-001",
+      "_hash": "789a6833371309fcb52590686b3d83dae9efc61345a5caec4595d0e799b484ed",
+      "signatureTag": "missing|unknown|concept-cleanup-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
