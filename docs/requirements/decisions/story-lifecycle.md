@@ -70,12 +70,58 @@ On the normal path, `INIT → INIT_CHECK` requires an independent INIT reviewer 
 `lattice init_check_repair` provides an **explicit, auditable fallback that does not weaken the signature** (INIT phase, `ownershipClass: storyScopedMutating`, an owner-gated manual override, not a reviewer-lane write):
 
 - **Disabled by default**: missing `acknowledge:true` or a `fallbackReason` shorter than 30 characters is rejected, producing no file and not changing the phase.
-- **Reuses `signInitCheck`**: the signature domain is unchanged; later modifying any of background/title/description/checklist still triggers `[init_check_tampered]`.
+- **Reuses `signInitCheck`**: the same signature domain as an ordinary `init_check_set`, so nothing about the fallback is signed more weakly. Since B-8df9 CHK-002 that domain also covers the reviewer verdict, so it is storyId / background.md / title / description / checklist / reviewRound / `agentResults` + `issues` — modifying any of them after signing still triggers `[init_check_tampered]`. `describeInitCheckSignatureDomain()` renders the live list; do not restate it from memory.
 - **Does not relax the gate**: the required reviewer coverage is recorded as `<required>@fallback` (`initCheckAgentMatches` recognizes the prefix), which both satisfies validation and is mechanically distinguishable from an independent reviewer; manually attested high/critical issues still self-block via `blockingInitCheckIssues`.
 - **Audit**: writes `init-check.json.fallback` (mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash) + an `init_check_fallback` process event; `story_get` exposes `initCheckAttestation` (`fallback`/`independent`) + the `initCheckFallback` block so the dashboard/report can distinguish them.
 - Does not introduce mechanical `agentId` validation (EXP-001 has falsified caller mechanical distinguishability).
 
 For the canonical command template and design constraints, see the "INIT→INIT_CHECK hard gate" section of CLAUDE.md.
+
+### init-check signature domain widened to the reviewer verdict — migration position (B-8df9 CHK-002 / CHK-005)
+
+**Decision: no migration. The existing `init-check.json` corpus is left as it is, and the invalidation is accepted.**
+
+Counts re-derived on `story/B-8df9` at implementation time (2026-08-03), not copied from the story background.
+Re-run them with `node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs [projectRoot]` (read-only; it
+calls the product's own `recomputeInitCheckHash` / `resolveRegisteredAgentActor` and prints stable `*_MARKER`
+lines) rather than trusting the table below:
+
+| | this branch (all git-tracked) | main working tree |
+|---|---|---|
+| `init-check.json` present | 267 | 642 = 271 tracked + 371 untracked local-only |
+| verify under the post-CHK-002 domain | **0** | **0** tracked, **0** on disk |
+| verified under the pre-CHK-002 domain | 14 | 16 tracked, 17 on disk |
+| owning story in phase `INIT` | **1** (`B-dcf9`) | **1** (`B-dcf9`) |
+| carry an actor absent from `AGENT_DISPATCH_REGISTRY` | 2 | 2 tracked, 199 on disk |
+
+**What actually breaks: one story, `B-dcf9`.** A story in phase `INIT` is the only kind the gate reads —
+`canEnterInitCheckGuard` (core/machine.ts) and the `INIT_CHECK` branch of `getGuardFailureReason` both
+early-return for every other phase. `B-dcf9` verified under the old domain and does not under the new one, so
+its `INIT → INIT_CHECK` advance now reports `[init_check_tampered]`. The remedy is the one that message
+already prints: re-run the two INIT reviewers. Both actors it records (`lattice-review-story-init`,
+`product-reviewer`) resolve in `AGENT_DISPATCH_REGISTRY` and carry `init_check_set` authority, so that costs
+one reviewer round and no new code.
+
+**What does NOT break, because it never worked: the post-INIT corpus.** 253 of the 267 tracked records already
+failed their own signature before this story. That is structural, not damage: `recomputeInitCheckHash`
+recomputes over the story's *current* title / description / `background.md` / checklist / `currentReviewRound`,
+all of which move through PLAN and DEV. **A stale `_hash` after INIT is the expected steady state.** So the
+"one operational break versus ~636 audit-replay breaks" framing carried into this story was inflated — ~636
+counted *files*, not files that verified. The real delta is 14 tracked records (16 in the main working tree)
+that stop verifying, 13 of which are post-INIT and inert.
+
+**No migration is implementable anyway.** Re-signing the corpus *through the handler* is unavailable: 199 of the
+642 on-disk records name an actor absent from `AGENT_DISPATCH_REGISTRY` — chiefly the pre-rename
+`koala-review-story-init` (179) and `koala-review-story-init@fallback` (16) — and `resolveAgentMutationAuthority`
+throws `agent_dispatch_actor_unknown` for each. Any design that assumes otherwise is rejected on this record.
+Re-signing them *outside* the handler is mechanically possible — `INIT_CHECK_SALT` and `signInitCheck` are
+exported source — but that is the same act the signature exists to make evident, with no dispatch authority
+check and no audit trail, so it is rejected too.
+
+**Scope of the property this buys** (identical to row `H1` of
+`packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs`): the domain is a checksum over public
+inputs, not a secret-keyed MAC. An editor who also re-signs is accepted. What CHK-002/CHK-003 buy is
+tamper-*evidence* against accidental corruption and naive edits, never reviewer trustworthiness.
 
 ### INIT Scope Anti-Expansion Gate (B-85ba)
 

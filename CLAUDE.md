@@ -532,20 +532,26 @@ Lattice 支持多 worktree 并行，写权限的跨 session 协调按 rollout �
 
 **机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "lattice-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `lattice init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
 
-**签名域**（[init-check.ts](packages/main/src/handlers/init-check.ts) `signInitCheck`）：
+**签名域**（真相源是 [init-check-gate.ts](packages/main/src/core/init-check-gate.ts) 的 `INIT_CHECK_SIGNATURE_DOMAIN`；`describeInitCheckSignatureDomain()` 渲染当前列表，别照抄下面这行）：
 
 ```
-sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(checklist.items[*].{title,context})}:${reviewRound}:lattice-init-check-integrity-v1`)
+sha256(`${storyId}:${sha256(background.md)}:${title}:${description}:${sha256(checklist.items[*].{title,context})}:${reviewRound}:${verdictHash}:lattice-init-check-integrity-v1`)
 ```
+
+`verdictHash`（B-8df9 CHK-002 加入）= `computeInitCheckVerdictHash` 对 gate 实际判定的两个字段的摘要：`agentResults`（`missingRequiredInitCheckAgents` 读）和 `issues`（`blockingInitCheckIssues` 读）。**加入前 reviewer 结论本身不在签名域内**——手改 `agentResults` 注入一个从没跑过的 reviewer、或删掉一条 critical issue，签名照样有效、gate 照样放行。
+
+**这个属性的边界**：`INIT_CHECK_SALT` 是导出的源码常量，`signInitCheck` 也是导出函数——能改文件的人就能用产品自己的函数重新签名并通过 gate。所以签名域买到的是 **tamper-evidence**（挡住误改、损坏、不重签的手改），**不是**「reviewer 覆盖可信」，也挡不住蓄意行为者。任何暗示 reviewer 覆盖因此变可信的表述都是错的。
 
 **Blocker 类型**（[guard-utils.ts](packages/main/src/core/guard-utils.ts) INIT_CHECK 分支）：
 
 - `[missing_init_check]` — init-check.json 不存在（reviewer 没跑或没调 init_check_set）
-- `[init_check_tampered]` — `_hash` 与重算结果不符（主 agent 改了 background / title / description / checklist 任一字段）
+- `[init_check_tampered]` — `_hash` 与重算结果不符（签名域内任一组件改了：background / title / description / checklist / reviewRound / reviewer verdict）。注意 `recomputeInitCheckHash` 是对 story **当前**内容重算的，而 story 内容在 PLAN/DEV 会正常演进——所以 INIT 之后 `_hash` 失配是**预期常态**，不是损坏；gate 只在 phase === `INIT` 时读它，其他 phase 直接 early-return
 - `[missing_init_check_agent]` — 必需 reviewer 没有记录结果
 - `[init_check_blocking_issues]` — init-check.json 中存在 critical/high issue
 
 **issues gate**：`init-check.json` 中 critical/high issues 会阻塞 INIT_CHECK；medium/low 为 advisory。Reviewer 无论 pass/fail 都必须调用 `init_check_set` 记录结果。
+
+**存量语料迁移立场**：不迁移，接受失效——理由和重新测得的计数见 `docs/requirements/decisions/story-lifecycle.md` 的「init-check signature domain widened to the reviewer verdict — migration position」节。
 
 **反自豁免设计**：EXP-001（[exp-001.md](docs/story/actives/B-e71f/experiments/exp-001.md)）证明 subagent vs 主 agent 在 Bash CLI 中**无可机械区分的差异**（同 PPID / 同 env / 同 shell snapshot），所以 `init_check_set` **不**校验 `agentId`（仅记录用），反自豁免完全靠：(1) 签名机制 + (2) reviewer 模板 fresh-context fence + (3) CLAUDE.md 行为规约（同 B-ed3e scope-check 已落地架构）。
 
@@ -577,7 +583,7 @@ lattice init_check_repair '{
 设计约束（与上面反自豁免架构一致）：
 
 - **默认禁用**：缺 `acknowledge:true` 或 `fallbackReason` < 30 字符 → 拒绝、不产出文件、不改 phase。
-- **不绕过签名**：复用同一 `signInitCheck`，签名域不变（background/title/description/checklist）。事后改任一签名内容仍触发 `[init_check_tampered]`。
+- **不绕过签名**：复用同一 `signInitCheck`，跟普通 `init_check_set` 用**同一个**签名域，fallback 不因此签得更弱。B-8df9 CHK-002 后该域已包含 reviewer verdict（`agentResults` + `issues`），事后改任一签名内容仍触发 `[init_check_tampered]`；域的当前列表以 `describeInitCheckSignatureDomain()` 为准。
 - **不放宽 gate**：必需 reviewer 覆盖靠把 agentResults 记成 `<required>@fallback`（`initCheckAgentMatches` 认 `<required>@` 前缀），既满足校验又与独立 reviewer **机械可区分**；人工 attest 的 high/critical issue 仍走 `blockingInitCheckIssues` 自我阻塞。
 - **不引入 agentId 校验**：EXP-001 已证伪调用方机械可区分性。
 - **可审计**：写 `init-check.json.fallback` 块（mode/reason/evidenceRefs/actor/session/attestedAt/headHash/materialHash）+ `init_check_fallback` process event。`lattice story_get` 返回 `initCheckAttestation: "fallback" | "independent"` 与 `initCheckFallback` 块，dashboard/report 据此把人工 fallback 与独立 reviewer 区分开。
