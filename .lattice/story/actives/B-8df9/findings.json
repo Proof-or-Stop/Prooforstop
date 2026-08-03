@@ -102,6 +102,24 @@
       ],
       "signatureTag": "missing|mjs|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-007",
+      "desc": "packages/main/src/core/command-policy.ts:391 (finding_add), :411 (scope_check_save), :412 (scope_question_resolve) still justify their reviewerWrite owner-lease exemption with \"...bound by its REVIEW-phase reviewer-run/signature gate\" / \"...bound by its PLAN signature gate\" / \"...bound by its PLAN gate\" -- the SAME unsupported inference (a content checksum is treated as if it binds WHO wrote the file, when INIT_CHECK_SALT/signInitCheck are exported source so anyone who can write the file can re-sign it) that this story just falsified for init_check_set (command-policy.ts:406) and that CHK-006's own verificationEvidence note (.lattice/story/actives/B-8df9/checklist.json, CHK-006:adversarial:0) explicitly names: \"the sibling reviewerWrite reasons ... carry the same structural inference ... reported to the main agent unedited rather than reworded on unmeasured claims.\" The implementer was right not to silently rewrite these three (outside CHK-006 scope, and the story's own flag-do-not-polish rule), but the discovery was reported ONLY in evidence note prose and was never registered via finding_add -- findings.json before this review round held only F-001 (an unrelated CHK-002 userSees issue), so this specific discovery had no gate-visible, trackable artifact and was at real risk of being lost once the story reaches DONE. Filing it here so it becomes a scheduled, resolvable item rather than a claim buried in a verificationEvidence note.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-03T04:43:49.644Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-003",
+      "_hash": "2ba4ebdedd4514c49facf27bff569edb8937011817dda59fabeeeac992935772",
+      "files": [
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
