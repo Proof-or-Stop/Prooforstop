@@ -1,0 +1,47 @@
+{
+  "passes": [
+    {
+      "id": "B-8df9:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Story-level quality review of all changed src files + docs + RED artifacts + derivation scripts. Filed one medium finding (F-005: init-preflight.ts open-codes the _hash comparison instead of routing through CHK-003 predicate). Verified computeInitCheckVerdictHash raw+consumed reasoning empirically, ran both RED artifacts and both ad-hoc CHK-005/CHK-006 scripts (all green, none overstate), confirmed no dead weight/tsc errors in touched files, confirmed no overstated security language.",
+      "createdAt": "2026-08-03T04:41:50.512Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-002",
+      "envelopeId": "79209ff5f871f3cb2b96372da88db0bdadf4407ccb4219b1889c3148a48bcca1",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          ".lattice/story/actives/B-8df9/chk006-exemption-claims.mjs",
+          ".lattice/story/actives/B-8df9/intent-collision.json",
+          ".lattice/story/actives/B-8df9/scope-shrinkage-decision.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/tasks/init-preflight-smoke.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/acceptance-basis.json",
+          ".lattice/story/actives/B-8df9/decision.json",
+          ".lattice/story/actives/B-8df9/plan.md",
+          ".lattice/story/actives/B-8df9/proofstory.json",
+          ".lattice/story/actives/B-8df9/understanding.json",
+          "lattice.config.json",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e774cbb0338f67a9cdfd8aa8fa81ead8c2a8eba8aa0ce61072d9bbe72836a635"
+    }
+  ]
+}
