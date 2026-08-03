@@ -451,7 +451,22 @@
         "headHash": "e28a39246a71882e06005f627da19e0cb64b0c4d",
         "attestedAt": "2026-08-03T03:30:35.132Z",
         "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs && grep -n \"Decision: no migration\" docs/requirements/decisions/story-lifecycle.md",
+          "result": "pass",
+          "note": "Counts re-derived at implementation time, not copied: the read-only derivation script calls the product own recomputeInitCheckHash and prints CORPUS_FILES_TRACKED_MARKER, TRACKED_VERIFYING_UNDER_CURRENT_DOMAIN_MARKER, TRACKED_VERIFYING_UNDER_PRE_CHK002_DOMAIN_MARKER and GATED_INIT_STORY_COUNT_MARKER, whose values populate the table in the decision record. The grep shows the position line \"Decision: no migration\" at story-lifecycle.md:82, and the section that follows names what breaks (the single INIT-phase story) and what never worked (the post-INIT corpus).",
+          "mechanical": false,
+          "headHash": "696de47d122e559fc3e927835197514250081c1b",
+          "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3",
+          "storyFilesHash": "9a06ef0ebdbfedb8dad0e63a15232e43bbc801e1f6f5e1072977fd2537baa627",
+          "timestamp": "2026-08-03T03:30:48.866Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
