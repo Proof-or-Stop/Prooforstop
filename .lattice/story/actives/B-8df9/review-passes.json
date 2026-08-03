@@ -177,6 +177,25 @@
         "scanEscalationReason": null
       },
       "_hash": "69941e4ffe256e4282c02c5adcc68386aa6eb2f1df7961a90acf922abbc3b561"
+    },
+    {
+      "id": "B-8df9:RP-007",
+      "agent": "lattice-review-behavior",
+      "note": "Round 2 re-attestation after HEAD moved by 3 finding-fix commits (F-003, F-007 x2). Verified by execution, not just reading: (1) legitimate dual-agentId flow still advances INIT->INIT_CHECK and a reviewer revising their own verdict still works (ran init-check-required-agents-smoke.js: product-reviewer records a blocking high issue, story blocks, then re-records a non-blocking medium issue under the same agentId, story advances to INIT_CHECK); (2) historical/unverifiable records still RENDER through story_get while the gate refuses to act on them (RED artifact row G1, CONTROL-OK); (3) the kept-not-deduplicated canonicalJson in init-check-gate.ts:162-204 is comment-only (verified via git diff hunk: function body byte-identical, only a documentation block was added above it) so no verdict hash shifted for real records -- confirmed by running both RED artifacts fresh off HEAD c75aeb3: red-b8df9-init-check-verdict-signature.mjs (0 RED / 24 rows) and red-b8df9-chk002-verdict-shapes.mjs (0 FAILED / 17 rows, including L1 hashing all 267 live corpus files without throwing/varying). command-policy.ts diff confirmed prose-only: grepped ownershipClass across the full diff, all three touched entries (finding_add, scope_check_save, scope_question_resolve) keep ownershipClass: reviewerWrite unchanged, only reason strings changed; ran command-ownership-contract.js fresh build -- 343 CLI commands still carry valid ownershipClass, contract passes. tsc --noEmit -p packages/main clean. No regression found; stale RP-002 pass refreshed on the same conclusion.",
+      "createdAt": "2026-08-03T05:42:38.131Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-010",
+      "envelopeId": "efefaf9009abcbfb1c0a3d85952b803596cb5a4f4d15e219dce31898ea54a7a4",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0552b028e2ad9a68a0a2041335d5d469b9a83f2c7bba83c71b87c3dbe1c61976"
     }
   ]
 }
