@@ -589,6 +589,19 @@
           "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0",
           "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
           "timestamp": "2026-08-03T04:18:51.849Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/command-policy.ts",
+          "command": "grep -n \"CHK-006\" packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "The escape hatch was not needed for the exemption itself - a justification that holds without the signature does survive (deposit-only) - so the exemption stands on a measured reason rather than on rewritten prose, and the sentence is not made true by polishing it: the limit it used to lean on is now stated inside it (INIT_CHECK_SALT and signInitCheck are exported source, so any writer can re-sign; the gate binds CONTENT, never the WRITER). Where nothing honest survived, the flag-do-not-polish rule WAS applied instead of editing: the sibling reviewerWrite reasons (finding_add \"bound by its REVIEW-phase reviewer-run/signature gate\", scope_check_save and scope_question_resolve \"bound by its PLAN signature gate\") carry the same structural inference, and the class-level reviewerWrite doc at the head of this file says a reviewer-lane write is STILL bound by phase / _hash / signature gates while COMMAND_POLICIES.allowedPhases has no enforcement point found at the CLI choke point. Those are outside this item and are reported to the main agent unedited rather than reworded on unmeasured claims.",
+          "mechanical": false,
+          "headHash": "1579bc81f6e06fa4b2e2d7e76cf770d4621f105a",
+          "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0",
+          "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
+          "timestamp": "2026-08-03T04:19:03.008Z"
         }
       ]
     }
