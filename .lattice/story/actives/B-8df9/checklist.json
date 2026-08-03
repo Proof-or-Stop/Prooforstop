@@ -509,8 +509,8 @@
       "id": "CHK-006",
       "title": "Re-examine the owner-lease exemption whose stated justification this falsifies",
       "context": "core/command-policy.ts:396 marks init_check_set ownershipClass reviewerWrite, exempt from the owner lease, justified as 'bound by its INIT signature gate'. If items 1-3 confirm that gate did not bind the verdict, the exemption rested on a false premise: either restate a justification that is now true, or record why the exemption holds independently of the signature. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-03T03:33:18.248Z",
       "endTime": null,
       "userSees": "command-policy.ts no longer justifies the init_check_set lease exemption with a claim this story falsified.",
       "verificationIntent": {
