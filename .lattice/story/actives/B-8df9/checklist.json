@@ -576,6 +576,19 @@
           "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0",
           "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
           "timestamp": "2026-08-03T04:18:27.947Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "docs_check",
+          "file": "packages/main/src/core/command-policy.ts",
+          "command": "grep -n \"NOT exempt because of the signature\" packages/main/src/core/command-policy.ts",
+          "result": "pass",
+          "note": "The stated reason at command-policy.ts:406 (init_check_set) is REPLACED, not merely restated: the exemption is now justified as deposit-only - it writes one story artifact under its own metadata-write lock, changes no phase, and every consuming gate is reached through the owner-gated story_advance - which holds independently of the signature. The grep shows the replacement carries the sentence \"it is NOT exempt because of the signature\", and the old clause is quoted inside the new text and named as the unsupported inference it was. Each claim in the sentence has a measured row in .lattice/story/actives/B-8df9/chk006-exemption-claims.mjs, summarised by EXEMPTION_REASON_MATCHES_CODE_MARKER=true (10 PASS / 0 FAILED).",
+          "mechanical": false,
+          "headHash": "11b39111437956dd02c0e59d68a99af5f364d6f2",
+          "materialHash": "40b76a554538eb2d74dc87ba2718e58d3fbe2cbca0a2e66b02a030e7a87beab0",
+          "storyFilesHash": "13094962a60b6e3b3641e00d6f591ad8f40d9162c9a6696f788e9f11711b15fb",
+          "timestamp": "2026-08-03T04:18:51.849Z"
         }
       ]
     }
