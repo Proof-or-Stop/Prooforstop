@@ -402,11 +402,11 @@
           "kind": "waiver",
           "verdict": "waived",
           "waiverType": "permanent",
-          "note": "CHK-004 was WITHDRAWN by explicit user decision before any implementation: scope-shrinkage-decision.json SD-7319de10, decision=confirmed, userConfirmed=true. No evidence exists because the work was deliberately not done, not because it was skipped. USER REASON ON RECORD: the init_check_repair fallback block is not real evidence. In practice the agent authors the fallbackReason text and the human pastes and runs it, so the fallback-vs-independent label records WHICH CODE PATH wrote the record, not whether a person verified anything. Preserving it would preserve a name-only distinction - the same pattern this story kept uncovering by execution, where a mechanism claims to prove something stronger than it does. WHY A WAIVER AND NOT A BINDING CHANGE: acceptance binding AB-002 covers CHK-003 AND CHK-004 together. Withdrawing AB-002 wholesale via withdrawnAcceptanceBindingRefs would also drop CHK-003 delivered coverage, and narrowing it via proofstory_contract_set is refused in REVIEW (pre-DEV contract write). So the binding correctly stays frozen and the withdrawn item is dispositioned here instead. The current behaviour is unchanged and documented: the fallback block is dropped after the first ordinary init_check_set call, which the behavior lane confirmed by execution as the accepted state rather than a live defect.",
-          "headHash": "4eb943f9ea15c39e2e86adc7a490bafbfa82e098",
+          "note": "CHK-004 withdrawn by user decision SD-7319de10 (scope-shrinkage-decision.json, userConfirmed=true). No work was done, so no evidence exists. THIS WAIVER IS A FRAMEWORK GAP, NOT A DISPOSITION. The withdrawal is a recorded fact, but the framework cannot read it: scope_shrinkage_decision_set left AB-002 still listing these three intents, whole-binding withdrawal would have dropped delivered CHK-003 coverage, and proofstory_contract_set is refused in REVIEW. A user-approved withdrawal has no mechanical completion path, so this waiver is prose standing where proof should be. Filed as a framework defect; do not read it as evidence.",
+          "headHash": "b1ad7a0dc29028a9c5043b959e0d681540d01679",
           "materialHash": "2e89468c875a6e7e20251b4516dc368fff0e68d188d924939ac82cfe7aed6265",
           "storyFilesHash": "d776854aaff0a8101466c9db4cd1f469274887c85bc19ae0004972bb726ae667",
-          "timestamp": "2026-08-03T05:46:53.241Z"
+          "timestamp": "2026-08-03T05:49:44.107Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
