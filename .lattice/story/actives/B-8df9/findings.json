@@ -106,7 +106,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:645 (selectorMatched = run.output.includes(pinSelector), exact substring) means CHK-002:happy:0's pinned selector \"GREEN: both verdict fields are inside the signature domain.\" (checklist.json, recorded 2026-08-01T15:18 against red-b8df9-init-check-verdict-signature.mjs) is now permanently unmatchable: CHK-003 legitimately extended the SAME artifact's final conclusion print (tests/red/red-b8df9-init-check-verdict-signature.mjs:665-671) to \"GREEN: both verdict fields are inside the signature domain, and the carry-forward refuses to re-sign...\" (comma, not period, after domain). Reconfirmed live by re-running node bin/lattice.js validate --focus=b8df9-init-check-signature just now: the exact pinned string does not appear in current output. Because VerificationIntentPin is immutable once set (core/types.ts:287-291) and this artifact is a PERMANENT lattice.config.json validate.commands regression check (the CHK-002 waiver was withdrawn), this must-priority happy-path evidence can never again be re-earned as literally recorded. verification_evidence_refresh_stale (handlers/checklist.ts:1833-1877) re-executes the pinned command on staleness; on selector mismatch it falls to the demote path (checklist.ts:906-926), silently converting a mechanical:true receipt into mechanical:false with an auto-generated \"receipt invalidated\" reason while leaving result:pass untouched. Not currently blocking REVIEW->TEST (recorded receipt is intact), but materialHash has moved since this evidence was recorded (init-check-gate.ts/store.ts/handlers/init-check.ts/command-policy.ts all changed afterward via CHK-003/005/006), so the next legitimate refresh -- e.g. done_prepare --refreshStale, which CLAUDE.md requires before DONE -- will trigger the demotion. This is exactly the class of durability defect the review task flagged (a selector anchored to a mutable summary sentence rather than a stable per-row claim id), the same class that produced a finding against predecessor story B-49d4.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-03T04:43:35.324Z",
@@ -119,7 +119,11 @@
         ".lattice/story/actives/B-8df9/checklist.json"
       ],
       "signatureTag": "missing|mjs|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Confirmed by execution, then waived at the pin level with the reasoning recorded. Ran grep -F of the pinned selector against live artifact output: it fails, because CHK-003 legitimately extended the final conclusion line from '...signature domain.' to '...signature domain, and the carry-forward...'. The pin is immutable on first selector-bearing write, so it cannot be re-pinned and the evidence cannot be re-earned as recorded - the finding is correct on every point. Mitigation rather than a fix: the PROPERTY remains mechanically proven independently of the pin, because red-b8df9-init-check-verdict-signature.mjs is registered NON-OPTIONAL and reports 0 RED across 24 rows on every validate, with rows B1/B2/B3 covering exactly this intent. A permanent waiver now carries that distinction so the demotion at done_prepare --refreshStale is not mistaken for lost coverage. Also recorded the generalised lesson: my instruction to implementers ('marker names, never literal counts') was necessary but insufficient - this selector obeyed it and still broke. The correct rule is that a selector must be pinned to something no LATER work will legitimately reword: a stable row identifier or machine token, never a prose conclusion sentence.",
+      "resolvedAt": "2026-08-03T05:27:57.642Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-8df9:F-007",
