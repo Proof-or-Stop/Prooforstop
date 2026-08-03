@@ -32,6 +32,21 @@
       "_hash": "789a6833371309fcb52590686b3d83dae9efc61345a5caec4595d0e799b484ed",
       "signatureTag": "missing|unknown|concept-cleanup-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-003",
+      "desc": "concept-cleanup: computeInitCheckVerdictHash (packages/main/src/core/init-check-gate.ts:169-178) defines a NEW private module-scoped canonicalJson(value) — recursive key-sorted, undefined-dropping JSON canonicalization — duplicating logic that already exists as the exported canonicalJson in packages/main/src/core/digest.ts:36-38, whose own header comment says it was extracted into a leaf module specifically \"so it can be reused without dragging handler dependencies along\" (already reused by core/review-run.ts). init-check-gate.ts already imports nothing else from digest.ts, so nothing blocks reuse; the two implementations sort keys by different comparators (digest.ts: a.localeCompare(b); init-check-gate.ts: a<b?-1:a>b?1:0) and diverge on null-vs-array handling, so this is not a byte-identical duplicate — it is a second, subtly different canonicalization routine for a signature/hashing code path, which is exactly the kind of unintentional near-duplicate that should not survive introducing a new signed-hash helper.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-03T04:35:07.001Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-001",
+      "_hash": "357cf0352132faaa3b14d40de5a4240aa618fc179b2109afcf01e9e51d6b7604",
+      "signatureTag": "missing|unknown|concept-cleanup-computeinitcheckverdicthash",
+      "signatureTagSource": "auto"
     }
   ]
 }
