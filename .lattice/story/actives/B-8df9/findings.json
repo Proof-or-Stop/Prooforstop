@@ -120,6 +120,26 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-008",
+      "desc": "CHK-003:adversarial:0 (.lattice/story/actives/B-8df9/checklist.json) frozen desc claims \"A file whose _hash was recomputed by an attacker over tampered content is still refused\" -- execution REFUTES this (row H1 of tests/red/red-b8df9-init-check-verdict-signature.mjs:528-557, reconfirmed live just now: refusedBeforeReSigning=true verifiesAfterReSigning=true gateAdvancesOnTheReSignedRecord=true). INIT_CHECK_SALT is a public source constant, so an editor who re-signs with the product's own signInitCheck IS accepted. The implementer correctly recorded verdict=audit_only rather than a clean pass and, since checklist metadata is frozen from DEV, explicitly deferred \"whether to re-word the intent or waive it\" to the main agent. That deferred question IS substantively answered in docs/requirements/decisions/story-lifecycle.md:121-124 (\"Scope of the property this buys ... An editor who also re-signs is accepted ... never reviewer trustworthiness\"), which names row H1 directly -- so I judge audit_only the honest disposition here, not a gap dressed as satisfaction; no reword/waiver is substantively required. The one loose end: CHK-002's analogous frozen-metadata conflict was closed with a discoverable finding (B-8df9:F-001, described in its own text as \"the sanctioned channel for recording\" a superseded pinned criterion), but CHK-003:adversarial:0 has no equivalent finding, so a reader of findings.json alone (without cross-referencing the decision doc or the evidence note) would not learn the adversarial intent is, as literally worded, false. Filing this low/non-blocking finding purely for audit-trail symmetry with F-001; recommend resolving by referencing story-lifecycle.md:121-124 rather than reopening PLAN.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-03T04:44:03.601Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-003",
+      "_hash": "597ec1a42510433367917635116eaaa43cf7796f7019ec1b9dcbeb0b47e8262a",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        ".lattice/story/actives/B-8df9/checklist.json",
+        "packages/main/tests/red/red-b8df9-init-check-verdict-signature.mjs"
+      ],
+      "signatureTag": "missing|md|adversarial-lattice-story",
+      "signatureTagSource": "auto"
     }
   ]
 }
