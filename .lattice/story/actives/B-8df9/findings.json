@@ -87,7 +87,7 @@
       "desc": "packages/main/src/handlers/init-preflight.ts:136-138 (initCheckRow) still open-codes the init-check _hash comparison (`const expectedHash = recomputeInitCheckHash(storyId, store, projectRoot); if (initCheck._hash !== expectedHash)`) instead of routing through the CHK-003 single trust predicate (initCheckHashMatches / initCheckSignatureIsValid) declared once in core/init-check-gate.ts precisely so no consumer re-invents this comparison. Two concrete consequences: (1) it performs a second independent store.readInitCheck read inside recomputeInitCheckHash rather than verifying the snapshot the caller already holds in `initCheck` -- the exact double-read/race pattern CHK-003 explicitly closed in machine.ts (module comment: verify against the SNAPSHOT already read, not a second read of the file). (2) initCheckHashMatches trims stored/expected hash strings and treats blank as untrusted, while the raw `!==` here does not, so a persisted _hash with incidental whitespace would be judged VALID by the real gate (canEnterInitCheckGuard / getGuardFailureReason, both correctly migrated to initCheckSignatureIsValid by this story) but reported [STALE] by this preflight row -- a live disagreement between the authoritative gate and its own preflight surveyor. Confirmed this is not caught by any existing test: init-preflight-smoke.ts assertAgreement() only asserts the aggregate report.gate.ready/blockedBy (which IS computed correctly via getGuardFailureReason at init-preflight.ts:287), never the individual init-check row status this function returns. Not touched by this diff, but directly falsifies the story-wide claim (repeated in init-check-gate.ts module doc and CLAUDE.md) that the trust predicate is declared once so it cannot silently diverge from what the gate uses -- this is exactly the remaining comparison site the story asked reviewers to rule out.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-03T04:41:21.314Z",
@@ -95,7 +95,11 @@
       "reviewRunId": "B-8df9:RR-002",
       "_hash": "4f2c04e2d40690fbbef59c1097542e5880600e0120030b0f1e91ef8c232dbdf3",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Real defect, deferred with a tracked follow-up, not dropped. packages/main/src/handlers/init-preflight.ts is outside this story's scope contract and scope_contract_check runs in enforce mode: an earlier item in this same story edited that file, was refused, and correctly reverted. Fixing it here would require a contract extension mid-REVIEW. The follow-up carries the full diagnosis (open-coded comparison, second independent read reintroducing the race CHK-003 closed, missing trim/blank handling that makes preflight disagree with the real gate on a whitespace-bearing hash) plus the observation that init-preflight-smoke only asserts the aggregate gate.ready, never the row status, so the divergence is invisible to the suite. It also carries the sibling stale-enumeration at line 143. Recommend a repro-first RED pinning a whitespace hash before any fix.",
+      "dismissedAt": "2026-08-03T05:20:06.007Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-8df9:F-006",
