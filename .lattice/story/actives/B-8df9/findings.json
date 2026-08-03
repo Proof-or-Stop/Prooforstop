@@ -47,6 +47,26 @@
       "_hash": "357cf0352132faaa3b14d40de5a4240aa618fc179b2109afcf01e9e51d6b7604",
       "signatureTag": "missing|unknown|concept-cleanup-computeinitcheckverdicthash",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8df9:F-004",
+      "desc": "doc-code-drift: docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:839 states in the current-code-backed-contracts table that init-check.json _hash \"covers story background/title/description/checklist hash/reviewRound\" only. That is now stale/incomplete: B-8df9 CHK-002 widened INIT_CHECK_SIGNATURE_DOMAIN (packages/main/src/core/init-check-gate.ts) to also cover the reviewer verdict (agentResults + issues, via computeInitCheckVerdictHash) so that a hand-edited verdict fails the signature. This is the second surviving instance of the pre-CHK-002 formula (the first, packages/main/src/handlers/init-preflight.ts:143, is a known/accepted survivor named in the story scope contract); this row in a decisions/*.md file was in this story's explicit allowedModify scope (docs/requirements/decisions/*.md) and was not updated. A reader consulting this plan for the proof-or-stop migration would inherit the wrong belief that the signature does not bind reviewer coverage, risking re-introduction of the exact defect B-8df9 fixed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-03T04:37:25.720Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-005",
+      "_hash": "9293e5d42ac8742cc4bd07f5ac88040b7d5566b55d91bab1d52c421657c5b2d2",
+      "files": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/core/init-check-gate.ts",
+        "packages/main/src/handlers/init-preflight.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
