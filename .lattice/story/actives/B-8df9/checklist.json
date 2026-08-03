@@ -489,6 +489,19 @@
           "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3",
           "storyFilesHash": "9a06ef0ebdbfedb8dad0e63a15232e43bbc801e1f6f5e1072977fd2537baa627",
           "timestamp": "2026-08-03T03:32:19.068Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/story-lifecycle.md",
+          "command": "node .lattice/story/actives/B-8df9/chk005-corpus-derivation.mjs",
+          "result": "pass",
+          "note": "The decision record explicitly rejects a handler-routed re-sign: story-lifecycle.md:116 reads \"throws agent_dispatch_actor_unknown for each. Any design that assumes otherwise is rejected on this record.\" The rejection rests on measurement, not assertion: the pinned derivation command prints ON_DISK_WITH_UNREGISTERED_ACTOR_MARKER plus one UNREGISTERED_ACTOR_MARKER line per offending actor, dominated by the pre-rename koala-review-story-init and koala-review-story-init@fallback. The record also rejects the out-of-handler re-sign, noting INIT_CHECK_SALT and signInitCheck are exported source so it is possible but is exactly the act the signature exists to make evident.",
+          "mechanical": false,
+          "headHash": "37d5ca84cc3bfc8e5081716928b0e4768ce4a6f0",
+          "materialHash": "e8af491da1cfbc4911daae883dc5f637489f2e04041a1726662015964f63bfe3",
+          "storyFilesHash": "9a06ef0ebdbfedb8dad0e63a15232e43bbc801e1f6f5e1072977fd2537baa627",
+          "timestamp": "2026-08-03T03:32:29.649Z"
         }
       ]
     },
