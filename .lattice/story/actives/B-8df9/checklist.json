@@ -409,8 +409,8 @@
       "id": "CHK-005",
       "title": "Choose and justify the migration position for the existing corpus",
       "context": "Re-derive the counts first; do not trust the background's figures. Structure of the argument: only files whose owning story is in INIT are operationally gated (canEnterInitCheckGuard early-returns otherwise, core/machine.ts:440) - at the measured commit that was 1 of 637 - so the real choice is one operational break versus roughly 636 audit-replay breaks. Critically, about 195 of 637 files carry a registry-invalid actor, overwhelmingly the pre-rename koala-review-story-init (zero occurrences in AGENT_DISPATCH_REGISTRY), so re-signing the corpus by routing through the handler is not implementable and any design assuming it is must be rejected. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-03T03:05:21.473Z",
       "endTime": null,
       "userSees": "The chosen migration position and its audit-replay consequence are stated in the decision record, with counts re-derived rather than copied.",
       "verificationIntent": {
