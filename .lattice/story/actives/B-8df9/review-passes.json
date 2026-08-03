@@ -149,6 +149,34 @@
         "scanEscalationReason": null
       },
       "_hash": "fd6d866b5f52b42349d563eb5f9450368a24a4d1158f31c18a48175cec9fd7f8"
+    },
+    {
+      "id": "B-8df9:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 narrow re-attestation for stale F-004 (high, docs/code drift). Fix confirmed at docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:839 and cross-checked wording against CLAUDE.md:535-539 and story-lifecycle.md:73/121-124; survivor grep spot-checked (init-preflight.ts:143 out-of-scope/tracked, story-create.ts:630 unrelated draft-check domain); no wording overstates tamper-evidence into tamper-proof. No new findings this round.",
+      "createdAt": "2026-08-03T05:40:04.183Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-009",
+      "envelopeId": "d74af4826c8563301570207e046ac1b2001a8e9649883072090c5ab9cba8f3ac",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/handlers/init-preflight.ts",
+          "packages/main/src/handlers/story-create.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-8df9/background.md",
+          ".lattice/story/actives/B-8df9/checklist.json",
+          ".lattice/story/actives/B-8df9/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "69941e4ffe256e4282c02c5adcc68386aa6eb2f1df7961a90acf922abbc3b561"
     }
   ]
 }
