@@ -42,6 +42,30 @@
         "scanEscalationReason": null
       },
       "_hash": "e774cbb0338f67a9cdfd8aa8fa81ead8c2a8eba8aa0ce61072d9bbe72836a635"
+    },
+    {
+      "id": "B-8df9:RP-002",
+      "agent": "lattice-review-behavior",
+      "note": "Verified by execution (isolated mkdtemp fixtures + independent probes against the compiled dist, never the shared story dir): (1) legit dual-agentId flow (single caller satisfying both required reviewers) still advances INIT->INIT_CHECK; (2) a reviewer legitimately revising their own verdict (critical issue -> none) collapses to one record per agentId and the gate then advances; (3) the untrusted-carry-forward drop is precise in the sense CHK-003 promises: the caller own legitimate new record always lands, and only the untrusted previous aggregate (never the current call) is dropped -- confirmed the drop is whole-file (not per-entry) because a single hash covers the whole prior agentResults array, this is intentional/documented (module comments explicitly anticipate a benign background.md edit between two legitimate reviewer calls as the routine case), disclosed on both stdout and stderr, and re-derived independently against a benign (non-adversarial) content-edit scenario as well as the red-evidence tamper rows -- not a defect; (4) historical records still RENDER: story_get on a real corpus story (B-a9e7) returns the full unverified init-check.json verbatim, and independent re-hash of all 267 on-disk init-check.json files under recomputeInitCheckHash confirms 0/267 verify under the new domain, matching both the shipped red-evidence artifact and the story own chk005-corpus-derivation.mjs re-derivation. Edge cases executed: no-agentResults-at-all blocks with [missing_init_check] as expected; an unregistered actor id (koala-review-story-init) is refused by pre-existing agent_dispatch_actor_unknown (unrelated to this story, confirms CHK-005 no-migration-through-handler premise); genuine overlapping concurrent init_check_set calls (spawn, not blocking exec, 3 repeated runs) both land, no corruption, gate advances. Also ran both red-evidence artifacts (red-b8df9-init-check-verdict-signature.mjs: 24/24 rows green incl. D0 floor + G1 read-vs-trust + E/F laundering-closed; red-b8df9-chk002-verdict-shapes.mjs: 17/17 rows pass across all 6 documented agentResults shapes), all 5 named smoke tests (init-check-required-agents-smoke, init-preflight-smoke, init-check-fallback-smoke, init-check-atomicity-smoke, init-check-reconcile-conflict-smoke), and the story own chk006-exemption-claims.mjs (10/10 claims pass, confirming the restated command-policy.ts owner-lease-exemption reason is accurate to actual code behavior). CHK-004 (fallback-block preservation) is deliberately withdrawn (scope-shrinkage-decision.json SD-7319de10, user-approved 2026-08-01); independently confirmed current (unfixed) behavior matches exactly what was described (fallback block dropped after first ordinary call, before the attestationMode label flips) -- expected/accepted, not a live defect. No blocking behavioral findings.",
+      "createdAt": "2026-08-03T04:46:10.102Z",
+      "reviewRound": "2026-08-03T04:27:32.508Z",
+      "reviewRunId": "B-8df9:RR-004",
+      "envelopeId": "57207eec32ed137c401c9193921802d51f2dcedd9ee11946b8f678a39a3cdbc7",
+      "writerSessionId": "sess-8c5e90c4099d3b615943ca01f9326acf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/plan-init-reopen.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa727ac8f57bc3eb36a518077185f1440371f7d571ce94885bbcbd3ac0110261"
     }
   ]
 }
