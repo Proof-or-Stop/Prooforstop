@@ -45,7 +45,7 @@
       "desc": "concept-cleanup: computeInitCheckVerdictHash (packages/main/src/core/init-check-gate.ts:169-178) defines a NEW private module-scoped canonicalJson(value) — recursive key-sorted, undefined-dropping JSON canonicalization — duplicating logic that already exists as the exported canonicalJson in packages/main/src/core/digest.ts:36-38, whose own header comment says it was extracted into a leaf module specifically \"so it can be reused without dragging handler dependencies along\" (already reused by core/review-run.ts). init-check-gate.ts already imports nothing else from digest.ts, so nothing blocks reuse; the two implementations sort keys by different comparators (digest.ts: a.localeCompare(b); init-check-gate.ts: a<b?-1:a>b?1:0) and diverge on null-vs-array handling, so this is not a byte-identical duplicate — it is a second, subtly different canonicalization routine for a signature/hashing code path, which is exactly the kind of unintentional near-duplicate that should not survive introducing a new signed-hash helper.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-03T04:35:07.001Z",
@@ -53,7 +53,11 @@
       "reviewRunId": "B-8df9:RR-001",
       "_hash": "357cf0352132faaa3b14d40de5a4240aa618fc179b2109afcf01e9e51d6b7604",
       "signatureTag": "missing|unknown|concept-cleanup-computeinitcheckverdicthash",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "NOT de-duplicated, on measurement: the two canonicalizations DIVERGE, so swapping would have changed the digest of already-signed records. Compared them side by side over 24 payload shapes (canonical/fallback/no-agentResults records plus the malformed agentResults encodings the verdict hash must keep distinct: {}, 'garbage', 0, null, [], nested arrays, undefined holes, garbage issues, unicode/mixed-case/numeric-string/empty-string keys, deep nesting): 20 AGREE, 4 DIVERGE. (1) digest.ts sorts keys with a.localeCompare(b), which is default-locale-dependent - measured on this Node, LANG=sv_SE puts key 'a-umlaut' after 'z' while en-US/de-DE puts it after 'a', and it orders 'a' before 'B'; the private copy uses code-unit order and is identical on every host. A locale-dependent signature would report init_check_tampered on an untouched record verified on a differently configured machine. (2) digest.ts rebuilds a plain object, so JSON.stringify emits integer-like keys first in numeric order regardless of its sort ({\"2\",\"10\"}) where the private copy emits its own lexicographic order ({\"10\",\"2\"}). (3) producer-side only: digest.ts drops function/symbol members and stringifies bigint; the private copy keeps them as null and lets bigint throw. Both (1) and (2) are reachable from a hand-edited file, which is exactly the input class this hash exists to catch. The swap moves none of the 267 live init-check.json files (measured), but the domain claims totality over arbitrary on-disk content, so that is not the property being defended. Action taken instead: init-check-gate.ts:162-194 now carries the measured divergence and states that removing the copy is a deliberate migrated signature-algorithm change, never a cleanup. digest.ts is outside this story's allowedModify and was not touched. Verified: npx tsc --noEmit -p packages/main clean, build clean, red-b8df9-init-check-verdict-signature.mjs 0 RED / 24 rows, red-b8df9-chk002-verdict-shapes.mjs 0 FAILED / 17 rows. Commit e05bdb6112.",
+      "resolvedAt": "2026-08-03T04:53:55.296Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8df9:F-004",
