@@ -1,10 +1,10 @@
 {
   "storyId": "B-cdf6",
   "name": "rename-lattice-to-proof-or-stop-docs",
-  "title": "Rename the lattice CLI brand to proof-or-stop across active documentation",
+  "title": "Rename the lattice CLI brand to proof-or-stop: bin, active docs, and brand-pinned gates",
   "description": "The command tool and product are being rebranded from lattice to proof-or-stop. Replace every lattice brand mention in ACTIVE documentation with the appropriate proof-or-stop form, and rename the user-facing CLI invocation so the docs stay truthful. Scope boundaries that must hold: (1) frozen historical records under .lattice/story/ are an audit trail and must NOT be rewritten; (2) signature salt literals such as lattice-review-integrity-v1 are hashed into stored _hash fields on live artifacts, so renaming them would invalidate every existing signature and gate-block all active stories; (3) the .lattice/ on-disk state directory and lattice-* agent role IDs may only move if code, host shims and docs move atomically. Docs must never claim a command or path that does not actually work.",
   "type": "refactor",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -32,6 +32,20 @@
       "user": "qipan",
       "sessionId": "sess-3be919ab7a0f6cdaa2f48fcda27f7e8b",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-10T18:14:43.518Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-3be919ab7a0f6cdaa2f48fcda27f7e8b",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-cdf6",
+    "branch": "story/B-cdf6",
+    "createdAt": "2026-08-10T18:14:41.025Z"
+  }
 }
