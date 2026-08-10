@@ -1,0 +1,57 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Establish the canonical brand token mapping and freeze the out-of-scope surfaces",
+      "context": "Repo brand state is already mixed: Proofbound 1177, proof-or-stop 439, ProofStory 267, plus stray variants Prooforstop / proof-stop / Proof-Or-Stop / proofstop. Must decide prose form vs command form vs identifier form, confirm ProofStory is a DISTINCT domain concept that stays, and write down which surfaces are frozen (.lattice/story archives, the 13 signature salts, the .lattice state dir, the 16 lattice-* role IDs) with the reason each is frozen.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "A written mapping table listing every distinct lattice token shape and its replacement or FROZEN verdict, with a reason per frozen surface",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rename the user-facing CLI invocation to proof-or-stop keeping lattice as a deprecated alias",
+      "context": "Docs currently instruct `lattice validate`. If docs say proof-or-stop but only `lattice` resolves, every documented command is a lie. Needs the bin entry (packages/main/package.json bin, bin/lattice.js) to expose proof-or-stop, keeping lattice working as a deprecated alias so the 31 active stories and the .githooks/pre-push gate do not break mid-flight.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        ".githooks/pre-push"
+      ],
+      "userSees": "`proof-or-stop --version` prints the version, and `lattice --version` still works and prints the same version",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Replace lattice brand mentions in active docs per the approved mapping",
+      "context": "Target surface is active docs only: README.md, CLAUDE.md, AGENTS.md, docs/**, packages/main templates and the 16 agent prompt shims. Command examples become proof-or-stop; prose product name becomes the approved prose form; frozen identifiers stay verbatim. Must normalize the stray spellings rather than adding a fourth variant. Must NOT touch .lattice/story/ archives.",
+      "relatedDocs": [
+        "README.md",
+        "CLAUDE.md",
+        "AGENTS.md"
+      ],
+      "userSees": "grep for the brand in active docs returns only intentional frozen-identifier references and clearly-labelled deprecated-alias mentions",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a brand-consistency acceptance gate and reconcile the existing residue guard",
+      "context": "scripts/verify-lattice-residue.mjs is a zero-tolerance REVIEW->TEST gate whose detector is /koala/i, enforcing the PREVIOUS koala->lattice rebrand, and its inline self-test explicitly asserts lattice-review-integrity-v1 is CLEAN. That assertion now contradicts the new brand direction. Need a gate proving no unintended lattice prose survives in active docs while frozen identifiers and the deprecated alias remain permitted, plus honest reconciliation of the old guard, its self-test cases and its script name.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "scripts/verify-lattice-residue.mjs"
+      ],
+      "userSees": "The new brand gate passes, and the residue guard self-test no longer asserts a claim that contradicts the rename",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
