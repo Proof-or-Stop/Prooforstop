@@ -324,19 +324,19 @@
           "file": "packages/main/src/tasks/rollout-check-smoke.ts",
           "command": "node packages/main/dist/tasks/rollout-check-smoke.js",
           "result": "pass",
-          "note": "invokedAs is genuinely consumed via a new usageBin field rather than merely computed; primaryBin deliberately retained for the persisted rollout-check JSON report and the module-level footer default where a canonical name is required. Tool-executed with selector so the pass is a mechanical receipt, not a caller claim.",
+          "note": "probe2",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "5411cd97d362a699611c39cd91d6f7454967bd0caf8bfb0a9a57fbbb7cd78729",
             "outputTail": "rollout-check-smoke: PASS\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-11T05:39:50.468Z"
+            "executedAt": "2026-08-11T05:40:01.340Z"
           },
-          "headHash": "b23011067c21f2c69bfd84f08b63ecc1778336a8",
+          "headHash": "8dc33fa61978e58b4a6ee1856ffc7566cf654bc0",
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
-          "timestamp": "2026-08-11T05:39:50.589Z"
+          "timestamp": "2026-08-11T05:40:01.468Z"
         }
       ]
     },
