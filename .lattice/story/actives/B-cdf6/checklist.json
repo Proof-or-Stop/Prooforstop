@@ -931,6 +931,18 @@
           "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
           "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
           "timestamp": "2026-08-11T08:41:51.142Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "file": "bin/proof-or-stop.js",
+          "command": "node bin/proof-or-stop.js --version",
+          "note": "CLI patch version bumped 0.3.251 to 0.3.252 per CLAUDE.md version discipline, across packages/main/package.json, root package.json, package-lock.json and LATTICE_CLI_VERSION in lattice-brand.ts. Independently re-run by the main agent; node bin/lattice.js --version prints the identical Proof-or-Stop 0.3.252, proving the deprecated alias still resolves after the bump.",
+          "mechanical": false,
+          "headHash": "240cc43917d9b06b6a61e2725f80f2e6eab25fd9",
+          "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
+          "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
+          "timestamp": "2026-08-11T08:42:03.615Z"
         }
       ]
     }
