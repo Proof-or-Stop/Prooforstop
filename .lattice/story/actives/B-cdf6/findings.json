@@ -391,6 +391,24 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-019",
+      "desc": "scripts/verify-brand-gate-negative.mjs:22-26 restores docs/guide.md via `git checkout -- docs/guide.md` after injecting/reverting its test regression, with no check that docs/guide.md was clean before the script ran. If an author has genuine uncommitted edits to docs/guide.md when this negative-test script is run (e.g. as part of npm run test:lattice-residue or a local pre-push check), those edits are silently discarded by the restore() call -- both on the success path and in the finally block. No other verify-*.mjs script in this repo that calls git checkout -- on a live doc guards against pre-existing dirty state either, so this is not a novel deviation from repo convention, but it is a real, reproducible data-loss risk specific to this new script. Fix: check `git status --porcelain -- docs/guide.md` is empty before mutating the file, and abort with a clear message if it is not.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-11T20:12:19.343Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-007",
+      "_hash": "47d1745b9746d428b7b617e6dd38b7d4b030317fd02f4238542efad5947bee51",
+      "files": [
+        "scripts/verify-brand-gate-negative.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-brand",
+      "signatureTagSource": "auto"
     }
   ]
 }
