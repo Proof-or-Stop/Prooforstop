@@ -553,7 +553,11 @@
           {
             "desc": "verify-lattice-residue.mjs --self-test passes and the plain scan passes",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-lattice-residue.mjs --self-test",
+              "selector": "PASS"
+            }
           },
           {
             "desc": "npm run test:lattice-residue passes",
@@ -607,7 +611,29 @@
         "headHash": "c489f41f4fef0afcee0487be5ae5062d15b88eed",
         "attestedAt": "2026-08-11T06:13:17.452Z",
         "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-lattice-residue.mjs",
+          "command": "node scripts/verify-lattice-residue.mjs --self-test",
+          "result": "pass",
+          "note": "Self-test passes 29/29 detector unit tests. Tool-executed receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2cddf71934932ad09365bb7bc6f8b2d3891fb566c1aaee69237367956f70179f",
+            "outputTail": "PASS lattice-residue self-test: 29/29 detector unit tests\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T06:14:27.958Z"
+          },
+          "headHash": "78c468adc0cd785f076a340036dec3e609cc0f71",
+          "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
+          "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
+          "timestamp": "2026-08-11T06:14:28.084Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
