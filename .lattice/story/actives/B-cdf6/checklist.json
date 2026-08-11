@@ -344,13 +344,13 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "node scripts/verify-entrypoints.mjs",
           "result": "fail",
-          "note": "Pinned assertions updated not deleted, plus a real pre-existing verifier bug fixed. Remaining stop is an ACTIVE owner-lease lockout (environmental), not a rename defect; code path proven healthy in an isolated project.",
+          "note": "Four assertions fixed (one regression was mine). Residual = pre-existing F-005, reproduced on pristine main.",
           "mechanical": false,
-          "nonMechanicalReason": "Cannot produce a passing receipt in THIS session for an environmental reason, not a code defect. What was positively verified: the pinned session-brief header assertions were UPDATED to the new brand rather than deleted, and a real pre-existing bug in this verifier was found and fixed (it pinned an obsolete negated code shape at :501 that Pass A had legitimately rewritten in init-assets.ts:328). The suite now stops at check 8/28 on: lattice verify_codex output () missing Codex adapter checks passed. Root cause diagnosed by the main agent by running the command directly: verify_codex is an owner-gated storyScopedMutating command and B-cdf6 holds an ACTIVE owner lease (heartbeat 2m ago) belonging to a prior session in this same worktree with matching cwd; the current session identity degraded to derived-ppid, so it is locked out of its own story. NOTE this corrects a subagent report that called the lease stale - proof-or-stop doctor reports stale leases: 0, so the lease is active and only an explicit human --forceTakeover can transfer it. The implementer independently proved the underlying code path is healthy by running verify_codex in an isolated freshly-initialised temp project, where it printed the exact expected string: Codex adapter checks passed (8/8 pass).",
-          "headHash": "2fd4ad4ea5ee3af35ad4931a65e6a40a272f3b62",
-          "materialHash": "1031e28bd61356f021fb1d876fcfc8f4e477bcab9b3eca8a70209b7587a34d53",
-          "storyFilesHash": "7abcfdabbfb02eab4a5b02217eda7094f3d44465d6824f2b0e430f35af67573c",
-          "timestamp": "2026-08-11T14:12:18.012Z"
+          "nonMechanicalReason": "Blocked by PRE-EXISTING defect B-META-framework-audit:F-005 (codex render-mode mismatch), proven independent of this rename by reproducing the identical DRIFT on the pristine main checkout (expected 8896 / actual 3927) and by git log -S attributing the marker to commit a260249f64 (story B-235e). This story fixed FOUR stale or regressed assertions in the same block: the obsolete negated code shape at :501; the seedClaudeAgentMirror fixture that copied RAW templates where the checker expects renderPromptEntryForHost host-rendered shims; the hardcoded 16-prompt count against a 17-role registry (now derived from the registry so it cannot rot again); and a genuine regression from THIS story where codex-adapter-checks.ts static-grepped old literal env names while the generated wrapper composes them via setEnv(), so a functionally-correct wrapper was reported as missing LATTICE_ACTIVITY_SOURCE. Evidence those fixes took effect: the failure MESSAGE CHANGED - package/Claude drift is gone and only the codex-side render-mode mismatch remains. Fixing that residual belongs to the agent-prompt consolidation plan, which owns prompt-body render mode.",
+          "headHash": "a26a7ff6d541c8287835283aede33fbbca44502b",
+          "materialHash": "8f570378eb4636718661eb9e6b99a23f3cefdd6674c0ff030e9513a9d658beb6",
+          "storyFilesHash": "c38449c5ed248ccf8eb064bd5418ca884dc9b5f339b7ed7bae224c4d5ebbd652",
+          "timestamp": "2026-08-11T15:09:07.645Z"
         }
       ]
     },
