@@ -820,7 +820,11 @@
           {
             "desc": "NEGATIVE regression: a doc line referencing proof-or-stop no_such_command REPORTS drift, proving the extractor did not go vacuously blind",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/audit-scan-bin-token-smoke.js",
+              "selector": "no_such_command"
+            }
           },
           {
             "desc": "scanCommandDrift detects a bogus command under BOTH bin tokens, so mixed-token docs stay covered during the transition",
@@ -957,6 +961,26 @@
           "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
           "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
           "timestamp": "2026-08-11T08:42:03.615Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/audit-scan-bin-token-smoke.ts",
+          "command": "node packages/main/dist/tasks/audit-scan-bin-token-smoke.js",
+          "result": "pass",
+          "note": "NEGATIVE regression proven. The smoke asserts a bogus proof-or-stop no_such_command reference IS reported as drift. Main agent independently reproduced via direct scanCommandDrift call on a doc containing proof-or-stop no_such_command + lattice also_missing + proof-or-stop validate: exactly 2 drifts returned, symbols proof-or-stop no_such_command and lattice also_missing, with the real validate command correctly NOT flagged. The implementer additionally proved it RED-first by forcing BIN_TOKEN_ALTERNATION back to lattice, which fails with an explicit passes-vacuously regression message.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "aad6689faa74f80d3a5e262d07147383a5f7e711a69275599ecb1a71abe95ec8",
+            "outputTail": "  test1 ok: proof-or-stop no_such_command -> drift (proof-or-stop no_such_command)\n  test2 ok: lattice no_such_command -> drift\n  test3 ok: mixed-token doc reports both drifts\n  test4 ok: real command + real flag -> no drift, extraction non-empty\n  test5 ok: flag drift caught under proof-or-stop\n  test6 ok: renamed-bin bogus command is NOT a vacuous pass\n  test7 ok: empty extraction is mechanically distinguishable from a clean scan\n  test8 ok: runMechanicalAudit propagates drift + extractedCommands, no duplicate advisory\naudit-scan-bin-token-smoke ok\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T08:43:40.138Z"
+          },
+          "headHash": "b8a4fc071ddf80b3419630b63d088de549886080",
+          "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
+          "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
+          "timestamp": "2026-08-11T08:43:40.304Z"
         }
       ]
     }
