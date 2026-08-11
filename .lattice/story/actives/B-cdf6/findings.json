@@ -184,7 +184,7 @@
       "desc": "CHK-002:adversarial:1s waiver (deferred_gate_evidence, pointing at B-META-framework-audit:F-005) is substantively HONEST -- I independently reproduced the underlying claim rather than trusting the main agents self-report. I built a throwaway git worktree of PRISTINE main (pre-B-cdf6, package name still lattice), ran npm --prefix packages/main run build plus npm --prefix packages/utils run build, then node bin/lattice.js init --profile codex --asset-mode full into a fresh scratch dir, and confirmed .lattice-codex/agents/lattice-implementer.md is written with the modular marker (<!-- proofbound:modular-role-body:v1 -->, 10898 bytes for that role). Running node bin/lattice-codex.js verify_codex against that fresh project independently reproduces the failure: Codex agent asset resolution reports assets absent=1 matches-runtime=12 stale=5, and Codex agents mirror: missing .claude/agents or .lattice-codex/agents is a HARD FAILURE on a project this rename never touched. This corroborates F-005s core claim (init writes modular, codex-adapter-checks.ts:387 expects legacy-full-context, pre-existing and unrelated to B-cdf6). One caveat for the record: F-005/F-012 in B-META-framework-audit/findings.json are both self-logged by agent:main-agent with evidenceState:verified based on the main agents own probe -- my repro above is the FIRST actually-independent verification of F-005s pre-existence claim; F-012s claim (270s receipt-executor timeout forces an audited escape for the DONE-suite intent) I did not independently reproduce (would require re-running the 270s+ timeout scenario), so treat F-012 as corroborated only by internal consistency with validation-executor.ts:43s documented constant, not by an independent repro.",
       "severity": "low",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-11T19:38:50.829Z",
@@ -196,7 +196,11 @@
         "packages/main/src/init-assets.ts"
       ],
       "signatureTag": "adversarial|ts|adversarial-waiver-deferred",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reviewer independently reproduced the F-005 waiver claim in a pristine main worktree and found it substantively honest, which is the corroboration I wanted. Their remaining caveat is fair: B-META F-005 and F-012 were self-logged by main-agent, and only F-005 now has independent corroboration. Recorded as accepted risk rather than fixed, because the caveat is about provenance of my own gap reports - which is exactly the class of self-certification problem I logged as B-META F-011 (userConfirmed with an empty confirmation field).",
+      "resolvedAt": "2026-08-11T20:05:47.477Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-011",
