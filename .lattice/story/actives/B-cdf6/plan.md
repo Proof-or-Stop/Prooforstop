@@ -64,6 +64,11 @@ gates every replacement, the bin must exist before docs claim it, and CHK-005 cl
 - Modify: `packages/main/src/cli/alias-normalizer.ts:94` (accept BOTH tokens for the redundant-token tolerance)
 - Test: `packages/main/src/tasks/rollout-check-smoke.ts:70`, `scripts/verify-entrypoints.mjs:277` and `:515`
 
+> **Scope-contract path note**: declare the create-target as the directory `bin`, **not** `bin/proof-or-stop.js`.
+> `core/scope-path-classifier.ts:141` has an `explicitRepoTopLevel` allowlist that omits `bin`, so a
+> not-yet-existing `bin/<file>.js` resolves ambiguously against both repo-root and `packages/main/src/`
+> and the contract init fails `BLOCKED: ambiguous scope path`. The directory form is unambiguous.
+
 **Verify**:
 - `npm --prefix packages/main run build` clean
 - `node bin/proof-or-stop.js --version` prints the version
