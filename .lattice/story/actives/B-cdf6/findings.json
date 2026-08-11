@@ -73,6 +73,25 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-005",
+      "desc": "CHK-006 (the largest body of work in the story per its own context: 146 LATTICE_* env vars across 245 files, ~20104 lattice tokens under packages/, 1360 under scripts/, bin filenames, package name, code identifiers, plus a read-both compat requirement) has verificationIntent={happy:[],edge:[],adversarial:[]} and verificationEvidence=[] -- zero intent, zero evidence, confirmed by reading checklist.json directly. This is structural: checklist_update refuses verificationIntent once an item exists in DEV (PLAN-only field), and CHK-006 was added mid-DEV. Consequence: all 36 must-intents in the story belong to CHK-001..CHK-005; the single largest, highest-blast-radius deliverable (touching read-both compat semantics and the .githooks/pre-push arming string) carries none of the frameworks intent-to-evidence coverage discipline. Recommend either (a) an explicit, durable waiver-style acknowledgment of this framework gap for mid-DEV-added items, or (b) retroactively binding CHK-006s already-existing DEV evidence (residue-gate/audit-scan regressions, read-both compat tests) to explicit intentRefs so coverage accounting is not silently zero for the storys biggest checklist item.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-11T19:37:11.043Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-003",
+      "_hash": "74e36fc9d033aedc6af65cdb5239d32869237450cee1bce2060cd992c771f6b1",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        ".lattice/story/actives/B-cdf6/checklist.json"
+      ],
+      "signatureTag": "missing|ts|largest-body-work",
+      "signatureTagSource": "auto"
     }
   ]
 }
