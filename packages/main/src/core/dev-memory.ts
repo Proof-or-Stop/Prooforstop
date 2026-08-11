@@ -1,14 +1,14 @@
 /**
- * dev-memory — lightweight experience capture outside Proofbound story gates
+ * dev-memory — lightweight experience capture outside Proof-or-Stop story gates
  *
  * Design constraints (B-ad2c):
  *   - Storage: file-backed JSONL, never SQLite or binary blobs
  *   - Paths: project  → <projectRoot>/.lattice/dev-memory/experience.jsonl
  *            global   → ~/.lattice/dev-memory/experience.jsonl
  *            story    → <storyDir>/<storyId>/dev-memory-candidates.jsonl
- *   - Non-authoritative: entries CANNOT satisfy Proofbound gate evidence
+ *   - Non-authoritative: entries CANNOT satisfy Proof-or-Stop gate evidence
  *   - No structured schema that looks like gate artifacts
- *   - Deterministic: path resolution works without a Proofbound daemon running
+ *   - Deterministic: path resolution works without a Proof-or-Stop daemon running
  */
 
 import {
@@ -22,7 +22,7 @@ import { join, resolve } from 'path';
 import { homedir } from 'os';
 import { createHash } from 'crypto';
 import { hasProjectConfigFile } from './config.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
 // ---------------------------------------------------------------------------
@@ -68,7 +68,7 @@ export interface DevMemoryEntry {
   /** Optional evidence references (file paths, commit shas) */
   evidenceRefs?: string[];
   /**
-   * NON-AUTHORITATIVE marker — this entry cannot satisfy Proofbound DONE gates.
+   * NON-AUTHORITATIVE marker — this entry cannot satisfy Proof-or-Stop DONE gates.
    * Always written as false. Presence of this field is a reminder to consumers.
    */
   gateEvidence: false;
@@ -163,11 +163,11 @@ export function validateEntry(raw: unknown): { ok: true; entry: DevMemoryEntry }
 /**
  * Resolve the project-scoped experience file path.
  * Uses LATTICE_PROJECT_ROOT env or walks upward to find lattice.config.json.
- * Deterministic — no Proofbound daemon required.
+ * Deterministic — no Proof-or-Stop daemon required.
  */
 export function resolveProjectMemoryPath(projectRoot?: string): string {
   const root = projectRoot || resolveProjectRoot();
-  return join(root, LATTICE_DIR, 'dev-memory', 'experience.jsonl');
+  return join(root, PROOF_OR_STOP_DIR, 'dev-memory', 'experience.jsonl');
 }
 
 function uniquePaths(paths: string[]): string[] {
@@ -194,7 +194,7 @@ export function resolveProjectMemoryReadPaths(projectRoot?: string): string[] {
 export function resolveGlobalMemoryPath(): string {
   const override = readBrandEnv('GLOBAL_MEMORY_DIR');
   if (override) return join(override, 'experience.jsonl');
-  return join(homedir(), LATTICE_DIR, 'dev-memory', 'experience.jsonl');
+  return join(homedir(), PROOF_OR_STOP_DIR, 'dev-memory', 'experience.jsonl');
 }
 
 export function resolveGlobalMemoryReadPaths(): string[] {
@@ -206,7 +206,7 @@ export function resolveGlobalMemoryReadPaths(): string[] {
 
 /**
  * Resolve the story-scoped candidate path.
- * Only valid when storyDir is known (i.e. inside a Proofbound project).
+ * Only valid when storyDir is known (i.e. inside a Proof-or-Stop project).
  */
 export function resolveStoryCandidatePath(storyDir: string, storyId: string): string {
   return join(storyDir, storyId, 'dev-memory-candidates.jsonl');

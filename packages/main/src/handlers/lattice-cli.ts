@@ -3,7 +3,7 @@ import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'path';
 import type { HandlerContext } from './context.js';
 import {
   LATTICE_CLI_VERSION,
-  LATTICE_PRODUCT_NAME,
+  PROOF_OR_STOP_PRODUCT_NAME,
   formatProofOrStopProductLine,
 } from '../core/lattice-brand.js';
 import {
@@ -18,7 +18,7 @@ import {
   type LatticeFormat,
 } from '../core/lattice-hosts.js';
 import {
-  LATTICE_CONFIG_FILENAME,
+  PROOF_OR_STOP_CONFIG_FILENAME,
   loadConfig,
   pickProjectConfigPath,
   resetConfigCache,
@@ -28,7 +28,7 @@ import { gitProbe } from '../core/git-probe.js';
 type FormatArgs = { format?: LatticeFormat; json?: boolean };
 
 const LOCAL_ASSURANCE_NOTE =
-  'Local Proofbound assurance uses proof admissibility, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum. Retired server Authority modes are not active CLI runtime paths.';
+  'Local Proof-or-Stop assurance uses proof admissibility, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum. Retired server Authority modes are not active CLI runtime paths.';
 
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
@@ -159,7 +159,7 @@ function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDia
       candidates,
       suggestedGitRoot: candidates[0],
       repairCommand: configRepairCommandFor(candidates[0]),
-      note: 'Operator suggestion only: Proofbound never applies this repair automatically and runtime resolution never guesses child repositories. Run the repair command to configure gitRoot explicitly.',
+      note: 'Operator suggestion only: Proof-or-Stop never applies this repair automatically and runtime resolution never guesses child repositories. Run the repair command to configure gitRoot explicitly.',
     };
   }
   return {
@@ -205,7 +205,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
   const ok = checks.every(check => check.ok);
   return {
     schemaVersion: 'lattice.config_doctor.v1' as const,
-    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
+    product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
     ok,
     status: ok ? 'pass' as const : 'warn' as const,
     migration: {
@@ -346,14 +346,14 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
   const picked = pickProjectConfigPath(metadataRoot);
   if (!picked) {
     throw new Error(
-      `Cannot repair gitRoot because no existing ${LATTICE_CONFIG_FILENAME} was found at ${metadataRoot}. Initialize project config first.`,
+      `Cannot repair gitRoot because no existing ${PROOF_OR_STOP_CONFIG_FILENAME} was found at ${metadataRoot}. Initialize project config first.`,
     );
   }
   const configPath = picked.path;
   const configFilename = picked.filename;
   const base = {
     schemaVersion: 'lattice.config_repair.v1' as const,
-    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
+    product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
     metadataRoot: canonicalFsPath(metadataRoot),
     gitRoot: verifiedTarget.relativePath,
     verifiedGitRootPath: verifiedTarget.absolutePath,
@@ -428,7 +428,7 @@ export function buildConduitStatus(
 ) {
   return {
     schemaVersion: 'lattice.conduit_status.v1' as const,
-    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
+    product: { name: PROOF_OR_STOP_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
     conduitAvailable: true as const,
     conduitRole: 'cli-diagnostics-and-handoff' as const,
     runnerProvisioned: false as const,
@@ -506,10 +506,10 @@ function buildConduitExplain() {
     ...buildConduitStatus(),
     schemaVersion: 'lattice.conduit_explain.v1' as const,
     explanation: [
-      'Proofbound CLI 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
+      'Proof-or-Stop 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
       'The conduit is a coordination surface for host capability reports, config migration checks, handoff packs, evidence freshness manifests, and parallel wave plans.',
       'It is intentionally not a model runner or receipt authority. Completion assurance is local: proof admissibility, signed/offline receipt bundles, and local review quorum remain the supported paths.',
-      'Retired server Authority modes are no longer active Proofbound CLI runtime concepts. Use local Proofbound workflow commands and local assurance artifacts instead.',
+      'Retired server Authority modes are no longer active Proof-or-Stop runtime concepts. Use local Proof-or-Stop workflow commands and local assurance artifacts instead.',
     ],
   };
 }

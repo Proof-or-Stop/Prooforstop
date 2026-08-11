@@ -1,10 +1,10 @@
 /**
- * Task B-3506: Shared auto-commit helper for Proofbound metadata writes
+ * Task B-3506: Shared auto-commit helper for Proof-or-Stop metadata writes
  *
  * Extracted from packages/main/src/handlers/story-advance.ts:autoCommitStoryMetadata
  * (B-6326 lifecycle). All lattice CLI handlers that mutate files under the
  * configured story directory should call this AFTER a successful write so the
- * worktree-dirty gate stops blocking on Proofbound's own bookkeeping.
+ * worktree-dirty gate stops blocking on Proof-or-Stop's own bookkeeping.
  *
  * Safety contract (preMortem #1 anchor):
  *   - Path scope is derived from the configured storyDir plus `storyId` itself.
@@ -40,7 +40,7 @@ import {
   type DirtyWorktreeClassification,
 } from './dirty-worktree.js';
 import { loadConfig } from './config.js';
-import { LATTICE_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR, normalizeRelPath } from './lattice-paths.js';
 import { StoryStore } from './store.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
@@ -67,7 +67,7 @@ import {
 export const AUTO_COMMIT_METADATA_PREFIX = '\n✓ lattice metadata auto-committed:';
 
 /** Canonical literal path prefix the helper is allowed to stage. */
-export const AUTO_COMMIT_STORY_DIR_PREFIX = `${LATTICE_STORY_DIR}/`;
+export const AUTO_COMMIT_STORY_DIR_PREFIX = `${PROOF_OR_STOP_STORY_DIR}/`;
 
 function appendLocalCausalReceiptsBeforeCommit(args: {
   projectRoot: string;

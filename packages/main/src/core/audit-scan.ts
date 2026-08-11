@@ -17,7 +17,7 @@
  * PASS. That is strictly worse than a loud failure — a doc could reference a nonexistent command
  * forever undetected, which is the exact drift class this scanner exists to catch. Two fixes:
  *
- *   1. The extractor now accepts EVERY bin token the CLI answers to (`LATTICE_BIN_NAMES`:
+ *   1. The extractor now accepts EVERY bin token the CLI answers to (`PROOF_OR_STOP_BIN_NAMES`:
  *      canonical `proof-or-stop` plus the deprecated `lattice` alias), so mixed-token docs stay
  *      covered for the whole transition rather than only after a flag day.
  *   2. `extractedCommands` is reported alongside `drifts`, so callers can tell "scanned N
@@ -32,7 +32,7 @@ import {
   checkDocsDrift,
   DOCS_DRIFT_ALLOWLIST,
 } from '../handlers/validate-docs-drift.js';
-import { LATTICE_BIN_NAMES, LATTICE_PRIMARY_BIN } from './lattice-brand.js';
+import { PROOF_OR_STOP_BIN_NAMES, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
 
 export interface DriftCandidate {
   sectionPath: string; // e.g., "CLAUDE.md#lattice CLI quick reference"
@@ -65,11 +65,11 @@ export interface AuditReport {
 
 /**
  * Every bin token a doc may legitimately instruct the user to run, canonical first.
- * B-cdf6 CHK-005: sourced from `LATTICE_BIN_NAMES` rather than a local literal, so adding or
+ * B-cdf6 CHK-005: sourced from `PROOF_OR_STOP_BIN_NAMES` rather than a local literal, so adding or
  * retiring a bin alias in lattice-brand.ts cannot silently desync the drift extractor from the
  * names the CLI actually answers to.
  */
-const BIN_TOKEN_ALTERNATION = [...LATTICE_BIN_NAMES]
+const BIN_TOKEN_ALTERNATION = [...PROOF_OR_STOP_BIN_NAMES]
   // Longest first: alternation is ordered, so an entry that is a prefix of another
   // (`proof-or-stop` of `proof-or-stop-codex`, `lattice` of `lattice-codex`) must not
   // get first refusal. Backtracking would recover here, but relying on it is fragile —
@@ -139,7 +139,7 @@ const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
  * scanCommandDrift: extract command names of the form `<bin> <cmd>` from md;
  * for each one not in the ignore list, run `<bin> <cmd> --help`, exit≠0 → drift.
  *
- * B-cdf6 CHK-005: `<bin>` is any token in `LATTICE_BIN_NAMES` (canonical `proof-or-stop` plus the
+ * B-cdf6 CHK-005: `<bin>` is any token in `PROOF_OR_STOP_BIN_NAMES` (canonical `proof-or-stop` plus the
  * deprecated `lattice` alias), not a single hardcoded literal. Also returns `extractedCommands`
  * so an empty extraction is distinguishable from a clean scan.
  */
@@ -402,15 +402,15 @@ export function runMechanicalAudit(
       // command scanner already reported.
       const alreadyCaught = drifts.some(
         d => d.driftType === 'missing-command'
-          && LATTICE_BIN_NAMES.some(bin => d.symbol === `${bin} ${cmd}`),
+          && PROOF_OR_STOP_BIN_NAMES.some(bin => d.symbol === `${bin} ${cmd}`),
       );
       if (!alreadyCaught) {
         drifts.push({
           sectionPath: 'docs-drift-registry',
-          symbol: `${LATTICE_PRIMARY_BIN} ${cmd}`,
+          symbol: `${PROOF_OR_STOP_PRIMARY_BIN} ${cmd}`,
           driftType: 'missing-command',
           severity: 'low',
-          desc: `CLAUDE.md references \`${LATTICE_PRIMARY_BIN} ${cmd}\` but registry has no such command (docs-drift advisory)`,
+          desc: `CLAUDE.md references \`${PROOF_OR_STOP_PRIMARY_BIN} ${cmd}\` but registry has no such command (docs-drift advisory)`,
           evidence: 'registry.list() does not contain this command',
         });
       }
@@ -423,7 +423,7 @@ export function runMechanicalAudit(
 /**
  * Default runHelp: invokes `<canonical bin> <cmd> --help` with a 5-second timeout.
  *
- * B-cdf6 CHK-005: resolves the executable from `LATTICE_PRIMARY_BIN` instead of the old hardcoded
+ * B-cdf6 CHK-005: resolves the executable from `PROOF_OR_STOP_PRIMARY_BIN` instead of the old hardcoded
  * `'lattice'` literal. The doc token being scanned is deliberately NOT used as the executable
  * name: a doc could name a bin that is not installed, and probing help through the canonical bin
  * keeps the "is this command registered" question independent of which alias the prose used.
@@ -431,7 +431,7 @@ export function runMechanicalAudit(
  */
 function defaultRunHelp(cmd: string): { ok: boolean; reason?: string; output?: string } {
   try {
-    const out = execFileSync(LATTICE_PRIMARY_BIN, [cmd, '--help'], {
+    const out = execFileSync(PROOF_OR_STOP_PRIMARY_BIN, [cmd, '--help'], {
       encoding: 'utf-8',
       timeout: 5000,
       stdio: ['ignore', 'pipe', 'pipe'],

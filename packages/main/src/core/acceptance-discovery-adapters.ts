@@ -12,7 +12,7 @@ import type {
 import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
-import { LATTICE_STORY_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR } from './lattice-paths.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
@@ -1061,7 +1061,7 @@ function generatedStoryArtifactDirectory(context: SourceReadContext, storyId: st
     const read = readSourceSafely(context, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
     if (read.text === undefined) return null;
     const parsed = JSON.parse(read.text) as Record<string, unknown>;
-    const configured = parsed.storyDir ?? LATTICE_STORY_DIR;
+    const configured = parsed.storyDir ?? PROOF_OR_STOP_STORY_DIR;
     if (typeof configured !== 'string' || configured.trim().length === 0
       || isAbsolute(configured) || configured.split(/[\\/]/).includes('..')) return null;
     return `${configured.replace(/\\/g, '/').replace(/\/+$/, '')}/${storyId}/`;

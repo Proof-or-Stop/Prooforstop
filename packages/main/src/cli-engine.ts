@@ -1,5 +1,5 @@
 /**
- * Proofbound CLI engine
+ * Proof-or-Stop engine
  *
  * Wrap the shared dispatch, parse, log, and phase-gate logic in the callable runCli function.
  * The main package cli.ts is the binary entrypoint and calls runCli() directly.
@@ -33,10 +33,10 @@ import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
 import {
   formatLatticeVersionLine,
-  detectLatticeBrand,
-  LATTICE_BIN_NAMES,
+  detectProofOrStopBrand,
+  PROOF_OR_STOP_BIN_NAMES,
 } from './core/lattice-brand.js';
-import { LATTICE_DIR } from './core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './core/lattice-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
 import { wantsFullOutput } from './cli/output-verbosity.js';
 import type { ChecklistData } from './core/types.js';
@@ -717,7 +717,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
 // ── Main ──
 
 /**
- * runCli: Proofbound CLI runtime entry point.
+ * runCli: Proof-or-Stop runtime entry point.
  *
  * @param opts.extraTools ToolDef list from third-party packages, merged into help and dispatch.
  * @param opts.extraRegister register function from third-party packages, called after createMainRegistry.
@@ -751,7 +751,7 @@ export async function runCli(opts?: {
     arg = argv[1];
     // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
     // so `proof-or-stop proof-or-stop --version` behaves like `lattice lattice --version`.
-  } else if (LATTICE_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
+  } else if (PROOF_OR_STOP_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';
     arg = undefined;
@@ -830,7 +830,7 @@ export async function runCli(opts?: {
 
   // B-cdf6 CHK-002: next-action guidance must name a bin the caller can retype,
   // so mirror how this process was actually invoked.
-  const usageBin = detectLatticeBrand().usageBin;
+  const usageBin = detectProofOrStopBrand().usageBin;
 
   if (cmd === 'codex' && (argv[1] === 'session_brief' || argv[1] === 'aux_doc_list')) {
     const ordinary = argv[1];
@@ -1045,7 +1045,7 @@ export async function runCli(opts?: {
   try {
     staleWarnings = detectStaleState(ctx);
     if (staleWarnings.length > 0) {
-      process.stderr.write('⚠ Proofbound stale state warnings:\n');
+      process.stderr.write('⚠ Proof-or-Stop stale state warnings:\n');
       for (const w of staleWarnings) process.stderr.write(`  - ${w}\n`);
     }
   } catch { /* never block */ }
@@ -1196,7 +1196,7 @@ export async function runCli(opts?: {
     } catch (e: unknown) {
       reportHealthIssue('persist:writeLog', e as Error, {
         command: entry.command,
-        logDir: join(root, LATTICE_DIR),
+        logDir: join(root, PROOF_OR_STOP_DIR),
       });
     }
   }

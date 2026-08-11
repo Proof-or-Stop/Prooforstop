@@ -498,7 +498,12 @@ checks.push(() => {
     assertNotIncludes(generatedBootstrap, 'bin/koala.js', 'generated local bootstrap should not mention bin/koala.js');
     assertNotIncludes(generatedBootstrap, "spawnSync('koala'", 'generated local bootstrap should not delegate to global koala');
     assertIncludes(generatedBootstrap, "typeof mod.runCli", 'generated local bootstrap should execute a local CLI engine');
-    assertIncludes(generatedBootstrap, "!help.includes('aux_doc_list') || !help.includes('verify_codex')", 'generated local bootstrap should reject stale global fallback');
+    // The staleness rejection is expressed as a positive capability predicate
+    // (`isCapable`) rather than the earlier negated inline form. Same guarantee:
+    // a core-only global install that exits 0 from `help` but lacks these two
+    // commands must not be selected. Pinning the OLD negated spelling here made
+    // this check assert a code shape the generator no longer emits.
+    assertIncludes(generatedBootstrap, "out.includes('aux_doc_list') && out.includes('verify_codex')", 'generated local bootstrap should reject stale global fallback by capability');
     assertPathMissing(tempDir, 'bin/koala.js', 'full init should not generate bin/koala.js');
     assertPathMissing(tempDir, 'bin/koala-codex.js', 'full init should not generate bin/koala-codex.js');
     assertPathMissing(tempDir, '.lattice-codex/koala.json', 'full init should not generate .lattice-codex/koala.json');
@@ -674,7 +679,7 @@ checks.push(() => {
   const result = runManagedAssetCheck(repoRoot, { profile: 'all', assetMode: 'full' });
   const item = result.items.find(asset => asset.relPath === 'bin/lattice.js');
   assert(item?.status === 'OK', 'self-repo local wrapper should be accepted as Lattice-owned compatibility asset');
-  assert(item.reason.includes('recognized Proofbound compatibility contract'), 'self-repo local wrapper should explain the canonical Proofbound compatibility contract');
+  assert(item.reason.includes('recognized Proof-or-Stop compatibility contract'), 'self-repo local wrapper should explain the canonical Proof-or-Stop compatibility contract');
 });
 
 checks.push(() => {
@@ -709,7 +714,7 @@ checks.push(() => {
     writeFileSync(join(tempDir, '.gitignore'), existingGitignoreLines.join('\n'));
 
     const initOut = run('node', [INIT_ENTRYPOINT, tempDir]);
-    assertIncludes(initOut, '.gitignore (merged Proofbound runtime ignores)', 'lattice init existing .gitignore merge output');
+    assertIncludes(initOut, '.gitignore (merged Proof-or-Stop runtime ignores)', 'lattice init existing .gitignore merge output');
 
     const gitignore = readFileSync(join(tempDir, '.gitignore'), 'utf8');
     assertIncludes(gitignore, 'custom-cache/', 'existing .gitignore merge should preserve user content');
@@ -918,9 +923,9 @@ checks.push(() => {
     writeFileSync(join(tempDir, 'LATTICE.md'), latticeOriginal);
 
     const initOut = run('node', [INIT_ENTRYPOINT, '--profile=all', '--asset-mode=full', tempDir]);
-    assertIncludes(initOut, 'AGENTS.md (exists, no Proofbound managed markers, skip)', 'AGENTS.md unmanaged preservation log');
-    assertIncludes(initOut, 'CLAUDE.md (exists, no Proofbound managed markers, skip)', 'CLAUDE.md unmanaged preservation log');
-    assertIncludes(initOut, 'LATTICE.md (exists, no Proofbound managed markers, skip)', 'LATTICE.md unmanaged preservation log');
+    assertIncludes(initOut, 'AGENTS.md (exists, no Proof-or-Stop managed markers, skip)', 'AGENTS.md unmanaged preservation log');
+    assertIncludes(initOut, 'CLAUDE.md (exists, no Proof-or-Stop managed markers, skip)', 'CLAUDE.md unmanaged preservation log');
+    assertIncludes(initOut, 'LATTICE.md (exists, no Proof-or-Stop managed markers, skip)', 'LATTICE.md unmanaged preservation log');
     assert(readFileSync(join(tempDir, 'AGENTS.md'), 'utf8') === agentsOriginal, 'AGENTS.md without markers should be preserved');
     assert(readFileSync(join(tempDir, 'CLAUDE.md'), 'utf8') === claudeOriginal, 'CLAUDE.md without markers should be preserved');
     assert(readFileSync(join(tempDir, 'LATTICE.md'), 'utf8') === latticeOriginal, 'LATTICE.md without markers should be preserved');

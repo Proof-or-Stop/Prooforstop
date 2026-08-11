@@ -163,7 +163,7 @@ for (const command of [
   `node /Users/example/proofbound/bin/lattice.js --root /tmp/proofbound acceptance_matrix`,
   `./bin/lattice.js acceptance_matrix --storyId=${storyId}`,
 ]) {
-  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `supported Proofbound invocation is derived: ${command}`);
+  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `supported Proof-or-Stop invocation is derived: ${command}`);
 }
 for (const command of [
   'rg acceptance_matrix packages/main/src/core/command-policy.ts',

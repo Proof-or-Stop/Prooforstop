@@ -27,7 +27,7 @@ import {
   resolveReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
 import { buildMaterialClassificationSnapshot, MaterialCodePolicyError } from '../core/material-code-policy.js';
-import { loadConfig, LATTICE_CONFIG_FILENAME } from '../core/config.js';
+import { loadConfig, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
@@ -160,8 +160,8 @@ export function renderReproFirstStoryCreatePreflight(args: {
         `Repro-first STORY_INTAKE preflight could not classify material code for ${args.storyId}: the material-code policy failed closed. [repro_first_material_policy_error]`,
         `  ${err.message}`,
         isFreshness
-          ? `  → Ensure the workspace/git tree is present and readable (a workspace/git error, not a ${LATTICE_CONFIG_FILENAME} problem), then retry.`
-          : `  → Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then retry.`,
+          ? `  → Ensure the workspace/git tree is present and readable (a workspace/git error, not a ${PROOF_OR_STOP_CONFIG_FILENAME} problem), then retry.`
+          : `  → Fix ${PROOF_OR_STOP_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then retry.`,
       ].join('\n');
       if (mode === 'enforce') throw new Error(message);
       return `⚠ ${message}`;

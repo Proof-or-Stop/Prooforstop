@@ -136,7 +136,7 @@ function writeVersionSyncFiles(root: string, version: string): void {
     "import { basename } from 'path';",
     '',
     `export const LATTICE_CLI_VERSION = '${version}' as const;`,
-    "export const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;",
+    "export const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;",
     'void basename;',
     '',
   ].join('\n'));

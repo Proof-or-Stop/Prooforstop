@@ -228,9 +228,9 @@ function displayCommand(request: AutopilotCommandRequest): string {
 
 function claudeRepairPrompt(step: AutopilotStep, request: AutopilotCommandRequest, result: AutopilotCommandResult, plan: AutopilotRunResult): string {
   return [
-    'You are Claude Code CLI running as an explicit Proofbound autopilot repair step.',
+    'You are Claude Code CLI running as an explicit Proof-or-Stop autopilot repair step.',
     'Make the smallest safe code or documentation change needed for the failing command to pass.',
-    'Do not edit Story, checklist, fixture, or process-event JSON directly; use the Proofbound CLI for Proofbound state changes.',
+    'Do not edit Story, checklist, fixture, or process-event JSON directly; use the Proof-or-Stop for Proof-or-Stop state changes.',
     'Do not create or push GitHub/origin branches.',
     '',
     `Story: ${plan.story.storyId ?? 'unbound'}`,
@@ -246,7 +246,7 @@ function claudeRepairPrompt(step: AutopilotStep, request: AutopilotCommandReques
     'stderr excerpt:',
     excerpt(result.stderr) || '(empty)',
     '',
-    'After the repair, stop. The Proofbound autopilot executor will retry the failing command.',
+    'After the repair, stop. The Proof-or-Stop autopilot executor will retry the failing command.',
   ].join('\n');
 }
 
@@ -528,7 +528,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   let completion: null = null;
   let receipt = plan.receipt;
   if (dryRun) {
-    nextActions.add('Remove --dryRun to execute the planned local Proofbound commands.');
+    nextActions.add('Remove --dryRun to execute the planned local Proof-or-Stop commands.');
     if (multiHostRequired) {
       nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (proof-or-stop autopilot review submit / proof-or-stop quorum_submit).`);
     }
@@ -543,7 +543,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   } else if (plan.mode === 'authority' && plan.status === 'fail') {
     status = 'fail';
     stopReason = 'remote-runner-retired';
-    nextActions.add('Use --mode=local; remote runner execution is retired from the active Proofbound runtime.');
+    nextActions.add('Use --mode=local; remote runner execution is retired from the active Proof-or-Stop runtime.');
   } else if (multiHostRequired && !multiHostSatisfied) {
     status = 'fail';
     stopReason = 'multi-host-verdicts-required';
@@ -639,6 +639,6 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
     },
     stopReason,
     nextActions: [...nextActions],
-    note: 'Local execute runs only local Proofbound commands and does not contact or require a remote receipt server.',
+    note: 'Local execute runs only local Proof-or-Stop commands and does not contact or require a remote receipt server.',
   };
 }

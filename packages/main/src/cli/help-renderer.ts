@@ -14,7 +14,7 @@ import { isCommandAllowed } from '../core/config.js';
 import { BRIEF_OUTPUT_ENV_VAR } from './output-verbosity.js';
 import { getCommandPolicy, type CommandPolicy } from '../core/command-policy.js';
 import {
-  detectLatticeBrand,
+  detectProofOrStopBrand,
   formatProofOrStopProductLine,
 } from '../core/lattice-brand.js';
 import { sessionBriefFooter } from '../cli-prompts.js';
@@ -159,7 +159,7 @@ export function dryRunHelpLine(tool: ToolDef, policy?: CommandPolicy): string | 
 }
 
 export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
-  const brand = detectLatticeBrand();
+  const brand = detectProofOrStopBrand();
   const out = (line = '') => {
     if (options.stream) options.stream.write(`${line}\n`);
     else console.log(line);
@@ -232,7 +232,7 @@ export function printValidationFailure(tool: ToolDef, issues: ZodIssue[], ownerL
 
 export function printHelp(options: GlobalHelpOptions) {
   const { tools, activeStory, phaseTools } = options;
-  const brand = detectLatticeBrand();
+  const brand = detectProofOrStopBrand();
   console.log(`\n  ${formatProofOrStopProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
   console.log(`  Entrypoint: ${brand.usageBin}\n`);
   console.log(`  Usage: ${brand.usageBin} <command> --key=value         Run command`);
@@ -262,13 +262,13 @@ export function printHelp(options: GlobalHelpOptions) {
     check: 'Check',
     release: 'Release',
     host: 'Host',
-    lattice: 'Proofbound',
-    rollout: 'Proofbound',
+    lattice: 'Proof-or-Stop',
+    rollout: 'Proof-or-Stop',
     authority: 'Authority',
     conduit: 'Conduit',
   };
   // Display order for known groups; groups not in the list (from extras) are appended alphabetically.
-  const KNOWN_ORDER = ['Host', 'Proofbound', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
+  const KNOWN_ORDER = ['Host', 'Proof-or-Stop', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of tools) {

@@ -1,7 +1,7 @@
 /**
  * proof-or-stop doctor — output health issues from the last 24 hours (grouped by category)
  *
- * Lets users periodically run `proof-or-stop doctor` to check whether Proofbound itself has hidden PERSIST failures.
+ * Lets users periodically run `proof-or-stop doctor` to check whether Proof-or-Stop itself has hidden PERSIST failures.
  * Previously these failures were silently swallowed by catch, making post-hoc retrospection impossible.
  *
  * B-7241 follow-up: `--repair` mode scans for orphan directories under `.worktrees/`
@@ -42,7 +42,7 @@ import {
   scanAuxiliaryWorktreeResidues,
   type AuxiliaryCleanupResult,
 } from '../core/auxiliary-worktree-cleanup.js';
-import { LATTICE_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_REPAIR_IGNORE } from '../core/lattice-paths.js';
 import {
   evaluateStoryDirConfigInsideGitRoot,
   type StoryDirInsideGitRootResult,
@@ -380,7 +380,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push('');
 
       if (summary.total === 0 && cleanupTargets.length === 0 && auxiliaryWorktrees.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
-        lines.push('✓ No health issues recorded. Proofbound is healthy.');
+        lines.push('✓ No health issues recorded. Proof-or-Stop is healthy.');
       } else if (summary.total === 0 && (cleanupTargets.length > 0 || auxiliaryWorktrees.length > 0)) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
       } else if (summary.total === 0 && partialDone.length > 0) {
@@ -866,13 +866,13 @@ function tryWorktreeRemove(root: string, target: string): void {
 }
 
 function isRepairIgnoredDir(target: string): boolean {
-  return existsSync(join(target, LATTICE_REPAIR_IGNORE));
+  return existsSync(join(target, PROOF_OR_STOP_REPAIR_IGNORE));
 }
 
 function markRepairIgnored(target: string, reason: string): void {
   try {
     writeFileSync(
-      join(target, LATTICE_REPAIR_IGNORE),
+      join(target, PROOF_OR_STOP_REPAIR_IGNORE),
       JSON.stringify({ reason, timestamp: new Date().toISOString() }, null, 2) + '\n',
       'utf-8',
     );

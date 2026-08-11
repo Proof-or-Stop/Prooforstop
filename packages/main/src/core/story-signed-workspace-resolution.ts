@@ -410,7 +410,7 @@ export function evaluateStoryDirConfigInsideGitRoot(
 
     return { ok: true, storyDirAbs, gitRootAbs, rel };
   } catch {
-    // Internal error (e.g. loadConfig threw on a legacy LATTICE_DIR storyDir):
+    // Internal error (e.g. loadConfig threw on a legacy PROOF_OR_STOP_DIR storyDir):
     // degrade to a safe non-violation. storyDirAbs falls back to metadataRoot
     // since the configured storyDir base could not be computed.
     return {

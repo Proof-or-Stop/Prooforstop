@@ -78,7 +78,7 @@ function makeFixture(version: string, over?: VersionOverrides): string {
       '': { name: '@lattice/core', version: over?.mainLockPackage ?? over?.mainLock ?? version },
     },
   }, null, 2) + '\n');
-  writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;\nvoid basename;\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;\nvoid basename;\n`);
   return dir;
 }
 

@@ -15,7 +15,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LATTICE_BIN_NAMES } from './lattice-brand.js';
+import { PROOF_OR_STOP_BIN_NAMES } from './lattice-brand.js';
 import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
@@ -595,14 +595,14 @@ function isLatticeSelfRepoBootstrap(actual: string, root: string): boolean {
  *
  * B-cdf6 CHK-005: these ownership recognizers used to require the literal `proof-or-stop session_brief`.
  * After the bin rename rewrote the active guides to `proof-or-stop session_brief`, the recognizer
- * stopped identifying the repo's own CLAUDE.md as a Proofbound-owned expanded guide, so the
+ * stopped identifying the repo's own CLAUDE.md as a Proof-or-Stop-owned expanded guide, so the
  * managed-asset check reported STALE_LOCAL_EDIT \u2014 i.e. "a human hand-edited this, refuse to
  * touch it" \u2014 for a doc the rename legitimately updated. Accepting every bin token keeps the
  * recognizer's strength identical (the guide must still teach session_brief plus all the other
  * required section markers) while making it survive the transition in both directions.
  */
 function mentionsSessionBriefCommand(actual: string): boolean {
-  return LATTICE_BIN_NAMES.some(bin => actual.includes(`${bin} session_brief`));
+  return PROOF_OR_STOP_BIN_NAMES.some(bin => actual.includes(`${bin} session_brief`));
 }
 
 function isExpandedLatticeAgentsGuide(actual: string): boolean {
@@ -627,13 +627,13 @@ function isExpandedLatticeAgentsGuide(actual: string): boolean {
 }
 
 function isExpandedLatticeOverview(actual: string): boolean {
-  const english = actual.includes('# Proofbound Module Classification and Flow')
+  const english = actual.includes('# Proof-or-Stop Module Classification and Flow')
     && actual.includes('project execution and verification substrate')
     && actual.includes('verificationIntent')
     && actual.includes('verificationEvidence')
     && actual.includes('Story Flow Master Table')
     && actual.includes('Definition of Done');
-  const chinese = actual.includes('# Proofbound \u6a21\u5757\u5206\u7c7b\u4e0e\u6d41\u7a0b')
+  const chinese = actual.includes('# Proof-or-Stop \u6a21\u5757\u5206\u7c7b\u4e0e\u6d41\u7a0b')
     && actual.includes('project execution and verification substrate')
     && actual.includes('verificationIntent')
     && actual.includes('verificationEvidence')
@@ -742,7 +742,7 @@ export function listManagedAssetDefinitions(
           'doc:CLAUDE.md',
           'CLAUDE.md',
           CLAUDE_MD_TEMPLATE,
-          actual => actual.includes('Proofbound For Claude Code') || actual.includes('Claude Code subagents 位于'),
+          actual => actual.includes('Proof-or-Stop For Claude Code') || actual.includes('Claude Code subagents 位于'),
           actual => isExpandedLatticeClaudeGuide(actual),
         ),
         { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
@@ -827,7 +827,7 @@ export function listManagedAssetDefinitions(
         '.lattice-codex:README.md',
         '.lattice-codex/README.md',
         renderCodexReadmeTemplate(assetMode, 'lattice'),
-        actual => actual.includes('Codex + Proofbound'),
+        actual => actual.includes('Codex + Proof-or-Stop'),
       ),
       wholeFile(
         '.lattice-codex:lattice.json',
@@ -876,7 +876,7 @@ export function listManagedAssetDefinitions(
         'doc:CLAUDE.md',
         'CLAUDE.md',
         CLAUDE_MD_TEMPLATE,
-        actual => actual.includes('Proofbound For Claude Code') || actual.includes('Claude Code subagents are located at'),
+        actual => actual.includes('Proof-or-Stop For Claude Code') || actual.includes('Claude Code subagents are located at'),
         actual => isExpandedLatticeClaudeGuide(actual),
       ),
       { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
@@ -951,7 +951,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', reason: 'excluded runtime asset is absent', action: 'none' };
     }
     const found = pathKind === 'file' ? 'file' : pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Proofbound runtime must not use this excluded asset path (found ${found})`, action: 'fix manually: remove it if it is not user-owned' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `Proof-or-Stop runtime must not use this excluded asset path (found ${found})`, action: 'fix manually: remove it if it is not user-owned' };
   }
 
   if (def.kind === 'remove-extra') {
@@ -960,10 +960,10 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     }
     if (pathKind !== 'file') {
       const found = pathKind === 'directory' ? 'directory' : 'non-file path';
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'fix manually: remove it if it is generated by Proofbound' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', reason: `stale generated prompt path is a ${found}`, action: 'fix manually: remove it if it is generated by Proof-or-Stop' };
     }
     if (def.ownedWhen && actual !== null && !def.ownedWhen(actual)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'unrecognized prompt is not recognized as generated by Proofbound; preserving it', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'unrecognized prompt is not recognized as generated by Proof-or-Stop; preserving it', action: 'none' };
     }
     return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Codex agent mirror contains a prompt no longer present in managed templates', action: 'remove generated stale prompt' };
   }
@@ -983,7 +983,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (def.kind === 'claude-settings') {
     if (actual === null) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', reason: 'Claude hook settings are missing', action: 'create settings with Proofbound hooks' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', reason: 'Claude hook settings are missing', action: 'create settings with Proof-or-Stop hooks' };
     }
     const parsed = safeJsonParse(actual);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -994,14 +994,14 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `hook event(s) have incompatible shape: ${merged.incompatible.join(', ')}`, action: 'fix manually: repair hook array shape' };
     }
     if (!merged.changed) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Proofbound Claude hooks are present', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Proof-or-Stop Claude hooks are present', action: 'none' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Proofbound Claude hooks are missing from settings.json', action: 'merge missing Proofbound hook commands' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Proof-or-Stop Claude hooks are missing from settings.json', action: 'merge missing Proof-or-Stop hook commands' };
   }
 
   if (def.kind === 'codex-hooks') {
     if (actual === null) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', reason: 'Codex hooks.json is missing', action: 'create hooks.json with Proofbound PreToolUse hook' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'MISSING', reason: 'Codex hooks.json is missing', action: 'create hooks.json with Proof-or-Stop PreToolUse hook' };
     }
     const parsed = safeJsonParse(actual);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -1012,9 +1012,9 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', actualHash, reason: `hook event(s) have incompatible shape: ${merged.incompatible.join(', ')}`, action: 'fix manually: repair hook array shape' };
     }
     if (!merged.changed) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Proofbound Codex PreToolUse hook is present', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', actualHash, reason: 'Proof-or-Stop Codex PreToolUse hook is present', action: 'none' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Proofbound Codex PreToolUse hook is missing from hooks.json', action: 'merge missing Proofbound hook command' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', actualHash, reason: 'Proof-or-Stop Codex PreToolUse hook is missing from hooks.json', action: 'merge missing Proof-or-Stop hook command' };
   }
 
   if (actual === null) {
@@ -1025,19 +1025,19 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
     const desiredSection = extractManagedSection(expected ?? '');
     const manifestUnchanged = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
     if (!hasManagedMarkers(actual)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Proofbound managed markers', action: 'fix manually: add markers or merge the managed section' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash: sha256(desiredSection), actualHash, reason: 'file exists without Proof-or-Stop managed markers', action: 'fix manually: add markers or merge the managed section' };
     }
     const actualSection = actual.match(INIT_DOC_SECTION_RE)?.[0] ?? '';
     if (sha256(actualSection) === sha256(desiredSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches template', action: 'none' };
     }
     if (def.okWhen?.(actualSection, root)) {
-      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches a recognized Proofbound compatibility contract', action: 'none' };
+      return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section matches a recognized Proof-or-Stop compatibility contract', action: 'none' };
     }
     if (!manifestUnchanged && !def.ownedWhen?.(actualSection)) {
       return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_LOCAL_EDIT', expectedHash: sha256(desiredSection), actualHash, reason: 'managed section differs and is not recognized as the generated init block', action: 'review local doc edits before replacing the section' };
     }
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash: sha256(desiredSection), actualHash, reason: 'Proofbound managed section differs from template', action: 'replace managed section only' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'STALE_SAFE', expectedHash: sha256(desiredSection), actualHash, reason: 'Proof-or-Stop managed section differs from template', action: 'replace managed section only' };
   }
 
   if (expected && actual === expected) {
@@ -1045,7 +1045,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
   }
 
   if (actual !== null && def.okWhen?.(actual, root)) {
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches a recognized Proofbound compatibility contract', action: 'none' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'OK', expectedHash, actualHash, reason: 'managed file matches a recognized Proof-or-Stop compatibility contract', action: 'none' };
   }
 
   const unchangedSinceManifest = Boolean(manifestEntry?.contentHash && manifestEntry.contentHash === actualHash);
@@ -1285,7 +1285,7 @@ function renderManagedAssetRootGuidance(result: ManagedAssetCheckResult): string
 
 export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string {
   const lines = [
-    `Proofbound managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile}, assetMode=${result.assetMode})`,
+    `Proof-or-Stop managed asset check: ${result.ok ? 'OK' : 'DRIFT'} (profile=${result.profile}, assetMode=${result.assetMode})`,
     `Summary: OK=${result.summary.OK}, MISSING=${result.summary.MISSING}, CASE_MISMATCH=${result.summary.CASE_MISMATCH}, STALE_SAFE=${result.summary.STALE_SAFE}, STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT}, INCOMPATIBLE=${result.summary.INCOMPATIBLE}`,
     ...renderManagedAssetRootGuidance(result),
   ];

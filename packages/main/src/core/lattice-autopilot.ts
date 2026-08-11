@@ -29,7 +29,7 @@ import {
   classifyAutopilotProviderFailure,
   type AutopilotFailureClass,
 } from './autopilot-reliability.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import type { StoryStore } from './store.js';
 
@@ -389,7 +389,7 @@ function generateRunId(storyId: string): string {
 }
 
 function runsDir(root: string): string {
-  return join(root, LATTICE_DIR, 'autopilot-runs');
+  return join(root, PROOF_OR_STOP_DIR, 'autopilot-runs');
 }
 
 function runDir(root: string, runId: string): string {
@@ -405,11 +405,11 @@ function checkpointLedgerPath(root: string, runId: string): string {
 }
 
 function runJsonRelPath(runId: string): string {
-  return join(LATTICE_DIR, 'autopilot-runs', safeSegment(runId, 'runId'), 'run.json').replace(/\\/g, '/');
+  return join(PROOF_OR_STOP_DIR, 'autopilot-runs', safeSegment(runId, 'runId'), 'run.json').replace(/\\/g, '/');
 }
 
 function checkpointLedgerRelPath(runId: string): string {
-  return join(LATTICE_DIR, 'autopilot-runs', safeSegment(runId, 'runId'), 'checkpoint-events.jsonl').replace(/\\/g, '/');
+  return join(PROOF_OR_STOP_DIR, 'autopilot-runs', safeSegment(runId, 'runId'), 'checkpoint-events.jsonl').replace(/\\/g, '/');
 }
 
 function canonicalize(value: unknown): unknown {
@@ -993,7 +993,7 @@ function buildDelegationContract(mode: AutopilotMode): AutopilotDelegationContra
     receiptRequired: true,
     transcriptRequired: true,
     handoff: {
-      expectation: 'dispatch_auto must create or reuse a bounded Proofbound handoff pack with allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundaries intact.',
+      expectation: 'dispatch_auto must create or reuse a bounded Proof-or-Stop handoff pack with allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundaries intact.',
     },
     receipt: {
       expectation: mode === 'authority-verified' // legacy retired mode.

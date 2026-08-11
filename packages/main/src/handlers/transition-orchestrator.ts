@@ -105,7 +105,7 @@ import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
 import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { resolveSharedLockRoot, sanitizeLockSegment } from '../core/validation-execution-lock.js';
-import { LATTICE_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
@@ -294,7 +294,7 @@ function runtimeDirtyStateForPhaseAdvance(
   }
   return {
     state: 'metadata-only',
-    detail: 'only Proofbound metadata/runtime/declared-artifact dirty state was detected',
+    detail: 'only Proof-or-Stop metadata/runtime/declared-artifact dirty state was detected',
   };
 }
 
@@ -1052,7 +1052,7 @@ async function runStoryTransitionInner(
           ctx.log?.(`⚠ ${syncResult.message}`);
         }
       }
-      // B-0e53: capture main's sha AFTER autoSyncMain so Proofbound's own sync is
+      // B-0e53: capture main's sha AFTER autoSyncMain so Proof-or-Stop's own sync is
       // already in the baseline. The re-check before writeStory compares against
       // this; only an EXTERNAL advance after this point trips the abort.
       syncedMainSha = readMainSha(doneGitCwd);
@@ -1336,7 +1336,7 @@ async function runStoryTransitionInner(
     // recovery instead of a time reclaim) is a deliberately-deferred follow-up.
     const persistClaimPath = join(
       resolveSharedLockRoot(ctx.root),
-      LATTICE_DIR, 'locks', 'transition-cas',
+      PROOF_OR_STOP_DIR, 'locks', 'transition-cas',
       `${sanitizeLockSegment(args.storyId)}.claim`,
     );
     let persistClaim: AcquiredMkdirLock;

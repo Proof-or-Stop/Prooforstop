@@ -314,7 +314,7 @@ try {
   assert.equal(handlerResult.sections.storyBoard.length, 2, 'handler with activeOnly:false surfaces both seeded stories');
 
   const textResult = handlers.observability_snapshot({}) as string;
-  assert.match(textResult, /Proofbound observability snapshot \(lattice\.observability_snapshot\.v1\)/);
+  assert.match(textResult, /Proof-or-Stop observability snapshot \(lattice\.observability_snapshot\.v1\)/);
   assert.match(textResult, /admissibilityStatus: local-only/);
   assert.match(textResult, /assuranceLevel: local-observation/);
   assert.match(textResult, /evidenceScope: read-only-observability/);

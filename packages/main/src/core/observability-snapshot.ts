@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   Read-only adapter that assembles the data shape future Proofbound
+ *   Read-only adapter that assembles the data shape future Proof-or-Stop
  *   observability UI surfaces need without parsing `session_brief`/`status`
  *   Markdown and without reading backing story JSON directly. It consumes the
  *   local assurance story projection row-by-row, then opens a fresh `StoryStore`

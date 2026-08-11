@@ -50,7 +50,7 @@ import {
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './core/runtime-artifact-registry.js';
-import { LATTICE_STORY_DIR } from './core/lattice-paths.js';
+import { PROOF_OR_STOP_STORY_DIR } from './core/lattice-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -236,7 +236,7 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-proof-or-stop init — 初始化 Proofbound 开发框架
+proof-or-stop init — 初始化 Proof-or-Stop 开发框架
 
 用法:
   proof-or-stop init [目标目录]                    在指定目录初始化（默认当前目录）
@@ -246,13 +246,13 @@ proof-or-stop init — 初始化 Proofbound 开发框架
                                         选择资产模式: global-thin（默认）| full | thin
   proof-or-stop init --starter [目标目录]          额外生成旧版 starter 业务模板
   proof-or-stop init --with-template [目标目录]    --starter 的同义 alias
-  proof-or-stop init --upgrade [目标目录]          同步 Proofbound 管理资产到当前版本
+  proof-or-stop init --upgrade [目标目录]          同步 Proof-or-Stop 管理资产到当前版本
   proof-or-stop init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
   proof-or-stop init --help                        显示帮助
 
 默认初始化（global-thin mode）:
-  .lattice/Lattice.md           canonical host-neutral Proofbound 指南（新目录）
-  .lattice/lattice.json         项目 Proofbound 配置（global-thin）
+  .lattice/Lattice.md           canonical host-neutral Proof-or-Stop 指南（新目录）
+  .lattice/lattice.json         项目 Proof-or-Stop 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
   lattice.config.json           项目配置（canonical）
   .lattice/story/actives/       Story 数据目录
@@ -295,7 +295,7 @@ const isPython = existsSync(join(targetDir, 'requirements.txt'))
   || existsSync(join(targetDir, 'pyproject.toml'))
   || existsSync(join(targetDir, 'setup.py'));
 
-console.log(`\nInitializing Proofbound in ${targetDir}\n`);
+console.log(`\nInitializing Proof-or-Stop in ${targetDir}\n`);
 console.log(`Selected init profile: ${selectedProfile}`);
 console.log(`Profile reason: ${selectedProfileInfo.reason}`);
 console.log(`Codex asset mode: ${selectedAssetMode}`);
@@ -348,16 +348,16 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
 
   const existing = readFileSync(full, 'utf-8');
   if (!INIT_DOC_SECTION_RE.test(existing)) {
-    console.log(`  - ${label} (exists, no Proofbound managed markers, skip)`);
+    console.log(`  - ${label} (exists, no Proof-or-Stop managed markers, skip)`);
     return;
   }
 
   const updated = existing.replace(INIT_DOC_SECTION_RE, extractManagedSection(desiredContent));
   if (updated !== existing) {
     writeFileSync(full, updated);
-    console.log(`  ✓ ${label} (Proofbound section synced)`);
+    console.log(`  ✓ ${label} (Proof-or-Stop section synced)`);
   } else {
-    console.log(`  - ${label} (Proofbound section up to date)`);
+    console.log(`  - ${label} (Proof-or-Stop section up to date)`);
   }
 }
 
@@ -550,7 +550,7 @@ for (const d of dirs) {
   }
 }
 
-// 1.5 .gitignore（同步 Proofbound runtime ignore 模板）
+// 1.5 .gitignore（同步 Proof-or-Stop runtime ignore 模板）
 const giPath = join(targetDir, '.gitignore');
 const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
@@ -563,9 +563,9 @@ if (!existsSync(giPath)) {
     const merged = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
     if (merged.changed) {
       writeFileSync(giPath, merged.content);
-      console.log('  ✓ .gitignore (copied from Proofbound template, runtime ignores synced)');
+      console.log('  ✓ .gitignore (copied from Proof-or-Stop template, runtime ignores synced)');
     } else {
-      console.log('  ✓ .gitignore (copied from Proofbound template)');
+      console.log('  ✓ .gitignore (copied from Proof-or-Stop template)');
     }
   } else {
     const minimalGitignore = [
@@ -588,7 +588,7 @@ if (!existsSync(giPath)) {
   const mergeResult = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
   if (mergeResult.changed) {
     writeFileSync(giPath, mergeResult.content);
-    console.log('  ✓ .gitignore (merged Proofbound runtime ignores)');
+    console.log('  ✓ .gitignore (merged Proof-or-Stop runtime ignores)');
   } else {
     console.log('  - .gitignore (runtime ignores already present)');
   }
@@ -824,7 +824,7 @@ console.log('\n[2/5] 生成 lattice.config.json...');
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
-  storyDir: LATTICE_STORY_DIR,
+  storyDir: PROOF_OR_STOP_STORY_DIR,
   requirementsDir: 'docs/requirements',
   storyPrefix: 'S',
 };
@@ -855,7 +855,7 @@ if (existsSync(join(targetDir, 'lattice.config.json'))) {
 }
 
 // 3. 文档入口
-console.log('\n[3/5] 配置 Proofbound / host 文档...');
+console.log('\n[3/5] 配置 Proof-or-Stop / host 文档...');
 if (isGlobalThin) {
   writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
   const latticeConfigPath = join(targetDir, '.lattice', 'lattice.json');
@@ -1016,7 +1016,7 @@ if (wantsClaude) {
     try {
       const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       if (!existing.hooks) existing.hooks = {};
-      // 只添加缺失的 Proofbound hook，不覆盖用户已有配置。
+      // 只添加缺失的 Proof-or-Stop hook，不覆盖用户已有配置。
       for (const [event, hooks] of Object.entries(claudeHooks)) {
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
@@ -1040,7 +1040,7 @@ if (wantsClaude) {
         );
         if (migrated.changed) {
           existing.hooks[event] = migrated.entries;
-          console.log(`  ✓ settings.json: 迁移 ${event} Proofbound hook 名称`);
+          console.log(`  ✓ settings.json: 迁移 ${event} Proof-or-Stop hook 名称`);
         }
         let mergedAny = false;
         for (const entry of hooks) {
@@ -1051,7 +1051,7 @@ if (wantsClaude) {
           }
         }
         if (mergedAny) {
-          console.log(`  ✓ settings.json: 合并 ${event} Proofbound hook`);
+          console.log(`  ✓ settings.json: 合并 ${event} Proof-or-Stop hook`);
         } else {
           console.log(`  - settings.json: ${event} hook 已存在, skip`);
         }
@@ -1088,7 +1088,7 @@ if (wantsCodex || isGlobalThin) {
         console.log(`  - .codex/hooks.json: ${merged.incompatible.join(', ')} hook shape incompatible, skip`);
       } else if (merged.changed) {
         writeFileSync(codexHooksPath, JSON.stringify(merged.updated, null, 2) + '\n');
-        console.log('  ✓ .codex/hooks.json: merged Proofbound PreToolUse hook');
+        console.log('  ✓ .codex/hooks.json: merged Proof-or-Stop PreToolUse hook');
       } else {
         console.log('  - .codex/hooks.json: PreToolUse hook exists, skip');
       }
@@ -1105,7 +1105,7 @@ if (wantsCodex || isGlobalThin) {
 }
 
 if (upgradeManagedAssets) {
-  console.log('\n[upgrade] 同步 Proofbound 管理资产...');
+  console.log('\n[upgrade] 同步 Proof-or-Stop 管理资产...');
   const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile, assetMode: selectedAssetMode });
   console.log(renderManagedAssetCheck(result));
   if (!result.ok) process.exit(1);

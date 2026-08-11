@@ -4,7 +4,7 @@
  * Displayed by `proof-or-stop <cmd> --help` to teach agents how to use commands.
  */
 
-import { LATTICE_PRIMARY_BIN } from './core/lattice-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN } from './core/lattice-brand.js';
 
 export const STORY_CREATE_LONG = `
 ══════════════════════════════════════════════════════════
@@ -308,7 +308,7 @@ STEP-BY-STEP
  * a bin that actually resolves for them. It mirrors how the CLI was invoked
  * (`proof-or-stop` canonically, `lattice` when the deprecated alias was used).
  */
-export function sessionBriefFooter(bin: string = LATTICE_PRIMARY_BIN): string {
+export function sessionBriefFooter(bin: string = PROOF_OR_STOP_PRIMARY_BIN): string {
   return `\n-> Not sure what to do next? Run ${bin} session_brief to recover the project context.\n`;
 }
 

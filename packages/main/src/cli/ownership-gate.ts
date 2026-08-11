@@ -9,7 +9,7 @@ import {
   takeOverOwnerLease,
 } from '../core/story-owner-lease.js';
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core/command-policy.js';
-import { LATTICE_DIR } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from '../core/lattice-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { ProofOrStopConfig } from '../core/config.js';
 import { readBrandEnv } from '../core/brand-env.js';
@@ -50,7 +50,7 @@ export function storyIdFromAutopilotRunId(projectRoot: string, args: Record<stri
   const runId = safeAutopilotRunId(args.runId ?? args.autopilotId);
   if (!runId) return null;
   const file = [
-    join(projectRoot, LATTICE_DIR, 'autopilot-runs', runId, 'run.json'),
+    join(projectRoot, PROOF_OR_STOP_DIR, 'autopilot-runs', runId, 'run.json'),
   ].find((candidate) => existsSync(candidate));
   if (!file) return null;
   try {
@@ -192,7 +192,7 @@ export function enforceRetiredRootGuard(
 
   if (cls === null) {
     throw new Error(
-      `Retired Proofbound root guard cannot classify command "${cmd}" because command-policy.ts has no valid ownershipClass. ` +
+      `Retired Proof-or-Stop root guard cannot classify command "${cmd}" because command-policy.ts has no valid ownershipClass. ` +
       `Retired root: ${projectRoot}. Add a CommandPolicy.ownershipClass entry before running this command.`,
     );
   }
@@ -201,7 +201,7 @@ export function enforceRetiredRootGuard(
   const canonicalRoot = canonicalRootFromConfig(config);
   if (!canonicalRoot) {
     throw new Error(
-      `Proofbound root is retired: ${projectRoot}\n` +
+      `Proof-or-Stop root is retired: ${projectRoot}\n` +
       `retiredRoot is true but canonicalRoot is not configured.\n` +
       `Use canonicalRoot: <configure canonicalRoot in lattice.config.json>\n` +
       `Fail-closed before mutating command "${cmd}" (${cls}). ` +
@@ -210,7 +210,7 @@ export function enforceRetiredRootGuard(
   }
 
   throw new Error(
-    `Proofbound root is retired: ${projectRoot}\n` +
+    `Proof-or-Stop root is retired: ${projectRoot}\n` +
     `Use canonicalRoot: ${canonicalRoot}\n` +
     `Command "${cmd}" resolves to ${cls} and is blocked before handler dispatch.\n` +
     `Run the mutating command from canonicalRoot, or use this retired root only for read-only legacy evidence inspection.`,
@@ -272,7 +272,7 @@ export function enforceStoryOwnerLeaseGate(
   if (!isCanonicalStoryId(storyId)) {
     throw new Error(
       `Refusing to run owner-gated command "${cmd}": storyId ${JSON.stringify(storyId)} is not a ` +
-      `valid Proofbound story id. A story id must match the canonical shape (e.g. B-xxxx) and may ` +
+      `valid Proof-or-Stop story id. A story id must match the canonical shape (e.g. B-xxxx) and may ` +
       `not contain a path separator or "..". This is rejected fail-closed before any story ` +
       `directory path is derived (path-traversal guard).`,
     );
@@ -303,7 +303,7 @@ export function enforceStoryOwnerLeaseGate(
       const activeAgeMs = Date.now() - Date.parse(lease.heartbeatAt);
       const activeAge = Number.isFinite(activeAgeMs) ? formatLeaseAge(activeAgeMs) : 'unknown';
       throw new Error(
-        `${storyId} is owned by another Proofbound session (${lease.sessionId}) whose owner lease is ` +
+        `${storyId} is owned by another Proof-or-Stop session (${lease.sessionId}) whose owner lease is ` +
         `still ACTIVE (heartbeat ${activeAge} ago). --takeover only transfers a STALE lease ` +
         `(no heartbeat for 30+ minutes). To seize an active session's lock, rerun with ` +
         `--forceTakeover — a deliberate human override.`,

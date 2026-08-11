@@ -343,7 +343,7 @@ export function diagnoseReviewRunSnapshot(projectRoot: string, metadataRoot: str
     return {
       code: 'not_git_repo',
       reason: `signed workspace is not a git repository: ${projectRoot}`,
-      nextAction: 'Run inside a git-backed Proofbound project/worktree, or initialize git and create an initial commit before starting a signed reviewer run.',
+      nextAction: 'Run inside a git-backed Proof-or-Stop project/worktree, or initialize git and create an initial commit before starting a signed reviewer run.',
     };
   }
   if (!currentGitHead(projectRoot)) {

@@ -479,7 +479,7 @@ function pathExistsOnMain(gitCwd: string, path: string): boolean {
 function dirtyCategoryLabel(entry: DirtyWorktreeEntry): string {
   switch (entry.category) {
     case 'lattice_metadata_changes':
-      return 'Proofbound metadata outside the current-run safe lifecycle metadata set';
+      return 'Proof-or-Stop metadata outside the current-run safe lifecycle metadata set';
     case 'runtime_artifact_changes':
       return entry.runtimeArtifactId
         ? `runtime artifact (${entry.runtimeArtifactId})`
@@ -1838,7 +1838,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     setStep(steps, 'cleanTree', 'blocked', 'worktree must be clean before DONE prepare can mutate');
     return blocked({
       blockedAt: 'cleanTree',
-      reason: 'worktree has dirty files that are not Proofbound story lifecycle metadata; done_prepare cannot mutate yet',
+      reason: 'worktree has dirty files that are not Proof-or-Stop story lifecycle metadata; done_prepare cannot mutate yet',
       files,
       guidanceSections: buildInitialDirtyGuidance(gitCwd, initialBlockingEntries),
       next: hasMergeOverwriteHazard
@@ -1857,7 +1857,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     'preflight',
     'pass',
     initialAllowedMetadataSignatures.size > 0
-      ? 'only pre-existing Proofbound story lifecycle metadata is dirty'
+      ? 'only pre-existing Proof-or-Stop story lifecycle metadata is dirty'
       : undefined,
   );
 
@@ -2304,7 +2304,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           reason: `DONE prepare auto-closeout refused: ${reason}`,
           files: manifestPreflight.unsafePaths.length > 0 ? manifestPreflight.unsafePaths : files,
           guidanceSections: buildGeneratedMetadataDirtyGuidance(manifestPreflight),
-          next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
+          next: 'inspect git status and commit only generated Proof-or-Stop lifecycle metadata manually, then rerun done_prepare',
           steps,
         });
       }
@@ -2325,7 +2325,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           reason: `DONE prepare auto-closeout refused: ${reason}`,
           files,
           guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
-          next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
+          next: 'inspect git status and commit only generated Proof-or-Stop lifecycle metadata manually, then rerun done_prepare',
           steps,
         });
       }
@@ -2370,7 +2370,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           reason: `DONE prepare auto-closeout refused: ${autoCommit.reason || 'unsafe generated metadata manifest'}${rollbackSuffix}`,
           files: autoCommit.files.length > 0 ? autoCommit.files : files,
           guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
-          next: 'inspect git status and commit only generated Proofbound lifecycle metadata manually, then rerun done_prepare',
+          next: 'inspect git status and commit only generated Proof-or-Stop lifecycle metadata manually, then rerun done_prepare',
           steps,
         });
       }
@@ -2409,7 +2409,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     steps,
     'cleanTree',
     'pass',
-    finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Proofbound story lifecycle metadata remains dirty' : undefined,
+    finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Proof-or-Stop story lifecycle metadata remains dirty' : undefined,
   );
 
   try {

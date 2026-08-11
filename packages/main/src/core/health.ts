@@ -34,7 +34,7 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
 export interface HealthIssue {
@@ -54,7 +54,7 @@ export function getHealthPath(): string {
   // Allow overriding the path via env for easier testing
   const envHealthPath = readBrandEnv('HEALTH_PATH');
   if (envHealthPath) return envHealthPath;
-  return join(homedir(), LATTICE_DIR, 'health.jsonl');
+  return join(homedir(), PROOF_OR_STOP_DIR, 'health.jsonl');
 }
 
 /**

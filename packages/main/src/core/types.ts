@@ -291,7 +291,7 @@ export interface VerificationIntentPin {
 }
 
 export interface VerificationIntentItem {
-  /** Optional stable id. If absent, Proofbound derives CHK-001:happy:0 from lane/index. */
+  /** Optional stable id. If absent, Proof-or-Stop derives CHK-001:happy:0 from lane/index. */
   id?: string;
   desc: string;
   type: VerificationIntentType;
@@ -1693,7 +1693,7 @@ export interface TestEvidenceData {
   traceCoverage?: string[];
   /** git HEAD hash at test time (used by DONE gate evidence freshness check) */
   headHash?: string;
-  /** non-Proofbound metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
+  /** non-Proof-or-Stop metadata file tree hash at test time (metadata-only commits should not make evidence stale) */
   materialHash?: string;
   /** Hash of story-owned material files vs merge-base main captured at test time. */
   storyFilesHash?: string;
@@ -2001,7 +2001,7 @@ export type ProcessEventType =
   | 'decision_doc_proposal'
   | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'
-  // B-6bfd CHK-004: Proofbound-managed guard session projection lifecycle events.
+  // B-6bfd CHK-004: Proof-or-Stop-managed guard session projection lifecycle events.
   | 'guard_session_start'
   | 'guard_session_check'
   | 'phase_transition'
@@ -2769,7 +2769,7 @@ export interface SemanticScopeGateResult {
   summary: string;
 }
 
-// ── Guard Session (B-6bfd CHK-004: Proofbound-managed guarded session projection) ──
+// ── Guard Session (B-6bfd CHK-004: Proof-or-Stop-managed guarded session projection) ──
 //
 // A guard session is a *projection* of scope protection for a Lattice-dispatched
 // agent. It is NOT a competing session truth source and NOT a write-ownership
@@ -2783,9 +2783,9 @@ export interface SemanticScopeGateResult {
  * - native-pretool   — Claude Code with a verified native PreToolUse hook; forbidden
  *                      writes are intercepted before they land.
  * - wrapped-preapply — Codex, Antigravity/agy, or legacy Gemini invoked via
- *                      Proofbound dispatch/pre-apply flow; the flow's pre-apply step
+ *                      Proof-or-Stop dispatch/pre-apply flow; the flow's pre-apply step
  *                      checks scope before writing.
- * - watcher-fallback — provider has no pre-write interception; Proofbound can only detect
+ * - watcher-fallback — provider has no pre-write interception; Proof-or-Stop can only detect
  *                      forbidden writes after the fact, never pretend blocking exists.
  * - active           — legacy alias for native-pretool (kept for backwards compat).
  * - inactive         — no guard session is running (used by renderers only).

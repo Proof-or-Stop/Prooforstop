@@ -105,7 +105,7 @@ import type {
 const MARKER = 'review-incremental-context-smoke:';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
 
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke'];
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {

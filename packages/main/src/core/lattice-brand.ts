@@ -1,24 +1,42 @@
 import { basename } from 'path';
 
+/**
+ * NOTE on the `LATTICE_CLI_VERSION` name: this one identifier is NOT renamed.
+ * `core/version-bump.ts` rewrites this line on every DONE merge via a regex
+ * anchored to the literal token (`BRAND_EXPORT_RE`), and `.githooks/pre-push`
+ * plus `rollout-check` compare it against four package/lock sync points.
+ * Renaming the symbol without renaming that regex in the same commit does not
+ * fail loudly — the bump silently stops finding the constant. It is kept
+ * verbatim and aliased forward instead; see PROOF_OR_STOP_CLI_VERSION below.
+ */
 export const LATTICE_CLI_VERSION = '0.3.252' as const;
-export const LATTICE_PRODUCT_NAME = 'Proof-or-Stop' as const;
-export const LATTICE_PRIMARY_BIN = 'proof-or-stop' as const;
+
+/**
+ * Brand-forward READ alias for {@link LATTICE_CLI_VERSION}. New code should read
+ * this name; the declaration above stays as-is because it is the write target of
+ * the version-bump regex. Do not make this the declaration site.
+ */
+export const PROOF_OR_STOP_CLI_VERSION = LATTICE_CLI_VERSION;
+
+export const PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' as const;
+export const PROOF_OR_STOP_PRIMARY_BIN = 'proof-or-stop' as const;
 
 /**
  * Deprecated bin alias, kept working so in-flight stories, git hooks and
  * operator muscle memory keep resolving. B-cdf6 makes the rename additive at
  * the CLI boundary: `proof-or-stop` is canonical, `lattice` still runs.
  */
-export const LATTICE_DEPRECATED_BIN = 'lattice' as const;
+export const PROOF_OR_STOP_DEPRECATED_BIN = 'lattice' as const;
 
 /** Canonical local Codex entrypoint basename (`bin/proof-or-stop-codex.js`). */
-export const LATTICE_PRIMARY_CODEX_BIN = 'proof-or-stop-codex' as const;
+export const PROOF_OR_STOP_PRIMARY_CODEX_BIN = 'proof-or-stop-codex' as const;
 
 /**
  * Deprecated local Codex entrypoint basename (`bin/lattice-codex.js`), retained
- * as an alias for the same additive-compat reason as {@link LATTICE_DEPRECATED_BIN}.
+ * as an alias for the same additive-compat reason as
+ * {@link PROOF_OR_STOP_DEPRECATED_BIN}.
  */
-export const LATTICE_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
+export const PROOF_OR_STOP_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
 
 /**
  * Every bin token the CLI answers to, canonical first.
@@ -28,17 +46,17 @@ export const LATTICE_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
  * `proof-or-stop-codex` as an unrecognized script and print the plain
  * `proof-or-stop` usage, losing the `source=codex` entrypoint the operator used.
  */
-export const LATTICE_BIN_NAMES: readonly string[] = [
-  LATTICE_PRIMARY_BIN,
-  LATTICE_DEPRECATED_BIN,
-  LATTICE_PRIMARY_CODEX_BIN,
-  LATTICE_DEPRECATED_CODEX_BIN,
+export const PROOF_OR_STOP_BIN_NAMES: readonly string[] = [
+  PROOF_OR_STOP_PRIMARY_BIN,
+  PROOF_OR_STOP_DEPRECATED_BIN,
+  PROOF_OR_STOP_PRIMARY_CODEX_BIN,
+  PROOF_OR_STOP_DEPRECATED_CODEX_BIN,
 ];
 
-export interface LatticeBrand {
-  productName: typeof LATTICE_PRODUCT_NAME;
+export interface ProofOrStopBrand {
+  productName: typeof PROOF_OR_STOP_PRODUCT_NAME;
   version: typeof LATTICE_CLI_VERSION;
-  primaryBin: typeof LATTICE_PRIMARY_BIN;
+  primaryBin: typeof PROOF_OR_STOP_PRIMARY_BIN;
   /** Raw basename of argv[1], extension stripped. May be any script name. */
   invokedAs: string;
   /**
@@ -57,26 +75,24 @@ export interface LatticeBrand {
  * Anything that is not a real bin name falls back to the canonical bin.
  */
 export function resolveUsageBin(invokedAs: string): string {
-  return LATTICE_BIN_NAMES.includes(invokedAs) ? invokedAs : LATTICE_PRIMARY_BIN;
+  return PROOF_OR_STOP_BIN_NAMES.includes(invokedAs) ? invokedAs : PROOF_OR_STOP_PRIMARY_BIN;
 }
 
-export function detectLatticeBrand(argv: string[] = process.argv): LatticeBrand {
-  const invokedAs = basename(argv[1] || LATTICE_PRIMARY_BIN).replace(/\.(?:js|cjs|mjs)$/i, '');
+export function detectProofOrStopBrand(argv: string[] = process.argv): ProofOrStopBrand {
+  const invokedAs = basename(argv[1] || PROOF_OR_STOP_PRIMARY_BIN).replace(/\.(?:js|cjs|mjs)$/i, '');
   return {
-    productName: LATTICE_PRODUCT_NAME,
+    productName: PROOF_OR_STOP_PRODUCT_NAME,
     version: LATTICE_CLI_VERSION,
-    primaryBin: LATTICE_PRIMARY_BIN,
+    primaryBin: PROOF_OR_STOP_PRIMARY_BIN,
     invokedAs,
     usageBin: resolveUsageBin(invokedAs),
   };
 }
 
-export function formatProofOrStopProductLine(brand: LatticeBrand = detectLatticeBrand()): string {
+export function formatProofOrStopProductLine(
+  brand: ProofOrStopBrand = detectProofOrStopBrand(),
+): string {
   return `${brand.productName} ${brand.version}`;
-}
-
-export function formatLatticeVersionLine(brand: LatticeBrand = detectLatticeBrand()): string {
-  return formatProofOrStopProductLine(brand);
 }
 
 /*
@@ -84,6 +100,27 @@ export function formatLatticeVersionLine(brand: LatticeBrand = detectLatticeBran
  *
  * Durable, not transitional: this repository is multi-developer, so a teammate
  * branch importing the old symbol must keep compiling when it merges. Never remove.
+ *
+ * Every alias below is a pure re-export of the canonical symbol above — same
+ * value, same identity — so there is no second source of truth to drift.
  */
 /** @deprecated Use `formatProofOrStopProductLine`. */
 export const formatLatticeProductLine = formatProofOrStopProductLine;
+/** @deprecated Use `formatProofOrStopProductLine`. */
+export const formatLatticeVersionLine = formatProofOrStopProductLine;
+/** @deprecated Use `PROOF_OR_STOP_PRODUCT_NAME`. */
+export const LATTICE_PRODUCT_NAME = PROOF_OR_STOP_PRODUCT_NAME;
+/** @deprecated Use `PROOF_OR_STOP_PRIMARY_BIN`. */
+export const LATTICE_PRIMARY_BIN = PROOF_OR_STOP_PRIMARY_BIN;
+/** @deprecated Use `PROOF_OR_STOP_DEPRECATED_BIN`. */
+export const LATTICE_DEPRECATED_BIN = PROOF_OR_STOP_DEPRECATED_BIN;
+/** @deprecated Use `PROOF_OR_STOP_PRIMARY_CODEX_BIN`. */
+export const LATTICE_PRIMARY_CODEX_BIN = PROOF_OR_STOP_PRIMARY_CODEX_BIN;
+/** @deprecated Use `PROOF_OR_STOP_DEPRECATED_CODEX_BIN`. */
+export const LATTICE_DEPRECATED_CODEX_BIN = PROOF_OR_STOP_DEPRECATED_CODEX_BIN;
+/** @deprecated Use `PROOF_OR_STOP_BIN_NAMES`. */
+export const LATTICE_BIN_NAMES = PROOF_OR_STOP_BIN_NAMES;
+/** @deprecated Use `detectProofOrStopBrand`. */
+export const detectLatticeBrand = detectProofOrStopBrand;
+/** @deprecated Use `ProofOrStopBrand`. */
+export type LatticeBrand = ProofOrStopBrand;

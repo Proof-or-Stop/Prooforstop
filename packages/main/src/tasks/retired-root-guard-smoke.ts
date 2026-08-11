@@ -51,7 +51,7 @@ function block(
     enforceRetiredRootGuard(cmd, args, config, activeStory, retiredRoot);
   } catch (error) {
     assert.ok(error instanceof Error, `${label}: thrown value is Error`);
-    assert.match(error.message, /Proofbound root is retired:/, `${label}: retired-root phrase`);
+    assert.match(error.message, /Proof-or-Stop root is retired:/, `${label}: retired-root phrase`);
     assert.match(error.message, /Use canonicalRoot:/, `${label}: canonicalRoot phrase`);
     return error;
   }

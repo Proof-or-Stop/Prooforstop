@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { isCommandAllowed } from '../core/config.js';
 import { getCommandLifecyclePolicy } from '../core/command-policy.js';
-import { LATTICE_CLI_VERSION, LATTICE_PRODUCT_NAME } from '../core/lattice-brand.js';
+import { LATTICE_CLI_VERSION, PROOF_OR_STOP_PRODUCT_NAME } from '../core/lattice-brand.js';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
@@ -87,8 +87,8 @@ function degradationByCategory(degradations: any[], category: string): any {
 // Product identity and package entrypoints.
 // B-cdf6 CHK-002: the product name is Proof-or-Stop and the canonical bin is
 // proof-or-stop; `lattice` survives only as a deprecated invocation alias.
-assert.match(runCli(['--version']), new RegExp(`${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION}`));
-assert.match(runCli(['version']), new RegExp(LATTICE_PRODUCT_NAME));
+assert.match(runCli(['--version']), new RegExp(`${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION}`));
+assert.match(runCli(['version']), new RegExp(PROOF_OR_STOP_PRODUCT_NAME));
 const rootPackage = readJson(join(repoRoot, 'package.json'));
 const mainPackage = readJson(join(repoRoot, 'packages', 'main', 'package.json'));
 assert.equal(rootPackage.version, LATTICE_CLI_VERSION, `root package version is ${LATTICE_CLI_VERSION}`);
@@ -98,7 +98,7 @@ assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'deprecated lattice bin ali
 
 // Help exposes first-class Proof-or-Stop identity and the new command set.
 const help = runCli(['help']);
-assert.match(help, new RegExp(`${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
+assert.match(help, new RegExp(`${PROOF_OR_STOP_PRODUCT_NAME} ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
 assert.match(help, /(?:^|\n)\s+Entrypoint:\s+proof-or-stop/);
 for (const command of COMMANDS) {
   assert.match(help, new RegExp(command), `help exposes ${command}`);
@@ -172,7 +172,7 @@ for (const category of [
   'receipt-verify',
   'multimodal-research',
 ] as const) {
-  assert.equal(capabilityByCategory(desktopFromList, category).status, 'unavailable', `desktop-app ${category} is unavailable in Proofbound projection`);
+  assert.equal(capabilityByCategory(desktopFromList, category).status, 'unavailable', `desktop-app ${category} is unavailable in Proof-or-Stop projection`);
   assert.equal(degradationByCategory(desktopFromList.degradations, category).visible, true, `desktop-app ${category} degradation is visible`);
 }
 assert.equal(capabilityByCategory(desktopFromList, 'approval').status, 'available', 'desktop-app keeps dashboard approval available');
@@ -180,12 +180,12 @@ assert.equal(capabilityByCategory(desktopFromList, 'artifact-display').status, '
 assert.equal(
   degradationByCategory(desktopFromList.degradations, 'evidence-submit').authorityImpact,
   'evidence-local-only',
-  'desktop-app evidence submission remains local-only in Proofbound projection',
+  'desktop-app evidence submission remains local-only in Proof-or-Stop projection',
 );
 assert.equal(
   degradationByCategory(desktopFromList.degradations, 'receipt-verify').authorityImpact,
   'local-assurance-required',
-  'desktop-app receipt verification blocks productionDone in Proofbound projection',
+  'desktop-app receipt verification blocks productionDone in Proof-or-Stop projection',
 );
 
 const hostListAlias = runJson<any>(['host', 'list', '--format=json']);

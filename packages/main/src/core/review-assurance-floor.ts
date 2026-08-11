@@ -1,5 +1,5 @@
 import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { LATTICE_CONFIG_FILENAME } from './config.js';
+import { PROOF_OR_STOP_CONFIG_FILENAME } from './config.js';
 import {
   buildMaterialClassificationSnapshot,
   classifyMaterialCodePath,
@@ -787,8 +787,8 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
         ? `material-code classification could not verify a fresh git snapshot for the review-assurance floor: ${err.message}`
         : `material-code policy/config error blocks the review-assurance floor: ${err.message}`;
       const remediation = isFreshness
-        ? `→ Ensure the story workspace/git tree at ${gitCwd ?? args.projectRoot ?? process.cwd()} is present and readable (this is a workspace/git error, not a ${LATTICE_CONFIG_FILENAME} problem), then re-run the transition.`
-        : `→ Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`;
+        ? `→ Ensure the story workspace/git tree at ${gitCwd ?? args.projectRoot ?? process.cwd()} is present and readable (this is a workspace/git error, not a ${PROOF_OR_STOP_CONFIG_FILENAME} problem), then re-run the transition.`
+        : `→ Fix ${PROOF_OR_STOP_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`;
       return base({
         ok: false,
         required: true,

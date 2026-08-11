@@ -18,7 +18,7 @@ import {
   type DispatchPolicy,
   type DispatchPolicyCheckResult,
 } from './dispatch-policy.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import {
   buildHandoffWorktreeProjection,
   createHandoffPack,
@@ -633,7 +633,7 @@ function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabi
   // Environment safety: Claude Code inherits the invoker's environment
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   // Login readiness: ANTHROPIC_API_KEY is a strong signal for non-interactive auth
@@ -641,7 +641,7 @@ function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabi
     ? 'ready'
     : (commandPath ? 'unknown' : 'unknown');
 
-  // Receipt support: stdout/stderr captured as transcript; Proofbound builds receipt from transcript + git
+  // Receipt support: stdout/stderr captured as transcript; Proof-or-Stop builds receipt from transcript + git
   const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
 
   if (!commandPath) {
@@ -691,7 +691,7 @@ function probeGeminiCapabilities(commandPath: string | null): RealHostCapabiliti
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   // Login readiness: gemini typically requires gcloud auth or application default credentials
@@ -741,7 +741,7 @@ function probeAntigravityCapabilities(commandPath: string | null): RealHostCapab
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('antigravity inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('antigravity inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   const loginReadiness: LoginReadiness = 'unknown';
@@ -774,7 +774,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
 
   if (isCodexSession) {
     // Running inside a Codex session: capabilities are available in-process
-    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Proofbound policy.');
+    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Proof-or-Stop policy.');
     unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
     return {
       versionStatus: 'unknown',
@@ -809,7 +809,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
+    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proof-or-Stop policy.');
   }
 
   const loginReadiness: LoginReadiness = 'unknown';
@@ -893,7 +893,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ? supportsLiveDispatch
       ? []
       : [
-        `${normalized} runtime is scaffolded only: Proofbound records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
+        `${normalized} runtime is scaffolded only: Proof-or-Stop records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
       ]
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
@@ -942,7 +942,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       ]
       : [
         'Real-host execution is scaffolded only in this milestone.',
-        'No external host is auto-driven by Proofbound dispatch_run.',
+        'No external host is auto-driven by Proof-or-Stop dispatch_run.',
         'A local receipt is still diagnostic-only and leaves release readiness unestablished.',
       ],
     warnings,
@@ -1002,7 +1002,7 @@ function sanitizeSegment(value: string): string {
 }
 
 function dispatchStorageRoot(root: string): string {
-  return join(root, LATTICE_DIR, 'dispatches');
+  return join(root, PROOF_OR_STOP_DIR, 'dispatches');
 }
 
 function projectedDispatchWorktreePath(storyId: string, packId: string): string {
@@ -1065,7 +1065,7 @@ function dispatchPrompt(
   continuity?: DispatchPromptContinuity,
 ): string {
   const lines = [
-    `# Proofbound Dispatch ${dispatchId}`,
+    `# Proof-or-Stop Dispatch ${dispatchId}`,
     '',
     `Story: ${pack.storyId}`,
     `Host runtime: ${runtime.host}`,
@@ -1347,7 +1347,7 @@ function assertClaudePrintLauncherAllowed(
 ): void {
   if (commandAllowlistAllowsClaudePrint(commandAllowlist)) return;
   throw new Error(
-    `${refusalPrefix} policy commandAllowlist must include canonical observable launcher "${CLAUDE_PRINT_LAUNCHER}" before Proofbound may start claude --print.`,
+    `${refusalPrefix} policy commandAllowlist must include canonical observable launcher "${CLAUDE_PRINT_LAUNCHER}" before Proof-or-Stop may start claude --print.`,
   );
 }
 
@@ -3600,7 +3600,7 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
     }
     if (!policyAllowsRealHostSubprocess(policy)) {
       throw new Error(
-        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Policy "${policyName}" must set allowRealHostSubprocess=true before Proofbound may start claude --print.`,
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Policy "${policyName}" must set allowRealHostSubprocess=true before Proof-or-Stop may start claude --print.`,
       );
     }
     if (probe.noninteractiveSupport !== 'supported') {

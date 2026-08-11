@@ -1,9 +1,9 @@
 /**
- * Hook dispatcher — spawn shell commands at Proofbound lifecycle events.
+ * Hook dispatcher — spawn shell commands at Proof-or-Stop lifecycle events.
  *
  * 灵感来自 Claude Code 的 PreToolUse / PostToolUse / SessionStart / Stop hooks。
- * Proofbound 的事件点：
- *   - preCommand     : 在每条 Proofbound command handler 执行前
+ * Proof-or-Stop 的事件点：
+ *   - preCommand     : 在每条 Proof-or-Stop command handler 执行前
  *   - postCommand    : 每条 command 成功后
  *   - onError        : 每条 command 抛错时
  *   - onPhaseChange  : story_advance 成功后，按 "FROM->TO" 匹配

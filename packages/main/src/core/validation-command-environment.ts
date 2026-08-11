@@ -9,7 +9,7 @@
 import { brandEnvNames, isBrandEnvName } from './brand-env.js';
 
 export const VALIDATION_TRANSPORT_ENV_KEY_LIST = [
-  // Host/session/role identity controls Proofbound ownership and audit
+  // Host/session/role identity controls Proof-or-Stop ownership and audit
   // attribution, not validation command behavior. Keeping these ambient values
   // in the receipt digest makes one session's PASS unverifiable by an
   // independent reviewer. Explicit command.env overlays remain semantic below.

@@ -8,7 +8,7 @@ import {
   type MkdirLockOptions,
 } from './mkdir-lock.js';
 import { resolveSharedLockRoot } from './validation-execution-lock.js';
-import { LATTICE_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR } from './lattice-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
 /**
@@ -95,7 +95,7 @@ import { readBrandEnv } from './brand-env.js';
  */
 
 /** Lock-directory root (relative to the project root) for per-story transition locks. */
-export const STORY_TRANSITION_LOCKS_REL = `${LATTICE_DIR}/locks/transition`;
+export const STORY_TRANSITION_LOCKS_REL = `${PROOF_OR_STOP_DIR}/locks/transition`;
 
 /**
  * Stale threshold generously exceeds any legitimate non-DONE transition

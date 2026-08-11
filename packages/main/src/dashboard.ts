@@ -1,5 +1,5 @@
 /**
- * Proofbound dashboard — real-time story progress board
+ * Proof-or-Stop dashboard — real-time story progress board
  *
  * Refreshes every N seconds, supports switching between multiple project directories.
  * Press a number key to switch projects, press q to quit.
@@ -9,7 +9,7 @@ import { execSync } from 'child_process';
 import { existsSync, readFileSync } from 'fs';
 import { join, resolve, basename } from 'path';
 import { StoryStore } from './core/store.js';
-import { loadConfig, hasProjectConfigFile, LATTICE_CONFIG_FILENAME } from './core/config.js';
+import { loadConfig, hasProjectConfigFile, PROOF_OR_STOP_CONFIG_FILENAME } from './core/config.js';
 import { resolveProjectGitCwd } from './core/story-signed-workspace-resolution.js';
 import { formatStoryOutcomeKind, normalizeStoryOutcomeKind, type StoryOutcomeKind, type StoryInfo, type ChecklistData } from './core/types.js';
 import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from './core/checklist-status.js';
@@ -250,7 +250,7 @@ function render(projects: ProjectSnapshot[], selectedIdx: number, intervalSec: n
 
   const lines: string[] = [];
   lines.push('');
-  lines.push(`${BOLD}  Proofbound dashboard${RESET}  ${DIM}⟳ ${intervalSec}s   ${dateStr} ${timeStr}${RESET}`);
+  lines.push(`${BOLD}  Proof-or-Stop dashboard${RESET}  ${DIM}⟳ ${intervalSec}s   ${dateStr} ${timeStr}${RESET}`);
   lines.push(`  ${'─'.repeat(60)}`);
 
   for (let i = 0; i < projects.length; i++) {
@@ -281,7 +281,7 @@ export async function runDashboard(args: DashboardArgs): Promise<void> {
   // lattice.config.json.
   for (const r of roots) {
     if (!hasProjectConfigFile(r)) {
-      console.error(`✗ No ${LATTICE_CONFIG_FILENAME} found in: ${r}`);
+      console.error(`✗ No ${PROOF_OR_STOP_CONFIG_FILENAME} found in: ${r}`);
       process.exit(1);
     }
   }

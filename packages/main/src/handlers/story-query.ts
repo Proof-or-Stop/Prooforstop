@@ -18,7 +18,7 @@ import {
   resolveWorktreePath,
 } from '../core/worktree-runtime.js';
 import { getLegacyActivityLogPath, getRuntimeActivityLogPath } from '../core/activity-log.js';
-import { LATTICE_DIR, LATTICE_ACTIVITY_LOG, LATTICE_REPAIR_IGNORE } from '../core/lattice-paths.js';
+import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_ACTIVITY_LOG, PROOF_OR_STOP_REPAIR_IGNORE } from '../core/lattice-paths.js';
 import { initCheckAttestationMode } from '../core/init-check-gate.js';
 import { withMainWriteLock } from '../core/main-write-lock.js';
 import {
@@ -382,7 +382,7 @@ export function detectStoryResidue(
       const dirName = entry.name;
       if (!dirName.startsWith('B-')) continue;
       if (
-        existsSync(join(worktreesDir, dirName, LATTICE_REPAIR_IGNORE))
+        existsSync(join(worktreesDir, dirName, PROOF_OR_STOP_REPAIR_IGNORE))
       ) continue;
 
       let story;
@@ -902,7 +902,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * @type feature
      * @priority high
      * @description
-     *   Story artifacts and activity logs are Proofbound machine state, not human
+     *   Story artifacts and activity logs are Proof-or-Stop machine state, not human
      *   documentation. This command migrates legacy docs/story/actives data
      *   into the configured storyDir and legacy docs/story/activity.jsonl into
      *   .lattice/activity.jsonl, backing up removed legacy files under .lattice.
@@ -921,7 +921,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const legacyRoot = join(ctx.root, legacyRel);
       const targetRoot = join(ctx.root, targetRel);
       const legacyActivityRel = 'docs/story/activity.jsonl';
-      const targetActivityRel = LATTICE_ACTIVITY_LOG;
+      const targetActivityRel = PROOF_OR_STOP_ACTIVITY_LOG;
       const legacyActivityPath = getLegacyActivityLogPath(ctx.root);
       const targetActivityPath = getRuntimeActivityLogPath(ctx.root);
       const docsStoryRoot = join(ctx.root, 'docs', 'story');
@@ -964,7 +964,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         return lines.join('\n');
       }
 
-      const backupRoot = join(ctx.root, LATTICE_DIR, 'legacy-backup');
+      const backupRoot = join(ctx.root, PROOF_OR_STOP_DIR, 'legacy-backup');
       mkdirSync(backupRoot, { recursive: true });
       let copied = 0;
       let activesBackup: string | null = null;
@@ -984,7 +984,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       if (hasLegacyActivity) {
         const legacyActivity = readFileSync(legacyActivityPath, 'utf-8');
         const targetActivity = hasTargetActivity ? readFileSync(targetActivityPath, 'utf-8') : '';
-        mkdirSync(join(ctx.root, LATTICE_DIR), { recursive: true });
+        mkdirSync(join(ctx.root, PROOF_OR_STOP_DIR), { recursive: true });
         writeFileSync(targetActivityPath, appendJsonlContent(targetActivity, legacyActivity));
         activityBackup = join(backupRoot, `docs-story-activity-${Date.now()}.jsonl`);
         renameSync(legacyActivityPath, activityBackup);

@@ -222,7 +222,7 @@ function localSteps(storyId: string | undefined, targetPhase: AutopilotUntilPhas
     {
       id: 'asset-check',
       command: 'proof-or-stop check',
-      purpose: 'Confirm Proofbound managed assets are not drifted.',
+      purpose: 'Confirm Proof-or-Stop managed assets are not drifted.',
       mutates: false,
       authorityRequired: false,
     },
@@ -303,7 +303,7 @@ export function buildAutopilotRun(
     plannedSteps,
     executedSteps: dryRun ? [] : plannedSteps.slice(0, maxSteps).filter(step => !step.authorityRequired),
     nextActions: [...nextActions],
-    note: 'Local autopilot is pure local Proofbound workflow; server Authority modes are retired from active runtime.',
+    note: 'Local autopilot is pure local Proof-or-Stop workflow; server Authority modes are retired from active runtime.',
   };
 }
 

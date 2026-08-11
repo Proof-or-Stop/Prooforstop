@@ -3,7 +3,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import { loadConfig, pickProjectConfigPath, LATTICE_CONFIG_FILENAME } from '../core/config.js';
+import { loadConfig, pickProjectConfigPath, PROOF_OR_STOP_CONFIG_FILENAME } from '../core/config.js';
 import { resolveWorkflowPolicy, explainProfile, computeChannel, CHANNEL_LABELS } from '../core/workflow-policy.js';
 import type { WorkflowProfile, WorkflowPolicy } from '../core/types.js';
 import { WORKFLOW_PRESETS } from '../core/types.js';
@@ -24,8 +24,8 @@ export function createWorkflowHandlers(ctx: HandlerContext) {
 
       // Prefer an existing lattice.config.json. If none exists, create it.
       const picked = pickProjectConfigPath(root);
-      const configPath = picked?.path ?? join(root, LATTICE_CONFIG_FILENAME);
-      const configFilename = picked?.filename ?? LATTICE_CONFIG_FILENAME;
+      const configPath = picked?.path ?? join(root, PROOF_OR_STOP_CONFIG_FILENAME);
+      const configFilename = picked?.filename ?? PROOF_OR_STOP_CONFIG_FILENAME;
       const config = loadConfig(root);
       const oldProfile: WorkflowProfile = config.workflow?.profile ?? 'balanced';
 

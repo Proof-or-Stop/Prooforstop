@@ -416,7 +416,7 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
       const storyId = normalizeString(args.storyId);
       if (!storyId) throw new Error('quorum_submit: storyId is required');
       if (!isCanonicalStoryId(storyId)) {
-        throw new Error(`quorum_submit: storyId "${storyId}" is not a canonical, path-safe Proofbound story id`);
+        throw new Error(`quorum_submit: storyId "${storyId}" is not a canonical, path-safe Proof-or-Stop story id`);
       }
       const hostAId = normalizeString(args.hostA);
       const hostBId = normalizeString(args.hostB);

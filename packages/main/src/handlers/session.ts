@@ -697,7 +697,7 @@ export function computeNextStep(c: NextStepCtx): string {
         }
         return `REVIEW phase, All reviewer gates passed. Next: proof-or-stop story_advance --storyId=${sid} --phase=TEST to enter formal verification`;
       }
-      return `REVIEW phase. Proofbound reviewers review code and file findings. After all critical/high findings are resolved, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
+      return `REVIEW phase. Proof-or-Stop reviewers review code and file findings. After all critical/high findings are resolved, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
     case 'TEST_CASE':
       return `TEST_CASE phase (legacy). Recommend proof-or-stop story_advance --phase=TEST to enter verification directly`;
     case 'TEST_CASE_REVIEW':
@@ -798,7 +798,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
             lines.push('');
             lines.push(renderNonGitProjectNotice(
               configuredGitRootStatus,
-              '⚠ Non-git project: Proofbound can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.',
+              '⚠ Non-git project: Proof-or-Stop can still record story/test metadata here, but INIT_CHECK/worktree phases need `git init` + an initial commit first.',
             ));
           }
           const gitNew = readGitStatus(ctx.root);

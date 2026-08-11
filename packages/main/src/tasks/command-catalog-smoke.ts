@@ -285,10 +285,11 @@ const helpOutput = runCli(['help']);
 // spelling was ruled RENAMED, not an approved prose form), and help usage lines
 // mirror the invoked bin token.
 assert.match(helpOutput, /Proof-or-Stop/, 'help should carry Proof-or-Stop branding');
-// The product/version banner specifically must no longer print the legacy
-// spelling. Individual command DESCRIPTIONS may still say Proofbound until the
-// docs/prose sweep lands; only the brand banner is CHK-002's surface.
-assert.doesNotMatch(helpOutput, /Proofbound CLI/, 'help banner must not reprint the legacy Proofbound CLI product name');
+// The legacy spelling must appear NOWHERE in help output. CHK-006 completed the
+// prose sweep, so this is now total rather than banner-only: the literal below is
+// deliberately the pre-rename spelling and must NOT be normalized — normalizing it
+// would make this line assert the absence of the CURRENT brand, inverting the guard.
+assert.doesNotMatch(helpOutput, /Proofbound/, 'help must not print the legacy Proofbound product name anywhere');
 assert.doesNotMatch(helpOutput, /Usage: lattice /, 'help must not teach the deprecated bin as the usage form');
 assert.match(helpOutput, /host_runtime_probe/, 'proof-or-stop help should include host runtime commands');
 assert.match(runCli(['help', '--full']), /antigravity/, 'proof-or-stop help --full should include antigravity host text');

@@ -34,7 +34,7 @@ import {
   scanCommandDrift,
   scanFlagDrift,
 } from '../core/audit-scan.js';
-import { LATTICE_PRIMARY_BIN, LATTICE_DEPRECATED_BIN } from '../core/lattice-brand.js';
+import { PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN } from '../core/lattice-brand.js';
 
 /** Stub help runner: `validate` is the only registered command; everything else exits non-zero. */
 const runHelp = (cmd: string) => (cmd === 'validate'
@@ -51,30 +51,30 @@ function fence(...body: string[]): string {
 // 1. happy — bogus command under the CANONICAL renamed bin is reported as drift
 // ---------------------------------------------------------------------------
 {
-  const md = fence(`${LATTICE_PRIMARY_BIN} ${BOGUS}`);
+  const md = fence(`${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`);
   const r = scanCommandDrift(md, 'CLAUDE.md', { runHelp });
   const hit = r.drifts.find(d => d.driftType === 'missing-command' && d.symbol.endsWith(` ${BOGUS}`));
   assert.ok(
     hit,
-    `REGRESSION: \`${LATTICE_PRIMARY_BIN} ${BOGUS}\` was NOT reported as drift — the extractor is blind to the canonical bin token, so the docs-drift scan passes vacuously`,
+    `REGRESSION: \`${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}\` was NOT reported as drift — the extractor is blind to the canonical bin token, so the docs-drift scan passes vacuously`,
   );
-  assert.equal(hit.symbol, `${LATTICE_PRIMARY_BIN} ${BOGUS}`, 'drift symbol echoes the bin token the doc actually used');
+  assert.equal(hit.symbol, `${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`, 'drift symbol echoes the bin token the doc actually used');
   assert.deepEqual(r.extractedCommands, [BOGUS], 'the bogus command is recorded as extracted');
-  console.log(`  test1 ok: ${LATTICE_PRIMARY_BIN} ${BOGUS} -> drift (${hit.symbol})`);
+  console.log(`  test1 ok: ${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS} -> drift (${hit.symbol})`);
 }
 
 // ---------------------------------------------------------------------------
 // 2. happy — the DEPRECATED alias still works, so pre-rename docs stay covered
 // ---------------------------------------------------------------------------
 {
-  const md = fence(`${LATTICE_DEPRECATED_BIN} ${BOGUS}`);
+  const md = fence(`${PROOF_OR_STOP_DEPRECATED_BIN} ${BOGUS}`);
   const r = scanCommandDrift(md, 'CLAUDE.md', { runHelp });
-  const hit = r.drifts.find(d => d.symbol === `${LATTICE_DEPRECATED_BIN} ${BOGUS}`);
+  const hit = r.drifts.find(d => d.symbol === `${PROOF_OR_STOP_DEPRECATED_BIN} ${BOGUS}`);
   assert.ok(
     hit,
-    `REGRESSION: the deprecated \`${LATTICE_DEPRECATED_BIN}\` bin token lost coverage — dropping it would blind the scan on every not-yet-migrated doc`,
+    `REGRESSION: the deprecated \`${PROOF_OR_STOP_DEPRECATED_BIN}\` bin token lost coverage — dropping it would blind the scan on every not-yet-migrated doc`,
   );
-  console.log(`  test2 ok: ${LATTICE_DEPRECATED_BIN} ${BOGUS} -> drift`);
+  console.log(`  test2 ok: ${PROOF_OR_STOP_DEPRECATED_BIN} ${BOGUS} -> drift`);
 }
 
 // ---------------------------------------------------------------------------
@@ -82,14 +82,14 @@ function fence(...body: string[]): string {
 // ---------------------------------------------------------------------------
 {
   const md = fence(
-    `${LATTICE_PRIMARY_BIN} ${BOGUS}`,
-    `${LATTICE_DEPRECATED_BIN} another_missing_cmd`,
+    `${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`,
+    `${PROOF_OR_STOP_DEPRECATED_BIN} another_missing_cmd`,
   );
   const r = scanCommandDrift(md, 'CLAUDE.md', { runHelp });
   const symbols = r.drifts.map(d => d.symbol).sort();
   assert.deepEqual(
     symbols,
-    [`${LATTICE_DEPRECATED_BIN} another_missing_cmd`, `${LATTICE_PRIMARY_BIN} ${BOGUS}`].sort(),
+    [`${PROOF_OR_STOP_DEPRECATED_BIN} another_missing_cmd`, `${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`].sort(),
     'a doc mixing both bin tokens must report drift for BOTH',
   );
   assert.equal(r.extractedCommands.length, 2, 'both commands counted as extracted');
@@ -100,7 +100,7 @@ function fence(...body: string[]): string {
 // 4. happy — a real command + real flag yields NO drift (guards against false positives)
 // ---------------------------------------------------------------------------
 {
-  const md = fence(`${LATTICE_PRIMARY_BIN} validate --json`);
+  const md = fence(`${PROOF_OR_STOP_PRIMARY_BIN} validate --json`);
   const c = scanCommandDrift(md, 'CLAUDE.md', { runHelp });
   const f = scanFlagDrift(md, 'CLAUDE.md', { runHelp });
   assert.equal(c.drifts.length, 0, 'a registered command must not be reported as drift');
@@ -114,15 +114,15 @@ function fence(...body: string[]): string {
 // 5. edge — flag drift under the renamed bin token
 // ---------------------------------------------------------------------------
 {
-  const md = fence(`${LATTICE_PRIMARY_BIN} validate --totally-made-up`);
+  const md = fence(`${PROOF_OR_STOP_PRIMARY_BIN} validate --totally-made-up`);
   const f = scanFlagDrift(md, 'CLAUDE.md', { runHelp });
   const hit = f.drifts.find(d => d.driftType === 'missing-flag');
   assert.ok(
     hit,
-    `REGRESSION: flag drift went blind under \`${LATTICE_PRIMARY_BIN}\` — scanFlagDrift shares the same vacuous-pass failure mode as scanCommandDrift`,
+    `REGRESSION: flag drift went blind under \`${PROOF_OR_STOP_PRIMARY_BIN}\` — scanFlagDrift shares the same vacuous-pass failure mode as scanCommandDrift`,
   );
-  assert.equal(hit.symbol, `${LATTICE_PRIMARY_BIN} validate --totally-made-up`);
-  console.log(`  test5 ok: flag drift caught under ${LATTICE_PRIMARY_BIN}`);
+  assert.equal(hit.symbol, `${PROOF_OR_STOP_PRIMARY_BIN} validate --totally-made-up`);
+  console.log(`  test5 ok: flag drift caught under ${PROOF_OR_STOP_PRIMARY_BIN}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -131,7 +131,7 @@ function fence(...body: string[]): string {
 {
   // A doc written entirely in the renamed brand, referencing a command that does not exist.
   // Pre-fix this returned `drifts: []` and the gate called it a PASS.
-  const md = fence(`${LATTICE_PRIMARY_BIN} ${BOGUS} --some-flag`);
+  const md = fence(`${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS} --some-flag`);
   const r = scanCommandDrift(md, 'CLAUDE.md', { runHelp });
   assert.notEqual(
     r.drifts.length,
@@ -153,7 +153,7 @@ function fence(...body: string[]): string {
   assert.equal(empty.extractedCommands.length, 0, 'no commands documented -> empty extraction');
 
   // A genuinely clean doc: also zero drift, but a NON-EMPTY extraction.
-  const clean = scanCommandDrift(fence(`${LATTICE_PRIMARY_BIN} validate`), 'CLAUDE.md', { runHelp });
+  const clean = scanCommandDrift(fence(`${PROOF_OR_STOP_PRIMARY_BIN} validate`), 'CLAUDE.md', { runHelp });
   assert.equal(clean.drifts.length, 0, 'registered command -> no drift');
   assert.ok(clean.extractedCommands.length > 0, 'clean scan -> non-empty extraction');
 
@@ -175,8 +175,8 @@ function fence(...body: string[]): string {
   try {
     const mdPath = join(root, 'CLAUDE.md');
     writeFileSync(mdPath, fence(
-      `${LATTICE_PRIMARY_BIN} validate --json`,
-      `${LATTICE_PRIMARY_BIN} ${BOGUS}`,
+      `${PROOF_OR_STOP_PRIMARY_BIN} validate --json`,
+      `${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}`,
     ), 'utf-8');
 
     const report = runMechanicalAudit([mdPath], root, {
@@ -187,8 +187,8 @@ function fence(...body: string[]): string {
     });
 
     assert.ok(
-      report.drifts.some(d => d.symbol === `${LATTICE_PRIMARY_BIN} ${BOGUS}` && d.driftType === 'missing-command'),
-      `REGRESSION: runMechanicalAudit did not surface \`${LATTICE_PRIMARY_BIN} ${BOGUS}\` as missing-command drift`,
+      report.drifts.some(d => d.symbol === `${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}` && d.driftType === 'missing-command'),
+      `REGRESSION: runMechanicalAudit did not surface \`${PROOF_OR_STOP_PRIMARY_BIN} ${BOGUS}\` as missing-command drift`,
     );
     assert.deepEqual(
       report.extractedCommands.sort(),

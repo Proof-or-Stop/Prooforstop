@@ -7,7 +7,7 @@
  * @description
  *   Back-link docs/requirements/decisions/testing-infra.md:38 to the verifier
  *   implementation: when no validate.ts/js/mts exists, no configured
- *   validate.command(s) exist, and no fallback command can be discovered, Proofbound
+ *   validate.command(s) exist, and no fallback command can be discovered, Proof-or-Stop
  *   returns warn/skip instead of failure. Projects needing strong validation
  *   gates must configure validate.command(s).
  * @changes

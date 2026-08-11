@@ -75,7 +75,7 @@ function check(name: string, condition: boolean, detail?: string): void {
 
 const COMMIT_ENV = [
   '-c', 'user.email=smoke@example.test',
-  '-c', 'user.name=Proofbound Smoke',
+  '-c', 'user.name=Proof-or-Stop Smoke',
 ];
 
 function git(cwd: string, args: string[]): string {

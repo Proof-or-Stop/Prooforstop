@@ -1532,7 +1532,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       actorTrust?: VerificationEvidence['actorTrust'];
       factProvenance?: VerificationEvidence['factProvenance'];
     }): Promise<string> {
-      // Local-only evidence write: record scoped Proofbound evidence and never POST.
+      // Local-only evidence write: record scoped Proof-or-Stop evidence and never POST.
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note must be ≥ 5 characters, explaining why the evidence covers the intent');
       }

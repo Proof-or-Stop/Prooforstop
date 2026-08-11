@@ -4,7 +4,7 @@ import { join } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
-import { LATTICE_DIR, LATTICE_STORY_DIR } from './lattice-paths.js';
+import { PROOF_OR_STOP_DIR, PROOF_OR_STOP_STORY_DIR } from './lattice-paths.js';
 import { readBrandEnv } from './brand-env.js';
 
 /**
@@ -281,7 +281,7 @@ export interface ProofOrStopConfig {
     bugStale?: number;
   };
   /**
-   * Lifecycle hooks — spawn shell commands at Proofbound command lifecycle points.
+   * Lifecycle hooks — spawn shell commands at Proof-or-Stop command lifecycle points.
    * 每个事件下用 commandName 或 "*" 通配匹配，value 是 shell 命令数组。
    * onPhaseChange 的 key 用 "FROM->TO" 格式（或 "*"）。
    *
@@ -335,7 +335,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
-    'check',         // 全局：Proofbound 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
+    'check',         // 全局：Proof-or-Stop 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
     'test_list',     // 全局：读取测试证据快照，TEST/DEV 排障都需要
     'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
     'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
@@ -386,30 +386,30 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
     'pinn_*', // B-db1b: PINN claim-admissibility check/benchmark/report commands are local read-only diagnostics in all phases
     'quantum_claim_*', // B-d1bf/B-3779: Quantum local read-only claim-admissibility diagnostics (M3 check, M4 benchmark, M5 report); no lifecycle evidence writes
-    'host_*', // Proofbound CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
+    'host_*', // Proof-or-Stop 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
     'candidate_spec_rollout_check', // B-8038: read-only quality/cost promotion projection
     'usage_sweep', // B-70e9 M2: read-only NON-AUTHORITATIVE retro-attribution usage sweep over host transcript stores; streams ~/.codex + ~/.claude, no ledger backfill, no gate evidence, writes nothing unless --out is passed (inside project root)
-    'lattice_config_doctor', // Proofbound CLI 0.3.6: CLI-first migration/config status; no Mac App dependency
+    'lattice_config_doctor', // Proof-or-Stop 0.3.6: CLI-first migration/config status; no Mac App dependency
     'lattice_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
     'codex_doctor',          // Codex adapter diagnostics (read-only); does not write process-event evidence
-    'rollout_check', // Proofbound CLI 0.3.6: read-only cross-project rollout diagnostics
-    'baseline_run', 'baseline_suite', 'baseline_suite_report', // Proofbound baseline execution and suite reporting; writes baseline artifacts only
-    'conduit_*', // Proofbound CLI 0.3.6: conduit status/explain; no runner provisioning or authority mutation
+    'rollout_check', // Proof-or-Stop 0.3.6: read-only cross-project rollout diagnostics
+    'baseline_run', 'baseline_suite', 'baseline_suite_report', // Proof-or-Stop baseline execution and suite reporting; writes baseline artifacts only
+    'conduit_*', // Proof-or-Stop 0.3.6: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
     'observability_snapshot', // B-381e: read-only host-neutral observability adapter dry-run
-    'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Proofbound cross-host handoff pack surface
+    'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Proof-or-Stop cross-host handoff pack surface
     'handoff_accept', 'handoff_resume', // B-cd31 CHK-005: handoff accept/resume projections without authority mutation
     'handoff_receipt_submit', 'handoff_worktree_create', // B-aa98: overflow receipt/worktree diagnostic projections
     'dispatch_plan', 'dispatch_prepare', 'dispatch_run', 'overflow_auto', // B-106b: supervised dispatch runtime surfaces
     'dispatch_collect', 'dispatch_receipt_create', 'dispatch_status', 'dispatch_list', // B-106b: persisted dispatch lifecycle + receipt helpers
     'dispatch_resume', 'dispatch_reassign', 'dispatch_cancel', 'dispatch_review', 'dispatch_merge_plan', // B-106b/B-99d4: lifecycle control + fresh-context reassignment + manual review/merge guidance
     'dispatch_policy_create', 'dispatch_policy_get', 'dispatch_policy_check', 'dispatch_auto', 'dispatch_watch', // B-a5c2: policy-authorized dispatch controls + read-only watch
-    'autopilot_*', // Proofbound unattended/autopilot surfaces declare allowedPhases:all in command-policy; phaseTools must match
+    'autopilot_*', // Proof-or-Stop unattended/autopilot surfaces declare allowedPhases:all in command-policy; phaseTools must match
     'quorum_submit', // local voluntary 3x2 floor helper; handler refuses without current reviewer pass evidence
     'cross_host_review', // B-f57a: owner-driven local cross-host verdict writer; command-policy/handler keep owner lease, review-only dispatch policy, and dirty/head guards fail-closed
     'evidence_manifest', 'evidence_inspect', // B-cd31 CHK-006: portable evidence freshness diagnostics
-    'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Proofbound Parallel Wave planning surfaces; no authority mutation
+    'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Proof-or-Stop Parallel Wave planning surfaces; no authority mutation
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
     'review_loop_status', 'review_loop_policy_show', // B-7a34: read-only review loop projections; REVIEW-only mutators are phase-scoped below
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
@@ -579,7 +579,7 @@ const DEFAULT_CONFIG: ProofOrStopConfig = {
   scanRoot: 'src',
   testsDir: 'tests',
   fixturesDir: 'tests/fixtures',
-  storyDir: LATTICE_STORY_DIR,
+  storyDir: PROOF_OR_STOP_STORY_DIR,
   requirementsDir: 'docs/requirements',
   candidateSpecRouting: {
     mode: 'shadow',
@@ -606,20 +606,28 @@ const _cache = new Map<string, ProofOrStopConfig>();
 
 /**
  * Canonical project config filename.
+ *
+ * The VALUE `lattice.config.json` is deliberately unchanged by the B-cdf6 brand
+ * rename: it is a live on-disk path that every already-initialized project
+ * resolves by exact name, so renaming it would orphan those configs. Only the
+ * identifier is brand-forward. See the FROZEN row for `lattice.config.json` in
+ * `docs/requirements/decisions/brand-rename-mapping.md`.
  */
-export const LATTICE_CONFIG_FILENAME = 'lattice.config.json';
-/** Project config filenames that define an active Proofbound project root. */
+export const PROOF_OR_STOP_CONFIG_FILENAME = 'lattice.config.json';
+/** @deprecated Use `PROOF_OR_STOP_CONFIG_FILENAME`. */
+export const LATTICE_CONFIG_FILENAME = PROOF_OR_STOP_CONFIG_FILENAME;
+/** Project config filenames that define an active Proof-or-Stop project root. */
 export const PROJECT_CONFIG_FILENAMES: readonly string[] = [
-  LATTICE_CONFIG_FILENAME,
+  PROOF_OR_STOP_CONFIG_FILENAME,
 ];
 
-/** True if the canonical Proofbound project config file exists in dir. */
+/** True if the canonical Proof-or-Stop project config file exists in dir. */
 export function hasProjectConfigFile(dir: string): boolean {
   return PROJECT_CONFIG_FILENAMES.some((name) => existsSync(join(dir, name)));
 }
 
 const GLOBAL_THIN_ACTIVITY_MANIFEST_PATHS = [
-  join(LATTICE_DIR, 'lattice.json'),
+  join(PROOF_OR_STOP_DIR, 'lattice.json'),
   join('.Lattice', 'lattice.json'),
 ] as const;
 

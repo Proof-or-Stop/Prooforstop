@@ -976,7 +976,7 @@ export function buildMilestoneCloseoutMissingReport(
     ...(expectedPath ? { expectedPath } : {}),
     diagnostic: `No ${MILESTONE_CLOSEOUT_FILENAME} snapshot exists for ${storyId}.`,
     nextAction:
-      `Run \`proof-or-stop milestone_status --storyId=${storyId}\` to inspect the live report, then complete a risk-free DONE path so Proofbound can capture ${MILESTONE_CLOSEOUT_FILENAME}.`,
+      `Run \`proof-or-stop milestone_status --storyId=${storyId}\` to inspect the live report, then complete a risk-free DONE path so Proof-or-Stop can capture ${MILESTONE_CLOSEOUT_FILENAME}.`,
   };
 }
 

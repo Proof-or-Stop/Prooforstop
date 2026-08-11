@@ -16,7 +16,7 @@ import {
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
-import { LATTICE_DEPRECATED_BIN, LATTICE_PRIMARY_BIN } from './lattice-brand.js';
+import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './lattice-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
@@ -335,7 +335,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     }
     const expectedRegistryManifest = renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' });
     if (actual !== expectedRegistryManifest) {
-      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proofbound registry template`, LOCAL_INIT_VERIFY_COMMAND);
+      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
     push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} uses registry prompt mode (${expectedRegistry.agentCount} prompt(s), hash=${expectedRegistry.materialHash.slice(0, 12)})`);
@@ -346,10 +346,10 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     return null;
   }
   if (actual !== expected) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proofbound template`, LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop template`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
-  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proofbound template`);
+  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proof-or-Stop template`);
   return 'legacy-mirror';
 }
 
@@ -455,7 +455,7 @@ function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void 
   const hooksJsonPath = join(root, '.codex', 'hooks.json');
   const hookScriptPath = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
   if (!existsSync(hooksJsonPath)) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Proofbound PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Proof-or-Stop PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   if (!existsSync(hookScriptPath)) {
@@ -609,7 +609,7 @@ function pathContains(parent: string, child: string): boolean {
  * on a machine that has a perfectly working one. Canonical name wins when both exist.
  */
 function resolveGlobalCliCommandPath(root: string): string | null {
-  for (const bin of [LATTICE_PRIMARY_BIN, LATTICE_DEPRECATED_BIN]) {
+  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN]) {
     const command = process.platform === 'win32' ? 'where' : 'sh';
     const args = process.platform === 'win32' ? [bin] : ['-lc', `command -v ${bin}`];
     try {
@@ -710,7 +710,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
         'Local wrapper heartbeat',
         'pass',
         true,
-        'packaged runtime uses embedded Proofbound CLI; wrapper env contract verified without external Node',
+        'packaged runtime uses embedded Proof-or-Stop; wrapper env contract verified without external Node',
       );
       return;
     }
@@ -788,7 +788,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     checks,
     'global-fallback-heartbeat',
     'Global fallback heartbeat',
-    resolveGlobalCliCommandPath(root) ?? LATTICE_DEPRECATED_BIN,
+    resolveGlobalCliCommandPath(root) ?? PROOF_OR_STOP_DEPRECATED_BIN,
     ['session_brief'],
     `codex-check-global-${Date.now()}`,
     'global-fallback',

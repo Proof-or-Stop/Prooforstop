@@ -94,7 +94,7 @@ assert.deepEqual(
 );
 
 // B-cdf6 CHK-005: the product name asserted below is now 'Proof-or-Stop'
-// (LATTICE_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proofbound` is a legacy
+// (LATTICE_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proof-or-Stop` is a legacy
 // spelling on the normalize list). Same repin CHK-002 applied to command-catalog-smoke; the
 // branding assertions themselves are kept, not dropped.
 const storyAdvanceHelp = runCli(['story_advance', '--help']);

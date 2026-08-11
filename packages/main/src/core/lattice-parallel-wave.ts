@@ -678,7 +678,7 @@ function mergeGuidance(wave: ProofOrStopParallelWave): ParallelWaveMergeGuidance
       storyId: ref.storyId,
       title: ref.title,
       guidance: ref.recommendation === 'parallel_dev'
-        ? 'Ready for operator-confirmed implementer dispatch; normal Proofbound review, test, merge, and receipt gates still apply.'
+        ? 'Ready for operator-confirmed implementer dispatch; normal Proof-or-Stop review, test, merge, and receipt gates still apply.'
         : blockers.length > 0
           ? `Ready for planning-only handoff; resolve scheduling risks before simultaneous DEV or merge: ${blockers.join('; ')}.`
           : 'Ready for planning-only handoff; avoid simultaneous DEV until hotspot or capability degradations clear.',
@@ -1269,7 +1269,7 @@ export function buildParallelPlan(wave: ProofOrStopParallelWave): LatticeParalle
       blockedStories.length > 0
         ? `Resolve active dependencies or explicit blockers before DEV: ${blockedStories.join(', ')}.`
         : 'No dependency-blocked stories in this wave.',
-      'Rerun normal Proofbound validation and require verified receipts before claiming release readiness.',
+      'Rerun normal Proof-or-Stop validation and require verified receipts before claiming release readiness.',
     ],
   };
 }

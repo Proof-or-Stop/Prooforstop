@@ -63,7 +63,7 @@ function createMainProject(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
   return root;
 }
@@ -804,7 +804,7 @@ function assertProvenanceAndConsumerMatrix(): void {
     const legacyData = readMetaFindings(legacyRoot);
     rmSync(join(legacyRoot, GAP_LOG_PROVENANCE_LEDGER_PATH));
     git(legacyRoot, ['add', '-A']);
-    git(legacyRoot, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'convert to committed non-empty legacy history']);
+    git(legacyRoot, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proof-or-Stop Smoke', 'commit', '-m', 'convert to committed non-empty legacy history']);
     return { root: legacyRoot, data: legacyData };
   };
 
