@@ -143,6 +143,25 @@
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-suite",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-009",
+      "desc": "doc-code-drift: docs/CLI.md:5 states proof-or-stop is the ONLY active product command (\"proof-or-stop is the only active product command, pointing at the same set of project state, phase, gate, review, evidence, and handoff semantics\"). This is factually wrong: bin/lattice.js exists in this repo, node bin/lattice.js --version resolves and prints the same version as node bin/proof-or-stop.js --version (both print Proof-or-Stop 0.3.252), because lattice is a deliberately retained deprecated alias per brand-rename-mapping.md line 117 (bin RENAMED additive, keep lattice as deprecated alias). It also directly contradicts the sibling decision doc docs/requirements/decisions/lifecycle-artifact-scope.md:218-220, which correctly states 'Both names are active entrypoints -- neither is the sole command -- and no additional runtime command is introduced' -- exactly the OQ-2 correction this story was supposed to land. docs/CLI.md was apparently never updated to match the OQ-2 resolution captured in lifecycle-artifact-scope.md, so the two governing docs about the SAME fact (is lattice or proof-or-stop the sole active command) now disagree. High severity: this is the precise doc-code-drift class this rename story exists to prevent, and it is a command/flow assertion, not prose.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-11T19:38:19.963Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-005",
+      "_hash": "5599e113e231a5c6ed8e7cb642ccc3f9c3b38752a78cec81f5bc5d9f47ba70d9",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
