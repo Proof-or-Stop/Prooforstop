@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: AGENTS.md:253,443,457,461,464,474,558 instruct running proof-or-stop testintent_record and proof-or-stop testintent_resume as live commands (concrete invocation example at line 464), but neither command exists in the CLI (node bin/proof-or-stop.js testintent_record --help / testintent_resume --help both return Unknown command; suggestions are testintent_handoff/test_add/test_list). Confirmed pre-existing on main under the old lattice testintent_record/lattice testintent_resume spelling, so the rename mechanically carried forward a pre-existing docs lie rather than introducing a new one -- but it remains a live, currently-instructed command in active docs that will fail if followed. testintent_handoff is a materially different command (generates a PLAN-phase handoff packet, not a human-override resume/record). High severity: command/flow error, not prose.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-11T19:30:14.953Z",
@@ -16,7 +16,11 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|code-drift-agents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "PRE-EXISTING, verified rather than asserted: node bin/proof-or-stop.js testintent_record returns 'Unknown command: testintent_record', and AGENTS.md on the untouched main checkout contains 3 occurrences of testintent_record under the old 'lattice testintent_record' spelling. So the rename mechanically carried a pre-existing docs lie forward; it did not create it. The reviewer is right that it is nonetheless a live broken instruction. Fixing it properly means deciding what the correct replacement is (testintent_handoff / test_add / test_list are different commands with different semantics), which is a testintent-workflow documentation decision, not a brand-rename decision - doing it here would be guessing at another feature's intended docs. Accepted as pre-existing risk with the evidence recorded so it is findable, not silently closed.",
+      "resolvedAt": "2026-08-11T20:08:16.678Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-002",
