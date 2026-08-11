@@ -234,7 +234,22 @@
         "headHash": "aad24a037e0007506a1b9eb2498c00574a4787c0",
         "attestedAt": "2026-08-11T05:13:00.992Z",
         "materialHash": "fe0d6a04ac9b6d0faa13d0296b08d59d3894a0632dde0729fc1476909bd8f7af"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "bin/proof-or-stop.js",
+          "command": "node bin/proof-or-stop.js --version",
+          "result": "pass",
+          "note": "Prints 'Proof-or-Stop 0.3.251'. Independently re-run by the main agent, not only self-reported by the implementer.",
+          "mechanical": false,
+          "headHash": "5ae439452e71b9dd7df560ad0a002d928264cf01",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:38:46.765Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
