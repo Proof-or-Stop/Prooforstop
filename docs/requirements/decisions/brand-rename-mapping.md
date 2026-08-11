@@ -75,6 +75,8 @@ a future reader (or reviewer) can tell a deliberate freeze apart from a missed r
 | `lattice.remote-push-approval.v1` schema literal | FROZEN | — | Exact-match schema string compared on both sides: `core/release-push-approval.ts:4` writes it, `.githooks/pre-push:78` rejects any approval whose `schema` differs. A one-sided rename breaks release approval. | Indirect — a mismatch surfaces as a refused push. |
 | `CHANGELOG.md` (111 brand-token hits verified) | **FROZEN** | — | **Explicit verdict, previously unclassified.** It records shipped releases — a past record by definition. Rewriting historical release notes would falsify release history. It is neither in CHK-003's active-doc list nor implicitly frozen by path, so it is named here and path-blocked in execution: `git diff --stat -- CHANGELOG.md` must be empty. | No — not printed by the CLI. |
 | `scripts/verify-lattice-residue.mjs` (filename) | FROZEN | — | Six-plus live couplings; `packages/main/src/handlers/review-preflight.ts:91` hardcodes the path and **fails closed** when absent. The script's *content* is reconciled in CHK-004; its *name* stays. | Yes — named in preflight gate output. |
+| GitHub repo slug `Proof-or-Stop/Prooforstop` (README:5, :106, :140) | **FROZEN** | — | **External identifier, NOT a stray spelling.** Verified against the live remote: `git remote -v` → `git@github-pagepeek:Proof-or-Stop/Prooforstop.git`. The `Prooforstop` segment is the real repository name, so "normalizing" it would produce dead clone URLs and broken badge links. Distinguish from the `Prooforstop` *prose* misspelling, which IS normalized. | Yes — appears in clone/badge URLs users copy. |
+| BibTeX citation key `huang2026proofstop` (README:125) | **FROZEN** | — | **Published bibliographic identifier.** A citation key is a stable external handle that third parties may already reference; rewriting it breaks existing bibliographies. Distinguish from the `proofstop` *prose* misspelling, which IS normalized. | Yes — user-copyable citation block. |
 | `ProofStory` (695 occurrences under `packages/main/src`, incl. `handlers/proofstory.ts`) | **PRESERVE** | — | A distinct domain concept (`proofStory.*` config keys, acceptance topology / rollout gates), **not** a brand variant. Must survive the rename byte-for-byte; a case-insensitive sweep for `proof` would corrupt it. | Yes — `proofStory.acceptanceTopologyGateMode` etc. in gate diagnostics. |
 
 ---
@@ -137,10 +139,10 @@ the verified pre-existing count**; treat any single number as approximate and th
 | Verdict | Rows |
 |---|---|
 | RENAMED | 8 |
-| FROZEN | 13 |
+| FROZEN | 15 |
 | FROZEN-THIS-STORY | 2 |
 | PRESERVE | 1 |
-| **Total** | **24** |
+| **Total** | **26** |
 
 ## How later items consume this table
 
