@@ -249,6 +249,24 @@
       "_hash": "a5fdee7383b72758d2534195e26413a74bf3ea35eab3e8e07f61719f20339e88",
       "signatureTag": "missing|unknown|promise-undelivered-concept",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-015",
+      "desc": "CHK-003:adversarial:0s intent text is git diff --stat on .lattice/story and CHANGELOG.md is EMPTY, but the recorded evidence rows actual command is git diff --stat 6a953d45d8..HEAD -- CHANGELOG.md -- it silently drops the .lattice/story half of what the intent named. I independently ran git diff --stat main...HEAD -- .lattice/story and it is NOT empty (21 files, 28650 insertions), but every changed path is under .lattice/story/actives/B-cdf6/* (this storys own live tracking dir, which necessarily churns during DEV) or B-META-framework-audit/findings.json (a shared, non-terminal meta container, not a frozen per-story archive) -- so the SUBSTANTIVE claim (other stories frozen archives genuinely untouched) holds when I re-ran it with that scope correctly understood, but the recorded command+result pair does not actually witness that broader claim; a naive re-run of the literal intent text would show a nonempty diff and could be misread as a freeze violation. Similarly CHK-003:adversarial:1s intent names BOTH .claude/agents and .lattice-codex/agents line counts, but the recorded command only checks wc -l .claude/agents/*.md; I independently confirmed .lattice-codex/agents/*.md is also 2079 lines (matching, and its diff is pure 191/191 line-for-line word substitution, not new content), so the underlying claim holds, but again the pinned command under-scopes what the intent asked for. Recommend re-pinning both commands to cover the full stated scope (adding .lattice/story with an explicit -- :!.lattice/story/actives/<storyId> exclusion, and adding .lattice-codex/agents to the wc check) so the recorded evidence matches the intent text it claims to satisfy.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-11T19:39:59.566Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-003",
+      "_hash": "2f19d83159bb154389e340fb01d52d79b7823b30d83fe1e4a387eed6f51fdef5",
+      "files": [
+        ".lattice/story/actives/B-cdf6/checklist.json"
+      ],
+      "signatureTag": "edge|json|adversarial-intent-text",
+      "signatureTagSource": "auto"
     }
   ]
 }
