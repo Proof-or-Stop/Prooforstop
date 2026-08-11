@@ -249,7 +249,7 @@
       "desc": "Evidence-kind census: of 36 must-intents, 14 have tool-executed receipts (mechanical:true), 1 has a formal waiver, and 21 are self-attested manual_transcript/docs_check rows with mechanical:false and no receipt -- all authored by the main agent per the storys own admission. The intent TYPE field (logic|cli|browser = executable, gated into requiring a selector+receipt or an explicit >=required-length nonMechanicalReason via checklist.ts executable_intent_requires_selector_or_reason; manual|docs = non-executable, exempt from that gate entirely and auto-scored covered) determines which rows can ever be forced into mechanization. I independently re-ran all 6 of CHK-002s manual-typed intents (node bin/proof-or-stop.js --version, node bin/lattice.js --version, help, session_brief, proof-or-stop proof-or-stop --version, grep -c Usage: lattice) and every one is a trivial one-line CLI invocation, MECHANICALLY INDISTINGUISHABLE in kind from CHK-002s own sibling adversarial:1 (verify-entrypoints.mjs, typed cli, received a receipt) and from CHK-004s happy:0/happy:1 (node ...--self-test / npm run ..., typed cli, received receipts). CHK-005:happy:1 (proof-or-stop --version prints 0.3.252) is likewise typed manual while its cli-typed siblings in the same item all got receipts. All 6 CHK-002 claims I independently re-ran DID match the recorded evidence (no fabrication found), so this is not a finding of false evidence -- it is a finding that intent-type SELECTION at PLAN time functions as an unaudited escape hatch: typing an executable, one-line CLI check as manual instead of cli exempts it from ever needing a receipt or an explicit-length nonMechanicalReason attestation, and every one of these 21 non-executable-typed rows in this story happens to be evidence the main agent wrote about their own work. Recommend the test-coverage/quality reviewer role explicitly audit intent TYPE choice at PLAN/DEV time, not just presence of evidence, since type choice pre-determines whether the mechanization gate can ever fire.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-11T19:39:25.654Z",
@@ -261,7 +261,11 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "adversarial|ts|evidence-kind-census",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Real process-design gap, correctly identified: intent TYPE selection at PLAN time silently decides whether the mechanization requirement applies, because EXECUTABLE_INTENT_TYPES is {logic, cli, browser} - so a manual- or docs-typed intent escapes receipting even when it is a one-line CLI check. The reviewer re-ran all 6 CHK-002 manual-typed claims independently and they matched, so this is not fabricated evidence. I am NOT re-typing intents to dodge this: verificationIntent is PLAN-frozen and cannot be edited in DEV. Accepting as risk and recording it as a framework gap rather than pretending the coverage is stronger than it is.",
+      "resolvedAt": "2026-08-11T20:05:48.294Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-cdf6:F-014",
