@@ -98,7 +98,7 @@
       "desc": "scripts/verify-done-suite-green.mjs:29-30 hardcodes an absolute default log path INSIDE THE AUTHORING SESSIONS OWN SCRATCHPAD DIRECTORY (/private/tmp/claude-501/-Users-qipan-work-repo-Prooforstop/<session-uuid>/scratchpad/npmtest4.log) as the evidence for CHK-005:happy:0 (root DONE-blocking npm test suite is green). Two independent problems verified by direct execution: (1) NOT REPRODUCIBLE: the path is session/machine-local and outside the repo (git ls-files shows it is not tracked); a different reviewer, a fresh clone, or CI re-running the exact recorded command node scripts/verify-done-suite-green.mjs will get DONE-SUITE RED: no recorded suite log at ... not the recorded PASS, because that exact scratchpad path will not exist for them. (2) THE RECEIPT NEVER FINGERPRINTS THE LOG CONTENT: the verificationEvidence receipts outputDigest hashes only the verifiers own one-line stdout (DONE-SUITE GREEN: ...), never the log file bytes or path. I reproduced this directly: I replaced the 1544-line real log with a 6-line fabricated stub containing only a header plus a bare REAL_EXIT=0 line (no actual npm test output, no assertions run) and pointed the script at it via PROOF_OR_STOP_DONE_SUITE_LOG; the script printed the IDENTICAL verdict line DONE-SUITE GREEN: npm test exit=0, 0 failure lines and exited 0. So yes -- per the main agents own question -- this verifier CAN and DOES report GREEN while representing a suite that never actually ran, because nothing binds the receipts digest to the logs actual content, and the log itself lives outside storyFilesHash/materialHash coverage (its outside the git tree entirely). This is the single piece of evidence for the DONE-blocking suite is green -- the most consequential claim in the story per B-META-framework-audit:F-012s own framing -- and it currently rests on an unreproducible, content-unverified pointer.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-11T19:37:44.527Z",
@@ -109,7 +109,11 @@
         "scripts/verify-done-suite-green.mjs"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-suite",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reproduced the reviewer's attack myself before fixing: a 2-line stub containing only REAL_EXIT=0 produced DONE-SUITE GREEN. The reviewer was right and my earlier 'three-way fail-closed' description was wrong - it verified a MARKER, not a RUN. Rewritten so the log-reading design is GONE, not patched: grep for readFileSync/existsSync/statSync/DONE_SUITE_LOG in scripts/verify-done-suite-green.mjs now returns 0, so the only data source is a live spawnSync of npm test. The session-local default path is therefore also gone, making the check reproducible by any reviewer, clone or CI. Added a positive-evidence guard requiring >=20 stage lines so a truncated or stubbed run cannot read as green. Verified on a real run: DONE-SUITE GREEN, exit=0, 0 failure lines, 334 stage lines observed. Honest consequence now recorded in the file header and in the CHK-005 evidence: because it executes the suite it EXCEEDS the 270s receipt-executor ceiling (B-META-framework-audit:F-012) and can no longer be a receipt-pinned command.",
+      "resolvedAt": "2026-08-11T20:05:41.210Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-007",
