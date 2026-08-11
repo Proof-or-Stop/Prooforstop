@@ -333,7 +333,7 @@
       "desc": "packages/main/src/core/stale-detector.ts:55 (schema field in config.ts:279) breaks the additive-compat contract for a persisted project-config field: staleThresholds.idleLattice was renamed to idleProofOrStop with NO read-both fallback -- resolveThresholds reads ONLY u.idleProofOrStop, never u.idleLattice. A project with staleThresholds.idleLattice already set in its lattice.config.json (a real field, introduced by story B-fbca and still readable from disk today) will have that value SILENTLY ignored on merge with this story: it falls back to the 60-minute default with no warning and no error. This is exactly the class of silent-behavior-change-on-merge bug that brand-env.ts was purpose-built to prevent for env vars, but brand-env.ts only covers process.env reads -- it does not cover lattice.config.json schema fields, so this coupling surface was missed. Fix: read staleThresholds.idleLattice as a fallback when idleProofOrStop is absent (same canonical-wins/presence-not-truthiness precedence brand-env.ts already documents), consistent with the CHK-006 corrected criterion that non-evidence coupling surfaces still need a read-both compatibility path, not a silent break.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-11T20:06:04.015Z",
@@ -345,7 +345,11 @@
         "packages/main/src/core/config.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The most consequential finding of this review, and the reviewer was exactly right. Verified the break before fixing: main has staleThresholds.idleLattice (stale-detector.ts:26/:34 on the untouched checkout), this story renamed it to idleProofOrStop and resolveThresholds read ONLY the new key, so a project with idleLattice already set in its lattice.config.json would silently fall back to the 60-minute default with no warning or error. That is precisely the multi-developer behaviour-change-on-merge the user warned about. WHY IT SLIPPED: core/brand-env.ts implements the read-both contract for process.env ONLY - it does not cover config-FILE reads, so the compat contract had a hole in a whole class of persisted input that I had not noticed. FIX: resolveThresholds now reads both keys with canonical-first precedence, and config.ts declares idleLattice as a @deprecated field so a pre-rename config still validates instead of failing schema. Both carry inline comments naming this finding and the brand-env.ts limitation, so the next person hits the reasoning rather than rediscovering the bug. VERIFIED in the compiled output, not just source: grep of packages/main/dist/core/stale-detector.js shows the idleLattice fallback branch present with the correct nesting.",
+      "resolvedAt": "2026-08-11T20:11:03.089Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-017",
