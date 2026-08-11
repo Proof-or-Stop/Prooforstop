@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-cdf6:F-001",
+      "desc": "doc-code-drift: AGENTS.md:253,443,457,461,464,474,558 instruct running proof-or-stop testintent_record and proof-or-stop testintent_resume as live commands (concrete invocation example at line 464), but neither command exists in the CLI (node bin/proof-or-stop.js testintent_record --help / testintent_resume --help both return Unknown command; suggestions are testintent_handoff/test_add/test_list). Confirmed pre-existing on main under the old lattice testintent_record/lattice testintent_resume spelling, so the rename mechanically carried forward a pre-existing docs lie rather than introducing a new one -- but it remains a live, currently-instructed command in active docs that will fail if followed. testintent_handoff is a materially different command (generates a PLAN-phase handoff packet, not a human-override resume/record). High severity: command/flow error, not prose.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-11T19:30:14.953Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-005",
+      "_hash": "16234d5d20d9529b77dff4551088328a04046264c13c88c6551dae55443985b8",
+      "files": [
+        "AGENTS.md"
+      ],
+      "signatureTag": "missing|md|code-drift-agents",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
