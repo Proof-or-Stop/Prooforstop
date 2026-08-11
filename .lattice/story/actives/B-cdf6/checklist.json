@@ -344,13 +344,13 @@
           "file": "scripts/verify-entrypoints.mjs",
           "command": "node scripts/verify-entrypoints.mjs",
           "result": "fail",
-          "note": "Pinned assertions updated not deleted; suite blocked by a pre-existing unrelated verify_codex defect, independently reproduced on pristine main.",
+          "note": "Pinned assertions updated not deleted, plus a real pre-existing verifier bug fixed. Remaining stop is an ACTIVE owner-lease lockout (environmental), not a rename defect; code path proven healthy in an isolated project.",
           "mechanical": false,
-          "nonMechanicalReason": "Cannot produce a passing mechanical receipt because this suite fails on a PRE-EXISTING defect unrelated to the rename: it aborts at check 8/28 with \"lattice verify_codex output () missing Codex adapter checks passed\". The main agent independently reproduced the byte-identical failure by running the same script in the PRISTINE main checkout at /Users/qipan/work/repo/Prooforstop, which contains none of this story changes, so the failure is not caused by CHK-002. What CHK-002 did verify positively: the pinned session-brief header assertions at :277/:515 were UPDATED to the new string rather than deleted, and the suite now progresses past those assertions to the unrelated codex-adapter check. A passing receipt for this intent is only obtainable after the separate pre-existing verify_codex defect is fixed, which is outside this story scope.",
-          "headHash": "38a093ad5cd0e47d39f13685a614eef303bc6317",
-          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
-          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
-          "timestamp": "2026-08-11T05:40:15.254Z"
+          "nonMechanicalReason": "Cannot produce a passing receipt in THIS session for an environmental reason, not a code defect. What was positively verified: the pinned session-brief header assertions were UPDATED to the new brand rather than deleted, and a real pre-existing bug in this verifier was found and fixed (it pinned an obsolete negated code shape at :501 that Pass A had legitimately rewritten in init-assets.ts:328). The suite now stops at check 8/28 on: lattice verify_codex output () missing Codex adapter checks passed. Root cause diagnosed by the main agent by running the command directly: verify_codex is an owner-gated storyScopedMutating command and B-cdf6 holds an ACTIVE owner lease (heartbeat 2m ago) belonging to a prior session in this same worktree with matching cwd; the current session identity degraded to derived-ppid, so it is locked out of its own story. NOTE this corrects a subagent report that called the lease stale - proof-or-stop doctor reports stale leases: 0, so the lease is active and only an explicit human --forceTakeover can transfer it. The implementer independently proved the underlying code path is healthy by running verify_codex in an isolated freshly-initialised temp project, where it printed the exact expected string: Codex adapter checks passed (8/8 pass).",
+          "headHash": "2fd4ad4ea5ee3af35ad4931a65e6a40a272f3b62",
+          "materialHash": "1031e28bd61356f021fb1d876fcfc8f4e477bcab9b3eca8a70209b7587a34d53",
+          "storyFilesHash": "7abcfdabbfb02eab4a5b02217eda7094f3d44465d6824f2b0e430f35af67573c",
+          "timestamp": "2026-08-11T14:12:18.012Z"
         }
       ]
     },
