@@ -356,7 +356,7 @@
       "desc": "scripts/verify-entrypoints.mjs:681-682 still asserts the OLD literal `🐨 lattice serve` in the serve --web/--cli flag check, but packages/main/src/verifier/serve.ts:826 (and :1516 for --circuit) was renamed by this story to print `🐨 proof-or-stop serve` / `🐨 proof-or-stop serve --circuit`. Confirmed by direct execution: `node packages/main/dist/cli.js serve --web` in a scratch cwd now prints the line `\\n🐨 proof-or-stop serve`, which does not contain the substring the test still expects. This is a genuine NEW regression introduced by this story (not the pre-existing baseline test:entrypoints failure at check 8/28 that the DEV activity log already investigated and confirmed fails identically on main -- verified via `git show main:scripts/verify-entrypoints.mjs` and `git show main:packages/main/src/verifier/serve.ts`, where source and test agreed on the old string). test:entrypoints is not wired into the root `npm test` chain or doneRequiredCommands, so this does not block DONE mechanically, but it is a real, reproducible drift the story leaves behind: running `npm run test:entrypoints` will throw at this assertion (check #12 of 28, right after the pre-existing check #8 failure that currently masks it earlier in the run). Fix: update the assertion to the renamed string (or use PROOF_OR_STOP_BIN_NAMES / detectProofOrStopBrand output) so it no longer pins the deprecated prose.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-11T20:06:34.178Z",
@@ -368,7 +368,11 @@
         "packages/main/src/verifier/serve.ts"
       ],
       "signatureTag": "missing|mjs|scripts-verify-entrypoints",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Genuine NEW regression from this story, correctly distinguished by the reviewer from the pre-existing check-8/28 baseline failure. Verified: packages/main/src/verifier/serve.ts:826 and :1516 print '🐨 proof-or-stop serve' / '... --circuit' after this story's rename, while scripts/verify-entrypoints.mjs:681 still asserted the old '🐨 lattice serve' literal. The assertion was REPINNED to the new expected value and its message text updated - not deleted or weakened, per the same discipline applied to every other pinned literal in this story. tsc --noEmit exits 0 and all 3 brand gate checks still PASS.",
+      "resolvedAt": "2026-08-11T20:11:03.887Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
