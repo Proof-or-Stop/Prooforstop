@@ -1,6 +1,6 @@
 {
   "storyId": "B-cdf6",
-  "checkedAt": "2026-08-11T03:31:54.769Z",
+  "checkedAt": "2026-08-11T03:40:16.090Z",
   "features": [
     {
       "feature": "Add proof-or-stop as a new user-facing CLI bin name (package.json bin entry + bin/proof-or-stop.js wrapper)",
@@ -123,9 +123,9 @@
     },
     {
       "feature": "FREEZE the 13 lattice-prefixed agent role IDs (subagent_type values) used for reviewer/implementer spawning",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "scope-boundary.json excluded list: role IDs are resolved against host shims + registry manifest; renaming breaks resolution unless moved atomically",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
       "source": "description"
     },
     {
@@ -168,7 +168,7 @@
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "decision.json rationale: requires dedicated signature-migration/state-migration design plus a flag day, beyond what was asked",
-      "source": "decision.json"
+      "source": "description"
     },
     {
       "feature": "Teach audit-scan.ts's scanCommandDrift regex to extract both 'lattice <cmd>' and 'proof-or-stop <cmd>' so docs-drift keeps failing loudly instead of passing vacuously after the docs rename",
@@ -235,16 +235,16 @@
     },
     {
       "feature": "Registry-backed prompt content stays host-neutral: no host directory (Claude/.claude/agents, Codex/.lattice-codex) gets a full rebranded prompt-body copy; only thin shims + the single packages/main/templates/agents/*.md registry source change",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:lifecycle-artifact-scope.md"
     },
     {
-      "feature": "Managed-block marker migration precedent (legacy-to-lattice-role-naming-execution-plan.md CHK-002): when role/asset renames happen, old markers/filenames must remain parseable for existing projects while new ones use the new form — no equivalent explicit backward-compat rule is stated for a hypothetical proof-or-stop managed marker variant, though CHK-001-005 as scoped do not introduce a new marker form (markers stay frozen), so this is informational context rather than an actionable gap",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
+      "feature": "Managed-block marker migration precedent (legacy-to-lattice-role-naming-execution-plan.md): when role/asset renames happen, old markers/filenames must remain parseable for existing projects while new ones use the new form",
+      "covered_by": "CHK-001",
+      "status": "excluded",
+      "excluded_by": "CHK-001 freezes '<!-- lattice:start -->' markers verbatim (constraint h) and B-cdf6 introduces no new marker form, so the migration-precedent pattern is not engaged by this story's scope",
       "source": "decisions:legacy-to-lattice-role-naming-execution-plan.md"
     }
   ],
@@ -385,39 +385,13 @@
   },
   "summary": {
     "total": 34,
-    "covered": 24,
+    "covered": 26,
     "excluded": 8,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "14d2c605a536bf732aef27276ad2918779013989c980eac6ae967bebd1110a41",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md declares the target canonical agent role-ID prefix as 'proof-or-stop-*' for all 13/16 roles (e.g. proof-or-stop-implementer, proof-or-stop-review-scope-plan) while explicitly keeping lattice CLI COMMAND names unrenamed ('CLI commands such as lattice validate and lattice agent_prompt remain command names and are not renamed by this document'). B-cdf6's decision.json / scope-boundary.json FREEZES the 13 lattice-prefixed agent role IDs as out of scope ('breaks resolution... unless docs, shims and registry move atomically'). Is B-cdf6's role-ID freeze meant only as 'not in this story's scope' (compatible with a later story doing the role-ID rename per that plan), or does it conflict with / need to explicitly acknowledge that an accepted-direction decisions/ doc already commits to eventually renaming these same role IDs to proof-or-stop-*?",
-      "evidence": "proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43: 'Naming note: all canonical agent role IDs in the target state use the proof-or-stop-* prefix. Current package filenames, host shims, reviewer lanes, and in-flight evidence may still contain legacy role IDs such as lattice-* ... until the implementation migration lands. ... CLI commands such as lattice validate and lattice agent_prompt remain command names and are not renamed by this document.' vs. B-cdf6 scope-boundary.json excluded list: 'FROZEN (breaks resolution): the 13 lattice-prefixed agent role IDs out of 17 registry roles - they are subagent_type values resolved against host shims and the registry manifest'.",
-      "sourcePointers": [
-        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md#L36-L43",
-        ".lattice/story/actives/B-cdf6/scope-boundary.json#excludedScope",
-        ".lattice/story/actives/B-cdf6/plan.md#CHK-001"
-      ],
-      "resolution": "Not a contradiction: the two documents partition the same rename into two stories along the axis of what is safe to move now, and B-cdf6 deliberately takes the half that does not invalidate stored signatures. The consolidation plan states the target canonical role prefix is proof-or-stop-* and explicitly labels current lattice-* role IDs 'transitional aliases only ... until the implementation migration lands' (proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43). That is a statement of TARGET state plus an explicit acknowledgement that the migration has not yet landed; it is not a requirement that B-cdf6 land it. B-cdf6 freezes the 13 lattice-prefixed role IDs because they are subagent_type values resolved against host shims plus the registry manifest, and because renaming them mid-flight breaks spawning for the 32 currently active stories. So B-cdf6's freeze means 'not this story', fully compatible with the consolidation plan finishing the role-ID half later. The apparent mirror-image is real but harmless: the consolidation doc says CLI commands 'remain command names and are not renamed by this document', while B-cdf6 renames exactly those commands and freezes exactly the role IDs. Read together the two documents are complementary rather than conflicting: neither claims exclusive ownership of the whole rename, and the union of their scopes is the complete migration. Concrete reconciliation action taken instead of prose-only assertion: CHK-001's mapping table must record each of the 13 lattice-prefixed role IDs as FROZEN-THIS-STORY with the reason 'target canonical prefix is proof-or-stop-* per proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43; deferred here because renaming subagent_type values would break spawning for in-flight stories', so a future implementer reads the deferral as intentional and finds the owning plan rather than concluding the freeze was an oversight.",
-      "resolvedAt": "2026-08-11T03:34:15.132Z"
-    },
-    {
-      "id": "OQ-2",
-      "q": "docs/requirements/decisions/lifecycle-artifact-scope.md (Policy: host-neutral prompt content, thin host adapters, B-097f section) states 'The Proofbound naming migration is a managed-asset naming contract only. ... lattice is the only active runtime/product command' and that fresh init must NOT generate bin/lattice.js-equivalent new-named bins/managed assets treating any new name as active. B-cdf6 CHK-002 creates a NEW active bin/proof-or-stop.js and flips LATTICE_PRIMARY_BIN so proof-or-stop becomes the primary invoked-as command. Does this policy's 'lattice is the only active runtime/product command' statement predate and get superseded by B-cdf6's user-approved rename, or does CHK-001's mapping table need to explicitly reconcile/update this specific sentence in lifecycle-artifact-scope.md so the two documents do not keep contradicting each other post-DONE?",
-      "evidence": "lifecycle-artifact-scope.md:215-219: 'The Proofbound naming migration is a managed-asset naming contract only. It does not promote ordinary CLI output to receipt-backed authority and does not change Story lifecycle gates. lattice is the only active runtime/product command. Fresh init must not generate LATTICE.md, .lattice-codex/lattice.json, bin/lattice.js, or bin/lattice-codex.js; compatibility checks do not treat those paths as active adapter or runtime inputs.' vs. B-cdf6 CHK-002: 'Create: bin/proof-or-stop.js (mirror of the 3-line bin/lattice.js wrapper)' and 'Modify: packages/main/src/core/lattice-brand.ts (flip LATTICE_PRIMARY_BIN...)'.",
-      "sourcePointers": [
-        "docs/requirements/decisions/lifecycle-artifact-scope.md#L210-L219",
-        "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md#L785-L787",
-        "README.md#L96",
-        ".lattice/story/actives/B-cdf6/plan.md#CHK-003"
-      ],
-      "resolution": "The cited sentence is a stale snapshot, not a live prohibition, and B-cdf6 must update it rather than obey it. Mechanical evidence for staleness: grep for 'proof-or-stop' across docs/requirements/decisions/lifecycle-artifact-scope.md returns ZERO hits, so that document was written before the proof-or-stop rename direction existed and its clause '`lattice` is the only active runtime/product command' (line 217) simply describes the pre-rename world. Meanwhile an entire family of proof-or-stop-* decision docs is treated as active plan authority elsewhere in the same corpus, including proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md which is explicitly classified 'retain-as-active-plan / active migration-plan authority'. Reading line 217 as binding would also contradict the user's own approved direction and would make README.md:96's declared 'rename in progress' permanently unachievable. Scope of the cited clause matters too: the surrounding paragraph governs FRESH INIT MANAGED-ASSET GENERATION ('Fresh init must not generate LATTICE.md, .lattice-codex/lattice.json, bin/lattice.js, or bin/lattice-codex.js; compatibility checks do not treat those paths as active adapter or runtime inputs'). It constrains what `init` writes into a PROJECT and which legacy paths count as active adapter inputs. It does not govern which bin names the Proof-or-Stop package itself publishes. B-cdf6's CHK-002 adds bin/proof-or-stop.js to the PACKAGE's own bin map; it does not make `init` generate per-project bin wrappers, so on the strict reading of the paragraph's subject there is no actual conflict. Concrete action, because leaving a doc that says the opposite of shipped behavior is exactly the docs-lie failure mode this story exists to remove: CHK-003 must update lifecycle-artifact-scope.md so the runtime-command sentence reflects the post-rename reality (proof-or-stop is the primary published command, lattice is a retained deprecated alias), while preserving the paragraph's actual normative content about fresh-init managed-asset generation and legacy-path compatibility. That file is already inside CHK-003's declared docs/** surface, so no scope extension is required.",
-      "resolvedAt": "2026-08-11T03:34:15.856Z"
-    }
-  ]
+  "_hash": "6861c8fb32eed698a217b6abfd087e1e15fe7ccd77bd6f90372f79f0b6b6c610",
+  "openQuestions": []
 }
