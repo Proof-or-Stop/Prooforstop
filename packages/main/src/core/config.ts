@@ -275,8 +275,14 @@ export interface ProofOrStopConfig {
     phaseStale?: number;
     /** checklist item 卡 in_progress 多久算遗忘（默认 30） */
     itemStale?: number;
-    /** 距离上次任意 lattice 命令多久算 idle（默认 60） */
+    /** 距离上次任意 proof-or-stop 命令多久算 idle（默认 60） */
     idleProofOrStop?: number;
+    /**
+     * @deprecated B-cdf6:F-016 — pre-rename spelling of `idleProofOrStop`, kept readable so an
+     * existing `lattice.config.json` written before the rename keeps working. `resolveThresholds`
+     * in core/stale-detector.ts reads both, preferring the canonical name. Do not use in new work.
+     */
+    idleLattice?: number;
     /** open bug 多久没修算超期（默认 1440=24h） */
     bugStale?: number;
   };

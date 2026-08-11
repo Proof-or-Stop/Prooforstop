@@ -140,7 +140,7 @@
       "desc": "probe",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-11T19:38:14.821Z",
@@ -148,7 +148,11 @@
       "reviewRunId": "B-cdf6:RR-001",
       "_hash": "52d1c284ea0f1f2b2f124180f16a8d4c1558fcbf1859d1bf9a82eecaace54233",
       "signatureTag": "missing|unknown|probe",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Reviewer-self-declared tool-testing artifact, not a real finding. Its desc is the literal string \"probe\", created by the concept reviewer while working out the correct reviewRunId format, and the reviewer explicitly flagged it in its own report for dismissal since reviewers cannot dismiss their own findings. Verified: desc is exactly \"probe\" with no substantive claim to evaluate.",
+      "dismissedAt": "2026-08-11T20:08:35.653Z",
+      "dismissReasonType": "false_positive",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-008",

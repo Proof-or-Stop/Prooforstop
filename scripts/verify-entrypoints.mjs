@@ -678,7 +678,7 @@ checks.push(() => {
         env: process.env,
       });
       const output = `${result.stdout || ''}${result.stderr || ''}`;
-      assertIncludes(output, '🐨 lattice serve', `lattice serve ${flag} should still start the normal launcher`);
+      assertIncludes(output, '🐨 proof-or-stop serve', `proof-or-stop serve ${flag} should still start the normal launcher`);
       assertIncludes(output, 'Waiting for project core to start (.lattice-serve.json)...', `lattice serve ${flag} should still boot the normal serve path`);
       assertNotIncludes(output, 'Unknown option', `lattice serve ${flag} should not be rejected as an unknown option`);
       assertNotIncludes(output, '--web', `lattice serve ${flag} runtime output`);

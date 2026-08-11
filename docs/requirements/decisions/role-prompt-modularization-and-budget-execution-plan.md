@@ -55,7 +55,7 @@ Use the canonical Proof-or-Stop decision-doc promotion flow, preserve the review
 
 ### 2. 背景与当前基线
 
-当前 `proof-or-stop-prompt-baseline.json` 记录 16 个角色的最终 `agent_prompt` 输出。
+当前 `proof-or-stop-prompt-baseline.json` 记录 **17** 个角色的最终 `agent_prompt` 输出（`expectedRoleCount: 17`，由 `scripts/verify-proof-or-stop-prompt-baseline.mjs` 的 `EXPECTED_ROLE_COUNT` 钉住；其中 13 个带 `lattice-` 前缀，该前缀的迁移由 `proof-or-stop-agent-prompt-consolidation-execution-plan.md` 负责）。
 
 这 16 项是历史兼容基线，不等于当前 active role 集合。其中
 `lattice-review-channel` 已退役，由 `proof-or-stop validate --channel` 的机械 gate
