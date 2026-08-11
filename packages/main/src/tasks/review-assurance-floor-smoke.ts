@@ -362,14 +362,29 @@ function staleRecoveryBlock(text: string): string {
   return text.slice(start);
 }
 
+/**
+ * Extract rendered CLI command fragments so each can be shell-linted.
+ *
+ * Recognizes the canonical `proof-or-stop` bin FIRST and the deprecated `lattice`
+ * spelling as a fallback (B-cdf6 CHK-006). Matching only `lattice ` silently found
+ * just 1 of the 5 fragments once the guidance text was rebranded, which turned a
+ * shell-safety check into a near-no-op instead of a failure.
+ */
 function renderedLatticeCommandFragments(text: string): string[] {
   const commands: string[] = [];
+  const prefixes = [
+    'node bin/proof-or-stop.js ',
+    'node bin/lattice.js ',
+    'proof-or-stop ',
+    'lattice ',
+  ];
   for (const line of text.split('\n')) {
     const uncommented = line.split(' # ')[0];
     for (const segment of uncommented.split(';')) {
-      const localStart = segment.indexOf('node bin/lattice.js ');
-      const globalStart = segment.indexOf('lattice ');
-      const commandStart = localStart >= 0 ? localStart : globalStart;
+      const commandStart = prefixes
+        .map((prefix) => segment.indexOf(prefix))
+        .filter((index) => index >= 0)
+        .reduce((earliest, index) => (earliest < 0 ? index : Math.min(earliest, index)), -1);
       if (commandStart >= 0) {
         commands.push(segment.slice(commandStart).trim().replace(/[.,]$/, ''));
       }
@@ -525,7 +540,7 @@ try {
       materialHash: null,
       storyFilesHash: null,
     });
-    assert.match(formatted, /lattice validate --story=\{storyId\} --json/);
+    assert.match(formatted, /proof-or-stop validate --story=\{storyId\} --json/);
     assert.match(formatted, /Legal reviewer\/host only: re-submit local host verdicts over materialHash=\{current-materialHash\}/);
     assert.match(formatted, /--materialDigest=\{current-materialHash\}/);
     assert.doesNotMatch(staleRecoveryBlock(formatted), /<storyId>|<current-materialHash>/);
@@ -550,7 +565,7 @@ try {
     assert.match(formatted, /4 more ignored host verdict\(s\) omitted/);
     assert.equal((formatted.match(/ignored host verdict /g) ?? []).length, 8);
     assert.match(formatted, /Stale material recovery:/);
-    assert.match(formatted, /lattice autopilot_review_status --storyId=B-review-assurance-floor/);
+    assert.match(formatted, /proof-or-stop autopilot_review_status --storyId=B-review-assurance-floor/);
     assert.doesNotMatch(formatted, /skip stale|force DONE|override stale/i);
     assertStaleRecoveryCommandsShellSafe(formatted);
   });
