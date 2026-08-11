@@ -121,6 +121,19 @@
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
           "timestamp": "2026-08-11T05:38:44.215Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/brand-rename-mapping.md",
+          "command": "grep -n 'FROZEN-THIS-STORY' docs/requirements/decisions/brand-rename-mapping.md",
+          "result": "pass",
+          "note": "OQ-1 action satisfied: the 13 lattice-prefixed role IDs are FROZEN-THIS-STORY citing proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43 as the owning plan, so the deferral reads as intentional. A 14th row covers the 4 non-lattice roles so all 17 are accounted for.",
+          "mechanical": false,
+          "headHash": "554e7af46968909a02ef45d283e11e4a342f9cb6",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:38:45.063Z"
         }
       ]
     },
