@@ -181,6 +181,21 @@
       ],
       "signatureTag": "adversarial|ts|adversarial-waiver-deferred",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-011",
+      "desc": "concept-cleanup: lattice_config_doctor / lattice_config_repair command identifiers survive un-renamed as the ONLY registered command names (packages/main/src/cli-engine.ts:322-323 comment, packages/main/src/cli/alias-normalizer.ts:46-47, packages/main/src/handlers/lattice-cli.ts:451,544, packages/main/src/core/rollout-check.ts). No proof_or_stop_config_doctor alias exists anywhere (grep for lattice_config_doctor|lattice_config_repair returns 47 hits across docs/CLI.md:100, docs/requirements/decisions/{lattice-runtime-owned-agent-assets-execution-plan.md,stack-layering.md,lattice-parallel-wave.md,host-neutral-observability-console.md,project-vision.md}, and 14 packages/main/src files). scripts/verify-lattice-residue.mjs structurally CANNOT detect this: its invocation regex /(?<![A-Za-z0-9_./@-])[Ll]attice[ \\t]+(?![A-Z])[a-z][a-z0-9_]*/ requires whitespace immediately after the lattice token, so lattice_config_doctor (underscore, zero space) never matches (verified: node -e regex test returns false). Not covered by any FROZEN/FROZEN-THIS-STORY/PRESERVE row in brand-rename-mapping.md -- genuinely un-renamed live command name, gate-invisible by construction (underscore-command-name shape).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-11T19:38:52.593Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-001",
+      "_hash": "14443ae94956b64c4414e1155f0ce793c58ae53867493c86d601ef03e7b0eeab",
+      "signatureTag": "missing|unknown|concept-cleanup-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
