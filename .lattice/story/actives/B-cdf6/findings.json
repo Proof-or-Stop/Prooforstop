@@ -125,6 +125,24 @@
       "_hash": "52d1c284ea0f1f2b2f124180f16a8d4c1558fcbf1859d1bf9a82eecaace54233",
       "signatureTag": "missing|unknown|probe",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-008",
+      "desc": "scripts/verify-done-suite-green.mjs:66-69 excludes itself (SELF_REL) from its own staleness set with the stated rationale editing the checker cannot invalidate the suite result it reports. That rationale only holds if edits to this file are limited to detector LOGIC. But the files own content also contains the LOG default path (the pointer to the evidentiary source, line 30) -- changing WHICH file is treated as authoritative IS exactly the kind of edit that should force re-validation, and the self-exclusion specifically exempts it from ever tripping STALE. Separately, the staleness comparison is mtime-only (statSync(...).mtimeMs), not a content hash; git operations (checkout, merge, rebase, worktree creation) routinely produce mtimes that do not track content history, so is the log newer than every tracked source file is a weak, spoofable proxy for no source changed since this run, compounding finding B-cdf6:F-006 (log content itself is never hashed). Recommend: hash-pin the LOG path itself into the verifier (or require an explicit --log flag with no hardcoded default), and use content hashes rather than mtimes for the staleness comparison; if self-exclusion is kept, restrict it to a change-scoped diff of detector logic only, not blanket exclusion of the entire file including its data pointers.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-11T19:38:16.407Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-003",
+      "_hash": "226300d85c7b4f8c210c24fc18f43736540c4748108edf8d05491dff1790ddad",
+      "files": [
+        "scripts/verify-done-suite-green.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-suite",
+      "signatureTagSource": "auto"
     }
   ]
 }
