@@ -260,7 +260,7 @@
       "desc": "doc-promise-undelivered / concept-cleanup: .claude/hooks/session-brief-reminder.cjs is the literal source template that packages/main/src/cli-init.ts:992-999 cpSync-copies byte-for-byte into every new project created by proof-or-stop init, so its content is not an artifact of THIS repo but a promise about what NEW projects receive. Contradicts CHK-006 userSees promise verbatim: (quote) A fresh proof-or-stop init writes guides that say proof-or-stop (never node bin/lattice.js). Verified content still un-renamed: (1) file header comment line 3 reads Claude Code UserPromptSubmit hook: softly remind the agent to recover state with `lattice session_brief` (2) line 10 hardcodes REMINDER = Suggest running lattice session_brief first to restore context (the actual stderr text emitted to the user) (3) freshnessThresholdMs() at line 43 reads ONLY process.env.LATTICE_SESSION_BRIEF_FRESH_MINUTES and LATTICE_SESSION_BRIEF_REMINDER_MINUTES -- zero PROOF_OR_STOP_* counterpart, unlike the proper read-both pattern in packages/main/src/core/brand-env.ts which this file does not use. Gate-invisible because scripts/verify-lattice-residue.mjs DOC_SCAN_ROOTS/EXECUTABLE_SCAN_ROOTS never include .claude/hooks/*.cjs (only .claude/agents is scanned, not .claude/hooks). CLAUDE.md line 77 documents LATTICE_SESSION_BRIEF_FRESH_MINUTES as the configurable threshold without mentioning any new-name alternative, so docs and hook are internally consistent with each other but both still teach the old brand to every future project.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-11T19:39:25.698Z",
@@ -268,7 +268,11 @@
       "reviewRunId": "B-cdf6:RR-001",
       "_hash": "a5fdee7383b72758d2534195e26413a74bf3ea35eab3e8e07f61719f20339e88",
       "signatureTag": "missing|unknown|promise-undelivered-concept",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified the reviewer's core claim first: .claude/hooks/session-brief-reminder.cjs is listed in HOOK_FILES at packages/main/src/cli-init.ts:64 and cpSync'd into every new project, so its content is a forward-looking promise rather than repo-local history - which is exactly the RENAMED class. Fixed the user-facing string to 'proof-or-stop session_brief' and the header comment, and added PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES / _REMINDER_MINUTES ahead of the LATTICE_* names so the read-both contract now matches core/brand-env.ts rather than being new-name-blind. Old names still read, so a teammate's existing export keeps working.",
+      "resolvedAt": "2026-08-11T20:05:45.079Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-015",
