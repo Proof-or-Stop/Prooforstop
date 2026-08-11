@@ -379,7 +379,7 @@
       "desc": "packages/main/src/core/brand-env.ts exports brandEnvSuffix, brandEnvName, deprecatedBrandEnvName, hasBrandEnv, and expandBrandEnvNames, none of which have any call site anywhere in the codebase (grep for each name across packages/main/src, excluding brand-env.ts itself, returns 0 hits in both production code and every test file). They are well-documented but entirely dead public API surface on a brand-new module. Low-severity dead-code hygiene finding: either wire up an intended call site or trim the unused exports so the modules single-resolver contract is not diluted by unreachable helpers.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-11T20:11:47.560Z",
@@ -390,7 +390,11 @@
         "packages/main/src/core/brand-env.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Dead public API on a brand-new module, correctly flagged. Removed brandEnvName, deprecatedBrandEnvName, hasBrandEnv and expandBrandEnvNames - all four had zero call sites. NOTE a correction to my own analysis: I initially treated all five reported names as dead, but a word-boundary check (grep -E '\\\\bname\\\\(') showed brandEnvNames (PLURAL) has a real external caller in core/validation-command-environment.ts; my first substring grep had matched it while searching for the singular brandEnvName, so tsc caught the mistake when I removed its export and I restored it immediately. brand-env.ts now exports 9 symbols, every one with a real caller. tsc --noEmit exits 0 and all 3 brand gate checks still PASS.",
+      "resolvedAt": "2026-08-11T20:16:51.368Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-019",
