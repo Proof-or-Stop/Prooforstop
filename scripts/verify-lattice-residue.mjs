@@ -158,13 +158,16 @@ const DOC_SCAN_ROOTS = [
  * writing — reported rather than silently exempted, because they are real findings this pass
  * does not own):
  *
- *   - `packages/main/src`, `packages/lab/src`, `packages/utils/src` — 969 hits / 214 files.
- *     The bulk are user-facing runtime strings (`Next: lattice validate ...`, help/prompt
- *     text in cli-prompts.ts, command-catalog.ts descriptions). Fixing them is real work on
- *     the CLI's own output surface, which Pass A does not cover; Pass B (code identifiers +
- *     runtime strings) owns it. Gating them now would fail closed on day one.
- *   - `scripts` — 175 hits / 24 files, same class (self-host verifier prose + old-alias
- *     invocations that still legitimately exercise the retained `bin/lattice.js` alias).
+ *   - `packages/main/src` — was 969 hits / 214 files across all three package roots at Pass A;
+ *     Pass B rewrote the user-facing runtime strings and it now measures 159 hits / 83 files.
+ *     `packages/utils/src` reached 0 and has been PROMOTED to a gated root below.
+ *     `packages/lab/src` is down to 1. The 159 that remain are NOT the same class as the
+ *     original finding: they are overwhelmingly (a) smoke/verifier fixtures that embed stale
+ *     prose as the SPECIMEN under test — rewriting them destroys the positive test case, which
+ *     is how Pass B broke and then restored this very file's self-test — and (b) tests that
+ *     deliberately exercise the retained `bin/lattice.js` alias. Gating still fails closed.
+ *   - `scripts` — 173 hits / 24 files, same specimen-fixture class (77 of them in
+ *     verify-entrypoints.mjs alone, which asserts on the deprecated bin on purpose).
  *   - `CHANGELOG.md` — 19 hits, FROZEN historical release record per the mapping table.
  *   - `lattice-experience-layer-v1.1-zh.md` — 2 hits, both `Lattice story workflow` brand
  *     PROSE (a different mapping-table row than an invocation).
@@ -175,6 +178,11 @@ const EXECUTABLE_SCAN_ROOTS = [
   'package.json',
   'lattice.config.json',
   'CITATION.cff',
+  // B-cdf6 CHK-006 Pass B: promoted from "counted" to GATED once its detector count
+  // reached a measured 0 (was 0 hits / 0 files at promotion). This is the only one of
+  // the four counted roots that can be gated without failing closed today; see the
+  // updated counts in the block above for why the other three stay counted.
+  'packages/utils/src',
 ];
 
 /**
