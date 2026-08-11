@@ -190,7 +190,50 @@
       "userSees": "The new brand gate passes, and the residue guard self-test no longer asserts a claim that contradicts the rename",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verify-lattice-residue.mjs --self-test passes and the plain scan passes",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run test:lattice-residue passes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The self-test no longer asserts a claim that contradicts the rename (it currently asserts lattice-review-integrity-v1 is CLEAN)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Script filename unchanged so review-preflight.ts:91 (fails closed) and package.json:19 keep resolving",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An intentional un-renamed prose mention in an active doc is DETECTED, proving the gate is not vacuous",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-residue-inject-repro.mjs still proves the gate catches an injected hit",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Gate is NOT allowlist-free over packages/*/src, since 605 files there legitimately contain the token",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
