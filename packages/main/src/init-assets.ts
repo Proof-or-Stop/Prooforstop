@@ -4,7 +4,6 @@ import {
   renderCodexPromptContent,
   type PromptRegistryManifest,
 } from './core/prompt-registry.js';
-import { deleteBrandEnv, readBrandEnv, setBrandEnv } from './core/brand-env.js';
 
 export const SUPPORTED_INIT_PROFILES = ['codex', 'claude', 'all', 'core'] as const;
 export type InitProfile = typeof SUPPORTED_INIT_PROFILES[number];
@@ -379,24 +378,46 @@ if (require.main === module) {
 
 export function renderCodexWrapperScript(): string {
   return `#!/usr/bin/env node
-setBrandEnv(process.env, 'ACTIVITY_SOURCE', 'codex');
-setBrandEnv(process.env, 'ACTIVITY_RECORD_READONLY', '1');
-setBrandEnv(process.env, 'CODEX_ENTRYPOINT', 'local-wrapper');
-
-if (!readBrandEnv('OWNER_SESSION_ADAPTER_TASK')) {
-  readBrandEnv('OWNER_SESSION_ADAPTER_TAS')K =
-    process.env.CODEX_THREAD_ID ||
-    process.env.CODEX_SESSION_ID ||
-    process.env.OPENAI_SESSION_ID ||
-    process.env.TERM_SESSION_ID ||
-    '';
+// This is a STANDALONE generated wrapper: it is emitted into a user project and run
+// directly by node, so it cannot import core/brand-env.ts. The read-both / write-both
+// contract is therefore inlined by hand here. \`setEnv\` writes BOTH brand spellings so
+// the value survives a hop into a pre-rename reader; \`readEnv\` prefers the canonical
+// name and falls back to the deprecated one, by PRESENCE (not truthiness) so an
+// explicitly-empty canonical value still wins.
+function setEnv(suffix, value) {
+  process.env['PROOF_OR_STOP_' + suffix] = value;
+  process.env['LATTICE_' + suffix] = value;
 }
-setBrandEnv(process.env, 'OWNER_SESSION_ADAPTER_PROVIDER', 'codex');
-readBrandEnv('OWNER_SESSION_ADAPTER_AGEN')T =
-  readBrandEnv('OWNER_SESSION_ADAPTER_AGENT') ||
-  readBrandEnv('AGENT') ||
-  'main';
-deleteBrandEnv(process.env, 'ACTIVITY_SESSION');
+function readEnv(suffix) {
+  const canonical = process.env['PROOF_OR_STOP_' + suffix];
+  if (canonical !== undefined) return canonical;
+  return process.env['LATTICE_' + suffix];
+}
+function deleteEnv(suffix) {
+  delete process.env['PROOF_OR_STOP_' + suffix];
+  delete process.env['LATTICE_' + suffix];
+}
+
+setEnv('ACTIVITY_SOURCE', 'codex');
+setEnv('ACTIVITY_RECORD_READONLY', '1');
+setEnv('CODEX_ENTRYPOINT', 'local-wrapper');
+
+if (!readEnv('OWNER_SESSION_ADAPTER_TASK')) {
+  setEnv(
+    'OWNER_SESSION_ADAPTER_TASK',
+    process.env.CODEX_THREAD_ID ||
+      process.env.CODEX_SESSION_ID ||
+      process.env.OPENAI_SESSION_ID ||
+      process.env.TERM_SESSION_ID ||
+      '',
+  );
+}
+setEnv('OWNER_SESSION_ADAPTER_PROVIDER', 'codex');
+setEnv(
+  'OWNER_SESSION_ADAPTER_AGENT',
+  readEnv('OWNER_SESSION_ADAPTER_AGENT') || readEnv('AGENT') || 'main',
+);
+deleteEnv('ACTIVITY_SESSION');
 
 async function main() {
   const [{ existsSync }, { dirname, join }, { pathToFileURL }] = await Promise.all([
