@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|md|code-drift-agents",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-002",
+      "desc": "doc-code-drift: docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:58,87,408 assert proof-or-stop-prompt-baseline.json currently records 16 roles (\"当前 proof-or-stop-prompt-baseline.json 记录 16 个角色的最终 agent_prompt 输出\"), and that dispatch does not send 16 roles at once, and a section header \"16 个角色的具体修改方案\". But docs/requirements/baselines/proof-or-stop-prompt-baseline.json actually has expectedRoleCount=17 and registry.agentCount=17 today, matching scripts/verify-proof-or-stop-prompt-baseline.mjs EXPECTED_ROLE_COUNT=17 and the 17 files under packages/main/templates/agents/. This file was edited by this exact story commit (d987989054 B-cdf6 CHK-003) yet the stale 16-count assertions about the CURRENT baseline were not corrected, even though CHK-003 explicitly targeted correcting the stale 16-count claim (per brand-rename-mapping.md:184, which says CLAUDE.md was fixed to 13-of-17). CLAUDE.md itself is now correct (17 total / 13 lattice-prefixed) -- this sibling decision doc was left contradicting it. Medium severity: prose/count drift, not a broken command, but it directly misleads a reader about the present state of a file this same story edited.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-11T19:33:07.020Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-005",
+      "_hash": "1e033a66422466983a09858bac61cf449ed75a0dd16137bda0e763626b2537dd",
+      "files": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
