@@ -134,6 +134,19 @@
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
           "timestamp": "2026-08-11T05:38:45.063Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/brand-rename-mapping.md",
+          "command": "for k in CHANGELOG remote-push-approval 'lattice:start' 'LATTICE_\\*' lattice.config.json '@lattice/core' LATTICE_PRODUCT_NAME; do grep -c \"$k\" docs/requirements/decisions/brand-rename-mapping.md; done",
+          "result": "pass",
+          "note": "All load-bearing identifiers present: 13 salts, npm package names, lattice.config.json, LATTICE_* env prefix, managed-block markers, push-approval schema literal. Verified each row exists by grep.",
+          "mechanical": false,
+          "headHash": "bc9fc29450a9811bf423b6c5fcd4ad8b1b831ae1",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:38:45.917Z"
         }
       ]
     },
