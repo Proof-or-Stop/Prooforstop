@@ -55,7 +55,7 @@ export function isBrandEnvName(name: string): boolean {
  * (`LATTICE_AGENT`) or the bare suffix (`AGENT`), so call sites can pass whatever
  * spelling reads most naturally at that point without changing behaviour.
  */
-export function brandEnvSuffix(name: string): string {
+function brandEnvSuffix(name: string): string {
   if (name.startsWith(BRAND_ENV_PREFIX)) return name.slice(BRAND_ENV_PREFIX.length);
   if (name.startsWith(DEPRECATED_BRAND_ENV_PREFIX)) {
     return name.slice(DEPRECATED_BRAND_ENV_PREFIX.length);
@@ -63,15 +63,7 @@ export function brandEnvSuffix(name: string): string {
   return name;
 }
 
-/** The canonical env-var name for a suffix / any accepted spelling. */
-export function brandEnvName(name: string): string {
-  return `${BRAND_ENV_PREFIX}${brandEnvSuffix(name)}`;
-}
 
-/** The deprecated env-var name for a suffix / any accepted spelling. */
-export function deprecatedBrandEnvName(name: string): string {
-  return `${DEPRECATED_BRAND_ENV_PREFIX}${brandEnvSuffix(name)}`;
-}
 
 /**
  * Both accepted names for a variable, canonical first. Useful for allowlists /
@@ -113,11 +105,6 @@ export function readBrandEnvTrimmed(
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-/** True when either spelling is present (regardless of value). */
-export function hasBrandEnv(name: string, env: NodeJS.ProcessEnv = process.env): boolean {
-  const [canonical, deprecated] = brandEnvNames(name);
-  return env[canonical] !== undefined || env[deprecated] !== undefined;
-}
 
 /**
  * Set a brand env var under BOTH names so the value survives a hop into a
@@ -157,23 +144,3 @@ export function applyBrandEnv<T extends NodeJS.ProcessEnv>(
   return env;
 }
 
-/**
- * Expand a list of brand env names into every accepted spelling, de-duplicated
- * and canonical-first. Non-brand names pass through untouched, so this is safe to
- * apply to a mixed passthrough allowlist (e.g. one that also lists `PATH`).
- */
-export function expandBrandEnvNames(names: readonly string[]): string[] {
-  const out: string[] = [];
-  const seen = new Set<string>();
-  for (const name of names) {
-    const isBrand =
-      name.startsWith(BRAND_ENV_PREFIX) || name.startsWith(DEPRECATED_BRAND_ENV_PREFIX);
-    const candidates = isBrand ? brandEnvNames(name) : [name];
-    for (const candidate of candidates) {
-      if (seen.has(candidate)) continue;
-      seen.add(candidate);
-      out.push(candidate);
-    }
-  }
-  return out;
-}

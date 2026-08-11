@@ -12,16 +12,24 @@
  * always restored, including on early failure.
  */
 import { execFileSync } from 'child_process';
-import { appendFileSync } from 'fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const DOC_REL = 'docs/guide.md';
 const doc = join(repoRoot, DOC_REL);
 
+// B-cdf6:F-019 — restore by REWRITING THE EXACT ORIGINAL BYTES, never via
+// `git checkout --`. The old implementation discarded any pre-existing uncommitted
+// edits to this file, on both the success and the failure path, because git restores
+// to HEAD rather than to what the author actually had. Snapshotting the bytes up
+// front makes the script safe to run against a dirty tree, which matters because it
+// is wired into local pre-push style checks where uncommitted work is the norm.
+const ORIGINAL_BYTES = readFileSync(doc);
+
 const restore = () => {
   try {
-    execFileSync('git', ['checkout', '--', DOC_REL], { cwd: repoRoot, stdio: 'ignore' });
+    writeFileSync(doc, ORIGINAL_BYTES);
   } catch { /* best effort */ }
 };
 
