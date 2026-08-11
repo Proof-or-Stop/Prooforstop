@@ -75,6 +75,27 @@
         "packages/main/src/cli-engine.ts"
       ],
       "_hash": "f88e07183b450dd5b8efa7067875a699351f307f8cfc4202d42a67c5be44ee4b"
+    },
+    {
+      "id": "B-META-framework-audit:F-005",
+      "desc": "verify_codex's agents-mirror check and `init`'s codex-asset writer disagree on WHICH render mode is canonical for the 5 reconstruction-backed roles, so a freshly initialised full-mode project fails its own adapter verification. `init --profile=all --asset-mode=full` writes a MODULAR body (marker `<!-- proofbound:modular-role-body:v1 -->`, 3927 bytes for lattice-evaluator.md) into .lattice-codex/agents/, while codex-adapter-checks.ts:387 compares that file against renderPromptEntryForHost(entry, 'codex'), which returns the LEGACY-FULL-CONTEXT reconstruction (8896 bytes, marker `<!-- lattice:start -->`). First divergence is line 6, the marker itself. Affected files: lattice-evaluator.md, lattice-implementer.md, lattice-review-delivery.md, lattice-review-scope-plan.md, lattice-review-story-init.md - exactly the roles that resolve through the legacy-full-context path (which is the DEFAULT mode per prompt-role-contract-registry.ts, not a dead branch). Consequence: `verify_codex` reports `drift .lattice-codex/agents/<file>` and exits non-zero on a project that init itself just created, so scripts/verify-entrypoints.mjs check 8/28 cannot pass and the codex-adapter REVIEW->TEST CLI gate is unreachable for any story that touches Codex adapter assets. PROVEN PRE-EXISTING, independent of the B-cdf6 brand rename: running the identical probe against the pristine main checkout (/Users/qipan/work/repo/Prooforstop) reproduces the same mismatch with the same shape (expected 8896 / actual 3927 / DRIFT), and `git log -S'proofbound:modular-role-body'` attributes the marker to commit a260249f64 (B-235e, 'serve reviewer bootstraps from registry'), not to this story.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T15:07:47.811Z",
+      "reviewRound": "",
+      "gapFingerprint": "54d9e1da9ea37583e5a7376729ffe1cec335d5d912815aa30063e3142f42fd87",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts:387",
+        "packages/main/src/core/prompt-registry.ts",
+        "scripts/verify-entrypoints.mjs:512",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/cli-init.ts"
+      ],
+      "_hash": "e6193f17591b7cf7e5eadd638c0caa682503bde980bbe9312656c6f6ae10c7b5"
     }
   ]
 }
