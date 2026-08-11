@@ -83,7 +83,7 @@
       "desc": "CHK-006 (the largest body of work in the story per its own context: 146 LATTICE_* env vars across 245 files, ~20104 lattice tokens under packages/, 1360 under scripts/, bin filenames, package name, code identifiers, plus a read-both compat requirement) has verificationIntent={happy:[],edge:[],adversarial:[]} and verificationEvidence=[] -- zero intent, zero evidence, confirmed by reading checklist.json directly. This is structural: checklist_update refuses verificationIntent once an item exists in DEV (PLAN-only field), and CHK-006 was added mid-DEV. Consequence: all 36 must-intents in the story belong to CHK-001..CHK-005; the single largest, highest-blast-radius deliverable (touching read-both compat semantics and the .githooks/pre-push arming string) carries none of the frameworks intent-to-evidence coverage discipline. Recommend either (a) an explicit, durable waiver-style acknowledgment of this framework gap for mid-DEV-added items, or (b) retroactively binding CHK-006s already-existing DEV evidence (residue-gate/audit-scan regressions, read-both compat tests) to explicit intentRefs so coverage accounting is not silently zero for the storys biggest checklist item.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-11T19:37:11.043Z",
@@ -95,7 +95,11 @@
         ".lattice/story/actives/B-cdf6/checklist.json"
       ],
       "signatureTag": "missing|ts|largest-body-work",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CONFIRMED STRUCTURAL AND UNFIXABLE IN DEV - not resolved as 'fixed', because it is not fixed. Verified two ways: checklist_update is not in the REVIEW phaseTools allow-list at all, and verification_intent_repair --dryRun (the purpose-built legacy backfill, mode=fromEvidence) reports 'No missing verificationIntent lanes with passing evidence - nothing to repair', because it infers intent FROM evidence and CHK-006 has none to infer from. So the framework offers no path to give CHK-006 intent once it exists in DEV. WHY IT HAPPENED: CHK-006 was added mid-DEV at explicit user direction after the user corrected the freeze criterion, and verificationIntent is PLAN-phase-only by design. The reviewer is right that the largest deliverable therefore carries zero coverage in the framework's own mechanism, and right to rate it high. WHAT ACTUALLY COVERS THE WORK, re-verified live by the main agent just now rather than asserted: (1) old env names still take effect - proof-or-stop help is 403 lines by default vs 431 with LATTICE_BRIEF_OUTPUT=0, proving the deprecated name is still honoured through the read-both resolver; (2) old entrypoint still resolves - node bin/lattice.js --version prints Proof-or-Stop 0.3.252; (3) the 13 signature salt literals are byte-unchanged (grep count 13); (4) all 3 brand gate checks PASS; (5) root npm test green with 334 stage lines observed. That is real coverage, but it lives in gates and ad-hoc checks rather than in verificationIntent, so it is NOT equivalent and I am not claiming it is. Recorded as partially_mitigated with the framework gap left visible for the TEST-phase delivery reviewer and for DONE.",
+      "resolvedAt": "2026-08-11T20:08:14.393Z",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-cdf6:F-006",
