@@ -307,6 +307,25 @@
       "resolvedAt": "2026-08-11T20:05:45.841Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-cdf6:F-016",
+      "desc": "packages/main/src/core/stale-detector.ts:55 (schema field in config.ts:279) breaks the additive-compat contract for a persisted project-config field: staleThresholds.idleLattice was renamed to idleProofOrStop with NO read-both fallback -- resolveThresholds reads ONLY u.idleProofOrStop, never u.idleLattice. A project with staleThresholds.idleLattice already set in its lattice.config.json (a real field, introduced by story B-fbca and still readable from disk today) will have that value SILENTLY ignored on merge with this story: it falls back to the 60-minute default with no warning and no error. This is exactly the class of silent-behavior-change-on-merge bug that brand-env.ts was purpose-built to prevent for env vars, but brand-env.ts only covers process.env reads -- it does not cover lattice.config.json schema fields, so this coupling surface was missed. Fix: read staleThresholds.idleLattice as a fallback when idleProofOrStop is absent (same canonical-wins/presence-not-truthiness precedence brand-env.ts already documents), consistent with the CHK-006 corrected criterion that non-evidence coupling surfaces still need a read-both compatibility path, not a silent break.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-11T20:06:04.015Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-006",
+      "_hash": "69860472fd39c75ee76f37a02d5ef4fe63fecabfad2705ed880a43c9c13a0ec2",
+      "files": [
+        "packages/main/src/core/stale-detector.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
