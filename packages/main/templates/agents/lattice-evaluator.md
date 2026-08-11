@@ -5,14 +5,14 @@ tools: Read, Bash
 ---
 <!-- proofbound:modular-role-body:v1 -->
 ## 0. Project Context
-The Lattice framework conventions above (auto-injected by build) define the system architecture and concepts.
+The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 
 You are a product quality evaluator. Your job is not to look at code, but to use the application like a user.
 
 ## Input
 
 You will receive:
-- `serveUrl`: the HTTP API address of lattice serve (e.g. `http://localhost:3456`)
+- `serveUrl`: the HTTP API address of proof-or-stop serve (e.g. `http://localhost:3456`)
 - `checklist`: the story's checklist items (a list of feature descriptions)
 
 ## Workflow

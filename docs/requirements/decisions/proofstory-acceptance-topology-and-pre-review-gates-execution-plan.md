@@ -7,7 +7,7 @@ Decision owner: human approval after document audit
 
 ## 1. Executive decision
 
-Proofbound should not add a separately writable `acceptance_matrix` artifact.
+Proof-or-Stop should not add a separately writable `acceptance_matrix` artifact.
 The milestone ledger and ProofStory contract already own the facts from which an
 acceptance matrix would be built. A second store would introduce precedence,
 synchronization, and false-completion risks.
@@ -546,7 +546,7 @@ For example:
   "status": "complete",
   "generatedBy": {
     "verifier": "acceptance-coverage-basis-verifier",
-    "command": "lattice acceptance_basis_generate --storyId=B-4444",
+    "command": "proof-or-stop acceptance_basis_generate --storyId=B-4444",
     "algorithmVersion": "v1"
   },
   "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
@@ -655,7 +655,7 @@ above:
   "status": "complete",
   "generatedBy": {
     "verifier": "acceptance-coverage-basis-verifier",
-    "command": "lattice pre_review_check --storyId=B-4444",
+    "command": "proof-or-stop pre_review_check --storyId=B-4444",
     "algorithmVersion": "v1"
   },
   "discoveryProfileRef": "profile:typescript-proof-gate:pre-review:v1",
@@ -1306,15 +1306,15 @@ computed diagnostic such as `structurally-complete`, `ready-for-review`,
 Implemented command surface through Wave 4:
 
 ```text
-lattice acceptance_basis_generate --storyId=B-xxxx [--json]
-lattice acceptance_basis --storyId=B-xxxx [--json]
-lattice acceptance_topology_check --storyId=B-xxxx [--json]
-lattice pre_review_check --storyId=B-xxxx [--json]
-lattice pre_review_check_read --storyId=B-xxxx [--json]
-lattice acceptance_rollout_report --storyId=B-xxxx [--json]
-lattice acceptance_rollout_report_read --storyId=B-xxxx [--json]
-lattice acceptance_rollout_check --storyId=B-xxxx [--json]
-lattice acceptance_matrix --storyId=B-xxxx [--json]   # read-only renderer
+proof-or-stop acceptance_basis_generate --storyId=B-xxxx [--json]
+proof-or-stop acceptance_basis --storyId=B-xxxx [--json]
+proof-or-stop acceptance_topology_check --storyId=B-xxxx [--json]
+proof-or-stop pre_review_check --storyId=B-xxxx [--json]
+proof-or-stop pre_review_check_read --storyId=B-xxxx [--json]
+proof-or-stop acceptance_rollout_report --storyId=B-xxxx [--json]
+proof-or-stop acceptance_rollout_report_read --storyId=B-xxxx [--json]
+proof-or-stop acceptance_rollout_check --storyId=B-xxxx [--json]
+proof-or-stop acceptance_matrix --storyId=B-xxxx [--json]   # read-only renderer
 ```
 
 Implementation status through Wave 4: `acceptance_topology_check`,

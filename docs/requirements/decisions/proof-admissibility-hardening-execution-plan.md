@@ -9,10 +9,10 @@
 > cross-runtime conformance remain retired, non-goals, future integration, or
 > external compatibility boundaries as explicitly marked below.
 > Date: 2026-06-23.
-> Scope: Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
+> Scope: Proof-or-Stop CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
 
-> **Current vocabulary:** Active Proofbound CLI/runtime proof language is
+> **Current vocabulary:** Active Proof-or-Stop CLI/runtime proof language is
 > `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local
 > evidence, local signed/offline receipt bundles, and local review quorum
 > assurance. Server-backed authority runtime and receipt semantics are retired
@@ -49,7 +49,7 @@ implemented.
 | HANDOFF proof-ref hard-fail capability | Implemented for configured local CLI handoff consumers ✅ | `proof-admissibility-handoff.ts`; `lattice-handoff.ts`; handoff command schemas; hardening smoke | Handoff create/read/accept/resume/receipt-submit projections resolve project `proofAdmissibility` policy, carry explicit `admissibleProofRefs`, and surface blocked reasons in JSON/text. They remain local/diagnostic and keep `productionDone=false`. |
 | Authority-facing proof consumer | External / retired compatibility boundary ✅ | `authority-receipt-ref` / `AUTHORITY_GATE_DECISION` registry entries; hardening smoke | Local CLI compatibility preserves the gate-decision vocabulary and admissibility boundary while keeping `productionDoneEligible=false` / `productionDone=false`. It does not implement an external Authority production adapter; plain receipts and legacy refs cannot replace the gate decision. |
 | Legacy classification | Implemented for read-time local CLI diagnostics ✅ | `packages/main/src/core/proof-admissibility-legacy.ts`; hardening smoke | Legacy evidence is audit-readable only and cannot satisfy new strong proof gates. |
-| Admissibility waterline | Implemented as read-only diagnostic projection ✅ | `packages/main/src/core/lifecycle-control/consumption/index.ts`; `lattice admissibility_waterline --storyId=<id> --format=json` | Waterline counts and statuses cannot satisfy DONE, cannot mutate evidence, and cannot set `productionDone`. |
+| Admissibility waterline | Implemented as read-only diagnostic projection ✅ | `packages/main/src/core/lifecycle-control/consumption/index.ts`; `proof-or-stop admissibility_waterline --storyId=<id> --format=json` | Waterline counts and statuses cannot satisfy DONE, cannot mutate evidence, and cannot set `productionDone`. |
 | Append-only admissibility ledger under `.lattice/evidence/` | Retired/non-goal for the local CLI | Appendix C reference schema only; `proof-admissibility-hardening-smoke.ts` ledger-retirement assertion | Current local CLI implementation evaluates directly and renders a diagnostic waterline; it does not claim durable ledger rows or expose a ledger writer. |
 | Cross-runtime conformance suite | Retired/non-goal for the local CLI | Appendix A C12; Appendix B compatibility rows | Local CLI smokes cover the current contract. Server-backed runtime parity is not an active backlog row in this plan. |
 | 3 rounds x 2 host review evidence for rollout stories | Process requirement, not code capability | REVIEW / DONE evidence lanes for the story | This document records the requirement; lifecycle reviewers must supply the actual evidence over final material. |
@@ -78,7 +78,7 @@ implemented.
 
 ## 1. Problem
 
-Proofbound already has many local safeguards: review evidence is bound to
+Proof-or-Stop already has many local safeguards: review evidence is bound to
 `reviewRunId`, DONE-required receipts bind `headHash` / `materialHash` /
 `storyFilesHash`, local/shadow Authority output cannot claim `productionDone`,
 and offline receipt bundles have a local-key scope label. The remaining risk is
@@ -184,8 +184,8 @@ If an admissibility capability is not implemented, the control plane must report
 |---|---|---|---|---|
 | Client-writable metadata looked like proof | `job.metadata` / linked `run.metadata` could carry `hostDeclarationDigest` and `providerAuthorization` | Server-authored proof keys were not stripped from caller-writable metadata | Authority sibling story `B-e9cb`; final validation 699 pass / 9 of 9 covered | Reserved proof-key registry plus server-owned production |
 | Caller metadata looked like server truth | Direct jobs could spoof delegated replay metadata such as `createdVia/source=server_delegated` | Replay classification trusted caller-supplied metadata | Authority sibling story `B-bfa9:F-007`; full validation 671 pass / 12 of 12 covered | Server-owned creator fields only |
-| Digest omitted semantic material | A result `reason` could be edited while the digest still verified | Hash input omitted a field consumed by the claim | Proofbound `B-7b6e` gate-strength case | Semantic digest must cover every gate-consumed field |
-| Signature shape was incomplete | A signed local receipt bundle could be structurally changed through null / shape edges if shape was not checked | Canonical signer omits null/undefined, so signature alone is insufficient | Proofbound `B-4c65` receipt-bundle contract; 18 tamper classes rejected | Versioned strict shape plus signature |
+| Digest omitted semantic material | A result `reason` could be edited while the digest still verified | Hash input omitted a field consumed by the claim | Proof-or-Stop `B-7b6e` gate-strength case | Semantic digest must cover every gate-consumed field |
+| Signature shape was incomplete | A signed local receipt bundle could be structurally changed through null / shape edges if shape was not checked | Canonical signer omits null/undefined, so signature alone is insufficient | Proof-or-Stop `B-4c65` receipt-bundle contract; 18 tamper classes rejected | Versioned strict shape plus signature |
 | Local/shadow status could be over-read | `accepted=true`, local JSON, jobs-stream hints, or local diagnostic receipts could be misread as Authority completion | Transport acceptance is not receipt verification | `docs/guide.md`, `authority-client-role.md`, `authority-boundary.ts` | Classify non-authority evidence explicitly |
 | Handoff packs carry evidence-looking refs | Worker output and handoff receipt submission can look like completion | Host handoff is an execution transfer, not proof authority | `lattice-handoff.ts`, host overflow docs | Handoff must separate evidence candidates from admissible proof |
 | Legacy evidence lacks a universal scope | Old evidence may be readable but not strong enough for a stricter future gate | Historical artifacts predate the new proof contract | DONE-required / review / local receipt history | Legacy-readable, not strong-admissible |
@@ -401,7 +401,7 @@ client/host-writable metadata.
 
 Steps:
 
-1. Define a reserved proof-key registry for Proofbound surfaces.
+1. Define a reserved proof-key registry for Proof-or-Stop surfaces.
 2. For each metadata-carrying path, classify fields as:
    - user metadata
    - server/runtime metadata
@@ -1199,8 +1199,8 @@ AdmissibilityWaterline {
 
 Minimum implementation:
 
-- Add `lattice admissibility_waterline` or an equivalent
-  `lattice audit --kind=admissibility_waterline` entry point.
+- Add `proof-or-stop admissibility_waterline` or an equivalent
+  `proof-or-stop audit --kind=admissibility_waterline` entry point.
 - Output each consumer's `pass / warn / fail / error / stale` buckets,
   `missingClauses`, and top reasons.
 - `status=red` blocks high-risk advancement only when the row matches the
@@ -1544,7 +1544,7 @@ surface does not leave the same bug class open in another surface.
     shared admissibility evaluator before gate entry when the runtime evidence
     path is missing or stale.
 - Step 3: consistency threshold check
-  - Generate the current consumer waterline through `lattice
+  - Generate the current consumer waterline through `proof-or-stop
     admissibility_waterline` or an equivalent entry point.
   - `AUTHORITY_GATE_DECISION` / `DONE_REQUIRED` blocking diagnostics apply only
     when they match the current story, consumer, contract version,

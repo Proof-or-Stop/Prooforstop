@@ -1,9 +1,9 @@
-# Orchestrate Retirement And Canonical Proofbound Root
+# Orchestrate Retirement And Canonical Proof-or-Stop Root
 
 ## Decision
 
 `/Users/jek/Documents/Work/proofbound` is the canonical active checkout for new
-Proofbound work.
+Proof-or-Stop work.
 
 `/Users/jek/Documents/Work/Orchestrate` is a retired, read-only legacy evidence
 root. It remains useful for local evidence lookup and paper/research traceability,
@@ -25,19 +25,19 @@ Read-only workflow commands remain available so old evidence can still be
 inspected. Mutating workflow commands fail before handler dispatch and print:
 
 ```text
-Proofbound root is retired: /Users/jek/Documents/Work/Orchestrate
+Proof-or-Stop root is retired: /Users/jek/Documents/Work/Orchestrate
 Use canonicalRoot: /Users/jek/Documents/Work/proofbound
 ```
 
-This behavior is Host-neutral and Agent-neutral. It belongs to the Proofbound
+This behavior is Host-neutral and Agent-neutral. It belongs to the Proof-or-Stop
 workflow layer and does not depend on Codex, Claude, shell hooks, or a local Git
 remote setting.
 
 ## Migrated Active Stories
 
-The old active Orchestrate worktrees were preserved under proofbound:
+The old active Orchestrate worktrees were preserved under proof-or-stop:
 
-| Story | Preserved proofbound worktree | Status |
+| Story | Preserved proof-or-stop worktree | Status |
 | --- | --- | --- |
 | B-3523 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-3523` | preserved, not normalized |
 | B-fbb6 | `/Users/jek/Documents/Work/proofbound/.worktrees/B-fbb6` | preserved, not normalized |
@@ -54,7 +54,7 @@ Legacy Orchestrate evidence stays local-only unless it is deliberately curated
 into public-safe documentation. Do not publish raw `.lattice/story/**`,
 authority trust files, local transcripts, or runtime logs to GitHub.
 
-New Proofbound Authority runner diagnostics, including `jobs_stream` notification
+New Proof-or-Stop Authority runner diagnostics, including `jobs_stream` notification
 hints from `/v1/runners/{runnerId}/jobs/stream`, belong only in the canonical
-proofbound workflow. They must not create new evidence or runtime writes under
+proof-or-stop workflow. They must not create new evidence or runtime writes under
 the retired Orchestrate root.

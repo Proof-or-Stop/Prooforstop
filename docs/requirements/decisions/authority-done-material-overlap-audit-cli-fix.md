@@ -1,19 +1,19 @@
 # Authority DONE Material Overlap Audit CLI Fix
 
-> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proof-or-Stop CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
 
-> Status: execution handoff for a Proofbound CLI correctness fix.
-> Owner: Orchestrate / Proofbound CLI.
+> Status: execution handoff for a Proof-or-Stop CLI correctness fix.
+> Owner: Orchestrate / Proof-or-Stop CLI.
 > Related:
 > [Authority Receipt Gate Integration Execution Plan](authority-receipt-gate-integration-execution-plan.md),
 > [Authority Receipt Cross-Repo Live Smoke](authority-receipt-cross-repo-live-smoke.md),
-> [Proofbound CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
+> [Proof-or-Stop CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
 > [Lifecycle Gate Receipt Consumption](lifecycle-gate-receipt-consumption.md).
 
 ## Purpose
 
 The deployed Authority DONE gate now enforces a material-overlap audit before
-Authority completion. The current Proofbound CLI live smoke can reach TEST queued
+Authority completion. The current Proof-or-Stop CLI live smoke can reach TEST queued
 job execution, but the full DONE live E2E fails during DONE preflight because
 the CLI does not submit `materialOverlapAudit` in the signed gate decision
 input.
@@ -28,7 +28,7 @@ slice.
 Environment:
 
 - Server: `https://staging.hostneutral.net`
-- CLI: Proofbound CLI `0.3.8`
+- CLI: Proof-or-Stop CLI `0.3.8`
 - Smoke: `packages/main/dist/tasks/authority-live-python-e2e-smoke.js`
 
 DONE preflight fails before queued job creation with:
@@ -219,7 +219,7 @@ evaluates DONE and mints a production `gate_decision` receipt.
 
 ## Verification
 
-The Proofbound CLI story should verify at least:
+The Proof-or-Stop CLI story should verify at least:
 
 1. Unit/schema coverage: `GateEvaluateRequestContractSchema` accepts
    `materialOverlapAudit` with `changedFiles` and `actualFileOverlaps`.
@@ -243,7 +243,7 @@ Receipt proof: PASS inputPayload.materialOverlapAudit present
 
 ## Story Checklist Suggestion
 
-Use the normal Proofbound CLI story/worktree flow. Suggested checklist:
+Use the normal Proof-or-Stop CLI story/worktree flow. Suggested checklist:
 
 - Add material-overlap audit contract to gate request types and schemas.
 - Include the audit in signed DONE/enforce gate envelopes before signing.

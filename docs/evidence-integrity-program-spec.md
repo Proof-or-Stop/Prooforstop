@@ -133,6 +133,6 @@ confirms each host's real shell tool name.
 
 ## 6. Implementation path
 
-Each step is its own Lattice story (audit trail), cheapest first. Step 1 opens
+Each step is its own Proof-or-Stop story (audit trail), cheapest first. Step 1 opens
 now. Steps touch evidence integrity, so they are high-assurance and go through full
 cross-host quorum review themselves — dogfooding.

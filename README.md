@@ -50,7 +50,7 @@ Seven kinds of proof, each mapped to the evidence behind it:
 |---|---|---|---|
 | 1 | **Formal** | when a claim is *admissible* is precisely defined | admissibility predicate + gated lifecycle-transition equations |
 | 2 | **Mechanism** | the gate's verdict can't be faked or gamed | freshness binding, anti-forgery, receipt verification; **10/10** engine contract (zero false DONE); **18** tamper classes rejected (zero false accepts) |
-| 3 | **System** | the method is really implemented, not just theory | Proofbound runs it as a full autonomous coding lifecycle (PLAN→DEV→REVIEW→TEST→DONE) |
+| 3 | **System** | the method is really implemented, not just theory | Proof-or-Stop runs it as a full autonomous coding lifecycle (PLAN→DEV→REVIEW→TEST→DONE) |
 | 4 | **Empirical** | stronger control *causally* reduces amplification | 9,240-cell powered ablation; pre-registered primary **A4 vs A2′: 31/1800 → 2/1800** (≈1.6pp, CI excludes zero) |
 | 5 | **Failure** | missing or wrong evidence → repair or safe-stop, never a false DONE | injected-failure runs exhibit repair / safe-stop / no-false-DONE |
 | 6 | **Operational** | it works in real, sustained lifecycle use | self-application corpus: **565 stories / 1,007 findings**; **26/28 (93%)** deep-set findings from independent review while the author's tests were green |
@@ -86,14 +86,14 @@ Its job is narrow and expensive-to-skip: turn the costliest failure — *wrong c
 
 ## CLI
 
-Proof-or-Stop ships as a CLI (`lattice`). Full command reference: **[docs/CLI.md](docs/CLI.md)**.
+Proof-or-Stop ships as a CLI (`proof-or-stop`). Full command reference: **[docs/CLI.md](docs/CLI.md)**.
 
 ```bash
-lattice session_brief   # recover project state
-lattice validate        # run the gates
+proof-or-stop session_brief   # recover project state
+proof-or-stop validate        # run the gates
 ```
 
-> `lattice` is the CLI command name for historical reasons; the project is **Proof-or-Stop**. (`lattice --version` currently prints `Proofbound CLI` — a rename in progress.)
+> `proof-or-stop` is the CLI command name. `lattice` is retained as a deprecated alias for existing scripts and in-flight work, and resolves to the same binary — `lattice --version` and `proof-or-stop --version` print identical output. Some internal identifiers (the `.lattice/` state directory, `LATTICE_*` environment variables, signature salts and agent role IDs) intentionally keep the older name so that already-persisted state and signatures stay valid.
 
 ## Paper
 
