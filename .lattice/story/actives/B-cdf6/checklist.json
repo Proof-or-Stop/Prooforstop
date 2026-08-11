@@ -528,12 +528,13 @@
           "kind": "docs_check",
           "file": "docs/requirements/decisions/brand-rename-mapping.md",
           "command": "grep -c FROZEN docs/requirements/decisions/brand-rename-mapping.md",
-          "note": "Traceability: every surviving lattice token in the active-doc surface maps to a FROZEN / FROZEN-THIS-STORY / PRESERVE row in the 26-row mapping table. Two tokens CHK-003 surfaced as unclassified (the GitHub repo slug Proof-or-Stop/Prooforstop and BibTeX key huang2026proofstop) were added as explicit FROZEN external-identifier rows in commit f13b6f0d69 rather than left ambiguous, so the table is now closed over the active-doc surface. Frozen-token count parity was verified across 18 token classes before/after the sweep (salts 4/4, @lattice/core 10/10, LATTICE_* 327/327, ProofStory 114/114).",
+          "result": "pass",
+          "note": "Traceability closed over the active-doc surface. Two tokens CHK-003 surfaced as unclassified (GitHub repo slug Proof-or-Stop/Prooforstop, verified against the live git remote, and BibTeX key huang2026proofstop) were added as explicit FROZEN external-identifier rows in commit f13b6f0d69 rather than left ambiguous. Frozen-token parity was verified across 18 token classes before/after the sweep (salts 13/13, @lattice/core intact, ProofStory preserved).",
           "mechanical": false,
-          "headHash": "45d6d1f24455705deb3f3f42dc0ccb75d1941191",
-          "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
-          "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
-          "timestamp": "2026-08-11T06:05:23.203Z"
+          "headHash": "21866d1fa51b3253b287926eaa6776840abc15c7",
+          "materialHash": "8f570378eb4636718661eb9e6b99a23f3cefdd6674c0ff030e9513a9d658beb6",
+          "storyFilesHash": "c38449c5ed248ccf8eb064bd5418ca884dc9b5f339b7ed7bae224c4d5ebbd652",
+          "timestamp": "2026-08-11T15:35:48.057Z"
         }
       ]
     },
