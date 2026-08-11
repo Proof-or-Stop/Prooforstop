@@ -207,6 +207,26 @@
         "docs/requirements/decisions/brand-rename-mapping.md"
       ],
       "_hash": "99846a5fc93a1a2abdceedb787375622aacc7a5615a1691ca672c5ecd6cdc6b1"
+    },
+    {
+      "id": "B-META-framework-audit:F-012",
+      "desc": "A verification intent whose proof is 'the root DONE-blocking suite passes' CANNOT be satisfied by a tool-executed receipt, because the receipt executor's command budget is shorter than the suite it is being asked to witness. DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000 (core/validation-executor.ts:43) is applied by runSingleAllowlistedCommand, which handlers/checklist.ts:644 uses to run the pinned command before checking the selector at :646. Root npm test on B-cdf6 needs longer than 270s (a completed out-of-band run produced a 1544-line log with REAL_EXIT=0). Consequence: three separate attempts to pin `npm test` (and a wrapper around it) were each refused at EXACTLY 270.3s with `receipt_selector_absent` - the suite was killed mid-run so the verdict line was never printed, and the refusal message names only the absent selector, giving no hint that a timeout occurred. verification_evidence_add exposes no timeout parameter, so a caller cannot raise the ceiling. The perverse result: the single most important gate evidence in the lifecycle - 'the DONE-blocking suite is green' - is the one thing that cannot be mechanically witnessed, pushing the operator toward a nonMechanicalReason attestation, which the DEV->REVIEW gate then correctly refuses as non-mechanical. The intent becomes unsatisfiable by either route.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:29:02.897Z",
+      "reviewRound": "",
+      "gapFingerprint": "99e3ae02002ff51b444edac5d14ebf9d159285be19f86bcf11ac34d581fed5b7",
+      "files": [
+        "packages/main/src/core/validation-executor.ts:43",
+        "packages/main/src/handlers/checklist.ts:644",
+        "packages/main/src/handlers/checklist.ts:646",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "_hash": "0c4b6c9788f71b7cce17e23225f61f0e03154a9b28250665e148cd8126fa4303"
     }
   ]
 }

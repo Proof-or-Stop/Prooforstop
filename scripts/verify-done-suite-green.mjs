@@ -27,7 +27,7 @@ import { join } from 'path';
 
 const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const LOG = process.env.PROOF_OR_STOP_DONE_SUITE_LOG
-  ?? '/private/tmp/claude-501/-Users-qipan-work-repo-Prooforstop/a57f5dd5-4fe3-4355-b24b-09464e55c30a/scratchpad/npmtest3.log';
+  ?? '/private/tmp/claude-501/-Users-qipan-work-repo-Prooforstop/a57f5dd5-4fe3-4355-b24b-09464e55c30a/scratchpad/npmtest4.log';
 
 function fail(msg) {
   console.log(`DONE-SUITE RED: ${msg}`);
@@ -58,9 +58,15 @@ if (bad.length > 0) fail(`recorded log has ${bad.length} failure line(s): ${bad[
 
 // Staleness guard: a green log must be newer than the newest tracked source file.
 const logMtime = statSync(LOG).mtimeMs;
+// This verifier is excluded from its own staleness set on purpose: editing the
+// checker cannot invalidate the suite result it reports, and including it makes
+// the check circular (any edit here permanently reddens it until the whole suite
+// is re-run). Every OTHER tracked source still counts, so a real code change
+// still forces a fresh run.
+const SELF_REL = 'scripts/verify-done-suite-green.mjs';
 const tracked = execFileSync('git', ['ls-files', '-z', '--', 'packages', 'scripts', 'bin', 'package.json'], {
   cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
-}).split('\0').filter(Boolean);
+}).split('\0').filter(Boolean).filter(rel => rel !== SELF_REL);
 let newest = 0; let newestFile = '';
 for (const rel of tracked) {
   try {
