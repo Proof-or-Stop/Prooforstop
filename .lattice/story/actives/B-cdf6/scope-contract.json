@@ -1,0 +1,27 @@
+{
+  "storyId": "B-cdf6",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [
+    ".lattice/story",
+    "CHANGELOG.md",
+    "CITATION.cff"
+  ],
+  "explicitExcludes": [
+    ".lattice/story",
+    "CHANGELOG.md"
+  ],
+  "scopeChangeReason": "Brand rename scope: forward-looking surfaces (bin name, active docs, CLI output strings) are in scope; historical records are protected per the user past-vs-future decision of 2026-08-11 - if a surface records what already happened it is FROZEN, if it tells a user what to run now or next it is RENAMED.",
+  "acknowledgements": [],
+  "createdAt": "2026-08-11T03:42:34.106Z",
+  "updatedAt": "2026-08-11T03:42:34.106Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    ".lattice/story": ".lattice/story",
+    "CHANGELOG.md": "CHANGELOG.md",
+    "CITATION.cff": "CITATION.cff"
+  }
+}
