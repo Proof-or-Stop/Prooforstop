@@ -582,7 +582,11 @@
           {
             "desc": "Script filename unchanged so review-preflight.ts:91 (fails closed) and package.json:19 keep resolving",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-lattice-residue.mjs",
+              "selector": "PASS"
+            }
           }
         ],
         "adversarial": [
@@ -728,6 +732,26 @@
           "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
           "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
           "timestamp": "2026-08-11T06:14:33.450Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-lattice-residue.mjs",
+          "command": "node scripts/verify-lattice-residue.mjs",
+          "result": "pass",
+          "note": "Filename verify-lattice-residue.mjs deliberately UNCHANGED (FROZEN per the mapping table), so packages/main/src/handlers/review-preflight.ts:91 - which hardcodes this exact path and returns ok:false when absent - keeps resolving, as does package.json:19 test:lattice-residue and scripts/verify-residue-inject-repro.mjs:31. Only the script content changed. The implementer confirmed the gate passes through the exact execFileSync path review-preflight.ts uses.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "af4403be734d3a622ede7ee69f50ec893f54849206ee348b4c21ef8d93238751",
+            "outputTail": "PASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T06:14:42.878Z"
+          },
+          "headHash": "7466d651bcfb06e726223592f08712435f0bb3d2",
+          "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
+          "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
+          "timestamp": "2026-08-11T06:14:43.001Z"
         }
       ]
     },
