@@ -68,7 +68,22 @@
         "headHash": "c9be6277fdb131f1d0ecb5fd1dd1e0fdd80bccd8",
         "attestedAt": "2026-08-11T04:19:49.968Z",
         "materialHash": "2b14bfb6bca850585b32f21ba95f890435495deff7600c045497b60a89b93f24"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/brand-rename-mapping.md",
+          "command": "test -f docs/requirements/decisions/brand-rename-mapping.md",
+          "result": "pass",
+          "note": "Mapping table created with 24 rows; verdict distribution verified by grep: 8 RENAMED / 10 FROZEN / 2 FROZEN-THIS-STORY / 1 PRESERVE.",
+          "mechanical": false,
+          "headHash": "a924bc6e5dd9d8157cf52de2a1364eadc4a36ad2",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:38:41.683Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
