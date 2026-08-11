@@ -5,6 +5,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync, spawnSync } from 'child_process';
 import { runManagedAssetCheck } from '../packages/main/dist/core/managed-assets.js';
+import { readPromptRegistry, renderPromptEntryForHost } from '../packages/main/dist/core/prompt-registry.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
@@ -76,12 +77,19 @@ function assertPathMissing(root, relPath, label = relPath) {
   assert(!pathExistsWithExactCase(root, relPath), `${label} should not exist`);
 }
 
+// B-cdf6: seed the mirror with HOST-RENDERED shims, not raw registry templates.
+// `verify_codex`'s agents-mirror check compares each `.claude/agents/<file>` against
+// `renderPromptEntryForHost(entry, 'claude')`. Copying the raw template bytes made
+// every file report `package/Claude drift`, so `verify_codex` exited non-zero and
+// `run()` (execFileSync) THREW — which is why the assertion message showed an empty
+// `output ()` rather than a diff. Rendering through the same function the checker
+// uses makes the fixture agree with the contract instead of accidentally violating it.
 function seedClaudeAgentMirror(tempDir) {
-  const sourceDir = join(repoRoot, 'packages/main/templates/agents');
   const mirrorDir = join(tempDir, '.claude', 'agents');
   mkdirSync(mirrorDir, { recursive: true });
-  for (const file of readdirSync(sourceDir).filter(name => name.endsWith('.md'))) {
-    writeFileSync(join(mirrorDir, file), readFileSync(join(sourceDir, file), 'utf8'));
+  const registry = readPromptRegistry();
+  for (const entry of registry.agents) {
+    writeFileSync(join(mirrorDir, entry.file), renderPromptEntryForHost(entry, 'claude'));
   }
   return () => rmSync(mirrorDir, { recursive: true, force: true });
 }
@@ -511,7 +519,16 @@ checks.push(() => {
     const cleanupClaudeMirror = seedClaudeAgentMirror(tempDir);
     const verifyInitOut = run(process.execPath, [join(tempDir, 'bin', 'proof-or-stop.js'), 'verify_codex'], { cwd: tempDir });
     assertIncludes(verifyInitOut, 'Codex adapter checks passed', `lattice verify_codex output (${verifyInitOut.trim()})`);
-    assertIncludes(verifyInitOut, 'Codex agents mirror: 16 prompt(s) mirrored', 'lattice verify_codex mirror check');
+    // B-cdf6: derive the expected count from the registry instead of hardcoding it.
+    // The literal `16` had gone stale against a 17-role registry, so this assertion
+    // would have failed even once the drift issue above was fixed. Deriving it means
+    // adding or removing a role can never silently rot this check again.
+    const expectedMirrorCount = readPromptRegistry().agents.length;
+    assertIncludes(
+      verifyInitOut,
+      `Codex agents mirror: ${expectedMirrorCount} prompt(s) mirrored`,
+      'lattice verify_codex mirror check',
+    );
     assertPathMissing(tempDir, 'src/core', 'lattice verify_codex src/core');
     assertPathMissing(tempDir, 'src/shells', 'lattice verify_codex src/shells');
     assertPathMissing(tempDir, 'tests', 'lattice verify_codex tests');
