@@ -67,7 +67,55 @@
       "userSees": "`proof-or-stop --version` prints the version, and `lattice --version` still works and prints the same version",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "proof-or-stop --version prints the version",
+            "type": "manual",
+            "priority": "must"
+          },
+          {
+            "desc": "proof-or-stop help prints Usage lines using the new bin name",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lattice --version still works and prints the SAME version, proving the deprecated alias is intact",
+            "type": "manual",
+            "priority": "must"
+          },
+          {
+            "desc": "proof-or-stop session_brief prints the renamed header rather than the legacy one",
+            "type": "manual",
+            "priority": "must"
+          },
+          {
+            "desc": "proof-or-stop proof-or-stop --version is forgiven exactly as the lattice lattice form is",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No help or usage line prints the old bin name when invoked as proof-or-stop: grep -c 'Usage: lattice' returns 0",
+            "type": "manual",
+            "priority": "must"
+          },
+          {
+            "desc": "verify-entrypoints.mjs passes after its pinned header assertions are updated, so the rename is not achieved by disabling a test",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "invokedAs is actually consumed, not merely computed, so output mirrors how the CLI was invoked",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
