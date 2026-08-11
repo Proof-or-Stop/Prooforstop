@@ -15,7 +15,7 @@
  */
 import { existsSync, realpathSync } from 'fs';
 import { isAbsolute, join, relative } from 'path';
-import { loadConfig, type LatticeConfig } from './config.js';
+import { loadConfig, type ProofOrStopConfig } from './config.js';
 import { gitProbe } from './git-probe.js';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
@@ -48,7 +48,7 @@ export interface ResolveStorySignedWorkspaceOptions {
   storyId: string;
   metadataRoot: string;
   cwd?: string;
-  config?: LatticeConfig;
+  config?: ProofOrStopConfig;
 }
 
 interface GitRootProbe {
@@ -189,7 +189,7 @@ export interface ResolveGitCwdOptions {
   /** Returned verbatim when no gitRoot resolves (plain-repo fallback). */
   projectRoot: string;
   cwd?: string;
-  config?: LatticeConfig;
+  config?: ProofOrStopConfig;
 }
 
 export function resolveGitCwd(opts: ResolveGitCwdOptions): string {
@@ -267,7 +267,7 @@ export interface EvaluateStoryDirInsideGitRootOptions {
   storyId: string;
   metadataRoot: string;
   cwd?: string;
-  config?: LatticeConfig;
+  config?: ProofOrStopConfig;
 }
 
 export function evaluateStoryDirInsideGitRoot(
@@ -358,7 +358,7 @@ export function evaluateStoryDirInsideGitRoot(
  */
 export interface EvaluateStoryDirConfigInsideGitRootOptions {
   metadataRoot: string;
-  config?: LatticeConfig;
+  config?: ProofOrStopConfig;
   cwd?: string;
 }
 
@@ -469,7 +469,7 @@ export function resolveProjectGitRoot(metadataRoot: string, configuredGitRoot: s
 export function resolveProjectGitCwd(
   metadataRoot: string,
   projectRoot: string,
-  config?: LatticeConfig,
+  config?: ProofOrStopConfig,
 ): string {
   return resolveProjectGitRoot(metadataRoot, config?.gitRoot) ?? projectRoot;
 }

@@ -21,7 +21,7 @@ import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../c
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
-import { renderLatticeBootstrapScript, renderLatticeCodexWrapperScript } from '../init-assets.js';
+import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
@@ -1255,8 +1255,8 @@ try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
     const latticeWrapperPath = join(wrapperRoot, 'bin', 'lattice.js');
     const codexWrapperPath = join(wrapperRoot, 'bin', 'lattice-codex.js');
-    writeFileSync(latticeWrapperPath, renderLatticeBootstrapScript(packageRoot));
-    writeFileSync(codexWrapperPath, renderLatticeCodexWrapperScript());
+    writeFileSync(latticeWrapperPath, renderProofOrStopBootstrapScript(packageRoot));
+    writeFileSync(codexWrapperPath, renderProofOrStopCodexWrapperScript());
     const latticeWrapper = readFileSync(latticeWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
     assert.match(latticeWrapper, /require\('node:fs'\)/, 'Proofbound wrapper should be CommonJS so non-JS repos do not need package.json type=module');

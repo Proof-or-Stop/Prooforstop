@@ -40,13 +40,13 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(abs, content, 'utf-8');
 }
 
-function writeLatticeConfig(root: string, config: Record<string, unknown> = {}): void {
+function writeProofOrStopConfig(root: string, config: Record<string, unknown> = {}): void {
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2), 'utf-8');
 }
 
 function makeGitFixture(): string {
   const root = mkdtemp('artifact-release-ledger-git-');
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Artifact Release Smoke']);
@@ -61,7 +61,7 @@ function makeGitFixture(): string {
 
 function makeWrapperGitFixture(): { metadataRoot: string; gitCwd: string; head: string } {
   const metadataRoot = mkdtemp('artifact-release-ledger-wrapper-');
-  writeLatticeConfig(metadataRoot, { gitRoot: 'repo' });
+  writeProofOrStopConfig(metadataRoot, { gitRoot: 'repo' });
   const gitCwd = join(metadataRoot, 'repo');
   mkdirSync(gitCwd, { recursive: true });
   git(gitCwd, ['init', '-b', 'main']);
@@ -78,7 +78,7 @@ function makePartialDoneRecoveryFixture(): { root: string; storyId: string } {
   const root = mkdtemp('artifact-release-ledger-recover-');
   const storyId = 'B-recover';
   const now = '2026-07-05T00:06:00.000Z';
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Artifact Release Recovery Smoke']);
@@ -146,7 +146,7 @@ function makeRuntimePartialDoneRecoveryFixture(): { root: string; storyId: strin
   const root = mkdtemp('artifact-release-ledger-recover-runtime-');
   const storyId = 'B-recover-runtime';
   const now = '2026-07-05T00:07:00.000Z';
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Runtime Recovery Smoke']);

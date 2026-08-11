@@ -92,7 +92,7 @@ function commitAuxiliaryPatch(root: string, auxPath: string, name: string): stri
   return git(auxPath, ['rev-parse', 'HEAD']);
 }
 
-async function runLattice(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runProofOrStop(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   return new Promise<string>((resolvePromise, reject) => {
     const child = spawn(process.execPath, [cliPath, command, JSON.stringify(args)], {
       cwd: root,
@@ -111,9 +111,9 @@ async function runLattice(root: string, command: string, args: Record<string, un
   });
 }
 
-async function runLatticeExpectFail(root: string, command: string, args: Record<string, unknown>): Promise<string> {
+async function runProofOrStopExpectFail(root: string, command: string, args: Record<string, unknown>): Promise<string> {
   try {
-    await runLattice(root, command, args);
+    await runProofOrStop(root, command, args);
   } catch (e: any) {
     return e?.message || String(e);
   }
@@ -132,12 +132,12 @@ async function assertStoryReconcileCleansPatchEquivalentAuxiliaryWorktree(): Pro
     const auxCommit = commitAuxiliaryPatch(root, aux.path, 'owner_help');
     git(root, ['cherry-pick', auxCommit]);
 
-    const dryRun = await runLattice(root, 'story_reconcile', {});
+    const dryRun = await runProofOrStop(root, 'story_reconcile', {});
     assert.match(dryRun, /Auxiliary story worktree residues:/);
     assert.match(dryRun, /B-auxsafe safe-cleanup codex\/B-auxsafe-owner-help/);
     assert.equal(existsSync(aux.path), true, 'dry-run must not remove the worktree');
 
-    const repaired = await runLattice(root, 'story_reconcile', { dryRun: false });
+    const repaired = await runProofOrStop(root, 'story_reconcile', { dryRun: false });
     assert.match(repaired, /✓ Cleaned B-auxsafe safe-cleanup codex\/B-auxsafe-owner-help/);
     assert.equal(existsSync(aux.path), false, 'repair should remove the auxiliary worktree');
     assert.equal(git(root, ['branch', '--list', aux.branch]), '', 'repair should delete patch-equivalent auxiliary branch');
@@ -167,11 +167,11 @@ async function assertStoryReconcilePreservesMissingAndDirtyAuxiliaryWorktrees():
     git(root, ['cherry-pick', dirtyCommit]);
     write(dirty.path, 'packages/main/src/uncommitted.ts', 'export const dirty = true;\n');
 
-    const dryRun = await runLattice(root, 'story_reconcile', {});
+    const dryRun = await runProofOrStop(root, 'story_reconcile', {});
     assert.match(dryRun, /B-auxmiss missing-from-main codex\/B-auxmiss-validate-alias/);
     assert.match(dryRun, /B-auxdirty dirty-worktree codex\/B-auxdirty-scope-ux/);
 
-    const repaired = await runLattice(root, 'story_reconcile', { dryRun: false });
+    const repaired = await runProofOrStop(root, 'story_reconcile', { dryRun: false });
     assert.match(repaired, /⚠ Skipped B-auxmiss missing-from-main/);
     assert.match(repaired, /⚠ Skipped B-auxdirty dirty-worktree/);
     assert.equal(existsSync(missing.path), true, 'missing-from-main worktree must be preserved');
@@ -197,10 +197,10 @@ async function assertStoryReconcileCleansDetachedPatchEquivalentWorktree(): Prom
     git(aux.path, ['checkout', '--detach', 'HEAD']);
     git(root, ['branch', '-D', aux.branch]);
 
-    const dryRun = await runLattice(root, 'story_reconcile', {});
+    const dryRun = await runProofOrStop(root, 'story_reconcile', {});
     assert.match(dryRun, /B-auxdet safe-cleanup \(no branch\) @/);
 
-    const repaired = await runLattice(root, 'story_reconcile', { dryRun: false });
+    const repaired = await runProofOrStop(root, 'story_reconcile', { dryRun: false });
     assert.match(repaired, /✓ Cleaned B-auxdet safe-cleanup \(no branch\) @/);
     assert.equal(existsSync(aux.path), false, 'detached safe worktree should be removable');
     assert.equal(git(root, ['branch', '--list', aux.branch]), '');
@@ -222,7 +222,7 @@ async function assertStoryReconcileRepairRequiresMainWriteLock(): Promise<void> 
     const auxCommit = commitAuxiliaryPatch(root, aux.path, 'locked_owner_help');
     git(root, ['cherry-pick', auxCommit]);
 
-    const failure = await runLatticeExpectFail(root, 'story_reconcile', { dryRun: false });
+    const failure = await runProofOrStopExpectFail(root, 'story_reconcile', { dryRun: false });
     assert.match(failure, /story_reconcile repair is blocked: the main write lock is held/);
     assert.equal(existsSync(aux.path), true, 'repair must not proceed while main write lock is held');
     assert.notEqual(git(root, ['branch', '--list', aux.branch]), '', 'branch must remain while lock is held');

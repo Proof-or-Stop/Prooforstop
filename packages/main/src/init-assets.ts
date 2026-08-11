@@ -110,7 +110,7 @@ export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 <!-- lattice:end -->
 `;
 
-export interface LatticeProjectConfig {
+export interface ProofOrStopProjectConfig {
   latticeVersion: 1;
   assetMode: 'global-thin';
   description: string;
@@ -123,7 +123,7 @@ export function renderLatticeProjectConfig(): string {
     assetMode: 'global-thin',
     description: 'Global-thin Proof-or-Stop project: executable Codex adapter behavior lives in the global lattice CLI; no local bin shims required.',
     generatedAt: new Date().toISOString(),
-  } satisfies LatticeProjectConfig, null, 2) + '\n';
+  } satisfies ProofOrStopProjectConfig, null, 2) + '\n';
 }
 
 export interface CodexAdapterManifest {
@@ -191,10 +191,10 @@ export interface RenderCodexAdapterManifestOptions {
 }
 
 export function renderCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
-  return renderLatticeCodexAdapterManifest(options);
+  return renderProofOrStopCodexAdapterManifest(options);
 }
 
-export function renderLatticeCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
+export function renderProofOrStopCodexAdapterManifest(options: RenderCodexAdapterManifestOptions = {}): string {
   if (options.promptMode !== 'registry') {
     return `${JSON.stringify(LATTICE_CODEX_ADAPTER_MANIFEST, null, 2)}\n`;
   }
@@ -289,7 +289,7 @@ function jsString(value: string): string {
   return JSON.stringify(value);
 }
 
-export function renderLatticeBootstrapScript(packageRootAbs: string): string {
+export function renderProofOrStopBootstrapScript(packageRootAbs: string): string {
   return `#!/usr/bin/env node
 const { existsSync } = require('node:fs');
 const { dirname, join } = require('node:path');
@@ -455,7 +455,7 @@ main().catch(error => {
 `;
 }
 
-export function renderLatticeCodexWrapperScript(): string {
+export function renderProofOrStopCodexWrapperScript(): string {
   return renderCodexWrapperScript();
 }
 
@@ -836,3 +836,18 @@ function resolveCli(root) {
 }
 `;
 }
+
+/*
+ * Deprecated brand aliases (B-cdf6 CHK-006).
+ *
+ * Durable, not transitional: this repository is multi-developer, so a teammate
+ * branch importing the old symbol must keep compiling when it merges. Never remove.
+ */
+/** @deprecated Use `ProofOrStopProjectConfig`. */
+export type LatticeProjectConfig = ProofOrStopProjectConfig;
+/** @deprecated Use `renderProofOrStopBootstrapScript`. */
+export const renderLatticeBootstrapScript = renderProofOrStopBootstrapScript;
+/** @deprecated Use `renderProofOrStopCodexAdapterManifest`. */
+export const renderLatticeCodexAdapterManifest = renderProofOrStopCodexAdapterManifest;
+/** @deprecated Use `renderProofOrStopCodexWrapperScript`. */
+export const renderLatticeCodexWrapperScript = renderProofOrStopCodexWrapperScript;

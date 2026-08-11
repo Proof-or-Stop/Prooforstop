@@ -6,7 +6,7 @@ import {
   LATTICE_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   listAgentPromptFiles,
-  renderLatticeCodexAdapterManifest,
+  renderProofOrStopCodexAdapterManifest,
   type CodexPromptMode,
 } from '../init-assets.js';
 import { readActivityLogTail } from './activity-log.js';
@@ -291,7 +291,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
   }
   const manifestPath = join(root, selection.relPath);
   const actual = readText(manifestPath);
-  const expected = renderLatticeCodexAdapterManifest();
+  const expected = renderProofOrStopCodexAdapterManifest();
   const expectedIdentity = LATTICE_CODEX_ADAPTER_MANIFEST;
   let parsed: unknown;
   try {
@@ -333,7 +333,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
       );
       return 'registry';
     }
-    const expectedRegistryManifest = renderLatticeCodexAdapterManifest({ promptMode: 'registry' });
+    const expectedRegistryManifest = renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' });
     if (actual !== expectedRegistryManifest) {
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proofbound registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';

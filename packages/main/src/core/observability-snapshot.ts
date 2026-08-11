@@ -103,7 +103,7 @@ export interface ObservabilitySnapshotSections {
   parallel: ObservabilityParallelEntry[];
 }
 
-export interface LatticeObservabilitySnapshot {
+export interface ProofOrStopObservabilitySnapshot {
   schemaVersion: typeof OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION;
   readOnly: true;
   generatedAt: string;
@@ -297,7 +297,7 @@ export function buildObservabilitySnapshot(
   rootStore: StoryStore,
   projectRoot: string,
   options: ObservabilitySnapshotOptions = {},
-): LatticeObservabilitySnapshot {
+): ProofOrStopObservabilitySnapshot {
   const warnings: string[] = [];
   const storeFactory = options.storeFactory ?? defaultStoreFactory;
   const localProjection = options.projection ?? resolveLocalAssuranceStories(rootStore, projectRoot, {
@@ -395,3 +395,12 @@ export function buildObservabilitySnapshot(
     warnings,
   };
 }
+
+/*
+ * Deprecated brand aliases (B-cdf6 CHK-006).
+ *
+ * Durable, not transitional: this repository is multi-developer, so a teammate
+ * branch importing the old symbol must keep compiling when it merges. Never remove.
+ */
+/** @deprecated Use `ProofOrStopObservabilitySnapshot`. */
+export type LatticeObservabilitySnapshot = ProofOrStopObservabilitySnapshot;

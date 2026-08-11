@@ -14,9 +14,9 @@ import {
   listAgentPromptFiles,
   renderCodexAgentContent,
   renderCodexReadmeTemplate,
-  renderLatticeBootstrapScript,
-  renderLatticeCodexAdapterManifest,
-  renderLatticeCodexWrapperScript,
+  renderProofOrStopBootstrapScript,
+  renderProofOrStopCodexAdapterManifest,
+  renderProofOrStopCodexWrapperScript,
   renderLatticeProjectConfig,
   renderCodexHooksJson,
   renderCodexPretoolScopeHookScript,
@@ -477,14 +477,14 @@ function removeCodexWrapperIfManaged() {
   // shapes, so profile cleanup must consider both names (B-cdf6). A file whose content
   // is not the generated template is still left alone by removeWholeFileIfGenerated.
   for (const rel of ['bin/proof-or-stop-codex.js', 'bin/lattice-codex.js']) {
-    removeWholeFileIfGenerated(rel, rel, [renderLatticeCodexWrapperScript()]);
+    removeWholeFileIfGenerated(rel, rel, [renderProofOrStopCodexWrapperScript()]);
   }
 }
 
 function removeCodexManifestIfManaged() {
   removeWholeFileIfGenerated('.lattice-codex/lattice.json', '.lattice-codex/lattice.json', [
-    renderLatticeCodexAdapterManifest(),
-    renderLatticeCodexAdapterManifest({ promptMode: 'registry' }),
+    renderProofOrStopCodexAdapterManifest(),
+    renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' }),
   ]);
 }
 
@@ -625,7 +625,7 @@ const existingCodexWrapperRel = [CANONICAL_CODEX_WRAPPER_REL, DEPRECATED_CODEX_W
   .find(rel => existsSync(join(targetDir, rel)));
 
 if (!isGlobalThin) {
-  writeExecutable(CANONICAL_BOOTSTRAP_REL, renderLatticeBootstrapScript(packageRoot));
+  writeExecutable(CANONICAL_BOOTSTRAP_REL, renderProofOrStopBootstrapScript(packageRoot));
   if (existsSync(join(targetDir, DEPRECATED_BOOTSTRAP_REL))) {
     console.log(`  - ${DEPRECATED_BOOTSTRAP_REL} (deprecated alias retained, still works)`);
   }
@@ -634,7 +634,7 @@ if (!isGlobalThin) {
 }
 
 if (!isGlobalThin && wantsCodex && !existingCodexWrapperRel) {
-  writeExecutable(CANONICAL_CODEX_WRAPPER_REL, renderLatticeCodexWrapperScript());
+  writeExecutable(CANONICAL_CODEX_WRAPPER_REL, renderProofOrStopCodexWrapperScript());
   console.log(`  ✓ ${CANONICAL_CODEX_WRAPPER_REL} (Codex wrapper)`);
 } else if (!isGlobalThin && wantsCodex) {
   console.log(`  - ${existingCodexWrapperRel} (exists, skip)`);
@@ -938,7 +938,7 @@ if (!isGlobalThin && wantsCodex) {
   console.log('  ✓ .lattice-codex/README.md');
 
   const codexManifestPath = join(targetDir, '.lattice-codex', 'lattice.json');
-  writeFileSync(codexManifestPath, renderLatticeCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
+  writeFileSync(codexManifestPath, renderProofOrStopCodexAdapterManifest(selectedAssetMode === 'thin' ? { promptMode: 'registry' } : {}));
   console.log('  ✓ .lattice-codex/lattice.json');
 } else if (isGlobalThin) {
   console.log('  - .lattice-codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');

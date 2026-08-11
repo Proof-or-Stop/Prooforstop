@@ -919,7 +919,7 @@ export function classifyLifecycleArtifact(
   return null;
 }
 
-export function isLatticeLifecycleArtifactPath(
+export function isProofOrStopLifecycleArtifactPath(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
 ): boolean {
@@ -927,7 +927,7 @@ export function isLatticeLifecycleArtifactPath(
   return result?.kind === 'lifecycle';
 }
 
-export function isAnyLatticeStoryMetadataPath(
+export function isAnyProofOrStopStoryMetadataPath(
   path: string,
   options: LifecycleArtifactClassifyOptions = {},
 ): boolean {
@@ -941,3 +941,14 @@ import {
   GAP_LOG_PROVENANCE_LEDGER_PATH,
   verifyGapLogArtifactBinding,
 } from './finding-verify.js';
+
+/*
+ * Deprecated brand aliases (B-cdf6 CHK-006).
+ *
+ * Durable, not transitional: this repository is multi-developer, so a teammate
+ * branch importing the old symbol must keep compiling when it merges. Never remove.
+ */
+/** @deprecated Use `isAnyProofOrStopStoryMetadataPath`. */
+export const isAnyLatticeStoryMetadataPath = isAnyProofOrStopStoryMetadataPath;
+/** @deprecated Use `isProofOrStopLifecycleArtifactPath`. */
+export const isLatticeLifecycleArtifactPath = isProofOrStopLifecycleArtifactPath;

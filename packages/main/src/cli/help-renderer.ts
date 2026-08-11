@@ -14,7 +14,7 @@ import { isCommandAllowed } from '../core/config.js';
 import { getCommandPolicy, type CommandPolicy } from '../core/command-policy.js';
 import {
   detectLatticeBrand,
-  formatLatticeProductLine,
+  formatProofOrStopProductLine,
 } from '../core/lattice-brand.js';
 import { sessionBriefFooter } from '../cli-prompts.js';
 import type { ToolDef } from './main-tools.js';
@@ -168,7 +168,7 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
   const dryRunLine = dryRunHelpLine(tool, policy);
 
   out(`\n  ${brand.usageBin} ${tool.name} — ${tool.description}\n`);
-  out(`  ${formatLatticeProductLine(brand)}\n`);
+  out(`  ${formatProofOrStopProductLine(brand)}\n`);
 
   // If longHelp exists for a core command, print the full prompt first.
   if (tool.longHelp) {
@@ -232,7 +232,7 @@ export function printValidationFailure(tool: ToolDef, issues: ZodIssue[], ownerL
 export function printHelp(options: GlobalHelpOptions) {
   const { tools, activeStory, phaseTools } = options;
   const brand = detectLatticeBrand();
-  console.log(`\n  ${formatLatticeProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
+  console.log(`\n  ${formatProofOrStopProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
   console.log(`  Entrypoint: ${brand.usageBin}\n`);
   console.log(`  Usage: ${brand.usageBin} <command> --key=value         Run command`);
   console.log(`        ${brand.usageBin} <command> --help              View arguments`);

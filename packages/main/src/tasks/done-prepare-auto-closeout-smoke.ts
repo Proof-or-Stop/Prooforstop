@@ -214,7 +214,7 @@ function setupFixture(options: FixtureOptions = {}): Fixture {
     staleThresholds: {
       phaseStale: 10_000_000,
       itemStale: 10_000_000,
-      idleLattice: 10_000_000,
+      idleProofOrStop: 10_000_000,
       bugStale: 10_000_000,
     },
   };

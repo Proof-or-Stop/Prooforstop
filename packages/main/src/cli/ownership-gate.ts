@@ -11,7 +11,7 @@ import {
 import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core/command-policy.js';
 import { LATTICE_DIR } from '../core/lattice-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
-import type { LatticeConfig } from '../core/config.js';
+import type { ProofOrStopConfig } from '../core/config.js';
 import { readBrandEnv } from '../core/brand-env.js';
 
 export interface ActiveStoryForOwnershipGate {
@@ -172,7 +172,7 @@ const RETIRED_ROOT_BLOCKED_OWNERSHIP_CLASSES: ReadonlySet<OwnershipClass> = new 
   'dangerousMutating',
 ]);
 
-function canonicalRootFromConfig(config: Pick<LatticeConfig, 'canonicalRoot'>): string | null {
+function canonicalRootFromConfig(config: Pick<ProofOrStopConfig, 'canonicalRoot'>): string | null {
   if (typeof config.canonicalRoot !== 'string') return null;
   const trimmed = config.canonicalRoot.trim();
   return trimmed.length > 0 ? trimmed : null;
@@ -181,7 +181,7 @@ function canonicalRootFromConfig(config: Pick<LatticeConfig, 'canonicalRoot'>): 
 export function enforceRetiredRootGuard(
   cmd: string,
   args: Record<string, unknown>,
-  config: Pick<LatticeConfig, 'retiredRoot' | 'canonicalRoot'>,
+  config: Pick<ProofOrStopConfig, 'retiredRoot' | 'canonicalRoot'>,
   activeStory: ActiveStoryForOwnershipGate | null,
   projectRoot: string,
 ): void {

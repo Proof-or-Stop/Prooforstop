@@ -23,7 +23,7 @@ import { dirname, resolve } from 'node:path';
 import {
   buildObservabilitySnapshot,
   OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION,
-  type LatticeObservabilitySnapshot,
+  type ProofOrStopObservabilitySnapshot,
 } from '../core/observability-snapshot.js';
 import { resolveLearningDir } from '../core/learning-store.js';
 import type { HandlerContext } from './context.js';
@@ -35,7 +35,7 @@ import type { HandlerContext } from './context.js';
  * main-repo `.lattice/learning`. Resolution itself is untouched — the value
  * is computed by the existing `resolveLearningDir` leaf.
  */
-type LatticeObservabilitySnapshotWithLearningRoot = LatticeObservabilitySnapshot & {
+type LatticeObservabilitySnapshotWithLearningRoot = ProofOrStopObservabilitySnapshot & {
   readonly resolvedLearningRoot: string;
 };
 

@@ -167,7 +167,7 @@ interface CliResult {
   stderr: string;
 }
 
-async function runLattice(
+async function runProofOrStop(
   root: string,
   command: string,
   args: Record<string, unknown>,
@@ -198,7 +198,7 @@ function extractReviewRunId(output: string): string {
 }
 
 async function startReviewRun(root: string, storyId: string, agent: string, sessionEnv: Record<string, string> = {}): Promise<string> {
-  const result = await runLattice(root, 'review_run_start', { storyId, agent }, sessionEnv);
+  const result = await runProofOrStop(root, 'review_run_start', { storyId, agent }, sessionEnv);
   assert.equal(result.code, 0, `review_run_start should succeed: ${result.stderr}`);
   return extractReviewRunId(result.stdout);
 }
@@ -210,7 +210,7 @@ async function recordPass(
   sessionEnv: Record<string, string> = {},
 ): Promise<CliResult> {
   const reviewRunId = await startReviewRun(root, storyId, agent, sessionEnv);
-  return runLattice(root, 'review_pass_set', {
+  return runProofOrStop(root, 'review_pass_set', {
     storyId,
     agent,
     reviewRunId,

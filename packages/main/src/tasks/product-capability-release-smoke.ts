@@ -54,7 +54,7 @@ function git(cwd: string, args: string[]): string {
   }).trim();
 }
 
-function writeLatticeConfig(root: string): void {
+function writeProofOrStopConfig(root: string): void {
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({}, null, 2), 'utf-8');
 }
 
@@ -68,7 +68,7 @@ function makePartialDoneRecoveryFixture(capabilityFiles: Record<string, string>)
   const root = mkdtemp('capability-release-recover-');
   const storyId = 'B-recover';
   const now = '2026-07-05T00:06:00.000Z';
-  writeLatticeConfig(root);
+  writeProofOrStopConfig(root);
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'Capability Release Recovery Smoke']);

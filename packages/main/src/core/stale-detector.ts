@@ -23,7 +23,7 @@ export interface StaleThresholds {
   /** How long a checklist item can stay in_progress before it is treated as forgotten, in minutes. */
   itemStale: number;
   /** How long since the last lattice command counts as idle, in minutes. */
-  idleLattice: number;
+  idleProofOrStop: number;
   /** How long an open bug can remain unfixed before it is overdue, in minutes. Default: 24h = 1440. */
   bugStale: number;
 }
@@ -31,7 +31,7 @@ export interface StaleThresholds {
 export const DEFAULT_STALE_THRESHOLDS: StaleThresholds = {
   phaseStale: 30,
   itemStale: 30,
-  idleLattice: 60,
+  idleProofOrStop: 60,
   bugStale: 1440,
 };
 
@@ -52,7 +52,7 @@ function resolveThresholds(root: string): StaleThresholds {
     return {
       phaseStale: typeof u.phaseStale === 'number' && u.phaseStale > 0 ? u.phaseStale : DEFAULT_STALE_THRESHOLDS.phaseStale,
       itemStale: typeof u.itemStale === 'number' && u.itemStale > 0 ? u.itemStale : DEFAULT_STALE_THRESHOLDS.itemStale,
-      idleLattice: typeof u.idleLattice === 'number' && u.idleLattice > 0 ? u.idleLattice : DEFAULT_STALE_THRESHOLDS.idleLattice,
+      idleProofOrStop: typeof u.idleProofOrStop === 'number' && u.idleProofOrStop > 0 ? u.idleProofOrStop : DEFAULT_STALE_THRESHOLDS.idleProofOrStop,
       bugStale: typeof u.bugStale === 'number' && u.bugStale > 0 ? u.bugStale : DEFAULT_STALE_THRESHOLDS.bugStale,
     };
   } catch {
@@ -135,7 +135,7 @@ function checkIdleLattice(root: string, thresholds: StaleThresholds, now: number
     const ts = Date.parse(tsRaw);
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
-    if (diff > thresholds.idleLattice * 60_000) {
+    if (diff > thresholds.idleProofOrStop * 60_000) {
       return `It has been ${formatMinutes(diff)} since the last lattice command; remember to continue the flow`;
     }
   } catch { /* PROBE */ }

@@ -45,7 +45,7 @@ function write(root: string, path: string, content: string): void {
   writeFileSync(join(root, path), content);
 }
 
-function runLattice(root: string, command: string, args: Record<string, unknown>): string {
+function runProofOrStop(root: string, command: string, args: Record<string, unknown>): string {
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd: root,
     env: { ...process.env, LATTICE_PROJECT_ROOT: root },
@@ -65,9 +65,9 @@ function runLatticeFromCwd(cwd: string, command: string, args: Record<string, un
   });
 }
 
-function runLatticeExpectFail(root: string, command: string, args: Record<string, unknown>): string {
+function runProofOrStopExpectFail(root: string, command: string, args: Record<string, unknown>): string {
   try {
-    runLattice(root, command, args);
+    runProofOrStop(root, command, args);
   } catch (e: any) {
     return [
       e?.stdout?.toString?.() ?? '',
@@ -231,7 +231,7 @@ function assertInitCheckChecklistMutationRejectsMainCwd(): void {
     });
 
     process.chdir(root);
-    const output = runLatticeExpectFail(root, 'checklist_add', {
+    const output = runProofOrStopExpectFail(root, 'checklist_add', {
       storyId,
       title: 'Should not land in main',
       context: 'INIT_CHECK linked stories must still use the story worktree authority.',
@@ -270,9 +270,9 @@ function assertTerminalStoriesDoNotRedirect(): void {
 }
 
 function recordPassingInitAndScopeGates(root: string, storyId: string): void {
-  runLattice(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
-  runLattice(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
-  runLattice(root, 'scope_boundary_set', {
+  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
+  runProofOrStop(root, 'init_check_set', { storyId, issues: [], agentId: 'product-reviewer', agent: 'product-reviewer' });
+  runProofOrStop(root, 'scope_boundary_set', {
     storyId,
     mode: 'custom',
     allowedScope: ['Materialize reviewed draft metadata and bootstrap the story worktree only through INIT_CHECK.'],
@@ -281,7 +281,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
     actor: 'worktree-authority-smoke',
     confirmation: 'B-85ba F-006 fromDraft smoke expects conservative INIT creation followed by explicit INIT_CHECK bootstrap.',
   });
-  runLattice(root, 'execution_boundary_set', {
+  runProofOrStop(root, 'execution_boundary_set', {
     storyId,
     allowedCommands: [
       'story_create --fromDraft',
@@ -298,7 +298,7 @@ function recordPassingInitAndScopeGates(root: string, storyId: string): void {
     actor: 'worktree-authority-smoke',
     notes: 'FromDraft smoke may inspect bounded lifecycle metadata and the eventual worktree bootstrap.',
   });
-  runLattice(root, 'scope_freeze_check', {
+  runProofOrStop(root, 'scope_freeze_check', {
     storyId,
     status: 'PASS',
     actor: 'worktree-authority-smoke',
@@ -325,7 +325,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runLattice(root, 'story_draft', {
+    runProofOrStop(root, 'story_draft', {
       name: draftName,
       title: 'From draft smoke story',
       description: 'Synthetic from-draft story for worktree bootstrap.',
@@ -337,12 +337,12 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
         context: 'The fromDraft CLI path must stop at INIT; worktree bootstrap happens later through gated INIT_CHECK.',
       }],
     });
-    runLattice(root, 'draft_check_set', {
+    runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
     });
-    const output = runLattice(root, 'story_create', { fromDraft: draftName });
+    const output = runProofOrStop(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
@@ -354,7 +354,7 @@ function assertFromDraftStopsAtInitThenBootstrapsThroughInitCheck(): void {
     assert.doesNotMatch(git(root, ['worktree', 'list', '--porcelain']), new RegExp(`story/${storyId}`), 'fromDraft creation must not register a story worktree');
 
     recordPassingInitAndScopeGates(root, storyId);
-    const advanced = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const advanced = runProofOrStop(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.match(advanced, /advanced to INIT_CHECK/, 'explicit INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report main metadata commit');
 
@@ -397,7 +397,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runLattice(root, 'story_draft', {
+    runProofOrStop(root, 'story_draft', {
       name: draftName,
       title: 'From draft dirty main smoke story',
       description: 'Synthetic from-draft story for dirty main preservation.',
@@ -409,7 +409,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
         context: 'The fromDraft CLI path must commit bounded metadata without consuming user changes or creating a worktree.',
       }],
     });
-    runLattice(root, 'draft_check_set', {
+    runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
@@ -423,7 +423,7 @@ function assertFromDraftStopsAtInitWithDirtyMainPreserved(): void {
     assert.equal(git(root, ['diff', '--name-only', '--', 'unrelated-tracked.txt']), 'unrelated-tracked.txt');
     assert.match(dirtyBefore, /\?\? unrelated-untracked\.txt/);
 
-    const output = runLattice(root, 'story_create', { fromDraft: draftName });
+    const output = runProofOrStop(root, 'story_create', { fromDraft: draftName });
     const storyId = output.match(/Story\s+(B-[a-f0-9]+)/)?.[1];
     assert.ok(storyId, `story_create --from-draft should print story id, got: ${output}`);
     const story = new StoryStore(root).readStory(storyId);
@@ -474,7 +474,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
     resetConfigCache();
 
-    runLattice(root, 'story_draft', {
+    runProofOrStop(root, 'story_draft', {
       name: draftName,
       title: 'From draft staged main smoke story',
       description: 'Synthetic from-draft story for staged main preflight.',
@@ -486,7 +486,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
         context: 'The fromDraft CLI path must reject staged user changes before mutating story, draft, or worktree state.',
       }],
     });
-    runLattice(root, 'draft_check_set', {
+    runProofOrStop(root, 'draft_check_set', {
       draftName,
       issues: [],
       agentId: 'lattice-review-story-init',
@@ -498,7 +498,7 @@ function assertFromDraftRejectsStagedMainBeforeMutation(): void {
     git(root, ['add', '--', 'unrelated-staged.txt']);
     assert.equal(git(root, ['diff', '--cached', '--name-status', '--', 'unrelated-staged.txt']), 'M\tunrelated-staged.txt');
 
-    const output = runLatticeExpectFail(root, 'story_create', { fromDraft: draftName });
+    const output = runProofOrStopExpectFail(root, 'story_create', { fromDraft: draftName });
     assert.match(output, /requires a clean git index before mutating story\/draft\/worktree metadata/);
     assert.match(output, /unrelated-staged\.txt/);
     const store = new StoryStore(root);
@@ -1563,7 +1563,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
     git(root, ['commit', '-m', 'base']);
     resetConfigCache();
 
-    const created = runLattice(root, 'story_create', {
+    const created = runProofOrStop(root, 'story_create', {
       name: 'init-check-f008',
       title: 'Init check F-008 regression',
       description: 'Verify INIT_CHECK commits its main-side story metadata mirror so DONE does not self-block.',
@@ -1586,7 +1586,7 @@ function assertInitCheckLeavesNoUncommittedMainMirrorForDone(): void {
 
     recordPassingInitAndScopeGates(root, storyId);
 
-    const advanced = runLattice(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
+    const advanced = runProofOrStop(root, 'story_advance', { storyId, phase: 'INIT_CHECK' });
     assert.match(advanced, /advanced to INIT_CHECK/, 'INIT_CHECK advance should succeed');
     assert.match(advanced, /INIT_CHECK metadata committed/, 'INIT_CHECK output should report the metadata mirror was committed');
 

@@ -9,7 +9,7 @@ import {
   LATTICE_PRODUCT_NAME,
   LATTICE_PRIMARY_BIN,
   LATTICE_DEPRECATED_BIN,
-  formatLatticeProductLine,
+  formatProofOrStopProductLine,
 } from './lattice-brand.js';
 import { LATTICE_DIR } from './lattice-paths.js';
 
@@ -306,7 +306,7 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
     ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; wrapper=${hasLatticeWrapper}; deprecatedAliasWrapper=${hasDeprecatedWrapper}; bin=${LATTICE_PRIMARY_BIN}:${hasBinAliases}`
-    : `external project; global ${formatLatticeProductLine()} can be used without a project-local JS wrapper`;
+    : `external project; global ${formatProofOrStopProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',
     label: `${LATTICE_PRODUCT_NAME} config doctor`,
@@ -500,7 +500,7 @@ function statusIcon(status: RolloutStatus): string {
 
 export function renderRolloutCheckText(result: RolloutCheckResult): string {
   const lines: string[] = [];
-  lines.push(`${formatLatticeProductLine()} rollout check (${result.schemaVersion})`);
+  lines.push(`${formatProofOrStopProductLine()} rollout check (${result.schemaVersion})`);
   lines.push(`readOnly: ${result.readOnly}; macAppRequired: ${result.macAppRequired}`);
   lines.push(`summary: total=${result.summary.total}; pass=${result.summary.pass}; warn=${result.summary.warn}; fail=${result.summary.fail}; skip=${result.summary.skip}`);
   lines.push(`root: ${result.root}`);

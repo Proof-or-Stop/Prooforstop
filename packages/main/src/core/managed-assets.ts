@@ -35,9 +35,9 @@ import {
   renderCodexPretoolScopeHookScript,
   renderCodexEvidencePretoolHookScript,
   renderCodexReadmeTemplate,
-  renderLatticeBootstrapScript,
-  renderLatticeCodexAdapterManifest,
-  renderLatticeCodexWrapperScript,
+  renderProofOrStopBootstrapScript,
+  renderProofOrStopCodexAdapterManifest,
+  renderProofOrStopCodexWrapperScript,
   renderLatticeProjectConfig,
   type InitAssetMode,
   type InitProfile,
@@ -753,7 +753,7 @@ export function listManagedAssetDefinitions(
     wholeFile(
       'bin:proof-or-stop.js',
       'bin/proof-or-stop.js',
-      renderLatticeBootstrapScript(root),
+      renderProofOrStopBootstrapScript(root),
       actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
       true,
       isLatticeSelfRepoBootstrap,
@@ -767,7 +767,7 @@ export function listManagedAssetDefinitions(
       ? [wholeFile(
           'bin:lattice.js',
           'bin/lattice.js',
-          renderLatticeBootstrapScript(root),
+          renderProofOrStopBootstrapScript(root),
           actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
           true,
           isLatticeSelfRepoBootstrap,
@@ -794,7 +794,7 @@ export function listManagedAssetDefinitions(
       wholeFile(
         'bin:proof-or-stop-codex.js',
         'bin/proof-or-stop-codex.js',
-        renderLatticeCodexWrapperScript(),
+        renderProofOrStopCodexWrapperScript(),
         actual => actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
@@ -802,7 +802,7 @@ export function listManagedAssetDefinitions(
         ? [wholeFile(
             'bin:lattice-codex.js',
             'bin/lattice-codex.js',
-            renderLatticeCodexWrapperScript(),
+            renderProofOrStopCodexWrapperScript(),
             // The retained alias may be a thin delegating shim rather than a copy of the
             // generated wrapper, so ownership is recognized by EITHER shape.
             actual => (actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'))
@@ -820,7 +820,7 @@ export function listManagedAssetDefinitions(
       wholeFile(
         '.lattice-codex:lattice.json',
         '.lattice-codex/lattice.json',
-        renderLatticeCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
+        renderProofOrStopCodexAdapterManifest(assetMode === 'thin' ? { promptMode: 'registry' } : {}),
         () => true,
       ),
       { id: '.codex:hooks.json', relPath: '.codex/hooks.json', kind: 'codex-hooks' },

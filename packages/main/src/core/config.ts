@@ -116,13 +116,13 @@ export type AcceptanceTopologyGateMode = NonNullable<ProofStoryConfig['acceptanc
 export type AcceptanceRolloutGateMode = NonNullable<ProofStoryConfig['acceptanceRolloutGateMode']>;
 
 /** Flat project policy only; Story prose/risk/milestone text never selects it. */
-export function resolveAcceptanceTopologyGateMode(config: Pick<LatticeConfig, 'proofStory'>): AcceptanceTopologyGateMode {
+export function resolveAcceptanceTopologyGateMode(config: Pick<ProofOrStopConfig, 'proofStory'>): AcceptanceTopologyGateMode {
   const mode = config.proofStory?.acceptanceTopologyGateMode;
   return mode === 'warn' || mode === 'enforce' ? mode : 'observe';
 }
 
 /** Flat project policy only. Selective Story applicability remains excluded until Wave 3A. */
-export function resolveAcceptanceRolloutGateMode(config: Pick<LatticeConfig, 'proofStory'>): AcceptanceRolloutGateMode {
+export function resolveAcceptanceRolloutGateMode(config: Pick<ProofOrStopConfig, 'proofStory'>): AcceptanceRolloutGateMode {
   const mode = config.proofStory?.acceptanceRolloutGateMode;
   return mode === 'warn' || mode === 'enforce' ? mode : 'observe';
 }
@@ -131,7 +131,7 @@ export interface LifecycleControlConfig {
   runtimeEnforcement?: 'unavailable' | 'warn' | 'enforce';
 }
 
-export interface LatticeConfig {
+export interface ProofOrStopConfig {
   /**
    * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
    * commands are blocked before handler dispatch and should be rerun from
@@ -276,7 +276,7 @@ export interface LatticeConfig {
     /** checklist item 卡 in_progress 多久算遗忘（默认 30） */
     itemStale?: number;
     /** 距离上次任意 lattice 命令多久算 idle（默认 60） */
-    idleLattice?: number;
+    idleProofOrStop?: number;
     /** open bug 多久没修算超期（默认 1440=24h） */
     bugStale?: number;
   };
@@ -294,6 +294,13 @@ export interface LatticeConfig {
     onPhaseChange?: Record<string, string[]>;
   };
 }
+
+/**
+ * @deprecated Use `ProofOrStopConfig`. Retained as a durable alias, not a temporary
+ * migration aid: this repository is multi-developer, and a teammate branch written
+ * against `LatticeConfig` must keep compiling when it merges. Never remove.
+ */
+export type LatticeConfig = ProofOrStopConfig;
 
 export const DEFAULT_CANDIDATE_HOST_STARTUP_TIMEOUT_MS = 10_000;
 export const DEFAULT_CANDIDATE_HOST_TOTAL_TIMEOUT_MS = 120_000;
@@ -568,7 +575,7 @@ function patternAllowedByLifecyclePolicy(pattern: string, phase: string): boolea
   ));
 }
 
-const DEFAULT_CONFIG: LatticeConfig = {
+const DEFAULT_CONFIG: ProofOrStopConfig = {
   scanRoot: 'src',
   testsDir: 'tests',
   fixturesDir: 'tests/fixtures',
@@ -595,7 +602,7 @@ const DEFAULT_CONFIG: LatticeConfig = {
   phaseTools: DEFAULT_PHASE_TOOLS,
 };
 
-const _cache = new Map<string, LatticeConfig>();
+const _cache = new Map<string, ProofOrStopConfig>();
 
 /**
  * Canonical project config filename.
@@ -770,7 +777,7 @@ export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
   }
 }
 
-export function loadConfig(projectRoot?: string): LatticeConfig {
+export function loadConfig(projectRoot?: string): ProofOrStopConfig {
   // 有参数用参数，没参数从 cwd 向上查找
   const root = projectRoot || resolveProjectRoot();
   if (_cache.has(root)) return _cache.get(root)!;
@@ -778,7 +785,7 @@ export function loadConfig(projectRoot?: string): LatticeConfig {
   const latticePath = join(root, LATTICE_CONFIG_FILENAME);
   const latticeExists = existsSync(latticePath);
 
-  let userConfig: Partial<LatticeConfig> = {};
+  let userConfig: Partial<ProofOrStopConfig> = {};
   let chosenPath: string | null = null;
   if (latticeExists) {
     chosenPath = latticePath;
@@ -790,7 +797,7 @@ export function loadConfig(projectRoot?: string): LatticeConfig {
   }
   void chosenPath; // retained for future diagnostics; suppress unused warning
 
-  const _cached: LatticeConfig = {
+  const _cached: ProofOrStopConfig = {
     ...DEFAULT_CONFIG,
     ...userConfig,
     flows: {

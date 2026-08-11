@@ -30,7 +30,7 @@ import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { closeSync, existsSync, openSync, readFileSync, readSync, realpathSync, statSync } from 'fs';
 import { isAbsolute, join, relative, resolve } from 'path';
-import { loadConfig, LATTICE_CONFIG_FILENAME, type LatticeConfig } from './config.js';
+import { loadConfig, LATTICE_CONFIG_FILENAME, type ProofOrStopConfig } from './config.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   currentGitHead,
@@ -1097,7 +1097,7 @@ const MAX_SNAPSHOT_HEAD_STABILITY_RETRIES = 2;
 function resolveDefaultSnapshotGitCwd(projectRoot: string | undefined): string {
   if (!projectRoot) return process.cwd();
   try {
-    let config: LatticeConfig | undefined;
+    let config: ProofOrStopConfig | undefined;
     try {
       config = loadConfig(projectRoot);
     } catch {

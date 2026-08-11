@@ -71,10 +71,19 @@ export function detectLatticeBrand(argv: string[] = process.argv): LatticeBrand 
   };
 }
 
-export function formatLatticeProductLine(brand: LatticeBrand = detectLatticeBrand()): string {
+export function formatProofOrStopProductLine(brand: LatticeBrand = detectLatticeBrand()): string {
   return `${brand.productName} ${brand.version}`;
 }
 
 export function formatLatticeVersionLine(brand: LatticeBrand = detectLatticeBrand()): string {
-  return formatLatticeProductLine(brand);
+  return formatProofOrStopProductLine(brand);
 }
+
+/*
+ * Deprecated brand aliases (B-cdf6 CHK-006).
+ *
+ * Durable, not transitional: this repository is multi-developer, so a teammate
+ * branch importing the old symbol must keep compiling when it merges. Never remove.
+ */
+/** @deprecated Use `formatProofOrStopProductLine`. */
+export const formatLatticeProductLine = formatProofOrStopProductLine;

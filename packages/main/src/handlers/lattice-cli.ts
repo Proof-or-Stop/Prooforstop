@@ -4,7 +4,7 @@ import type { HandlerContext } from './context.js';
 import {
   LATTICE_CLI_VERSION,
   LATTICE_PRODUCT_NAME,
-  formatLatticeProductLine,
+  formatProofOrStopProductLine,
 } from '../core/lattice-brand.js';
 import {
   buildLatticeHostInstallGuidance,
@@ -226,7 +226,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
 
 function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): string {
   return [
-    `${formatLatticeProductLine()} config doctor (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} config doctor (${result.schemaVersion})`,
     `status: ${result.status}`,
     `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; activeCommand=lattice`,
     `versions: root=${result.versions.root ?? 'unreadable'}; main=${result.versions.main ?? 'unreadable'}; expected=${result.versions.expected}`,
@@ -407,7 +407,7 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
 
 function renderConfigRepairText(result: ReturnType<typeof buildConfigRepair>): string {
   const lines = [
-    `${formatLatticeProductLine()} config repair (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} config repair (${result.schemaVersion})`,
     `status: ${result.status}`,
     `mutated: ${result.mutated}`,
     `metadataRoot: ${result.metadataRoot}`,
@@ -469,7 +469,7 @@ export function buildConduitStatus(
 
 function renderConduitStatusText(result: ReturnType<typeof buildConduitStatus>): string {
   const lines = [
-    `${formatLatticeProductLine()} conduit status (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} conduit status (${result.schemaVersion})`,
     `conduitAvailable: ${result.conduitAvailable}`,
     `conduitRole: ${result.conduitRole}`,
     `localWorkflowUsable: ${result.localWorkflowUsable}`,
@@ -516,7 +516,7 @@ function buildConduitExplain() {
 
 function renderConduitExplainText(result: ReturnType<typeof buildConduitExplain>): string {
   return [
-    `${formatLatticeProductLine()} conduit explain (${result.schemaVersion})`,
+    `${formatProofOrStopProductLine()} conduit explain (${result.schemaVersion})`,
     ...result.explanation,
     '',
     renderConduitStatusText({ ...result, schemaVersion: 'lattice.conduit_status.v1' }),
