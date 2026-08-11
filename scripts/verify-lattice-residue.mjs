@@ -118,13 +118,32 @@ export function isBrandProseResidue(line) {
 /** Product runtime source — the koala zero-tolerance surface (check 1). */
 const SRC_SCAN_ROOTS = ['packages/main/src', 'packages/lab/src', 'packages/utils/src'];
 
-/** Active docs — the brand-prose surface CHK-003 rewrote (check 2). */
+/**
+ * Active docs — the brand-prose surface CHK-003 rewrote (check 2).
+ *
+ * B-cdf6 CHK-003 follow-up: the two host adapter directories were ADDED after they
+ * were caught holding ~20 stale `lattice <cmd>` lines each. They were missed the
+ * first time precisely because they sat outside every scan root, so nothing failed
+ * when they went stale — the exact miss this gate exists to prevent.
+ *
+ * These files are DERIVED mirrors of the package registry
+ * (`renderPromptEntryForHost`), so a hit here means either the registry template /
+ * injected slice is stale, or the mirror was not regenerated after the registry
+ * changed. Both are real defects a reader/agent would act on: unlike a doc, a stale
+ * host prompt is fed verbatim to a spawned agent, so it actively teaches the retired
+ * bin name. Gating them costs no exemptions — the invocation detector already
+ * ignores every FROZEN identifier shape that legitimately appears here
+ * (`lattice-implementer` and the other 12 role IDs, `.lattice/` paths, `LATTICE_*`
+ * env vars, `lattice-*-v1` salts) because its lookbehind excludes `-`, `.`, `/`, `_`.
+ */
 const DOC_SCAN_ROOTS = [
   'README.md',
   'CLAUDE.md',
   'AGENTS.md',
   'docs',
   'packages/main/templates',
+  '.claude/agents',
+  '.lattice-codex/agents',
 ];
 
 /**

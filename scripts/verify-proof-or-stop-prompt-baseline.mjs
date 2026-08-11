@@ -53,6 +53,19 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * no changed line that mentions neither brand token (i.e. every diff line is a brand-token swap),
  * and the two roles whose hashes did NOT move (implementation-reviewer, lattice-review-topology-critic)
  * are exactly the templates the rename did not touch.
+ *
+ * B-cdf6 CHK-003 follow-up: 5 more templateHash values were RE-APPROVED
+ * (lattice-evaluator, lattice-implementer, lattice-review-delivery,
+ * lattice-review-scope-plan, lattice-review-story-init). CHK-005 repinned only what the
+ * TEMPLATE rewrite moved; it could not move these, because these 5 roles resolve through
+ * `legacy-full-context` reconstruction, whose inputs are the INJECTED payloads in
+ * `core/prompt-registry.ts` (`LOAD_BEARING_LATTICE_PROMPT_SLICE` and
+ * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `lattice <cmd>` to every spawned
+ * agent and are rebranded here, so exactly the 5 reconstruction-backed roles move.
+ * EXPECTED_ROLE_COUNT stays 17 and every role stays bound to one exact hash — a repin to
+ * verified new content addresses, never a relaxation. Audited before repinning: normalizing
+ * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
+ * one, i.e. the drift is brand-only with no semantic edit.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
@@ -65,11 +78,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-evaluator',
-    templateHash: 'accc2212835a8fc43305a8914df0ad22d66875bd64d2c648cbc24eb0a399e62e',
+    templateHash: 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
   },
   {
     role: 'lattice-implementer',
-    templateHash: '1318d44586ed8ef3d56b16c74985575014d0be193a6d0771afbb50ef49d0ad1c',
+    templateHash: '0ef513cc1e77c69d7ca5751a98e998143bfab5ac3eb7bc64a4c0cf2346cabf41',
   },
   {
     role: 'lattice-review-behavior',
@@ -85,7 +98,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-delivery',
-    templateHash: '89393b4b5046c86f56fcba398e80be94f9a4a5f113712f4949a5b5b8a353ba5c',
+    templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   },
   {
     role: 'lattice-review-docs',
@@ -97,11 +110,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-scope-plan',
-    templateHash: 'a43121abb7081fbbf4030b82f61eae78d3326e4d8dbf519f6553af0e57105c22',
+    templateHash: '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
   },
   {
     role: 'lattice-review-story-init',
-    templateHash: 'b65a60b99cdff6e5ac42f080fd9ae4e455960650adf8a18e64186667597525c2',
+    templateHash: 'd63524b25475f370f642168881f680846424d7a80a69867219ccc9f969fd5ae6',
   },
   {
     role: 'lattice-review-test-coverage',
