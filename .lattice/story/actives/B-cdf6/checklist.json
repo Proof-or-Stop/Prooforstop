@@ -339,6 +339,22 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "packages/main/src/core/audit-scan.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/package.json",
+          "package.json",
+          "package-lock.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks"
+        ]
       }
     }
   ]
