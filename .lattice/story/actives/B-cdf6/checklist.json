@@ -300,6 +300,19 @@
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
           "timestamp": "2026-08-11T05:39:19.062Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "bin/proof-or-stop.js",
+          "command": "node bin/proof-or-stop.js help | grep -c 'Usage: lattice'",
+          "result": "pass",
+          "note": "Returns 0 - re-run independently by the main agent. No help or usage line prints the old bin name when invoked as proof-or-stop.",
+          "mechanical": false,
+          "headHash": "dfb008c3f16fe7adfc8f02f733f6c5c091a04e6e",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:39:19.916Z"
         }
       ]
     },
