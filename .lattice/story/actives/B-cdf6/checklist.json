@@ -434,7 +434,21 @@
         "headHash": "d9879890541bb364d6c127be46347c617793b43c",
         "attestedAt": "2026-08-11T06:01:33.478Z",
         "materialHash": "cc1c2b09b2e19c60d5b58e1edf040fd836d01ba774d29c49acf91ef3797810b0"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "grep -c 'proof-or-stop' README.md",
+          "note": "Active docs now instruct proof-or-stop: README.md:89 says 'Proof-or-Stop ships as a CLI (proof-or-stop)' and :92-93 show 'proof-or-stop session_brief' / 'proof-or-stop validate'. 137 files rewritten via a protect-first transform that vaults FROZEN tokens before renaming.",
+          "mechanical": false,
+          "headHash": "f13b6f0d696e1beac2cc0e508859447eb07f6493",
+          "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
+          "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
+          "timestamp": "2026-08-11T06:04:29.320Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
