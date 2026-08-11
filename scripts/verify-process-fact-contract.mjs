@@ -1872,7 +1872,9 @@ function assertCloseoutTrustBoundary() {
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1',
-    'a2468ce54d0093b7b84176ed03dd43bbd58e56278c3f1410f2029f2056abdbc0',
+    // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
+    // after the user-facing bin rename changed cli-engine.ts hint/error strings.
+    'c67969720875b02d39d0d29b5ec05d28544bb1cb06962936b6ebbd1fdc6c47e1',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
