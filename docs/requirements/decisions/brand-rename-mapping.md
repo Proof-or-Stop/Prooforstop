@@ -6,21 +6,81 @@ not be rewritten; add a row first.
 
 ## Governing rule
 
-User decision, 2026-08-11 (verbatim):
+**⚠ SUPERSEDED — read this section before trusting any verdict below.**
 
-> "the rename should influence current state or future works, not past works or history, so I
-> think it's the former."
+The verdicts in the table below were assigned under an earlier, **too-permissive** reading of the
+freeze test. The user corrected it on 2026-08-11 (verbatim, translated):
 
-Operationalised as the single test applied to every row below:
+> "Any `lattice` that has **no effect on the past evidence chain** must be refactored, including
+> filenames, documentation, and code; any `lattice` that **does affect the past evidence chain**
+> gets compatibility handling — do not change or affect the past, but do not let it affect the
+> future either. After the story completes, `lattice` is frozen into the past; current state and
+> future are `proof-or-stop`."
 
-- **If a surface RECORDS WHAT ALREADY HAPPENED → FROZEN.** Rewriting it falsifies a record.
-- **If a surface TELLS A USER WHAT TO RUN NOW OR NEXT → RENAMED.**
+### The corrected test
 
-A third verdict, **PRESERVE**, is used for tokens that merely *look* like brand variants but are
-a distinct domain concept.
+For each token, ask **only** this: *is this string read back in order to verify past evidence?*
 
-A fourth, **FROZEN-THIS-STORY**, marks surfaces that *will* be renamed by a different, already
-planned story. The freeze is a sequencing decision, not a judgement that the name is correct.
+- **YES → FROZEN + COMPAT.** Keep the literal so already-persisted evidence still verifies, and
+  add a compatibility path so it does not propagate forward. New writes use the new name.
+- **NO → RENAMED.** Coupling is not evidence. Filenames, env-var names, package names, code
+  identifiers and state-directory names are all coupling: renaming them merely requires editing
+  every reader in the same commit, which is work, not a reason to freeze.
+
+### What actually qualifies as past evidence
+
+Audited: **only the 13 salt string literals**. They are hashed into `_hash` fields on already-
+persisted artifacts (12 such files exist under `.lattice/story/actives/B-cdf6/` alone), so
+renaming a salt silently invalidates signatures that were computed with the old value.
+
+### Where the original table was wrong
+
+It conflated **coupling** with **evidence** and therefore froze too much. The following were
+marked FROZEN purely because renaming them requires coordinated edits — they carry no stored
+signature and are **RENAMED** under the corrected test:
+
+| Wrongly frozen | Why it is only coupling |
+|---|---|
+| `LATTICE_*` env-var names (146 across 245 files) | Read at runtime; nothing hashes them. Needs read-both compat so existing exports keep working. |
+| `bin/lattice.js`, `bin/lattice-codex.js` filenames | Never in the table at all — an outright omission. `init-assets.ts` emits 31 stale invocations into **new user projects**. |
+| npm names `lattice`, `@lattice/core` | `.githooks/pre-push:148` arms on the exact string, so it must be updated in the same commit or the gate **silently self-disarms**. That is a sequencing hazard, not evidence. |
+| `.lattice/` state dir, `.lattice-serve.json`, `.lattice-codex/`, `lattice.config.json` | Path names. Need read-both compat so existing installs resolve; new writes use the new name. |
+| Code identifiers (`runLattice` 129, `LatticeConfig` 44, …) | Pure internal symbols. |
+
+`PRESERVE` remains correct for `ProofStory` (a distinct domain concept, not a brand variant).
+
+`FROZEN-THIS-STORY` remains correct **only** for the agent role IDs, whose migration is owned by
+`proof-or-stop-agent-prompt-consolidation-execution-plan.md` — renaming `subagent_type` values
+mid-flight breaks spawning for in-flight stories.
+
+### Additional hard constraint: this repository is multi-developer
+
+User constraint, 2026-08-11: *"this repository is developed by multiple people; you need to
+guarantee that other people's code still works normally after it is merged in."*
+
+Verified empirically: two distinct authors over the last 60 commits (Harmonygo 58, Pan Qi 2), and
+local `main` is 2 commits ahead of `origin/main`. Teammate branches authored against the
+`lattice`-era names **will** merge into this rename.
+
+This makes every rename **additive at any boundary another developer's code can touch**. A
+compatibility shim here is not a temporary migration aid for old on-disk state — it is a **durable
+bilingual contract** for code that does not exist in this repo yet:
+
+| Boundary | Required behaviour |
+|---|---|
+| npm package name | Keep `lattice` / `@lattice/core` resolving; add the new name. **Never remove.** 14 files import `@lattice/core` today. |
+| `bin/` entries | `bin/lattice.js` keeps working; `bin/proof-or-stop.js` is canonical. Deleting the old wrapper is out of scope — 32 in-flight stories invoke it. |
+| Exported code identifiers | If renamed, **re-export the old symbol as a deprecated alias**, so a teammate's `import { runLattice } from '@lattice/core'` still resolves. A silent build break on merge is the worst outcome: it surfaces as *their* bug in *their* branch. |
+| `LATTICE_*` env vars | Read **both** names, preferring the new one. Never *require* the new name. |
+| `.lattice/` paths, `lattice.config.json` | Read both; write the new form. Existing installs must keep resolving. |
+
+⚠ **Sequencing hazard**: `.githooks/pre-push:148` arms the recursive-tsc defense by comparing
+`PKG_NAME` to the exact string `@lattice/core`, and `exit 0`s on mismatch. Renaming the package
+without updating that line **in the same commit** does not fail loudly — it silently disarms the
+gate.
+
+**CHK-006 re-executes the rename under this corrected test.** Until it lands, treat a `FROZEN`
+verdict below as "not yet re-audited" rather than "confirmed frozen".
 
 ## Canonical forms
 
