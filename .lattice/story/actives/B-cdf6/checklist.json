@@ -108,6 +108,19 @@
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
           "timestamp": "2026-08-11T05:38:43.354Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/brand-rename-mapping.md",
+          "command": "grep -c CHANGELOG docs/requirements/decisions/brand-rename-mapping.md",
+          "result": "pass",
+          "note": "CHANGELOG.md has an explicit FROZEN verdict (records shipped releases = past record); no longer unclassified.",
+          "mechanical": false,
+          "headHash": "9e591c16edd6842c58fe14c49d682f8f8d00dcd2",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:38:44.215Z"
         }
       ]
     },
