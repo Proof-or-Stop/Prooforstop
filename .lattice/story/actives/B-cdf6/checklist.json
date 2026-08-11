@@ -122,6 +122,24 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/cli/help-renderer.ts",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/rollout-check.ts"
+        ],
+        "create": [
+          "bin/proof-or-stop.js"
+        ],
+        "test": [
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-entrypoints.mjs"
+        ]
       }
     },
     {
