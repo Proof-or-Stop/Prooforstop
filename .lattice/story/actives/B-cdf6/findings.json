@@ -373,6 +373,24 @@
       "resolvedAt": "2026-08-11T20:11:03.887Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-018",
+      "desc": "packages/main/src/core/brand-env.ts exports brandEnvSuffix, brandEnvName, deprecatedBrandEnvName, hasBrandEnv, and expandBrandEnvNames, none of which have any call site anywhere in the codebase (grep for each name across packages/main/src, excluding brand-env.ts itself, returns 0 hits in both production code and every test file). They are well-documented but entirely dead public API surface on a brand-new module. Low-severity dead-code hygiene finding: either wire up an intended call site or trim the unused exports so the modules single-resolver contract is not diluted by unreachable helpers.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-11T20:11:47.560Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-007",
+      "_hash": "ae896065e182c488c08e867f5f4302526859299bd0ede77dcef29269fe5c03c9",
+      "files": [
+        "packages/main/src/core/brand-env.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
