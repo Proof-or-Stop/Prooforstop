@@ -498,7 +498,7 @@ const STRICT_COMMAND_ARG_COMMANDS = new Set([
 ]);
 
 // B-7c05 CHK-004: commands whose CLI stdout defaults to brief via an explicit
-// verbosity injection at the dispatch seam (flag > LATTICE_BRIEF_OUTPUT env >
+// verbosity injection at the dispatch seam (flag > PROOF_OR_STOP_BRIEF_OUTPUT env >
 // brief default). The seam passes `brief:true`/`full:true` to the handler, so
 // IN-PROCESS handler callers (smokes, other handlers) keep today's full return
 // shape, and explicit machine JSON keeps the frozen full shape.
@@ -788,7 +788,7 @@ export async function runCli(opts?: {
   const gitReady = isGitRepository(root0);
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
-    // B-7c05 CHK-003: help is BRIEF by default; --full (or LATTICE_BRIEF_OUTPUT=0)
+    // B-7c05 CHK-003: help is BRIEF by default; --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0)
     // restores the current verbose catalog. --brief forces brief over the env hatch.
     const helpFull = wantsFullOutput({
       full: argv.includes('--full'),
@@ -938,7 +938,7 @@ export async function runCli(opts?: {
 
     // B-7c05 CHK-001: the post-mutation ledger suffix is BRIEF by default. Per-call
     // flags on a mutating command are stripped by that command's own schema, so the
-    // primary override here is LATTICE_BRIEF_OUTPUT=0 (env hatch); a mutating command
+    // primary override here is PROOF_OR_STOP_BRIEF_OUTPUT=0 (env hatch); a mutating command
     // that DOES expose --full/--brief in its schema is still honored via `parsed`.
     const wantFull = wantsFullOutput(parsed);
     // Force the resolved verbosity explicitly so the milestone handler renders the

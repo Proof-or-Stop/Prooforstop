@@ -1231,7 +1231,7 @@ export function renderMilestoneStatusReport(report: MilestoneStatusReport): stri
 }
 
 const MILESTONE_BRIEF_HINT_SUFFIX =
-  '→ Full 7-column table: add --full (or set LATTICE_BRIEF_OUTPUT=0).';
+  '→ Full 7-column table: add --full (or set PROOF_OR_STOP_BRIEF_OUTPUT=0).';
 
 /**
  * B-7c05 CHK-001: compact milestone view rendered by default.
@@ -1347,7 +1347,7 @@ export function renderChecklistDerivedLedger(
   // (plus the counts line above, which covers the whole checklist so nothing is
   // silently hidden) and the first not-started item as the next action. The full
   // grouped list (Done / In progress / Not started) is restored behind --full /
-  // LATTICE_BRIEF_OUTPUT=0.
+  // PROOF_OR_STOP_BRIEF_OUTPUT=0.
   if (opts.brief) {
     renderGroup('In progress', '⏳', groups.in_progress);
     const next = groups.pending[0];

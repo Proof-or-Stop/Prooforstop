@@ -11,6 +11,7 @@ import {
   ZodUnion,
 } from 'zod';
 import { isCommandAllowed } from '../core/config.js';
+import { BRIEF_OUTPUT_ENV_VAR } from './output-verbosity.js';
 import { getCommandPolicy, type CommandPolicy } from '../core/command-policy.js';
 import {
   detectLatticeBrand,
@@ -302,7 +303,7 @@ export function printHelp(options: GlobalHelpOptions) {
     console.log(`
   Brief catalog (grouped command names).
   What a command does + arguments: ${brand.usageBin} <command> --help
-  Full catalog (descriptions, parameter schemas, development flow): ${brand.usageBin} help --full   (or set ${'LATTICE_BRIEF_OUTPUT'}=0)
+  Full catalog (descriptions, parameter schemas, development flow): ${brand.usageBin} help --full   (or set ${BRIEF_OUTPUT_ENV_VAR}=0)
 `);
     return;
   }
