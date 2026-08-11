@@ -39,6 +39,11 @@ gates every replacement, the bin must exist before docs claim it, and CHK-005 cl
   and `CHANGELOG.md`
 - `ProofStory` explicitly marked PRESERVE (distinct domain concept, not a brand variant)
 - Explicit verdict recorded for `CHANGELOG.md` = **FROZEN** (records shipped releases → past record)
+- **OQ-1 resolution action**: each of the 13 `lattice-`prefixed role IDs is recorded as
+  **FROZEN-THIS-STORY** with the reason *"target canonical prefix is `proof-or-stop-*` per
+  `proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43`; deferred here because renaming
+  `subagent_type` values would break spawning for in-flight stories"* — so a future implementer reads the
+  deferral as intentional and finds the owning plan, rather than concluding the freeze was an oversight
 - `runtime-visible` column states what a user still sees after the rename (role IDs in `session_brief`,
   `.lattice/` paths in messages) so those read as intentional, not overlooked
 - Rules on whether `LATTICE_PRODUCT_NAME` (currently the legacy `'Proofbound CLI'`) becomes `Proof-or-Stop`
@@ -83,8 +88,25 @@ gates every replacement, the bin must exist before docs claim it, and CHK-005 cl
 - Modify: `README.md` (incl. removing the now-satisfied rename-in-progress disclaimer at `:96`)
 - Modify: `CLAUDE.md` (incl. the stale `16` thin-shim counts at `:791` and `:792` → 13-of-17)
 - Modify: `AGENTS.md`, `docs/**` (~183 active files)
-- Modify: `packages/main/templates/agents/*.md` (17 templates), `.claude/agents/*.md`, `.lattice-codex/agents/*.md`
+- Modify: `docs/requirements/decisions/lifecycle-artifact-scope.md:217` — **OQ-2 resolution action**: the
+  sentence "`lattice` is the only active runtime/product command" is a stale pre-rename snapshot (that file
+  contains zero `proof-or-stop` mentions). Update it to state `proof-or-stop` is primary with `lattice`
+  retained as a deprecated alias, while **preserving** the paragraph's normative content about fresh-init
+  managed-asset generation and legacy-path compatibility.
+- Modify: `packages/main/templates/agents/*.md` (17 registry templates — **the only place role bodies are edited**)
 - **MUST NOT touch**: `.lattice/story/**`, `CHANGELOG.md` (both path-blocked in execution-boundary)
+
+> **HOST-NEUTRAL PROMPT INVARIANT — scope-check gap 1**
+> (`docs/requirements/decisions/lifecycle-artifact-scope.md:244-258`, Policy B-097f)
+>
+> The package registry (`packages/main/templates/agents/*.md`) is the **single source** for role bodies.
+> Each host keeps only a **body-free thin adapter**: `.claude/agents/*.md` is frontmatter + a CLI pointer;
+> `.lattice-codex/lattice.json` is a manifest with `promptMode: 'registry'`.
+>
+> Therefore prose rewriting happens **in the registry templates only**. Host shims may be touched *solely*
+> to update frontmatter `description` or the pointer command text, and **must not gain a prompt body** — a
+> rebranded body copied into a host directory silently breaks the single-source invariant. Verify with:
+> `grep -c . .claude/agents/<role>.md` stays at shim size (no body inlined).
 
 **Verify**:
 - `grep -rIl "lattice" README.md CLAUDE.md AGENTS.md docs packages/main/templates` — every remaining hit
@@ -92,6 +114,10 @@ gates every replacement, the bin must exist before docs claim it, and CHK-005 cl
 - `git diff --stat -- .lattice/story CHANGELOG.md` is EMPTY (proves the freeze held)
 - No stray spelling survives: `grep -rIoE "Prooforstop|proof-stop|Proof-Or-Stop|proofstop|PROOFBOUND" docs *.md`
 - `grep -rn "ProofStory" packages/main/src | wc -l` unchanged from baseline (preserved)
+- **Host-neutral invariant holds**: `.claude/agents/*.md` and `.lattice-codex/` gain no prompt body —
+  compare each shim's line count against its pre-change baseline; any growth beyond frontmatter is a fail
+- `grep -n "only active runtime/product command" docs/requirements/decisions/lifecycle-artifact-scope.md`
+  no longer asserts `lattice` as the sole command (OQ-2 action applied)
 
 **DoneWhen**:
 - Command examples in active docs read `proof-or-stop <cmd>`
@@ -169,6 +195,15 @@ CHK-001 (mapping table, gates everything)
 No cycles. **Fully serial** — every item shares files with its predecessor
 (`CLAUDE.md` in 003/004, `lattice-brand.ts` in 002/005, `package.json` in 002/005), so the
 non-overlapping-write-set condition for parallel dispatch is not met.
+
+## Scope-check dispositions (PLAN reviewer, 34 features / 24 covered / 8 excluded)
+
+| Item | Disposition |
+|---|---|
+| **Gap 1** — host-neutral prompt content invariant (`lifecycle-artifact-scope.md:244-258`) | **Folded into CHK-003**: prose edits confined to the 17 registry templates; host shims stay body-free, with a verify step comparing shim line counts to baseline |
+| **Gap 2** — managed-block marker migration precedent (`legacy-to-lattice-role-naming-execution-plan.md`) | **No action**: reviewer rated it informational. B-cdf6 introduces no new marker form, and `<!-- lattice:start -->` is FROZEN per CHK-001, so the precedent is not engaged |
+| **OQ-1** — role-ID prefix conflict | **Resolved**: complementary scopes, not a contradiction. Freeze recorded as FROZEN-THIS-STORY in CHK-001 pointing at the owning plan |
+| **OQ-2** — `lattice` as "only active runtime command" | **Resolved**: stale pre-rename snapshot (zero `proof-or-stop` mentions in that file). CHK-003 updates the sentence while preserving its normative fresh-init content |
 
 ## Risk register (from decision_set preMortem)
 

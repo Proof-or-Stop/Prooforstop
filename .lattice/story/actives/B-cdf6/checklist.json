@@ -11,7 +11,50 @@
       "userSees": "A written mapping table listing every distinct lattice token shape and its replacement or FROZEN verdict, with a reason per frozen surface",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "brand-rename-mapping.md exists and every distinct lattice token shape has an explicit RENAMED or FROZEN verdict",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Every FROZEN row carries both a reason and a user-visible-in-runtime-output value",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ProofStory is marked PRESERVE and is not swept in as a brand variant",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "CHANGELOG.md has an explicit FROZEN verdict rather than being left unclassified",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The 13 lattice-prefixed role IDs are recorded FROZEN-THIS-STORY citing the owning consolidation plan (OQ-1 action)",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No row silently omits a load-bearing identifier: the 13 salts, npm package names, lattice.config.json, LATTICE_* env prefix, managed-block markers and push-approval schema all appear",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "A reader following only the table cannot conclude that a frozen token was an oversight",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
