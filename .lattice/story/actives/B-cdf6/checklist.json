@@ -274,6 +274,19 @@
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
           "timestamp": "2026-08-11T05:39:17.357Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "file": "bin/proof-or-stop.js",
+          "command": "node bin/proof-or-stop.js session_brief | head -1",
+          "result": "pass",
+          "note": "Prints '# proof-or-stop session brief'. This is the most-seen string in the product because CLAUDE.md rule 0 makes session_brief the first command of every session.",
+          "mechanical": false,
+          "headHash": "34da7aaec01864e26f217afbd05bf7f1de5fa6df",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:39:18.212Z"
         }
       ]
     },
