@@ -55,6 +55,24 @@
       ],
       "signatureTag": "missing|md|code-drift-claude",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-004",
+      "desc": "doc-code-drift: docs/requirements/decisions/brand-rename-mapping.md's own Governing rule section (lines 36-48, 'Where the original table was wrong') explicitly disavows freezing tokens purely because renaming them requires coordinated edits, and names LATTICE_* env vars, bin/lattice.js and bin/lattice-codex.js filenames, npm package names, and .lattice/ state-dir-class paths as examples of WRONGLY frozen coupling that must be RENAMED-with-read-both-compat under the corrected test. The bin/ row (line 117) was correctly updated to RENAMED (additive) plus a kept alias, matching the corrected rule. But the Mapping table below still marks several rows in the SAME wrongly-frozen class as plain FROZEN with unmodified coupling-style reasoning: .lattice/ state directory (line 124, reason is renaming would orphan existing state -- coupling, not evidence), .lattice-serve.json (line 125), .lattice-codex/ (line 126), packages/main npm package @lattice/core (line 130), root npm package lattice (line 131), lattice.config.json (line 132), LATTICE_* env prefix (line 133), managed-block markers (line 134), lattice.remote-push-approval.v1 schema literal (line 135). None of these tokens are among the 13 salt literals hashed into stored _hash fields (the table's own stated sole criterion for FROZEN at lines 22-34), so under the table's own corrected rule they should read RENAMED (additive) with a read-both compat path plus a kept-name safety note, the same treatment given to bin/, not plain FROZEN. This is a self-contradiction within the story's own governing decision doc: the prose narrative (Governing rule) and the verdict table (Mapping table) disagree about which rows the corrected test actually reclassifies. High severity because CHK-006 checklist context explicitly states these are exactly the surfaces requiring the corrected read-both-compat treatment, and a reader trusting the FROZEN verdict rows would conclude no rename/compat work is needed for these tokens, contradicting the story's own corrected instructions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-08-11T19:36:37.065Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-005",
+      "_hash": "aef5f8c726142523a12b55ddc368a669600c60db00bcc020b90cd9eb5485604e",
+      "files": [
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
