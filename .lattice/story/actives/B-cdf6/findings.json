@@ -42,7 +42,7 @@
       "desc": "doc-code-drift: CLAUDE.md:836 gate table row for lattice-residue says the gate has two independent checks, covering [koala] and [brand-prose], and enumerates DOC_SCAN_ROOTS (README.md, CLAUDE.md, AGENTS.md, docs, packages/main/templates, .claude/agents, .lattice-codex/agents). But scripts/verify-lattice-residue.mjs implements a THIRD gated check, [brand-exec] (lines 380-399, CHECK 3), scanning EXECUTABLE_SCAN_ROOTS = bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src for un-renamed lattice-cmd invocations, and it fails closed exactly like the other two checks. CLAUDE.md never mentions this check or its scan roots, so a reader relying on the table would believe the gate covers only two checks and would not know bin, .codex, package.json, lattice.config.json, CITATION.cff, and packages/utils/src are also gated for brand-invocation residue. This is the gate-scan-root widening the user flagged as done this story (B-cdf6 CHK-006 Pass A and Pass B per the script's own comments) that was not projected into CLAUDE.md's table. Medium severity: the code is correct and stricter than documented, no correctness risk, but the doc undercounts and under-describes its own gate.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-11T19:34:21.963Z",
@@ -54,7 +54,11 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "signatureTag": "missing|md|code-drift-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "My defect, introduced by this story: I added the [brand-exec] check in CHK-006 Pass A and never updated the gate table. CLAUDE.md:836 said '两个独立 check' while the gate actually emits three (verified: verify-lattice-residue.mjs prints 3 PASS lines). Corrected to '三个独立 check' and documented [brand-exec] with its scan roots (bin, .codex, package.json, lattice.config.json, CITATION.cff, packages/utils/src) and the fact that it carries no exemptions, plus the note that bin/ and .codex/ had never been scanned by any gate before this story.",
+      "resolvedAt": "2026-08-11T20:08:15.165Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-004",
