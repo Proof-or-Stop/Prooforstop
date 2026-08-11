@@ -337,6 +337,20 @@
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
           "timestamp": "2026-08-11T05:40:01.468Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "file": "scripts/verify-entrypoints.mjs",
+          "command": "node scripts/verify-entrypoints.mjs",
+          "result": "fail",
+          "note": "Pinned assertions updated not deleted; suite blocked by a pre-existing unrelated verify_codex defect, independently reproduced on pristine main.",
+          "mechanical": false,
+          "nonMechanicalReason": "Cannot produce a passing mechanical receipt because this suite fails on a PRE-EXISTING defect unrelated to the rename: it aborts at check 8/28 with \"lattice verify_codex output () missing Codex adapter checks passed\". The main agent independently reproduced the byte-identical failure by running the same script in the PRISTINE main checkout at /Users/qipan/work/repo/Prooforstop, which contains none of this story changes, so the failure is not caused by CHK-002. What CHK-002 did verify positively: the pinned session-brief header assertions at :277/:515 were UPDATED to the new string rather than deleted, and the suite now progresses past those assertions to the unrelated codex-adapter check. A passing receipt for this intent is only obtainable after the separate pre-existing verify_codex defect is fixed, which is outside this story scope.",
+          "headHash": "38a093ad5cd0e47d39f13685a614eef303bc6317",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:40:15.254Z"
         }
       ]
     },
