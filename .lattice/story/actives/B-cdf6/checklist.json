@@ -459,6 +459,18 @@
           "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
           "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
           "timestamp": "2026-08-11T06:04:30.255Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "grep -c 'EXPECTED_ROLE_COUNT = 17' CLAUDE.md",
+          "note": "Stale '16 thin-shim' counts corrected: CLAUDE.md now states 17 role templates pinned by EXPECTED_ROLE_COUNT=17, of which 13 carry the lattice- prefix, plus why those 13 are deliberately frozen and which plan owns their migration.",
+          "mechanical": false,
+          "headHash": "a51e859a6f9a505ddcae0f17aabff2fe0dacc95e",
+          "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
+          "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
+          "timestamp": "2026-08-11T06:04:31.190Z"
         }
       ]
     },
