@@ -96,6 +96,117 @@
         "packages/main/src/cli-init.ts"
       ],
       "_hash": "e6193f17591b7cf7e5eadd638c0caa682503bde980bbe9312656c6f6ae10c7b5"
+    },
+    {
+      "id": "B-META-framework-audit:F-006",
+      "desc": "The convergence breaker's own remediation instruction is wrong for DEV-phase stories, so the operator it is trying to help is sent to a command that cannot diagnose anything. On B-cdf6 (phase=DEV) the freeze message said verbatim: 'Next action (a human, not an autopilot session): run `proof-or-stop done_prepare --dryRun --storyId=B-cdf6` to see the real blocker'. Running exactly that returns 'DONE prepare: BLOCKED / blockedAt: preflight / reason: story B-cdf6 is in DEV; done_prepare only runs for TEST stories', i.e. done_prepare refuses by design outside TEST and reports the phase mismatch instead of the blocker. The freeze is emitted from any phase-advance attempt (DEV->REVIEW here), but its advice assumes the story is already in TEST. Consequence: a human clearing a DEV-phase freeze gets no diagnostic at all from the recommended path and must reconstruct the real blocker by hand (in this case by reading checklist.json and recomputing must-intent coverage), which is exactly the manual work the breaker message claims to save. The freeze itself was legitimate; only its guidance is phase-blind.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:08:35.096Z",
+      "reviewRound": "",
+      "gapFingerprint": "e31fe4786331021698f370e0c8c0a191a28dc3989f5a4205928e7e030ce5941d",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "_hash": "026f1e778b875994a8827f07133bf3f82334d8ab823e44e414bf6cce63e0d273"
+    },
+    {
+      "id": "B-META-framework-audit:F-007",
+      "desc": "The convergence breaker's gate-repeat counter cannot distinguish a genuine runaway loop from correct incremental convergence, so it PENALISES the safer repair style. On B-cdf6 the DEV->REVIEW gate reported 'N required verification intent(s) lack passing evidence or waiver'. Each retry followed a real fix that STRICTLY REDUCED the blocker set: first attempt reported 2 missing intents, then after recording evidence 2 remained but with different membership, then after mechanizing both the count reached 0 (independently verified: must=36 covered=36). That is monotonic progress toward the gate, not a loop. Nevertheless the breaker tripped on 'gate-repeat 3>=2' and hard-froze the story, requiring a human ack. Perverse incentive: the counter rewards batching every fix and hitting the gate once, and punishes the fix-one-verify-one loop - even though small verified steps are the lower-risk style and are what CLAUDE.md's own Debugging Contract prescribes ('one variable at a time', 'never mix multiple candidate fixes in one commit'). With a threshold of 2, any story whose gate legitimately lists 3+ independent missing items cannot be converged incrementally without tripping the brake.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:08:35.744Z",
+      "reviewRound": "",
+      "gapFingerprint": "9fd8e6450350993ca0ed45d850e27f8b849e45f55094f78fa59ee03cfa367c71",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "CLAUDE.md"
+      ],
+      "_hash": "a0ad3d502e80eb1ee4cd184e001c3b09820607157e566bb4e8af80b3e5506830"
+    },
+    {
+      "id": "B-META-framework-audit:F-008",
+      "desc": "The convergence-breaker freeze is UNCLEARABLE from inside a Claude Code session, including by the human operator, because isInteractiveAckAllowed() requires isTTY === true and every command channel in this host pipes stdio. Verified on B-cdf6: the assistant's tool-spawned shell reports 'stdin TTY: false | stdout TTY: false' with CI and LATTICE_AUTOPILOT both unset, so the refusal is driven purely by the TTY test at core/convergence-breaker.ts:378. Critically, the USER then ran the identical story_resume --ack --reason command themselves via the host's bash-input channel and got the byte-identical refusal - so the check cannot distinguish the human operator from the agent, and a frozen story becomes a hard dead end for BOTH. The story was otherwise fully ready to advance (independently verified: must-intent coverage 36/36, root npm test green, all 3 brand gates PASS, tsc exit 0, 13 salt literals unchanged, clean tree), so the freeze blocks a legitimately convergent story with no in-environment exit. The module's own doc comment concedes the design limit: 'Truly un-spoofable human presence would require an out-of-band confirmation channel (e.g. a signed operator token), which is out of scope for this story.' That is an honest statement of intent, but combined with a TTY-only test it yields a gate that is simultaneously spoofable in principle (the agent controls its own process) and impassable in practice for the legitimate human.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:14:33.997Z",
+      "reviewRound": "",
+      "gapFingerprint": "4a5dd44cc387df0a6f6f23dd07dc9827fb11e97ebb1d4478f2d0d47b5ef19517",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:371",
+        "packages/main/src/core/convergence-breaker.ts:378",
+        "packages/main/src/handlers/story-resume.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "a06897aa91e108bd252cc39729848a9a4231bb81e7f6bfa022da55a99b8e1267"
+    },
+    {
+      "id": "B-META-framework-audit:F-009",
+      "desc": "CORRECTION to B-META-framework-audit:F-008, plus the real compounding defect. F-008 claimed a real terminal ALSO fails the convergence-breaker TTY check. That is WRONG and is corrected here: when the human ran the identical story_resume --ack command from a genuine interactive terminal, it PASSED isInteractiveAckAllowed() and was rejected one layer later by the story-owner lease instead: 'B-cdf6 is owned by Proof-or-Stop session sess-9a7d88c7fd9facada1536ec0cf731786, heartbeat 27s ago ... this session (sess-6cd8e9d7ef4103e2) cannot run it. The owner lease is still ACTIVE.' So the TTY heuristic behaves correctly for a real human; only an agent-piped stdio channel fails it, which is the intended direction. The REAL defect is the COMPOSITION of two owner-gated brakes: (1) the convergence-breaker freeze can only be cleared from an interactive TTY, i.e. by the human, but (2) story_resume is also classified storyScopedMutating and therefore owner-lease-gated, and the lease is held by the AGENT's session (the F-004 dead-pid / shifting-identity defect). The human who is the only party allowed to clear the freeze is thus the party least likely to hold the lease, so clearing a freeze requires the human to additionally --forceTakeover a lease held by the very agent session that caused the freeze. Escalating to the most dangerous override flag becomes routine for a benign recovery, which erodes what that flag is supposed to signal.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:15:50.312Z",
+      "reviewRound": "",
+      "gapFingerprint": "2db0f2247328a58491cdf8f837fa30f907674643dcc2cbe84a21e0b270d4338b",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:378",
+        "packages/main/src/core/story-owner-lease.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "7882a11eb8144a79ad88758bb3903e21e32776328cd7be5cf5c73f10ec2b94b7"
+    },
+    {
+      "id": "B-META-framework-audit:F-010",
+      "desc": "The documented convergence-breaker recovery path is a COMPLETE DEADLOCK for a human operator, empirically closed on all three natural attempts, and the only exit is to assert another session's identity via an env var. Measured on B-cdf6 with the story otherwise fully ready (must-intent coverage 36/36, npm test green, 3 brand gates PASS, tsc exit 0, clean tree). Attempt matrix, all run by the HUMAN in a real interactive terminal: (1) `story_resume --ack --reason=...` with the shell's natural derived identity -> refused by the owner-lease gate ('this session (sess-6cd8e9d7ef4103e2) cannot run it ... lease is still ACTIVE'); (2) same plus `--forceTakeover` -> the lease DID transfer, but the flag made the command 'takeover-carrying', which is precisely the class the breaker gate intercepts (cli-engine.ts:1394 'Gates story_advance and takeover-carrying commands only'), so it was refused by the FREEZE it was invoking to clear; (3) same without the flag but with `export LATTICE_SESSION_ID=human-terminal-qipan` as the CLI's own degraded-identity warning advises -> refused by the lease gate again, because the fixed id is a NEW identity and therefore still not the owner ('this session (human-terminal-qipan) cannot run it'). So each remedy trips the other gate: no takeover => not owner; takeover => frozen; fixed id => not owner. The lease cannot even be waited out quickly because its heartbeat keeps refreshing on each attempt, holding it under the 30-minute stale threshold.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:20:41.414Z",
+      "reviewRound": "",
+      "gapFingerprint": "a52faa68f84307f4f597e1b5497d884c13e3fc98a900dcfc0d7e1836ea4311c9",
+      "files": [
+        "packages/main/src/cli-engine.ts:1387",
+        "packages/main/src/cli-engine.ts:1394",
+        "packages/main/src/core/convergence-breaker.ts:378",
+        "packages/main/src/core/story-owner-lease.ts",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "16f4bde43c5dccee1edded655eb2dae9c962acebfefba7dd60aaac28f7f25e23"
+    },
+    {
+      "id": "B-META-framework-audit:F-011",
+      "desc": "scope_boundary_set enforces userConfirmed:true but does NOT require the `confirmation` field to be non-empty, so a story can carry a cryptographically-signed, gate-consumed record asserting 'the user confirmed this scope' with ZERO record of what the user actually said. Observed on B-cdf6: scope-boundary.json has userConfirmed:true, 9 allowedScope and 11 excludedScope entries, a valid _hash, and an EMPTY confirmation - verified both on the current file and on the earliest version in git history, so the user's words were never captured at any point. Downstream consequence, found when the user challenged one specific decision: the retained `bin/lattice.js` deprecated alias was justified in the mapping table as 'out of scope - 32 in-flight stories invoke it', but the user had never said that. The user's actual instruction was only a principle ('the rename should influence current state or future works, not past works or history'); the alias-retention clause came from an OPTION THE ASSISTANT ITSELF DRAFTED in a multiple-choice question, and the user's one-word-equivalent selection of that option was then treated as authorising every sub-clause inside it. With confirmation empty there was no way to audit that substitution - the assistant's inference and the user's instruction became indistinguishable in the record. The user had to detect it by reading docs/CLI.md and asking 'on what basis was this decided'.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T18:23:03.297Z",
+      "reviewRound": "",
+      "gapFingerprint": "e52dace71b06d56bcd67965adcf9648c39dc81f64593ff7d0ed0d430c98b2237",
+      "files": [
+        "packages/main/src/handlers/scope-boundary.ts",
+        ".lattice/story/actives/B-cdf6/scope-boundary.json",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "_hash": "99846a5fc93a1a2abdceedb787375622aacc7a5615a1691ca672c5ecd6cdc6b1"
     }
   ]
 }

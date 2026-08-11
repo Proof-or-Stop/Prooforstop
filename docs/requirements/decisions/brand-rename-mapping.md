@@ -69,7 +69,7 @@ bilingual contract** for code that does not exist in this repo yet:
 | Boundary | Required behaviour |
 |---|---|
 | npm package name | Keep `lattice` / `@lattice/core` resolving; add the new name. **Never remove.** 14 files import `@lattice/core` today. |
-| `bin/` entries | `bin/lattice.js` keeps working; `bin/proof-or-stop.js` is canonical. Deleting the old wrapper is out of scope — 32 in-flight stories invoke it. |
+| `bin/` entries | `bin/lattice.js` keeps working; `bin/proof-or-stop.js` is canonical. **Retention reason CORRECTED (2026-08-12):** the original rationale was "32 in-flight stories invoke it", i.e. *past references* — that was wrong. Those references are plain text in story artifacts; they carry no signature and nothing verifies against them, so by the past-evidence test they would NOT justify a freeze. The actual reason is the **multi-developer constraint**: a teammate branch authored before the rename may `node bin/lattice.js`, and deleting the wrapper would break their code on merge. Keeping the *file* is required; **documenting** it in a current-facing reference is not, so the `docs/CLI.md` alias section was reduced to a one-line pointer. |
 | Exported code identifiers | If renamed, **re-export the old symbol as a deprecated alias**, so a teammate's `import { runLattice } from '@lattice/core'` still resolves. A silent build break on merge is the worst outcome: it surfaces as *their* bug in *their* branch. |
 | `LATTICE_*` env vars | Read **both** names, preferring the new one. Never *require* the new name. |
 | `.lattice/` paths, `lattice.config.json` | Read both; write the new form. Existing installs must keep resolving. |
