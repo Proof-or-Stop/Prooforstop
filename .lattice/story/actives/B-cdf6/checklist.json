@@ -447,6 +447,18 @@
           "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
           "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
           "timestamp": "2026-08-11T06:04:29.320Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "grep -c 'deprecated alias' README.md",
+          "note": "README.md:96 rename-in-progress disclaimer replaced with a current-state statement: proof-or-stop is the command, lattice is a retained deprecated alias resolving to the same binary, and internal identifiers intentionally keep the older name so persisted state and signatures stay valid.",
+          "mechanical": false,
+          "headHash": "a29800eb9e65a48e7b1bfe9b484a6fb9c3dd4a41",
+          "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
+          "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
+          "timestamp": "2026-08-11T06:04:30.255Z"
         }
       ]
     },
