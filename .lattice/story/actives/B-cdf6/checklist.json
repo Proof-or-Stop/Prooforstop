@@ -603,7 +603,11 @@
           {
             "desc": "Gate is NOT allowlist-free over packages/*/src, since 605 files there legitimately contain the token",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-lattice-residue.mjs",
+              "selector": "3 documented exemption"
+            }
           }
         ]
       },
@@ -704,6 +708,26 @@
           "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
           "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
           "timestamp": "2026-08-11T06:14:32.285Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "file": "scripts/verify-lattice-residue.mjs",
+          "command": "node scripts/verify-lattice-residue.mjs",
+          "result": "pass",
+          "note": "Gate is NOT allowlist-free over packages/*/src, which would be impossible since ~605 files there legitimately contain the token (salts, .lattice/ paths, LATTICE_* env vars, @lattice/core imports, frozen role IDs). Instead the new check targets the single RENAMED token shape - a bare 'lattice <lowercase-subcommand>' invocation in active-doc markdown - and excludes FROZEN classes STRUCTURALLY via the regex (requiring whitespace then a lowercase word means .lattice/, LATTICE_*, lattice-review-*, @lattice/core and lattice.config.json cannot match). Only 3 prose exemptions exist, each self-policing: verifyProseExemptions() fails the gate if an exempted file stops existing or stops having a hit, so an exemption cannot decay into a silent hole.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "af4403be734d3a622ede7ee69f50ec893f54849206ee348b4c21ef8d93238751",
+            "outputTail": "PASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T06:14:33.326Z"
+          },
+          "headHash": "1f1aa9ef48f351b3ea720d0382476d23144c6d2d",
+          "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
+          "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
+          "timestamp": "2026-08-11T06:14:33.450Z"
         }
       ]
     },
