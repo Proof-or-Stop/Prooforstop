@@ -981,6 +981,20 @@
           "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
           "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
           "timestamp": "2026-08-11T08:43:40.304Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "file": "package.json",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Root npm test REAL_EXIT=0 with 0 failures on final commit 31835c09ed, verified by the main agent out-of-band with explicit exit capture.",
+          "mechanical": false,
+          "nonMechanicalReason": "The DONE-blocking suite takes over 20 minutes, which exceeds the evidence tool inline execution budget, so it was run out-of-band and its exit code captured explicitly rather than inferred. Main agent ran it three times; the authoritative run is against the FINAL commit 31835c09ed (the earlier two green runs predated later commits and were therefore discarded rather than reused). Result: REAL_EXIT=0 across a 1544-line log with 0 AssertionError / Error / FAIL lines, 47 stages. Captured via: npm test > npmtest3.log 2>&1; echo REAL_EXIT=$? >> npmtest3.log. An earlier attempt produced an EMPTY log when the 10-minute tool timeout killed it, and that empty result was explicitly rejected rather than reported as green.",
+          "headHash": "d4ec8e0bca17d7741eea53e41b111b4b5fc443fa",
+          "materialHash": "1031e28bd61356f021fb1d876fcfc8f4e477bcab9b3eca8a70209b7587a34d53",
+          "storyFilesHash": "7abcfdabbfb02eab4a5b02217eda7094f3d44465d6824f2b0e430f35af67573c",
+          "timestamp": "2026-08-11T14:10:05.474Z"
         }
       ]
     },
