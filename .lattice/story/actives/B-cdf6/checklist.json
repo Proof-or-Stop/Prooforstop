@@ -483,6 +483,18 @@
           "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
           "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
           "timestamp": "2026-08-11T06:04:32.097Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "docs_check",
+          "file": ".claude/agents",
+          "command": "wc -l .claude/agents/*.md | tail -1",
+          "note": "HOST-NEUTRAL INVARIANT HELD: shim line-count total is exactly 2079, byte-identical to the pre-CHK-003 baseline, and zero host shims were modified. No prompt body was inlined into a host directory, so the registry at packages/main/templates/agents remains the single body source.",
+          "mechanical": false,
+          "headHash": "ceee5cd51f6ca569e3e661bb625d73d470c11f6d",
+          "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
+          "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
+          "timestamp": "2026-08-11T06:04:32.996Z"
         }
       ]
     },
