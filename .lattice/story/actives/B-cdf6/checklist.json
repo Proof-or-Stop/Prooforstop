@@ -129,7 +129,55 @@
       "userSees": "grep for the brand in active docs returns only intentional frozen-identifier references and clearly-labelled deprecated-alias mentions",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Command examples in active docs read proof-or-stop and prose product name reads Proof-or-Stop",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "README.md rename-in-progress disclaimer removed because the rename is now done",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "CLAUDE.md stale 16 thin-shim counts at :791 and :792 corrected to 13-of-17",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "lifecycle-artifact-scope.md:217 no longer asserts lattice is the only active runtime command, while its fresh-init normative content is preserved (OQ-2 action)",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Stray spellings Prooforstop / proof-stop / Proof-Or-Stop / proofstop / PROOFBOUND are normalized, not replaced by a new variant",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff --stat on .lattice/story and CHANGELOG.md is EMPTY, proving the past-record freeze held under a large prose sweep",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Host shims gain no prompt body: .claude/agents and .lattice-codex line counts stay at shim size, preserving the host-neutral single-source invariant (scope gap 1)",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Every surviving lattice hit in the active-doc surface traces to a FROZEN row in the CHK-001 table",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
