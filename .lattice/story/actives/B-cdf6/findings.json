@@ -214,7 +214,7 @@
       "desc": "doc-code-drift: docs/CLI.md's compatibility note (added by commit 5041d058e7, replacing the removed Deprecated bin aliases table) says 'see CHANGELOG.md for the alias inventory'. CHANGELOG.md contains no such inventory: grep -n bin/lattice.js CHANGELOG.md returns exactly one hit, a single unrelated historical verification-step mention from an older story (line 534, node bin/lattice.js tool_status --format=json), not a table or list of the three retained aliases (bin/lattice.js -> bin/proof-or-stop.js, bin/lattice-codex.js -> bin/proof-or-stop-codex.js, npm bin lattice -> npm bin proof-or-stop). The removed table WAS that inventory; deleting it while leaving a pointer to a document that never held (and does not now hold) an equivalent inventory means a user who needs to know what deprecated entrypoints exist and what they map to has nowhere to look -- brand-rename-mapping.md's row 117 documents the retention rationale but not a user-facing alias-to-canonical mapping table either. Medium severity: this is information loss from the table removal (matching the review-lane concern about whether the removal cost a user something they need), not a broken command, but the pointer itself is also a docs lie because the referenced location does not contain what is promised.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-08-11T19:38:55.140Z",
@@ -226,7 +226,11 @@
         "CHANGELOG.md"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The reviewer is right that I fixed one docs lie by creating another: my replacement note pointed at 'CHANGELOG.md for the alias inventory' and no such inventory exists (grep finds a single unrelated hit). The compatibility note in docs/CLI.md now NAMES the three aliases inline - lattice (npm bin), bin/lattice.js, bin/lattice-codex.js, each with its canonical counterpart - so the information the deleted table carried is present without devoting a section to teaching old entrypoints.",
+      "resolvedAt": "2026-08-11T20:05:43.540Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-013",
