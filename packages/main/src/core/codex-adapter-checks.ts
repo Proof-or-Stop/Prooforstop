@@ -689,8 +689,23 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
   // Verify the env contract on whichever file actually sets it, so a thin alias is
   // not reported as a wrapper "missing LATTICE_ACTIVITY_SOURCE".
   const text = readWrapperTextFollowingDelegation(root, wrapperRelPath);
-  const required = ['LATTICE_ACTIVITY_SOURCE', 'codex', 'LATTICE_ACTIVITY_RECORD_READONLY', 'LATTICE_CODEX_ENTRYPOINT'];
-  const missing = required.filter(piece => !text.includes(piece));
+  // B-cdf6: this is a STATIC text check over generated wrapper source, so it must
+  // accept both the pre-rename literal spelling AND the post-rename composed form.
+  // The generated wrapper no longer contains the literal `LATTICE_ACTIVITY_SOURCE`:
+  // it emits `setEnv('ACTIVITY_SOURCE', 'codex')`, whose helper writes BOTH brand
+  // prefixes at runtime. Grepping only the old literal reported a wrapper that is
+  // functionally correct as "missing LATTICE_ACTIVITY_SOURCE". Each entry below is
+  // satisfied by ANY of its accepted spellings; a wrapper that sets none of them
+  // still fails, so the contract is unchanged — only its spelling tolerance widened.
+  const required: ReadonlyArray<readonly string[]> = [
+    ['LATTICE_ACTIVITY_SOURCE', 'PROOF_OR_STOP_ACTIVITY_SOURCE', "setEnv('ACTIVITY_SOURCE'"],
+    ['codex'],
+    ['LATTICE_ACTIVITY_RECORD_READONLY', 'PROOF_OR_STOP_ACTIVITY_RECORD_READONLY', "setEnv('ACTIVITY_RECORD_READONLY'"],
+    ['LATTICE_CODEX_ENTRYPOINT', 'PROOF_OR_STOP_CODEX_ENTRYPOINT', "setEnv('CODEX_ENTRYPOINT'"],
+  ];
+  const missing = required
+    .filter(accepted => !accepted.some(piece => text.includes(piece)))
+    .map(accepted => accepted[0]);
   if (missing.length > 0) {
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, `wrapper missing ${missing.join(', ')}`, LOCAL_INIT_VERIFY_COMMAND);
     return;

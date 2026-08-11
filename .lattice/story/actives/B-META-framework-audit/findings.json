@@ -53,6 +53,28 @@
       ],
       "signatureTag": "missing|ts|concurrency-hardening-follow",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-META-framework-audit:F-004",
+      "desc": "Story owner lease liveness is decided ONLY by the heartbeatAt timestamp and never checks whether the recorded pid is still alive, so a dead process that left a fresh heartbeat locks its OWN successor session out of the story. Observed on B-cdf6: owner-lease.json recorded sessionId sess-9a7d88c7fd9facada1536ec0cf731786 / pid 56154 / heartbeatAt 2026-08-11T14:12:17Z. `ps -p 56154` shows the process is GONE, yet because heartbeatAt is inside STALE_LEASE_THRESHOLD_MS (30 min, story-owner-lease.ts:437) the lease is classified ACTIVE and `proof-or-stop doctor` reports `stale leases: 0`. Consequently `node bin/lattice-codex.js verify_codex` was refused as an owner-gated storyScopedMutating command even though the CURRENT session identity is the SAME sessionId (session_brief reports `sess-9a7d88c7fd9facada1536ec0cf731786 [host-adapter provider=claude-code]`). Two distinct defects: (1) liveness ignores the pid it already parses and stores (pid is read at story-owner-lease.ts:194-195 and persisted at :212, but never consulted in the staleness decision at :417); (2) the same-session fast path used by the verify_codex gate did not recognise an identical sessionId as self, so the operator is locked out of their own story with no non-dangerous exit. The only available recovery is --forceTakeover, which the CLI documents as 'a deliberate human override ... the operator KNOWS they are seizing a live session's lock' - semantically wrong here, because there is no live session to seize. This pushes operators toward routinely using the most dangerous flag for a benign self-recovery, eroding the meaning of the override.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-11T14:32:24.803Z",
+      "reviewRound": "",
+      "gapFingerprint": "cf146740efca0531cc512496fb8fbe8d44f62ee45e10e37b20f6e9325072a15e",
+      "files": [
+        "packages/main/src/core/story-owner-lease.ts:417",
+        "packages/main/src/core/story-owner-lease.ts:437",
+        "packages/main/src/core/story-owner-lease.ts:194",
+        "packages/main/src/core/story-owner-lease.ts:212",
+        ".lattice/story/actives/B-cdf6/owner-lease.json",
+        "packages/main/src/core/story-owner-lease.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "_hash": "f88e07183b450dd5b8efa7067875a699351f307f8cfc4202d42a67c5be44ee4b"
     }
   ]
 }
