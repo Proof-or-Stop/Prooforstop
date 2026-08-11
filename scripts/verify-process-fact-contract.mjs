@@ -7531,11 +7531,11 @@ const inventory = [
         patterns: [
           'getGuardFailureReason',
           'runReviewCliGates',
-          'lattice validate --json',
+          'proof-or-stop validate --json',
           'verifierHandlers.validate',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: lattice validate execution error',
+          'Cannot enter TEST: proof-or-stop validate execution error',
         ],
       },
       {
@@ -7871,7 +7871,7 @@ const inventory = [
     files: [
       {
         // B-3fad CHK-003: B-56d3 moved the REVIEW→TEST gate machinery
-        // (runReviewCliGates / the `lattice validate --json` gate / the two
+        // (runReviewCliGates / the `proof-or-stop validate --json` gate / the two
         // English `Cannot enter TEST` strings) into phase-gates.ts. B-914f
         // keeps test-evidence persistence exclusively in verifier.ts.
         // story-advance.ts keeps buildDoneChecklist (DONE checklist assembly).
@@ -7882,12 +7882,12 @@ const inventory = [
         relPath: 'packages/main/src/handlers/phase-gates.ts',
         patterns: [
           'runReviewCliGates',
-          'lattice validate --json',
+          'proof-or-stop validate --json',
           'buildDoneChecklist',
           'verifierHandlers.validate',
           { label: 'test-evidence writer call', absentRegex: /\.writeTestEvidence\s*\(/ },
           'Cannot enter TEST: CLI gate preflight execution error',
-          'Cannot enter TEST: lattice validate execution error',
+          'Cannot enter TEST: proof-or-stop validate execution error',
         ],
       },
       {
