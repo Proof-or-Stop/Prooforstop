@@ -494,7 +494,7 @@ function renderManagedRuntimeIgnoreBlock(lines: string[]): string {
   ].join('\n');
 }
 
-// B-854c CHK-003: exported so `lattice doctor --repair` can reuse the SAME
+// B-854c CHK-003: exported so `proof-or-stop doctor --repair` can reuse the SAME
 // idempotent append-only allowlist merge (BLOCK_START/END markers, dedupes via
 // runtimeIgnoreMissing) instead of hand-rolling a second allowlist. A second
 // merge over already-merged content is a no-op (missing.length === 0).
@@ -593,7 +593,7 @@ function isLatticeSelfRepoBootstrap(actual: string, root: string): boolean {
  * True when the guide teaches the `session_brief` entry command under ANY bin token the CLI
  * answers to.
  *
- * B-cdf6 CHK-005: these ownership recognizers used to require the literal `lattice session_brief`.
+ * B-cdf6 CHK-005: these ownership recognizers used to require the literal `proof-or-stop session_brief`.
  * After the bin rename rewrote the active guides to `proof-or-stop session_brief`, the recognizer
  * stopped identifying the repo's own CLAUDE.md as a Proofbound-owned expanded guide, so the
  * managed-asset check reported STALE_LOCAL_EDIT \u2014 i.e. "a human hand-edited this, refuse to
@@ -672,7 +672,13 @@ export function listManagedAssetDefinitions(
         'doc:.lattice/Lattice.md',
         '.lattice/Lattice.md',
         LATTICE_DOT_DIR_MD_TEMPLATE,
-        actual => actual.includes('.lattice/Lattice.md') || actual.includes('lattice codex verify'),
+        actual => actual.includes('.lattice/Lattice.md')
+          // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
+          // guide doc still carries the pre-rename `lattice codex verify` literal.
+          // Recognizing only the canonical spelling would reclassify every existing
+          // install as STALE_LOCAL_EDIT and refuse to sync it.
+          || actual.includes('proof-or-stop codex verify')
+          || actual.includes('lattice codex verify'),
       ),
       wholeFile(
         '.lattice:lattice.json',
@@ -701,7 +707,13 @@ export function listManagedAssetDefinitions(
           'doc:AGENTS.md',
           'AGENTS.md',
           AGENTS_MD_GLOBAL_THIN_TEMPLATE,
-          actual => actual.includes('.lattice/Lattice.md') || actual.includes('lattice codex verify'),
+          actual => actual.includes('.lattice/Lattice.md')
+          // Read-both ownership recognition (B-cdf6 CHK-006): an ALREADY-INSTALLED
+          // guide doc still carries the pre-rename `lattice codex verify` literal.
+          // Recognizing only the canonical spelling would reclassify every existing
+          // install as STALE_LOCAL_EDIT and refuse to sync it.
+          || actual.includes('proof-or-stop codex verify')
+          || actual.includes('lattice codex verify'),
         ),
       );
     }
@@ -930,7 +942,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
       expectedHash,
       actualRelPath: pathInfo.actualRelPath,
       reason: `managed asset path exists with different case (${pathInfo.actualRelPath}), expected exact path ${def.relPath}`,
-      action: 'rename the path with exact casing or merge it manually before running lattice check --apply/--upgrade',
+      action: 'rename the path with exact casing or merge it manually before running proof-or-stop check --apply/--upgrade',
     };
   }
 
@@ -958,7 +970,7 @@ function evaluateDefinition(root: string, def: ManagedAssetDefinition, manifest:
 
   if (pathKind === 'directory' || pathKind === 'other') {
     const found = pathKind === 'directory' ? 'directory' : 'non-file path';
-    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'fix manually: replace or remove the path before running lattice check --apply/--upgrade' };
+    return { id: def.id, relPath: def.relPath, kind: def.kind, status: 'INCOMPATIBLE', expectedHash, reason: `managed asset path is a ${found}, expected a file`, action: 'fix manually: replace or remove the path before running proof-or-stop check --apply/--upgrade' };
   }
 
   if (def.kind === 'gitignore-runtime') {
@@ -1306,7 +1318,7 @@ export function renderManagedAssetCheck(result: ManagedAssetCheckResult): string
         lines.push(`    recommendation: ${review.recommendation}`);
       }
     }
-    lines.push('', 'Run `lattice check --apply` or `lattice check --upgrade` to sync MISSING/STALE_SAFE assets. CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
+    lines.push('', 'Run `proof-or-stop check --apply` or `proof-or-stop check --upgrade` to sync MISSING/STALE_SAFE assets. CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE require manual review.');
   } else {
     lines.push(`Manifest: ${result.manifestPath}`);
   }
@@ -1317,14 +1329,14 @@ export function managedAssetNextAction(result: ManagedAssetCheckResult): string 
   const unsafe = result.summary.CASE_MISMATCH + result.summary.STALE_LOCAL_EDIT + result.summary.INCOMPATIBLE;
   const safe = result.summary.MISSING + result.summary.STALE_SAFE;
   if (unsafe > 0) return 'review unsafe managed assets manually';
-  if (safe > 0) return 'run lattice check --apply to sync MISSING/STALE_SAFE assets';
+  if (safe > 0) return 'run proof-or-stop check --apply to sync MISSING/STALE_SAFE assets';
   if (result.applied.length > 0) return 'safe managed asset drift repaired';
   return 'no managed asset drift';
 }
 
 // B-097f: Claude agent prompts are runtime-owned and resolve from the global
 // ~/.claude/agents single source. The observable mode string surfaced by
-// `lattice doctor` and the init migration flow.
+// `proof-or-stop doctor` and the init migration flow.
 export const AGENT_ASSET_MODE_RUNTIME_OWNED = 'runtime-owned' as const;
 
 export interface ProjectLocalAgentScan {

@@ -344,7 +344,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, preSealBlindSpots),
     generatedBy: {
       verifier: 'acceptance-coverage-basis-verifier',
-      command: phaseBasis === 'pre_review' ? 'lattice pre_review_check' : 'lattice acceptance_basis_generate',
+      command: phaseBasis === 'pre_review' ? 'proof-or-stop pre_review_check' : 'proof-or-stop acceptance_basis_generate',
       algorithmVersion: 'v1',
     },
     discoveryProfileRef: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.ref,
@@ -397,8 +397,8 @@ export function verifyAcceptanceCoverageBasis(
   const diagnostics: AcceptanceBasisDiagnostic[] = [];
   if (basis.schemaVersion !== 'proofstory.acceptance_coverage_basis.v1'
     || basis.generatedBy.verifier !== 'acceptance-coverage-basis-verifier'
-    || (basis.phaseBasis === 'plan' && basis.generatedBy.command !== 'lattice acceptance_basis_generate')
-    || (basis.phaseBasis === 'pre_review' && basis.generatedBy.command !== 'lattice pre_review_check')
+    || (basis.phaseBasis === 'plan' && basis.generatedBy.command !== 'proof-or-stop acceptance_basis_generate')
+    || (basis.phaseBasis === 'pre_review' && basis.generatedBy.command !== 'proof-or-stop pre_review_check')
     || (basis.phaseBasis === 'pre_review' && !basis.priorPlanBasisDigest)) {
     diagnostics.push({ code: 'AT_ADAPTER_RESULT_INVALID', message: 'basis issuer, schema, command, or phase is invalid' });
   }

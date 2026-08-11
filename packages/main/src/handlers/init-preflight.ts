@@ -126,7 +126,7 @@ function initCheckRow(
   const id = 'init-check';
   const fix =
     `run the two INIT reviewers (lattice-review-story-init + product-reviewer) then ` +
-    `lattice init_check_set --storyId=${storyId}`;
+    `proof-or-stop init_check_set --storyId=${storyId}`;
   if (!initCheck) {
     return { id, status: 'MISSING', fix, detail: 'init-check.json is missing (no INIT reviewer has persisted yet)' };
   }
@@ -184,7 +184,7 @@ export function buildInitPreflightReport(ctx: HandlerContext, storyId: string): 
         return {
           id: 'scope-boundary',
           status: 'MISSING',
-          fix: `lattice scope_boundary_set --storyId=${storyId} --userConfirmed=true ...`,
+          fix: `proof-or-stop scope_boundary_set --storyId=${storyId} --userConfirmed=true ...`,
           detail: 'scope-boundary.json is missing',
         };
       }
@@ -200,7 +200,7 @@ export function buildInitPreflightReport(ctx: HandlerContext, storyId: string): 
         return {
           id: 'execution-boundary',
           status: 'MISSING',
-          fix: `lattice execution_boundary_set --storyId=${storyId} ...`,
+          fix: `proof-or-stop execution_boundary_set --storyId=${storyId} ...`,
           detail: 'execution-boundary.json is missing',
         };
       }
@@ -212,7 +212,7 @@ export function buildInitPreflightReport(ctx: HandlerContext, storyId: string): 
   prerequisites.push(
     probe('scope-freeze-check', () => {
       const check = store.readScopeFreezeCheck(storyId);
-      const fix = `lattice scope_freeze_check --storyId=${storyId}`;
+      const fix = `proof-or-stop scope_freeze_check --storyId=${storyId}`;
       if (!check) {
         return {
           id: 'scope-freeze-check',
@@ -250,7 +250,7 @@ export function buildInitPreflightReport(ctx: HandlerContext, storyId: string): 
         return {
           id: 'scope-extension-proposals',
           status: 'BLOCKED',
-          fix: `lattice scope_extension_decide --storyId=${storyId} --proposalId=${pending[0].proposalId} ...`,
+          fix: `proof-or-stop scope_extension_decide --storyId=${storyId} --proposalId=${pending[0].proposalId} ...`,
           detail: `${pending.length} pending proposal(s): ${pending.map((p) => p.proposalId).join(', ')}`,
         };
       }

@@ -318,4 +318,4 @@ try {
   rmSync(root, { recursive: true, force: true });
 }
 
-console.log('✓ lattice handoff smoke passed');
+console.log('✓ proof-or-stop handoff smoke passed');

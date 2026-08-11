@@ -382,7 +382,7 @@ try {
   }
 
   // B-38d6 CHK-002: lattice.config.json is canonical; validate.commands there
-  // must be loaded and used by lattice validate.
+  // must be loaded and used by proof-or-stop validate.
   const latticeCanonicalRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-canonical-'));
   try {
     writeFileSync(join(latticeCanonicalRoot, 'lattice.config.json'), JSON.stringify({
@@ -1169,7 +1169,7 @@ try {
     }
     assert.ok(driftText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check drift should render runtime footprint before drift details');
     assert.match(driftText, /Project-local JavaScript runtime required: (yes|no)/);
-    assert.match(driftText, /Next action: run lattice check --apply to sync MISSING\/STALE_SAFE assets/);
+    assert.match(driftText, /Next action: run proof-or-stop check --apply to sync MISSING\/STALE_SAFE assets/);
     assert.match(driftText, /Proofbound managed asset check: DRIFT/);
 
     runManagedAssetCheck(checkRoot, { apply: true, profile: 'core' });
@@ -1414,7 +1414,7 @@ try {
   }
 
   // B-56d3 CHK-003: validate-gate fail-closed regression.
-  // The DEV->TEST lattice validate gate was extracted into handlers/phase-gates.ts
+  // The DEV->TEST proof-or-stop validate gate was extracted into handlers/phase-gates.ts
   // (runValidateGate), and B-6974 moved actor lifecycle ownership up to
   // transition-orchestrator.ts. The gate must still fail-closed: a failing
   // validate run must throw "Cannot enter TEST" while preserving the verifier's
@@ -1459,7 +1459,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const evidence: any = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1491,7 +1491,7 @@ try {
       const actor = { stop() { stopped = true; } };
       await assert.rejects(
         () => runValidateGate({ store: fixture.store, root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), log: line => logs.push(line) }, fixture.storyId, actor),
-        /Cannot enter TEST: lattice validate did not pass/,
+        /Cannot enter TEST: proof-or-stop validate did not pass/,
         `${args.name}: unsafe PASS evidence must not skip a failing validate rerun`,
       );
       const after = fixture.store.readTestEvidence(fixture.storyId);
@@ -1511,7 +1511,7 @@ try {
         `${args.name}: rerun log should include "${args.reason}"`,
       );
       assert.ok(
-        !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+        !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
         `${args.name}: unsafe evidence must not log fresh skip`,
       );
     } finally {
@@ -1553,7 +1553,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const evidence = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1582,8 +1582,8 @@ try {
     assert.equal(after?.timestamp, evidence.timestamp, 'fresh skip path must not rewrite test-evidence timestamp');
     assert.equal(after?.output, evidence.output, 'fresh skip path must not rewrite test-evidence output');
     assert.ok(
-      logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
-      'fresh skip path must log that lattice validate was not rerun',
+      logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
+      'fresh skip path must log that proof-or-stop validate was not rerun',
     );
   } finally {
     rmSync(gateFreshRoot, { recursive: true, force: true });
@@ -1606,7 +1606,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
     );
     const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
     assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
@@ -1623,7 +1623,7 @@ try {
   await assertUnsafePassEvidenceReruns({
     name: 'wrong-command',
     reason: 'existing validation PASS command is not',
-    mutateEvidence: evidence => { evidence.command = 'lattice validate --story=B-other --json'; },
+    mutateEvidence: evidence => { evidence.command = 'proof-or-stop validate --story=B-other --json'; },
   });
 
   await assertUnsafePassEvidenceReruns({
@@ -1774,7 +1774,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const legacyEvidence = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"legacy pass without coverage"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1793,7 +1793,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateLegacyNoCoverageRoot, scanRoot: join(gateLegacyNoCoverageRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
       'strongly bound legacy PASS without verificationCoverage must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1801,11 +1801,11 @@ try {
     assert.equal(after?.result, 'FAIL', 'legacy PASS without verificationCoverage followed by failing validate must persist FAIL evidence');
     assert.notEqual(after?.timestamp, legacyEvidence.timestamp, 'legacy no coverage path must rewrite stale-format PASS evidence');
     assert.ok(
-      logs.some(line => line.includes('missing verificationCoverage from lattice validate')),
+      logs.some(line => line.includes('missing verificationCoverage from proof-or-stop validate')),
       'legacy no coverage path must log why the existing PASS was not consumed',
     );
     assert.ok(
-      !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+      !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
       'legacy no coverage path must not log the fresh skip message',
     );
   } finally {
@@ -1846,7 +1846,7 @@ try {
     });
     store.writeChecklist(storyId, { items: [] });
     const staleEvidence = {
-      command: `lattice validate --story=${storyId} --json`,
+      command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"old pass"}',
       result: 'PASS' as const,
       timestamp: '2026-05-16T03:01:00.000Z',
@@ -1869,7 +1869,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateStaleRoot, scanRoot: join(gateStaleRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
       'stale PASS evidence must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -1881,7 +1881,7 @@ try {
       'stale rerun path must log why the existing PASS was not consumed',
     );
     assert.ok(
-      !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+      !logs.some(line => line.includes('existing validation PASS is fresh; skipping proof-or-stop validate rerun')),
       'stale rerun path must not log the fresh skip message',
     );
   } finally {
@@ -1912,8 +1912,8 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
-      'runValidateGate must block TEST when lattice validate fails',
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
@@ -1945,7 +1945,7 @@ try {
     const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
       'runValidateGate must block TEST when the validation runner times out',
     );
     const evidence = store.readTestEvidence(storyId);

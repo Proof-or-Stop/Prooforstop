@@ -204,7 +204,7 @@ function recoveryPointsFor(story: CanonicalStory): Array<{ id: string; kind: str
 }
 
 function resumeCommandFor(row: LocalAssuranceStoryRow): string {
-  return `cd ${row.activeCwd} && lattice story_export --storyId=${row.storyId} --format=json`;
+  return `cd ${row.activeCwd} && proof-or-stop story_export --storyId=${row.storyId} --format=json`;
 }
 
 function asLane(value: unknown): ObservabilityParallelEntry['lane'] {

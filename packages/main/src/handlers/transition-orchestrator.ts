@@ -126,7 +126,7 @@ export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): str
     ...report.remediation.map(item => `  remediation=${item}`),
   ].join('\n');
   if (report.blocking) {
-    throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run lattice pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);
+    throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run proof-or-stop pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);
   }
   return rendered;
 }
@@ -143,7 +143,7 @@ export function runAcceptanceRolloutGate(ctx: HandlerContext, storyId: string): 
   if (report.blocking) {
     throw new Error(
       `Cannot enter REVIEW: acceptance rollout enforcement blocked DEV admission.${rendered}\n\n` +
-      '-> Run lattice acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.',
+      '-> Run proof-or-stop acceptance_rollout_report, then acceptance_rollout_check. Roll back by setting proofStory.acceptanceRolloutGateMode to warn or observe; prior reports remain immutable.',
     );
   }
   return rendered;
@@ -1084,7 +1084,7 @@ async function runStoryTransitionInner(
         throw new Error(
           `Cannot reopen ${args.storyId} to INIT: a reason of at least ${REOPEN_REASON_MIN} characters is required ` +
           `(explain why the frozen checklist title/context must change — e.g. which PLAN scope review flagged it). ` +
-          `Re-run: lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'.`,
+          `Re-run: proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'.`,
         );
       }
     }
@@ -1117,7 +1117,7 @@ async function runStoryTransitionInner(
       await runReviewToTestPreflightGate(ctx, args.storyId, actor);
     }
 
-    // B-56d3: DEV→TEST lattice validate gate (runValidateGate). The verifier is
+    // B-56d3: DEV→TEST proof-or-stop validate gate (runValidateGate). The verifier is
     // the sole writer of canonical test-evidence; the gate only consumes JSON.
     // B-6974: gate no longer stops the actor; the orchestrator's finally does.
     if (args.phase === 'TEST') {

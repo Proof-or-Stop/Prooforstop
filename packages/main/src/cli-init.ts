@@ -63,7 +63,7 @@ const agentTemplateDir = [
 const hookSrcDir = join(packageRoot, '..', '..', '.claude', 'hooks');
 const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ONLY_GUARD_HOOK_FILE, EVIDENCE_PRETOOL_HOOK_FILE, 'session-brief-reminder.cjs'] as const;
 
-// 通过 lattice init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
+// 通过 proof-or-stop init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
 const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
@@ -236,19 +236,19 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-lattice init — 初始化 Proofbound 开发框架
+proof-or-stop init — 初始化 Proofbound 开发框架
 
 用法:
-  lattice init [目标目录]                    在指定目录初始化（默认当前目录）
-  lattice init --profile <profile> [目标目录]
+  proof-or-stop init [目标目录]                    在指定目录初始化（默认当前目录）
+  proof-or-stop init --profile <profile> [目标目录]
                                         选择 init profile: codex | claude | all | core
-  lattice init --asset-mode <mode> [目标目录]
+  proof-or-stop init --asset-mode <mode> [目标目录]
                                         选择资产模式: global-thin（默认）| full | thin
-  lattice init --starter [目标目录]          额外生成旧版 starter 业务模板
-  lattice init --with-template [目标目录]    --starter 的同义 alias
-  lattice init --upgrade [目标目录]          同步 Proofbound 管理资产到当前版本
-  lattice init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
-  lattice init --help                        显示帮助
+  proof-or-stop init --starter [目标目录]          额外生成旧版 starter 业务模板
+  proof-or-stop init --with-template [目标目录]    --starter 的同义 alias
+  proof-or-stop init --upgrade [目标目录]          同步 Proofbound 管理资产到当前版本
+  proof-or-stop init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
+  proof-or-stop init --help                        显示帮助
 
 默认初始化（global-thin mode）:
   .lattice/Lattice.md           canonical host-neutral Proofbound 指南（新目录）
@@ -274,9 +274,9 @@ full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
 
 初始化后（global-thin）:
   1. 阅读 .lattice/Lattice.md
-  2. 使用全局 lattice CLI：lattice session_brief、lattice codex verify、lattice codex doctor
+  2. 使用全局 lattice CLI：proof-or-stop session_brief、proof-or-stop codex verify、proof-or-stop codex doctor
   3. 可选: 编辑 lattice.config.json 调整 scanRoot 等路径
-  4. 可选: lattice validate 跑项目验证
+  4. 可选: proof-or-stop validate 跑项目验证
 `);
   process.exit(0);
 }
@@ -889,7 +889,7 @@ if (isGlobalThin) {
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
 // prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
 // thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
-// `lattice agent_prompt --role=<name>` 从包内 registry 现取。
+// `proof-or-stop agent_prompt --role=<name>` 从包内 registry 现取。
 console.log('\n[4/5] 同步 agent 适配器（全局 thin-shim 单一源）...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
@@ -921,7 +921,7 @@ if (wantsClaude && agentTemplateDir) {
     } else {
       console.log(
         `  ⚠ ${projectScan.managedFiles.length} managed agent files found in .claude/agents; ` +
-          `run lattice init --upgrade to migrate to global`,
+          `run proof-or-stop init --upgrade to migrate to global`,
       );
     }
   }
@@ -942,7 +942,7 @@ if (!isGlobalThin && wantsCodex) {
   console.log('  ✓ .lattice-codex/lattice.json');
 } else if (isGlobalThin) {
   console.log('  - .lattice-codex/README.md (global-thin mode; Codex adapter runs from global lattice CLI)');
-  console.log('  - .lattice-codex/lattice.json (global-thin mode; use lattice codex verify)');
+  console.log('  - .lattice-codex/lattice.json (global-thin mode; use proof-or-stop codex verify)');
 } else {
   console.log('  - .lattice-codex/README.md (profile skip)');
   console.log('  - .lattice-codex/lattice.json (profile skip)');
@@ -1116,11 +1116,11 @@ console.log(`
 
 Next steps:
 ${isGlobalThin ? `  1. Read .lattice/Lattice.md
-  2. Use the global lattice CLI: lattice session_brief
-  3. For Codex adapter: lattice codex verify / lattice codex doctor
-  4. Optional: lattice validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
+  2. Use the global lattice CLI: proof-or-stop session_brief
+  3. For Codex adapter: proof-or-stop codex verify / proof-or-stop codex doctor
+  4. Optional: proof-or-stop validate to verify project` : `  1. Read LATTICE.md, then use the entrypoints generated for profile ${selectedProfile}
   2. Optional: edit lattice.config.json to adjust scanRoot
-  3. Optional: lattice validate to verify project`}
+  3. Optional: proof-or-stop validate to verify project`}
 `);
 
 if (verifyCodex) {

@@ -627,7 +627,7 @@ export function formatNonOwnerError(
     ? 'The owner lease is STALE (no heartbeat for 30+ minutes).'
     : 'The owner lease is still ACTIVE.';
   const sameWorktreeGuidance = ownerCwdMatchesCurrent(lease.cwd, ctx.currentCwd)
-    ? ` Owner cwd matches the current cwd (${normalizedCwdForCompare(lease.cwd)}), so this may be a same-worktree context switch. Run lattice session_brief and confirm no live conflicting session; the lease is not transferred unless you rerun with an explicit takeover flag.`
+    ? ` Owner cwd matches the current cwd (${normalizedCwdForCompare(lease.cwd)}), so this may be a same-worktree context switch. Run proof-or-stop session_brief and confirm no live conflicting session; the lease is not transferred unless you rerun with an explicit takeover flag.`
     : '';
   const nextAction = stale
     ? `Use read-only commands, wait for the owner, or rerun with --takeover to transfer the stale lease.`

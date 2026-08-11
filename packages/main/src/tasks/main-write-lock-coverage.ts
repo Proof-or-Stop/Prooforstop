@@ -53,7 +53,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-/** Marker line printed by the guard so `lattice validate` output is greppable. */
+/** Marker line printed by the guard so `proof-or-stop validate` output is greppable. */
 export const COVERAGE_MARKER = 'main-write-lock-coverage:';
 
 /** Lock-acquisition tokens that count as "this scope holds the main write lock". */

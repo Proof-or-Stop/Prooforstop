@@ -263,7 +263,7 @@ async function assertDoctorDetectsPartialDoneAndRecoverRepairs(): Promise<void> 
 
     const text = await runProofOrStop(root, 'doctor', {});
     assert.match(text, /Partial-DONE scan:/);
-    assert.match(text, new RegExp(`lattice done_recover --storyId=${storyId}`));
+    assert.match(text, new RegExp(`proof-or-stop done_recover --storyId=${storyId}`));
 
     const recovered = await runProofOrStop(root, 'done_recover', { storyId });
     assert.match(recovered, new RegExp(`partial-DONE recovered: ${storyId}`));

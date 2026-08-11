@@ -1016,7 +1016,7 @@ function phaseTimeoutBlock(storyId: string, steps: DonePrepareStep[], err: DoneP
     reason,
     dryRun,
     next: err.phase.id === 'doneRequiredValidation'
-      ? `inspect the timed-out receipt command with lattice done_required_validate --storyId=${storyId}; rerun done_prepare only after fixing the hang or explicitly raising ${err.phase.timeoutEnv}`
+      ? `inspect the timed-out receipt command with proof-or-stop done_required_validate --storyId=${storyId}; rerun done_prepare only after fixing the hang or explicitly raising ${err.phase.timeoutEnv}`
       : `inspect the "${err.phase.label}" closeout phase; if its work is legitimately longer, rerun with ${err.phase.timeoutEnv} set above ${err.timeoutMs}`,
     steps,
   });
@@ -1110,7 +1110,7 @@ export function donePrepareJsonResult(storyId: string, transcript: string): Done
   };
 }
 
-function parseValidateOutput(text: string, next = 'lattice validate --story=<storyId> --json'): {
+function parseValidateOutput(text: string, next = 'proof-or-stop validate --story=<storyId> --json'): {
   ok: boolean;
   summary: string;
   next: string;
@@ -1307,10 +1307,10 @@ function nextForDoneClosureBlock(
 ): string {
   if (hasReviewAssuranceBlocker(runbook)) {
     return reviewAssurancePlan?.ownerRunnableCommands[0]
-      || `inspect review status, submit current-material review/quorum evidence through legal reviewer/host paths, then rerun lattice done_prepare '{"storyId":"${storyId}"}'`;
+      || `inspect review status, submit current-material review/quorum evidence through legal reviewer/host paths, then rerun proof-or-stop done_prepare '{"storyId":"${storyId}"}'`;
   }
   const row = blockingRows(runbook).find((candidate) => candidate.nextCommand);
-  return row?.nextCommand || `lattice done_closure '{"storyId":"${storyId}"}'`;
+  return row?.nextCommand || `proof-or-stop done_closure '{"storyId":"${storyId}"}'`;
 }
 
 function commandsForDoneClosureBlock(
@@ -1321,11 +1321,11 @@ function commandsForDoneClosureBlock(
   if (hasReviewAssuranceBlocker(runbook)) {
     if (reviewAssurancePlan) return reviewAssurancePlan.ownerRunnableCommands;
     return [
-      `lattice review_escalation_status '{"storyId":"${storyId}"}'`,
-      `lattice autopilot_review_status --storyId=${storyId}`,
-      `lattice validate --story=${storyId} --json`,
-      `lattice verification_evidence_refresh_stale --storyId=${storyId} --dryRun`,
-      `lattice done_prepare '{"storyId":"${storyId}"}'`,
+      `proof-or-stop review_escalation_status '{"storyId":"${storyId}"}'`,
+      `proof-or-stop autopilot_review_status --storyId=${storyId}`,
+      `proof-or-stop validate --story=${storyId} --json`,
+      `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId} --dryRun`,
+      `proof-or-stop done_prepare '{"storyId":"${storyId}"}'`,
     ];
   }
   const blockers = blockingRows(runbook);
@@ -1717,7 +1717,7 @@ function renderPass(args: {
     renderSteps(args.steps),
     '',
     'Next:',
-    `lattice story_advance '{"storyId":"${args.storyId}","phase":"DONE"}'`,
+    `proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"DONE"}'`,
   ];
   return lines.join('\n');
 }
@@ -1762,7 +1762,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     return blocked({
       blockedAt: 'preflight',
       reason: 'storyId is required',
-      next: 'lattice done_prepare \'{"storyId":"B-xxxx"}\'',
+      next: 'proof-or-stop done_prepare \'{"storyId":"B-xxxx"}\'',
       steps,
     });
   }
@@ -1775,7 +1775,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     return blocked({
       blockedAt: 'preflight',
       reason: err?.message || `story ${storyId} cannot be read`,
-      next: `lattice story_get '{"storyId":"${storyId}"}'`,
+      next: `proof-or-stop story_get '{"storyId":"${storyId}"}'`,
       steps,
     });
   }
@@ -1789,7 +1789,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     return blocked({
       blockedAt: 'preflight',
       reason: err?.message || 'current cwd is not the requested story worktree',
-      next: story.worktree?.path ? `cd ${story.worktree.path}` : `lattice story_resolve '{"storyId":"${storyId}"}'`,
+      next: story.worktree?.path ? `cd ${story.worktree.path}` : `proof-or-stop story_resolve '{"storyId":"${storyId}"}'`,
       steps,
     });
   }
@@ -1799,7 +1799,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     return blocked({
       blockedAt: 'preflight',
       reason: `story ${storyId} is in ${story.phase}; done_prepare only runs for TEST stories`,
-      next: `lattice story_advance '{"storyId":"${storyId}","phase":"TEST"}'`,
+      next: `proof-or-stop story_advance '{"storyId":"${storyId}","phase":"TEST"}'`,
       steps,
     });
   }
@@ -1822,7 +1822,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     return blocked({
       blockedAt: 'preflight',
       reason: `local main cannot be found: ${mainRef.error}`,
-      next: 'fetch or create a local main branch, then rerun lattice done_prepare',
+      next: 'fetch or create a local main branch, then rerun proof-or-stop done_prepare',
       steps,
     });
   }
@@ -1881,7 +1881,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         reason: merge.error || 'git merge main failed',
         files,
         guidanceSections: buildMergeConflictGuidance(),
-        next: 'resolve the listed merge conflict files manually, commit the merge, then rerun lattice done_prepare',
+        next: 'resolve the listed merge conflict files manually, commit the merge, then rerun proof-or-stop done_prepare',
         steps,
       });
     }
@@ -1916,7 +1916,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     return blocked({
       blockedAt: 'evidenceFreshness',
       reason: err?.message || 'stale evidence classification failed',
-      next: `lattice verification_evidence_refresh_stale --storyId=${storyId} --dryRun`,
+      next: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId} --dryRun`,
       steps,
     });
   }
@@ -1928,7 +1928,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     return blocked({
       blockedAt: 'evidenceFreshness',
       reason: `${stalePlan.staleCount} stale verification evidence item(s) found; refreshStale=false`,
-      next: `lattice verification_evidence_refresh_stale --storyId=${storyId}`,
+      next: `proof-or-stop verification_evidence_refresh_stale --storyId=${storyId}`,
       commands: stalePlan.rerunRequired.map((entry) => entry.command),
       steps,
     });
@@ -1939,7 +1939,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       blockedAt: 'evidenceFreshness',
       reason: 'stale command-backed verification evidence must be rerun; done_prepare will not freshen it by rewriting hashes',
       commands,
-      next: commands[0] || `lattice validate --story=${storyId} --json`,
+      next: commands[0] || `proof-or-stop validate --story=${storyId} --json`,
       steps,
     });
   } else if (args.dryRun) {
@@ -1954,7 +1954,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     setStep(steps, 'validate', 'skipped',
       `validate=false; disposition=skipped_explicitly result=not_run existingEvidenceBasis=${existing.existingEvidenceBasis} refusalReasons=${existing.refusalReasons.join(',') || 'none'} timeoutLayer=null`);
   } else if (args.dryRun) {
-    setStep(steps, 'validate', 'skipped', 'planned mutation skipped: dryRun does not run lattice validate');
+    setStep(steps, 'validate', 'skipped', 'planned mutation skipped: dryRun does not run proof-or-stop validate');
   } else {
     const verifier = createVerifierHandlers(ctx);
     const routineValidationStartedAt = new Date().toISOString();
@@ -1972,13 +1972,13 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     } catch (err: any) {
       const timeoutLayer = timeoutLayerFromReason(rawArgs.abortSignal?.reason) ?? timeoutLayerFromReason(err);
       const terminal = timeoutLayer
-        ? `${err?.message || 'lattice validate timed out'}; disposition=executed result=timed_out refusalReasons=${err?.message || 'routine-validation-timeout'} timeoutLayer=${timeoutLayer} existingEvidenceBasis=stale`
-        : (err?.message || 'lattice validate failed');
+        ? `${err?.message || 'proof-or-stop validate timed out'}; disposition=executed result=timed_out refusalReasons=${err?.message || 'routine-validation-timeout'} timeoutLayer=${timeoutLayer} existingEvidenceBasis=stale`
+        : (err?.message || 'proof-or-stop validate failed');
       setStep(steps, 'validate', 'blocked', terminal);
       return blocked({
         blockedAt: 'validate',
         reason: terminal,
-        next: `lattice validate --story=${storyId} --json`,
+        next: `proof-or-stop validate --story=${storyId} --json`,
         steps,
       });
     }
@@ -2024,7 +2024,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     const doneRequiredPolicy = resolveDoneRequiredPolicy(ctx.root);
     if (doneRequiredPolicy.required) {
       const doneRequiredHandlers = createDoneRequiredValidationHandlers(ctx);
-      const command = `lattice done_required_validate --storyId=${storyId}`;
+      const command = `proof-or-stop done_required_validate --storyId=${storyId}`;
       const reuse = evaluateDoneRequiredPreRunReuse({ root: ctx.root, gitCwd, storyId, store: ctx.store });
       if (args.reuseFreshDoneRequired && reuse.reusable) {
         validationSummaries.push(
@@ -2081,7 +2081,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       'validate',
       'pass',
       validationSummaries.join('; '),
-      `lattice validate --story=${storyId} --json`,
+      `proof-or-stop validate --story=${storyId} --json`,
     );
     validationReuseBasis = captureDonePrepareValidationReuseBasis({
       root: ctx.root,
@@ -2125,7 +2125,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
         guidanceSections: buildRerunReasonGuidance(commits, currentBinding),
         commands: [
           `git log --oneline ${prepareMutationStartHead}..HEAD`,
-          `lattice done_prepare '{"storyId":"${storyId}"}'`,
+          `proof-or-stop done_prepare '{"storyId":"${storyId}"}'`,
         ],
         next: 'inspect the generated commits and rerun only after resolving real drift',
         steps,
@@ -2278,7 +2278,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           reason: 'autoCloseGeneratedMetadata was requested, but reuseFreshValidation=false; refusing to skip validation after metadata-only HEAD drift',
           files,
           guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
-          next: `rerun lattice done_prepare '{"storyId":"${storyId}","autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}' when validation reuse is intended`,
+          next: `rerun proof-or-stop done_prepare '{"storyId":"${storyId}","autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}' when validation reuse is intended`,
           steps,
         });
       }
@@ -2289,7 +2289,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           reason: 'reuseFreshValidation requires this done_prepare invocation to run validation and DONE-required validation before auto-closeout',
           files,
           guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
-          next: `lattice done_prepare '{"storyId":"${storyId}","validate":true,"autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}'`,
+          next: `proof-or-stop done_prepare '{"storyId":"${storyId}","validate":true,"autoCloseGeneratedMetadata":true,"reuseFreshValidation":true}'`,
           steps,
         });
       }
@@ -2344,7 +2344,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
           reason: `validation reuse not eligible: ${reuse.reasons.join('; ')}`,
           files,
           guidanceSections: buildGeneratedMetadataDirtyGuidance(generatedMetadataManifest),
-          next: `rerun full validation: lattice done_prepare '{"storyId":"${storyId}","validate":true}'`,
+          next: `rerun full validation: proof-or-stop done_prepare '{"storyId":"${storyId}","validate":true}'`,
           steps,
         });
       }

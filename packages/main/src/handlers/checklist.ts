@@ -211,7 +211,7 @@ function hasMilestoneLedgerArtifact(store: HandlerContext['store'], storyId: str
 }
 
 function checklistAddMilestoneLedgerAdvisory(storyId: string, itemId: string): string {
-  return `Advisory: milestone ledger exists for ${storyId}; if this new checklist item (${itemId}) changes milestone coverage, update/sync the ledger with \`lattice milestone_ledger_add\` or an explicit ledger update.`;
+  return `Advisory: milestone ledger exists for ${storyId}; if this new checklist item (${itemId}) changes milestone coverage, update/sync the ledger with \`proof-or-stop milestone_ledger_add\` or an explicit ledger update.`;
 }
 
 export function assertChecklistAddAllowed(
@@ -409,7 +409,7 @@ function resolveIntentForRef(
 /**
  * B-ec67 F-008: caller-supplied tool-execution provenance is UNTRUSTED BY DESIGN.
  * The CLI schema (verificationEvidenceSchema, command-schemas.ts) explicitly .strip()s
- * mechanical / receipt / nonMechanicalReason, so a real `lattice checklist_update` caller
+ * mechanical / receipt / nonMechanicalReason, so a real `proof-or-stop checklist_update` caller
  * can never inject them (fabricating mechanical:true + a fake receipt to launder an
  * executable intent as covered = receipt injection). We ALSO drop any caller-supplied
  * provenance here so the internal fn-call path (which bypasses Zod) is protected the same.
@@ -951,7 +951,7 @@ function writeStaleRefresh(
     if (!opts.dryRun) store.writeChecklist(storyId, cl);
     lines.push(opts.dryRun
       ? '→ Rerun the above command without dryRun to refresh evidence metadata'
-      : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run lattice validate --story=${storyId} --json`);
+      : `Refreshed ${refreshed}/${stale.length} stale evidence item(s). Re-run proof-or-stop validate --story=${storyId} --json`);
     if (!opts.dryRun) {
       const commitHint = autoCommitStoryMetadata(root, storyId, 'verification_evidence_refresh_stale');
       if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
@@ -1203,7 +1203,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           `checklist_update refused: status='withdrawn' cannot be set directly. ` +
           `A withdrawal must be recorded by scope_shrinkage_decision_set (the sole authorized applier), ` +
           `which stamps the item with a confirmed decision's decisionRef. ` +
-          `Run lattice scope_shrinkage_decision_set with withdrawnChecklistItemRefs including ${args.itemId}. [withdrawn_requires_scope_shrinkage_decision]`,
+          `Run proof-or-stop scope_shrinkage_decision_set with withdrawnChecklistItemRefs including ${args.itemId}. [withdrawn_requires_scope_shrinkage_decision]`,
         );
       }
 
@@ -1272,8 +1272,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           // and INIT is not in titleContextProtectedPhases, so this refusal fires
           // only at PLAN and DEV — the two branches below cover exactly those.
           `${story.phase === 'PLAN'
-            ? `From PLAN: run lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why the frozen title must change>"}', edit the title, then re-run INIT review and re-advance INIT_CHECK -> PLAN`
-            : `From DEV: first roll back to PLAN with lattice story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}', then lattice story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'`}. ` +
+            ? `From PLAN: run proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why the frozen title must change>"}', edit the title, then re-run INIT review and re-advance INIT_CHECK -> PLAN`
+            : `From DEV: first roll back to PLAN with proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"PLAN"}', then proof-or-stop story_advance '{"storyId":"${args.storyId}","phase":"INIT","reason":"<why>"}'`}. ` +
           `(INIT_CHECK stays frozen and reopening resets non-pending checklist items to pending, so the scope-freeze invariant is preserved.)`
         );
       }
@@ -1443,13 +1443,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // not keep trusting a stale pre-write snapshot (e.g. "still in_progress" when
       // the write already flipped it to done). The reminder goes to STDERR, never
       // stdout, following the B-6812 advisory-to-stderr precedent: stdout stays the
-      // pure conclusion so `lattice checklist_update | tail` pipelines are unaffected.
+      // pure conclusion so `proof-or-stop checklist_update | tail` pipelines are unaffected.
       try {
         const persisted = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
         const persistedStatus = persisted ? persisted.status : '<unknown>';
         process.stderr.write(
           `↻ Written and persistence confirmed: ${args.itemId} current status=${persistedStatus}. ` +
-          `For long sessions please reload (lattice checklist_get / session_brief) before relying on the snapshot.\n`,
+          `For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n`,
         );
       } catch (e) {
         // Reminder is advisory only — a read-back failure must never change the
@@ -1920,7 +1920,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         }
         store.writeChecklist(args.storyId, cl);
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_intent_repair');
-        lines.push(`Wrote ${filled.length} reconstructed intent(s). Re-run lattice validate --story=${args.storyId} --json`);
+        lines.push(`Wrote ${filled.length} reconstructed intent(s). Re-run proof-or-stop validate --story=${args.storyId} --json`);
         if (commitHint) lines.push(commitHint.replace(/^\n/, ''));
         return lines.join('\n');
       });

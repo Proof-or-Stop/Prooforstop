@@ -2,7 +2,7 @@
 /**
  * B-a370 CHK-002: META container next/session_brief hint smoke.
  *
- * Verifies F-003 fix: `lattice next` / `session_brief` must not hand META
+ * Verifies F-003 fix: `proof-or-stop next` / `session_brief` must not hand META
  * containers (B-META-* / phase=META) an actionable lifecycle hint like
  * `story_advance --storyId=<meta> --phase=INIT_CHECK`; they must get
  * audit/finding-flow guidance and stay out of the lifecycle/worktree

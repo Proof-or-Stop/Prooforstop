@@ -81,7 +81,7 @@ export const RUNTIME_FACT_REGISTRY = [
     outputKey: 'globalCoreRealpath',
     rationale: 'Global @lattice/core drift makes bare `lattice` commands run stale handlers.',
     driftMessage: 'The globally installed @lattice/core realpath does not match the expected Proofbound core package.',
-    repairHint: 'Relink or reinstall the global @lattice/core package, then rerun `lattice doctor --format=json`.',
+    repairHint: 'Relink or reinstall the global @lattice/core package, then rerun `proof-or-stop doctor --format=json`.',
   },
   {
     id: 'project-local-bin',

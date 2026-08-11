@@ -231,7 +231,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       let testEvidenceWritten = false;
       try {
         ctx.store.writeTestEvidence(storyId, {
-          command: `lattice test_story '{"storyId":"${storyId}"}'`,
+          command: `proof-or-stop test_story '{"storyId":"${storyId}"}'`,
           output: JSON.stringify({ totalCases: totalCasesS, passedCases: passedCasesS, failedCases: totalCasesS - passedCasesS, allPassed: allPassedS }),
           result: allPassedS ? 'PASS' : 'FAIL',
           timestamp: __runEndIso,
@@ -251,7 +251,7 @@ export function createTestStoryHandlers(ctx: HandlerContext) {
       try {
         ctx.store.appendTestRun(storyId, {
           timestamp: __runEndIso,
-          command: `lattice test_story '{"storyId":"${storyId}"}'`,
+          command: `proof-or-stop test_story '{"storyId":"${storyId}"}'`,
           totalCases: totalCasesS,
           passedCases: passedCasesS,
           failedCases: totalCasesS - passedCasesS,

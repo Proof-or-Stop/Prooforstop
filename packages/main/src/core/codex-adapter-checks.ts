@@ -81,7 +81,7 @@ export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'proof-or-stop codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'proof-or-stop init --verify-codex';
 export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 export const DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS = 10_000;
-// The global fallback runs the real installed `lattice session_brief`, which can
+// The global fallback runs the real installed `proof-or-stop session_brief`, which can
 // traverse a large repo before writing its heartbeat. Keep local wrapper probes
 // conservative, but give this fallback enough budget for real-world repos.
 export const DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000;
@@ -662,7 +662,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
   // Global-thin projects: executable Codex adapter behavior lives in the global lattice CLI.
   // Local wrapper is not required regardless of whether legacy bin/ files exist.
   if (isGlobalThinProject(root)) {
-    push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global lattice codex verify / lattice codex doctor');
+    push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor');
     return;
   }
   // Accept whichever wrapper name this checkout has, canonical preferred. A pre-rename
@@ -798,7 +798,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
 
 function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<string>): void {
   if (!registryNames) {
-    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through lattice doctor for live command inventory');
+    push(checks, 'aux-availability', 'Aux command availability', 'warn', false, 'registry not provided; run through proof-or-stop doctor for live command inventory');
     return;
   }
   if (!registryNames.has('aux_doc_list')) {
@@ -861,7 +861,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /(?:\.lattice-codex|lattice-codex|codex adapter|verify_codex|bin\/lattice-codex\.js|\.codex\/hooks(?:\.json)?|lattice codex (?:verify|doctor))/i.test(haystack);
+    return /(?:\.lattice-codex|lattice-codex|codex adapter|verify_codex|bin\/lattice-codex\.js|\.codex\/hooks(?:\.json)?|proof-or-stop codex (?:verify|doctor))/i.test(haystack);
   } catch {
     return false;
   }

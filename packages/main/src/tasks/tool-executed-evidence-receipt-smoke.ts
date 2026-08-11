@@ -443,7 +443,7 @@ const SELECTOR = 'MARKER_OK';
 //        being carried forward from REAL on-disk evidence recorded via the enforced path.
 //        This exercises the CLI-REACHABLE behavior (the CLI schema .strip()s the provenance
 //        fields, and carryForwardOnDiskProvenance drops them on the internal fn path too),
-//        NOT a caller-trusted receipt that no real `lattice checklist_update` caller can send. ──
+//        NOT a caller-trusted receipt that no real `proof-or-stop checklist_update` caller can send. ──
 {
   const env = makeEnv([{ ref: 'INT-EXEC', type: 'logic' }, { ref: 'INT-MAN2', type: 'manual' }]);
   try {

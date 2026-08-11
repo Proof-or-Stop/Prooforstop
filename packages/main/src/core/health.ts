@@ -11,7 +11,7 @@
  *
  *   PERSIST-class failures were previously swallowed and could not be traced afterward. This module provides a lightweight
  *   JSONL append receiver: each issue is written to ~/.lattice/health.jsonl,
- *   and `lattice doctor` can read them out.
+ *   and `proof-or-stop doctor` can read them out.
  *
  * Design constraints:
  *   - reportHealthIssue itself must not throw. A crash in the health module must not drag down the main flow.

@@ -73,7 +73,7 @@ import { readBrandEnv } from './brand-env.js';
  * exact mechanism `withValidationExecutionLock` / `story_create` use — instead
  * of hand-rolling a lock. `mkdir` of a non-existent directory is atomic on
  * POSIX/Win32, so exactly one caller wins across SEPARATE PROCESSES; this
- * serializes concurrent `lattice story_advance` CLI invocations (and, like the
+ * serializes concurrent `proof-or-stop story_advance` CLI invocations (and, like the
  * validation lock which roots at the same project root, transitions across
  * worktrees of the same story), not merely in-process callers.
  *

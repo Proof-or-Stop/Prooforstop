@@ -869,7 +869,7 @@ function assertPhaseGatePolicyHints(): void {
     assert.match(output, /Lifecycle: legacy/);
     assert.match(output, /Requested phase: DEV/);
     assert.match(output, /Allowed phases: root-only/);
-    assert.match(output, /Replacement: .*lattice validate --story=<storyId>/);
+    assert.match(output, /Replacement: .*proof-or-stop validate --story=<storyId>/);
     assert.match(output, /verificationEvidence/);
     assert.match(output, /Destructive risk: workspace-destructive/);
     assert.match(output, /confirm/);
@@ -1109,7 +1109,7 @@ function assertStoryAdvanceTestGateFailClosedContracts(): void {
   );
   assert.match(
     phaseGatesSource,
-    /Cannot enter TEST: lattice validate execution error/,
+    /Cannot enter TEST: proof-or-stop validate execution error/,
     'validate execution errors must be fail-closed before entering TEST',
   );
   for (const src of [source, phaseGatesSource]) {
@@ -1829,7 +1829,7 @@ function assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness(): void {
     store.writeChecklist(storyId, { items: [] });
 
     const baseEvidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: now,
@@ -2125,7 +2125,7 @@ function assertStoryAdvanceGuardIgnoresMainAgentDevFindings(): void {
       ],
     });
 
-    // Live story_advance guard path (machine.ts) — what `lattice story_advance
+    // Live story_advance guard path (machine.ts) — what `proof-or-stop story_advance
     // --phase=TEST` actually calls — must let the transition through.
     assert.equal(
       getGuardFailureReason(storyId, store, 'TEST', root),
@@ -2237,7 +2237,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     assert.match(basisOutput, /Acceptance coverage basis: complete/);
     const planArtifact = store.readAcceptanceBasis(storyId);
     assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
-    assert.equal(planArtifact?.basis.generatedBy.command, 'lattice acceptance_basis_generate');
+    assert.equal(planArtifact?.basis.generatedBy.command, 'proof-or-stop acceptance_basis_generate');
     const output = await createStoryAdvanceHandlers({
       store,
       root,
@@ -2306,7 +2306,7 @@ function assertReviewerStatusUsesMdFallback(): void {
     assert.match(reviewBrief, /review_run_start/, 'REVIEW anti-stall should tell reviewers to start a signed review run');
     assert.match(reviewBrief, /reviewRunId/, 'REVIEW anti-stall should mention the returned reviewRunId');
     assert.match(reviewBrief, /review_pass_set/, 'REVIEW anti-stall should still explain no-blocker pass evidence');
-    assert.match(reviewBrief, /<reviewRunId from lattice review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
+    assert.match(reviewBrief, /<reviewRunId from proof-or-stop review_run_start>/, 'REVIEW anti-stall should not imply a hard-coded reviewRunId');
     assert.doesNotMatch(reviewBrief, /:RR-001/, 'REVIEW anti-stall must not hard-code a synthetic reviewRunId');
 
     const contract = getArtifactContractStatus(store, storyId, 'TEST', { projectRoot: root });
@@ -2366,7 +2366,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     const evidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-04-27T12:20:00.000Z',
@@ -2401,8 +2401,8 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     // B-4b22: lattice_metadata-only pollution passes via dirty-gate-policy, so
     // git-working-tree no longer appears in the blocked-row list.
     assert.match(nextStep, /delivery-check, story-summary/);
-    assert.match(nextStep, /After all pass, run lattice story_advance --phase=DONE/);
-    assert.match(testBrief, /After all pass, run lattice story_advance --phase=DONE/);
+    assert.match(nextStep, /After all pass, run proof-or-stop story_advance --phase=DONE/);
+    assert.match(testBrief, /After all pass, run proof-or-stop story_advance --phase=DONE/);
     assert.doesNotMatch(testBrief, /Next step: story_advance --storyId=B-smoke --phase=DONE/);
     assert.doesNotMatch(testBrief, /Next step: first git add \+ git commit to commit all changes, then advance DONE/);
   } finally {
@@ -2826,7 +2826,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
       ],
     });
     const evidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-04-27T12:25:00.000Z',
@@ -2892,7 +2892,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     store.writeTestEvidence(storyId, {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-05-15T12:25:00.000Z',
@@ -3849,7 +3849,7 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
  *     (no circular import); story-advance.ts is only the public command shell,
  *     and transition-orchestrator.ts owns the transition sequence.
  *  2. Fail-closed gate behavior (preMortem #1): runValidateGate still blocks
- *     TEST when lattice validate fails (allPass=false) AND when validate output
+ *     TEST when proof-or-stop validate fails (allPass=false) AND when validate output
  *     is non-JSON (JSON-parse failure); runReviewToTestPreflightGate still
  *     blocks TEST when a CLI gate fails.
  *  3. Effect snapshot byte-identical (preMortem #3): buildNextSteps and
@@ -3915,7 +3915,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
   assert.doesNotMatch(
     storyAdvanceSrc,
     /const verifierHandlers = createVerifierHandlers\(ctx\)/,
-    'the lattice validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
+    'the proof-or-stop validate gate body must live in phase-gates.ts, not inline in story-advance.ts',
   );
   // Fail-closed wording for the validate-throw / JSON-parse-failure catch must
   // live in phase-gates.ts and be the fail-closed branch (preMortem #1). The
@@ -3971,8 +3971,8 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      /Cannot enter TEST: lattice validate did not pass/,
-      'runValidateGate must block TEST when lattice validate fails',
+      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
     // The fail-closed path still persists a FAIL test-evidence record (the
@@ -4172,7 +4172,7 @@ function assertDoneOracleSameSource(): void {
     testStory.phase = 'TEST';
     store.writeStory(storyId, testStory);
     const evidence: TestEvidenceData = {
-      command: 'lattice validate --json',
+      command: 'proof-or-stop validate --json',
       output: JSON.stringify({ allPass: true }),
       result: 'PASS',
       timestamp: '2026-05-15T12:25:00.000Z',

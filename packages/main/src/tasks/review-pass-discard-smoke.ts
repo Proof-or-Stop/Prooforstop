@@ -565,8 +565,8 @@ function assertDocsDriftAllowsBootstrapAndLegacyCommands(): void {
   const result = runDocsDriftGate([
     [
       '```bash',
-      'lattice aux_scan',
-      'lattice testintent_resume \'{"storyId":"B-001","itemId":"CHK-001"}\'',
+      'proof-or-stop aux_scan',
+      'proof-or-stop testintent_resume \'{"storyId":"B-001","itemId":"CHK-001"}\'',
       '```',
     ].join('\n'),
   ], new Set(['story_create']));
@@ -691,7 +691,7 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     assert.equal(dispatchEvent?.checklistId, 'CHK-001', 'item dispatch should write checklistId for channel gate');
     assert.equal(dispatchEvent?.agentType, 'lattice-implementer', 'item dispatch should write agentType');
     assert.equal(dispatchEvent?.phase, 'DEV', 'item dispatch event should include story phase');
-    assert.equal(dispatchEvent?.source, 'lattice dispatch', 'item dispatch event should name source');
+    assert.equal(dispatchEvent?.source, 'proof-or-stop dispatch', 'item dispatch event should name source');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

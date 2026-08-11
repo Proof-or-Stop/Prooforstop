@@ -92,7 +92,7 @@ function runLatticeFromCwdExpectFail(cwd: string, command: string, args: Record<
 }
 
 /**
- * Spawn one real `lattice story_advance` OS child process from `cwd`; resolves
+ * Spawn one real `proof-or-stop story_advance` OS child process from `cwd`; resolves
  * with its exit code + combined stdout/stderr. Real child processes (not an
  * in-process `Promise.all`) are required for a genuine multi-session race: an
  * in-process call would serialize on a single event loop and the unified main
@@ -545,7 +545,7 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   const docsPromises: DocsPromise[] = [];
   const realMachineTests: RealMachineTest[] = [{
     featureId: 'nested-done-cleanup',
-    transcript: 'lattice story_advance DONE was invoked from PVSC/child and cleaned the canonical worktree root.',
+    transcript: 'proof-or-stop story_advance DONE was invoked from PVSC/child and cleaned the canonical worktree root.',
   }];
   const closingSelfCheck: ClosingSelfCheck = {
     hasRealMachineTest: true,
@@ -1401,7 +1401,7 @@ function assertRealMergeFailureMarksDoneAndThrows(): void {
 /**
  * CHK-002 case ③ — a worktree cleanup failure (post-merge) leaves the story
  * DONE and merged but throws the "merged, but worktree cleanup did not complete" error with the
- * lattice doctor recovery hint. The cleanup is forced to fail by making the
+ * proof-or-stop doctor recovery hint. The cleanup is forced to fail by making the
  * .worktrees/ parent directory read-only so neither `git worktree remove` nor
  * the residual `rm -rf` can rmdir the worktree.
  *
@@ -1432,7 +1432,7 @@ function assertWorktreeCleanupFailureMarksDoneMergedAndThrows(): void {
       new RegExp(`Story ${storyId} (?:merged, but worktree cleanup did not complete|已合并，但 worktree 清理未完成)`),
       'cleanup failure must announce the story merged but cleanup is incomplete',
     );
-    assert.match(output, /lattice doctor/, 'cleanup failure must point at lattice doctor for recovery');
+    assert.match(output, /lattice doctor/, 'cleanup failure must point at proof-or-stop doctor for recovery');
 
     // phase=DONE persisted and the merge DID land on main (cleanup failed AFTER merge).
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'DONE', 'cleanup failure must leave the story marked DONE');

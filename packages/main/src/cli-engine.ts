@@ -959,7 +959,7 @@ export async function runCli(opts?: {
     const visibleFailure = (e: Error): string =>
       `${output}\n\n⚠ Milestone Ledger: render FAILED for ${storyId} — ${e.message}.\n` +
       `  The write above SUCCEEDED; this is a display failure, not a data failure.\n` +
-      `  Run \`lattice milestone_status --storyId=${storyId}\` to view status.`;
+      `  Run \`proof-or-stop milestone_status --storyId=${storyId}\` to view status.`;
 
     // Anchor to a line start so a header substring echoed inside the command's own
     // output (e.g. a milestone claim rendered in a table cell) cannot be mistaken

@@ -453,7 +453,7 @@ export interface AcceptanceCoverageBasisV1 {
   status: 'complete' | 'partial' | 'unsupported';
   generatedBy: {
     verifier: 'acceptance-coverage-basis-verifier';
-    command: 'lattice acceptance_basis_generate' | 'lattice pre_review_check';
+    command: 'proof-or-stop acceptance_basis_generate' | 'proof-or-stop pre_review_check';
     algorithmVersion: 'v1';
   };
   discoveryProfileRef: string;
@@ -2064,7 +2064,7 @@ export interface ScopeCheckData {
   };
   /**
    * B-ed3e CHK-003: 6th channel Open Questions. Reviewer writes here when scanning the full decisions/ directory and finding
-   * contradictions/questions that are "seen but not classified". Main agent must use `lattice scope_question_resolve`
+   * contradictions/questions that are "seen but not classified". Main agent must use `proof-or-stop scope_question_resolve`
    * to resolve them in writing (prevents self-absolution); the PLAN gate blocks unresolved OQs.
    * Signature domain excludes this field (resolution is a main agent action, not part of reviewer signature _hash).
    */

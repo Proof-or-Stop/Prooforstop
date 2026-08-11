@@ -223,7 +223,7 @@ function cli(root: string, command: string, args: Record<string, unknown>, allow
         // Full-envelope reviewer dispatch requires a known session host provider.
         // Without this the smoke inherits whatever the caller happened to have:
         // it passes from an interactive shell that already exports one, and fails
-        // under `lattice validate`, whose child environment has none, with
+        // under `proof-or-stop validate`, whose child environment has none, with
         // 'unsupported session host provider "absent"'. Pin it so the fixture does
         // not depend on the caller's environment.
         LATTICE_OWNER_SESSION_ADAPTER_PROVIDER:
@@ -511,7 +511,7 @@ try {
   if (!liveProofMode && !scenarioMode) {
     const missing = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     assert.deepEqual(missing.codes, ['PR_ARTIFACT_MISSING']);
-    assert.match(missing.remediation.join('\n'), /Run lattice pre_review_check/);
+    assert.match(missing.remediation.join('\n'), /Run proof-or-stop pre_review_check/);
   }
   // B-ec67 F-006: an executable (type:cli) intent's evidence write needs a selector or an
   // audited nonMechanicalReason. This case deliberately records a self-reported attestation

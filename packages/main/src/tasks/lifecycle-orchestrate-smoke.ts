@@ -590,7 +590,7 @@ assert.equal(isCommandAllowed('lifecycle_orchestrate', 'DONE', DEFAULT_PHASE_TOO
 
     // (d) handoff.command is a STRING, executed=false, target is the next phase.
     assert.equal(typeof report.handoff.command, 'string', 'handoff.command is a printed string');
-    assert.match(report.handoff.command!, /^lattice story_advance --storyId=B-lorch-review --phase=TEST$/);
+    assert.match(report.handoff.command!, /^proof-or-stop story_advance --storyId=B-lorch-review --phase=TEST$/);
     assert.equal(report.handoff.target, 'TEST', 'REVIEW → next phase is TEST');
     assert.equal(report.handoff.executed, false, 'handoff.executed is false (story_advance never executed)');
 
@@ -599,7 +599,7 @@ assert.equal(isCommandAllowed('lifecycle_orchestrate', 'DONE', DEFAULT_PHASE_TOO
     assert.match(text, /Lifecycle orchestrate \(B-lorch-review\) — consolidated view \(phase: REVIEW\)/);
     assert.match(text, /mode: read-only \(composes prior layers;/);
     assert.match(text, /sections: .*reviewerBatch/);
-    assert.match(text, /Next handoff \(printed, NOT executed\): lattice story_advance --storyId=B-lorch-review --phase=TEST/);
+    assert.match(text, /Next handoff \(printed, NOT executed\): proof-or-stop story_advance --storyId=B-lorch-review --phase=TEST/);
 
     // (a) + (d) + (e) read-only: no metadata / git mutation, no writer artifacts,
     // phase unchanged (story_advance NOT executed).
@@ -660,7 +660,7 @@ assert.equal(isCommandAllowed('lifecycle_orchestrate', 'DONE', DEFAULT_PHASE_TOO
     assertSectionsComposeFromPriorLayers(ctx, PLAN_STORY_ID, report);
 
     // (d) handoff for PLAN → DEV, printed string, not executed.
-    assert.match(report.handoff.command!, /^lattice story_advance --storyId=B-lorch-plan --phase=DEV$/);
+    assert.match(report.handoff.command!, /^proof-or-stop story_advance --storyId=B-lorch-plan --phase=DEV$/);
     assert.equal(report.handoff.target, 'DEV', 'PLAN → next phase is DEV');
     assert.equal(report.handoff.executed, false);
 
@@ -712,7 +712,7 @@ assert.equal(isCommandAllowed('lifecycle_orchestrate', 'DONE', DEFAULT_PHASE_TOO
     assertSectionsComposeFromPriorLayers(ctx, TEST_STORY_ID, report);
 
     // (d) handoff for TEST → DONE, printed string, not executed.
-    assert.match(report.handoff.command!, /^lattice story_advance --storyId=B-lorch-test --phase=DONE$/);
+    assert.match(report.handoff.command!, /^proof-or-stop story_advance --storyId=B-lorch-test --phase=DONE$/);
     assert.equal(report.handoff.target, 'DONE', 'TEST → next phase is DONE');
     assert.equal(report.handoff.executed, false);
 
@@ -776,7 +776,7 @@ assert.equal(isCommandAllowed('lifecycle_orchestrate', 'DONE', DEFAULT_PHASE_TOO
     assert.doesNotMatch(text, /Section: /, 'minimal: no per-section detail blocks rendered');
 
     // (d) handoff for DEV → REVIEW, printed string, not executed.
-    assert.match(report.handoff.command!, /^lattice story_advance --storyId=B-lorch-min --phase=REVIEW$/);
+    assert.match(report.handoff.command!, /^proof-or-stop story_advance --storyId=B-lorch-min --phase=REVIEW$/);
     assert.equal(report.handoff.executed, false);
 
     // read-only invariants hold for the degenerate path too.

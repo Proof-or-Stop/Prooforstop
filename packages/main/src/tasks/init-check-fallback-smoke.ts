@@ -147,7 +147,7 @@ try {
   );
   assert.doesNotMatch(
     refuseNoAck,
-    /now can run lattice story_advance|now can story_advance/,
+    /now can run proof-or-stop story_advance|now can story_advance/,
     'refused repair (no-ack) must NOT emit the story_advance continuation hint',
   );
 
@@ -166,7 +166,7 @@ try {
   );
   assert.doesNotMatch(
     refuseShortReason,
-    /now can run lattice story_advance|now can run lattice story_advance|now can story_advance/,
+    /now can run proof-or-stop story_advance|now can run proof-or-stop story_advance|now can story_advance/,
     'refused repair (short reason) must NOT emit the story_advance continuation hint',
   );
 
@@ -297,7 +297,7 @@ try {
   // Blocking output must NOT include the story_advance continuation hint.
   assert.doesNotMatch(
     blockRepair,
-    /now can run lattice story_advance/,
+    /now can run proof-or-stop story_advance/,
     'blocking fallback output must NOT emit the story_advance continuation hint',
   );
   const blockedByIssue = run(root, 'story_advance', { storyId: blockStory, phase: 'INIT_CHECK' }, true);

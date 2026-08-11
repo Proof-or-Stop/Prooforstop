@@ -13,7 +13,7 @@
  *       reviewers contain only the canonical review_run_start bootstrap; the
  *       other roles retain the agent_prompt thin shim. No shim contains a
  *       migrated reviewer role body.
- *   (b) `lattice agent_prompt --role=<name>` returns the same actual Claude
+ *   (b) `proof-or-stop agent_prompt --role=<name>` returns the same actual Claude
  *       registry render: bootstrap for the five migrated reviewers, package
  *       body for ordinary roles.
  *   (c) `--upgrade` migration: 16 managed removed, user file kept, normal init
@@ -95,7 +95,7 @@ function listProjectAgentMd(root: string): string[] {
         assert.match(content, /lattice review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
         assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
       } else {
-        assert.match(content, /lattice agent_prompt --role=/, `${basename} shim body must reference lattice agent_prompt`);
+        assert.match(content, /lattice agent_prompt --role=/, `${basename} shim body must reference proof-or-stop agent_prompt`);
         assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
       }
       // No role body content (load-bearing slice / role-specific prose) leaked
@@ -144,7 +144,7 @@ function listProjectAgentMd(root: string): string[] {
     // Normal init: WARN only, delete nothing.
     const warnOut = runInit(home, proj, ['--profile=claude']);
     assert.match(warnOut, /managed agent files found in \.claude\/agents/, 'normal init must warn about managed files');
-    assert.match(warnOut, /run lattice init --upgrade/, 'normal init must point at --upgrade');
+    assert.match(warnOut, /run proof-or-stop init --upgrade/, 'normal init must point at --upgrade');
     assert.equal(listProjectAgentMd(proj).length, 17, 'normal init must NOT delete any project file');
 
     // --upgrade: remove exactly the 16 managed, preserve the user file.

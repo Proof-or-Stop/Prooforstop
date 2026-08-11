@@ -400,7 +400,7 @@ function buildConfigRepair(ctx: HandlerContext, args: ConfigRepairArgs) {
     gitRootWritten,
     gitRootVerified,
     note: gitRootVerified
-      ? `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} and verifies as a git repository root. Story resolution is not claimed here; check with: lattice story_resolve '{"storyId":"B-xxx"}'`
+      ? `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} and verifies as a git repository root. Story resolution is not claimed here; check with: proof-or-stop story_resolve '{"storyId":"B-xxx"}'`
       : `gitRoot=${verifiedTarget.relativePath} was written to ${configFilename} but did not verify after reload; inspect ${configPath} manually.`,
   };
 }

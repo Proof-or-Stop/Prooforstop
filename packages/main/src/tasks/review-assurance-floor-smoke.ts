@@ -391,11 +391,11 @@ function assertShellSafeLatticeCommandFragments(text: string): string[] {
 function assertStaleRecoveryCommandsShellSafe(formatted: string): string[] {
   const commands = assertShellSafeLatticeCommandFragments(staleRecoveryBlock(formatted));
   assert.equal(commands.length, 5, 'stale recovery must expose every inline lattice command fragment');
-  assert.equal(commands.some((command) => command.startsWith('lattice validate ')), true);
-  assert.equal(commands.some((command) => command.startsWith('lattice verification_evidence_refresh_stale ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop validate ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop verification_evidence_refresh_stale ')), true);
   assert.equal(commands.some((command) => command.startsWith('node bin/lattice.js autopilot_review_submit ')), true);
-  assert.equal(commands.some((command) => command.startsWith('lattice autopilot_review_status ')), true);
-  assert.equal(commands.some((command) => command.startsWith('lattice review_escalation_status ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop autopilot_review_status ')), true);
+  assert.equal(commands.some((command) => command.startsWith('proof-or-stop review_escalation_status ')), true);
   return commands;
 }
 
@@ -501,8 +501,8 @@ try {
     assert.equal(report.localRounds.ignoredVerdicts.some(v => v.reasons.some(reason => reason.includes('stale'))), true);
     const formatted = formatReviewAssuranceFloorFailure(report);
     assert.match(formatted, /stale host verdicts: round-1-codex-a@round-1 materialDigest=stale-material/);
-    assert.match(formatted, new RegExp(`lattice validate --story=${STORY_ID} --json`));
-    assert.match(formatted, new RegExp(`lattice verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
+    assert.match(formatted, new RegExp(`proof-or-stop validate --story=${STORY_ID} --json`));
+    assert.match(formatted, new RegExp(`proof-or-stop verification_evidence_refresh_stale --storyId=${STORY_ID} --dryRun`));
     assert.match(formatted, new RegExp(`Legal reviewer/host only: re-submit local host verdicts over materialHash=${materialHash}`));
     assert.match(formatted, /node bin\/lattice\.js autopilot_review_submit/);
     assert.match(formatted, /--storyFilesHash=/);
@@ -742,7 +742,7 @@ try {
       const currentHead = currentGitHead(commandRoot)!;
       const coverage = { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] };
       store.writeTestEvidence(STORY_ID, {
-        command: `lattice validate --story=${STORY_ID} --json`,
+        command: `proof-or-stop validate --story=${STORY_ID} --json`,
         output: JSON.stringify({ allPass: true, verificationCoverage: coverage }),
         result: 'PASS',
         timestamp: '2026-06-19T11:50:00.000Z',

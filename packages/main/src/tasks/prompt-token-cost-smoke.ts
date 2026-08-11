@@ -47,7 +47,7 @@ const requiredSourcePaths = [
 ];
 
 const requiredPromptPhrases = [
-  'lattice session_brief',
+  'proof-or-stop session_brief',
   'Fresh-Context Fence',
   'Process Fact Contract',
   'review_run_start',
@@ -63,11 +63,11 @@ const compactQueryGuidancePhrases = [
   'For routine status refreshes, prefer compact read-only queries',
   'These examples',
   'are opt-in; default `story_get` and `checklist_get` output remains full',
-  `lattice story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'`,
-  `lattice checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'`,
+  `proof-or-stop story_get '{"storyId":"B-xxxx","slim":true,"fields":["story","checklist","review"]}'`,
+  `proof-or-stop checklist_get '{"storyId":"B-xxxx","slim":true,"fields":["counts","items"]}'`,
   'Before evidence-sensitive conclusions or mutations, reload the full output',
-  `lattice story_get '{"storyId":"B-xxxx"}'`,
-  `lattice checklist_get '{"storyId":"B-xxxx"}'`,
+  `proof-or-stop story_get '{"storyId":"B-xxxx"}'`,
+  `proof-or-stop checklist_get '{"storyId":"B-xxxx"}'`,
 ];
 
 const modularReviewerSafetyPhrases = [

@@ -354,7 +354,7 @@ export function evaluateWorktreePreflight(input: WorktreePreflightInput): Worktr
         resolverContract: 'lattice.story.resolve',
         resolved: resolution.resolved,
         note: resolution.resolved
-          ? 'authority mode requires an authoritative story worktree; create it via lattice story_advance --phase=INIT_CHECK'
+          ? 'authority mode requires an authoritative story worktree; create it via proof-or-stop story_advance --phase=INIT_CHECK'
           : `story ${resolution.storyId} did not resolve (${resolution.reason ?? 'unknown'})`,
       },
     };
@@ -451,7 +451,7 @@ export interface WorktreeStopSummary {
 }
 
 const WORKTREE_NEXT_ACTION: Record<WorktreeStopReason, string> = {
-  authoritative_worktree_unresolved: 'Resolve the authoritative story worktree (lattice story resolve / lattice story_advance --phase=INIT_CHECK) before running provider work in authority mode.',
+  authoritative_worktree_unresolved: 'Resolve the authoritative story worktree (lattice story resolve / proof-or-stop story_advance --phase=INIT_CHECK) before running provider work in authority mode.',
   git_status_evidence_unavailable: 'Run the executor inside the story git worktree so git status evidence can be captured before mutating steps.',
   dirty_worktree: 'Commit, stash, or resolve the pending worktree changes (unrelated dirty changes are preserved, not discarded), then rerun.',
   forbidden_path_glob: 'Stop editing story/fixture JSON or other forbidden paths directly; route those changes through Proofbound commands.',

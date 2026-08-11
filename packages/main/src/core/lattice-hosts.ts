@@ -402,7 +402,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
       steps: [
         'Confirm agy is available in the user environment through its vendor documentation.',
         'Use lattice host probe --host=antigravity to inspect visible capability degradations.',
-        'Use lattice host_runtime_probe --host=antigravity --json to inspect the local agy runtime without starting the host.',
+        'Use proof-or-stop host_runtime_probe --host=antigravity --json to inspect the local agy runtime without starting the host.',
       ],
       commands: [
         'node bin/lattice.js host_probe --host=antigravity --format=json',

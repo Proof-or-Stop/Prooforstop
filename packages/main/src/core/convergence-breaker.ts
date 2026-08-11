@@ -394,8 +394,8 @@ export function renderBreakerFreeze(storyId: string, reasons: string[]): string 
     `one automatic recovery, so story_advance is hard-blocked until a human reviews it. ` +
     `Tripped counters: ${list}. ` +
     `This is the hard brake that the B-f458 14-hour burn lacked. ` +
-    `Next action (a human, not an autopilot session): run \`lattice done_prepare --dryRun --storyId=${storyId}\` to see the real blocker, ` +
-    `then \`lattice story_resume --storyId=${storyId} --ack --reason="<why it is safe to continue>"\` to clear the freeze. ` +
+    `Next action (a human, not an autopilot session): run \`proof-or-stop done_prepare --dryRun --storyId=${storyId}\` to see the real blocker, ` +
+    `then \`proof-or-stop story_resume --storyId=${storyId} --ack --reason="<why it is safe to continue>"\` to clear the freeze. ` +
     `The ack is refused under autopilot / non-interactive sessions.`
   );
 }

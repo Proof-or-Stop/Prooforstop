@@ -160,7 +160,7 @@ function classifyParsedRow(row: DirtyWorktreeParsedRow, options: DirtyWorktreeCl
   // B-8db9 CRITICAL hard gate: the declared-artifact check runs AFTER fixture
   // AND material so a declared path can only RESCUE rows that would otherwise
   // fall through to unexpected_dirty_files. It must never reclassify a blocking
-  // material_source_changes / fixture_changes row — `lattice artifact_declare`
+  // material_source_changes / fixture_changes row — `proof-or-stop artifact_declare`
   // (or a hand-injected declared-artifacts.json) of a dirty source/fixture file
   // can no longer downgrade it to non-blocking declared_artifact_changes.
   if (isDeclaredArtifactPath(row, options)) {

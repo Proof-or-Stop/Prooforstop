@@ -36,7 +36,7 @@ import { LATTICE_BIN_NAMES, LATTICE_PRIMARY_BIN } from './lattice-brand.js';
 
 export interface DriftCandidate {
   sectionPath: string; // e.g., "CLAUDE.md#lattice CLI quick reference"
-  symbol: string;      // e.g., "lattice finding_cluster" / "--channel" / "foo/bar.json"
+  symbol: string;      // e.g., "proof-or-stop finding_cluster" / "--channel" / "foo/bar.json"
   driftType: 'missing-command' | 'missing-flag' | 'missing-path';
   severity: 'medium' | 'low';
   desc: string;        // one-line readable description (used for finding desc)
@@ -129,7 +129,7 @@ const COMMAND_SCAN_IGNORE = new Set<string>([
 /**
  * Explicit YAGNI command whitelist — commands for which CLAUDE.md text explicitly explains "why this CLI is not provided".
  * Don't report missing-command drift when these are scanned (it's a false positive); record in skipped with reason=explicit-yagni-whitelist.
- * Example: `lattice audit_config_set` (CLAUDE.md explicitly states editing JSON is enough, no command created).
+ * Example: `proof-or-stop audit_config_set` (CLAUDE.md explicitly states editing JSON is enough, no command created).
  */
 const EXPLICIT_YAGNI_COMMANDS = new Set<string>([
   'audit_config_set',

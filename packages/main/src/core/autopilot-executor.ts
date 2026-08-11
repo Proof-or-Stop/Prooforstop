@@ -530,16 +530,16 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   if (dryRun) {
     nextActions.add('Remove --dryRun to execute the planned local Proofbound commands.');
     if (multiHostRequired) {
-      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (lattice autopilot review submit / lattice quorum_submit).`);
+      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (proof-or-stop autopilot review submit / proof-or-stop quorum_submit).`);
     }
   } else if (!plan.story.storyId) {
     status = 'fail';
     stopReason = 'story-required';
-    nextActions.add('Pass --storyId=B-xxx before running lattice autopilot execute; true execution must be owner-gated to a concrete Story.');
+    nextActions.add('Pass --storyId=B-xxx before running proof-or-stop autopilot execute; true execution must be owner-gated to a concrete Story.');
   } else if (!plan.story.exists) {
     status = 'fail';
     stopReason = 'story-not-found';
-    nextActions.add(`Create or restore Story ${plan.story.storyId} before running lattice autopilot execute.`);
+    nextActions.add(`Create or restore Story ${plan.story.storyId} before running proof-or-stop autopilot execute.`);
   } else if (plan.mode === 'authority' && plan.status === 'fail') {
     status = 'fail';
     stopReason = 'remote-runner-retired';
@@ -547,7 +547,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   } else if (multiHostRequired && !multiHostSatisfied) {
     status = 'fail';
     stopReason = 'multi-host-verdicts-required';
-    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via lattice autopilot review submit and lattice quorum_submit, then advance DONE once local quorum evidence is present.`);
+    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via proof-or-stop autopilot review submit and proof-or-stop quorum_submit, then advance DONE once local quorum evidence is present.`);
   } else {
     const steps = plan.plannedSteps.slice(0, maxSteps);
     if (plan.plannedSteps.length > maxSteps) {
@@ -595,7 +595,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
       if (!passed) {
         status = 'fail';
         stopReason = 'step-failed';
-        nextActions.add(`Fix failing autopilot step "${step.id}" and rerun lattice autopilot execute.`);
+        nextActions.add(`Fix failing autopilot step "${step.id}" and rerun proof-or-stop autopilot execute.`);
         break;
       }
     }

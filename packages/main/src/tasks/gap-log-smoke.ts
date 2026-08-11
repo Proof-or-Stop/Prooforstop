@@ -345,7 +345,7 @@ function assertVerifiedWithEvidenceAllowed(): void {
       severity: 'high',
       evidence: 'story_review_dismiss leaves high-risk decision/preMortem gate forced after dismissing a misfired riskSignal',
       sourceRefs: ['packages/main/src/handlers/story-review.ts:120'],
-      reproCommand: 'lattice story_review_dismiss ... then lattice story_review',
+      reproCommand: 'proof-or-stop story_review_dismiss ... then proof-or-stop story_review',
       observedOutput: 'story_review still blocks PLAN->DEV demanding preMortem >= 3',
       evidenceState: 'verified',
     });
@@ -458,7 +458,7 @@ function assertDifferentGapsNotFalselyMerged(): void {
     // differs ONLY in sourceRefs -> distinct gap
     runGapLog(root, { ...VALID, sourceRefs: ['packages/main/src/core/other-file.ts:99'] });
     // differs ONLY in reproCommand -> distinct gap
-    runGapLog(root, { ...VALID, reproCommand: 'lattice validate --story=B-xxxx' });
+    runGapLog(root, { ...VALID, reproCommand: 'proof-or-stop validate --story=B-xxxx' });
     // differs ONLY in observedOutput -> distinct gap
     runGapLog(root, { ...VALID, observedOutput: 'gate unexpectedly passed' });
     // differs ONLY in analysisNote -> distinct gap
@@ -569,7 +569,7 @@ function assertSourceRefsAndFilesMerged(): void {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-/** Spawn one real `lattice gap_log` child process; resolves with exit info. */
+/** Spawn one real `proof-or-stop gap_log` child process; resolves with exit info. */
 function spawnGapLog(root: string, args: Record<string, unknown>): Promise<{ code: number; output: string }> {
   return new Promise((resolveP) => {
     const child = spawn(process.execPath, [cliPath, 'gap_log', JSON.stringify(args)], {
@@ -843,17 +843,17 @@ function assertProvenanceAndConsumerMatrix(): void {
   console.log('✓ gap-log-13: full provenance, consumer parity, legacy genesis, and diagnostic matrix');
 }
 
-// ── 11: gap_log is discoverable -> lattice help / lattice gap_log --help shows it ──
+// ── 11: gap_log is discoverable -> proof-or-stop help / proof-or-stop gap_log --help shows it ──
 function assertCommandDiscoverable(): void {
   const root = createMainProject('lattice-gaplog-discover-');
   try {
     const help = execFileSync(process.execPath, [cliPath, 'gap_log', '--help'], {
       cwd: root, env: { ...process.env, LATTICE_PROJECT_ROOT: root }, encoding: 'utf-8',
     });
-    assert.match(help, /gap_log/, 'lattice gap_log --help must render the command');
+    assert.match(help, /gap_log/, 'proof-or-stop gap_log --help must render the command');
     assert.match(help, /category/, 'help must list the category parameter');
     assert.match(help, /severity/, 'help must list the severity parameter');
-    console.log('✓ gap-log-11: gap_log is registered and discoverable via lattice help');
+    console.log('✓ gap-log-11: gap_log is registered and discoverable via proof-or-stop help');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 

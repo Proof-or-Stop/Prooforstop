@@ -335,7 +335,7 @@ export const MAIN_TOOLS: ToolDef[] = [
   // handlers.dev_start automatically. Idempotent: returns the existing path when a
   // worktree already exists; enforces the INIT scope-anti-expansion freeze gate.
   { name: 'dev_start', description: '(Re-)bootstrap a Story worktree; recovery command for a story stuck without a worktree', longHelp:
-`lattice dev_start '{"storyId":"B-xxxx"}'
+`proof-or-stop dev_start '{"storyId":"B-xxxx"}'
 
 Recovery / (re-)bootstrap command for the worktree of a single story.
 
@@ -849,7 +849,7 @@ Behavior:
     validateExecute: z.boolean().optional().describe('Pre-run CLI case before appending.'),
   }},
   { name: 'test_auto', description: 'Legacy full fixture regression (real run needs confirm; dryRun previews)', schema: {
-    storyId: z.string().optional().describe('Deprecated; for current story verification use lattice validate --story=<storyId> and record verificationEvidence.'),
+    storyId: z.string().optional().describe('Deprecated; for current story verification use proof-or-stop validate --story=<storyId> and record verificationEvidence.'),
     trace: z.boolean().optional().describe('Collect trace.'),
     enableProfiler: z.boolean().optional().describe('Enable profiler.'),
     dryRun: z.boolean().optional().describe('Output execution plan only.'),
@@ -1183,7 +1183,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     mergeMain: z.boolean().optional().describe('Attempt git merge main before closure checks (default true).'),
     refreshStale: z.boolean().optional().describe('Refresh stale evidence only when the dry-run classification says it is safe (default true).'),
-    validate: z.boolean().optional().describe('Run lattice validate --story=<storyId> --json before DONE closure projection (default true).'),
+    validate: z.boolean().optional().describe('Run proof-or-stop validate --story=<storyId> --json before DONE closure projection (default true).'),
     build: z.boolean().optional().describe('Optional worktree-local npm build + CLI version execution check; does not check global lattice.'),
     dryRun: z.boolean().optional().describe('Inspect and report planned steps without mutating git, evidence, build outputs, or version files.'),
     json: z.boolean().optional().describe('Return a JSON object; progress still uses the CLI liveness side channel.'),
@@ -1507,7 +1507,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for snapshot JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another; includes a memory/playbook packDigest with gateEvidence=false without manufacturing release readiness. Alias: lattice handoff create', schema: {
+  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another; includes a memory/playbook packDigest with gateEvidence=false without manufacturing release readiness. Alias: proof-or-stop handoff create', schema: {
     storyId: z.string().describe('Story ID to include in the handoff pack'),
     fromHost: z.string().describe('Source host profile id'),
     toHost: z.string().describe('Target host profile id'),
@@ -1527,13 +1527,13 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for handoff-pack JSON'),
   }},
-  { name: 'handoff_inspect', description: 'Inspect a Proofbound handoff pack and show capability deltas, degradations, evidence refs, and authority boundary. Alias: lattice handoff inspect', schema: {
+  { name: 'handoff_inspect', description: 'Inspect a Proofbound handoff pack and show capability deltas, degradations, evidence refs, and authority boundary. Alias: proof-or-stop handoff inspect', schema: {
     file: z.string().describe('Handoff pack JSON file'),
     admissibleProofRefs: z.union([z.string(), z.array(z.string())]).optional().describe('Additional explicit proof refs to evaluate for HANDOFF admissibility while inspecting'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'handoff_accept', description: 'Accept a Proofbound handoff pack as a process-event style projection without changing authority. Alias: lattice handoff accept', schema: {
+  { name: 'handoff_accept', description: 'Accept a Proofbound handoff pack as a process-event style projection without changing authority. Alias: proof-or-stop handoff accept', schema: {
     file: z.string().describe('Handoff pack JSON file'),
     acceptedByHost: z.string().optional().describe('Accepting host profile id; defaults to the handoff target host'),
     admissibleProofRefs: z.union([z.string(), z.array(z.string())]).optional().describe('Additional explicit proof refs to evaluate for HANDOFF admissibility while accepting'),
@@ -1541,7 +1541,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for accept projection JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_resume', description: 'Project a resume plan from a handoff pack or accept projection without refreshing evidence or authority. Alias: lattice handoff resume', schema: {
+  { name: 'handoff_resume', description: 'Project a resume plan from a handoff pack or accept projection without refreshing evidence or authority. Alias: proof-or-stop handoff resume', schema: {
     file: z.string().describe('Handoff pack JSON file or handoff_accept projection JSON file'),
     resumeHost: z.string().optional().describe('Resume host profile id; defaults to acceptedByHost or target host'),
     admissibleProofRefs: z.union([z.string(), z.array(z.string())]).optional().describe('Additional explicit proof refs to evaluate for HANDOFF admissibility while resuming'),
@@ -1550,14 +1550,14 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for resume projection JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_receipt_submit', description: 'Validate and accept a local overflow receipt as diagnostic evidence only; never changes authority. Alias: lattice handoff receipt submit', schema: {
+  { name: 'handoff_receipt_submit', description: 'Validate and accept a local overflow receipt as diagnostic evidence only; never changes authority. Alias: proof-or-stop handoff receipt submit', schema: {
     file: z.string().describe('Handoff receipt JSON file'),
     admissibleProofRefs: z.union([z.string(), z.array(z.string())]).optional().describe('Additional explicit proof refs to evaluate for HANDOFF admissibility while submitting the local receipt'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for receipt-submit projection JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_worktree_create', description: 'Project isolated overflow worktree guidance from a handoff pack without creating or merging anything. Alias: lattice handoff worktree create', schema: {
+  { name: 'handoff_worktree_create', description: 'Project isolated overflow worktree guidance from a handoff pack without creating or merging anything. Alias: proof-or-stop handoff worktree create', schema: {
     file: z.string().describe('Handoff pack JSON file'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
@@ -1573,7 +1573,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch projection JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_plan', description: 'Plan a dispatch runtime handoff without creating a worktree, receipt, or running an external host. Alias: lattice dispatch plan', schema: {
+  { name: 'dispatch_plan', description: 'Plan a dispatch runtime handoff without creating a worktree, receipt, or running an external host. Alias: proof-or-stop dispatch plan', schema: {
     storyId: z.string().describe('Story ID to dispatch'),
     host: z.string().optional().describe('Target runtime id or auto (default auto)'),
     fromHost: z.string().optional().describe('Source host id; defaults to codex'),
@@ -1592,7 +1592,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch plan JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_prepare', description: 'Persist dispatch metadata, prompt placeholders, and bounded pack state without running a host. Alias: lattice dispatch prepare', schema: {
+  { name: 'dispatch_prepare', description: 'Persist dispatch metadata, prompt placeholders, and bounded pack state without running a host. Alias: proof-or-stop dispatch prepare', schema: {
     storyId: z.string().describe('Story ID to dispatch'),
     dispatchId: z.string().optional().describe('Optional explicit dispatch id'),
     host: z.string().optional().describe('Target runtime id or auto (default auto)'),
@@ -1612,7 +1612,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch record JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_run', description: 'Run fake dispatch locally or materialize real-host scaffolding without claiming authority. Alias: lattice dispatch run', schema: {
+  { name: 'dispatch_run', description: 'Run fake dispatch locally or materialize real-host scaffolding without claiming authority. Alias: proof-or-stop dispatch run', schema: {
     storyId: z.string().optional().describe('Story ID when creating a new dispatch'),
     dispatchId: z.string().optional().describe('Existing dispatch id to resume/run'),
     host: z.string().optional().describe('Target runtime id or auto (default auto)'),
@@ -1654,37 +1654,37 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for overflow_auto JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_collect', description: 'Collect git-derived base/head/changedFiles/transcript diagnostics for one dispatch. Alias: lattice dispatch collect', schema: {
+  { name: 'dispatch_collect', description: 'Collect git-derived base/head/changedFiles/transcript diagnostics for one dispatch. Alias: proof-or-stop dispatch collect', schema: {
     dispatchId: z.string().describe('Dispatch id to inspect'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch collect JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_receipt_create', description: 'Create a draft local handoff receipt from collected dispatch state. Alias: lattice dispatch receipt create', schema: {
+  { name: 'dispatch_receipt_create', description: 'Create a draft local handoff receipt from collected dispatch state. Alias: proof-or-stop dispatch receipt create', schema: {
     dispatchId: z.string().describe('Dispatch id to inspect'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch receipt JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_status', description: 'Inspect one dispatch lifecycle record and any derived receipt state. Alias: lattice dispatch status', schema: {
+  { name: 'dispatch_status', description: 'Inspect one dispatch lifecycle record and any derived receipt state. Alias: proof-or-stop dispatch status', schema: {
     dispatchId: z.string().describe('Dispatch id to inspect'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch status JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_list', description: 'List persisted dispatch lifecycle records. Alias: lattice dispatch list', schema: {
+  { name: 'dispatch_list', description: 'List persisted dispatch lifecycle records. Alias: proof-or-stop dispatch list', schema: {
     storyId: z.string().optional().describe('Optional story filter'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch list JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_resume', description: 'Resume or rerun an existing dispatch lifecycle record. Alias: lattice dispatch resume', schema: {
+  { name: 'dispatch_resume', description: 'Resume or rerun an existing dispatch lifecycle record. Alias: proof-or-stop dispatch resume', schema: {
     dispatchId: z.string().describe('Dispatch id to resume'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch resume JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_reassign', description: 'Create a fresh-context worker reassignment from an existing dispatch without forking full history. Alias: lattice dispatch reassign', schema: {
+  { name: 'dispatch_reassign', description: 'Create a fresh-context worker reassignment from an existing dispatch without forking full history. Alias: proof-or-stop dispatch reassign', schema: {
     dispatchId: z.string().describe('Existing dispatch id to reassign from'),
     host: z.string().optional().describe('Target runtime id or auto; defaults to the previous selected host'),
     fromHost: z.string().optional().describe('Source host id; defaults to the previous handoff pack fromHost'),
@@ -1703,25 +1703,25 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch reassignment JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_cancel', description: 'Cancel a dispatch without deleting its metadata or changing authority. Alias: lattice dispatch cancel', schema: {
+  { name: 'dispatch_cancel', description: 'Cancel a dispatch without deleting its metadata or changing authority. Alias: proof-or-stop dispatch cancel', schema: {
     dispatchId: z.string().describe('Dispatch id to cancel'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch cancel JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_review', description: 'Summarize one dispatch, its receipt state, warnings, and git-derived changedFiles. Alias: lattice dispatch review', schema: {
+  { name: 'dispatch_review', description: 'Summarize one dispatch, its receipt state, warnings, and git-derived changedFiles. Alias: proof-or-stop dispatch review', schema: {
     dispatchId: z.string().describe('Dispatch id to inspect'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch review JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_merge_plan', description: 'Produce manual-only merge guidance for accepted_local dispatches. Alias: lattice dispatch merge plan', schema: {
+  { name: 'dispatch_merge_plan', description: 'Produce manual-only merge guidance for accepted_local dispatches. Alias: proof-or-stop dispatch merge plan', schema: {
     dispatchId: z.string().describe('Dispatch id to inspect'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch merge-plan JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_policy_create', description: 'Create and persist a named dispatch policy for user-authorized unattended scheduling. Alias: lattice dispatch policy create', schema: {
+  { name: 'dispatch_policy_create', description: 'Create and persist a named dispatch policy for user-authorized unattended scheduling. Alias: proof-or-stop dispatch policy create', schema: {
     policy: z.string().describe('Policy name (alphanumeric, hyphen, underscore; 1-64 chars)'),
     allowedHosts: z.union([z.string(), z.array(z.string())]).describe('Allowed host IDs (fake, codex, claude-code, antigravity; agy aliases to antigravity; gemini is legacy-only)'),
     allowedPaths: z.union([z.string(), z.array(z.string())]).describe('Allowed relative paths (no absolute or traversal)'),
@@ -1744,19 +1744,19 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for policy JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_policy_get', description: 'Read a named dispatch policy. Alias: lattice dispatch policy get', schema: {
+  { name: 'dispatch_policy_get', description: 'Read a named dispatch policy. Alias: proof-or-stop dispatch policy get', schema: {
     policy: z.string().describe('Policy name'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for policy JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_policy_check', description: 'Check authorization status of a named dispatch policy for unattended scheduling. Alias: lattice dispatch policy check', schema: {
+  { name: 'dispatch_policy_check', description: 'Check authorization status of a named dispatch policy for unattended scheduling. Alias: proof-or-stop dispatch policy check', schema: {
     policy: z.string().describe('Policy name to check'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for policy check JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_auto', description: 'Policy-authorized unattended scheduler: reads dispatch_policy_check, enforces maxParallel/host/scope limits, starts deterministic fake workers; current host policies can name codex, claude-code, or antigravity, but real subprocess launch remains explicit and bounded. Alias: lattice dispatch auto', schema: {
+  { name: 'dispatch_auto', description: 'Policy-authorized unattended scheduler: reads dispatch_policy_check, enforces maxParallel/host/scope limits, starts deterministic fake workers; current host policies can name codex, claude-code, or antigravity, but real subprocess launch remains explicit and bounded. Alias: proof-or-stop dispatch auto', schema: {
     storyId: z.string().describe('Story ID to schedule dispatch for'),
     policy: z.string().describe('Policy name that authorizes unattended scheduling'),
     host: z.string().optional().describe('Override host (must be in policy allowedHosts; defaults to first policy-allowed host)'),
@@ -1776,13 +1776,13 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch_auto JSON; refuses to overwrite'),
   }},
-  { name: 'dispatch_watch', description: 'Read-only lifecycle aggregation for one dispatch: status, workers, runner summary, changedFiles count, nextAction. Alias: lattice dispatch watch', schema: {
+  { name: 'dispatch_watch', description: 'Read-only lifecycle aggregation for one dispatch: status, workers, runner summary, changedFiles count, nextAction. Alias: proof-or-stop dispatch watch', schema: {
     dispatchId: z.string().describe('Dispatch ID to watch'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for dispatch_watch JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_policy_create', description: 'Create and persist a named local autopilot execution policy without starting workers. Alias: lattice autopilot policy create', schema: {
+  { name: 'autopilot_policy_create', description: 'Create and persist a named local autopilot execution policy without starting workers. Alias: proof-or-stop autopilot policy create', schema: {
     policy: z.string().describe('Policy name (alphanumeric, hyphen, underscore; 1-64 chars)'),
     mode: autopilotModeSchema.optional().describe('Autopilot execution mode (default conservative in core policy)'),
     dispatchPolicy: z.string().optional().describe('Underlying dispatch policy name to enforce for worker scheduling'),
@@ -1801,19 +1801,19 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot policy JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_policy_get', description: 'Read a named autopilot policy. Alias: lattice autopilot policy get', schema: {
+  { name: 'autopilot_policy_get', description: 'Read a named autopilot policy. Alias: proof-or-stop autopilot policy get', schema: {
     policy: z.string().describe('Policy name'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot policy JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_policy_check', description: 'Check a named local autopilot policy. Alias: lattice autopilot policy check', schema: {
+  { name: 'autopilot_policy_check', description: 'Check a named local autopilot policy. Alias: proof-or-stop autopilot policy check', schema: {
     policy: z.string().describe('Policy name to check'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot policy check JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_run', description: 'Run a saved local autopilot policy for a story. Alias: lattice autopilot run', schema: {
+  { name: 'autopilot_run', description: 'Run a saved local autopilot policy for a story. Alias: proof-or-stop autopilot run', schema: {
     storyId: z.string().describe('Story ID to run autopilot for'),
     policy: z.string().describe('Saved autopilot policy name; its dispatchPolicy selects the underlying dispatch policy'),
     mode: autopilotModeSchema.optional().describe('Optional expected mode assertion; must match the saved autopilot policy and cannot widen it'),
@@ -1835,32 +1835,32 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot run JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_status', description: 'Read one persisted autopilot run status. Alias: lattice autopilot status', schema: {
+  { name: 'autopilot_status', description: 'Read one persisted autopilot run status. Alias: proof-or-stop autopilot status', schema: {
     runId: z.string().describe('Autopilot run ID to inspect'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot status JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_watch', description: 'Read-only lifecycle aggregation for one autopilot run. Alias: lattice autopilot watch', schema: {
+  { name: 'autopilot_watch', description: 'Read-only lifecycle aggregation for one autopilot run. Alias: proof-or-stop autopilot watch', schema: {
     runId: z.string().describe('Autopilot run ID to watch'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot watch JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_cancel', description: 'Cancel an autopilot run without deleting evidence or changing authority. Alias: lattice autopilot cancel', schema: {
+  { name: 'autopilot_cancel', description: 'Cancel an autopilot run without deleting evidence or changing authority. Alias: proof-or-stop autopilot cancel', schema: {
     runId: z.string().describe('Autopilot run ID to cancel'),
     reason: z.string().optional().describe('Optional cancellation reason'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot cancel JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_review', description: 'Summarize an autopilot run, warnings, evidence, and authority posture without mutating it. Alias: lattice autopilot review', schema: {
+  { name: 'autopilot_review', description: 'Summarize an autopilot run, warnings, evidence, and authority posture without mutating it. Alias: proof-or-stop autopilot review', schema: {
     runId: z.string().describe('Autopilot run ID to review'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot review JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_resume', description: 'Replay a persisted autopilot checkpoint ledger and return an M1 resume projection without launching workers or changing authority. Alias: lattice autopilot resume', schema: {
+  { name: 'autopilot_resume', description: 'Replay a persisted autopilot checkpoint ledger and return an M1 resume projection without launching workers or changing authority. Alias: proof-or-stop autopilot resume', schema: {
     runId: z.string().describe('Autopilot run ID to resume'),
     maxResumeAgeMs: z.number().int().positive().optional().describe('Maximum age in ms for a persisted run to be considered resumable by core'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -2026,7 +2026,7 @@ Behavior:
   // Evaluate (AI evaluation for browser projects).
   { name: 'evaluate', description: 'Ask the evaluator agent to score a browser app (completeness and usability)', schema: {
     storyId: z.string().describe('Story ID'),
-    port: z.number().optional().describe('lattice serve port (default: 3456).'),
+    port: z.number().optional().describe('proof-or-stop serve port (default: 3456).'),
   }},
   { name: 'evaluate_save', description: 'Save evaluator scoring result to eval-evidence.json', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2437,8 +2437,8 @@ Behavior:
     sourcePointers: z.array(z.string()).optional().describe('Evidence pointers for resolution (decisions/ path or checklist item ID), default [].'),
   }},
 
-  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into lattice dispatch, available in all phases;
-  // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — lattice dispatch is now the only entry).
+  // Unified dispatch (B-9d95 CHK-004: story_dispatch / finding_dispatch merged into proof-or-stop dispatch, available in all phases;
+  // B-a4e3 CHK-005: the deprecated story_dispatch / finding_dispatch aliases were removed — proof-or-stop dispatch is now the only entry).
   { name: 'dispatch', description: 'Dispatch a registered subagent prompt using registry-defined story-only or exactly-one target cardinality', schema: {
     storyId: z.string().describe('Story ID'),
     itemId: z.string().optional().describe('Checklist item ID (CHK-xxx). Supply only when the registered agent type requires an item target; story-only roles must omit all identifiers.'),
@@ -2881,7 +2881,7 @@ Behavior:
     cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
-  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a lattice verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s immutable pin; allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
+  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a proof-or-stop verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s immutable pin; allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
     provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
     toolName: z.string().optional().describe('Name of the shell tool being invoked (e.g. Bash on Claude, the Codex shell tool)'),
     toolInputJson: z.string().optional().describe('JSON-encoded shell tool input; the command string is read from its .command field when commandString is absent'),
@@ -2889,7 +2889,7 @@ Behavior:
     cwd: z.string().optional().describe('Working directory (informational; the guard resolves the pin from story metadata)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
-  { name: 'autopilot_execute', description: 'Execute a bounded unattended Proofbound autopilot loop using local Proofbound commands and local assurance only. Alias: lattice autopilot execute', schema: {
+  { name: 'autopilot_execute', description: 'Execute a bounded unattended Proofbound autopilot loop using local Proofbound commands and local assurance only. Alias: proof-or-stop autopilot execute', schema: {
     mode: z.enum(['local']).optional().describe('Autopilot mode: local'),
     storyId: z.string().optional().describe('Story ID to bind the autopilot executor to'),
     until: z.enum(['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']).optional().describe('Target phase to execute toward'),
@@ -2908,7 +2908,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'autopilot_doctor', description: 'Diagnose local autopilot readiness. Alias: lattice autopilot doctor', schema: {
+  { name: 'autopilot_doctor', description: 'Diagnose local autopilot readiness. Alias: proof-or-stop autopilot doctor', schema: {
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
@@ -3022,7 +3022,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'autopilot_review_submit', description: 'Submit a local non-authority host verdict with identity/material/storyFilesHash bindings for review escalation. Alias: lattice autopilot review submit', schema: {
+  { name: 'autopilot_review_submit', description: 'Submit a local non-authority host verdict with identity/material/storyFilesHash bindings for review escalation. Alias: proof-or-stop autopilot review submit', schema: {
     verdictFile: z.string().optional().describe('Verdict JSON file'),
     storyId: z.string().optional().describe('Story id'),
     runId: z.string().optional().describe('Local run id'),
@@ -3118,7 +3118,7 @@ Behavior:
     json: z.boolean().optional().describe('Emit the full report object as JSON (carries the same NON-AUTHORITATIVE ESTIMATE label)'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'autopilot_review_status', description: 'Summarize local independent host verdicts. Alias: lattice autopilot review status', schema: {
+  { name: 'autopilot_review_status', description: 'Summarize local independent host verdicts. Alias: proof-or-stop autopilot review status', schema: {
     storyId: z.string().describe('Story id'),
     runId: z.string().optional().describe('Local run id'),
     requiredHosts: z.number().optional().describe('Required independent passing hosts'),

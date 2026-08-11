@@ -601,7 +601,7 @@ async function assertReviewRunStartCliSurface(): Promise<void> {
     assert.notEqual(stalePass.code, 0);
     assert.match(stalePass.stderr, /already stale|stale/i);
     assert.match(stalePass.stderr, /DEV.*REVIEW|DEV → REVIEW/);
-    assert.doesNotMatch(stalePass.stderr, /re-run lattice review_run_start/);
+    assert.doesNotMatch(stalePass.stderr, /re-run proof-or-stop review_run_start/);
 
     const unsupported = await runProofOrStopRaw(root, 'review_run_start', {
       storyId,

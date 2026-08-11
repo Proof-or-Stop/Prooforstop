@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Regression smoke for `lattice check` managed asset root diagnostics on a
+ * Regression smoke for `proof-or-stop check` managed asset root diagnostics on a
  * wrapper-root layout:
  *
  *   metadataRoot/              <- not a git repo; Proofbound metadata/assets live here
@@ -128,7 +128,7 @@ try {
   );
   assert.ok(
     driftText.indexOf('Paths: managed asset relPath/applied/manifestPath values are relative to assetRoot.')
-      < driftText.indexOf('Run `lattice check --apply`'),
+      < driftText.indexOf('Run `proof-or-stop check --apply`'),
     'DRIFT text should show root guidance before apply recommendations',
   );
 

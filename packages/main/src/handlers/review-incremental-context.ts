@@ -1,5 +1,5 @@
 /**
- * B-f675 CHK-002: lattice review_incremental_context CLI
+ * B-f675 CHK-002: proof-or-stop review_incremental_context CLI
  *
  * Read-only command that prints a reviewer role's prior verdict + the diff since
  * its last pass headHash + a scopeChanged flag, by delegating to the pure

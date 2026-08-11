@@ -221,23 +221,23 @@ function storyFilesRef(storyFilesHash: string | null): string {
 }
 
 function reviewEscalationStatusCommand(storyId?: string): string {
-  return `lattice review_escalation_status '{"storyId":"${storyRef(storyId)}"}'`;
+  return `proof-or-stop review_escalation_status '{"storyId":"${storyRef(storyId)}"}'`;
 }
 
 function autopilotReviewStatusCommand(storyId?: string): string {
-  return `lattice autopilot_review_status --storyId=${storyRef(storyId)}`;
+  return `proof-or-stop autopilot_review_status --storyId=${storyRef(storyId)}`;
 }
 
 function validationCommand(storyId?: string): string {
-  return `lattice validate --story=${storyRef(storyId)} --json`;
+  return `proof-or-stop validate --story=${storyRef(storyId)} --json`;
 }
 
 function staleEvidenceDryRunCommand(storyId?: string): string {
-  return `lattice verification_evidence_refresh_stale --storyId=${storyRef(storyId)} --dryRun`;
+  return `proof-or-stop verification_evidence_refresh_stale --storyId=${storyRef(storyId)} --dryRun`;
 }
 
 function donePrepareCommand(storyId?: string): string {
-  return `lattice done_prepare '{"storyId":"${storyRef(storyId)}"}'`;
+  return `proof-or-stop done_prepare '{"storyId":"${storyRef(storyId)}"}'`;
 }
 
 function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash: string | null, storyFilesHash: string | null, round = 1): string {
@@ -246,12 +246,12 @@ function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash:
 }
 
 function quorumSubmitCommand(storyId?: string): string {
-  return `lattice quorum_submit '{"storyId":"${storyRef(storyId)}","hostA":"{independent-host-a}","hostB":"{independent-host-b}"}'`;
+  return `proof-or-stop quorum_submit '{"storyId":"${storyRef(storyId)}","hostA":"{independent-host-a}","hostB":"{independent-host-b}"}'`;
 }
 
 function fallbackSetCommand(storyId: string | undefined, fallback: ReviewAssuranceGuidance['fallback']): string {
   const eligibility = fallback.eligibilityValues.join('|') || 'single-host-environment|temporary-host-unavailability|explicit-human-approval';
-  return `lattice review_escalation_fallback_set '{"storyId":"${storyRef(storyId)}","eligibility":"{${eligibility}}","reason":"{why degraded-single-host fallback is approved}","evidenceRefs":["{supporting-ref}"]}'`;
+  return `proof-or-stop review_escalation_fallback_set '{"storyId":"${storyRef(storyId)}","eligibility":"{${eligibility}}","reason":"{why degraded-single-host fallback is approved}","evidenceRefs":["{supporting-ref}"]}'`;
 }
 
 export function buildReviewAssuranceGuidance(input: BuildReviewAssuranceGuidanceInput): ReviewAssuranceGuidance {
@@ -1163,10 +1163,10 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
   lines.push('', renderReviewAssuranceGuidance(buildReviewAssuranceFloorGuidance(report)));
   lines.push(
     'Stale material recovery:',
-    `  1. Re-run validation: lattice validate --story=${renderedStoryRef} --json`,
-    `  2. Refresh stale verificationEvidence: lattice verification_evidence_refresh_stale --storyId=${renderedStoryRef} --dryRun; rerun listed evidence commands; rerun without --dryRun.`,
+    `  1. Re-run validation: proof-or-stop validate --story=${renderedStoryRef} --json`,
+    `  2. Refresh stale verificationEvidence: proof-or-stop verification_evidence_refresh_stale --storyId=${renderedStoryRef} --dryRun; rerun listed evidence commands; rerun without --dryRun.`,
     `  3. Legal reviewer/host only: re-submit local host verdicts over materialHash=${renderedMaterialRef}: ${renderedHostVerdictSubmitCommand}`,
-    `  4. Re-check local diagnostics: lattice autopilot_review_status --storyId=${renderedStoryRef}; lattice review_escalation_status --storyId=${renderedStoryRef}`,
+    `  4. Re-check local diagnostics: proof-or-stop autopilot_review_status --storyId=${renderedStoryRef}; proof-or-stop review_escalation_status --storyId=${renderedStoryRef}`,
     '  - Do not bypass stale material checks; stale verdicts/evidence stay ignored until refreshed or resubmitted over the current material.',
   );
   return lines.join('\n');

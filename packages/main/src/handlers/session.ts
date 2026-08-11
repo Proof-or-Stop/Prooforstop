@@ -1,9 +1,9 @@
 /**
- * lattice session_brief — cross-session opening brief
+ * proof-or-stop session_brief — cross-session opening brief
  *
  * Design purpose:
  *   When a new Claude session starts, it doesn't know "where we left off last time, what happened recently".
- *   Previously you had to run lattice story_list / story_get / checklist_get in sequence to piece it together.
+ *   Previously you had to run proof-or-stop story_list / story_get / checklist_get in sequence to piece it together.
  *   session_brief is a single-shot command: run it once to get the full context + what should be done.
  *
  *   CLAUDE.md requires running this command as the first thing in every new session.
@@ -497,12 +497,12 @@ function summarizeDonePrecheck(rows: DoneCheckRow[]): DonePrecheckSummary {
 function summarizeDonePrecheckActions(rows: DoneCheckRow[]): string {
   const actions = rows.map(row => row.hint || `complete ${row.id}`);
   const unique = [...new Set(actions)];
-  return `${unique.join('; ')}; After all pass, run lattice story_advance --phase=DONE`;
+  return `${unique.join('; ')}; After all pass, run proof-or-stop story_advance --phase=DONE`;
 }
 
 /** B-a370: META container detection. Audit meta-stories (B-META-* / phase=META)
  *  are permanent audit/finding containers — they never run the normal story
- *  lifecycle, so next/session_brief must not hand them lattice story_advance / worktree
+ *  lifecycle, so next/session_brief must not hand them proof-or-stop story_advance / worktree
  *  hints. Both criteria are independently sufficient: phase=META is the canonical
  *  marker, the B-META- id prefix is the structural guarantee from audit-meta-store. */
 function isMetaContainer(storyId: string, phase: string): boolean {
@@ -510,7 +510,7 @@ function isMetaContainer(storyId: string, phase: string): boolean {
 }
 
 function metaContainerNextStep(storyId: string): string {
-  return `${storyId} is a META container (a long-lived container for audit/finding flow), it does not follow the normal story lifecycle and does not need a worktree. Use \`lattice audit\` to view framework introspection results and \`lattice finding_list\` to handle its findings; do not run lattice story_advance on it or create a worktree.`;
+  return `${storyId} is a META container (a long-lived container for audit/finding flow), it does not follow the normal story lifecycle and does not need a worktree. Use \`proof-or-stop audit\` to view framework introspection results and \`proof-or-stop finding_list\` to handle its findings; do not run proof-or-stop story_advance on it or create a worktree.`;
 }
 
 /**
@@ -547,7 +547,7 @@ export function renderOwnershipBlock(view: OwnerLeaseView): string[] {
     lines.push(`  this session: NOT owner (${view.currentSessionId}).`);
     if (view.ownerCwdMatchesCurrent) {
       const cwd = view.currentCwd ? ` (${view.currentCwd})` : '';
-      lines.push(`  same worktree: owner cwd matches current cwd${cwd}. Treat this as a context switch: run lattice session_brief, confirm no live conflicting session, and use an explicit takeover flag if you intend to transfer the lease.`);
+      lines.push(`  same worktree: owner cwd matches current cwd${cwd}. Treat this as a context switch: run proof-or-stop session_brief, confirm no live conflicting session, and use an explicit takeover flag if you intend to transfer the lease.`);
       lines.push(`  same worktree: no lease transfer happens automatically.`);
     }
   }
@@ -571,7 +571,7 @@ export function renderOwnershipBlock(view: OwnerLeaseView): string[] {
  *
  * B-META containers are NOT normal story-owner-lease subjects — they are the
  * permanent audit/finding container shared across sessions. `session_brief`
- * must show them as shared audit state and must NOT suggest `lattice story_advance`
+ * must show them as shared audit state and must NOT suggest `proof-or-stop story_advance`
  * (per § session_brief Requirements). The B-f60c main write lock — not the
  * per-story owner lease — serializes concurrent writes to B-META.
  *
@@ -583,7 +583,7 @@ export function renderMetaAuditBlock(storyId: string): string[] {
     '## Shared audit state (B-META)',
     `  ${storyId} is the shared framework-audit / finding container, not a normal story.`,
     `  It carries NO per-story owner lease; concurrent writes are serialized by the main write lock.`,
-    `  Do not run \`lattice story_advance\` for it — use \`lattice audit\` / \`lattice finding_list\` instead.`,
+    `  Do not run \`proof-or-stop story_advance\` for it — use \`proof-or-stop audit\` / \`proof-or-stop finding_list\` instead.`,
   ];
 }
 
@@ -647,37 +647,37 @@ export function computeNextStep(c: NextStepCtx): string {
 
   switch (c.phase) {
     case 'IDEA':
-      return `Story is in IDEA phase with no checklist. After discussing the checklist with the user, append it via lattice checklist_add, or re-run lattice story_create with the checklist field`;
+      return `Story is in IDEA phase with no checklist. After discussing the checklist with the user, append it via proof-or-stop checklist_add, or re-run proof-or-stop story_create with the checklist field`;
     case 'INIT':
       if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in INIT phase, but the current project is not a git repository. You can continue recording metadata; to enter the INIT_CHECK/worktree flow, first run git init && git add . && git commit -m "init"`;
       }
-      return `Story is in INIT phase. Next step: lattice init_preflight --storyId=${sid} (read-only; it does not write evidence or create worktrees). After it reports READY, run lattice story_advance --storyId=${sid} --phase=INIT_CHECK to create the worktree, then cd into it`;
+      return `Story is in INIT phase. Next step: proof-or-stop init_preflight --storyId=${sid} (read-only; it does not write evidence or create worktrees). After it reports READY, run proof-or-stop story_advance --storyId=${sid} --phase=INIT_CHECK to create the worktree, then cd into it`;
     case 'INIT_CHECK':
       if (!c.gitReady && !c.configuredGitRootResolved) {
         return `Story is in the pre-INIT_CHECK phase, but the current project is not a git repository. Run git init + initial commit first, then continue with worktree / PLAN flow`;
       }
-      return `Story is at INIT_CHECK, worktree created. Next: cd into .worktrees/${sid}/ then lattice story_advance --phase=PLAN`;
+      return `Story is at INIT_CHECK, worktree created. Next: cd into .worktrees/${sid}/ then proof-or-stop story_advance --phase=PLAN`;
     case 'PLAN': {
       if (!c.hasUnderstanding) {
-        return `PLAN phase missing understanding. Next: lattice understanding_set to record task/outcome/facts/constraints/unknowns/touchpoints snapshot`;
+        return `PLAN phase missing understanding. Next: proof-or-stop understanding_set to record task/outcome/facts/constraints/unknowns/touchpoints snapshot`;
       }
       if (!c.hasDecision) {
-        return `PLAN phase has understanding but missing decision. Next: lattice decision_set to record RALPLAN-DR decision (principles/drivers/options/chosen/rationale/preMortem)`;
+        return `PLAN phase has understanding but missing decision. Next: proof-or-stop decision_set to record RALPLAN-DR decision (principles/drivers/options/chosen/rationale/preMortem)`;
       }
-      return `PLAN phase. Next: lattice story_review --storyId=${sid} to run adversarial review; once issueCount=0, run lattice story_advance --phase=DEV`;
+      return `PLAN phase. Next: proof-or-stop story_review --storyId=${sid} to run adversarial review; once issueCount=0, run proof-or-stop story_advance --phase=DEV`;
     }
     case 'DEV': {
-      if (!c.checklist) return `DEV phase. First run lattice checklist_get --storyId=${sid} to see pending items`;
+      if (!c.checklist) return `DEV phase. First run proof-or-stop checklist_get --storyId=${sid} to see pending items`;
       if (c.checklist.inProgress.length > 0) {
         const ip = c.checklist.inProgress[0];
-        return `DEV phase. Continue the in_progress item: ${ip.id} ${ip.title} (after completing, run lattice checklist_update --status=done)`;
+        return `DEV phase. Continue the in_progress item: ${ip.id} ${ip.title} (after completing, run proof-or-stop checklist_update --status=done)`;
       }
       if (c.checklist.pending.length > 0) {
         const next = c.checklist.pending[0];
-        return `DEV phase. Next item: lattice checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress (${next.title})`;
+        return `DEV phase. Next item: proof-or-stop checklist_update --storyId=${sid} --itemId=${next.id} --status=in_progress (${next.title})`;
       }
-      return `DEV phase, all checklist items done. Next: git commit + lattice story_advance --storyId=${sid} --phase=REVIEW to enter code review`;
+      return `DEV phase, all checklist items done. Next: git commit + proof-or-stop story_advance --storyId=${sid} --phase=REVIEW to enter code review`;
     }
     case 'REVIEW':
       if (c.reviewerStatus) {
@@ -686,45 +686,45 @@ export function computeNextStep(c: NextStepCtx): string {
             .filter(e => e.blockerCount > 0)
             .map(e => `${e.name}(${e.blockerCount})`)
             .join(', ');
-          return `REVIEW phase, ${c.reviewerStatus.totalBlockers} blocking finding(s): ${blocked}. Next: lattice finding_list --storyId=${sid} to view and fix, run lattice story_advance --storyId=${sid} --phase=DEV if needed`;
+          return `REVIEW phase, ${c.reviewerStatus.totalBlockers} blocking finding(s): ${blocked}. Next: proof-or-stop finding_list --storyId=${sid} to view and fix, run proof-or-stop story_advance --storyId=${sid} --phase=DEV if needed`;
         }
         if (!c.reviewerStatus.allPassed) {
           const pending = c.reviewerStatus.entries
             .filter(e => e.verdict === 'pending')
             .map(e => e.name)
             .join(', ') || 'reviewer evidence';
-          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: lattice reviewer_list --storyId=${sid} to see which lattice-review-* reviewers should run; once all pass, run lattice story_advance --storyId=${sid} --phase=TEST`;
+          return `REVIEW phase, Waiting for reviewer evidence: ${pending}. Next: proof-or-stop reviewer_list --storyId=${sid} to see which lattice-review-* reviewers should run; once all pass, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
         }
-        return `REVIEW phase, All reviewer gates passed. Next: lattice story_advance --storyId=${sid} --phase=TEST to enter formal verification`;
+        return `REVIEW phase, All reviewer gates passed. Next: proof-or-stop story_advance --storyId=${sid} --phase=TEST to enter formal verification`;
       }
-      return `REVIEW phase. Proofbound reviewers review code and file findings. After all critical/high findings are resolved, run lattice story_advance --storyId=${sid} --phase=TEST`;
+      return `REVIEW phase. Proofbound reviewers review code and file findings. After all critical/high findings are resolved, run proof-or-stop story_advance --storyId=${sid} --phase=TEST`;
     case 'TEST_CASE':
-      return `TEST_CASE phase (legacy). Recommend lattice story_advance --phase=TEST to enter verification directly`;
+      return `TEST_CASE phase (legacy). Recommend proof-or-stop story_advance --phase=TEST to enter verification directly`;
     case 'TEST_CASE_REVIEW':
-      return `TEST_CASE_REVIEW phase (legacy). Recommend lattice story_advance --phase=TEST to enter verification directly`;
+      return `TEST_CASE_REVIEW phase (legacy). Recommend proof-or-stop story_advance --phase=TEST to enter verification directly`;
     case 'TEST':
       // B-b9d0 CHK-004: scope-gate blocking takes priority over the DONE
       // hint — DONE is not recommended while scope is blocking. Out-of-scope
       // diffs must be fixed or scope_contract_acknowledge'd in DEV/REVIEW
       // (TEST acknowledgement is intentionally forbidden) before advancing.
       if (c.scopeBlocking) {
-        return `TEST phase. Scope gate: blocking — ${c.scopeBlocking.reason}. DONE is not recommended while scope is blocking. Next: return to DEV/REVIEW to fix out-of-scope diff or run lattice scope_contract_acknowledge then lattice story_advance --phase=TEST`;
+        return `TEST phase. Scope gate: blocking — ${c.scopeBlocking.reason}. DONE is not recommended while scope is blocking. Next: return to DEV/REVIEW to fix out-of-scope diff or run proof-or-stop scope_contract_acknowledge then proof-or-stop story_advance --phase=TEST`;
       }
       if (openBugs.length > 0) {
-        return `TEST phase, ${openBugs.length} open bug(s): ${openBugs.slice(0, 3).map(b => b.id).join(', ')}. After fixing, run lattice validate to verify`;
+        return `TEST phase, ${openBugs.length} open bug(s): ${openBugs.slice(0, 3).map(b => b.id).join(', ')}. After fixing, run proof-or-stop validate to verify`;
       }
       if (!c.hasTestEvidence) {
-        return `TEST phase. Next: lattice validate to run verification, record bug/evidence`;
+        return `TEST phase. Next: proof-or-stop validate to run verification, record bug/evidence`;
       }
       if (!c.hasPassingTestEvidence) {
-        return `TEST phase, last verification failed. Next: fix failing items then rerun lattice validate`;
+        return `TEST phase, last verification failed. Next: fix failing items then rerun proof-or-stop validate`;
       }
       if (c.donePrecheck && c.donePrecheck.blocking.length > 0) {
         const ids = c.donePrecheck.blocking.slice(0, 4).map(r => r.id).join(', ');
         const more = c.donePrecheck.blocking.length > 4 ? ` (+${c.donePrecheck.blocking.length - 4} more)` : '';
         return `TEST phase, DONE pre-check still has ${c.donePrecheck.blocking.length} item(s) not passing: ${ids}${more}. Next: ${summarizeDonePrecheckActions(c.donePrecheck.blocking)}`;
       }
-      return `TEST phase, all bugs are fixed. Next step: lattice story_advance --storyId=${sid} --phase=DONE to complete the story (will automatically merge back to main)`;
+      return `TEST phase, all bugs are fixed. Next step: proof-or-stop story_advance --storyId=${sid} --phase=DONE to complete the story (will automatically merge back to main)`;
     case 'DONE':
       return `Story is DONE. You can start the next story`;
     default:
@@ -791,7 +791,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         if (allStoryIds.length === 0) {
           lines.push('**No active story** — no stories yet.');
           lines.push('');
-          lines.push('Start with `lattice story_create` to create your first story.');
+          lines.push('Start with `proof-or-stop story_create` to create your first story.');
           for (const l of renderConfiguredGitRootSessionStatus(configuredGitRootStatus)) lines.push(l);
           for (const l of renderStoryDirOutsideGitRootAdvisory(ctx.root)) lines.push(l);
           if (!gitReady) {
@@ -812,7 +812,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
 
         // Dashboard: reuse story_list handler output's _dashboard field.
         // We call the same handler via ctx-level helpers so the exact
-        // same numbers show up in brief and in `lattice story_list`.
+        // same numbers show up in brief and in `proof-or-stop story_list`.
         let dashboardText: string | null = null;
         const worktrees = listActiveWorktrees(ctx.root);
         const zombiesForBrief = detectZombieStories(ctx.store, ctx.root);
@@ -950,7 +950,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           for (const id of metaContainerIds) {
             lines.push(`  ${id} — audit/finding flow container, does not go through story lifecycle`);
           }
-          lines.push('  → Use `lattice audit` / `lattice finding_list` to handle, do not run `lattice story_advance` or create worktree');
+          lines.push('  → Use `proof-or-stop audit` / `proof-or-stop finding_list` to handle, do not run `proof-or-stop story_advance` or create worktree');
         }
 
         if (!concise) {
@@ -1044,18 +1044,18 @@ export function createSessionHandlers(ctx: HandlerContext) {
               : `${top.phase} from ${top.phaseAuthority} metadata`;
             lines.push(`  Resume: cd ${wt} (story ${top.storyId}; authority: ${authority})`);
           } else if (top.phase === 'INIT') {
-            lines.push(`  Story ${top.storyId} is in INIT with no worktree. First run \`lattice init_preflight --storyId=${top.storyId}\` (read-only; it does not write evidence or create worktrees), then after READY run \`lattice story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
+            lines.push(`  Story ${top.storyId} is in INIT with no worktree. First run \`proof-or-stop init_preflight --storyId=${top.storyId}\` (read-only; it does not write evidence or create worktrees), then after READY run \`proof-or-stop story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           } else {
-            lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`lattice story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
+            lines.push(`  Story ${top.storyId} is in ${top.phase} but has no worktree. Try \`proof-or-stop story_advance --storyId=${top.storyId} --phase=INIT_CHECK\` to create one.`);
           }
         } else if (doneStories === totalStories) {
-          lines.push('  All stories DONE. Archive old stories or `lattice story_create` for new work.');
+          lines.push('  All stories DONE. Archive old stories or `proof-or-stop story_create` for new work.');
         } else if (zombiesForBrief.length > 0) {
-          lines.push(`  No healthy active story. First run lattice story_reconcile '{"dryRun":true}' to view ${zombiesForBrief.length} zombie stories, then confirm whether to run lattice story_reconcile '{"dryRun":false}' to fix.`);
+          lines.push(`  No healthy active story. First run proof-or-stop story_reconcile '{"dryRun":true}' to view ${zombiesForBrief.length} zombie stories, then confirm whether to run proof-or-stop story_reconcile '{"dryRun":false}' to fix.`);
         } else if (metaContainerIds.length > 0) {
           lines.push(`  ${metaContainerNextStep(metaContainerIds[0])}`);
         } else {
-          lines.push('  No active story. `lattice story_create` to start one, or `lattice story_list` to see all.');
+          lines.push('  No active story. `proof-or-stop story_create` to start one, or `proof-or-stop story_list` to see all.');
         }
 
         return lines.join('\n');
@@ -1263,7 +1263,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           // so we do NOT re-render a redundant "guard session" line here. Only the
           // actionable violation detail below adds new information.
           if (guardSession && guardSession.status === 'violations_detected' && guardSession.violations.length > 0) {
-            lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run lattice guard_session_check for detail.`);
+            lines.push(`  ${guardSession.violations.length} forbidden write(s) under story scope protection — run proof-or-stop guard_session_check for detail.`);
           }
         }
       } catch { /* probe — never block session_brief on scope-summary render failure */ }
@@ -1364,8 +1364,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
             stall = renderAntiStall({
               storyId,
               title: `REVIEW waiting for ${pending}`,
-              retry: `lattice reviewer_list '{"storyId":"${storyId}"}' then run the pending lattice-review-* reviewers`,
-              fix: `lattice review_run_start '{"storyId":"${storyId}","agent":"lattice-review-<name>"}' first, then use the returned reviewRunId in lattice review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from lattice review_run_start>","agent":"lattice-review-<name>","note":"..."}' when a reviewer found no blocker`,
+              retry: `proof-or-stop reviewer_list '{"storyId":"${storyId}"}' then run the pending lattice-review-* reviewers`,
+              fix: `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"lattice-review-<name>"}' first, then use the returned reviewRunId in proof-or-stop review_pass_set '{"storyId":"${storyId}","reviewRunId":"<reviewRunId from proof-or-stop review_run_start>","agent":"lattice-review-<name>","note":"..."}' when a reviewer found no blocker`,
             });
           }
         } else {

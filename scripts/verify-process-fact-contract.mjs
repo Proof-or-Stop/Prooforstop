@@ -296,11 +296,11 @@ const scopeContractParallelDevEntryConsumerPattern = /parallel-decomposition DEV
 const legacyCommandPolicyGuidance = {
   test_auto: {
     destructiveRisk: 'workspace-destructive',
-    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
+    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verificationEvidence/, /dryRun/, /confirm/, /git restore\/git clean/],
   },
   test_story: {
     destructiveRisk: 'fixture-write',
-    patterns: [/(?:lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
+    patterns: [/(?:proof-or-stop|lattice|koala) validate --story=<storyId>/, /verification_evidence_add|verificationEvidence/],
   },
   test_fixture: {
     destructiveRisk: 'fixture-write',
@@ -3391,8 +3391,10 @@ function scanBraceState(line, state) {
 }
 
 function commandBlocks(text, command) {
-  const commandPattern = new RegExp(`\\b(?:lattice|koala)\\s+${command}\\b`);
-  const anyCliCommandPattern = /\b(?:lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
+  // `proof-or-stop` is the canonical bin; `lattice` / `koala` stay accepted so this
+  // detector keeps recognizing pre-rename prompt text (B-cdf6 CHK-006).
+  const commandPattern = new RegExp(`\\b(?:proof-or-stop|lattice|koala)\\s+${command}\\b`);
+  const anyCliCommandPattern = /\b(?:proof-or-stop|lattice|koala)\s+[a-z_][a-z0-9_]*\b/;
   const lines = text.split(/\r?\n/);
   const blocks = [];
 

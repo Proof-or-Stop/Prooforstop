@@ -627,12 +627,12 @@ function dispatchAgentRole(recommendation: ParallelWaveRecommendation): Parallel
 
 function dispatchNextCommand(ref: ParallelWaveStoryRef): string {
   if (ref.recommendation === 'parallel_dev') {
-    return `lattice dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=lattice-implementer`;
+    return `proof-or-stop dispatch --storyId=${ref.storyId} --itemId=<CHK-id> --agentType=lattice-implementer`;
   }
   if (ref.recommendation === 'plan_only') {
-    return `lattice parallel_plan --storyIds='["${ref.storyId}"]'`;
+    return `proof-or-stop parallel_plan --storyIds='["${ref.storyId}"]'`;
   }
-  return `lattice parallel_status --storyIds='["${ref.storyId}"]'`;
+  return `proof-or-stop parallel_status --storyIds='["${ref.storyId}"]'`;
 }
 
 function dispatchEntry(ref: ParallelWaveStoryRef, refs: ParallelWaveExperienceRef[]): ParallelDispatchEntry {

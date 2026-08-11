@@ -47,7 +47,7 @@ export interface ChannelCheckResult {
    * F-003 (B-fdcf Round 1): evidence source label, used by renderChannelResult to output
    * the `all CHK covered (via <source>)` phrase promised by userSees.
    * - 'subagent_result' — all via Agent() direct dispatch path (subagent_result events)
-   * - 'dispatch'        — all via lattice dispatch (dispatch events)
+   * - 'dispatch'        — all via proof-or-stop dispatch (dispatch events)
    * - 'dispatch + subagent_result' — mixed
    * - 'commit_author' — commit author=lattice-implementer as a signal of direct Agent execution
    * Set only when status=pass and evidencedItems exists; undefined for pure waiver / no-commit scenarios.
@@ -590,7 +590,7 @@ export function checkCommitAuthor(
 }
 
 /**
- * B-9d95 CHK-006: CLI entry for `lattice validate --channel`.
+ * B-9d95 CHK-006: CLI entry for `proof-or-stop validate --channel`.
  *
  * Does not spawn pytest / does not run full validate.ts—directly calls checkCommitAuthor, emitting
  * structured result + human-readable render. Used as an independent branch in REVIEW→TEST preflight.

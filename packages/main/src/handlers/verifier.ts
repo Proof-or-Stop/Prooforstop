@@ -14,14 +14,14 @@
  *   - [CHK-001] Bind no-validator warn/skip requirement to verifier implementation
  *   - [CHK-002] Cover no-entry warn/skip and configured-command hard-fail behavior
  *
- * Verifier handlers — lattice validate / status / serve
+ * Verifier handlers — proof-or-stop validate / status / serve
  *
  * These commands prefer the project's validate.ts file when present (D/M/F verifier
  * pattern), then fall back to configured or auto-discovered language test commands.
  *
- * lattice validate   → validate.ts/js/mts or configured/discovered project tests
- * lattice status     → spawn `npx tsx validate.ts --status` in project root
- * lattice serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
+ * proof-or-stop validate   → validate.ts/js/mts or configured/discovered project tests
+ * proof-or-stop status     → spawn `npx tsx validate.ts --status` in project root
+ * proof-or-stop serve      → spawn `npx tsx serve.ts` or start falcon serve in project root
  */
 
 import { execFileSync, execSync, spawn } from 'node:child_process';
@@ -187,7 +187,7 @@ function filterFocusedConfiguredCommands(commands: ValidationCommand[], focus: s
   if (selected.length === 0) {
     throw new Error(
       `validate --focus=${focus}: no configured validate.commands are tagged with focus "${focus}"; ` +
-      `tag one or more commands with focus: ["${focus}"] or run lattice validate --json for full validation.`,
+      `tag one or more commands with focus: ["${focus}"] or run proof-or-stop validate --json for full validation.`,
     );
   }
   return selected;
@@ -714,7 +714,7 @@ function reusedStoryValidationResult(args: {
   });
   recordValidationTerminal(args.ctx, args.storyId, args.gitCwd, reused, args.identity);
   args.ctx.store.writeTestEvidence(args.storyId, {
-    command: `lattice validate --story=${args.storyId} --json`,
+    command: `proof-or-stop validate --story=${args.storyId} --json`,
     output: JSON.stringify(reused),
     result: 'PASS',
     timestamp: new Date().toISOString(),
@@ -1011,7 +1011,7 @@ function decorateAndMaybePersistStoryValidation(
       ctx,
       storyId,
       executed,
-      `lattice validate --story=${storyId} --json`,
+      `proof-or-stop validate --story=${storyId} --json`,
       identity,
       commandResults,
       expectedCommandCount,
@@ -1025,7 +1025,7 @@ function decorateAndMaybePersistStoryValidation(
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     /**
-     * lattice validate [--full[=filter]] [--story=B-xxx] [--json]
+     * proof-or-stop validate [--full[=filter]] [--story=B-xxx] [--json]
      *
      * Runs the project's validate.ts with appropriate flags.
      * Returns human-readable output by default, or ExternalVerifierResult with --json.
@@ -1482,7 +1482,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * lattice status [--concise]
+     * proof-or-stop status [--concise]
      *
      * Unified project status: story progress + Machine code status.
      * Two sections run in parallel (Promise.all).
@@ -1506,7 +1506,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         const validateFile = findValidateFile(projectRoot);
         if (!validateFile) return '';
 
-        // Try serve cache first (if lattice serve is running, result is instant)
+        // Try serve cache first (if proof-or-stop serve is running, result is instant)
         try {
           const { stablePort } = await import('../verifier/browser-executor.js');
           const httpPort = stablePort(projectRoot, 1);
@@ -1524,7 +1524,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           const cmd = `npx tsx ${validateFile} --status`;
           const body = [
             `✗ ${cmd} timed out after ${Math.round(STATUS_FALLBACK_TIMEOUT_MS / 1000)}s.`,
-            '  Run `lattice validate` for full diagnostics, or start `lattice serve` to use cached status.',
+            '  Run `proof-or-stop validate` for full diagnostics, or start `proof-or-stop serve` to use cached status.',
           ];
           if (output.trim()) body.push(...output.trim().split('\n').map(line => `  ${line}`));
           return '\n── Code Verification ──\n' + body.join('\n');
@@ -1542,7 +1542,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
     },
 
     /**
-     * lattice serve [--dev="..."] [--port=N]
+     * proof-or-stop serve [--dev="..."] [--port=N]
      *
      * Start HTTP API server for real-time debugging.
      * This is a long-running process, so we spawn it and return the startup info.

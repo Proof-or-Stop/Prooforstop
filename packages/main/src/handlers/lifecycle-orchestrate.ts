@@ -219,7 +219,7 @@ function isApproachingDelivery(phase: StoryPhase): boolean {
 }
 
 function storyAdvanceCommand(storyId: string, phase: StoryPhase): string {
-  return `lattice story_advance --storyId=${storyId} --phase=${phase}`;
+  return `proof-or-stop story_advance --storyId=${storyId} --phase=${phase}`;
 }
 
 /**

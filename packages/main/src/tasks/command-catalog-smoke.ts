@@ -245,13 +245,13 @@ assert.doesNotMatch(
 const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   {
     args: ['story_create', '--help'],
-    includes: ['Proof-or-Stop', 'lattice story_create', '--checklist', '--scopeBoundary'],
+    includes: ['Proof-or-Stop', 'proof-or-stop story_create', '--checklist', '--scopeBoundary'],
   },
   {
     args: ['story_advance', '--help'],
     includes: [
       'Proof-or-Stop',
-      'lattice story_advance',
+      'proof-or-stop story_advance',
       '--phase',
       'INIT_CHECK',
       '--dryRun',
@@ -263,7 +263,7 @@ const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   },
   {
     args: ['validate', '--help'],
-    includes: ['Proof-or-Stop', 'lattice validate', '--story', '--json'],
+    includes: ['Proof-or-Stop', 'proof-or-stop validate', '--story', '--json'],
   },
   {
     args: ['conduit_status', '--help'],
@@ -290,8 +290,8 @@ assert.match(helpOutput, /Proof-or-Stop/, 'help should carry Proof-or-Stop brand
 // docs/prose sweep lands; only the brand banner is CHK-002's surface.
 assert.doesNotMatch(helpOutput, /Proofbound CLI/, 'help banner must not reprint the legacy Proofbound CLI product name');
 assert.doesNotMatch(helpOutput, /Usage: lattice /, 'help must not teach the deprecated bin as the usage form');
-assert.match(helpOutput, /host_runtime_probe/, 'lattice help should include host runtime commands');
-assert.match(runCli(['help', '--full']), /antigravity/, 'lattice help --full should include antigravity host text');
+assert.match(helpOutput, /host_runtime_probe/, 'proof-or-stop help should include host runtime commands');
+assert.match(runCli(['help', '--full']), /antigravity/, 'proof-or-stop help --full should include antigravity host text');
 
 const quantumCliOutput = runDistCli([
   '--root',

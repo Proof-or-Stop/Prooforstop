@@ -885,7 +885,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         if (!repair) {
           lines.push('');
           lines.push('Above is dry run result, no modifications made.');
-          lines.push('Apply fixes: lattice story_reconcile \'{"dryRun":false}\'');
+          lines.push('Apply fixes: proof-or-stop story_reconcile \'{"dryRun":false}\'');
         }
 
         return lines.join('\n');
@@ -960,7 +960,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           lines.push('  will backup legacy activity to .lattice/legacy-backup/docs-story-activity-<timestamp>.jsonl');
         }
         lines.push('  will remove docs/story only if it is empty after migration');
-        lines.push('→ Confirm migration: lattice story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
+        lines.push('→ Confirm migration: proof-or-stop story_migrate_storage \'{"dryRun":false,"confirm":true}\'');
         return lines.join('\n');
       }
 
@@ -1061,7 +1061,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           : '  status     : confirm will run git merge main');
         lines.push('  metadata conflicts under the protected path will be resolved with --ours');
         lines.push('  source/other conflicts will remain unresolved and stop the command');
-        lines.push(`→ Confirm sync: lattice story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
+        lines.push(`→ Confirm sync: proof-or-stop story_sync_main '{"storyId":"${args.storyId}","confirm":true}'`);
         return lines.join('\n');
       }
 
@@ -1074,7 +1074,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const out = gitOutput(cwd, `-c commit.gpgsign=false merge ${shellQuote(mainRef)} --no-ff -m ${shellQuote(`sync main into ${args.storyId}`)}`);
         lines.push(out || '✓ main already merged');
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ Please rerun: lattice test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: proof-or-stop test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       } catch {
         const unmerged = gitUnmergedPaths(cwd);
@@ -1093,7 +1093,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
               ? `Story metadata conflicts auto-resolved with --ours:\n${protectedConflicts.map(path => `  - ${path}`).join('\n')}\n`
               : '') +
             `Unresolved conflicts:\n${unresolved.map(path => `  - ${path}`).join('\n')}\n\n` +
-            `Please manually resolve the above real conflicts then git add + git commit, then rerun lattice test_story '{"storyId":"${args.storyId}"}'.`,
+            `Please manually resolve the above real conflicts then git add + git commit, then rerun proof-or-stop test_story '{"storyId":"${args.storyId}"}'.`,
           );
         }
 
@@ -1104,7 +1104,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         lines.push('Story metadata conflicts auto-resolved with --ours:');
         for (const path of protectedConflicts) lines.push(`  - ${path}`);
         lines.push(`✓ Story ${args.storyId} is synced with main`);
-        lines.push(`→ Please rerun: lattice test_story '{"storyId":"${args.storyId}"}'`);
+        lines.push(`→ Please rerun: proof-or-stop test_story '{"storyId":"${args.storyId}"}'`);
         return lines.join('\n');
       }
     },

@@ -121,15 +121,15 @@ function targetRank(target: LifecycleReadinessTarget): number {
 }
 
 function rollbackToDevCommand(storyId: string): string {
-  return `lattice story_advance '{"storyId":"${storyId}","phase":"DEV"}'`;
+  return `proof-or-stop story_advance '{"storyId":"${storyId}","phase":"DEV"}'`;
 }
 
 function storyAdvanceCommand(storyId: string, phase: LifecycleReadinessTarget): string {
-  return `lattice story_advance '{"storyId":"${storyId}","phase":"${phase}"}'`;
+  return `proof-or-stop story_advance '{"storyId":"${storyId}","phase":"${phase}"}'`;
 }
 
 function donePrepareCommand(storyId: string): string {
-  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+  return `proof-or-stop done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
 }
 
 function gitOutput(gitCwd: string, args: string[]): string | null {
@@ -183,7 +183,7 @@ export function renderMainSyncReadinessAdvisory(readiness: MainSyncReadiness): s
 }
 
 function validationCommand(storyId: string): string {
-  return `lattice validate --story=${storyId} --json`;
+  return `proof-or-stop validate --story=${storyId} --json`;
 }
 
 function currentBlockingSeverities(store: StoryStore, storyId: string, projectRoot: string): { severities: string[]; roundCount: number } {
@@ -212,7 +212,7 @@ function reviewerLane(name: string): string {
 }
 
 function reviewerRunStartCommand(storyId: string, lane: string): string {
-  return `lattice review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
+  return `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"${lane}"}'`;
 }
 
 function quorumEvidence(evidenceRecords: { agent: string; kind: string; signatureValid?: boolean }[]): ReviewerEvidenceEntry[] {
@@ -264,7 +264,7 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
       category: 'missing',
       code: 'missing_checklist',
       reason: `Checklist could not be read: ${err instanceof Error ? err.message : String(err)}`,
-      nextCommand: `lattice checklist_get '{"storyId":"${storyId}"}'`,
+      nextCommand: `proof-or-stop checklist_get '{"storyId":"${storyId}"}'`,
     }));
     return rows;
   }
@@ -281,7 +281,7 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
       category: 'missing',
       code: 'checklist_items_not_done',
       reason: `${pending.length} checklist item(s) are not done: ${pending.map((item) => item.id).join(', ')}`,
-      nextCommand: `lattice checklist_update '{"storyId":"${storyId}","itemId":"${pending[0]?.id ?? "CHK-001"}","status":"done"}'`,
+      nextCommand: `proof-or-stop checklist_update '{"storyId":"${storyId}","itemId":"${pending[0]?.id ?? "CHK-001"}","status":"done"}'`,
     }));
   } else {
     rows.push(row({
@@ -318,7 +318,7 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
       category: 'missing',
       code: 'missing_verification_evidence',
       reason: `${missingEvidence.length} required verification intent(s) lack passing evidence or waiver`,
-      nextCommand: `lattice verification_evidence_add '{"storyId":"${storyId}","itemId":"<CHK-id>","intentRef":"<intent-ref>","kind":"logic_test","result":"pass","note":"..."}'`,
+      nextCommand: `proof-or-stop verification_evidence_add '{"storyId":"${storyId}","itemId":"<CHK-id>","intentRef":"<intent-ref>","kind":"logic_test","result":"pass","note":"..."}'`,
     }));
   } else {
     rows.push(row({
@@ -382,7 +382,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       category: 'blocking',
       code: 'review_loop_record_error',
       reason: `Review loop records could not be read: ${err instanceof Error ? err.message : String(err)}`,
-      nextCommand: `lattice review_loop_status '{"storyId":"${storyId}"}'`,
+      nextCommand: `proof-or-stop review_loop_status '{"storyId":"${storyId}"}'`,
     }));
   }
 
@@ -398,7 +398,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       category: 'missing',
       code: 'missing_review_evidence',
       reason: 'No reviewer finding or review pass is recorded',
-      nextCommand: `lattice review_run_start '{"storyId":"${storyId}","agent":"lattice-review-<name>"}'`,
+      nextCommand: `proof-or-stop review_run_start '{"storyId":"${storyId}","agent":"lattice-review-<name>"}'`,
     }));
     return rows;
   }
@@ -511,7 +511,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
         category: 'missing',
         code: 'missing_current_round_review_evidence',
         reason: `Round ${roundCount} requires at least one valid current-round reviewer finding or review pass`,
-        nextCommand: `lattice reviewer_list '{"storyId":"${storyId}"}'`,
+        nextCommand: `proof-or-stop reviewer_list '{"storyId":"${storyId}"}'`,
       }));
     } else {
       rows.push(row({
@@ -585,19 +585,19 @@ function doneRowNextCommand(storyId: string, row: DoneCheckRow): string | undefi
     case 'branch-synced-main':
       return row.blocking ? donePrepareCommand(storyId) : undefined;
     case 'bugs-fixed':
-      return row.blocking ? `lattice bug_list '{"storyId":"${storyId}"}'` : undefined;
+      return row.blocking ? `proof-or-stop bug_list '{"storyId":"${storyId}"}'` : undefined;
     case 'git-working-tree':
       return row.blocking ? 'git status --short' : undefined;
     case 'story-summary':
       return row.blocking ? row.hint : undefined;
     case 'delivery-check':
       return row.blocking
-        ? `lattice delivery_check_set --storyId=${storyId} --agentId=lattice-review-delivery ...`
+        ? `proof-or-stop delivery_check_set --storyId=${storyId} --agentId=lattice-review-delivery ...`
         : undefined;
     case 'review-escalation':
     case 'review-assurance-floor':
       return row.blocking
-        ? `lattice review_escalation_status '{"storyId":"${storyId}"}'`
+        ? `proof-or-stop review_escalation_status '{"storyId":"${storyId}"}'`
         : undefined;
     case 'eval-evidence':
     case 'codex-adapter-evidence':

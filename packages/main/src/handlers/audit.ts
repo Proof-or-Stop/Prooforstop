@@ -1,5 +1,5 @@
 /**
- * lattice audit — framework self-introspection audit (B-9bd9 CHK-001, MVP)
+ * proof-or-stop audit — framework self-introspection audit (B-9bd9 CHK-001, MVP)
  *
  * Mechanically scans CLAUDE.md promises vs actual CLI behavior drift.
  *

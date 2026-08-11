@@ -171,7 +171,7 @@ export function repairGlobalLatticeLinkBeforeWorktreeDelete(
 /**
  * B-9e4a CHK-001 (F-003): A freshly created git worktree does NOT inherit the
  * main repo's `node_modules` (git worktree only checks out tracked files, and
- * `node_modules` is gitignored). Without it, `tsc` / `lattice validate` fail with
+ * `node_modules` is gitignored). Without it, `tsc` / `proof-or-stop validate` fail with
  * unresolved-dependency errors. Detect the gap so worktree creation never reports
  * "development environment is ready" alone while dependencies are actually missing.
  *
@@ -227,7 +227,7 @@ export function detectMissingNodeModulesWarning(worktreePath: string): string | 
 
     return [
       `⚠ worktree missing node_modules: ${missing.join(', ')}`,
-      `  Missing dependencies will cause tsc / lattice validate to fail to resolve modules.`,
+      `  Missing dependencies will cause tsc / proof-or-stop validate to fail to resolve modules.`,
       `  → Remediation (recommended): cd ${worktreePath} && npm install`,
       `  → Advanced optional: manually symlink main repo node_modules to this worktree`,
     ].join('\n');
@@ -1012,14 +1012,14 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const parallelWarning = checkParallelSafety(args.storyId);
 
       // B-9e4a CHK-001 (F-003): warn when the fresh worktree lacks node_modules,
-      // which would otherwise make tsc / lattice validate fail with unresolved deps.
+      // which would otherwise make tsc / proof-or-stop validate fail with unresolved deps.
       const nodeModulesWarning = detectMissingNodeModulesWarning(worktreePath);
 
       // B-854c CHK-002: after the scoped commit, probe the ACTUAL metadata leaf
       // (index.json). If the project default still leaves it ignored/untracked
       // (broad `.lattice/` ignore), force-add committed it for THIS story but the
       // next git clean on an untracked sibling can still lose data — surface a
-      // loud warning pointing at `lattice doctor --repair`. A negation allowlist
+      // loud warning pointing at `proof-or-stop doctor --repair`. A negation allowlist
       // (Orchestrate) or a tracked leaf produces no warning (no false positive).
       const metadataProtectionWarning = storyMetadataProtectionWarning(`${storyRel}/index.json`, repoRoot);
 
@@ -1264,7 +1264,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             throw new Error(
               `Worktree git metadata is corrupted, cannot safely check for uncommitted changes:\n` +
               `${wtPath}\n` +
-              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`,
+              `→ If you confirm this is a residual directory and want to discard it, retry with force:true: proof-or-stop story_discard '{"storyId":"${args.storyId}","force":true}'`,
             );
           }
 
@@ -1292,7 +1292,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
               const wtStatus = git('status --porcelain', wtPath);
               if (wtStatus) {
                 throw new Error(
-                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: lattice story_discard '{"storyId":"${args.storyId}","force":true}'`
+                  `Worktree has uncommitted changes:\n${wtStatus}\n→ If you confirm discarding, retry with force:true: proof-or-stop story_discard '{"storyId":"${args.storyId}","force":true}'`
                 );
               }
             }

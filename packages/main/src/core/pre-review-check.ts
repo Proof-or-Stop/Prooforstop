@@ -320,9 +320,9 @@ function executableProofState(contract: ProofStoryContractData | null, proof: Pr
 
 function remediationFor(codes: readonly PreReviewCheckCodeV1[]): string[] {
   return stable(codes.map(code => code === 'PR_ARTIFACT_MISSING'
-    ? 'Run lattice pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.'
+    ? 'Run proof-or-stop pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.'
     : code === 'PR_ARTIFACT_TAMPERED'
-      ? 'Discard the invalid pre-review artifact and reissue it through lattice pre_review_check; do not edit StoryStore files directly.'
+      ? 'Discard the invalid pre-review artifact and reissue it through proof-or-stop pre_review_check; do not edit StoryStore files directly.'
       : code === 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'
         ? 'Obtain a fresh independent topology critic receipt bound to the current pre-review basis, then reissue pre_review_check.'
         : 'Repair the reported PR_* condition, recapture verifier-owned executable proof, and reissue pre_review_check.'));

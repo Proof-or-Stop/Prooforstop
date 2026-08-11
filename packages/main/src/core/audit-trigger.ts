@@ -162,7 +162,7 @@ function thirtyDaysAgoIso(): string {
 
 /** Unified generation of prompt text (with a blank line before and after, as its own paragraph). */
 function buildSemiAutoHint(window: number): string {
-  return `\n⚠ ${window} story window + CLAUDE.md has changed, suggested run: lattice audit --framework\n`;
+  return `\n⚠ ${window} story window + CLAUDE.md has changed, suggested run: proof-or-stop audit --framework\n`;
 }
 
 /**

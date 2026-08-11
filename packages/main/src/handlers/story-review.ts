@@ -276,7 +276,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           type: 'risk_signals',
           severity: 'advisory',
           message: `story hit ${activeRiskSignals.length} high-risk signal(s): ${activeRiskSignals.map((r: any) => r.category).join(', ')}. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path).`
-            + ` If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{"storyId":"${args.storyId}","category":"<category>","reason":"..."}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted).`,
+            + ` If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{"storyId":"${args.storyId}","category":"<category>","reason":"..."}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted).`,
         });
       }
       if (dismissedCats.size > 0) {
@@ -388,7 +388,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
             type: 'missing_decision',
             severity: isHighRisk ? 'blocker' : 'advisory',
             message: isHighRisk
-              ? `High-risk story must fill decision.json (principles/drivers/options/chosen/>= 3 preMortem). Call: lattice decision_set '{...}'`
+              ? `High-risk story must fill decision.json (principles/drivers/options/chosen/>= 3 preMortem). Call: proof-or-stop decision_set '{...}'`
               : 'decision.json not filled. Optional for non-high-risk stories, but recommended so reviewers can audit the design rationale.',
           });
         } else {
@@ -579,7 +579,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
         issues.push({
           type: 'missing_scope_check',
           severity: 'blocker',
-          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`lattice dispatch --storyId=${args.storyId} --agentType=lattice-review-scope-plan\`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling \`lattice scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
+          message: `missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with \`proof-or-stop dispatch --storyId=${args.storyId} --agentType=lattice-review-scope-plan\`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling \`proof-or-stop scope_check_save\`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion.`,
         });
       } else if (scopeData) {
         // Verify both legacy and read-manifest-bound signatures without relying on cwd.
@@ -679,7 +679,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           issues.push({
             type: 'scope_open_question_unresolved',
             severity: 'blocker',
-            message: `scope_open_question_unresolved: ${oq.id} unresolved — "${qText}"${shortTag}. Please run \`lattice scope_question_resolve --storyId=${args.storyId} --oqId=${oq.id} --resolution=...\` to provide a written resolution (the main agent is responsible for the conclusion)`,
+            message: `scope_open_question_unresolved: ${oq.id} unresolved — "${qText}"${shortTag}. Please run \`proof-or-stop scope_question_resolve --storyId=${args.storyId} --oqId=${oq.id} --resolution=...\` to provide a written resolution (the main agent is responsible for the conclusion)`,
           });
         }
       }

@@ -87,7 +87,7 @@ export interface ProofStoryConfig {
 
 /**
  * B-c054 (W2a): optional trusted RED-evidence policy block (spec §1.2).
- * DIAGNOSTIC ONLY — surfaced by `lattice doctor` and resolved by the fail-closed
+ * DIAGNOSTIC ONLY — surfaced by `proof-or-stop doctor` and resolved by the fail-closed
  * policy resolver (core/red-evidence/policy.ts). NO loader default is applied:
  * an absent block leaves the subsystem unconfigured, and `pinnedPath` is
  * required-with-no-default per §1.2. This interface is intentionally permissive
@@ -195,7 +195,7 @@ export interface ProofOrStopConfig {
   cli?: {
     command: string;
   };
-  /** 项目级验证命令；没有 validate.ts/js 时由 lattice validate 使用 */
+  /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
     command?: string;
     commands?: Array<string | {

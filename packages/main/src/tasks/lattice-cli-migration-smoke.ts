@@ -109,9 +109,9 @@ for (const command of COMMANDS) {
 for (const alias of [
   'lattice host status',
   'lattice host dispatch',
-  'lattice handoff create',
-  'lattice handoff receipt submit',
-  'lattice handoff worktree create',
+  'proof-or-stop handoff create',
+  'proof-or-stop handoff receipt submit',
+  'proof-or-stop handoff worktree create',
 ] as const) {
   assert.match(help, new RegExp(alias.replace(/\s+/g, '\\s+')), `help exposes alias ${alias}`);
 }
@@ -120,12 +120,12 @@ const storyCreateHelp = runCli(['story_create', '--help']);
 assert.match(storyCreateHelp, /lattice story_create with checklist/);
 assert.match(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
 assert.doesNotMatch(storyCreateHelp, /(?:^|\n)\s+\d+\.\s+(?:story_create|story_advance)\b/, 'story_create help step list uses lattice-prefixed commands');
-assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses lattice checklist_add');
+assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses proof-or-stop checklist_add');
 
 const storyAdvanceHelp = runCli(['story_advance', '--help']);
 assert.match(storyAdvanceHelp, /lattice story_review/);
 assert.match(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
-assert.match(storyAdvanceHelp, /Try lattice story_advance/);
+assert.match(storyAdvanceHelp, /Try proof-or-stop story_advance/);
 assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_advance|understanding_set|decision_set)\b/, 'story_advance help step list uses lattice-prefixed commands');
 
 const storyReconcileHelp = runCli(['story_reconcile', '--help']);

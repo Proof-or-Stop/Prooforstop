@@ -1031,7 +1031,7 @@ export function evaluateDoneRequiredEvidence(args: {
       ok: false,
       status: 'fail',
       detail: 'missing done-required-evidence.json',
-      hint: `lattice done_required_validate --storyId=${args.storyId}`,
+      hint: `proof-or-stop done_required_validate --storyId=${args.storyId}`,
       reasons: ['missing-artifact'],
       policy,
       evidence: null,
@@ -1090,7 +1090,7 @@ export function evaluateDoneRequiredEvidence(args: {
       detail: uniqueReasons.slice(0, 3).join(', '),
       hint: [
         ...uniqueReasons,
-        `rerun: lattice done_required_validate --storyId=${args.storyId}`,
+        `rerun: proof-or-stop done_required_validate --storyId=${args.storyId}`,
       ].join('\n'),
       reasons: uniqueReasons,
       policy,
@@ -1108,7 +1108,7 @@ export function evaluateDoneRequiredEvidence(args: {
       detail: environmentProjectionReasons.slice(0, 3).join(', '),
       hint: [
         ...environmentProjectionReasons,
-        `rerun: lattice done_required_validate --storyId=${args.storyId}`,
+        `rerun: proof-or-stop done_required_validate --storyId=${args.storyId}`,
       ].join('\n'),
       reasons: environmentProjectionReasons,
       policy,

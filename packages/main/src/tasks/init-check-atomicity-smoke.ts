@@ -11,9 +11,9 @@
  *       throw on the scope-anti-expansion freeze gate (no flaky real git failure).
  *       This assertion fails loudly if anyone reverts to advancing-before-bootstrap.
  *   (b) Recovery: a story stuck at INIT_CHECK with no worktree on disk is
- *       re-bootstrapped by `lattice dev_start`, which recreates the worktree and
+ *       re-bootstrapped by `proof-or-stop dev_start`, which recreates the worktree and
  *       prints its Path. Idempotent: a second run returns the existing path.
- *   (c) Guard refusals: `lattice dev_start` is refused in a terminal phase (DONE)
+ *   (c) Guard refusals: `proof-or-stop dev_start` is refused in a terminal phase (DONE)
  *       and in REVIEW, and refused for an unfrozen INIT story (freeze gate).
  *   (d) Clean-INIT success path (B-804c:F-001): a genuine, fully-gated INIT story
  *       — frozen AND carrying a valid signed init-check.json (the

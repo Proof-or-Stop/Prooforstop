@@ -1210,7 +1210,7 @@ export async function applyDoneMergeEffects(
         });
         throw new Error(
           `Story ${storyId} 已合并，但 worktree 清理未完成: ${cleanupFailure}\n` +
-          `→ 请运行 lattice doctor 查看，或执行 lattice doctor --repair 清理终态 worktree 残留。`,
+          `→ 请运行 proof-or-stop doctor 查看，或执行 proof-or-stop doctor --repair 清理终态 worktree 残留。`,
         );
       }
 

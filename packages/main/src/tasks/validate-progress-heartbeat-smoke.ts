@@ -688,7 +688,7 @@ async function assertFailedStoryAdvancePreservesValidationEvidence(): Promise<vo
       NON_MAX_HARNESS_CEILING_MS,
     );
     assert.notEqual(result.status, 0, 'failed internal validation must block TEST transition');
-    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: lattice validate did not pass/);
+    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: proof-or-stop validate did not pass/);
 
     const store = new StoryStore(root);
     assert.equal(store.readStory(storyId).phase, 'REVIEW',

@@ -14,7 +14,7 @@
  *   *thin shim* file: the registry template's frontmatter (name/description/tools,
  *   plus model if present) followed by a standard imperative body that tells the
  *   agent to fetch its authoritative instructions from the Proofbound CLI via
- *   `lattice agent_prompt --role=<name>`. The five modular REVIEW roles instead
+ *   `proof-or-stop agent_prompt --role=<name>`. The five modular REVIEW roles instead
  *   use the canonical `review_run_start` bootstrap so the host receives exactly
  *   one mode-selected role body. Every shim contains NO role body.
  *
@@ -161,7 +161,7 @@ export function listManagedAgentBasenames(
 export function buildShimBody(role: string): string {
   return [
     'Your authoritative instructions are served by the Proofbound CLI (single source of truth).',
-    `FIRST run: \`lattice agent_prompt --role=${role}\` and follow the returned prompt exactly.`,
+    `FIRST run: \`proof-or-stop agent_prompt --role=${role}\` and follow the returned prompt exactly.`,
     'This file is a thin pointer and intentionally contains no role body.',
   ].join('\n');
 }

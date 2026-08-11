@@ -108,7 +108,7 @@ assert.match(storyReconcileHelp, /Dry-run: default-on via --dryRun=true\./, 'def
 const hostInstallHelp = runCli(['host_install', '--help']);
 assert.match(hostInstallHelp, /Dry-run: always-on\./, 'always-on dry-run class remains visible');
 
-// B-7c05 CHK-003: `lattice help` is BRIEF by default. Branding + every command
+// B-7c05 CHK-003: `proof-or-stop help` is BRIEF by default. Branding + every command
 // name (no command silently dropped) stay on the brief catalog; the verbose
 // host wording (antigravity/agy) lives in per-command descriptions, so those
 // assertions move to `help --full`.
@@ -128,7 +128,7 @@ assert.doesNotMatch(globalHelpFull.toLowerCase(), /current[^\n.]*gemini|gemini[^
 assert.ok(globalHelpFull.length > globalHelp.length, 'full help is larger than the brief catalog');
 
 const versionThroughLatticeNamespace = runCli(['lattice', 'version']);
-assert.match(versionThroughLatticeNamespace, /Proof-or-Stop/, 'lattice version special path remains in runCli');
+assert.match(versionThroughLatticeNamespace, /Proof-or-Stop/, 'proof-or-stop version special path remains in runCli');
 
 const hostRuntimeList = runJson<{ schemaVersion: string }>(['lattice', 'host', 'runtime', 'list', '--json']);
 assert.equal(hostRuntimeList.schemaVersion, 'lattice.host_runtime_list.v1');

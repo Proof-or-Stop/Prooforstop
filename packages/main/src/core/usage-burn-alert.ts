@@ -3,7 +3,7 @@
  *
  * Evaluates usage-sweep session rows (core/usage-sweep.ts scanners) against
  * burn thresholds and renders the advisory warning blocks shared by the two
- * push surfaces: the `lattice doctor` "Host burn scan (advisory)" section and
+ * push surfaces: the `proof-or-stop doctor` "Host burn scan (advisory)" section and
  * the `usage_sweep --alert` exit-nonzero mode.
  *
  * DESIGN CONTRACT (mirrors the usage-sweep pure-core rules):
@@ -340,7 +340,7 @@ export interface RenderHostBurnScanOptions {
   brief?: boolean;
 }
 
-/** The `lattice doctor` section. */
+/** The `proof-or-stop doctor` section. */
 export function renderHostBurnScan(
   evaluation: BurnAlertEvaluation,
   opts: RenderHostBurnScanOptions,
@@ -367,11 +367,11 @@ export function renderHostBurnScan(
       lines.push(`  ✗ BURN ALERT ${finding.host} ${finding.sessionId} (${finding.originLabel}) ${tokens} input tokens; tripped: ${finding.reasons.join(', ')}`);
     }
     if (evaluation.findings.length > 3) {
-      lines.push(`  ... and ${evaluation.findings.length - 3} more over threshold (use lattice doctor --full for every session detail)`);
+      lines.push(`  ... and ${evaluation.findings.length - 3} more over threshold (use proof-or-stop doctor --full for every session detail)`);
     }
     lines.push(
       `  → ${evaluation.findings.length} session(s) over burn thresholds out of ${evaluation.scanned} scanned. ` +
-        'Close/restart long-lived sessions; use lattice doctor --full for every session detail; advisory only, never gate evidence.',
+        'Close/restart long-lived sessions; use proof-or-stop doctor --full for every session detail; advisory only, never gate evidence.',
     );
     return lines;
   }

@@ -1385,7 +1385,7 @@ try {
       now: baseMs + 8 * 60 * 1000,
     });
     assert.ok(sameWorktreeMsg.includes('same-worktree context switch'), 'same-cwd error explains the context-switch case');
-    assert.ok(sameWorktreeMsg.includes('lattice session_brief'), 'same-cwd error tells the operator to inspect session_brief');
+    assert.ok(sameWorktreeMsg.includes('proof-or-stop session_brief'), 'same-cwd error tells the operator to inspect session_brief');
     assert.ok(sameWorktreeMsg.includes('not transferred unless'), 'same-cwd error states the lease is not transferred automatically');
 
     // 13b. STALE foreign lease (>30min old) → STALE verdict + --takeover action.
@@ -1520,7 +1520,7 @@ try {
       ownerCwdMatchesCurrent: true, currentCwd: '/tmp/owner-wt',
     }).join('\n');
     assert.ok(sameWorktreeLines.includes('same worktree'), 'same-worktree block labels the context-switch case');
-    assert.ok(sameWorktreeLines.includes('lattice session_brief'), 'same-worktree block tells the operator to inspect session_brief');
+    assert.ok(sameWorktreeLines.includes('proof-or-stop session_brief'), 'same-worktree block tells the operator to inspect session_brief');
     assert.ok(sameWorktreeLines.includes('no lease transfer happens automatically'), 'same-worktree block states there is no automatic transfer');
   }
 
@@ -1531,11 +1531,11 @@ try {
     assert.ok(metaLines.includes('B-META-framework-audit'), 'B-META block names the container');
     assert.ok(metaLines.includes('NO per-story owner lease'), 'B-META block states it carries no owner lease');
     assert.ok(metaLines.includes('main write lock'), 'B-META block notes the main write lock serializes its writes');
-    // The only `story_advance` mention is the explicit "Do not run lattice story_advance"
+    // The only `story_advance` mention is the explicit "Do not run proof-or-stop story_advance"
     // negative — the block never recommends advancing a B-META container.
     assert.ok(
-      metaLines.includes('Do not run `lattice story_advance`'),
-      'B-META block explicitly tells the agent not to run lattice story_advance',
+      metaLines.includes('Do not run `proof-or-stop story_advance`'),
+      'B-META block explicitly tells the agent not to run proof-or-stop story_advance',
     );
     assert.equal(
       (metaLines.match(/story_advance/g) ?? []).length, 1,
@@ -1706,7 +1706,7 @@ try {
         err.message.includes('sess-A') &&
         err.message.includes('owner-gated') &&
         err.message.includes('same-worktree context switch') &&
-        err.message.includes('lattice session_brief') &&
+        err.message.includes('proof-or-stop session_brief') &&
         err.message.includes('not transferred unless'),
       'session B on the same story is fail-closed rejected with owner guidance naming session A and same-worktree recovery text',
     );

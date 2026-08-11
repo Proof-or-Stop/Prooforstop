@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * B-a749 CHK-003 smoke: `lattice validate --lint` must be change-aware so a
+ * B-a749 CHK-003 smoke: `proof-or-stop validate --lint` must be change-aware so a
  * backend-only change is not blocked by an unrelated frontend package whose
  * deps are absent in a fresh worktree (the ClawCreek TS2307 false-block).
  *

@@ -271,7 +271,7 @@ try {
   assert.ok(activeRecovery, 'recovery entry for active story');
   assert.equal(activeRecovery.activeCwd, '/tmp/observability-smoke-worktree/B-active');
   assert.ok(/^cd \/tmp\/observability-smoke-worktree\/B-active/.test(activeRecovery.resumeCommand), 'resume command embeds authoritative cwd');
-  assert.ok(activeRecovery.resumeCommand.includes('lattice story_export --storyId=B-active --format=json'), 'resume command targets story_export JSON surface');
+  assert.ok(activeRecovery.resumeCommand.includes('proof-or-stop story_export --storyId=B-active --format=json'), 'resume command targets story_export JSON surface');
   assert.ok(activeRecovery.recoveryPoints.some(point => point.id === 'B-active:story-store'), 'recoveryPoints projected from canonical lineage');
 
   const activeParallel = snapshot.sections.parallel.find(row => row.storyId === 'B-active');
