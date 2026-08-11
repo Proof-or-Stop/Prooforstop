@@ -271,6 +271,16 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "scripts/verify-lattice-residue.mjs",
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-residue-inject-repro.mjs"
+        ]
       }
     },
     {
