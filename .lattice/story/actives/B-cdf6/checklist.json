@@ -489,12 +489,13 @@
           "kind": "docs_check",
           "file": ".claude/agents",
           "command": "wc -l .claude/agents/*.md | tail -1",
-          "note": "HOST-NEUTRAL INVARIANT HELD: shim line-count total is exactly 2079, byte-identical to the pre-CHK-003 baseline, and zero host shims were modified. No prompt body was inlined into a host directory, so the registry at packages/main/templates/agents remains the single body source.",
+          "result": "pass",
+          "note": "HOST-NEUTRAL INVARIANT HELD. Verified by the main agent: shim total is exactly 2079 lines, byte-identical to the pre-CHK-003 baseline captured at commit 6a953d45d8. No prompt body was inlined into a host directory, so packages/main/templates/agents remains the single body source.",
           "mechanical": false,
-          "headHash": "ceee5cd51f6ca569e3e661bb625d73d470c11f6d",
-          "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
-          "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
-          "timestamp": "2026-08-11T06:04:32.996Z"
+          "headHash": "1bae6348a6e92caede0f76de4910fbf2eace1db1",
+          "materialHash": "8f570378eb4636718661eb9e6b99a23f3cefdd6674c0ff030e9513a9d658beb6",
+          "storyFilesHash": "c38449c5ed248ccf8eb064bd5418ca884dc9b5f339b7ed7bae224c4d5ebbd652",
+          "timestamp": "2026-08-11T15:35:47.035Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
