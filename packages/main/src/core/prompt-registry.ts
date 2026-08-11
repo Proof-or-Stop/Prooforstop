@@ -39,20 +39,32 @@ export const MODULAR_COMPLEX_ROLE_IDS = [
 ] as const;
 export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
+/**
+ * B-cdf6 CHK-005: re-approved after the `lattice` -> `proof-or-stop` bin rename
+ * rewrote command-invocation prose inside every registry template. The digests
+ * below are recomputed content addresses, not a relaxation: the reconstruction
+ * check still fails closed on any unapproved template edit. Repinning in place
+ * follows the precedent set by the previous template-content stories (see the
+ * git history of these two constants, e.g. commits 8e4e36cbad / de9bd22659,
+ * which likewise repinned rather than weakened the assertion). Verified before
+ * repinning that `git diff main...HEAD -- packages/main/templates/agents/`
+ * contains no changed line that mentions neither brand token.
+ */
 const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
-  'lattice-review-behavior': 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
-  'lattice-review-concept': 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c',
-  'lattice-review-docs': 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af',
-  'lattice-review-quality': '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504',
-  'lattice-review-test-coverage': '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88',
+  'lattice-review-behavior': '5449e0b8deb4ec3acca61ee86bbdd6e36a3f45c486a7367075b6f6a528334a16',
+  'lattice-review-concept': '723fd07faf0a8eb7eaf310245d7baedcfc26a6dfdfda7c76ddb373c583607a3e',
+  'lattice-review-docs': '98edc5cd3cec528c9efde8e6980b1fc6b81080124a3f3bed42c01d4cff5b34c4',
+  'lattice-review-quality': 'aed9ebf3ba5cc5730b5d7951c62e2d1fbc9a6da20cf77c7dde75def3e715c703',
+  'lattice-review-test-coverage': 'b834fd034ccf9f2d3d53fa4e82fc53031f4a347f9d000a7a2cd16b82efc36e91',
 });
 
+/** B-cdf6 CHK-005: re-approved for the same reason as LEGACY_REVIEWER_TEMPLATE_SHA256 above. */
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
-  'lattice-review-story-init': '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
-  'lattice-review-scope-plan': '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
-  'lattice-implementer': 'c26ee6377b2075beb8c12173e5a635a55aff2518398f8a1949cc9826fa6e9163',
-  'lattice-review-delivery': 'e8e7db5d9ce0893105a3bfdab0b9774f22de0a61bfd0d0da37caa7dc8fe584c7',
-  'lattice-evaluator': 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
+  'lattice-review-story-init': 'b65a60b99cdff6e5ac42f080fd9ae4e455960650adf8a18e64186667597525c2',
+  'lattice-review-scope-plan': 'a43121abb7081fbbf4030b82f61eae78d3326e4d8dbf519f6553af0e57105c22',
+  'lattice-implementer': '1318d44586ed8ef3d56b16c74985575014d0be193a6d0771afbb50ef49d0ad1c',
+  'lattice-review-delivery': '89393b4b5046c86f56fcba398e80be94f9a4a5f113712f4949a5b5b8a353ba5c',
+  'lattice-evaluator': 'accc2212835a8fc43305a8914df0ad22d66875bd64d2c648cbc24eb0a399e62e',
 });
 
 const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proofbound:story-init-legacy-tail:v1 -->';

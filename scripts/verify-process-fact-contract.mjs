@@ -73,10 +73,15 @@ const validatePrimaryReferenceDocPaths = [
   'docs/requirements/decisions/host-neutral-observability-console.md',
   'docs/requirements/decisions/truth-source.md',
 ];
+// B-cdf6 CHK-005: the validate-command term follows the renamed canonical bin. Every doc in
+// activeLifecycleDocPaths is an ACTIVE doc that tells a reader what to run now, so per
+// docs/requirements/decisions/brand-rename-mapping.md it is RENAMED, not frozen. The assertion is
+// unchanged in strength — each doc must still literally contain each term, so dropping the
+// validate guidance from a lifecycle doc still fails.
 const activeLifecycleDocCurrentTerms = [
   'verificationIntent',
   'verificationEvidence',
-  'lattice validate',
+  'proof-or-stop validate',
   'checklist_update',
 ];
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
@@ -476,7 +481,11 @@ const evidenceBoundaryDocPaths = [
 const requiredEvidenceBoundaryPhrases = [
   'prompt-only worker claims are not mechanical evidence',
   'dispatch/process-event/commit evidence',
-  'Lattice cannot mechanically prove true subagent context isolation',
+  // B-cdf6 CHK-005: product-name prose follows the renamed canonical form `Proof-or-Stop` (see
+  // docs/requirements/decisions/brand-rename-mapping.md, first RENAMED row). The phrase is still
+  // pinned in full, so deleting or softening the "cannot mechanically prove isolation" boundary
+  // claim from CLAUDE.md / testing-infra.md still fails this check.
+  'Proof-or-Stop cannot mechanically prove true subagent context isolation',
   'transcript/delivery evidence is required; prompt-only user-value claims are not enough',
   'non-mechanical user approval',
 ];
@@ -1400,7 +1409,10 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceWriterPolicy?.status === 'gateEvidence'
       && acceptanceWriterPolicy.gateEvidence === true
       && /name:\s*'acceptance_basis_generate',\s*level:\s*'L4'[\s\S]{0,500}acceptance_topology_check/.test(processLevelText)
-      && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
+      // B-cdf6 CHK-005: the sole-writer command is now taught under the renamed canonical bin.
+      // Assertion strength is unchanged — all three prompt surfaces must still name the writer
+      // command, so dropping the acceptance-basis boundary from any of them still fails.
+      && acceptancePromptPaths.every(path => read(path).includes('proof-or-stop acceptance_basis_generate'))
       && acceptanceRequiredSemantics.includes('workspace-binding'),
     'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption',
   );

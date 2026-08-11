@@ -15,6 +15,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { LATTICE_BIN_NAMES } from './lattice-brand.js';
 import {
   AGENTS_MD_GLOBAL_THIN_TEMPLATE,
   AGENTS_MD_TEMPLATE,
@@ -588,21 +589,37 @@ function isLatticeSelfRepoBootstrap(actual: string, root: string): boolean {
     && managedAssetPathKind(root, 'packages/main/src/core/managed-assets.ts') === 'file';
 }
 
+/**
+ * True when the guide teaches the `session_brief` entry command under ANY bin token the CLI
+ * answers to.
+ *
+ * B-cdf6 CHK-005: these ownership recognizers used to require the literal `lattice session_brief`.
+ * After the bin rename rewrote the active guides to `proof-or-stop session_brief`, the recognizer
+ * stopped identifying the repo's own CLAUDE.md as a Proofbound-owned expanded guide, so the
+ * managed-asset check reported STALE_LOCAL_EDIT \u2014 i.e. "a human hand-edited this, refuse to
+ * touch it" \u2014 for a doc the rename legitimately updated. Accepting every bin token keeps the
+ * recognizer's strength identical (the guide must still teach session_brief plus all the other
+ * required section markers) while making it survive the transition in both directions.
+ */
+function mentionsSessionBriefCommand(actual: string): boolean {
+  return LATTICE_BIN_NAMES.some(bin => actual.includes(`${bin} session_brief`));
+}
+
 function isExpandedLatticeAgentsGuide(actual: string): boolean {
   const currentLattice = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
-    && actual.includes('lattice session_brief')
+    && mentionsSessionBriefCommand(actual)
     && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
     && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
     && actual.includes('Fail-fast policy');
   const english = actual.includes('# AGENTS.md')
     && actual.includes('Current lifecycle override')
-    && actual.includes('lattice session_brief')
+    && mentionsSessionBriefCommand(actual)
     && actual.includes('Two-Layer Process Fact Contract')
     && actual.includes('Story Phase Transitions')
     && actual.includes('Fail-fast policy');
   const legacyChinese = actual.includes('# AGENTS.md')
-    && actual.includes('lattice session_brief')
+    && mentionsSessionBriefCommand(actual)
     && actual.includes('\u6d41\u7a0b\u4e8b\u5b9e\u53cc\u5c42\u5951\u7ea6')
     && actual.includes('Story \u9636\u6bb5\u6d41\u8f6c')
     && actual.includes('Fail-fast policy');
@@ -627,13 +644,13 @@ function isExpandedLatticeOverview(actual: string): boolean {
 
 function isExpandedLatticeClaudeGuide(actual: string): boolean {
   const english = actual.includes('# CLAUDE.md')
-    && actual.includes('lattice session_brief')
+    && mentionsSessionBriefCommand(actual)
     && actual.includes('REVIEW→TEST')
     && actual.includes('Claude Prompt Hook')
     && actual.includes('Reviewer opt-in')
     && actual.includes('Framework Introspection audit Configuration');
   const legacyChinese = actual.includes('# CLAUDE.md')
-    && actual.includes('lattice session_brief')
+    && mentionsSessionBriefCommand(actual)
     && actual.includes('REVIEW→TEST')
     && actual.includes('Claude Prompt Hook')
     && actual.includes('Reviewer opt-in')
