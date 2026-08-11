@@ -79,10 +79,28 @@
       "phase": "DEV",
       "headHash": "2c19275feb52530810d94e551318c4d6b1faa59b",
       "materialHash": "722392a9622eae71ce159a5798466681cc4118977f183bd8561f56f805ecf052"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Two small, mechanically necessary side-effects of work already in scope, both verified by reading the diff. (1) packages/main/package-lock.json - 2 lines, the CLI patch version bump 0.3.251 -> 0.3.252 that CLAUDE.md's version discipline REQUIRES for any story changing runtime behaviour; the sibling package.json was declared in the contract but the lockfile was not, which is a declaration oversight rather than a scope expansion. (2) packages/main/smoke-manifest.json - 3 added lines registering the NEW 'audit-scan-bin-token' regression smoke, which is the test that proves the docs-drift extractor did not go vacuously blind after the rename (the highest-severity risk found in adversarial review). Registering it is what puts it in the npm test chain; leaving it unregistered would mean the regression test exists but never runs. Neither file touches a protected path: .lattice/story/**, CHANGELOG.md and CITATION.cff remain byte-unchanged.",
+      "timestamp": "2026-08-11T19:24:28.990Z",
+      "paths": [
+        "packages/main/package-lock.json",
+        "packages/main/smoke-manifest.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package-lock.json",
+        "packages/main/smoke-manifest.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "60cbf8cde6b745b5a8c041154a3eb2485d813c1e",
+      "materialHash": "722392a9622eae71ce159a5798466681cc4118977f183bd8561f56f805ecf052"
     }
   ],
   "createdAt": "2026-08-11T03:42:34.106Z",
-  "updatedAt": "2026-08-11T19:23:11.854Z",
+  "updatedAt": "2026-08-11T19:24:28.990Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -144,6 +162,8 @@
     "packages/main/src/tasks/**": "packages/main/src/tasks/**",
     "scripts/verify-*.mjs": "scripts/verify-*.mjs",
     "tests/**": "tests/**",
-    ".lattice/story/**": ".lattice/story/**"
+    ".lattice/story/**": ".lattice/story/**",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json"
   }
 }
