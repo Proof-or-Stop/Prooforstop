@@ -786,7 +786,11 @@
           {
             "desc": "npm run test:process-fact-contract passes after its literal prompt command strings are reconciled",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs",
+              "selector": "Process Fact Contract"
+            }
           },
           {
             "desc": "npm run test:proof-or-stop-prompt-baseline passes after per-role templateHash re-approval",
@@ -907,6 +911,26 @@
           "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
           "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
           "timestamp": "2026-08-11T08:40:53.622Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Exit 0 with the contract header on stdout. Passes after reconciling 10 prompt-registry legacy reconstruction digests plus 4 doc-literal pins (lattice validate to proof-or-stop validate, the subagent-isolation sentence, lattice acceptance_basis_generate, and two Proofbound CLI regexes). No assertion deleted or weakened - each repin carries a comment. Selector targets a stdout line because the final Process fact contract verified confirmation is written to stderr, which the receipt matcher does not capture.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5d3fd1e8126e2c80414bb0275df12e6e9ec4ef5d33de4e8ca7f37c3d5da7c114",
+            "outputTail": "W completeness, and DONE intent-equivalence gates artifact=proofstory.json\n- artifact:red-evidence.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=red-evidence.json\n- artifact:review-loops.jsonl [L4/artifact] producer=handlers/review-loop gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-loops.jsonl\n- artifact:review-passes.json [L4/signed-artifact] producer=handlers/finding gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-passes.json:signed\n- artifact:review-runs.json [L4/signed-artifact] producer=handlers/review-run gate=storyMachine.canPassReview REVIEW to TEST gate artifact=review-runs.json:signed\n- artifact:review.json [L4/signed-artifact] producer=handlers/story-review gate=storyMachine.canStartDev PLAN to DEV gate artifact=review.json:signed\n- artifact:scope-boundary.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-boundary.json:signed\n- artifact:scope-check.json [L4/signed-artifact] producer=handlers/scope-check gate=story_review scope-check gate artifact=scope-check.json:signed\n- artifact:scope-discard-digest.json [L4/artifact] producer=handlers/worktree story_discard gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-discard-digest.json\n- artifact:scope-extension-proposals.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-extension-proposals.json:signed\n- artifact:scope-freeze-check.json [L4/signed-artifact] producer=handlers/scope-anti-expansion gate=storyMachine.canEnterInitCheck INIT to INIT_CHECK gate artifact=scope-freeze-check.json:signed\n- artifact:scope-shrinkage-decision.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=scope-shrinkage-decision.json\n- artifact:slice-plan.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission and DONE intent-equivalence gates artifact=slice-plan.json\n- artifact:spike.json [L4/artifact] producer=handlers/proofstory gate=ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates artifact=spike.json\n- artifact:story-evidence-binding [L4/artifact] producer=handlers/repro-intake gate=storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates artifact=story-evidence-binding\n- artifact:summary.json [L4/artifact] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- artifact:test-evidence.json [L4/artifact] producer=handlers/verifier gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- artifact:topology-critic-receipt.json [L3/signed-artifact] producer=handlers/proofstory.topology_critic_receipt_set gate=topology_critic_receipt_check CLI verification only artifact=topology-critic-receipt.json:signed\n- artifact:topology-exclusion-approvals.json [L3/signed-artifact] producer=handlers/proofstory.topology_exclusion_approval_set gate=topology_critic_receipt_set and topology_critic_receipt_check artifact=topology-exclusion-approvals.json:signed\n- audit [L2/command] producer=handlers/audit\n- autopilot_cancel [L1/command] producer=handlers/lattice-autopilot\n- autopilot_doctor [L0/command] producer=handlers/autopilot\n- autopilot_execute [L2/command] producer=handlers/autopilot\n- autopilot_policy_check [L0/command] producer=handlers/lattice-autopilot\n- autopilot_policy_create [L1/command] producer=handlers/lattice-autopilot\n- autopilot_policy_get [L0/command] producer=handlers/lattice-autopilot\n- autopilot_resume [L1/command] producer=handlers/lattice-autopilot\n- autopilot_review [L0/command] producer=handlers/lattice-autopilot\n- autopilot_review_status [L0/command] producer=handlers/verdict\n- autopilot_revi\n...[truncated 40899 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T08:41:50.985Z"
+          },
+          "headHash": "7abcdc1c135a49f2edd2a5712ec532ecd3818587",
+          "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
+          "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
+          "timestamp": "2026-08-11T08:41:51.142Z"
         }
       ]
     }
