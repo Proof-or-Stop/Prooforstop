@@ -562,7 +562,11 @@
           {
             "desc": "npm run test:lattice-residue passes",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:lattice-residue",
+              "selector": "PASS"
+            }
           }
         ],
         "edge": [
@@ -632,6 +636,26 @@
           "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
           "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
           "timestamp": "2026-08-11T06:14:28.084Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-lattice-residue.mjs",
+          "command": "npm run test:lattice-residue",
+          "result": "pass",
+          "note": "npm run test:lattice-residue passes; both checks green - koala zero-tolerance and the new brand-prose check.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4402bc28c3829d305af4fc901b5b242e6d38474e2a695483e1c3426660581798",
+            "outputTail": "\n> lattice@0.3.251 test:lattice-residue\n> node scripts/verify-lattice-residue.mjs\n\nPASS lattice-residue [koala]: 0 brand residue in product runtime source\nPASS lattice-residue [brand-prose]: 0 bare `lattice <cmd>` invocations in active docs (3 documented exemption(s) verified live)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T06:14:29.225Z"
+          },
+          "headHash": "0674585f5b00e65ff3b09a2d58fc2308de2afdd2",
+          "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
+          "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
+          "timestamp": "2026-08-11T06:14:29.356Z"
         }
       ]
     },
