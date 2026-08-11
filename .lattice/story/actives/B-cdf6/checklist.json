@@ -983,6 +983,21 @@
           "timestamp": "2026-08-11T08:43:40.304Z"
         }
       ]
+    },
+    {
+      "id": "CHK-006",
+      "title": "Complete the rename under the past-evidence-only freeze criterion",
+      "context": "User correction 2026-08-11 (verbatim, translated): 'any lattice that has NO effect on the past evidence chain must be refactored, including filenames, documentation, and code; any lattice that DOES affect the past evidence chain gets compatibility handling - do not change or affect the past, but do not let it affect the future either. After the story completes, lattice is frozen into the past; current state and future are proof-or-stop.' This SUPERSEDES the CHK-001 mapping table, which over-froze: it froze surfaces merely because they were COUPLED (env vars, filenames, package names, state dir) rather than because they were EVIDENCE. Audit under the corrected criterion: the ONLY true past-evidence dependency is the 13 salt string LITERALS, which are baked into 12 stored _hash values under .lattice/story/ - renaming a salt silently invalidates already-persisted signatures. Everything else is coupling and must be renamed with coordinated edits plus a read-both compatibility path so old state still resolves. Verified scope: 146 LATTICE_* env var names across 245 files; ~20104 lattice tokens under packages/; 1360 under scripts/; bin/lattice.js and bin/lattice-codex.js filenames (16 and 13 citations in docs/CLI.md, plus 31 stale invocations in init-assets.ts which is what init writes into NEW user projects); root package name 'lattice' and '@lattice/core' (the .githooks/pre-push:148 gate arms on the exact string, so it must be updated in the same commit or it silently self-disarms); the .lattice/ state directory plus .lattice-serve.json, .lattice-codex/, lattice.config.json; .codex/ (17 tokens, never in any gate scan root); and code identifiers (runLattice 129, LatticeConfig 44, writeLatticeConfig 39, etc). Compatibility requirement for anything that reads persisted state: accept BOTH the old and new name on read so existing .lattice/ directories, lattice.config.json files and LATTICE_* env exports keep working, while all WRITES and all documentation use the proof-or-stop form. Gate scan roots must be extended to packages/*/src prose, scripts/, bin/, .codex/ and the repo-root files so this miss class is caught mechanically rather than by user inspection - the previous gate passed while init-assets.ts, .codex/ and the bin filenames were all unscanned.",
+      "relatedDocs": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "CLAUDE.md",
+        "packages/main/src/init-assets.ts",
+        ".githooks/pre-push"
+      ],
+      "userSees": "A fresh `proof-or-stop init` writes guides that say proof-or-stop (never `node bin/lattice.js`), `grep -ric lattice` over active code and docs returns only frozen salt literals and clearly-labelled compatibility shims, and an existing project with a .lattice/ directory plus LATTICE_* exports still works unchanged",
+      "status": "in_progress",
+      "startTime": "2026-08-11T09:16:05.655Z",
+      "endTime": null
     }
   ]
 }

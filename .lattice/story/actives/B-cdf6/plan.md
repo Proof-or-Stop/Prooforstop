@@ -201,6 +201,52 @@ No cycles. **Fully serial** — every item shares files with its predecessor
 (`CLAUDE.md` in 003/004, `lattice-brand.ts` in 002/005, `package.json` in 002/005), so the
 non-overlapping-write-set condition for parallel dispatch is not met.
 
+## CHK-006: Complete the rename under the past-evidence-only freeze criterion
+
+**Owner**: lattice-implementer (split into two passes — see below)
+**DependsOn**: CHK-001, CHK-002, CHK-003, CHK-004, CHK-005
+
+Added mid-DEV after two user corrections. The CHK-001 table over-froze by conflating **coupling**
+with **evidence**; and the repo is **multi-developer**, so every rename must be additive at any
+boundary a teammate's merged code can touch. See the mapping table's "Governing rule" section —
+it now carries both corrections.
+
+**The only true past-evidence tokens: the 13 salt string literals.** Everything else is coupling.
+
+### Pass A — filenames, entrypoints, packaging, generated assets
+
+**Files**:
+- Modify: `packages/main/src/init-assets.ts` (**31 stale invocations — highest impact: this is what
+  `init` writes into NEW user projects**)
+- Create: `bin/proof-or-stop-codex.js`; keep `bin/lattice.js` + `bin/lattice-codex.js` as aliases
+- Modify: root `package.json`, `packages/main/package.json` (add new name, keep old resolving)
+- Modify: `.githooks/pre-push` — **must accept both package names in the same commit**, else the
+  recursive-tsc gate silently self-disarms
+- Modify: `.codex/` (17 tokens, never scanned), `docs/CLI.md` (16 + 13 bin citations)
+
+### Pass B — env vars, code identifiers, config/state paths
+
+**Files**:
+- Modify: `LATTICE_*` → `PROOF_OR_STOP_*` across 245 files (146 distinct names), with a
+  **read-both** resolver preferring the new name
+- Modify: exported identifiers (`runLattice` 129, `LatticeConfig` 44, `writeLatticeConfig` 39, …)
+  — **re-export every old symbol name as a deprecated alias**
+- Modify: `.lattice/` / `lattice.config.json` / `.lattice-serve.json` readers → read both, write new
+
+### Verify (both passes)
+
+- `npm test` green (DONE-blocking suite)
+- Old-name compat proven: a fixture using `LATTICE_*` exports, a `.lattice/` dir, `lattice.config.json`,
+  `node bin/lattice.js` and `import { runLattice } from '@lattice/core'` all still work
+- `.githooks/pre-push` still arms (assert it does NOT `exit 0` on this repo)
+- Fresh-init output contains no `bin/lattice.js`
+- Gate roots widened to `packages/*/src` prose, `scripts/`, `bin/`, `.codex/`, repo-root files —
+  and the widened gate PASSES
+- The 13 salt literals byte-unchanged; the 12 stored `_hash` files still verify
+
+**DoneWhen**: current + future state reads `proof-or-stop`; `lattice` survives only as frozen salt
+literals and labelled compatibility aliases; a teammate's pre-rename branch still builds after merge.
+
 ## Scope-check dispositions (PLAN reviewer, 34 features / 24 covered / 8 excluded)
 
 | Item | Disposition |
