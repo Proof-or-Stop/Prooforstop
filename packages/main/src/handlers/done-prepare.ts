@@ -52,6 +52,7 @@ import {
   type DonePrepareValidationReuseBasis,
 } from '../core/done-prepare-validation-reuse.js';
 import { CliWatchdogTimeoutError, donePreparePhaseBudget, doneRequiredDerivedBudget, timeoutLayerFromReason, type TimeoutBudgetSource } from '../core/done-required-timeout-budget.js';
+import { readBrandEnv } from '../core/brand-env.js';
 import {
   buildReviewEscalationGuidance,
   buildReviewAssuranceFloorGuidance,
@@ -249,11 +250,11 @@ interface CloseoutPhaseControl {
 
 type SmokeSyncGitHangKind = 'execFileSync' | 'execSync';
 
-const DONE_PREPARE_HEARTBEAT_ENV = 'LATTICE_DONE_PREPARE_HEARTBEAT_MS';
-const DONE_PREPARE_SMOKE_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_HANG_PHASE';
-const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE';
-const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND';
-const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV = 'LATTICE_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS';
+const DONE_PREPARE_HEARTBEAT_ENV = 'PROOF_OR_STOP_DONE_PREPARE_HEARTBEAT_MS';
+const DONE_PREPARE_SMOKE_HANG_PHASE_ENV = 'PROOF_OR_STOP_DONE_PREPARE_SMOKE_HANG_PHASE';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE_ENV = 'PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_PHASE';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND_ENV = 'PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_KIND';
+const DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS_ENV = 'PROOF_OR_STOP_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS';
 const DEFAULT_DONE_PREPARE_HEARTBEAT_MS = 30_000;
 const DEFAULT_DONE_PREPARE_SMOKE_SYNC_GIT_HANG_MS = 30_000;
 
@@ -262,37 +263,37 @@ const CLOSEOUT_PHASES: Record<CloseoutPhaseId, CloseoutPhase> = {
     id: 'doneRequiredValidation',
     label: 'running DONE-required validation',
     stepId: 'validate',
-    timeoutEnv: 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
+    timeoutEnv: 'PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
   },
   doneClosure: {
     id: 'doneClosure',
     label: 'evaluating DONE closure',
     stepId: 'doneClosure',
-    timeoutEnv: 'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
+    timeoutEnv: 'PROOF_OR_STOP_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
   },
   reviewAssurance: {
     id: 'reviewAssurance',
     label: 'checking review assurance',
     stepId: 'doneClosure',
-    timeoutEnv: 'LATTICE_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
+    timeoutEnv: 'PROOF_OR_STOP_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
   },
   runtimeChange: {
     id: 'runtimeChange',
     label: 'computing runtime-change status',
     stepId: 'runtimeChange',
-    timeoutEnv: 'LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
+    timeoutEnv: 'PROOF_OR_STOP_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
   },
   cleanTree: {
     id: 'cleanTree',
     label: 'checking clean tree',
     stepId: 'cleanTree',
-    timeoutEnv: 'LATTICE_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
+    timeoutEnv: 'PROOF_OR_STOP_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
   },
   produceCommand: {
     id: 'produceCommand',
     label: 'producing DONE command',
     stepId: 'doneClosure',
-    timeoutEnv: 'LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
+    timeoutEnv: 'PROOF_OR_STOP_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
   },
 };
 
@@ -684,7 +685,9 @@ function asText(value: unknown): string {
 }
 
 function envPositiveInt(name: string, fallback: number): number {
-  const raw = process.env[name];
+  // readBrandEnv, not a raw lookup: accepts the canonical PROOF_OR_STOP_* spelling and
+  // still honours a deprecated LATTICE_* export of the same suffix.
+  const raw = readBrandEnv(name);
   if (!raw) return fallback;
   const parsed = Number(raw);
   if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
@@ -704,7 +707,7 @@ function donePreparePhaseTimeoutBudget(root: string, phase: CloseoutPhase) {
 }
 
 function phaseEnvMatches(name: string, phase: CloseoutPhase): boolean {
-  const raw = process.env[name];
+  const raw = readBrandEnv(name);
   if (!raw) return false;
   const wanted = raw.split(',').map((entry) => entry.trim()).filter(Boolean);
   return wanted.includes(phase.id) || wanted.includes(phase.label);

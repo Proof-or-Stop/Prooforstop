@@ -5,7 +5,8 @@
 // full runtime memory pack between a control arm (pack hidden, retrieval
 // blocked) and a treatment arm (pack shown), keyed by an EXPLICIT opt-in
 // experiment context. This leaf resolves that context from two env vars:
-// LATTICE_EXPERIMENT_ID + LATTICE_EXPERIMENT_ARM. BOTH must be set and valid,
+// PROOF_OR_STOP_EXPERIMENT_ID + PROOF_OR_STOP_EXPERIMENT_ARM (the deprecated
+// LATTICE_* spellings are still accepted). BOTH must be set and valid,
 // otherwise the resolver returns null and every consumer must behave
 // byte-identically to production today (null = no experiment active). The arm
 // value must never reach prompt hashes or gate decisions — consumers enforce
@@ -15,6 +16,8 @@
 // beyond the injected env snapshot (default process.env). The only process
 // state is a module-level once-latch so that a misconfigured context warns a
 // single time instead of spamming every resolution call.
+
+import { readBrandEnvTrimmed } from './brand-env.js';
 
 export type ExperimentArm = 'control' | 'treatment';
 
@@ -43,12 +46,17 @@ function warnOnce(message: string): void {
   console.warn(message);
 }
 
-/** Read an env value; empty or whitespace-only values are treated as unset. */
+/**
+ * Read an env value; empty or whitespace-only values are treated as unset.
+ *
+ * Goes through `readBrandEnvTrimmed` rather than a raw `env[name]` lookup so that an
+ * operator (or a teammate's pre-rename branch) exporting the deprecated
+ * `LATTICE_EXPERIMENT_ARM` / `LATTICE_EXPERIMENT_ID` spelling still opts into the
+ * experiment. A raw lookup silently ignored the old names once the constants above were
+ * renamed, which is a behaviour change disguised as a rename.
+ */
 function readEnvValue(env: NodeJS.ProcessEnv, name: string): string | null {
-  const raw = env[name];
-  if (typeof raw !== 'string') return null;
-  const trimmed = raw.trim();
-  return trimmed.length > 0 ? trimmed : null;
+  return readBrandEnvTrimmed(name, env) ?? null;
 }
 
 function isExperimentArm(value: string): value is ExperimentArm {

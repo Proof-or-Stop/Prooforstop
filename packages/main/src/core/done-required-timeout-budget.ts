@@ -113,7 +113,9 @@ export function doneRequiredDerivedBudget(root: string): TimeoutBudget {
 }
 
 export function donePreparePhaseBudget(root: string, phaseEnv: string, derived?: TimeoutBudget): TimeoutBudget {
-  const phaseOverride = positiveInt(process.env[phaseEnv]);
+  // Routed through readBrandEnv (not a raw process.env[phaseEnv] lookup) so a phase
+  // override still applies when the operator exported the deprecated LATTICE_* spelling.
+  const phaseOverride = positiveInt(readBrandEnv(phaseEnv));
   if (phaseOverride) return { timeoutMs: phaseOverride, source: 'phase-env' };
   const globalOverride = positiveInt(readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS'));
   if (globalOverride) return { timeoutMs: globalOverride, source: 'global-phase-env' };
@@ -253,13 +255,15 @@ export function liveSmokeCaptureBudget(
   };
 }
 
+// Canonical spellings. Every consumer resolves these via readBrandEnv, which also
+// accepts the deprecated LATTICE_* spelling of the same suffix.
 const CLOSEOUT_PHASE_ENVS = [
-  'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
-  'LATTICE_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_DONE_CLOSURE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_REVIEW_ASSURANCE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_RUNTIME_CHANGE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_CLEAN_TREE_TIMEOUT_MS',
+  'PROOF_OR_STOP_DONE_PREPARE_PRODUCE_COMMAND_TIMEOUT_MS',
 ] as const;
 
 export function commandCliMaxBudget(
@@ -288,7 +292,7 @@ export function commandCliMaxBudget(
   const phases = enabledPhaseEnvs.map((env) => donePreparePhaseBudget(
     root,
     env,
-    env === 'LATTICE_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS' ? derived : undefined,
+    env === 'PROOF_OR_STOP_DONE_PREPARE_DONE_REQUIRED_VALIDATION_TIMEOUT_MS' ? derived : undefined,
   ).timeoutMs);
   return {
     timeoutMs: safeTimeoutSum([routine, ...phases]),
