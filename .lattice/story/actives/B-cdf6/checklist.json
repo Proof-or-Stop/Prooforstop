@@ -545,9 +545,9 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "userSees": "The new brand gate passes, and the residue guard self-test no longer asserts a claim that contradicts the rename",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-11T06:05:30.689Z",
-      "endTime": null,
+      "endTime": "2026-08-11T06:13:17.290Z",
       "verificationIntent": {
         "happy": [
           {
@@ -600,6 +600,13 @@
         "test": [
           "scripts/verify-residue-inject-repro.mjs"
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c888135b06dd732c097d46cf2d449de7c9dcbf5fc5857979b021480b55df6e9f",
+        "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
+        "headHash": "c489f41f4fef0afcee0487be5ae5062d15b88eed",
+        "attestedAt": "2026-08-11T06:13:17.452Z",
+        "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88"
       }
     },
     {
