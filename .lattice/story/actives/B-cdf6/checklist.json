@@ -340,17 +340,13 @@
         },
         {
           "intentRef": "CHK-002:adversarial:1",
-          "kind": "integration_test",
-          "file": "scripts/verify-entrypoints.mjs",
-          "command": "node scripts/verify-entrypoints.mjs",
-          "result": "fail",
-          "note": "Four assertions fixed (one regression was mine). Residual = pre-existing F-005, reproduced on pristine main.",
-          "mechanical": false,
-          "nonMechanicalReason": "Blocked by PRE-EXISTING defect B-META-framework-audit:F-005 (codex render-mode mismatch), proven independent of this rename by reproducing the identical DRIFT on the pristine main checkout (expected 8896 / actual 3927) and by git log -S attributing the marker to commit a260249f64 (story B-235e). This story fixed FOUR stale or regressed assertions in the same block: the obsolete negated code shape at :501; the seedClaudeAgentMirror fixture that copied RAW templates where the checker expects renderPromptEntryForHost host-rendered shims; the hardcoded 16-prompt count against a 17-role registry (now derived from the registry so it cannot rot again); and a genuine regression from THIS story where codex-adapter-checks.ts static-grepped old literal env names while the generated wrapper composes them via setEnv(), so a functionally-correct wrapper was reported as missing LATTICE_ACTIVITY_SOURCE. Evidence those fixes took effect: the failure MESSAGE CHANGED - package/Claude drift is gone and only the codex-side render-mode mismatch remains. Fixing that residual belongs to the agent-prompt consolidation plan, which owns prompt-body render mode.",
-          "headHash": "a26a7ff6d541c8287835283aede33fbbca44502b",
+          "kind": "waiver",
+          "waiverType": "deferred_gate_evidence",
+          "note": "WAIVER (deferred_gate_evidence), user-approved 2026-08-11. The intent asks that scripts/verify-entrypoints.mjs pass after its pinned header assertions were updated. The header-assertion half IS delivered and verified; the suite cannot reach green because of a PRE-EXISTING framework defect recorded as B-META-framework-audit:F-005 with evidenceState=verified. F-005: init writes a MODULAR role body (marker proofbound:modular-role-body:v1, 3927 bytes) into .lattice-codex/agents while codex-adapter-checks.ts:387 expects the LEGACY-FULL-CONTEXT reconstruction (8896 bytes, marker lattice:start), so a freshly init-ed full-mode project fails its own verify_codex. Proven independent of this rename two ways: the identical DRIFT reproduces on the PRISTINE main checkout (expected 8896 / actual 3927), and git log -S attributes the marker to commit a260249f64 (story B-235e). Ownership: prompt-body render mode belongs to the agent-prompt consolidation plan, so fixing it inside a brand-rename story would mean editing another plan's territory. Waived as deferred rather than permanent because F-005 is a real defect someone will fix, and this intent should pass once it is. What this story DID fix in the same block, all verified: (1) an obsolete negated code shape pinned at :501; (2) seedClaudeAgentMirror seeded RAW templates where the checker compares host-rendered shims; (3) a hardcoded 16-prompt count against a 17-role registry, now derived from the registry so it cannot rot again; (4) a genuine regression from THIS story where codex-adapter-checks.ts static-grepped literal old env names while the generated wrapper composes them via setEnv(). Proof those four took effect: the failure message CHANGED - package/Claude drift is gone and only the codex render-mode mismatch remains.",
+          "headHash": "f82dd61952c2ca53e3e880c76bd5445ef0e00757",
           "materialHash": "8f570378eb4636718661eb9e6b99a23f3cefdd6674c0ff030e9513a9d658beb6",
           "storyFilesHash": "c38449c5ed248ccf8eb064bd5418ca884dc9b5f339b7ed7bae224c4d5ebbd652",
-          "timestamp": "2026-08-11T15:09:07.645Z"
+          "timestamp": "2026-08-11T15:34:26.303Z"
         }
       ]
     },
