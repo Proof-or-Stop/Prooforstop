@@ -53,6 +53,7 @@ import {
   recordDispatchPreflight,
   type DispatchUsageContext,
 } from './usage-ledger/dispatch-usage.js';
+import { deleteBrandEnv, readBrandEnv, setBrandEnv } from './brand-env.js';
 
 export type HostRuntimeId = 'fake' | 'codex' | 'claude-code' | 'antigravity' | 'gemini';
 export type HostRuntimeStatus = 'ready' | 'scaffolded' | 'unavailable';
@@ -536,7 +537,7 @@ function detectCommandPath(command: string): string | null {
 }
 
 function currentCodexSessionAvailable(): boolean {
-  return process.env.LATTICE_ACTIVITY_SOURCE === 'codex'
+  return readBrandEnv('ACTIVITY_SOURCE') === 'codex'
     || typeof process.env.CODEX_SESSION_ID === 'string'
     || typeof process.env.CODEX_HOME === 'string';
 }
@@ -1656,7 +1657,7 @@ function buildRequiredCommandEnv(policy?: DispatchCommandExecutionPolicy): Recor
   for (const name of SAFE_COMMAND_ENV_BASICS) copyIfAllowed(name);
   for (const name of policy.envAllowlist) copyIfAllowed(name);
   if (!denied.has('LATTICE_SESSION_ID')) {
-    env.LATTICE_SESSION_ID = getSessionId();
+    setBrandEnv(env, 'SESSION_ID', getSessionId());
   }
   return env;
 }
@@ -1683,24 +1684,24 @@ export function buildCanonicalHostRuntimeEnv(
   const deniedEnvNames = new Set(policy.envDenylist.map(name => name.trim()).filter(Boolean));
   const deliberateOverride = allowedEnvNames.has('LATTICE_SESSION_ID')
     && !deniedEnvNames.has('LATTICE_SESSION_ID')
-    ? process.env.LATTICE_SESSION_ID?.trim()
+    ? readBrandEnv('SESSION_ID')?.trim()
     : undefined;
   if (deliberateOverride) {
-    env.LATTICE_SESSION_ID = deliberateOverride;
+    setBrandEnv(env, 'SESSION_ID', deliberateOverride);
   } else {
-    delete env.LATTICE_SESSION_ID;
+    deleteBrandEnv(env, 'SESSION_ID');
   }
-  env.LATTICE_OWNER_SESSION_ADAPTER_TASK = identity.taskIdentity;
-  env.LATTICE_OWNER_SESSION_ADAPTER_AGENT = identity.agentOrRoleIdentity;
-  delete env.LATTICE_OWNER_SESSION_ADAPTER_ROLE;
-  env.LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY = identity.adapterBoundary;
-  delete env.LATTICE_OWNER_SESSION_ADAPTER_GENERATED;
-  env.LATTICE_ACTIVITY_SOURCE = host;
-  delete env.LATTICE_ACTIVITY_SESSION;
+  setBrandEnv(env, 'OWNER_SESSION_ADAPTER_TASK', identity.taskIdentity);
+  setBrandEnv(env, 'OWNER_SESSION_ADAPTER_AGENT', identity.agentOrRoleIdentity);
+  deleteBrandEnv(env, 'OWNER_SESSION_ADAPTER_ROLE');
+  setBrandEnv(env, 'OWNER_SESSION_ADAPTER_BOUNDARY', identity.adapterBoundary);
+  deleteBrandEnv(env, 'OWNER_SESSION_ADAPTER_GENERATED');
+  setBrandEnv(env, 'ACTIVITY_SOURCE', host);
+  deleteBrandEnv(env, 'ACTIVITY_SESSION');
   const provider = ownerSessionProviderForHostRuntime(host);
   if (provider !== null) {
-    env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
-    delete env.LATTICE_OWNER_SESSION_ADAPTER_SESSION;
+    setBrandEnv(env, 'OWNER_SESSION_ADAPTER_PROVIDER', provider);
+    deleteBrandEnv(env, 'OWNER_SESSION_ADAPTER_SESSION');
   }
   return env;
 }

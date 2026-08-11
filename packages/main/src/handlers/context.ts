@@ -22,6 +22,7 @@ import { gitProbe } from '../core/git-probe.js';
 import { CWD_GATED_LIFECYCLE_PHASES, PHASE_EVENT_BY_TARGET } from '../core/lifecycle-registry.js';
 import { resolveStorySignedWorkspace, type StorySignedWorkspaceResolutionSource } from '../core/story-signed-workspace-resolution.js';
 import { getSessionId } from '../core/owner-session.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 export interface HandlerContext {
   store: StoryStore;
@@ -52,7 +53,7 @@ export function collectContext(phase: StoryPhase, action: 'create' | 'advance' |
   const user = gitProbe('git config user.name');
   if (user.ok) event.user = user.output;
   event.sessionId = getSessionId();
-  event.agent = process.env.LATTICE_AGENT || 'main';
+  event.agent = readBrandEnv('AGENT') || 'main';
   return event;
 }
 

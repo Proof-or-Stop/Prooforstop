@@ -35,6 +35,7 @@ import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import type { StoryStore } from './store.js';
 import { isCanonicalStoryId } from './lifecycle-registry.js';
+import { readBrandEnv } from './brand-env.js';
 
 // ── Thresholds + env resolver ────────────────────────────────────────────────
 
@@ -70,11 +71,11 @@ export const DEFAULT_CONVERGENCE_THRESHOLDS: ConvergenceThresholds = {
 };
 
 export const CONVERGENCE_ENV = {
-  maxAdvance: 'LATTICE_CONVERGENCE_MAX_ADVANCE',
-  maxTakeover: 'LATTICE_CONVERGENCE_MAX_TAKEOVER',
-  minPassRate: 'LATTICE_CONVERGENCE_MIN_PASS_RATE',
-  minSample: 'LATTICE_CONVERGENCE_MIN_SAMPLE',
-  maxGateRepeat: 'LATTICE_CONVERGENCE_MAX_GATE_REPEAT',
+  maxAdvance: 'PROOF_OR_STOP_CONVERGENCE_MAX_ADVANCE',
+  maxTakeover: 'PROOF_OR_STOP_CONVERGENCE_MAX_TAKEOVER',
+  minPassRate: 'PROOF_OR_STOP_CONVERGENCE_MIN_PASS_RATE',
+  minSample: 'PROOF_OR_STOP_CONVERGENCE_MIN_SAMPLE',
+  maxGateRepeat: 'PROOF_OR_STOP_CONVERGENCE_MAX_GATE_REPEAT',
 } as const;
 
 /** Per-variable sanity ceilings (values above these are typos, not thresholds). */
@@ -99,7 +100,7 @@ function envNumber(
   fallback: number,
   opts: { allowZero?: boolean; max: number },
 ): number {
-  const raw = env[key];
+  const raw = readBrandEnv(key, env);
   if (raw === undefined) return fallback;
   const trimmed = raw.trim();
   if (trimmed.length === 0) return fallback;
@@ -371,9 +372,9 @@ export function isInteractiveAckAllowed(
   env: Record<string, string | undefined>,
   isTTY: boolean | undefined,
 ): boolean {
-  if (truthyEnv(env.LATTICE_AUTOPILOT)) return false;
+  if (truthyEnv(readBrandEnv('AUTOPILOT', env))) return false;
   if (truthyEnv(env.CI)) return false;
-  if (truthyEnv(env.LATTICE_NON_INTERACTIVE)) return false;
+  if (truthyEnv(readBrandEnv('NON_INTERACTIVE', env))) return false;
   return isTTY === true;
 }
 

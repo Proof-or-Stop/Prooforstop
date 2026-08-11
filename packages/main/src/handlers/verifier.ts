@@ -67,6 +67,7 @@ import {
   rollbackDonePrepareGeneratedMetadataTransaction,
 } from '../core/done-prepare-generated-metadata.js';
 import { normalizeRelPath } from '../core/lattice-paths.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
 const SHELL_META_RE = /[;&|<>$()`]/;
@@ -981,7 +982,7 @@ function validationProgressReporter(ctx: HandlerContext): ValidationProgressRepo
 }
 
 function validateFileDefaultTimeoutMs(): number | undefined {
-  const raw = Number(process.env.LATTICE_VALIDATE_FILE_TIMEOUT_MS);
+  const raw = Number(readBrandEnv('VALIDATE_FILE_TIMEOUT_MS'));
   return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : undefined;
 }
 

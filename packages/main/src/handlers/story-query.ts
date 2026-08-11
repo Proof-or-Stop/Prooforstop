@@ -36,6 +36,7 @@ import {
 import { summarizeChecklist } from './checklist.js';
 import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 // B-7c05 CHK-004: phases treated as terminal for the brief story_list default.
 // Brief lists only NON-terminal (actionable) stories one-line each; the omitted
@@ -205,7 +206,7 @@ function removeEmptyDir(path: string): boolean {
 function storyUpdateActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
-  return process.env.LATTICE_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+  return readBrandEnv('AGENT')?.trim() || process.env.USER?.trim() || 'main-agent';
 }
 
 function isInitReviewerStoryUpdateActor(actor: string): boolean {

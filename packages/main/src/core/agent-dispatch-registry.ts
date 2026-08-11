@@ -5,6 +5,7 @@ import type {
   AgentDispatchRegistryEntry,
   StoryPhase,
 } from './types.js';
+import { readBrandEnv } from './brand-env.js';
 
 const ITEM_REVIEW_MUTATIONS = ['review_run_start', 'finding_add', 'review_pass_set'] as const;
 const ITEM_REVIEW_EVIDENCE = ['review-run', 'finding', 'review-pass'] as const;
@@ -506,7 +507,7 @@ export function resolveAgentMutationAuthority(args: {
   payloadActors?: readonly (string | undefined | null)[];
   envActor?: string | undefined | null;
 }): ResolvedAgentMutationAuthority {
-  const envActor = (args.envActor === undefined ? process.env.LATTICE_AGENT : args.envActor)?.trim() || undefined;
+  const envActor = (args.envActor === undefined ? readBrandEnv('AGENT') : args.envActor)?.trim() || undefined;
   const payloadActors = (args.payloadActors || [])
     .map((actor) => actor?.trim())
     .filter((actor): actor is string => !!actor);

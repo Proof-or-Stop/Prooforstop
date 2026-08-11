@@ -11,6 +11,7 @@ import {
   type RuntimeFactScope,
   type RuntimeFactSeverity,
 } from './runtime-fact-registry.js';
+import { readBrandEnv } from './brand-env.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -1119,13 +1120,13 @@ function projectLocalBinCandidates(projectRoot: string): string[] {
 }
 
 function isPackagedRuntime(): boolean {
-  return process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME === '1'
+  return readBrandEnv('DESKTOP_PACKAGED_RUNTIME') === '1'
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
 function compatibilityLauncherSignal(activePath: string | null): boolean {
-  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return true;
-  if (process.env.LATTICE_CODEX_ENTRYPOINT === 'global-fallback' || process.env.LATTICE_CODEX_ENTRYPOINT === 'local-wrapper') return true;
+  if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
+  if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;
   const name = activePath ? basename(activePath) : '';
   return name === 'lattice.js' || name === 'lattice-codex.js';
 }

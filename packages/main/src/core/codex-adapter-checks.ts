@@ -25,6 +25,7 @@ import {
 } from './prompt-registry.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
+import { readBrandEnv } from './brand-env.js';
 
 export type CodexAdapterCheckStatus = 'pass' | 'warn' | 'fail';
 
@@ -583,7 +584,7 @@ function runHeartbeat(
 }
 
 function isPackagedDesktopRuntime(): boolean {
-  return process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME === '1'
+  return readBrandEnv('DESKTOP_PACKAGED_RUNTIME') === '1'
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 

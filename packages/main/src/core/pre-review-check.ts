@@ -26,6 +26,7 @@ import {
   decodePreReviewCaseRecords,
   preReviewExecutableProvenanceIsCurrent,
 } from './pre-review-live-proof.js';
+import { readBrandEnv } from './brand-env.js';
 
 const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
@@ -129,7 +130,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   cutoffAt: string;
   storyFilesHash: string;
 }): PreReviewExecutableProofV1 | null {
-  const reject = (reason: string): null => { if (process.env.LATTICE_DEBUG_PRE_REVIEW_PROOF === '1') process.stderr.write(`[pre-review-proof] ${reason}\n`); return null; };
+  const reject = (reason: string): null => { if (readBrandEnv('DEBUG_PRE_REVIEW_PROOF') === '1') process.stderr.write(`[pre-review-proof] ${reason}\n`); return null; };
   const canonicalGitCwd = realpathSync(input.gitCwd);
   const canonicalMetadataRoot = realpathSync(input.metadataRoot);
   const canonicalStoryDir = realpathSync(input.storyDir);

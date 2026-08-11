@@ -135,6 +135,7 @@ export {
   parseFlags,
   parseFlagsTest,
 } from './cli/flag-parser.js';
+import { readBrandEnv } from './core/brand-env.js';
 export { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 
 export { MAIN_TOOLS };
@@ -1052,7 +1053,7 @@ export async function runCli(opts?: {
   // Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.
   // Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,
   // A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).
-  const explicitIdle = Number(process.env.LATTICE_IDLE_TIMEOUT_MS);
+  const explicitIdle = Number(readBrandEnv('IDLE_TIMEOUT_MS'));
   const effectiveMaxBudget = effectiveCommandCliMaxBudget(root, cmd, parsed);
   const IDLE_TIMEOUT = Number.isFinite(explicitIdle) && explicitIdle > 0
     ? Math.min(NODE_TIMER_MAX_MS, Math.floor(explicitIdle))
@@ -1186,7 +1187,7 @@ export async function runCli(opts?: {
           projectRoot: effectiveRoot,
         }),
         phase: activeStory?.phase || null,
-        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
+        role: inferActivityRole(entry.args, readBrandEnv('ACTIVITY_ROLE') || readBrandEnv('AGENT')),
       };
       if (entry.staleWarnings && entry.staleWarnings.length > 0) {
         record.staleWarnings = entry.staleWarnings;
@@ -1264,7 +1265,7 @@ export async function runCli(opts?: {
         session: sessionIdentity.sessionId,
         sessionSource: sessionIdentity.sessionSource,
         hostProvider: sessionIdentity.hostProvider ?? null,
-        role: inferActivityRole(entry.args, process.env.LATTICE_ACTIVITY_ROLE || process.env.LATTICE_AGENT),
+        role: inferActivityRole(entry.args, readBrandEnv('ACTIVITY_ROLE') || readBrandEnv('AGENT')),
         storyId,
         phase,
         command: entry.command,

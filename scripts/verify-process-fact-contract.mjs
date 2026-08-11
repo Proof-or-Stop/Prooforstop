@@ -5110,7 +5110,12 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     `shared validation command environment transport digest mismatch: ${expectedTransportDigest}`,
   );
   for (const token of [
-    'new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST)',
+    // B-cdf6 CHK-006 Pass B: the pinned list stays byte-frozen (its digest is
+    // compared against already-persisted receipts), and the new brand spellings
+    // are folded in at the FILTER via brandEnvNames() so a PROOF_OR_STOP_* export
+    // is still stripped without entering the digested list.
+    'VALIDATION_TRANSPORT_ENV_KEY_LIST.flatMap((key) =>',
+    'isBrandEnvName(key) ? [...brandEnvNames(key)] : [key],',
     "platform === 'win32'",
     "effective[canonicalKey('PWD')] = cwd",
     'effective[canonicalKey(key)] = value',
@@ -5135,7 +5140,11 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     'routine identity and validation command spawn must consume the same effective environment normalizer',
   );
   const budgetText = read('packages/main/src/core/done-required-timeout-budget.ts');
-  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', 'LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS']) {
+  // B-cdf6 CHK-006 Pass B: the phase-timeout override is now read through the
+  // read-both brand resolver, so the pinned token is the resolver call (which
+  // accepts BOTH `PROOF_OR_STOP_DONE_PREPARE_PHASE_TIMEOUT_MS` and the legacy
+  // `LATTICE_` spelling) rather than one hardcoded variable name.
+  for (const token of ['NODE_TIMER_MAX_MS', 'resolveCommandTimeoutMs', 'derived-command-budget', "readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS')"]) {
     assert(budgetText.includes(token), `DONE-required timeout budget contract missing ${token}`);
   }
   const validationExecutorText = read('packages/main/src/core/validation-executor.ts');

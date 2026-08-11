@@ -20,8 +20,9 @@
  */
 
 import { oneLineCell } from '../core/milestone-status.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
-export const BRIEF_OUTPUT_ENV_VAR = 'LATTICE_BRIEF_OUTPUT';
+export const BRIEF_OUTPUT_ENV_VAR = 'PROOF_OR_STOP_BRIEF_OUTPUT';
 
 export interface OutputVerbosityArgs {
   full?: unknown;
@@ -46,7 +47,7 @@ export function wantsExplicitJson(args?: OutputVerbosityArgs | null): boolean {
  * story requested). Any other value — including "false", "1", "" — keeps brief.
  */
 export function envDisablesBrief(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env[BRIEF_OUTPUT_ENV_VAR] === '0';
+  return readBrandEnv(BRIEF_OUTPUT_ENV_VAR, env) === '0';
 }
 
 /**

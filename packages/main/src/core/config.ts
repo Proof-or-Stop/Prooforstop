@@ -5,6 +5,7 @@ import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
 import { LATTICE_DIR, LATTICE_STORY_DIR } from './lattice-paths.js';
+import { readBrandEnv } from './brand-env.js';
 
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
@@ -667,7 +668,8 @@ function findProjectRootByMarker(startDir: string): string | null {
 
 /** Search upward from cwd for lattice.config.json, return the project root directory. */
 function resolveProjectRoot(): string {
-  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
+  const envRoot = readBrandEnv('PROJECT_ROOT');
+  if (envRoot) return envRoot;
   return findProjectRootByMarker(process.cwd()) ?? process.cwd();
 }
 

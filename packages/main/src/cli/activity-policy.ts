@@ -1,3 +1,4 @@
+import { readBrandEnv } from '../core/brand-env.js';
 export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'session_brief',
   'next',
@@ -121,18 +122,19 @@ export function isReadOnlyCommand(cmdName: string, args: Record<string, unknown>
 }
 
 export function resolveActivitySource(): string {
-  return process.env.LATTICE_ACTIVITY_SOURCE || 'cli';
+  return readBrandEnv('ACTIVITY_SOURCE') || 'cli';
 }
 
 export function isCodexActivitySource(): boolean {
-  return (process.env.LATTICE_ACTIVITY_SOURCE || '') === 'codex';
+  return (readBrandEnv('ACTIVITY_SOURCE') || '') === 'codex';
 }
 
 export function inferCodexEntrypoint(): string {
-  if (process.env.LATTICE_CODEX_ENTRYPOINT) return process.env.LATTICE_CODEX_ENTRYPOINT;
+  const explicitEntrypoint = readBrandEnv('CODEX_ENTRYPOINT');
+  if (explicitEntrypoint) return explicitEntrypoint;
   const invoked = process.argv[1] || '';
   if (invoked.includes('lattice-codex')) return 'local-wrapper';
-  if (process.env.LATTICE_ACTIVITY_SOURCE === 'codex') return 'global-fallback';
+  if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return 'global-fallback';
   return 'cli';
 }
 
@@ -141,7 +143,7 @@ export function shouldWriteActivityLog(cmdName: string, args: Record<string, unk
   // a plain usage_sweep writes no activity row (read-only) while a --out sweep
   // (a write) is recorded like any other mutating command.
   if (isReadOnlyCommand(cmdName, args)) {
-    return process.env.LATTICE_ACTIVITY_RECORD_READONLY === '1';
+    return readBrandEnv('ACTIVITY_RECORD_READONLY') === '1';
   }
   if (args.dryRun === true) return false;
   return true;

@@ -5,6 +5,7 @@ import { resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import type { ValidationCommand } from './validation-types.js';
 import { PRE_REVIEW_LIVE_PROOF_COMMAND, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS } from './pre-review-check.js';
+import { readBrandEnv } from './brand-env.js';
 
 export const NODE_TIMER_MAX_MS = 2_147_483_647;
 export const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
@@ -114,7 +115,7 @@ export function doneRequiredDerivedBudget(root: string): TimeoutBudget {
 export function donePreparePhaseBudget(root: string, phaseEnv: string, derived?: TimeoutBudget): TimeoutBudget {
   const phaseOverride = positiveInt(process.env[phaseEnv]);
   if (phaseOverride) return { timeoutMs: phaseOverride, source: 'phase-env' };
-  const globalOverride = positiveInt(process.env.LATTICE_DONE_PREPARE_PHASE_TIMEOUT_MS);
+  const globalOverride = positiveInt(readBrandEnv('DONE_PREPARE_PHASE_TIMEOUT_MS'));
   if (globalOverride) return { timeoutMs: globalOverride, source: 'global-phase-env' };
   return derived ?? { timeoutMs: DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS, source: 'default' };
 }
@@ -210,7 +211,7 @@ export function liveSmokeCaptureBudget(
   // terminate/reap it; commandCliMaxBudget adds the separate outer-wrapper
   // grace. For an arbitrary/untrusted command an inherited max may only LOWER
   // the fixed capture safety ceiling.
-  const inheritedMax = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
+  const inheritedMax = positiveInt(readBrandEnv('MAX_TIMEOUT_MS', env));
   let nestedMaxTimeoutMs: number | undefined;
   let saturationAdjusted = false;
   if (recognizedCommand) {
@@ -231,7 +232,7 @@ export function liveSmokeCaptureBudget(
     legalTimeoutMs = Math.min(legalTimeoutMs, inheritedMax);
   }
 
-  const override = positiveInt(env.LATTICE_LIVE_SMOKE_CAPTURE_TIMEOUT_MS);
+  const override = positiveInt(readBrandEnv('LIVE_SMOKE_CAPTURE_TIMEOUT_MS', env));
   if (override !== undefined && override < legalTimeoutMs) {
     return {
       timeoutMs: override,
@@ -308,6 +309,6 @@ export function effectiveCommandCliMaxBudget(
 ): TimeoutBudget {
   const derived = commandCliMaxBudget(root, command, args, env);
   if (command === 'live_smoke_transcript' && derived.source === 'derived-command-budget') return derived;
-  const explicit = positiveInt(env.LATTICE_MAX_TIMEOUT_MS);
+  const explicit = positiveInt(readBrandEnv('MAX_TIMEOUT_MS', env));
   return explicit === undefined ? derived : { timeoutMs: explicit, source: 'explicit-max-env' };
 }

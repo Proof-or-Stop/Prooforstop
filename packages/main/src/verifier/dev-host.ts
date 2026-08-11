@@ -7,6 +7,7 @@
 
 import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'node:fs';
 import { startBridgeHost } from './bridge-host.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 interface DevHostOptions {
   bridge: {
@@ -42,7 +43,7 @@ export async function devHost(
   createApp: () => Promise<DevHostOptions> | DevHostOptions,
   machine: MachineInfo,
 ): Promise<DevHostOptions> {
-  const wsPort = Number(process.env.LATTICE_SERVE_PORT || stablePort(process.cwd(), 4));
+  const wsPort = Number(readBrandEnv('SERVE_PORT') || stablePort(process.cwd(), 4));
   const infoPath = '.lattice-serve.json';
 
   // Kill old core

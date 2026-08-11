@@ -23,6 +23,7 @@ import {
   validatePlannedPathDeclarationsForChecklistItem,
   verificationIntentHasPlannedPathDeclarations,
 } from '../core/acceptance-topology.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -138,7 +139,7 @@ function assertChecklistMutationCwd(store: HandlerContext['store'], storyId: str
 function checklistActorFrom(args: { agent?: string; actor?: string }): string {
   const explicit = args.agent?.trim() || args.actor?.trim();
   if (explicit) return explicit;
-  return process.env.LATTICE_AGENT?.trim() || process.env.USER?.trim() || 'main-agent';
+  return readBrandEnv('AGENT')?.trim() || process.env.USER?.trim() || 'main-agent';
 }
 
 function isInitReviewerChecklistActor(actor: string): boolean {

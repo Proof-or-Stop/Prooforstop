@@ -4,6 +4,7 @@ import {
   renderCodexPromptContent,
   type PromptRegistryManifest,
 } from './core/prompt-registry.js';
+import { deleteBrandEnv, readBrandEnv, setBrandEnv } from './core/brand-env.js';
 
 export const SUPPORTED_INIT_PROFILES = ['codex', 'claude', 'all', 'core'] as const;
 export type InitProfile = typeof SUPPORTED_INIT_PROFILES[number];
@@ -378,24 +379,24 @@ if (require.main === module) {
 
 export function renderCodexWrapperScript(): string {
   return `#!/usr/bin/env node
-process.env.LATTICE_ACTIVITY_SOURCE = 'codex';
-process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
-process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
+setBrandEnv(process.env, 'ACTIVITY_SOURCE', 'codex');
+setBrandEnv(process.env, 'ACTIVITY_RECORD_READONLY', '1');
+setBrandEnv(process.env, 'CODEX_ENTRYPOINT', 'local-wrapper');
 
-if (!process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK) {
-  process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK =
+if (!readBrandEnv('OWNER_SESSION_ADAPTER_TASK')) {
+  readBrandEnv('OWNER_SESSION_ADAPTER_TAS')K =
     process.env.CODEX_THREAD_ID ||
     process.env.CODEX_SESSION_ID ||
     process.env.OPENAI_SESSION_ID ||
     process.env.TERM_SESSION_ID ||
     '';
 }
-process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
-process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT =
-  process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT ||
-  process.env.LATTICE_AGENT ||
+setBrandEnv(process.env, 'OWNER_SESSION_ADAPTER_PROVIDER', 'codex');
+readBrandEnv('OWNER_SESSION_ADAPTER_AGEN')T =
+  readBrandEnv('OWNER_SESSION_ADAPTER_AGENT') ||
+  readBrandEnv('AGENT') ||
   'main';
-delete process.env.LATTICE_ACTIVITY_SESSION;
+deleteBrandEnv(process.env, 'ACTIVITY_SESSION');
 
 async function main() {
   const [{ existsSync }, { dirname, join }, { pathToFileURL }] = await Promise.all([

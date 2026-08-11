@@ -21,6 +21,7 @@ import type {
   ValidationResult,
 } from './validation-types.js';
 import { effectiveValidationCommandEnvironment } from './validation-command-environment.js';
+import { readBrandEnv } from './brand-env.js';
 
 const MAX_OUTPUT_CHARS = 12000;
 
@@ -80,7 +81,7 @@ export function resolveCommandTimeoutMs(
 }
 
 export function resolveValidateHeartbeatMs(env: NodeJS.ProcessEnv = process.env): number {
-  const raw = Number(env.LATTICE_VALIDATE_HEARTBEAT_MS);
+  const raw = Number(readBrandEnv('VALIDATE_HEARTBEAT_MS', env));
   return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : DEFAULT_VALIDATE_HEARTBEAT_MS;
 }
 

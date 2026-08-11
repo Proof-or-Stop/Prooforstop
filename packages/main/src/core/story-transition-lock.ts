@@ -9,6 +9,7 @@ import {
 } from './mkdir-lock.js';
 import { resolveSharedLockRoot } from './validation-execution-lock.js';
 import { LATTICE_DIR } from './lattice-paths.js';
+import { readBrandEnv } from './brand-env.js';
 
 /**
  * B-d877 CHK-002: per-story transition lock.
@@ -250,7 +251,7 @@ export function acquireStoryTransitionLock(
   // contention reduction (transitions may do redundant gate work in parallel) —
   // never correctness. transition-integrity-smoke sets it to prove the atomic claim
   // ALONE serializes two genuinely-concurrent persists into exactly one.
-  if (process.env.LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK === '1') {
+  if (readBrandEnv('TEST_DISABLE_TRANSITION_ADVISORY_LOCK') === '1') {
     return { lockDir, release() { /* no-op: advisory lock bypassed for test */ } };
   }
   // B-d877 R2 FIX E: in-process fail-fast guard — never enter the blocking mkdir

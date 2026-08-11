@@ -806,11 +806,12 @@ if (withStarter && !existsSync(debugPath)) {
 
 import { devHost } from '@lattice/core/dev-host';
 import { createApp } from './app.js';
+import { readBrandEnv } from './core/brand-env.js';
 // import { GameMachine } from './machines/game/machine.js';
 
 // const app = await devHost(createApp, GameMachine);
 
-// if (process.env.LATTICE_SHELL === 'cli') {
+// if (readBrandEnv('SHELL') === 'cli') {
 //   const { startCliShell } = await import('../shells/cli/main.js');
 //   startCliShell(app.bridge);
 // }

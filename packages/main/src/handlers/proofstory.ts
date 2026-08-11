@@ -78,6 +78,7 @@ import {
   verifyAcceptanceRolloutArtifact,
   type AcceptanceRolloutVerification,
 } from '../core/acceptance-rollout.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -543,7 +544,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   return {
     topology_exclusion_approval_set(args: { storyId: string; exclusionRef: string; json?: boolean }): string {
       if (!args.storyId || !args.exclusionRef) throw new Error('storyId and exclusionRef are required');
-      const authority = resolveAgentMutationAuthority({ command: 'topology_exclusion_approval_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      const authority = resolveAgentMutationAuthority({ command: 'topology_exclusion_approval_set', payloadActors: [], envActor: readBrandEnv('AGENT') });
       if (authority.entry?.canonicalName !== TOPOLOGY_EXCLUSION_APPROVER_ROLE) throw new Error('topology exclusion approval requires registered lattice-review-scope-plan authority');
       const state = currentTopologyReceiptState(args.storyId);
       const actor = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
@@ -558,7 +559,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
 
     topology_critic_receipt_set(args: { storyId: string; verdict: 'pass' | 'request_changes'; json?: boolean }): string {
       if (!args.storyId || !args.verdict) throw new Error('storyId and verdict are required');
-      const authority = resolveAgentMutationAuthority({ command: 'topology_critic_receipt_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      const authority = resolveAgentMutationAuthority({ command: 'topology_critic_receipt_set', payloadActors: [], envActor: readBrandEnv('AGENT') });
       if (authority.entry?.canonicalName !== TOPOLOGY_CRITIC_ROLE) throw new Error('topology critic receipt requires registered lattice-review-topology-critic authority');
       const state = currentTopologyReceiptState(args.storyId);
       const critic = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });

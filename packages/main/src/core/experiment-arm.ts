@@ -26,8 +26,8 @@ export interface ExperimentArmContext {
   readonly arm: ExperimentArm;
 }
 
-export const EXPERIMENT_ID_ENV_VAR = 'LATTICE_EXPERIMENT_ID';
-export const EXPERIMENT_ARM_ENV_VAR = 'LATTICE_EXPERIMENT_ARM';
+export const EXPERIMENT_ID_ENV_VAR = 'PROOF_OR_STOP_EXPERIMENT_ID';
+export const EXPERIMENT_ARM_ENV_VAR = 'PROOF_OR_STOP_EXPERIMENT_ARM';
 
 /** Once-per-process latch: misconfigured contexts warn once, not per call. */
 let misconfigWarned = false;

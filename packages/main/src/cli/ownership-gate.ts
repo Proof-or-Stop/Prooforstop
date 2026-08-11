@@ -12,6 +12,7 @@ import { getCommandPolicy, isOwnershipClass, type OwnershipClass } from '../core
 import { LATTICE_DIR } from '../core/lattice-paths.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import type { LatticeConfig } from '../core/config.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 export interface ActiveStoryForOwnershipGate {
   storyId: string;
@@ -218,7 +219,8 @@ export function enforceRetiredRootGuard(
 
 export function isDeliveryReviewerActor(args: Record<string, unknown>): boolean {
   const explicit = typeof args.agentId === 'string' ? args.agentId.trim() : '';
-  const env = typeof process.env.LATTICE_AGENT === 'string' ? process.env.LATTICE_AGENT.trim() : '';
+  const envAgent = readBrandEnv('AGENT');
+  const env = typeof envAgent === 'string' ? envAgent.trim() : '';
   const actor = explicit || env;
   return actor === 'lattice-review-delivery';
 }

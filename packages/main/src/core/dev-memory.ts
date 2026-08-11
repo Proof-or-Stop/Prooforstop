@@ -23,6 +23,7 @@ import { homedir } from 'os';
 import { createHash } from 'crypto';
 import { hasProjectConfigFile } from './config.js';
 import { LATTICE_DIR } from './lattice-paths.js';
+import { readBrandEnv } from './brand-env.js';
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -191,13 +192,13 @@ export function resolveProjectMemoryReadPaths(projectRoot?: string): string[] {
  * Uses LATTICE_GLOBAL_MEMORY_DIR env override (useful in tests).
  */
 export function resolveGlobalMemoryPath(): string {
-  const override = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const override = readBrandEnv('GLOBAL_MEMORY_DIR');
   if (override) return join(override, 'experience.jsonl');
   return join(homedir(), LATTICE_DIR, 'dev-memory', 'experience.jsonl');
 }
 
 export function resolveGlobalMemoryReadPaths(): string[] {
-  if (process.env.LATTICE_GLOBAL_MEMORY_DIR) return [resolveGlobalMemoryPath()];
+  if (readBrandEnv('GLOBAL_MEMORY_DIR')) return [resolveGlobalMemoryPath()];
   return uniquePaths([
     resolveGlobalMemoryPath(),
   ]);
@@ -212,7 +213,8 @@ export function resolveStoryCandidatePath(storyDir: string, storyId: string): st
 }
 
 function resolveProjectRoot(): string {
-  if (process.env.LATTICE_PROJECT_ROOT) return process.env.LATTICE_PROJECT_ROOT;
+  const envRoot = readBrandEnv('PROJECT_ROOT');
+  if (envRoot) return envRoot;
   let dir = process.cwd();
   for (let i = 0; i < 10; i++) {
     if (hasProjectConfigFile(dir)) return dir;

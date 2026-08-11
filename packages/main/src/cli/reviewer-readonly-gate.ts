@@ -3,11 +3,12 @@ import {
   resolveEffectiveOwnershipClass,
   storyIdFromArgs,
 } from './ownership-gate.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
-export const REVIEWER_READONLY_ENV = 'LATTICE_REVIEWER_READONLY';
+export const REVIEWER_READONLY_ENV = 'PROOF_OR_STOP_REVIEWER_READONLY';
 
 export function isReviewerReadOnlyModeEnabled(): boolean {
-  return process.env[REVIEWER_READONLY_ENV] === '1';
+  return readBrandEnv(REVIEWER_READONLY_ENV) === '1';
 }
 
 export function enforceReviewerReadOnlyCommandGate(

@@ -38,6 +38,7 @@ import type { StoryInfo, ChecklistData, DecisionData, StoryEvent } from '../core
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { REVIEW_RUN_LANES, isReviewRunLane } from '../core/review-run.js';
 import { isPromptRoleEligibleForReviewEvidence } from '../core/prompt-role-contract-registry.js';
+import { readBrandEnv } from '../core/brand-env.js';
 
 export interface ActiveReviewer {
   /** reviewer short name: concept / quality / test-coverage / behavior / docs / channel */
@@ -218,7 +219,7 @@ export function createReviewerListHandlers(ctx: HandlerContext) {
       if (forced && forced.length > 0) {
         if (!story.events) story.events = [];
         const timestamp = new Date().toISOString();
-        const agent = process.env.LATTICE_AGENT || 'main';
+        const agent = readBrandEnv('AGENT') || 'main';
         // One event per forced name (compatible with StoryEvent.reviewer single-value field + convenient for querying by reviewer)
         for (const name of forced) {
           const event: StoryEvent = {

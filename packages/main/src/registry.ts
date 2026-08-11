@@ -129,6 +129,7 @@ import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
 import { nextStoryId } from './handlers/context.js';
+import { readBrandEnv } from './core/brand-env.js';
 
 export type HandlerFn = (...args: any[]) => any;
 
@@ -442,7 +443,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
  * 新代码请用 createMainRegistry。
  */
 export function createToolHandlers(store: StoryStore, projectRoot?: string, log?: (msg: string) => void) {
-  const root = projectRoot || process.env.LATTICE_PROJECT_ROOT || process.cwd();
+  const root = projectRoot || readBrandEnv('PROJECT_ROOT') || process.cwd();
   const config = loadConfig(root);
   const scanRoot = join(root, config.scanRoot);
   const ctx: HandlerContext = { store, root, scanRoot, log };

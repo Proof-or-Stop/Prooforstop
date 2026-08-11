@@ -6,6 +6,8 @@
  * Keep this list deliberately narrow. All other ambient values (including
  * PATH, NODE_OPTIONS, CI, and locale) remain behavior-affecting inputs.
  */
+import { brandEnvNames, isBrandEnvName } from './brand-env.js';
+
 export const VALIDATION_TRANSPORT_ENV_KEY_LIST = [
   // Host/session/role identity controls Proofbound ownership and audit
   // attribution, not validation command behavior. Keeping these ambient values
@@ -42,7 +44,32 @@ export const VALIDATION_TRANSPORT_ENV_KEY_LIST = [
 export const VALIDATION_TRANSPORT_ENV_KEYS_DIGEST =
   'sha256:159db7bb6593c703d112dab8973b5d650c9b43b0c02246cf18a553f7b1aa3c0c';
 
-const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST);
+/**
+ * THE LIST ABOVE IS FROZEN, AND UNUSUALLY SO — it is a genuine past-evidence
+ * surface, not mere coupling (B-cdf6 CHK-006 Pass B).
+ *
+ * `VALIDATION_TRANSPORT_ENV_KEY_LIST` is the strip-list that decides which
+ * ambient values are EXCLUDED from `effectiveValidationCommandEnvironment`. That
+ * environment is hashed into `effectiveEnvironmentDigest`, which is persisted in
+ * `done-required-evidence.json` / `test-evidence.json` and later re-derived and
+ * COMPARED against the stored value (`core/done-required-validation.ts:820`).
+ * Adding or renaming a member therefore changes the recomputed digest for an
+ * unchanged environment and makes every stored receipt read as a
+ * `effective-environment-digest-mismatch`.
+ *
+ * So the brand rename cannot touch the list itself. Instead the NEW spellings are
+ * folded in at the FILTER below via `brandEnvNames`: a `PROOF_OR_STOP_SESSION_ID`
+ * is stripped because `LATTICE_SESSION_ID` is listed, without the literal
+ * appearing in the digested list. This keeps two properties simultaneously:
+ *   - already-persisted receipts keep verifying (the pinned list is byte-stable);
+ *   - a session that exports only the new spellings does not leak host/session
+ *     identity into the digest, which is the security property the list exists for.
+ */
+const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>(
+  VALIDATION_TRANSPORT_ENV_KEY_LIST.flatMap((key) =>
+    isBrandEnvName(key) ? [...brandEnvNames(key)] : [key],
+  ),
+);
 
 /**
  * Return the exact environment used both for command identity and child spawn.

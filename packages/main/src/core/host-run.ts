@@ -79,6 +79,7 @@ import {
   type DispatchUsageContext,
   type DispatchUsageOptions,
 } from './usage-ledger/dispatch-usage.js';
+import { readBrandEnv } from './brand-env.js';
 
 export type HostRunHost = CanonicalReviewHost;
 
@@ -472,7 +473,7 @@ export function hostRunSlotsDir(root: string): string {
 
 /** Resolve the concurrency cap; invalid / <=0 / unset falls back to the default. */
 export function resolveMaxConcurrent(env: NodeJS.ProcessEnv): number {
-  const raw = env.LATTICE_HOST_RUN_MAX_CONCURRENT;
+  const raw = readBrandEnv('HOST_RUN_MAX_CONCURRENT', env);
   if (typeof raw !== 'string' || raw.trim().length === 0) return HOST_RUN_MAX_CONCURRENT_DEFAULT;
   const value = Number(raw.trim());
   if (!Number.isFinite(value) || !Number.isInteger(value) || value <= 0) return HOST_RUN_MAX_CONCURRENT_DEFAULT;
@@ -481,7 +482,7 @@ export function resolveMaxConcurrent(env: NodeJS.ProcessEnv): number {
 
 /** Resolve the slot staleness window; invalid / <=0 / unset falls back to 6h. */
 export function resolveSlotStaleMs(env: NodeJS.ProcessEnv): number {
-  const raw = env.LATTICE_HOST_RUN_SLOT_STALE_MS;
+  const raw = readBrandEnv('HOST_RUN_SLOT_STALE_MS', env);
   if (typeof raw !== 'string' || raw.trim().length === 0) return HOST_RUN_SLOT_STALE_MS_DEFAULT;
   const value = Number(raw.trim());
   if (!Number.isFinite(value) || value <= 0) return HOST_RUN_SLOT_STALE_MS_DEFAULT;

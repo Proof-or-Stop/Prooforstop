@@ -35,6 +35,7 @@ import {
   type CodexUsageTotals,
   type SweepSessionRow,
 } from './usage-sweep.js';
+import { readBrandEnv } from './brand-env.js';
 
 // ── Thresholds + env resolver ────────────────────────────────────────────────
 
@@ -57,12 +58,12 @@ export const DEFAULT_BURN_ALERT_THRESHOLDS: BurnAlertThresholds = {
 };
 
 export const BURN_ALERT_ENV = {
-  fileMb: 'LATTICE_BURN_ALERT_FILE_MB',
-  inputTokens: 'LATTICE_BURN_ALERT_INPUT_TOKENS',
-  ageDays: 'LATTICE_BURN_ALERT_AGE_DAYS',
-  recentHours: 'LATTICE_BURN_ALERT_RECENT_HOURS',
-  codexDir: 'LATTICE_BURN_ALERT_CODEX_DIR',
-  claudeDir: 'LATTICE_BURN_ALERT_CLAUDE_DIR',
+  fileMb: 'PROOF_OR_STOP_BURN_ALERT_FILE_MB',
+  inputTokens: 'PROOF_OR_STOP_BURN_ALERT_INPUT_TOKENS',
+  ageDays: 'PROOF_OR_STOP_BURN_ALERT_AGE_DAYS',
+  recentHours: 'PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS',
+  codexDir: 'PROOF_OR_STOP_BURN_ALERT_CODEX_DIR',
+  claudeDir: 'PROOF_OR_STOP_BURN_ALERT_CLAUDE_DIR',
 } as const;
 
 /**
@@ -76,7 +77,7 @@ function envNumber(
   fallback: number,
   opts: { allowZero?: boolean; max: number },
 ): number {
-  const raw = env[key];
+  const raw = readBrandEnv(key, env);
   if (raw === undefined) return fallback;
   const trimmed = raw.trim();
   if (trimmed.length === 0) return fallback;
