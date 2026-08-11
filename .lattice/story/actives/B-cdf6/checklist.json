@@ -82,6 +82,19 @@
           "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
           "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
           "timestamp": "2026-08-11T05:38:41.683Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/brand-rename-mapping.md",
+          "command": "grep -oE '\\| (RENAMED|FROZEN-THIS-STORY|FROZEN|PRESERVE) ' docs/requirements/decisions/brand-rename-mapping.md | sort | uniq -c",
+          "result": "pass",
+          "note": "Every FROZEN row carries both a reason and a user-visible-in-runtime-output value; the table has an explicit 'User-visible in runtime output' column.",
+          "mechanical": false,
+          "headHash": "b223e8a9676cc770e2f19536fd7cd2743478fd4f",
+          "materialHash": "67936d6ba7a983162cabe42826ec9f38537954a27ee899b3171f76cb48c5621e",
+          "storyFilesHash": "bf29580fb746dc5fbd0008e399113628ffd486891621d42381ea16d29a4a40b4",
+          "timestamp": "2026-08-11T05:38:42.517Z"
         }
       ]
     },
