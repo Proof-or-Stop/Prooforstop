@@ -471,6 +471,18 @@
           "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
           "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
           "timestamp": "2026-08-11T06:04:31.190Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "command": "grep -c 'primary active runtime/product' docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "note": "OQ-2 action applied: the stale claim 'lattice is the only active runtime/product command' is gone (grep returns 0) and now reads 'proof-or-stop is the primary active runtime/product command' with lattice as deprecated alias. The paragraph's normative fresh-init managed-asset content is preserved.",
+          "mechanical": false,
+          "headHash": "6b6590ca5f514fdf01c1728476d3c1d3db563e69",
+          "materialHash": "381dc1a1dc4b65cecc6587cfc2e4ab1a756285fe8d8c3d47a2d22014d283f7c7",
+          "storyFilesHash": "a46392bf3daf034ccbe810fa67651117cf9efcb26e0f6611385dd2fb5ec53b6f",
+          "timestamp": "2026-08-11T06:04:32.097Z"
         }
       ]
     },
