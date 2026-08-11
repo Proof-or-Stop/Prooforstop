@@ -594,7 +594,11 @@
           {
             "desc": "verify-residue-inject-repro.mjs still proves the gate catches an injected hit",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-residue-inject-repro.mjs",
+              "selector": "PASS"
+            }
           },
           {
             "desc": "Gate is NOT allowlist-free over packages/*/src, since 605 files there legitimately contain the token",
@@ -680,6 +684,26 @@
           "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
           "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
           "timestamp": "2026-08-11T06:14:30.442Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-residue-inject-repro.mjs",
+          "command": "node scripts/verify-residue-inject-repro.mjs",
+          "result": "pass",
+          "note": "The inject-repro harness still proves the koala gate catches an injected hit (tracked inject exits 1, revert exits 0), so the previous rebrand's zero-tolerance guarantee did not regress. isResidue remains byte-identical: /koala/i, allowlist-free over packages/*/src.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4c2c6b8e848720762c0c4352df87eb4ba637443c747d4e8bf4d57e5836f01e2c",
+            "outputTail": "OK   step 1: tracked koala inject -> gate exited 1 (FAIL caught it)\nOK   step 2: after git revert -> gate exited 0 (PASS, tree restored clean)\n\nPASS inject-check: gate caught the tracked koala inject and the worktree was restored clean.\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T06:14:32.160Z"
+          },
+          "headHash": "9ff09904d2566084605b7e2dc97ec993d263f136",
+          "materialHash": "b77c305e65e8f46ef16d016a57a6c1148d4dd5eafcc23c0c8f26c8e10b6fbc88",
+          "storyFilesHash": "000519eed40a26914fbf2dfea06ff04f2d98122d648a0474670ba64eaf057a6b",
+          "timestamp": "2026-08-11T06:14:32.285Z"
         }
       ]
     },
