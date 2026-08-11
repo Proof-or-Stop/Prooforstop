@@ -121,16 +121,16 @@ a future reader (or reviewer) can tell a deliberate freeze apart from a missed r
 | Hardcoded `lattice <cmd>` hints and error strings in `cli-engine.ts` | RENAMED | `proof-or-stop <cmd>` (mirroring `invokedAs`) | Next-action guidance, i.e. what to run next. | Yes — error and hint text. |
 | Help / usage output strings generally | RENAMED | derived from `brand.invokedAs` | Output should mirror how the CLI was actually invoked. | Yes. |
 | **The 13 signature salt literals** (see enumeration below) | **FROZEN** | — | Each salt is hashed into `_hash` fields **already persisted** on live artifacts. Renaming a salt silently invalidates every stored signature, so active stories would immediately read as tampered and gate-block. These record what already happened. | Indirect — appears in no normal output, but a corrupted signature would surface as `*_tampered` gate blockers. |
-| `.lattice/` state directory | FROZEN | — | Live on-disk state (locks, `activity.jsonl`, `authority.md`, `learning/`, `evidence/`, `dev-memory/`). Renaming it in docs only makes docs wrong; renaming in code orphans existing state. It stores what already happened. | **Yes** — paths like `.lattice/story/actives/B-xxxx/` appear in `session_brief`, gate diagnostics and error messages. Intentional. |
-| `.lattice-serve.json` | FROZEN | — | Runtime discovery file written by `serve` and read back by tooling; renaming breaks the read side. (Runtime-generated; gitignored, absent from a clean tree.) | Yes — referenced in debugging docs and by `serve` output. |
+| `.lattice/` state directory (the NAME; its VALUE `.lattice` is frozen) | **RENAMED (additive)** | — | Live on-disk state (locks, `activity.jsonl`, `authority.md`, `learning/`, `evidence/`, `dev-memory/`). Renaming it in docs only makes docs wrong; renaming in code orphans existing state. It stores what already happened. | **Yes** — paths like `.lattice/story/actives/B-xxxx/` appear in `session_brief`, gate diagnostics and error messages. Intentional. |
+| `.lattice-serve.json` (the NAME; its VALUE is frozen) | **RENAMED (additive)** | — | Runtime discovery file written by `serve` and read back by tooling; renaming breaks the read side. (Runtime-generated; gitignored, absent from a clean tree.) | Yes — referenced in debugging docs and by `serve` output. |
 | `.lattice-codex/` (incl. `.lattice-codex/lattice.json` manifest) | FROZEN | — | Live Codex adapter state directory + manifest path; the adapter resolves it by exact name. | Yes — in Codex adapter paths and `verify_codex` output. |
 | **The 13 `lattice-`prefixed agent role IDs** (of 17 total registry templates; see enumeration below) | **FROZEN-THIS-STORY** | *(target: `proof-or-stop-*`)* | The target canonical prefix is `proof-or-stop-*` per `docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md:36-43`, which states all canonical role IDs use the `proof-or-stop-*` prefix and that current `lattice-*` names are "transitional aliases only". Renaming is **deferred here** because these are `subagent_type` values resolved against host shims plus the registry manifest — changing them would break spawning for in-flight stories. **This freeze is intentional and owned by that plan, not an oversight.** | **Yes** — `proof-or-stop reviewer_list` and `session_brief` still print `lattice-review-concept`, `lattice-implementer`, etc. Intentional; see the owning plan. |
 | The 4 non-`lattice-` role IDs (`implementation-reviewer`, `product-reviewer`, `test-case-reviewer`, `test-intent`) | FROZEN-THIS-STORY | *(target: `proof-or-stop-*`)* | Same owning plan (`:36-43`) lists these as transitional aliases too. Not brand-token hits, but recorded so the 17-role set is completely accounted for. | Yes — same surfaces as above. |
 | **390 frozen story archives** under `.lattice/story/` (markdown containing the brand token) | **FROZEN** | — | CLAUDE.md rule 8 forbids direct writes under the story directory; all story mutation goes through the CLI. These are historical records — rewriting them falsifies the audit trail. | Yes — quoted back in `story_get` / `session_brief` output. |
 | `packages/main` npm package name `@lattice/core` | **FROZEN** | — | `.githooks/pre-push:148` gates the entire recursive-tsc pre-push defence on `PKG_NAME = "@lattice/core"` and **`exit 0`s on mismatch** (verified). Renaming the package therefore **silently self-disarms** the hook rather than failing loudly — the worst possible failure mode. | No — but a silent rename would remove a safety gate with no visible signal. |
 | Root npm package name `lattice` | FROZEN | — | Package identity / lockfile key; renaming is a publish-level change outside this story's additive-at-the-CLI-boundary scope. | No. |
-| `lattice.config.json` | FROZEN | — | The only config filename ever loaded (`init-assets.ts:599`, `:743`; `dashboard.ts:280-281` calls it canonical). Renaming orphans every existing project's config. | Yes — named in `proof-or-stop init` output as the canonical project config. |
-| `LATTICE_*` environment-variable prefix (56 distinct vars verified under `packages/*/src`) | FROZEN | — | Env vars are an external contract with CI, shells and operator scripts. Renaming breaks every existing invocation with no deprecation path in this story. | Yes — documented in CLAUDE.md (e.g. `LATTICE_SESSION_BRIEF_FRESH_MINUTES`, `LATTICE_BRIEF_OUTPUT`). |
+| `lattice.config.json` (the NAME; its VALUE is frozen) | **RENAMED (additive)** | — | The only config filename ever loaded (`init-assets.ts:599`, `:743`; `dashboard.ts:280-281` calls it canonical). Renaming orphans every existing project's config. | Yes — named in `proof-or-stop init` output as the canonical project config. |
+| `LATTICE_*` environment-variable prefix (56 distinct vars verified under `packages/*/src`) | **RENAMED (additive)** | — | Env vars are an external contract with CI, shells and operator scripts. Renaming breaks every existing invocation with no deprecation path in this story. | Yes — documented in CLAUDE.md (e.g. `LATTICE_SESSION_BRIEF_FRESH_MINUTES`, `LATTICE_BRIEF_OUTPUT`). |
 | `<!-- lattice:start -->` / `<!-- lattice:end -->` managed-block markers | FROZEN | — | Delimiters used to locate and rewrite managed blocks in already-installed files (`init-assets.ts:22`, `:40`; `claude-md-sync.ts:88`). Changing the marker orphans every existing managed block. B-cdf6 introduces no new marker form. | Yes — visible verbatim in `CLAUDE.md` / `AGENTS.md` managed regions. |
 | `lattice.remote-push-approval.v1` schema literal | FROZEN | — | Exact-match schema string compared on both sides: `core/release-push-approval.ts:4` writes it, `.githooks/pre-push:78` rejects any approval whose `schema` differs. A one-sided rename breaks release approval. | Indirect — a mismatch surfaces as a refused push. |
 | `CHANGELOG.md` (111 brand-token hits verified) | **FROZEN** | — | **Explicit verdict, previously unclassified.** It records shipped releases — a past record by definition. Rewriting historical release notes would falsify release history. It is neither in CHK-003's active-doc list nor implicitly frozen by path, so it is named here and path-blocked in execution: `git diff --stat -- CHANGELOG.md` must be empty. | No — not printed by the CLI. |
@@ -218,3 +218,24 @@ the verified pre-existing count**; treat any single number as approximate and th
   extracts commands with `/\blattice\s+([a-z](?:[a-z0-9_]*[a-z0-9])?)\b/g`; once docs read
   `proof-or-stop <cmd>` it matches nothing and the drift scan **passes vacuously**. The extractor
   must learn both bin tokens, with a regression test.
+
+### Verdict reconciliation (B-cdf6:F-004, raised by the docs reviewer)
+
+The docs reviewer found the table self-contradictory: the corrected Governing rule above
+disavows freezing tokens merely because renaming them needs coordinated edits, yet several
+rows below still read `FROZEN` with exactly that coupling-style reasoning. Those rows are
+now corrected to **RENAMED (additive)**, matching what was actually implemented:
+
+- `LATTICE_*` env-var names → routed through the read-both resolver in
+  `packages/main/src/core/brand-env.ts`; `PROOF_OR_STOP_*` is canonical, the old name is
+  still read and dual-written so a pre-rename reader also keeps working.
+- `.lattice/`, `.lattice-serve.json`, `lattice.config.json` → the **identifier names** were
+  renamed with deprecated aliases; the **string VALUES** stay frozen, because those are live
+  on-disk paths holding the evidence of 32 in-flight stories. Renaming a constant is not the
+  same act as renaming the path it points at, and the original table conflated the two.
+
+Still genuinely FROZEN, and re-affirmed under the corrected test: the 13 signature salt
+literals (hashed into persisted `_hash` fields), the npm package names (`.githooks/pre-push`
+arms on the exact `@lattice/core` string and silently self-disarms on mismatch), the
+`<!-- lattice:start -->` managed-block markers, and the `lattice.remote-push-approval.v1`
+schema literal.

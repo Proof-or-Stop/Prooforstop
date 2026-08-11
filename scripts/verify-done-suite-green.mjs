@@ -2,80 +2,67 @@
 /**
  * verify-done-suite-green.mjs — B-cdf6.
  *
- * Reports whether the root DONE-blocking suite (`npm test`, named by
- * lattice.config.json doneRequiredCommands) passed, as a STDOUT-visible verdict.
+ * Runs the root DONE-blocking suite (`npm test`, named by lattice.config.json
+ * doneRequiredCommands) and reports a STDOUT-visible verdict, because the suite's
+ * own confirmation lines go to stderr where a receipt matcher cannot see them.
  *
- * WHY IT DOES NOT RUN THE SUITE ITSELF:
- * the verification-evidence receipt executor kills any pinned command at
- * DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000 (core/validation-executor.ts:43),
- * and the full suite exceeds that. Three earlier attempts to pin `npm test`
- * directly were refused at exactly 270.3s with `receipt_selector_absent` — the
- * suite was killed mid-run, so no verdict line was ever printed.
+ * HISTORY / WHY IT IS SHAPED THIS WAY (B-cdf6:F-006, critical, raised by the
+ * test-coverage reviewer against the main agent's own first version):
  *
- * So this verifies the RECORDED RESULT of a completed run instead, and fails
- * closed on anything it cannot positively confirm:
- *   - the run log must exist and carry an explicit REAL_EXIT=0 marker
- *   - it must contain zero AssertionError / `Error:` / `FAIL n>0` lines
- *   - the log must be NEWER than the newest tracked source file, so a stale
- *     green run cannot vouch for later edits
- * Pass --run to execute the suite directly instead (for out-of-band use where
- * no 270s ceiling applies).
+ * The first version did NOT run the suite. It read a previously-recorded run log
+ * and checked it for a `REAL_EXIT=0` marker, because the verification-evidence
+ * receipt executor kills any pinned command at DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS
+ * = 270_000 (core/validation-executor.ts:43) and the suite exceeds that. That
+ * design had two defects the reviewer proved by direct execution:
+ *
+ *   1. NOT REPRODUCIBLE — the default log path was an absolute path inside the
+ *      authoring session's own scratchpad, untracked and machine-local. Any other
+ *      reviewer, a fresh clone, or CI running the same recorded command would get
+ *      RED (missing log), not the recorded PASS.
+ *   2. CONTENT-BLIND — it verified a MARKER, not a RUN. A two-line stub containing
+ *      only `REAL_EXIT=0` produced an identical "DONE-SUITE GREEN" verdict. The
+ *      main agent reproduced this independently and confirmed it.
+ *
+ * So log-reading is gone. This script now always executes the suite. That means it
+ * CANNOT be used as a receipt-pinned command (it will exceed the 270s ceiling and
+ * be killed); it is an out-of-band verifier, and the evidence row for the suite
+ * must say so plainly rather than claim a mechanical receipt it did not earn.
+ * The framework gap itself is recorded as B-META-framework-audit:F-012.
  */
 import { execFileSync, spawnSync } from 'child_process';
-import { existsSync, readFileSync, statSync } from 'fs';
-import { join } from 'path';
 
 const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
-const LOG = process.env.PROOF_OR_STOP_DONE_SUITE_LOG
-  ?? '/private/tmp/claude-501/-Users-qipan-work-repo-Prooforstop/a57f5dd5-4fe3-4355-b24b-09464e55c30a/scratchpad/npmtest4.log';
 
-function fail(msg) {
-  console.log(`DONE-SUITE RED: ${msg}`);
+const res = spawnSync('npm', ['test'], {
+  cwd: repoRoot,
+  encoding: 'utf8',
+  stdio: ['ignore', 'pipe', 'pipe'],
+  maxBuffer: 256 * 1024 * 1024,
+});
+
+const combined = `${res.stdout ?? ''}${res.stderr ?? ''}`;
+const failureLines = combined
+  .split('\n')
+  .filter(l => /AssertionError|^Error:|FAIL [1-9]/.test(l));
+
+// Positive-evidence guard: a genuine run emits many stage lines. A truncated or
+// stubbed run must not read as green just because it lacked failure lines.
+const stageLines = combined.split('\n').filter(l => /^[>✓]|smoke|PASS|assertions/.test(l)).length;
+const MIN_STAGE_LINES = 20;
+
+if (res.status !== 0) {
+  console.log(`DONE-SUITE RED: npm test exit=${res.status}`);
+  for (const l of failureLines.slice(0, 5)) console.log(`  ${l.trim()}`);
+  process.exit(1);
+}
+if (failureLines.length > 0) {
+  console.log(`DONE-SUITE RED: exit=0 but ${failureLines.length} failure line(s)`);
+  for (const l of failureLines.slice(0, 5)) console.log(`  ${l.trim()}`);
+  process.exit(1);
+}
+if (stageLines < MIN_STAGE_LINES) {
+  console.log(`DONE-SUITE RED: only ${stageLines} stage line(s) observed (< ${MIN_STAGE_LINES}); suite did not really run`);
   process.exit(1);
 }
 
-if (process.argv.includes('--run')) {
-  const res = spawnSync('npm', ['test'], {
-    cwd: repoRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-    maxBuffer: 256 * 1024 * 1024,
-  });
-  const combined = `${res.stdout ?? ''}${res.stderr ?? ''}`;
-  const bad = combined.split('\n').filter(l => /AssertionError|^Error:|FAIL [1-9]/.test(l));
-  if (res.status !== 0 || bad.length > 0) fail(`direct run exit=${res.status} failureLines=${bad.length}`);
-  console.log('DONE-SUITE GREEN: npm test exit=0, 0 failure lines (direct run)');
-  process.exit(0);
-}
-
-if (!existsSync(LOG)) fail(`no recorded suite log at ${LOG}`);
-const text = readFileSync(LOG, 'utf8');
-
-const exitMatch = text.match(/REAL_EXIT=(\d+)/);
-if (!exitMatch) fail('recorded log has no REAL_EXIT marker (run did not complete)');
-if (exitMatch[1] !== '0') fail(`recorded suite exit=${exitMatch[1]}`);
-
-const bad = text.split('\n').filter(l => /AssertionError|^Error:|FAIL [1-9]/.test(l));
-if (bad.length > 0) fail(`recorded log has ${bad.length} failure line(s): ${bad[0].trim().slice(0, 120)}`);
-
-// Staleness guard: a green log must be newer than the newest tracked source file.
-const logMtime = statSync(LOG).mtimeMs;
-// This verifier is excluded from its own staleness set on purpose: editing the
-// checker cannot invalidate the suite result it reports, and including it makes
-// the check circular (any edit here permanently reddens it until the whole suite
-// is re-run). Every OTHER tracked source still counts, so a real code change
-// still forces a fresh run.
-const SELF_REL = 'scripts/verify-done-suite-green.mjs';
-const tracked = execFileSync('git', ['ls-files', '-z', '--', 'packages', 'scripts', 'bin', 'package.json'], {
-  cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
-}).split('\0').filter(Boolean).filter(rel => rel !== SELF_REL);
-let newest = 0; let newestFile = '';
-for (const rel of tracked) {
-  try {
-    const m = statSync(join(repoRoot, rel)).mtimeMs;
-    if (m > newest) { newest = m; newestFile = rel; }
-  } catch { /* deleted */ }
-}
-if (newest > logMtime) {
-  fail(`recorded run is STALE: ${newestFile} is newer than the suite log`);
-}
-
-console.log(`DONE-SUITE GREEN: npm test exit=0, 0 failure lines (recorded run, newer than all tracked sources)`);
+console.log(`DONE-SUITE GREEN: npm test exit=0, 0 failure lines, ${stageLines} stage lines observed`);
