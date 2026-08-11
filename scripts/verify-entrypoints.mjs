@@ -274,7 +274,7 @@ function assertCodexWrapperSessionFrom(envName) {
   };
   const out = run('node', ['bin/lattice-codex.js', 'session_brief'], { env });
   assert(
-    /# lattice session brief/.test(out),
+    /# proof-or-stop session brief/.test(out),
     `bin/lattice-codex.js ${envName} session_brief missing session_brief heading`,
   );
   assertNotIncludes(out, marker, `bin/lattice-codex.js ${envName} stdout`);
@@ -378,7 +378,7 @@ checks.push(() => {
     },
   });
   assert(
-    /# (?:lattice|koala) session brief/.test(out),
+    /# proof-or-stop session brief/.test(out),
     'global Codex fallback core CLI session_brief missing session_brief heading',
   );
 
@@ -512,7 +512,7 @@ checks.push(() => {
       LATTICE_ACTIVITY_SESSION: `fresh-init-wrapper-${Date.now()}`,
     };
     const freshWrapperOut = run(process.execPath, [join(tempDir, 'bin', 'lattice-codex.js'), 'session_brief'], { cwd: tempDir, env: minimalEnv });
-    assertIncludes(freshWrapperOut, '# lattice session brief', 'fresh generated wrapper should run with stale global lattice on PATH');
+    assertIncludes(freshWrapperOut, '# proof-or-stop session brief', 'fresh generated wrapper should run with stale global lattice on PATH');
 
     const checkOk = JSON.parse(run(process.execPath, [join(repoRoot, CORE_ENTRYPOINT), 'check', '--json'], { cwd: tempDir }));
     assert(checkOk.ok === true, 'lattice check should pass immediately after init');

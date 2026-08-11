@@ -364,7 +364,12 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // loader call site (runCli → import(`file://${initPath}`)) is unchanged; this
   // whole-file structural fingerprint gates both that call-site approval and the
   // pinned-source drift check, so it moves with any cli-engine.ts edit.
-  ['packages/main/src/cli-engine.ts', 'a2468ce54d0093b7b84176ed03dd43bbd58e56278c3f1410f2029f2056abdbc0'],
+  // B-cdf6 CHK-002: repinned after the user-facing bin rename made the CLI's own
+  // hint/error strings derive from the invoked bin token (proof-or-stop, with
+  // lattice kept as a deprecated alias). Only string interpolation and the
+  // redundant-bin-token tolerance changed; the approved non-literal loader call
+  // site above is untouched, and no new dynamic load was introduced.
+  ['packages/main/src/cli-engine.ts', 'c67969720875b02d39d0d29b5ec05d28544bb1cb06962936b6ebbd1fdc6c47e1'],
   ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', 'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83'],

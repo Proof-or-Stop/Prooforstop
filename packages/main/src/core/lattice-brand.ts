@@ -1,14 +1,42 @@
 import { basename } from 'path';
 
 export const LATTICE_CLI_VERSION = '0.3.251' as const;
-export const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;
-export const LATTICE_PRIMARY_BIN = 'lattice' as const;
+export const LATTICE_PRODUCT_NAME = 'Proof-or-Stop' as const;
+export const LATTICE_PRIMARY_BIN = 'proof-or-stop' as const;
+
+/**
+ * Deprecated bin alias, kept working so in-flight stories, git hooks and
+ * operator muscle memory keep resolving. B-cdf6 makes the rename additive at
+ * the CLI boundary: `proof-or-stop` is canonical, `lattice` still runs.
+ */
+export const LATTICE_DEPRECATED_BIN = 'lattice' as const;
+
+/** Every bin token the CLI answers to, canonical first. */
+export const LATTICE_BIN_NAMES: readonly string[] = [LATTICE_PRIMARY_BIN, LATTICE_DEPRECATED_BIN];
 
 export interface LatticeBrand {
   productName: typeof LATTICE_PRODUCT_NAME;
   version: typeof LATTICE_CLI_VERSION;
   primaryBin: typeof LATTICE_PRIMARY_BIN;
+  /** Raw basename of argv[1], extension stripped. May be any script name. */
   invokedAs: string;
+  /**
+   * The bin token that usage/help lines should print. Equals `invokedAs` only
+   * when the CLI was actually invoked through a recognized bin name
+   * (`proof-or-stop` or the deprecated `lattice`); otherwise it falls back to
+   * `primaryBin`. Without this normalization, running the compiled entry
+   * directly (`node packages/main/dist/cli.js help`, argv[1] basename `cli`)
+   * would print `Usage: cli <command>` — an instruction that does not resolve.
+   */
+  usageBin: string;
+}
+
+/**
+ * Narrow a raw invocation basename to a bin token safe to print in usage text.
+ * Anything that is not a real bin name falls back to the canonical bin.
+ */
+export function resolveUsageBin(invokedAs: string): string {
+  return LATTICE_BIN_NAMES.includes(invokedAs) ? invokedAs : LATTICE_PRIMARY_BIN;
 }
 
 export function detectLatticeBrand(argv: string[] = process.argv): LatticeBrand {
@@ -18,6 +46,7 @@ export function detectLatticeBrand(argv: string[] = process.argv): LatticeBrand 
     version: LATTICE_CLI_VERSION,
     primaryBin: LATTICE_PRIMARY_BIN,
     invokedAs,
+    usageBin: resolveUsageBin(invokedAs),
   };
 }
 

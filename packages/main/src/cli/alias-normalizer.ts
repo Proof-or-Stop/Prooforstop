@@ -1,3 +1,5 @@
+import { LATTICE_BIN_NAMES } from '../core/lattice-brand.js';
+
 export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'host list': 'host_list',
   'host probe': 'host_probe',
@@ -91,7 +93,10 @@ export interface AliasNormalizationResult {
 }
 
 export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationResult {
-  const aliasStart = argv[0] === 'lattice' ? 1 : 0;
+  // B-cdf6 CHK-002: tolerate a pasted redundant bin token under EITHER name, so
+  // `proof-or-stop proof-or-stop host list` is forgiven exactly like the
+  // `lattice lattice host list` form the deprecated alias already accepted.
+  const aliasStart = LATTICE_BIN_NAMES.includes(argv[0]) ? 1 : 0;
   const candidates: Array<{ text: string; consumed: 2 | 3 | 4 }> = [
     { text: argv.slice(aliasStart, aliasStart + 4).join(' '), consumed: 4 },
     { text: argv.slice(aliasStart, aliasStart + 3).join(' '), consumed: 3 },

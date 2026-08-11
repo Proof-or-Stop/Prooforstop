@@ -16,7 +16,7 @@ import {
   detectLatticeBrand,
   formatLatticeProductLine,
 } from '../core/lattice-brand.js';
-import { SESSION_BRIEF_FOOTER } from '../cli-prompts.js';
+import { sessionBriefFooter } from '../cli-prompts.js';
 import type { ToolDef } from './main-tools.js';
 
 export interface ActiveStoryForHelp {
@@ -167,7 +167,7 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
   const policy = getCommandPolicy(tool.name);
   const dryRunLine = dryRunHelpLine(tool, policy);
 
-  out(`\n  ${brand.primaryBin} ${tool.name} — ${tool.description}\n`);
+  out(`\n  ${brand.usageBin} ${tool.name} — ${tool.description}\n`);
   out(`  ${formatLatticeProductLine(brand)}\n`);
 
   // If longHelp exists for a core command, print the full prompt first.
@@ -179,11 +179,11 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
   const entries = Object.entries(tool.schema).filter(([, type]) => !isHiddenHelpEntry(type));
   if (entries.length === 0) {
     out('  No arguments\n');
-    out(`  Usage: ${brand.primaryBin} ${tool.name}`);
+    out(`  Usage: ${brand.usageBin} ${tool.name}`);
     if (dryRunLine) out(dryRunLine);
     const ownerBlock = options.ownerLeaseHelpBlock(tool.name);
     if (ownerBlock) out(ownerBlock);
-    if (includeFooter) out(SESSION_BRIEF_FOOTER);
+    if (includeFooter) out(sessionBriefFooter(brand.usageBin));
     return;
   }
   out('  Arguments:');
@@ -207,12 +207,12 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
     const base = inner instanceof ZodOptional ? (inner as any)._def.innerType : inner;
     return base instanceof ZodBoolean ? `[--${k}]` : `[--${k}=value]`;
   });
-  out(`\n  Usage: ${brand.primaryBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
+  out(`\n  Usage: ${brand.usageBin} ${tool.name} ${[...reqParts, ...optParts].join(' ')}`);
   out('  (* = required)');
   if (dryRunLine) out(dryRunLine);
   const ownerBlock = options.ownerLeaseHelpBlock(tool.name);
   if (ownerBlock) out(ownerBlock);
-  if (includeFooter) out(SESSION_BRIEF_FOOTER);
+  if (includeFooter) out(sessionBriefFooter(brand.usageBin));
 }
 
 function formatValidationIssue(issue: ZodIssue): string {
@@ -233,12 +233,12 @@ export function printHelp(options: GlobalHelpOptions) {
   const { tools, activeStory, phaseTools } = options;
   const brand = detectLatticeBrand();
   console.log(`\n  ${formatLatticeProductLine(brand)} — CLI-first project workflow and host migration surface\n`);
-  console.log(`  Entrypoint: ${brand.primaryBin}\n`);
-  console.log(`  Usage: ${brand.primaryBin} <command> --key=value         Run command`);
-  console.log(`        ${brand.primaryBin} <command> --help              View arguments`);
-  console.log(`        ${brand.primaryBin} help                          Show this help`);
-  console.log(`        ${brand.primaryBin} --version                     Show version`);
-  console.log(`        ${brand.primaryBin} --root <path> ...             Specify project root directory\n`);
+  console.log(`  Entrypoint: ${brand.usageBin}\n`);
+  console.log(`  Usage: ${brand.usageBin} <command> --key=value         Run command`);
+  console.log(`        ${brand.usageBin} <command> --help              View arguments`);
+  console.log(`        ${brand.usageBin} help                          Show this help`);
+  console.log(`        ${brand.usageBin} --version                     Show version`);
+  console.log(`        ${brand.usageBin} --root <path> ...             Specify project root directory\n`);
 
   if (activeStory) {
     console.log(`  Current Story: ${activeStory.storyId}  phase: ${activeStory.phase}\n`);
@@ -301,8 +301,8 @@ export function printHelp(options: GlobalHelpOptions) {
     }
     console.log(`
   Brief catalog (grouped command names).
-  What a command does + arguments: ${brand.primaryBin} <command> --help
-  Full catalog (descriptions, parameter schemas, development flow): ${brand.primaryBin} help --full   (or set ${'LATTICE_BRIEF_OUTPUT'}=0)
+  What a command does + arguments: ${brand.usageBin} <command> --help
+  Full catalog (descriptions, parameter schemas, development flow): ${brand.usageBin} help --full   (or set ${'LATTICE_BRIEF_OUTPUT'}=0)
 `);
     return;
   }
@@ -314,34 +314,34 @@ export function printHelp(options: GlobalHelpOptions) {
   console.log(`
   Development flow:
     ── PLAN ──
-    1. lattice story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}'
-    2. lattice init_preflight --storyId=B-xxx                   # Read-only INIT_CHECK prerequisite report; writes no evidence and creates no worktree
-    3. lattice story_advance --storyId=B-xxx --phase=INIT_CHECK # After preflight READY; create local worktree/local branch
+    1. ${brand.usageBin} story_create '{"name":"x","title":"..","description":"..","type":"feature","priority":"high","checklist":[{"title":"what to do","context":"context"}]}'
+    2. ${brand.usageBin} init_preflight --storyId=B-xxx                   # Read-only INIT_CHECK prerequisite report; writes no evidence and creates no worktree
+    3. ${brand.usageBin} story_advance --storyId=B-xxx --phase=INIT_CHECK # After preflight READY; create local worktree/local branch
     4. cd .worktrees/B-xxx
-    5. lattice story_review --storyId=B-xxx                     # Review passes, then enter DEV
-    6. lattice story_advance --storyId=B-xxx --phase=DEV
+    5. ${brand.usageBin} story_review --storyId=B-xxx                     # Review passes, then enter DEV
+    6. ${brand.usageBin} story_advance --storyId=B-xxx --phase=DEV
 
     ── DEV ──
     7. Implement the code and its verification (fixtures, project-native tests, or optional validate.ts)
-    8. lattice validate                                         # Verification (auto-detect by project language or read config)
-    9. lattice checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
+    8. ${brand.usageBin} validate                                         # Verification (auto-detect by project language or read config)
+    9. ${brand.usageBin} checklist_update --storyId=B-xxx --itemId=CHK-001 --status=done
 
     ── REVIEW ──
-   10. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review
-   11. Proofbound reviewer reviews code and raises findings       # critical/high must resolve
+   10. ${brand.usageBin} story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review
+   11. Proof-or-Stop reviewer reviews code and raises findings       # critical/high must resolve
 
     ── TEST → DONE ──
-   12. lattice story_advance --storyId=B-xxx --phase=TEST
-   13. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree
+   12. ${brand.usageBin} story_advance --storyId=B-xxx --phase=TEST
+   13. ${brand.usageBin} story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree
 
   Parallelism and branch discipline:
-    Proofbound parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.
-    If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs lattice release_approve_push --confirm, and then manually runs git push origin main.
+    Proof-or-Stop parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.
+    If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs ${brand.usageBin} release_approve_push --confirm, and then manually runs git push origin main.
 
   Initialize a new project:
-    lattice init                          # Initialize Proofbound project state in the current directory
+    ${brand.usageBin} init                          # Initialize Proof-or-Stop project state in the current directory
 
   Tip: use --key=value for simple arguments; use JSON format for complex arguments (array/object).
-  Error? Use lattice <command> --help to view complete argument help.
+  Error? Use ${brand.usageBin} <command> --help to view complete argument help.
 `);
 }

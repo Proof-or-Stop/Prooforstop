@@ -774,7 +774,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
       const lines: string[] = [];
       const gitReady = isGitRepository(ctx.root);
       const configuredGitRootStatus = readConfiguredGitRootSessionStatus(ctx.root, gitReady);
-      lines.push('# lattice session brief');
+      lines.push('# proof-or-stop session brief');
       lines.push('');
 
       const detected = detectActiveStoryFromGit(ctx);

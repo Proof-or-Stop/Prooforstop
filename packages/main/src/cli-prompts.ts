@@ -1,8 +1,10 @@
 /**
- * Long-form PROMPTs for Proofbound CLI core commands
+ * Long-form PROMPTs for Proof-or-Stop CLI core commands
  *
- * Displayed by `lattice <cmd> --help` to teach agents how to use commands.
+ * Displayed by `proof-or-stop <cmd> --help` to teach agents how to use commands.
  */
+
+import { LATTICE_PRIMARY_BIN } from './core/lattice-brand.js';
 
 export const STORY_CREATE_LONG = `
 ══════════════════════════════════════════════════════════
@@ -301,4 +303,14 @@ STEP-BY-STEP
   4. git commit + lattice checklist_update --status=done
 `.trim();
 
-export const SESSION_BRIEF_FOOTER = '\n-> Not sure what to do next? Run lattice session_brief to recover the project context.\n';
+/**
+ * B-cdf6 CHK-002: the footer tells the reader what to RUN NEXT, so it must name
+ * a bin that actually resolves for them. It mirrors how the CLI was invoked
+ * (`proof-or-stop` canonically, `lattice` when the deprecated alias was used).
+ */
+export function sessionBriefFooter(bin: string = LATTICE_PRIMARY_BIN): string {
+  return `\n-> Not sure what to do next? Run ${bin} session_brief to recover the project context.\n`;
+}
+
+/** Canonical-bin rendering of {@link sessionBriefFooter}. */
+export const SESSION_BRIEF_FOOTER = sessionBriefFooter();

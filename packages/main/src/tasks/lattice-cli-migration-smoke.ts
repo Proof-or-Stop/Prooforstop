@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { MAIN_TOOLS } from '../cli-engine.js';
 import { isCommandAllowed } from '../core/config.js';
 import { getCommandLifecyclePolicy } from '../core/command-policy.js';
-import { LATTICE_CLI_VERSION } from '../core/lattice-brand.js';
+import { LATTICE_CLI_VERSION, LATTICE_PRODUCT_NAME } from '../core/lattice-brand.js';
 import { StoryStore } from '../core/store.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { createMainRegistry } from '../registry.js';
@@ -85,18 +85,21 @@ function degradationByCategory(degradations: any[], category: string): any {
 }
 
 // Product identity and package entrypoints.
-assert.match(runCli(['--version']), new RegExp(`Proofbound CLI ${LATTICE_CLI_VERSION}`));
-assert.match(runCli(['version']), /Proofbound CLI/);
+// B-cdf6 CHK-002: the product name is Proof-or-Stop and the canonical bin is
+// proof-or-stop; `lattice` survives only as a deprecated invocation alias.
+assert.match(runCli(['--version']), new RegExp(`${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION}`));
+assert.match(runCli(['version']), new RegExp(LATTICE_PRODUCT_NAME));
 const rootPackage = readJson(join(repoRoot, 'package.json'));
 const mainPackage = readJson(join(repoRoot, 'packages', 'main', 'package.json'));
 assert.equal(rootPackage.version, LATTICE_CLI_VERSION, `root package version is ${LATTICE_CLI_VERSION}`);
 assert.equal(mainPackage.version, LATTICE_CLI_VERSION, `packages/main version is ${LATTICE_CLI_VERSION}`);
-assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'lattice package bin points at CLI');
+assert.equal(mainPackage.bin['proof-or-stop'], 'dist/cli.js', 'canonical proof-or-stop bin points at CLI');
+assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'deprecated lattice bin alias still points at CLI');
 
-// Help exposes first-class Proofbound identity and the new command set.
+// Help exposes first-class Proof-or-Stop identity and the new command set.
 const help = runCli(['help']);
-assert.match(help, new RegExp(`Proofbound CLI ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
-assert.match(help, /(?:^|\n)\s+Entrypoint:\s+lattice/);
+assert.match(help, new RegExp(`${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
+assert.match(help, /(?:^|\n)\s+Entrypoint:\s+proof-or-stop/);
 for (const command of COMMANDS) {
   assert.match(help, new RegExp(command), `help exposes ${command}`);
   assert.ok(MAIN_TOOLS.some(tool => tool.name === command), `MAIN_TOOLS exposes ${command}`);

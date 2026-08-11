@@ -245,12 +245,12 @@ assert.doesNotMatch(
 const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   {
     args: ['story_create', '--help'],
-    includes: ['Proofbound CLI', 'lattice story_create', '--checklist', '--scopeBoundary'],
+    includes: ['Proof-or-Stop', 'lattice story_create', '--checklist', '--scopeBoundary'],
   },
   {
     args: ['story_advance', '--help'],
     includes: [
-      'Proofbound CLI',
+      'Proof-or-Stop',
       'lattice story_advance',
       '--phase',
       'INIT_CHECK',
@@ -263,11 +263,13 @@ const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   },
   {
     args: ['validate', '--help'],
-    includes: ['Proofbound CLI', 'lattice validate', '--story', '--json'],
+    includes: ['Proof-or-Stop', 'lattice validate', '--story', '--json'],
   },
   {
     args: ['conduit_status', '--help'],
-    includes: ['Proofbound CLI', 'lattice conduit_status', '--format'],
+    // B-cdf6 CHK-002: conduit_status has no longHelp block, so its only usage
+    // line is the renderer-generated one, which now mirrors the invoked bin.
+    includes: ['Proof-or-Stop', 'proof-or-stop conduit_status', '--format'],
   },
 ];
 
@@ -279,7 +281,15 @@ for (const { args, includes } of commandHelpExpectations) {
 }
 
 const helpOutput = runCli(['help']);
-assert.match(helpOutput, /Proofbound CLI/, 'lattice help should retain Proofbound branding');
+// B-cdf6 CHK-002: the product name is now Proof-or-Stop (the legacy 'Proofbound'
+// spelling was ruled RENAMED, not an approved prose form), and help usage lines
+// mirror the invoked bin token.
+assert.match(helpOutput, /Proof-or-Stop/, 'help should carry Proof-or-Stop branding');
+// The product/version banner specifically must no longer print the legacy
+// spelling. Individual command DESCRIPTIONS may still say Proofbound until the
+// docs/prose sweep lands; only the brand banner is CHK-002's surface.
+assert.doesNotMatch(helpOutput, /Proofbound CLI/, 'help banner must not reprint the legacy Proofbound CLI product name');
+assert.doesNotMatch(helpOutput, /Usage: lattice /, 'help must not teach the deprecated bin as the usage form');
 assert.match(helpOutput, /host_runtime_probe/, 'lattice help should include host runtime commands');
 assert.match(runCli(['help', '--full']), /antigravity/, 'lattice help --full should include antigravity host text');
 

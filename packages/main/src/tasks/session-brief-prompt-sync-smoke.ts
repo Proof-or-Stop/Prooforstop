@@ -58,7 +58,11 @@ for (const file of targetDocs) {
   }
 }
 
-assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER[\s\S]*lattice session_brief/);
+// B-cdf6 CHK-002: the footer is now rendered from the invoked bin token rather
+// than a hardcoded name, so pin the builder + its next-step command instead of
+// the old `lattice session_brief` literal.
+assert.match(read('packages/main/src/cli-prompts.ts'), /sessionBriefFooter[\s\S]*\$\{bin\} session_brief/);
+assert.match(read('packages/main/src/cli-prompts.ts'), /SESSION_BRIEF_FOOTER = sessionBriefFooter\(\)/);
 
 const readme = read('README.md');
 const guide = read('docs/guide.md');

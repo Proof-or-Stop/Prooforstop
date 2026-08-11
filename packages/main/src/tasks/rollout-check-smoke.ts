@@ -67,15 +67,19 @@ function assertRolloutShape(result: RolloutCheckResult, label: string): void {
   assert.equal(result.schemaVersion, 'lattice.rollout_check.v1', `${label} schema`);
   assert.equal(result.readOnly, true, `${label} is read-only`);
   assert.equal(result.macAppRequired, false, `${label} does not require Mac App`);
-  assert.equal(result.product.primaryBin, 'lattice', `${label} primary bin`);
+  // B-cdf6 CHK-002: the canonical bin is now proof-or-stop; `lattice` survives
+  // only as a deprecated invocation alias and is NOT re-exposed as a structured
+  // `legacyAlias` product field.
+  assert.equal(result.product.primaryBin, 'proof-or-stop', `${label} primary bin`);
   assert.equal('legacyAlias' in result.product, false, `${label} does not expose a legacy alias`);
   assert.equal(result.summary.total, result.projects.length, `${label} summary total matches projects`);
   assert.ok(result.projects.length >= 1, `${label} returns at least one project`);
   assert.ok(result.projects.every(project => project.nextAction.length > 0), `${label} has next actions`);
   const commands = collectCommands(result);
-  assert.ok(commands.some(command => command.startsWith('lattice check')), `${label} records lattice check probe`);
-  assert.ok(commands.some(command => command.startsWith('lattice doctor')), `${label} records lattice doctor probe`);
-  assert.ok(commands.every(command => command.startsWith('lattice ') || command === 'filesystem stat'), `${label} commands prefer lattice`);
+  assert.ok(commands.some(command => command.startsWith('proof-or-stop check')), `${label} records proof-or-stop check probe`);
+  assert.ok(commands.some(command => command.startsWith('proof-or-stop doctor')), `${label} records proof-or-stop doctor probe`);
+  assert.ok(commands.every(command => command.startsWith('proof-or-stop ') || command === 'filesystem stat'), `${label} commands prefer proof-or-stop`);
+  assert.ok(!commands.some(command => command.startsWith('lattice ')), `${label} records no probe under the deprecated bin name`);
   for (const forbidden of result.safety.forbiddenArgs) {
     assert.ok(!commands.some(command => command.includes(forbidden)), `${label} never records ${forbidden}`);
   }
@@ -103,7 +107,10 @@ assert.equal(
 // CLI help and nested alias semantics.
 const help = runCli(['help']);
 assert.match(help, /rollout_check/, 'help exposes rollout_check');
-assert.match(help, /Entrypoint:\s+lattice/, 'help names lattice as entrypoint');
+// B-cdf6 CHK-002: help mirrors the invoked bin; this run invokes the compiled
+// entry, so it falls back to the canonical name rather than printing `cli`.
+assert.match(help, /Entrypoint:\s+proof-or-stop/, 'help names proof-or-stop as entrypoint');
+assert.doesNotMatch(help, /Usage: lattice /, 'help never teaches the deprecated bin as the usage form');
 const storyCreateHelp = runCli(['story_create', '--help']);
 assert.match(storyCreateHelp, /lattice story_create/, 'story_create help uses lattice examples');
 assert.match(storyCreateHelp, /lattice session_brief/, 'story_create help next step uses lattice');

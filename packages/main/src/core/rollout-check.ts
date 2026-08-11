@@ -8,6 +8,7 @@ import {
   LATTICE_CLI_VERSION,
   LATTICE_PRODUCT_NAME,
   LATTICE_PRIMARY_BIN,
+  LATTICE_DEPRECATED_BIN,
   formatLatticeProductLine,
 } from './lattice-brand.js';
 import { LATTICE_DIR } from './lattice-paths.js';
@@ -159,11 +160,17 @@ function readPackageName(path: string): string | null {
   return typeof parsed?.name === 'string' ? parsed.name : null;
 }
 
+/**
+ * B-cdf6 CHK-002: the bin map is now additive — `proof-or-stop` is canonical and
+ * `lattice` is retained as a deprecated alias. Require the CANONICAL entry so a
+ * package that only ships the deprecated alias is reported as needing a refresh,
+ * while a package shipping both still passes.
+ */
 function packageBinHasLattice(path: string): boolean {
   const parsed = readJsonFile(path);
   const bin = parsed?.bin;
   return !!bin && typeof bin === 'object' &&
-    (bin as Record<string, unknown>).lattice === 'dist/cli.js';
+    (bin as Record<string, unknown>)[LATTICE_PRIMARY_BIN] === 'dist/cli.js';
 }
 
 function parseProjectList(root: string, projects: string | string[] | undefined, maxDepth: number): string[] {
@@ -287,7 +294,10 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const mainPackagePath = join(projectRoot, 'packages', 'main', 'package.json');
   const mainPackageVersion = readPackageVersion(mainPackagePath);
   const mainPackageName = readPackageName(mainPackagePath);
-  const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', 'lattice.js'));
+  // B-cdf6 CHK-002: the canonical wrapper is bin/proof-or-stop.js; bin/lattice.js
+  // remains as a deprecated alias and is reported separately rather than gating.
+  const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', `${LATTICE_PRIMARY_BIN}.js`));
+  const hasDeprecatedWrapper = existsSync(join(projectRoot, 'bin', `${LATTICE_DEPRECATED_BIN}.js`));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
   const isSelfLayout = mainPackageName === '@lattice/core';
   const ok = isSelfLayout
@@ -295,17 +305,17 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
     : true;
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
-    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; bin=lattice-only:${hasBinAliases}`
+    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; wrapper=${hasLatticeWrapper}; deprecatedAliasWrapper=${hasDeprecatedWrapper}; bin=${LATTICE_PRIMARY_BIN}:${hasBinAliases}`
     : `external project; global ${formatLatticeProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',
-    label: 'Proofbound config doctor',
+    label: `${LATTICE_PRODUCT_NAME} config doctor`,
     status,
-    command: 'lattice lattice_config_doctor --format=json',
+    command: `${LATTICE_PRIMARY_BIN} lattice_config_doctor --format=json`,
     executed: 'filesystem-probe',
     readOnly: true,
     detail,
-    ...(status === 'warn' ? { nextAction: 'Refresh the local CLI package/wrappers, then rerun lattice lattice_config_doctor.' } : {}),
+    ...(status === 'warn' ? { nextAction: `Refresh the local CLI package/wrappers, then rerun ${LATTICE_PRIMARY_BIN} lattice_config_doctor.` } : {}),
   };
 }
 
@@ -315,7 +325,7 @@ function buildRuntimeProbe(result: RuntimeEnvironmentReport): RolloutProbe {
     id: 'runtime_footprint',
     label: 'Runtime footprint',
     status,
-    command: 'lattice check --json',
+    command: `${LATTICE_PRIMARY_BIN} check --json`,
     executed: 'in-process',
     readOnly: true,
     detail: `${result.runtimeMode.mode}/${result.runtimeMode.source}; projectLocalJS=${result.runtimeMode.requiresProjectJavaScriptRuntime}; facts=${result.summary.pass} pass, ${result.summary.warn} warn, ${result.summary.fail} fail`,
@@ -329,11 +339,11 @@ function buildManagedAssetProbe(result: ManagedAssetCheckResult): RolloutProbe {
     id: 'managed_assets',
     label: 'Managed assets',
     status,
-    command: 'lattice check --json',
+    command: `${LATTICE_PRIMARY_BIN} check --json`,
     executed: 'in-process',
     readOnly: true,
     detail: `mode=${result.mode}; OK=${result.summary.OK ?? 0}; MISSING=${result.summary.MISSING ?? 0}; STALE_SAFE=${result.summary.STALE_SAFE ?? 0}; STALE_LOCAL_EDIT=${result.summary.STALE_LOCAL_EDIT ?? 0}; INCOMPATIBLE=${result.summary.INCOMPATIBLE ?? 0}`,
-    ...(status !== 'pass' ? { nextAction: 'Run lattice check manually, review unsafe items, then use lattice check --apply or --upgrade only after operator approval.' } : {}),
+    ...(status !== 'pass' ? { nextAction: `Run ${LATTICE_PRIMARY_BIN} check manually, review unsafe items, then use ${LATTICE_PRIMARY_BIN} check --apply or --upgrade only after operator approval.` } : {}),
   };
 }
 
@@ -346,7 +356,7 @@ function buildAgentAssetResolutionProbe(projectRoot: string): RolloutProbe {
     id: 'agent_asset_resolution',
     label: 'Agent asset resolution',
     status,
-    command: 'lattice verify_codex --json',
+    command: `${LATTICE_PRIMARY_BIN} verify_codex --json`,
     executed: 'in-process',
     readOnly: true,
     detail: `${summarizeAgentAssetResolution(resolution)}; ${resolution.authorityBoundary.text}`,
@@ -369,11 +379,11 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
     id: 'doctor_readonly_subset',
     label: 'Doctor readiness',
     status,
-    command: 'lattice doctor --format=json',
+    command: `${LATTICE_PRIMARY_BIN} doctor --format=json`,
     executed: 'in-process',
     readOnly: true,
     detail,
-    ...(status !== 'pass' ? { nextAction: 'Run lattice doctor for full health details; use --repair only as an explicit maintenance action.' } : {}),
+    ...(status !== 'pass' ? { nextAction: `Run ${LATTICE_PRIMARY_BIN} doctor for full health details; use --repair only as an explicit maintenance action.` } : {}),
   };
 }
 
@@ -393,20 +403,20 @@ function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectSto
     id: 'transcript_scope',
     label: 'Transcript and story scope',
     status,
-    command: 'lattice session_brief',
+    command: `${LATTICE_PRIMARY_BIN} session_brief`,
     executed: 'filesystem-probe',
     readOnly: true,
     detail: parts.join('; '),
-    ...(status !== 'pass' ? { nextAction: 'Initialize or refresh managed project guidance with lattice init/check so transcript and story evidence have a clear home.' } : {}),
+    ...(status !== 'pass' ? { nextAction: `Initialize or refresh managed project guidance with ${LATTICE_PRIMARY_BIN} init/check so transcript and story evidence have a clear home.` } : {}),
   };
 }
 
 function nextActionFor(status: RolloutStatus, probes: RolloutProbe[]): string {
-  if (status === 'pass') return 'Ready for Proofbound CLI rollout.';
+  if (status === 'pass') return `Ready for ${LATTICE_PRODUCT_NAME} rollout.`;
   const firstFail = probes.find(probe => probe.status === 'fail');
   if (firstFail?.nextAction) return firstFail.nextAction;
   const firstWarn = probes.find(probe => probe.status === 'warn');
-  return firstWarn?.nextAction ?? 'Review warnings and rerun lattice rollout_check.';
+  return firstWarn?.nextAction ?? `Review warnings and rerun ${LATTICE_PRIMARY_BIN} rollout_check.`;
 }
 
 function scanProject(projectRoot: string): RolloutProjectResult {

@@ -33,6 +33,8 @@ import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
 import {
   formatLatticeVersionLine,
+  detectLatticeBrand,
+  LATTICE_BIN_NAMES,
 } from './core/lattice-brand.js';
 import { LATTICE_DIR } from './core/lattice-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
@@ -746,7 +748,9 @@ export async function runCli(opts?: {
     argv.splice(0, argv.length, ...normalizedAlias.argv);
     cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
-  } else if (cmd === 'lattice' && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
+    // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
+    // so `proof-or-stop proof-or-stop --version` behaves like `lattice lattice --version`.
+  } else if (LATTICE_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';
     arg = undefined;
@@ -823,11 +827,15 @@ export async function runCli(opts?: {
     return;
   }
 
+  // B-cdf6 CHK-002: next-action guidance must name a bin the caller can retype,
+  // so mirror how this process was actually invoked.
+  const usageBin = detectLatticeBrand().usageBin;
+
   if (cmd === 'codex' && (argv[1] === 'session_brief' || argv[1] === 'aux_doc_list')) {
     const ordinary = argv[1];
-    console.error(`Unsupported command: lattice codex ${ordinary}`);
-    console.error('The Codex adapter namespace only supports: lattice codex verify, lattice codex doctor.');
-    console.error(`Use the ordinary command instead: lattice ${ordinary}`);
+    console.error(`Unsupported command: ${usageBin} codex ${ordinary}`);
+    console.error(`The Codex adapter namespace only supports: ${usageBin} codex verify, ${usageBin} codex doctor.`);
+    console.error(`Use the ordinary command instead: ${usageBin} ${ordinary}`);
     process.exit(1);
   }
 
@@ -835,8 +843,8 @@ export async function runCli(opts?: {
   if (!tool) {
     console.error(`Unknown command: ${cmd}`);
     const m = TOOLS.filter(t => t.name.includes(cmd) || cmd.includes(t.name.split('_')[0]));
-    if (m.length) { console.error('Did you mean:'); for (const t of m) console.error(`  lattice ${t.name}`); }
-    console.error('Use lattice help to view all commands.');
+    if (m.length) { console.error('Did you mean:'); for (const t of m) console.error(`  ${usageBin} ${t.name}`); }
+    console.error(`Use ${usageBin} help to view all commands.`);
     process.exit(1);
   }
 
