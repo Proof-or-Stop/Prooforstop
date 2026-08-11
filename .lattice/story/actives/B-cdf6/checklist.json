@@ -248,7 +248,50 @@
       "userSees": "npm test passes end to end after the rename, and a new regression test proves the audit-scan command extractor still reports drift for a bogus 'proof-or-stop no_such_command' reference instead of silently passing",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Root npm test passes end to end, so the DONE-blocking suite is green",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "proof-or-stop --version prints the bumped 0.3.252",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm run test:process-fact-contract passes after its literal prompt command strings are reconciled",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm run test:proof-or-stop-prompt-baseline passes after per-role templateHash re-approval",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "NEGATIVE regression: a doc line referencing proof-or-stop no_such_command REPORTS drift, proving the extractor did not go vacuously blind",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "scanCommandDrift detects a bogus command under BOTH bin tokens, so mixed-token docs stay covered during the transition",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "An empty extraction can never be mistaken for a clean scan",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
