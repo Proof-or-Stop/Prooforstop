@@ -766,9 +766,9 @@
         "packages/main/src/core/audit-scan.ts"
       ],
       "userSees": "npm test passes end to end after the rename, and a new regression test proves the audit-scan command extractor still reports drift for a bogus 'proof-or-stop no_such_command' reference instead of silently passing",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-11T06:14:51.269Z",
-      "endTime": null,
+      "endTime": "2026-08-11T07:26:11.335Z",
       "verificationIntent": {
         "happy": [
           {
@@ -827,6 +827,13 @@
         "test": [
           "packages/main/src/tasks"
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "5965a7c6641f25c124b0d37f95c1a532fd83167ed14cb304132de8b9fe35f480",
+        "storyFilesHash": "0a6c37b7800210a11d1a4e470107e0ed71e78c243532d3781f67ac92aa571f6c",
+        "headHash": "f224100830cb60c34f0412e0cd44d9212fa8b51d",
+        "attestedAt": "2026-08-11T07:26:11.520Z",
+        "materialHash": "4250742ffd5fb5fbf2303aaaa0b0113ffd6b5f17206bc8c1aafa348d0a43a671"
       }
     }
   ]
