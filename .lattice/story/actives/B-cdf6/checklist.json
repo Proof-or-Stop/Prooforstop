@@ -595,7 +595,11 @@
           {
             "desc": "An intentional un-renamed prose mention in an active doc is DETECTED, proving the gate is not vacuous",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-brand-gate-negative.mjs",
+              "selector": "NEGATIVE-TEST OK"
+            }
           },
           {
             "desc": "verify-residue-inject-repro.mjs still proves the gate catches an injected hit",
@@ -757,17 +761,23 @@
         },
         {
           "intentRef": "CHK-004:adversarial:0",
-          "kind": "docs_check",
-          "file": "scripts/verify-lattice-residue.mjs",
-          "command": "node scripts/verify-lattice-residue.mjs",
+          "kind": "manual_transcript",
+          "file": "scripts/verify-brand-gate-negative.mjs",
+          "command": "node scripts/verify-brand-gate-negative.mjs",
           "result": "pass",
-          "note": "Negative test independently reproduced by the main agent: injecting an un-renamed invocation into a real active doc is detected at file:line with a mapping-table remediation hint; reverting restores PASS.",
-          "mechanical": false,
-          "nonMechanicalReason": "Proving the gate is NOT vacuous requires a temporary regression that must then be reverted, so the passing tree cannot itself carry the proof and no single pinned command captures it. The main agent performed this negative test independently of the implementer: appended the line Run lattice validate to check your work. to docs/guide.md, ran the gate, and it FAILED with: FAIL lattice-residue [brand-prose]: active docs still instruct the reader to run the OLD bin name / docs/guide.md:266 / 1 un-renamed brand invocation(s) - including a remediation hint naming the mapping-table row. After git checkout docs/guide.md the gate returned to PASS and the tree was clean. This proves a reverted CHK-003 rename is mechanically detected.",
-          "headHash": "a13a07a67135e549d0ed2d4fbde0a1cf5b93edc8",
-          "materialHash": "588986fa7eaced65e84d8ec55bc17040070ac8ceb589d3b02ebce24644ffd3ba",
-          "storyFilesHash": "3fe3080e0fba9a7d419c12282676bfc89f6a6d5fcd51107748b9d4c565623360",
-          "timestamp": "2026-08-11T08:42:29.458Z"
+          "note": "MECHANIZED, not attested. The earlier non-mechanical attestation was correctly REFUSED by the DEV->REVIEW gate, which is the right outcome - a claim that a gate bites should itself be executable. The proof is now a Node script asserting BOTH directions: inject an un-renamed `lattice validate` invocation into a real active doc (docs/guide.md) and require the brand gate to FAIL, then revert and require it to PASS. Neither a blind gate nor a permanently-red gate can satisfy it, and a finally-block restores the doc even on early exit.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e377ffa5d69e9a96755855be9ffd01598d39031acda3de1e1e617dd5069c0528",
+            "outputTail": "NEGATIVE-TEST OK: injected regression detected, clean tree passes\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-11T15:37:26.699Z"
+          },
+          "headHash": "9b003f82b48239e005599aaccde839869c949649",
+          "materialHash": "8f570378eb4636718661eb9e6b99a23f3cefdd6674c0ff030e9513a9d658beb6",
+          "storyFilesHash": "c38449c5ed248ccf8eb064bd5418ca884dc9b5f339b7ed7bae224c4d5ebbd652",
+          "timestamp": "2026-08-11T15:37:26.905Z"
         }
       ]
     },
