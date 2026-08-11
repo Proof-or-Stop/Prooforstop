@@ -259,8 +259,8 @@ lattice init — 初始化 Proofbound 开发框架
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
-  LATTICE.md                    canonical host-neutral Proofbound 指南（旧位置）
-  bin/lattice.js                本地 Proofbound bootstrap（仅 full/thin）
+  LATTICE.md                    canonical host-neutral Proof-or-Stop 指南（旧位置）
+  bin/proof-or-stop.js          本地 Proof-or-Stop bootstrap（仅 full/thin）
   .lattice-codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
   .lattice-codex/agents                 agent prompt copies（仅 full mode + codex profile）
 
@@ -473,7 +473,12 @@ function removeClaudeSettingsIfManaged() {
 }
 
 function removeCodexWrapperIfManaged() {
-  removeWholeFileIfGenerated('bin/lattice-codex.js', 'bin/lattice-codex.js', [renderLatticeCodexWrapperScript()]);
+  // Both the canonical wrapper and the retained deprecated alias are managed-generated
+  // shapes, so profile cleanup must consider both names (B-cdf6). A file whose content
+  // is not the generated template is still left alone by removeWholeFileIfGenerated.
+  for (const rel of ['bin/proof-or-stop-codex.js', 'bin/lattice-codex.js']) {
+    removeWholeFileIfGenerated(rel, rel, [renderLatticeCodexWrapperScript()]);
+  }
 }
 
 function removeCodexManifestIfManaged() {
@@ -607,22 +612,36 @@ if (withStarter) {
   }
 }
 
-const codexWrapperPath = join(targetDir, 'bin', 'lattice-codex.js');
+// B-cdf6: init writes the CANONICAL wrapper names. The deprecated `bin/lattice.js` /
+// `bin/lattice-codex.js` names are still ACCEPTED (a project that already has them is
+// left alone rather than gaining a duplicate), but they are never newly generated —
+// otherwise fresh projects would keep inheriting the retired brand.
+const CANONICAL_BOOTSTRAP_REL = 'bin/proof-or-stop.js';
+const CANONICAL_CODEX_WRAPPER_REL = 'bin/proof-or-stop-codex.js';
+const DEPRECATED_BOOTSTRAP_REL = 'bin/lattice.js';
+const DEPRECATED_CODEX_WRAPPER_REL = 'bin/lattice-codex.js';
+
+const existingCodexWrapperRel = [CANONICAL_CODEX_WRAPPER_REL, DEPRECATED_CODEX_WRAPPER_REL]
+  .find(rel => existsSync(join(targetDir, rel)));
+
 if (!isGlobalThin) {
-  writeExecutable('bin/lattice.js', renderLatticeBootstrapScript(packageRoot));
+  writeExecutable(CANONICAL_BOOTSTRAP_REL, renderLatticeBootstrapScript(packageRoot));
+  if (existsSync(join(targetDir, DEPRECATED_BOOTSTRAP_REL))) {
+    console.log(`  - ${DEPRECATED_BOOTSTRAP_REL} (deprecated alias retained, still works)`);
+  }
 } else {
-  console.log('  - bin/lattice.js (global-thin mode; use global lattice CLI)');
+  console.log(`  - ${CANONICAL_BOOTSTRAP_REL} (global-thin mode; use global proof-or-stop CLI)`);
 }
 
-if (!isGlobalThin && wantsCodex && !existsSync(codexWrapperPath)) {
-  writeExecutable('bin/lattice-codex.js', renderLatticeCodexWrapperScript());
-  console.log('  ✓ bin/lattice-codex.js (Codex wrapper)');
+if (!isGlobalThin && wantsCodex && !existingCodexWrapperRel) {
+  writeExecutable(CANONICAL_CODEX_WRAPPER_REL, renderLatticeCodexWrapperScript());
+  console.log(`  ✓ ${CANONICAL_CODEX_WRAPPER_REL} (Codex wrapper)`);
 } else if (!isGlobalThin && wantsCodex) {
-  console.log('  - bin/lattice-codex.js (exists, skip)');
+  console.log(`  - ${existingCodexWrapperRel} (exists, skip)`);
 } else if (isGlobalThin) {
-  console.log('  - bin/lattice-codex.js (global-thin mode; use lattice codex verify)');
+  console.log(`  - ${CANONICAL_CODEX_WRAPPER_REL} (global-thin mode; use proof-or-stop codex verify)`);
 } else {
-  console.log('  - bin/lattice-codex.js (profile skip)');
+  console.log(`  - ${CANONICAL_CODEX_WRAPPER_REL} (profile skip)`);
 }
 
 // 生成 CLI shell 模板

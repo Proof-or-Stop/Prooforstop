@@ -147,6 +147,37 @@ const DOC_SCAN_ROOTS = [
 ];
 
 /**
+ * Executable-surface scan roots (B-cdf6 CHK-006 Pass A).
+ *
+ * These roots hold code and generated shell/JS assets, not prose docs, so they are scanned
+ * with the SAME invocation detector but WITHOUT the `.md`-only restriction: a stale
+ * `lattice <cmd>` in a `console.error` recovery hint or a generated hook is exactly as
+ * misleading as one in a doc, and `bin/` was previously outside every scan root.
+ *
+ * Deliberately NOT included, with measured reasons (counts from the detector at the time of
+ * writing — reported rather than silently exempted, because they are real findings this pass
+ * does not own):
+ *
+ *   - `packages/main/src`, `packages/lab/src`, `packages/utils/src` — 969 hits / 214 files.
+ *     The bulk are user-facing runtime strings (`Next: lattice validate ...`, help/prompt
+ *     text in cli-prompts.ts, command-catalog.ts descriptions). Fixing them is real work on
+ *     the CLI's own output surface, which Pass A does not cover; Pass B (code identifiers +
+ *     runtime strings) owns it. Gating them now would fail closed on day one.
+ *   - `scripts` — 175 hits / 24 files, same class (self-host verifier prose + old-alias
+ *     invocations that still legitimately exercise the retained `bin/lattice.js` alias).
+ *   - `CHANGELOG.md` — 19 hits, FROZEN historical release record per the mapping table.
+ *   - `lattice-experience-layer-v1.1-zh.md` — 2 hits, both `Lattice story workflow` brand
+ *     PROSE (a different mapping-table row than an invocation).
+ */
+const EXECUTABLE_SCAN_ROOTS = [
+  'bin',
+  '.codex',
+  'package.json',
+  'lattice.config.json',
+  'CITATION.cff',
+];
+
+/**
  * Check 2 is scoped to PROSE documents, i.e. markdown. Verified exhaustively: the only
  * non-markdown tracked files under DOC_SCAN_ROOTS are 6 `.json`, 2 `.gitkeep`, 1 `.svg`
  * and 1 `.png`, so restricting to `.md` costs no reader-facing prose coverage. It does
@@ -339,6 +370,30 @@ function runScan() {
     for (const p of exemptionProblems) console.error(`  ${p}`);
   }
 
+  // --- CHECK 3: un-renamed brand invocations on the EXECUTABLE surface (B-cdf6 Pass A) ---
+  // Same detector, no `.md` filter and no exemptions: `bin/` and `.codex/` were outside
+  // every scan root before this, which is why a stale `lattice` invocation in a recovery
+  // hint or a generated hook could sit there while the gate reported PASS.
+  const execHits = scanRoots(EXECUTABLE_SCAN_ROOTS, isBrandProseResidue);
+  if (execHits.length === 0) {
+    console.log(
+      'PASS lattice-residue [brand-exec]: 0 bare `lattice <cmd>` invocations on the ' +
+        `executable surface (${EXECUTABLE_SCAN_ROOTS.join(', ')})`,
+    );
+  } else {
+    failed = true;
+    console.error(
+      'FAIL lattice-residue [brand-exec]: executable assets still invoke the OLD bin name',
+    );
+    for (const h of execHits) console.error(`  ${h}`);
+    console.error(
+      `\n${execHits.length} un-renamed brand invocation(s) on the executable surface. ` +
+        'Rewrite `lattice <cmd>` as `proof-or-stop <cmd>`. Deprecated-alias FILE paths ' +
+        '(`bin/lattice.js`) are structurally excluded by the detector and are fine; only ' +
+        'a bare `lattice <subcommand>` INVOCATION is reported here.',
+    );
+  }
+
   return failed ? 1 : 0;
 }
 
@@ -424,6 +479,28 @@ const BRAND_PROSE_CASES = [
   ['Run `proof-or-stop validate` to check.', false],
   ['proof-or-stop story_advance \'{"storyId":"B-xxx"}\'', false],
   ['a clean line with no brand token at all', false],
+
+  // --- B-cdf6 CHK-006 Pass A: the widened EXECUTABLE_SCAN_ROOTS must not trip on the
+  // things Pass A deliberately keeps. These are the shapes that actually appear in the
+  // newly-gated `bin/` and `.codex/` files, so each is pinned here. ---
+  // All 13 frozen signature salts share this shape; the trailing `-v<N>` means the token
+  // is followed by `-`, which the left/right fences reject. Byte-frozen by the mapping table.
+  ['const SALT = "lattice-review-integrity-v1";', false],
+  ['lattice-closeout-write-receipt-integrity-v3', false],
+  // Retained deprecated bin ALIAS paths — a file path, not an invocation. Never flagged,
+  // which is what makes the rename additive: keeping the alias cannot fail the gate.
+  ["path.join(root, 'bin', 'lattice.js'),", false],
+  ["const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js', 'lattice.js'];", false],
+  ['import \'./proof-or-stop-codex.js\';', false],
+  // Read-both bin-name lists: the deprecated name appears as a quoted STRING, not as a
+  // `lattice <cmd>` invocation, so the read-both compat pattern is gate-safe.
+  ["for (const bin of ['proof-or-stop', 'lattice']) {", false],
+  // The canonical codex wrapper invocation must not self-trigger either.
+  ['node bin/proof-or-stop-codex.js verify_codex', false],
+  // Frozen npm package name used as a path segment in a resolution probe.
+  ["path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),", false],
+  // ...but a genuine stale invocation on the executable surface IS still caught.
+  ["console.error('  - Rerun: lattice init --verify-codex');", true],
 ];
 
 /**

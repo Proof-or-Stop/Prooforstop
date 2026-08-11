@@ -16,6 +16,7 @@ import {
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
+import { LATTICE_DEPRECATED_BIN, LATTICE_PRIMARY_BIN } from './lattice-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   promptRegistryManifest,
@@ -50,11 +51,34 @@ export interface CodexAdapterMaterialSnapshot {
   files: string[];
 }
 
-export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/lattice-codex.js verify_codex';
-export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
-export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'lattice codex verify';
-export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
-export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice';
+/**
+ * Local wrapper basenames, canonical first (B-cdf6).
+ *
+ * The rename is additive: `bin/proof-or-stop-codex.js` / `bin/proof-or-stop.js` are
+ * canonical, but the deprecated `bin/lattice-codex.js` / `bin/lattice.js` aliases are
+ * retained and must keep satisfying this gate. A checkout generated before the rename
+ * (or a teammate branch that has only the old wrappers) therefore still passes: every
+ * consumer below picks the first entry that exists on disk rather than asserting one name.
+ */
+export const LOCAL_CODEX_WRAPPERS: readonly string[] = [
+  'bin/proof-or-stop-codex.js',
+  'bin/lattice-codex.js',
+];
+export const LOCAL_BOOTSTRAP_WRAPPERS: readonly string[] = [
+  'bin/proof-or-stop.js',
+  'bin/lattice.js',
+];
+
+/** First existing candidate, or the canonical name when none is present. */
+function resolveWrapperRelPath(root: string, candidates: readonly string[]): string {
+  return candidates.find(rel => existsSync(join(root, rel))) ?? candidates[0];
+}
+
+export const LOCAL_CODEX_VERIFY_COMMAND = 'node bin/proof-or-stop-codex.js verify_codex';
+export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/proof-or-stop.js verify_codex';
+export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'proof-or-stop codex verify';
+export const LOCAL_INIT_VERIFY_COMMAND = 'proof-or-stop init --verify-codex';
+export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop';
 export const DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS = 10_000;
 // The global fallback runs the real installed `lattice session_brief`, which can
 // traverse a large repo before writing its heartbeat. Keep local wrapper probes
@@ -67,9 +91,13 @@ export const DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000;
  */
 export function resolveLocalCodexVerifyCommand(root: string): string {
   if (isGlobalThinProject(root)) return GLOBAL_THIN_CODEX_VERIFY_COMMAND;
+  // Canonical codex wrapper, then canonical bootstrap, then the deprecated aliases:
+  // whichever this checkout actually has is what the operator is told to run.
   const candidates: Array<[string, string]> = [
-    ['bin/lattice-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
-    ['bin/lattice.js',       LOCAL_MAIN_VERIFY_COMMAND],
+    ['bin/proof-or-stop-codex.js', LOCAL_CODEX_VERIFY_COMMAND],
+    ['bin/proof-or-stop.js',       LOCAL_MAIN_VERIFY_COMMAND],
+    ['bin/lattice-codex.js',       'node bin/lattice-codex.js verify_codex'],
+    ['bin/lattice.js',             'node bin/lattice.js verify_codex'],
   ];
   for (const [rel, cmd] of candidates) {
     if (existsSync(join(root, rel))) return cmd;
@@ -79,14 +107,11 @@ export function resolveLocalCodexVerifyCommand(root: string): string {
 
 export function resolveCodexSessionBriefCommand(root: string): string {
   if (isGlobalThinProject(root)) return `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`;
-  const candidates: Array<[string, string]> = [
-    ['bin/lattice-codex.js', 'node bin/lattice-codex.js session_brief'],
-    ['bin/lattice.js',       'node bin/lattice.js session_brief'],
-  ];
-  for (const [rel, cmd] of candidates) {
-    if (existsSync(join(root, rel))) return cmd;
+  const candidates: readonly string[] = [...LOCAL_CODEX_WRAPPERS, ...LOCAL_BOOTSTRAP_WRAPPERS];
+  for (const rel of candidates) {
+    if (existsSync(join(root, rel))) return `node ${rel} session_brief`;
   }
-  return 'node bin/lattice-codex.js session_brief';
+  return `node ${LOCAL_CODEX_WRAPPERS[0]} session_brief`;
 }
 
 const CODEX_MATERIAL_PATHS = [
@@ -98,6 +123,11 @@ const CODEX_MATERIAL_PATHS = [
   '.claude/agents',
   'AGENTS.md',
   'README.md',
+  // Both the canonical wrappers and the retained deprecated aliases are adapter
+  // material: editing either changes what a Codex session actually executes, so a
+  // stale verification must not survive a change to any of the four.
+  'bin/proof-or-stop-codex.js',
+  'bin/proof-or-stop.js',
   'bin/lattice-codex.js',
   'bin/lattice.js',
   'bin/bootstrap-runner.js',
@@ -570,22 +600,61 @@ function pathContains(parent: string, child: string): boolean {
   return rel === '' || (!!rel && !rel.startsWith('..') && !rel.startsWith('/'));
 }
 
-function resolveLatticeCommandPath(root: string): string | null {
-  const command = process.platform === 'win32' ? 'where' : 'sh';
-  const args = process.platform === 'win32' ? ['lattice'] : ['-lc', 'command -v lattice'];
-  try {
-    const out = execFileSync(command, args, {
-      cwd: root,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-      timeout: 2_000,
-      env: process.env,
-    }).trim();
-    return out.split(/\r?\n/).find(Boolean) || null;
-  } catch {
-    // probe: PATH may not expose a global lattice; heartbeat execution reports the real failure.
-    return null;
+/**
+ * Locate a globally installed CLI on PATH, preferring the canonical bin name.
+ *
+ * Read-both by design (B-cdf6): a globally installed package built before the rename
+ * exposes only `lattice`, so probing `proof-or-stop` alone would report "no global CLI"
+ * on a machine that has a perfectly working one. Canonical name wins when both exist.
+ */
+function resolveGlobalCliCommandPath(root: string): string | null {
+  for (const bin of [LATTICE_PRIMARY_BIN, LATTICE_DEPRECATED_BIN]) {
+    const command = process.platform === 'win32' ? 'where' : 'sh';
+    const args = process.platform === 'win32' ? [bin] : ['-lc', `command -v ${bin}`];
+    try {
+      const out = execFileSync(command, args, {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 2_000,
+        env: process.env,
+      }).trim();
+      const found = out.split(/\r?\n/).find(Boolean);
+      if (found) return found;
+    } catch {
+      // probe: this bin name is not on PATH; try the next alias.
+    }
   }
+  // No global CLI under any known name; heartbeat execution reports the real failure.
+  return null;
+}
+
+/**
+ * Read a wrapper's text, concatenating any sibling wrapper it re-exports.
+ *
+ * B-cdf6: `bin/lattice-codex.js` is a retained deprecated alias whose whole body is
+ * `import './proof-or-stop-codex.js'`, so the env contract lives one hop away. Only
+ * relative sibling imports inside `bin/` are followed, and only one hop, so this
+ * cannot be used to satisfy the check from an arbitrary file.
+ */
+function readWrapperTextFollowingDelegation(root: string, wrapperRelPath: string): string {
+  const wrapperAbs = join(root, wrapperRelPath);
+  let text = readText(wrapperAbs);
+  const delegated = new Set<string>();
+  for (const match of text.matchAll(/(?:^|\n)\s*import\s+['"]\.\/([A-Za-z0-9._-]+\.[cm]?js)['"]/g)) {
+    delegated.add(match[1]);
+  }
+  const binDir = wrapperRelPath.split('/').slice(0, -1).join('/');
+  for (const sibling of delegated) {
+    const siblingAbs = join(root, binDir, sibling);
+    if (!existsSync(siblingAbs)) continue;
+    try {
+      text += `\n${readText(siblingAbs)}`;
+    } catch {
+      // probe: unreadable sibling just means no extra evidence; the base text still applies.
+    }
+  }
+  return text;
 }
 
 function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
@@ -595,15 +664,30 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
     push(checks, 'local-wrapper', 'Local Codex wrapper', 'pass', true, 'global-thin project: local wrapper not required; use global lattice codex verify / lattice codex doctor');
     return;
   }
-  const wrapperRelPath = 'bin/lattice-codex.js';
-  const bootstrapRelPath = 'bin/lattice.js';
+  // Accept whichever wrapper name this checkout has, canonical preferred. A pre-rename
+  // checkout with only `bin/lattice-codex.js` still passes (additive compat), and a
+  // post-rename one is verified against the canonical file it actually executes.
+  const wrapperRelPath = resolveWrapperRelPath(root, LOCAL_CODEX_WRAPPERS);
+  const bootstrapRelPath = resolveWrapperRelPath(root, LOCAL_BOOTSTRAP_WRAPPERS);
   const wrapper = join(root, wrapperRelPath);
   const localBootstrap = join(root, bootstrapRelPath);
   if (!existsSync(wrapper)) {
-    push(checks, 'local-wrapper', 'Local Codex wrapper', 'fail', true, 'missing bin/lattice-codex.js', LOCAL_INIT_VERIFY_COMMAND);
+    push(
+      checks,
+      'local-wrapper',
+      'Local Codex wrapper',
+      'fail',
+      true,
+      `missing local Codex wrapper (looked for: ${LOCAL_CODEX_WRAPPERS.join(', ')})`,
+      LOCAL_INIT_VERIFY_COMMAND,
+    );
     return;
   }
-  const text = readText(wrapper);
+  // A retained deprecated alias may hold no behaviour of its own and simply
+  // `import` its canonical sibling (that is how B-cdf6 keeps the two from drifting).
+  // Verify the env contract on whichever file actually sets it, so a thin alias is
+  // not reported as a wrapper "missing LATTICE_ACTIVITY_SOURCE".
+  const text = readWrapperTextFollowingDelegation(root, wrapperRelPath);
   const required = ['LATTICE_ACTIVITY_SOURCE', 'codex', 'LATTICE_ACTIVITY_RECORD_READONLY', 'LATTICE_CODEX_ENTRYPOINT'];
   const missing = required.filter(piece => !text.includes(piece));
   if (missing.length > 0) {
@@ -679,7 +763,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     if (existsSync(currentCore) && globalCore) {
       const currentReal = realpathSync(currentCore);
       const globalReal = realpathSync(globalCore.path);
-      const latticeCommand = resolveLatticeCommandPath(root);
+      const latticeCommand = resolveGlobalCliCommandPath(root);
       const latticeReal = latticeCommand && existsSync(latticeCommand) ? realpathSync(latticeCommand) : '';
       const actualLatticeUsesGlobalCore = !!latticeReal && pathContains(globalReal, latticeReal);
       if (actualLatticeUsesGlobalCore && currentReal !== globalReal) {
@@ -703,7 +787,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     checks,
     'global-fallback-heartbeat',
     'Global fallback heartbeat',
-    resolveLatticeCommandPath(root) ?? 'lattice',
+    resolveGlobalCliCommandPath(root) ?? LATTICE_DEPRECATED_BIN,
     ['session_brief'],
     `codex-check-global-${Date.now()}`,
     'global-fallback',

@@ -69,7 +69,12 @@ export interface AuditReport {
  * retiring a bin alias in lattice-brand.ts cannot silently desync the drift extractor from the
  * names the CLI actually answers to.
  */
-const BIN_TOKEN_ALTERNATION = LATTICE_BIN_NAMES
+const BIN_TOKEN_ALTERNATION = [...LATTICE_BIN_NAMES]
+  // Longest first: alternation is ordered, so an entry that is a prefix of another
+  // (`proof-or-stop` of `proof-or-stop-codex`, `lattice` of `lattice-codex`) must not
+  // get first refusal. Backtracking would recover here, but relying on it is fragile —
+  // one added quantifier away from `proof-or-stop-codex doctor` extracting nothing.
+  .sort((a, b) => b.length - a.length)
   .map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
   .join('|');
 

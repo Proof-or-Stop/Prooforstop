@@ -747,14 +747,32 @@ export function listManagedAssetDefinitions(
       actual => actual.includes('canonical, host-neutral') || actual.includes('New init profile'),
       actual => isExpandedLatticeOverview(actual),
     ),
+    // B-cdf6: `bin/proof-or-stop.js` is the canonical bootstrap that init writes, so it is
+    // registered unconditionally and reported MISSING when absent, exactly as the old
+    // `bin/lattice.js` entry used to be.
     wholeFile(
-      'bin:lattice.js',
-      'bin/lattice.js',
+      'bin:proof-or-stop.js',
+      'bin/proof-or-stop.js',
       renderLatticeBootstrapScript(root),
       actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
       true,
       isLatticeSelfRepoBootstrap,
     ),
+    // The deprecated `bin/lattice.js` alias is registered ONLY WHEN IT EXISTS. It is a
+    // compatibility artifact, not a thing to create: init no longer generates it, so
+    // demanding it unconditionally would report a spurious MISSING on every freshly
+    // initialized project. Present-and-drifted is still worth reporting, so when the file
+    // IS there it gets the same drift checking as the canonical one.
+    ...(managedAssetPathKind(root, 'bin/lattice.js') === 'file'
+      ? [wholeFile(
+          'bin:lattice.js',
+          'bin/lattice.js',
+          renderLatticeBootstrapScript(root),
+          actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
+          true,
+          isLatticeSelfRepoBootstrap,
+        )]
+      : []),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
 
@@ -771,13 +789,28 @@ export function listManagedAssetDefinitions(
         actual => actual.includes('Codex / AGENTS') || actual.includes('Codex subagent prompts are located at'),
         actual => isExpandedLatticeAgentsGuide(actual),
       ),
+      // B-cdf6: canonical Codex wrapper is required; the deprecated alias is drift-checked
+      // only when present (same contract as the bootstrap pair above).
       wholeFile(
-        'bin:lattice-codex.js',
-        'bin/lattice-codex.js',
+        'bin:proof-or-stop-codex.js',
+        'bin/proof-or-stop-codex.js',
         renderLatticeCodexWrapperScript(),
         actual => actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'),
         true,
       ),
+      ...(managedAssetPathKind(root, 'bin/lattice-codex.js') === 'file'
+        ? [wholeFile(
+            'bin:lattice-codex.js',
+            'bin/lattice-codex.js',
+            renderLatticeCodexWrapperScript(),
+            // The retained alias may be a thin delegating shim rather than a copy of the
+            // generated wrapper, so ownership is recognized by EITHER shape.
+            actual => (actual.includes('LATTICE_ACTIVITY_SOURCE') && actual.includes('local-wrapper'))
+              || actual.includes("import './proof-or-stop-codex.js'"),
+            true,
+            actual => actual.includes("import './proof-or-stop-codex.js'"),
+          )]
+        : []),
       wholeFile(
         '.lattice-codex:README.md',
         '.lattice-codex/README.md',

@@ -11,8 +11,29 @@ export const LATTICE_PRIMARY_BIN = 'proof-or-stop' as const;
  */
 export const LATTICE_DEPRECATED_BIN = 'lattice' as const;
 
-/** Every bin token the CLI answers to, canonical first. */
-export const LATTICE_BIN_NAMES: readonly string[] = [LATTICE_PRIMARY_BIN, LATTICE_DEPRECATED_BIN];
+/** Canonical local Codex entrypoint basename (`bin/proof-or-stop-codex.js`). */
+export const LATTICE_PRIMARY_CODEX_BIN = 'proof-or-stop-codex' as const;
+
+/**
+ * Deprecated local Codex entrypoint basename (`bin/lattice-codex.js`), retained
+ * as an alias for the same additive-compat reason as {@link LATTICE_DEPRECATED_BIN}.
+ */
+export const LATTICE_DEPRECATED_CODEX_BIN = 'lattice-codex' as const;
+
+/**
+ * Every bin token the CLI answers to, canonical first.
+ *
+ * The Codex wrappers are included so that invoking them prints a usage line the
+ * reader can actually paste back: without them, `resolveUsageBin` would treat
+ * `proof-or-stop-codex` as an unrecognized script and print the plain
+ * `proof-or-stop` usage, losing the `source=codex` entrypoint the operator used.
+ */
+export const LATTICE_BIN_NAMES: readonly string[] = [
+  LATTICE_PRIMARY_BIN,
+  LATTICE_DEPRECATED_BIN,
+  LATTICE_PRIMARY_CODEX_BIN,
+  LATTICE_DEPRECATED_CODEX_BIN,
+];
 
 export interface LatticeBrand {
   productName: typeof LATTICE_PRODUCT_NAME;
