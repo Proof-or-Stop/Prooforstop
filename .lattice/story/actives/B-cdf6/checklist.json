@@ -202,6 +202,19 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "README.md",
+          "CLAUDE.md",
+          "AGENTS.md",
+          "docs",
+          "packages/main/templates/agents",
+          ".claude/agents",
+          ".lattice-codex/agents"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {
