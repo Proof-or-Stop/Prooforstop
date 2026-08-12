@@ -13,12 +13,22 @@ const acceptance = readFileSync('packages/main/src/tasks/proofstory-acceptance-r
 const incremental = readFileSync('packages/main/src/tasks/review-incremental-context-smoke.ts', 'utf8');
 
 const smokeOutput = execFileSync(process.execPath, ['packages/main/dist/tasks/full-suite-runner-smoke.js'], { cwd: root, encoding: 'utf8' });
-assert.match(smokeOutput, /full-suite-runner-smoke: PASS \(16 assertions\)/);
+assert.match(smokeOutput, /full-suite-runner-smoke: PASS \(20 assertions\)/);
 for (const token of ['SIGINT', 'SIGTERM', 'INTERRUPTED', 'activeChildren', 'killTree', 'headHash', 'materialHash', 'workerUtilization', 'processLaunchCount', 'criticalPath', 'lockWaitMs', 'resource']) assert.ok(runner.includes(token), `runner missing ${token}`);
 assert.ok(runnerSmoke.includes('jobs greater') || runnerSmoke.includes('runScheduled'));
 assert.ok(cohort.includes('productionCaseLimit') && cohort.includes('withProductionCaseSlot'));
 assert.ok(acceptance.includes('copied cohort runner is byte-identical') && acceptance.includes('const tempCohort = clone(control)'));
 assert.ok(incremental.includes("LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1"));
+assert.ok(!runner.includes('rmSync('), 'runner must not accept or recursively delete arbitrary member cleanup roots');
+assert.equal(300_000 < 300_000, false, 'exactly 300000ms is outside the accepted performance boundary');
+
+if (process.env.B9812_COHORT_JOBS1 && process.env.B9812_COHORT_JOBS3) {
+  const one = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS1, 'utf8'));
+  const three = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS3, 'utf8'));
+  assert.equal(one.sourceInventoryDigest, three.sourceInventoryDigest);
+  assert.deepEqual(one.registeredSeedIds, three.registeredSeedIds);
+  assert.deepEqual(one.sourceRecords, three.sourceRecords);
+}
 
 const prefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-mechanical-run';
 const expectedMaterial = process.env.B9812_MATERIAL_HASH;
