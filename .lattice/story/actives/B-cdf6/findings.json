@@ -432,6 +432,25 @@
       "_hash": "bd700d70f41fec84918e7be6fbbcbf15cd11054d67f72806e2e03f5c6d808ff0",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-021",
+      "desc": "CHK-005:happy:0 verificationEvidence row (checklist.json, timestamp 2026-08-11T18:50:07Z) is stale relative to the F-006 rewrite of scripts/verify-done-suite-green.mjs (commit 4d83f6781d, 2026-08-12T04:04:43+08:00, roughly 75 minutes AFTER this evidence was recorded). The row still describes the DELETED log-reading design: note text cites a REAL_EXIT=0 marker check, npmtest4.log, a staleness statSync guard that fired twice, and receipt_selector_absent refusals at 270.3s; receipt.outputTail quotes the literal string DONE-SUITE GREEN: npm test exit=0, 0 failure lines (recorded run, newer than all tracked sources) which the current script cannot produce (grep for statSync/readFileSync/existsSync/DONE_SUITE_LOG in the current file returns 0 hits; the current success message is DONE-SUITE GREEN: npm test exit=0, 0 failure lines, N stage lines observed, no recorded-run clause). The row also still asserts mechanical:true and receipt.selectorMatched:true, which directly contradicts the F-006 resolution text itself: because the rewritten script always executes the full suite it now runs about 21 minutes (I reproduced this live: real 21:13.82 elapsed, output DONE-SUITE GREEN: npm test exit=0, 0 failure lines, 334 stage lines observed, matching the claimed reproduction exactly), roughly 4.7x past DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270000ms, so it can no longer be receipt-pinned and mechanical:true is no longer honest. This is not a re-litigation of resolved F-006 (the code fix itself is real, independently verified) or F-008 (also moot, independently verified: no statSync/SELF_REL/mtime code remains). It is a NEW defect: the evidence artifact attached to CHK-005 was never refreshed after the code it attests to was rewritten, so it now overclaims a receipt-mechanized happy-path proof the current script structurally cannot produce. verification_intent_repair only backfills MISSING intent from evidence, it does not detect or fix STALE evidence, and checklist_update (the only way to rewrite an evidence note) is not in the REVIEW phaseTools allow-list, so fixing this needs a DEV round-trip to call verification_evidence_add again with a note that honestly describes the check as non-receipted manual_transcript (or an explicit waiver acknowledging that).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T04:31:35.740Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-012",
+      "_hash": "667a2a8caa4c660c01d5286558e0eedc1434a036bdd0371e5fc3bcb43a8e593b",
+      "files": [
+        ".lattice/story/actives/B-cdf6/checklist.json",
+        "scripts/verify-done-suite-green.mjs"
+      ],
+      "signatureTag": "missing|json|happy-verificationevidence-checklist",
+      "signatureTagSource": "auto"
     }
   ]
 }
