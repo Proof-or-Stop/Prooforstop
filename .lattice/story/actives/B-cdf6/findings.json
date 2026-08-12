@@ -505,6 +505,27 @@
       "resolvedAt": "2026-08-12T06:42:17.236Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-024",
+      "desc": "checklist.json CHK-005:happy:0 verificationEvidence row (kind=waiver, waiverType=permanent, timestamp 2026-08-12T08:12:14.578Z): the reclassification from deferred_gate_evidence to permanent is not honest and should be reverted. The waivers note text itself states the un-receiptability is contingent on B-META-framework-audit:F-012 (missing per-evidence timeout override / distinct timeout error class) and explicitly says a fix to F-012 would make a genuine receipt possible again -- that is the definition of deferred, not permanent. I independently confirmed both technical claims in the note are accurate (checklist.ts:616-644 immutable pin + receipt_command_mismatch refusal; every production call site of runSingleAllowlistedCommand in checklist.ts omits options.timeoutMs so the 270s DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS always applies), but accurate diagnosis of WHY a receipt cannot be obtained today does not make the condition inherent to the intent -- it makes it contingent on unfixed tooling, which proofstory.ts:845-851 already has a name for: deferred_gate_evidence. The gate design deliberately refuses to count deferred_gate_evidence as REVIEW completeness coverage (rowCoversIntent excludes it at line 847) while accepting permanent (line 850); reclassifying to permanent because it is the label the gate accepts, while the waiver text itself argues the deferred label, is exactly the gate-shopping pattern the story's own open finding B-META-framework-audit:F-016 predicted and named (\"a one-word edit that silently converts temporarily unprovable into permanently unprovable, which is exactly the kind of semantic downgrade an audit trail should resist\"). The mitigations cited (root npm test is independently DONE-required at doneRequiredCommands with a 7200000ms ceiling; AB-004's other 4 refs carry genuine mechanical receipts, all verified true) are real and reduce the practical coverage risk, but they are arguments for why shipping with a deferred_gate_evidence waiver would be SAFE, not arguments for why permanent is the TRUTHFUL label. The correct fix is either (a) keep the honest deferred_gate_evidence classification and resolve the resulting review_completeness_missing_evidence gap through a route that does not require rewinding to PLAN (e.g. fix F-012 itself so the intent becomes genuinely receiptable, or get an explicit product-owner ProofStory binding amendment/waiver at the ProofStory layer rather than the checklist-evidence layer), or (b) if permanent is truly intended, remove the self-contradicting F-012-contingent language from the waiver note so the record does not argue against its own classification.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T08:18:03.017Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-015",
+      "_hash": "17db178901c2d697110add7e3a70e042bb0eb506248b10a472b0f79e6a49dd04",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/validation-executor.ts",
+        ".lattice/story/actives/B-cdf6/checklist.json"
+      ],
+      "signatureTag": "adversarial|ts|checklist-json-happy",
+      "signatureTagSource": "auto"
     }
   ]
 }
