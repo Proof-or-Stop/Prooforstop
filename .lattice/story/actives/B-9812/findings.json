@@ -739,7 +739,7 @@
       "desc": "concept-cleanup: docs/requirements/decisions/done-full-test-gate-execution-plan.md:9-18 still presents the root `scripts.test` contract as a 22-step serial `npm test` chain and uses that stale shape as a current evidence anchor, while package.json:15-17 now replaces it with `full-suite-runner.js` plus an independently named 47-member serial-reference inventory. Repository-wide grep finds this as the remaining current root-chain description. Because this document is a CHK-001/CHK-006 related requirements source, the canonical-runner concept replacement is incomplete and leaves future DONE-gate work with a false current topology.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-12T21:11:48.733Z",
@@ -773,14 +773,18 @@
         "package.json"
       ],
       "signatureTag": "missing|md|concept-cleanup-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: the DONE gate truth source still described the retired 22-step serial chain. Updated it to the independent 47-member serial-reference authority, keyed parallel scheduler and current DONE-required command. Repro: final serial oracle and jobs3/jobs5/three jobs4 receipts all report the same ordered 47 members; capture verified CHK-005 membership selectors.",
+      "resolvedAt": "2026-08-12T22:04:12.310Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-031",
       "desc": "The immutable full-suite verifier is not replayable at the actual REVIEW HEAD. The capture is bound to 1a0939ad, while normal reviewer dispatch adds prompt-envelopes.json and review-runs.json; METADATA_ALLOWLIST omits both. Reproduction at ec0b070d1c: node scripts/verify-full-suite-contract.mjs exits 1 with 'capture HEAD is not an admissible metadata-only ancestor'. Thus all 52 pinned selectors lose mechanical evidence as soon as the required reviewer protocol runs. Add the normal signed review metadata files to the narrow allowlist and test a real review_run_start/dispatch descendant while continuing to reject source, unknown metadata, and non-ancestor drift.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-12T21:13:23.597Z",
@@ -804,14 +808,18 @@
         "scripts/verify-full-suite-selector.mjs"
       ],
       "signatureTag": "missing|mjs|immutable-full-suite",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: immutable verifier metadata policy omitted normal reviewer dispatch files. Added prompt-envelopes.json and review-runs.json to the bounded allowlist while retaining nonancestor, source-drift and unknown-path denial. Repro: selector self-test PASS 11; capture PASS 52 and no-arg replay PASS 52 in 1.03s at metadata descendant.",
+      "resolvedAt": "2026-08-12T22:04:13.014Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-032",
       "desc": "LATTICE_FULL_SUITE_OUTPUT_ROOT is trusted as an authorization boundary even when it is the project root. Reproduction: importing validateJsonOutputPath and calling validateJsonOutputPath(process.cwd(), 'package.json', process.cwd()) returns the tracked package.json path instead of rejecting it. The real runner then writes the result artifact after execution, so an environment variable can re-enable the tracked-project overwrite that CHK-001:adversarial:1 and prior F-021 require to be impossible. Require the owned output root itself to be a proven task-owned out-of-tree directory (or reject all in-project outputs), and add the environment-bypass mutation.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-12T21:13:25.288Z",
@@ -836,14 +844,18 @@
         "packages/main/src/tasks/full-suite-runner-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|lattice-full-suite",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: OUTPUT_ROOT could be treated as authority without proving it was disjoint from the checkout. validateJsonOutputPath now rejects project root, ancestors, descendants and symlink aliases before spawning; only an external disjoint base can authorize descendants. Repro: full-suite-runner-smoke PASS 78 including tracked overwrite, root/ancestor and symlink cases.",
+      "resolvedAt": "2026-08-12T22:04:13.731Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-033",
       "desc": "The canonical fixed-port resource sentinel claims fixed-port-resource-key:43127 without ever opening or probing port 43127. It imports no net API and only mkdirs three paths. In an unsandboxed localhost reproduction, I pre-bound 127.0.0.1:43127 and packages/main/dist/tasks/full-suite-resource-sentinel.js still exited 0/PASS. The smoke's fixed-port mutation uses only an in-memory active array, so it cannot detect a wrong port or a task that fails to consume the declared resource. This leaves the prior protected-resource safety gap open; bind the declared port in the canonical sentinel and prove pre-binding/collision fails terminally, with a supported host strategy rather than silently skipping.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-12T21:13:26.943Z",
@@ -869,14 +881,18 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "adversarial|ts|canonical-fixed-port",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: scheduler fixed-port key collision evidence did not prove an OS bind collision. Added dedicated executable receipt: normal 127.0.0.1:43127 bind PASS, concurrent contender terminal EADDRINUSE, cleanup rebind PASS; unsupported exits 2 and verifier rejects it. Repro: /tmp/b9812-final-v3-fixed-port-os.json overall PASS and capture CHK-006 adversarial predicate PASS.",
+      "resolvedAt": "2026-08-12T22:04:14.436Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-034",
       "desc": "The final report openly shows detailed assertion inventory unavailable for 42 of 47 canonical members (and 43 empty mutation inventories), yet verify-full-suite-contract marks CHK-001:happy:0/1 and the per-member baseline contract PASS by checking only that empty arrays exist plus five long-tail markers. canonicalMemberAssertionId is only a membership ID, not an assertion inventory. Reproduction: /tmp/b9812-final-v3-run1.json summaryInventory.unavailable has 42 members; emptyAssertions=42, emptyMutations=43. Therefore the claimed old-vs-new semantic coverage baseline cannot detect assertion or mutation shrinkage for most of the suite. Either collect truthful detailed inventories for every member or narrow the acceptance claim and stop emitting VERIFIED for those selectors.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-12T21:13:28.609Z",
@@ -901,14 +917,18 @@
         "scripts/verify-full-suite-contract.mjs"
       ],
       "signatureTag": "missing|ts|final-report-openly",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: runner previously blurred canonical member identity with internal assertion inventory. Report now distinguishes per-member terminal assertion inventory from detailedAssertions, marks uninstrumented members runner-terminal with detailedAssertions null and empty mutation inventory, and never fabricates internal detail. Repro: smoke terminal-vs-detailed assertion PASS; three jobs4 reports reconcile explicitMarkers and runnerTerminalOnly; verifier checks the distinction.",
+      "resolvedAt": "2026-08-12T22:04:15.144Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-035",
       "desc": "F-024 is not mechanically resolved for all 52 intents. scripts/verify-full-suite-contract.mjs:196-203 still maps materially different promises to coarse shared booleans. For example CHK-002:happy:0 is gated only by `proof.keyedResources` (three source regexes), not observed interval overlap or unique temp roots; CHK-004:happy:1 is gated by incrementalMap plus the whole-suite serial oracle, not a seeded jobs=1/parallel shard equivalence; CHK-004:edge:0, edge:1, adversarial:1, and adversarial:2 are each gated only by stressValid, whose receipt booleans are constructed unconditionally at review-incremental-context-smoke.ts:1614-1622 after repetitions and contain no replay seed/schedule, cutoff boundary outcome, cross-shard contamination mutation, or per-guard mutation bite. CHK-004:edge:2 uses only generic runner injectedFailures, not a timed-out incremental shard beside successful shards. Thus deleting these promised mechanisms would not suppress their selectors; the component-removal self-test only deletes a stored selector from the receipt and does not mutate these behavioral predicates.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-12T21:14:14.579Z",
@@ -936,14 +956,18 @@
         "packages/main/src/tasks/full-suite-runner-smoke.ts"
       ],
       "signatureTag": "adversarial|mjs|mechanically-resolved-intents",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: CHK-002/004 used coarse shared predicates without durable behavior facts. Scheduler receipt separately binds five protected pairs, alias collision, fail-closed, progress, lifecycle and mutations; stress20 receipt binds seed/schedule, 20x6 guard outcomes, replay, ABA/cutoff/restoration and mutation map. Repro: capture 52/52; stress20 PASS 178.68s; runner smoke PASS 78.",
+      "resolvedAt": "2026-08-12T22:04:15.850Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-036",
       "desc": "Current REVIEW metadata makes the required fast mechanical verifier unusable. The capture at 1a0939 is otherwise same-material and its descendant changes through b58618f are entirely allowlisted, but the normal final dispatch commit ec0b070 adds .lattice/story/actives/B-9812/prompt-envelopes.json and review-runs.json. scripts/verify-full-suite-selector.mjs:32-38 and scripts/verify-full-suite-contract.mjs:24-37 omit both lifecycle files, so `node scripts/verify-full-suite-contract.mjs` fails in 0.22s with `capture HEAD is not an admissible metadata-only ancestor`; `--evaluate-internal` likewise rejects all three jobs4 receipts and DONE identity. This reproduces immediately after review_run_start, invalidating the current-round 52 selector receipts despite unchanged material.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-12T21:14:14.632Z",
@@ -970,7 +994,11 @@
         "scripts/verify-full-suite-contract.mjs"
       ],
       "signatureTag": "missing|mjs|current-review-metadata",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: current REVIEW metadata paths were outside immutable replay policy. Both selector and internal verifier now admit exact prompt-envelopes/review-runs plus the existing bounded lifecycle files, while unknown metadata/source/nonancestor remain denied. Repro: capture PASS 52 at 371ec93; no-arg PASS 52 in 1.03s after metadata-only evidence commit 9652a2e.",
+      "resolvedAt": "2026-08-12T22:04:16.621Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
