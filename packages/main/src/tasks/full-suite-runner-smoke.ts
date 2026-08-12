@@ -3,7 +3,7 @@
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, win32 } from 'node:path';
 import { tmpdir } from 'node:os';
-import { execFileSync, spawn } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import {
@@ -40,6 +40,12 @@ async function main(): Promise<void> {
     });
   });
   assert(fixedPortOsCollision === 'detected' || fixedPortOsCollision === 'unsupported', `fixed-port OS collision probe is explicit (${fixedPortOsCollision})`);
+  const osReceiptPath = join(tmpdir(), `full-suite-fixed-port-os-${process.pid}.json`);
+  const osProbe = spawnSync(process.execPath, [join(dirname(fileURLToPath(import.meta.url)), 'full-suite-fixed-port-os-collision.js'), '--out', osReceiptPath], { encoding: 'utf8' });
+  const osReceipt = JSON.parse(readFileSync(osReceiptPath, 'utf8'));
+  assert((osProbe.status === 0 && osReceipt.overallStatus === 'PASS' && osReceipt.collision.code === 'EADDRINUSE' && osReceipt.mutationDetected === true)
+    || (osProbe.status === 2 && osReceipt.overallStatus === 'UNSUPPORTED' && osReceipt.mutationDetected === false), 'dedicated fixed-port OS receipt never disguises unsupported capability as collision detection');
+  rmSync(osReceiptPath, { force: true });
   const rootPackage = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
   assert(rootPackage.scripts?.build === 'npm --prefix packages/main run build && npm --prefix packages/utils run build', 'standard root build prepares main and utils runtime');
   assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js', 'root test has no ignored compatibility arguments');
@@ -184,6 +190,12 @@ async function main(): Promise<void> {
     const cpuResult = await runEntry(entry('test:cpu'), cpuFixture);
     assert(cpuResult.status === 'PASS' && cpuResult.cpu?.userSeconds !== 999, 'member stderr cannot spoof dedicated CPU timing file');
     assert(cpuResult.summaryMarkerPresent === true && cpuResult.assertionInventory?.[0] === 'cpu-fixture' && cpuResult.mutationInventory?.[0] === 'stderr-spoof', 'structured member summary marker reconciles assertion and mutation inventories');
+    writeFileSync(join(cpuFixture, 'plain.js'), `console.log('plain member');\n`);
+    writeFileSync(join(cpuFixture, 'package.json'), JSON.stringify({ scripts: { 'test:cpu': 'node cpu.js', 'test:plain': 'node plain.js' } }));
+    const plainResult = await runEntry(entry('test:plain'), cpuFixture);
+    assert(plainResult.summaryMarkerPresent === false && plainResult.inventorySource === 'runner-terminal'
+      && plainResult.detailedAssertions === null && plainResult.mutationInventory?.length === 0
+      && plainResult.assertionInventory?.[0] === 'terminal-exit:PASS:test:plain', 'runner terminal assertion remains explicitly distinct from unavailable internal assertion and mutation inventory');
     const isolatedRoots = cpuResult.output.match(/TEMP_ROOTS=([^\n]+)/)?.[1]?.split('|') ?? [];
     assert(isolatedRoots.length === 4 && new Set(isolatedRoots).size === 1 && isolatedRoots[0] === cpuResult.tempRoot, `member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP (${isolatedRoots.join('|')} vs ${cpuResult.tempRoot})`);
     const heartbeat = join(root, 'heartbeat');

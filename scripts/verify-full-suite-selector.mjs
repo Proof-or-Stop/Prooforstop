@@ -15,6 +15,7 @@ const artifacts = [
   ...[3, 5].flatMap(jobs => [`/tmp/b9812-final-v3-jobs${jobs}.json`, `/tmp/b9812-final-v3-jobs${jobs}.exit`, `/tmp/b9812-final-v3-jobs${jobs}.identity`, `/tmp/b9812-final-v3-jobs${jobs}.timing`]),
   '/tmp/b9812-final-v3-stress20.log', '/tmp/b9812-final-v3-stress20.exit', '/tmp/b9812-final-v3-stress20.timing',
   '/tmp/b9812-final-v3-injected-fixtures.log', '/tmp/b9812-final-v3-injected-fixtures.exit',
+  '/tmp/b9812-final-v3-fixed-port-os.json',
   '.lattice/story/actives/B-9812/done-required-evidence.json',
   'scripts/verify-full-suite-contract.mjs',
   'scripts/verify-full-suite-selector.mjs',

@@ -24,6 +24,7 @@ const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: '
 const RECEIPT_METADATA_ALLOWLIST = new Set([
   'owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json',
   'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json',
+  'prompt-envelopes.json', 'review-runs.json',
 ]);
 export function receiptHeadIsAdmissible({ ancestor, materialEqual, changedPaths }) {
   const prefix = '.lattice/story/actives/B-9812/';
@@ -48,6 +49,7 @@ const smokeAssertions = Number(smokeOutput.match(/PASS \((\d+) assertions\)/)?.[
 assert.ok(smokeAssertions >= 44);
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/checklist.json'] }), true, 'metadata-only descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/index.json', '.lattice/story/actives/B-9812/process-metrics.json'] }), true, 'normal REVIEW lifecycle metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/prompt-envelopes.json', '.lattice/story/actives/B-9812/review-runs.json'] }), true, 'actual reviewer dispatch metadata descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: false, materialEqual: true, changedPaths: [] }), false, 'non-ancestor receipt is rejected');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['packages/main/src/tasks/full-suite-runner.ts'] }), false, 'source diff is rejected even with matching material claim');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/unapproved.json'] }), false, 'metadata path outside strict allowlist is rejected');
@@ -140,6 +142,12 @@ const doneReceiptValid = receiptCheck(Boolean(doneReceiptText), `DONE-required r
   && receiptCheck(/npm test|full-suite-runner/.test(doneReceiptText), 'DONE-required command mismatch');
 const jobs3 = readJsonReceipt(process.env.B9812_JOBS3_RECEIPT ?? '/tmp/b9812-final-v3-jobs3.json');
 const jobs5 = readJsonReceipt(process.env.B9812_JOBS5_RECEIPT ?? '/tmp/b9812-final-v3-jobs5.json');
+const fixedPortOs = readJsonReceipt(process.env.B9812_FIXED_PORT_OS_RECEIPT ?? '/tmp/b9812-final-v3-fixed-port-os.json');
+const fixedPortOsValid = receiptCheck(fixedPortOs?.schema === 'lattice.fixed-port-os-collision.v1', 'fixed-port OS collision receipt schema missing')
+  && receiptCheck(fixedPortOs.host === '127.0.0.1' && fixedPortOs.port === 43127, 'fixed-port OS collision endpoint mismatch')
+  && receiptCheck(fixedPortOs.capability === 'detected' && fixedPortOs.normalBind === 'PASS', 'fixed-port OS normal bind was not demonstrated')
+  && receiptCheck(fixedPortOs.collision?.status === 'TERMINAL_FAIL' && fixedPortOs.collision?.code === 'EADDRINUSE' && fixedPortOs.mutationDetected === true, 'prebound fixed port did not produce terminal EADDRINUSE')
+  && receiptCheck(fixedPortOs.cleanupRebind === 'PASS' && fixedPortOs.overallStatus === 'PASS', 'fixed-port OS cleanup/rebind was not demonstrated');
 const stressText = readTextReceipt(process.env.B9812_STRESS20_RECEIPT ?? '/tmp/b9812-final-v3-stress20.log');
 const stressLine = stressText.split(/\r?\n/).find(line => line.startsWith('INCREMENTAL_STRESS_RECEIPT='));
 let stressReceipt = null;
@@ -159,6 +167,15 @@ const memberReportValid = parallel.length === 3 && parallel.every(run =>
     && result.failureOutcome?.status === result.status
     && result.cpu && (result.cpu.capability === 'unavailable' || (Number.isFinite(result.cpu.userSeconds) && Number.isFinite(result.cpu.systemSeconds))))
 );
+const memberInventoryTruthful = parallel.length === 3 && parallel.every(run => {
+  const markerNames = run.results.filter(result => result.summaryMarkerPresent).map(result => result.name);
+  const terminalOnlyNames = run.results.filter(result => !result.summaryMarkerPresent).map(result => result.name);
+  return canonical(run.summaryInventory?.explicitMarkers ?? []) === canonical(markerNames)
+    && canonical(run.summaryInventory?.runnerTerminalOnly ?? []) === canonical(terminalOnlyNames)
+    && run.results.every(result => result.summaryMarkerPresent
+      ? Array.isArray(result.detailedAssertions)
+      : result.inventorySource === 'runner-terminal' && result.detailedAssertions === null && result.mutationInventory.length === 0);
+});
 const explicitLongTailMarkers = parallel.length === 3 && parallel.every(run =>
   ['test:full-suite-runner-smoke', 'test:full-suite-resource-sentinel', 'test:review-incremental-context-smoke', 'test:proofstory-intent-hardening-smoke', 'test:proofstory-acceptance-rollout']
     .every(name => run.results.find(result => result.name === name)?.summaryMarkerPresent === true)
@@ -204,7 +221,7 @@ const proof = {
   doneRequired: doneReceiptValid,
   jobsEdge: jobsEdgeValid,
   stress20: stressValid,
-  memberReport: memberReportValid,
+  memberReport: memberReportValid && memberInventoryTruthful,
   explicitLongTailMarkers,
   focusedBehavior,
 };
@@ -215,7 +232,7 @@ const conditions = {
   'CHK-003': [proof.cohortIntegrity, proof.cohortIsolation, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation, proof.cohortEquivalent, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation],
   'CHK-004': [proof.incrementalMap && proof.stress20 && stressReceipt.schedule.length === 3, proof.incrementalMap && proof.serialEquivalent && stressReceipt.shards.enabled === false, proof.incrementalMap && proof.stress20 && stressReceipt.iterations.length === 20, proof.stress20 && stressReceipt.replay.sameGuardClassOutcome, proof.stress20 && stressReceipt.aba && stressReceipt.cutoff && stressReceipt.restoration, proof.focusedBehavior.injectedFailures && schedulerProof.lifecycle, proof.incrementalMap && Object.keys(stressReceipt.mutationKillMap).length === 6, proof.stress20 && stressReceipt.deterministicSeed === 'fixed-mask-v1', proof.stress20 && Object.keys(stressReceipt.mutationKillMap).length === 6],
   'CHK-005': [proof.inventory, proof.serialEquivalent, proof.terminal, proof.strictArguments, proof.keyedResources, proof.processTree, proof.inventory, proof.terminal, proof.terminal],
-  'CHK-006': [proof.threeRuns, proof.auditableReports && proof.memberReport, proof.serialEquivalent, proof.doneRequired, proof.threeRuns && proof.identityAndBudget, proof.jobsEdge, proof.identityAndBudget, proof.processTree && schedulerProof.lifecycle && proof.terminal && proof.focusedBehavior.injectedFailures && (schedulerProof.fixedPortOs === 'detected' || schedulerProof.fixedPortOs === 'unsupported'), proof.identityAndBudget && proof.focusedBehavior.cpuSpoof, schedulerProof.mutations && proof.doneRequired && proof.focusedBehavior.protectedClasses],
+  'CHK-006': [proof.threeRuns, proof.auditableReports && proof.memberReport, proof.serialEquivalent, proof.doneRequired, proof.threeRuns && proof.identityAndBudget, proof.jobsEdge, proof.identityAndBudget, proof.processTree && schedulerProof.lifecycle && proof.terminal && proof.focusedBehavior.injectedFailures && fixedPortOsValid, proof.identityAndBudget && proof.focusedBehavior.cpuSpoof, schedulerProof.mutations && proof.doneRequired && proof.focusedBehavior.protectedClasses],
 };
 const counts = { 'CHK-001': [2, 2, 2], 'CHK-002': [3, 3, 3], 'CHK-003': [3, 3, 3], 'CHK-004': [3, 3, 3], 'CHK-005': [3, 3, 3], 'CHK-006': [4, 3, 3] };
 const lanes = ['happy', 'edge', 'adversarial'];
