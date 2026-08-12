@@ -142,6 +142,37 @@
         "scanEscalationReason": null
       },
       "_hash": "b4b421ef2e4d97ff6af1ae457ea61ff68ef1441fd886d8538e3dcbd123ed3ca4"
+    },
+    {
+      "id": "B-74af:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-attestation passed: SAFE_INCREMENTAL reported no changed source files, affected contracts, or intent refs. The sole stale-triggering checklist change makes CHK-002:adversarial:1 an explicit docs_check with result=pass and does not weaken status-first semantics. Canonical live/unknown monitoring, completed-result-once, terminal-only single replacement, exact missingAgents dispatch, and zero-diff protected timeout implementations remain intact. The declared flow-stability command was independently rerun on one monitored exec session and exited 0 with the full liveness suite PASS.",
+      "createdAt": "2026-08-12T11:35:13.959Z",
+      "reviewRound": "2026-08-12T11:13:15.675Z",
+      "reviewRunId": "B-74af:RR-007",
+      "envelopeId": "28512dbd2fe91d75fd9cfc86479262d1f01f1a7582cdae473d0bed058c05ae37",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-liveness-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74af/checklist.json",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a0c195f78c777acffa9d550b10a53ee4dd464ba02ffaccb4724e70cc518e334f"
     }
   ]
 }
