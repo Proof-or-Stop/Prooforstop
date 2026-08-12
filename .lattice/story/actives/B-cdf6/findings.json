@@ -451,6 +451,25 @@
       ],
       "signatureTag": "missing|json|happy-verificationevidence-checklist",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-022",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts currently FAILS on this story branch (reproduced live: node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits with ERR_ASSERTION, actual=[{file:packages/main/src/cli-engine.ts,line:814,label:unapproved non-literal dynamic module load,text:import() `file://${initPath}`...}], expected=[]). Root cause verified: this story (commit aad24a037e, 2026-08-11T13:12:46+08:00) correctly re-pinned PINNED_EXECUTABLE_SOURCE_FINGERPRINTS for packages/main/src/cli-engine.ts to c67969720875... after the CHK-002 bin-rename edit, but a LATER edit to the same file (commit 31835c09ed, 2026-08-11T21:46:46+08:00, CHK-006 normalize residual Proofbound spelling and stale constant identifiers) changed cli-engine.ts again without re-running the repin, so the guards structural AST fingerprint for cli-engine.ts is now stale and the pre-approved dynamic-import call site at line 814 (`await import(file://${initPath})`) is reported as a NEW unapproved dynamic load rather than a recognized pre-existing one. This is a currently-red gate on this branch (not a pre-existing main failure; I did not need to check main because the repin commit and the drift-causing commit are both story commits), so npm test / lattice validate is not actually green right now despite the story treating CHK-005 happy:0 (root npm test passes) as satisfied. This is not the same defect as F-021 (stale CHK-005:happy:0 evidence NOTE); this is a currently-failing mechanical gate blocking a truthful GREEN claim. Fix requires either restoring cli-engine.ts to the exact structure the c67969720875... fingerprint was computed against, or recomputing and re-pinning the fingerprint for the CHK-006 edit (with the same comment discipline the CHK-002 repin used, confirming no NEW dynamic load was introduced, only the CHK-006 prose/constant changes).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T04:36:12.400Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-012",
+      "_hash": "1e4e89484a6f2656881ef7894d95a8a457a3c1290e2d51cfc86cae3ac03179ac",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/cli-engine.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
