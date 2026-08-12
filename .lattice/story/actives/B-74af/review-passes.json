@@ -1,0 +1,55 @@
+{
+  "passes": [
+    {
+      "id": "B-74af:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review found no blocker: elapsed-time restart wording has zero active-source residue; exact missingAgents recovery now dispatches only the absent INIT lane in both directions; running/background/unknown, completed-once, and terminal-replace-once semantics remain coherent; all canonical prompt surfaces use the shared renderer; protected provider and cross-host timeout implementations are unchanged; focused registry and INIT smokes passed on the original long-running process.",
+      "createdAt": "2026-08-12T11:19:59.896Z",
+      "reviewRound": "2026-08-12T11:13:15.675Z",
+      "reviewRunId": "B-74af:RR-004",
+      "envelopeId": "e641b52d2756a9a3eede5c6f3e41b6fc17796ad367d82fdd1dacf4fba40ddb3c",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6b29577c4c660ad9abaf7bcf5936e24b54252c0a3b9112d3856fcebee8bcf58d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c9049144fd3936b6338241860679e11dbdd1a99b26f52c8432de122512a00459"
+    }
+  ]
+}

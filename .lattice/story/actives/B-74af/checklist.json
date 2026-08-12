@@ -409,15 +409,16 @@
         },
         {
           "intentRef": "CHK-002:adversarial:1",
-          "kind": "logic_test",
+          "kind": "docs_check",
           "verdict": "success",
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
-          "note": "Tool-executed proof that every effective hint explicitly distinguishes running/background, unknown/unavailable, completed, and conclusive terminal states; the pinned smoke now invokes the guarded full liveness suite before its original selector.",
+          "result": "pass",
+          "note": "Canonical effective-hint contract explicitly distinguishes running/background, unknown/unavailable, completed, and authoritative terminal states; the guarded full liveness suite verifies those rendered surfaces.",
           "mechanical": false,
-          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "headHash": "6066e98a2fcb72ec5b10dd605c20c99d4c3d5f95",
           "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
           "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
-          "timestamp": "2026-08-12T11:04:07.698Z"
+          "timestamp": "2026-08-12T11:20:47.106Z"
         }
       ],
       "userSeesSnapshot": {
