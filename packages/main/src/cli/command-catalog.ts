@@ -20,6 +20,12 @@ import {
   MEMORY_BENCHMARK_DEFAULT_QUERY_COUNT,
   MEMORY_BENCHMARK_DEFAULT_SEED,
 } from '../core/memory-benchmark.js';
+// B-cdf6 (B-META F-012): the Zod bound and the handler's runtime re-validation import the
+// SAME cap/default constants so the two layers can never drift apart.
+import {
+  DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  EVIDENCE_COMMAND_TIMEOUT_CAP_MS,
+} from '../core/validation-executor.js';
 import {
   autopilotModeSchema,
   backgroundSectionSchema,
@@ -468,6 +474,8 @@ Behavior:
     result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
     note: z.string().describe('Why this evidence satisfies the intent.'),
     nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape: record a non-mechanical attestation for an executable intent WITHOUT execution (execution impossible in this environment). Attributable + gate-visible; never grants coverage.'),
+    commandTimeoutMs: z.number().int().positive().max(EVIDENCE_COMMAND_TIMEOUT_CAP_MS, `commandTimeoutMs must be ≤ ${EVIDENCE_COMMAND_TIMEOUT_CAP_MS}ms`).optional().describe(`B-cdf6 bounded audited override: raise the pinned command's wall-clock ceiling above the ${DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS}ms default so a legitimately long witness (e.g. the root DONE-blocking suite) can earn a REAL receipt. Requires commandTimeoutReason. Cap ${EVIDENCE_COMMAND_TIMEOUT_CAP_MS}ms (the framework's own longest sanctioned budget); above the cap is REFUSED, never clamped. The armed budget + reason are stamped on the tool-owned receipt (gate-visible). NOTE: the outer CLI watchdog (5 min idle / 15 min total by default) still applies.`),
+    commandTimeoutReason: z.string().min(30, 'commandTimeoutReason must be ≥ 30 characters').optional().describe('B-cdf6: attributable justification REQUIRED whenever commandTimeoutMs is supplied (same spirit as nonMechanicalReason). Recorded on the receipt so a reviewer sees the receipt was earned under a raised budget.'),
   }},
   { name: 'verification_evidence_batch_add', description: 'Batch add/update verificationIntent coverage evidence (concurrency-safe)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -483,6 +491,8 @@ Behavior:
       result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
       note: z.string().describe('Why this evidence satisfies the intent.'),
       nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape for an executable intent: record a non-mechanical attestation WITHOUT execution. Attributable + gate-visible; never grants coverage.'),
+      commandTimeoutMs: z.number().int().positive().max(EVIDENCE_COMMAND_TIMEOUT_CAP_MS, `commandTimeoutMs must be ≤ ${EVIDENCE_COMMAND_TIMEOUT_CAP_MS}ms`).optional().describe(`B-cdf6 bounded audited override: raise this entry's pinned command ceiling above the ${DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS}ms default. Requires commandTimeoutReason; above the ${EVIDENCE_COMMAND_TIMEOUT_CAP_MS}ms cap is REFUSED, never clamped. One invalid entry fails the whole batch before any command runs.`),
+      commandTimeoutReason: z.string().min(30, 'commandTimeoutReason must be ≥ 30 characters').optional().describe('B-cdf6: attributable justification REQUIRED whenever commandTimeoutMs is supplied. Recorded on the tool-owned receipt (gate-visible).'),
     })).describe('Evidence array; reads and writes the checklist once in the same call.'),
   }},
   { name: 'verification_run', description: 'B-1507: execute an intent\'s PINNED verifier and atomically record the tool-executed receipt (the caller never authors the command)', schema: {

@@ -982,6 +982,27 @@ export interface VerificationExecutionReceipt {
   selectorMatched: boolean;
   /** ISO timestamp when the command was executed. */
   executedAt: string;
+  /**
+   * B-cdf6 (B-META F-012): the wall-clock ceiling the run was actually armed with, in ms.
+   * Always stamped so a reviewer can see the budget the receipt was earned under.
+   */
+  timeoutMs?: number;
+  /**
+   * B-cdf6 (B-META F-012): present ONLY when the caller RAISED the per-command ceiling
+   * above the {@link DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS} default via
+   * `commandTimeoutMs` + `commandTimeoutReason`. A raised budget is an exceptional act,
+   * so it must explain itself and stay gate-visible: this block lives inside the
+   * TOOL-OWNED receipt (which every caller-facing schema strips), so it can never be
+   * caller-injected onto a receipt that was actually earned under the default.
+   */
+  timeoutOverride?: {
+    /** The raised ceiling in ms, as effectively armed. */
+    timeoutMs: number;
+    /** The default ceiling this run was raised ABOVE, for a reviewer's reference. */
+    defaultTimeoutMs: number;
+    /** Attributable ≥ 30-char justification for raising the budget. */
+    reason: string;
+  };
 }
 
 export interface VerificationEvidence {

@@ -512,4 +512,373 @@ const SELECTOR = 'MARKER_OK';
   } finally { cleanup(env); }
 }
 
+// ══════════════════════════════════════════════════════════════════════════════════
+// B-cdf6 (B-META F-012): distinct receipt-timeout refusal + bounded audited timeout
+// override.
+//
+// THE BUG: a verification intent whose proof IS "the root DONE-blocking suite passes"
+// could not be witnessed by a tool-executed receipt. Every production call site omitted
+// `options.timeoutMs`, so the pinned command always ran under the 270s
+// DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS while the suite takes 21-24 min. The run was KILLED
+// mid-flight, never printed a verdict line, and the refusal named ONLY the absent
+// selector — so three separate attempts were refused at ~270.3s with
+// [receipt_selector_absent], misdiagnosed first as a stdout capture problem and then as a
+// clean-tree assertion, before anyone read the executor and found the constant.
+//
+// These cases use a SHORT override (a few hundred ms) against a deliberately-slow pinned
+// command so the timeout path is exercised in ~1s instead of 270s. That is the same code
+// path: `runSingleAllowlistedCommand` arms the ceiling, `runValidationCommand` kills the
+// child and reports timedOut + exit 124, and enforceAndStampEvidence refuses.
+// ══════════════════════════════════════════════════════════════════════════════════
+
+// Sleeps well past any override used below, THEN prints the selector. Under a short
+// ceiling it is killed before the selector is ever emitted — exactly the F-012 shape
+// (killed mid-run ⟹ selector trivially absent).
+const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK'), 60000)"`;
+
+// ── 13. F-012 (1): a pinned command KILLED at its ceiling yields the DISTINCT
+//        [receipt_command_timeout], NOT [receipt_selector_absent]. ────────────────────
+{
+  const env = makeEnv([{ ref: 'INT-TIMEOUT', type: 'cli' }, { ref: 'INT-TIMEOUT-B', type: 'cli' }]);
+  try {
+    // Single-add path.
+    let singleMsg = '';
+    try {
+      await env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-TIMEOUT', kind: 'integration_test',
+        command: SLOW_THEN_SELECTOR_CMD, selector: SELECTOR, result: 'pass',
+        note: 'F-012: killed at the ceiling before the selector is printed',
+        commandTimeoutMs: 700,
+        commandTimeoutReason: 'short ceiling used by the smoke to exercise the timeout refusal path in ~1s',
+      });
+      assert.fail('F-012: a killed pinned command must be REFUSED, not recorded');
+    } catch (e) {
+      singleMsg = e instanceof Error ? e.message : String(e);
+    }
+    assert.match(singleMsg, /receipt_command_timeout/, 'F-012: a killed run is refused with the DISTINCT timeout marker');
+    // The whole point of the fix: it must NOT masquerade as a selector problem.
+    assert.ok(
+      !/receipt_selector_absent/.test(singleMsg),
+      `F-012: the timeout refusal must NOT report receipt_selector_absent (that is the misdiagnosis this fixes); got: ${singleMsg}`,
+    );
+    // It must NAME the budget so the diagnosis is one line, not a guessing game.
+    assert.match(singleMsg, /700ms wall-clock ceiling/, 'F-012: the refusal names the ARMED budget');
+    assert.match(singleMsg, /KILLED/, 'F-012: the refusal says the command was killed');
+    // Nothing was persisted — a killed run can never mint a receipt.
+    let cl = env.store.readChecklist(env.storyId);
+    assert.equal(
+      cl.items[0].verificationEvidence?.some(e => e.intentRef === 'INT-TIMEOUT') ?? false, false,
+      'F-012: a timed-out run persists NO evidence row',
+    );
+    assert.equal(buildVerificationCoverage(cl).missingRequired, 2, 'F-012: both intents stay uncovered after the timeout');
+
+    // Batch path parity: the same distinct marker, so neither write path is left
+    // reporting the misleading selector-absent refusal.
+    await expectRejection(
+      env.handlers.verification_evidence_batch_add({
+        storyId: env.storyId,
+        evidences: [{
+          itemId: 'CHK-001', intentRef: 'INT-TIMEOUT-B', kind: 'integration_test',
+          command: SLOW_THEN_SELECTOR_CMD, selector: SELECTOR, result: 'pass',
+          note: 'F-012 batch: killed at the ceiling',
+          commandTimeoutMs: 700,
+          commandTimeoutReason: 'short ceiling used by the smoke to exercise the batch timeout refusal path',
+        }],
+      }),
+      /receipt_command_timeout/, 'F-012 timeout refusal via batch-add',
+    );
+    cl = env.store.readChecklist(env.storyId);
+    assert.equal(
+      cl.items[0].verificationEvidence?.some(e => e.intentRef === 'INT-TIMEOUT-B') ?? false, false,
+      'F-012: the batch timeout persists NO evidence row',
+    );
+  } finally { cleanup(env); }
+}
+
+// ── 13b. F-012: a genuinely-absent selector on a command that RAN TO COMPLETION still
+//         reports [receipt_selector_absent]. Proves the new timeout branch did not
+//         swallow the pre-existing selector diagnosis (no over-broad reclassification). ─
+{
+  const env = makeEnv([{ ref: 'INT-STILL-ABSENT', type: 'cli' }]);
+  try {
+    let msg = '';
+    try {
+      await env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-STILL-ABSENT', kind: 'integration_test',
+        command: NO_SELECTOR_CMD, selector: SELECTOR, result: 'pass',
+        note: 'exits 0 fast but never prints the selector',
+        commandTimeoutMs: 60_000,
+        commandTimeoutReason: 'generous ceiling so the command completes; only the selector is genuinely missing here',
+      });
+      assert.fail('a genuinely absent selector must still be refused');
+    } catch (e) { msg = e instanceof Error ? e.message : String(e); }
+    assert.match(msg, /receipt_selector_absent/, 'a completed run with a missing selector still reports selector_absent');
+    assert.ok(!/receipt_command_timeout/.test(msg), 'a completed run is NOT reported as a timeout');
+  } finally { cleanup(env); }
+}
+
+// ── 14. F-012 (2): the override within the cap is HONOURED and gate-visible. ─────────
+{
+  const env = makeEnv([{ ref: 'INT-OVERRIDE', type: 'cli' }]);
+  try {
+    // A command that takes ~1.2s: it would be killed by a sub-second ceiling but passes
+    // comfortably under the raised one. Proves the override actually ARMS the executor
+    // (a no-op override would leave the 270s default and this would pass either way, so
+    // case 14b below pins the causality with the mirror-image failure).
+    const SLOWISH_PASS_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK'), 1200)"`;
+    const out = await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-OVERRIDE', kind: 'integration_test',
+      command: SLOWISH_PASS_CMD, selector: SELECTOR, result: 'pass',
+      note: 'override within the cap earns a REAL receipt',
+      commandTimeoutMs: 30_000,
+      commandTimeoutReason: 'this witness legitimately needs more than the default ceiling to print its verdict line',
+    });
+    const cl = env.store.readChecklist(env.storyId);
+    const ev = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-OVERRIDE');
+    assert.ok(ev?.receipt, 'F-012: an override within the cap earns a real tool-executed receipt');
+    assert.equal(ev.mechanical, true, 'F-012: the raised-budget receipt is mechanical:true');
+    assert.equal(ev.result, 'pass', 'F-012: result is still DERIVED from the actual exit + selector match');
+    assert.equal(ev.receipt.exitCode, 0);
+    assert.equal(ev.receipt.selectorMatched, true);
+    // GATE-VISIBLE: the armed budget + the attributable reason are stamped on the
+    // TOOL-OWNED receipt, so a reviewer can see this pass was earned under a raised budget.
+    assert.equal(ev.receipt.timeoutMs, 30_000, 'F-012: the armed ceiling is recorded on the receipt');
+    assert.ok(ev.receipt.timeoutOverride, 'F-012: a raised budget stamps an audited override block');
+    assert.equal(ev.receipt.timeoutOverride.timeoutMs, 30_000, 'F-012: override records the raised ceiling');
+    assert.equal(ev.receipt.timeoutOverride.defaultTimeoutMs, 270_000, 'F-012: override records the default it was raised above');
+    assert.match(ev.receipt.timeoutOverride.reason, /legitimately needs more than the default/, 'F-012: the reason is persisted verbatim');
+    // Visible in the command's own stdout too, not only inside the persisted JSON.
+    assert.match(out, /timeoutOverride=30000ms/, 'F-012: the raised budget is surfaced in the handler output');
+    // The receipt still covers the executable intent (the override does not weaken coverage).
+    assert.equal(buildVerificationCoverage(cl).missingRequired, 0, 'F-012: a raised-budget receipt covers its intent');
+  } finally { cleanup(env); }
+}
+
+// ── 14b. F-012: CAUSALITY — the SAME command that passes under a raised ceiling in 14 is
+//         KILLED under a sub-second one. If commandTimeoutMs were ignored (a no-op that
+//         always used the 270s default), this case would PASS instead of refusing, so the
+//         "override actually arms the executor" claim is mutation-killed. ───────────────
+{
+  const env = makeEnv([{ ref: 'INT-CAUSAL', type: 'cli' }]);
+  try {
+    const SLOWISH_PASS_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK'), 1200)"`;
+    await expectRejection(
+      env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAUSAL', kind: 'integration_test',
+        command: SLOWISH_PASS_CMD, selector: SELECTOR, result: 'pass',
+        note: 'same command, sub-second ceiling → killed',
+        commandTimeoutMs: 300,
+        commandTimeoutReason: 'deliberately tiny ceiling proving the override value really arms the executor',
+      }),
+      /receipt_command_timeout/, 'F-012 causality: a tiny override really shortens the ceiling',
+    );
+  } finally { cleanup(env); }
+}
+
+// ── 15. F-012 (2): an override ABOVE the cap is REFUSED (not clamped), and an override
+//        with NO reason / a too-short reason is REFUSED — on BOTH write paths, and via
+//        the internal fn path that BYPASSES Zod (CLAUDE.md Handler coding convention:
+//        every Zod constraint is re-validated at the handler entry AND at the consuming
+//        enforcement boundary, so an old-JSON / internal-call payload cannot slip past).
+{
+  const CAP = 7_200_000;
+  const env = makeEnv([{ ref: 'INT-CAP', type: 'cli' }]);
+  try {
+    // 15a: above the cap → REFUSED, explicitly not clamped.
+    await expectRejection(
+      env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+        command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'above-cap override must be refused',
+        commandTimeoutMs: CAP + 1,
+        commandTimeoutReason: 'a reason long enough to satisfy the thirty character floor for the override',
+      }),
+      /command_timeout_above_cap/, 'F-012 above-cap override single-add',
+    );
+    await expectRejection(
+      env.handlers.verification_evidence_batch_add({
+        storyId: env.storyId,
+        evidences: [{
+          itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+          command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'above-cap override must be refused (batch)',
+          commandTimeoutMs: CAP + 1,
+          commandTimeoutReason: 'a reason long enough to satisfy the thirty character floor for the override',
+        }],
+      }),
+      /command_timeout_above_cap/, 'F-012 above-cap override batch-add',
+    );
+    // Nothing persisted, and the intent was NOT pinned by a refused write.
+    let cl = env.store.readChecklist(env.storyId);
+    assert.equal(cl.items[0].verificationEvidence?.some(e => e.intentRef === 'INT-CAP') ?? false, false, 'F-012: above-cap refusal persists nothing');
+    assert.equal(cl.items[0].verificationIntent?.happy[0].verification, undefined, 'F-012: above-cap refusal does not pin the intent');
+
+    // 15b: exactly AT the cap is ACCEPTED (the boundary is inclusive — an off-by-one that
+    //      rejected the cap itself would break the very `npm test` budget this cap encodes).
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'exactly at the cap is allowed',
+      commandTimeoutMs: CAP,
+      commandTimeoutReason: 'exactly the cap: the same budget the DONE-required root suite already uses in config',
+    });
+    cl = env.store.readChecklist(env.storyId);
+    const atCap = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-CAP');
+    assert.equal(atCap?.receipt?.timeoutOverride?.timeoutMs, CAP, 'F-012: an override exactly at the cap is honoured');
+
+    // 15c: MISSING reason → REFUSED (a raised budget must explain itself).
+    await expectRejection(
+      env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+        command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'override with no reason must be refused',
+        commandTimeoutMs: 600_000,
+      }),
+      /command_timeout_reason_too_short/, 'F-012 override with no reason single-add',
+    );
+    // 15d: SUB-30-char reason via the internal fn path (bypasses the Zod .min(30)) is
+    //      still REFUSED by the handler-entry re-validation.
+    await expectRejection(
+      env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+        command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'short override reason must be refused',
+        commandTimeoutMs: 600_000, commandTimeoutReason: 'too short',
+      }),
+      /command_timeout_reason_too_short/, 'F-012 sub-30 override reason via internal fn path',
+    );
+    await expectRejection(
+      env.handlers.verification_evidence_batch_add({
+        storyId: env.storyId,
+        evidences: [{
+          itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+          command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'short override reason must be refused (batch)',
+          commandTimeoutMs: 600_000, commandTimeoutReason: 'too short',
+        }],
+      }),
+      /command_timeout_reason_too_short/, 'F-012 sub-30 override reason batch-add',
+    );
+    // 15e: a whitespace-only reason must not satisfy the floor (trim, not length-of-blanks).
+    await expectRejection(
+      env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+        command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'whitespace reason must be refused',
+        commandTimeoutMs: 600_000, commandTimeoutReason: ' '.repeat(60),
+      }),
+      /command_timeout_reason_too_short/, 'F-012 whitespace-only override reason',
+    );
+    // 15f: non-integer / zero / negative / NaN budgets are refused (Zod .int().positive()
+    //      re-validated at runtime for the internal-call path).
+    for (const bad of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+      await expectRejection(
+        env.handlers.verification_evidence_add({
+          storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+          command: PASS_CMD, selector: SELECTOR, result: 'pass', note: `invalid budget ${String(bad)} must be refused`,
+          commandTimeoutMs: bad,
+          commandTimeoutReason: 'a reason long enough to satisfy the thirty character floor for the override',
+        }),
+        /command_timeout_invalid|command_timeout_above_cap/, `F-012 invalid budget ${String(bad)}`,
+      );
+    }
+    // 15g: a reason with NO raised budget is refused — it would record an audit trail for
+    //      an override that never happened.
+    await expectRejection(
+      env.handlers.verification_evidence_add({
+        storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
+        command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'reason without a budget must be refused',
+        commandTimeoutReason: 'a reason long enough to satisfy the thirty character floor for the override',
+      }),
+      /command_timeout_reason_without_override/, 'F-012 reason without commandTimeoutMs',
+    );
+  } finally { cleanup(env); }
+}
+
+// ── 16. F-012 REGRESSION: with NO timeout supplied the default path is UNCHANGED —
+//        a receipt is earned, NO timeoutOverride block is stamped, and the recorded
+//        ceiling is exactly DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (270_000). This is the
+//        additive-only guarantee for every pre-B-cdf6 caller. ───────────────────────────
+{
+  const env = makeEnv([{ ref: 'INT-DEFAULT', type: 'cli' }, { ref: 'INT-DEFAULT-B', type: 'cli' }]);
+  try {
+    const out = await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DEFAULT', kind: 'integration_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'no timeout supplied — default path must be unchanged',
+    });
+    const cl = env.store.readChecklist(env.storyId);
+    const ev = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-DEFAULT');
+    assert.ok(ev?.receipt, 'regression: the default path still earns a receipt');
+    assert.equal(ev.mechanical, true, 'regression: still mechanical:true');
+    assert.equal(ev.result, 'pass', 'regression: result still derived from the receipt');
+    assert.equal(ev.receipt.timeoutOverride, undefined, 'regression: no override block when no timeout is supplied');
+    assert.equal(ev.receipt.timeoutMs, 270_000, 'regression: the default 270s ceiling is what gets armed');
+    assert.ok(!/timeoutOverride/.test(out), 'regression: no override note in the default-path output');
+
+    // Batch parity for the default path.
+    await env.handlers.verification_evidence_batch_add({
+      storyId: env.storyId,
+      evidences: [{
+        itemId: 'CHK-001', intentRef: 'INT-DEFAULT-B', kind: 'integration_test',
+        command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'batch default path must be unchanged too',
+      }],
+    });
+    const evB = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.find(e => e.intentRef === 'INT-DEFAULT-B');
+    assert.ok(evB?.receipt, 'regression: the batch default path still earns a receipt');
+    assert.equal(evB.receipt.timeoutOverride, undefined, 'regression: batch default path stamps no override block');
+    assert.equal(evB.receipt.timeoutMs, 270_000, 'regression: batch default path arms the 270s default');
+  } finally { cleanup(env); }
+}
+
+// ── 17. F-012: verification_run deliberately exposes NO override (its whole point is that
+//        the caller authors nothing, and the pin carries no budget), so it keeps the
+//        executor default — byte-identical to pre-B-cdf6. ────────────────────────────────
+{
+  const env = makeEnv([{ ref: 'INT-RUN-TO', type: 'cli' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-RUN-TO', kind: 'integration_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin a fast passing verifier for verification_run',
+    });
+    const out = await env.handlers.verification_run({ storyId: env.storyId, intentRef: 'INT-RUN-TO' });
+    assert.match(out, /ran pinned command/, 'verification_run still re-runs the pinned verifier');
+    const ev = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.find(e => e.intentRef === 'INT-RUN-TO');
+    assert.ok(ev?.receipt, 'verification_run stamps a receipt');
+    assert.equal(ev.receipt.timeoutOverride, undefined, 'verification_run exposes no override → no override block');
+    assert.equal(ev.receipt.timeoutMs, 270_000, 'verification_run keeps the executor default ceiling');
+  } finally { cleanup(env); }
+}
+
+// ── 18. F-012: the audited override is CARRIED FORWARD by
+//        verification_evidence_refresh_stale, so a receipt legitimately earned under a
+//        raised ceiling is re-earned (not silently demoted) on refresh. Without the
+//        carry-forward the stale row would be re-run at the 270s default, get KILLED, and
+//        decay to a non-mechanical attestation on the very next refresh — turning the
+//        override into a one-shot. Uses a fast pinned command with a raised budget: the
+//        assertion is that the RE-EARNED receipt still carries the override block. ───────
+{
+  const env = makeEnv([{ ref: 'INT-REFRESH', type: 'cli' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-REFRESH', kind: 'integration_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'seed a raised-budget receipt to be refreshed',
+      commandTimeoutMs: 45_000,
+      commandTimeoutReason: 'seeded raised budget that must survive a stale-evidence refresh without decaying',
+    });
+    // Make the seeded row STALE by moving HEAD (a new commit changes headHash/materialHash).
+    write(env.root, 'packages/main/src/drift.ts', 'export const drift = 1;\n');
+    git(env.root, ['add', '.']);
+    git(env.root, ['commit', '-m', 'drift so the seeded evidence goes stale']);
+
+    const refreshOut = await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+    const ev = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.find(e => e.intentRef === 'INT-REFRESH');
+    assert.ok(ev, `refresh kept the evidence row (output: ${refreshOut})`);
+    // The row was re-executed and re-earned: still a mechanical receipt, NOT demoted.
+    assert.equal(ev.mechanical, true, 'F-012: the refreshed row is still a mechanical receipt (not demoted)');
+    assert.ok(ev.receipt, 'F-012: the refreshed row still carries a receipt');
+    assert.ok(
+      ev.receipt.timeoutOverride,
+      'F-012: the refreshed receipt CARRIES FORWARD the audited override (else the raise decays to a one-shot)',
+    );
+    assert.equal(ev.receipt.timeoutOverride.timeoutMs, 45_000, 'F-012: the carried-forward ceiling is the original raised one');
+    assert.match(
+      ev.receipt.timeoutOverride.reason, /must survive a stale-evidence refresh/,
+      'F-012: the carried-forward reason comes from the prior TOOL-OWNED receipt, staying attributable',
+    );
+  } finally { cleanup(env); }
+}
+
 console.log('tool-executed-evidence-receipt-smoke: PASS');

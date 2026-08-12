@@ -821,6 +821,28 @@ proof-or-stop verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","
 
 `DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`proof-or-stop validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
 
+#### pinned command 超时：独立报错 + 有界受审计的 timeout override（B-cdf6 / B-META F-012）
+
+executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned command 并按实际 exit + selector 命中派生 `result`。该执行有一道 **wall-clock 上限**：`DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000`（`core/validation-executor.ts`）。
+
+- **超时是独立报错，不再伪装成 selector 问题**：命令被上限杀掉时抛 `[receipt_command_timeout]`，并写明**实际武装的预算**与已耗时；不再落到 `[receipt_selector_absent]`。原因：被杀的进程根本没来得及打印判定行，selector 必然缺失，旧文案会把「预算不够」误导成「selector 写错了」（F-012 记录了连续三次在 ~270.3s 被拒、先误判为 stdout 捕获问题、再误判为 clean-tree 断言的过程）。跑完但确实没打印 selector 的命令**仍然**报 `[receipt_selector_absent]`。
+- **有界受审计的 override**：`verification_evidence_add` / `verification_evidence_batch_add` 接受 `commandTimeoutMs` + `commandTimeoutReason`，让「根 DONE-blocking 测试套件（21-24 分钟）」这类合法长证据也能挣到**真 receipt**，而不是被迫走 `nonMechanicalReason` 或 waiver（`deferred_gate_evidence` waiver 不计入 acceptance coverage，story 会死锁）。
+
+| 约束 | 规则 |
+|---|---|
+| 上限 | `EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 7_200_000`（2h）——即 `lattice.config.json` 给 DONE-required 根套件的同一预算；**边界含等号**（恰好等于上限允许） |
+| 超上限 | **拒绝**（`[command_timeout_above_cap]`），**不静默 clamp** |
+| 理由 | `commandTimeoutReason` 必填且 trim 后 ≥ 30 字符（同 `nonMechanicalReason` 口径），否则 `[command_timeout_reason_too_short]`；只给理由不给预算 → `[command_timeout_reason_without_override]` |
+| gate 可见 | 武装的预算记在 **tool-owned receipt** 上：`receipt.timeoutMs` 恒记录，raise 时另加 `receipt.timeoutOverride{timeoutMs, defaultTimeoutMs, reason}`。receipt 块被所有 caller-facing schema `.strip()`，故**无法被 caller 注入**到实际按默认预算挣到的 receipt 上；handler 输出也追加 `timeoutOverride=<n>ms` |
+| 不削弱既有检查 | selector 仍必填必命中；`result` 仍由真实 exit + selector 派生；矛盾的 caller `pass` 仍被拒 |
+| 默认路径不变 | 不传 timeout 时行为与 B-cdf6 前**逐字节一致**（270s 默认、不写 override 块） |
+| refresh 不衰减 | `verification_evidence_refresh_stale` 从上一份 receipt **继承**该 override（否则 raise 会变成一次性：下次 refresh 按 270s 重跑被杀 → 静默降级） |
+| `verification_run` | **刻意不提供** override（它的卖点就是 caller 什么都不写、命令只来自 pin），保持默认预算；超时同样报 `[receipt_command_timeout]` |
+
+**双层校验（Handler 编码约定）**：Zod（`command-catalog.ts` 的 `.int().positive().max(CAP)` / `.min(30)`）只是第一道防线；`resolveEvidenceCommandTimeout` 在**两个 handler 入口**和**共享执行边界 `enforceAndStampEvidence`** 各再校验一次，故绕开 Zod 的内部 fn 调用 / 老 JSON 同样被拒。cap 与 default 常量由 `core/validation-executor.ts` 单点导出、schema 与 handler 同时 import，两层不会漂移。
+
+**注意外层 CLI watchdog 仍然生效**：默认 5 分钟无输出 / 15 分钟总时长即被外层 watchdog 杀掉（`cli-engine.ts`）。所以一条静默跑多分钟的 pinned command，除了 `commandTimeoutMs` 还需为同一次调用抬高 `LATTICE_IDLE_TIMEOUT_MS` / `LATTICE_MAX_TIMEOUT_MS`。超时报错文案里会提示这一点。
+
 ### CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
 
 进入 REVIEW 后由 `story_advance --phase=TEST` 自动跑 CLI gate，任一 fail 即 block 推进：
