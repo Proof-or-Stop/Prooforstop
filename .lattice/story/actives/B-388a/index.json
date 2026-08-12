@@ -4,7 +4,7 @@
   "title": "evaluateHostVerdictRounds must not treat a benign same-host re-attestation as identity fraud",
   "description": "B-4043 has been stuck across 5 review rounds because review_escalation_status reports assuranceLevel:missing despite 12 host_verdict records (two full 3x2 quorum submissions) on its ledger. The storyFilesHash-downgrade mechanism (eventsWithStoryFilesHashDowngrade) correctly accepts a stale-but-storyFilesHash-matching verdict as current for benign main drift, and its own advisory tells the operator to re-attest. But re-attesting under the same runId reuses quorum_submit's deterministic per-(storyId,hostId) session/key identity, and evaluateHostVerdictRounds' fraud-detection grouping (groupByIndependentHost) cannot distinguish 'the same attestor confirming again' from 'two different hosts colluding to fake independence' -- it flags both as duplicate identity and poisons the WHOLE round. Since round numbers are bounded (3 for a 3x2 floor) and every gate-recommended remediation path (quorum_submit resubmission, degraded autopilot_review_submit under the same fixed round numbers) reuses the same identity scheme, a story can reach a state with no clean round slot left at all.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "DISCARDED",
   "priority": "high",
   "keywords": [
     "review-escalation",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-07-28T20:40:44.798Z",
   "startedAt": "2026-07-28T20:40:44.798Z",
-  "endedAt": null,
+  "endedAt": "2026-08-12T17:29:50.079Z",
   "events": [
     {
       "phase": "INIT",
@@ -26,6 +26,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-d6bd127d84f15dd24c67da2e4f2a4de6",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-08-12T17:29:50.079Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d6bd127d84f15dd24c67da2e4f2a4de6",
+      "agent": "main",
+      "reason": "Superseded: main already carries B-f88e (Stop the storyFilesHash downgrade from colliding a superseded quorum into permanent invalidity), which fixes this exact defect at a narrower, correct boundary — independently verified by Codex CLI audit (compares review-escalation.ts:977-990 downgrade-collision-declined logic against B-388a's own proposed fix; found B-388a's evaluator-wide dedup would forgive genuine same-material duplicate PASS votes, a real regression). B-4043 (the story that surfaced this) now reports voluntaryLocalRounds 3/3 complete=true and is DONE."
     }
   ]
 }
