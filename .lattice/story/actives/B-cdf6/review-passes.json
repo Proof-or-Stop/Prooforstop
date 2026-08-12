@@ -213,6 +213,40 @@
         "scanEscalationReason": null
       },
       "_hash": "66f3b7b5d93feeefd6e1968a25a38ca0c2ef54cb2f9f3572802f19b6ae29b757"
+    },
+    {
+      "id": "B-cdf6:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Rebind at frozen head b5a9aa904c. Since RP-005: only 2 commits landed - 6da79bb1c9 (B-META F-013 heartbeat-timeout fix) and b5a9aa904c (gap-log-only, .lattice/story/actives/B-META-framework-audit/ 2 files, zero product/docs/test code). Verified the reported additive-only export-boundary metric (0 removed vs 4 added export decls) and WIDENED it per instructions: scanned all removed lines matching function/const/let/interface/type/class declarations (exported or not) in 6da79bb1c9 - the only 3 hits are internal reflow of checkGlobalFallback (same function name, signature widened with new override params in the SAME commit, single call site updated in the SAME commit, zero dangling references) plus one local var/call reflow inside it. No rename, no delete-without-replacement. validate --concept reports 14 deleted symbols / 15338 residuals, matching RP-005 baseline (~15335; delta explained by unrelated line-number drift in .githooks/pre-push main-substring collisions) - confirmed by diffing 2fe21dc4f7..HEAD: none of the files containing the flagged deleted-symbol definitions (lattice-brand.ts, cli-engine.ts, lifecycle-registry.ts, lattice-only-absence-smoke.ts, codex adapter renderers) changed since RP-005's passing round. All flagged symbols re-verified present as compat-preserving definitions or confirmed zero-reference dead code, consistent with prior rounds. No new concept deletion/replacement introduced since RP-005. No blocker.",
+      "createdAt": "2026-08-12T16:40:10.099Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-019",
+      "envelopeId": "f58bd85a81a962cbeec05dce35ebc4644b28f2c28bb3b393c9e31b6f30101d53",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-META-framework-audit/findings.json",
+          ".lattice/story/actives/B-META-framework-audit/gap-log-provenance.jsonl",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/handlers/codex-adapter.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "scripts/verify-codex-assets.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "63b17019b1803d24801e2c3a06127bb9ac6a2005bc977624a9dec4640e48ff43"
     }
   ]
 }
