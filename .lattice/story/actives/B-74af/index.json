@@ -4,7 +4,7 @@
   "title": "Make reviewer and worker liveness background-aware instead of restarting after ten minutes",
   "description": "Current reviewer and worker guidance treats ten minutes without a result as stalled even though host-native agents may remain alive in the background and complete much later. Replace elapsed-time restart advice with authoritative host-status monitoring: running/background tasks keep being monitored; unknown state remains non-duplicating and observable; restart is allowed only after terminal failure, cancellation, missing task/process, or another conclusive dead-state signal.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "keywords": [
     "agent-liveness",
@@ -75,6 +75,15 @@
       "user": "Pan Qi",
       "sessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-12T11:13:15.675Z",
+      "branch": "story/B-74af",
+      "user": "Pan Qi",
+      "sessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -89,5 +98,5 @@
     "branch": "story/B-74af",
     "createdAt": "2026-08-12T09:36:55.121Z"
   },
-  "currentReviewRound": "2026-08-12T10:16:27.477Z"
+  "currentReviewRound": "2026-08-12T11:13:15.675Z"
 }
