@@ -76,6 +76,41 @@
         "scanEscalationReason": null
       },
       "_hash": "6e81156b06b2ab8e0551847227bc26c90b45e5c086187e14cadeda81e7697066"
+    },
+    {
+      "id": "B-cdf6:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently verified F-023 fix and its chain-of-custody claim rather than trusting the summary. Repinned third mirror (verify-process-fact-contract.mjs:1985-1986) confirmed byte-consistent with the F-022 hashes across both files (grep for old 1ec6b25b/4df69379 literals returns zero hits anywhere; new b6f153f4/d03acdc4 hashes match in both mirror + guard file). Independently re-ran all 5 fast contract verifiers myself just now (runtime-fact, process-fact, lattice-residue, prompt-baseline, retired-authority-guard) - all PASS. Then independently ran the full npm test myself (not reusing the reported run): exit=0, wall time 24m31s, no FAIL/Error/AssertionError lines in output, against current HEAD 4737780 with git status clean except a harmless dispatch-log append. This confirms the reported chain-of-custody: the green run is valid for the tree that exists now, postdating every material commit (3069923b99 at 14:16:43). Spot-checked code content for F-016 (idleLattice/idleProofOrStop dual-read + @deprecated field), F-017 (verify-entrypoints.mjs + serve.ts both repinned to proof-or-stop serve), F-018 (brand-env.ts exports exactly 9 symbols, all 4 named dead exports removed), F-019 (verify-brand-gate-negative.mjs now uses readFileSync/writeFileSync snapshot-restore instead of git checkout --), F-020 (readBrandEnv(CODEX_ENTRYPOINT) used consistently at both call sites), F-021 (CHK-005:happy:0 evidence row now correctly shows kind=waiver/waiverType=deferred_gate_evidence, no false mechanical claim) - all match their resolvedReason text exactly. checked the wave-4 ProofStory acceptance-rollout coverage boundary in my own role prompt: this storys touches to that subsystem are two mechanical brand-env/string-literal edits, and npm test itself demonstrated ProofStory acceptance rollout smoke: PASS (57 assertions), so that boundary is intact, not broken or newly introduced by this story. All 23 findings on this story are resolved or dismissed with verified evidence. No blocker found this round.",
+      "createdAt": "2026-08-12T07:11:48.053Z",
+      "reviewRound": "2026-08-12T05:39:22.640Z",
+      "reviewRunId": "B-cdf6:RR-014",
+      "envelopeId": "6eab91dd69384947ab426e9bdecef846310e10c35d5e713bf65b6e9dd2a79ee4",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/verifier/serve.ts",
+          "scripts/verify-brand-gate-negative.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "426eb82c3b78130b34e1f97475da5e641bc8fb5f44ff90e192dd5f3a612aa3af"
     }
   ]
 }
