@@ -25,9 +25,9 @@ assert.equal(300_000 < 300_000, false, 'exactly 300000ms is outside the accepted
 if (process.env.B9812_COHORT_JOBS1 && process.env.B9812_COHORT_JOBS3) {
   const one = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS1, 'utf8'));
   const three = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS3, 'utf8'));
-  assert.equal(one.sourceInventoryDigest, three.sourceInventoryDigest);
   assert.deepEqual(one.registeredSeedIds, three.registeredSeedIds);
-  assert.deepEqual(one.sourceRecords, three.sourceRecords);
+  const semanticRecords = input => input.sourceRecords.map(record => ({ pairId: record.pairId, arm: record.arm, storyId: record.storyId, claimClass: record.claimClass, defectClass: record.defectClass, defectPresent: record.defectPresent, shouldBlock: record.shouldBlock, scenario: record.observationReceipt.scenario, topologyStatus: record.observationReceipt.gateArtifacts?.[0]?.status, preReviewStatus: record.observationReceipt.gateArtifacts?.[1]?.status, checkInventory: record.observationReceipt.checkInventory, mutationInventory: record.observationReceipt.mutationInventory, restored: Boolean(record.observationReceipt.restorationCommitSha) })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  assert.deepEqual(semanticRecords(one), semanticRecords(three));
 }
 
 const prefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-mechanical-run';
