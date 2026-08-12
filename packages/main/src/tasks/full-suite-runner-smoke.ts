@@ -126,8 +126,9 @@ async function main(): Promise<void> {
   assert(!fullSuiteBudgetBreached(300_000, 1) && !fullSuiteBudgetBreached(900_000, 1), 'jobs1 serial oracle reports but does not enforce the parallel performance boundary');
   assert(!identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'm' }) && identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'changed' }), 'start/end identity comparison fails on material drift');
 
-  const terminal = await runScheduled([entry('first-fail'), entry('pass')], 2, async (item) => item.name === 'first-fail' ? { ...pass(item.name), status: 'FAIL' } : pass(item.name));
-  assert(terminal.filter(({ name }) => name === 'first-fail').length === 1 && terminal.some(({ status }) => status === 'FAIL'), 'failure is terminal and never retried');
+  const terminalLaunches: string[] = [];
+  const terminal = await runScheduled([entry('first-fail'), entry('must-not-launch')], 1, async (item) => { terminalLaunches.push(item.name); return item.name === 'first-fail' ? { ...pass(item.name), status: 'FAIL' } : pass(item.name); });
+  assert(terminal.filter(({ name }) => name === 'first-fail').length === 1 && terminal.some(({ status }) => status === 'FAIL') && terminal.some(({ name, status }) => name === 'must-not-launch' && status === 'INTERRUPTED') && terminalLaunches.join(',') === 'first-fail', 'failure is terminal, never retried, and prevents pending launch');
   let missingTerminalRejected = false;
   try { await runScheduled([entry('missing-terminal')], 1, async () => undefined as unknown as FullSuiteResult); } catch { missingTerminalRejected = true; }
   assert(missingTerminalRejected, 'missing terminal aggregation trial fails closed without fabricated PASS');

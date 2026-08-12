@@ -40,6 +40,7 @@ const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixe
 const activeChildren = new Set<ReturnType<typeof spawn>>();
 let interruptSignal: NodeJS.Signals | undefined;
 let interruptError: Error | undefined;
+let schedulerCancellationReason: string | undefined;
 
 const isolated = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
   ({ name, resources: [], tempOwnership: 'runner-owned-unique', ...options });
@@ -303,8 +304,8 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       const markerLine = output.split(/\r?\n/).find(line => line.startsWith('LATTICE_FULL_SUITE_SUMMARY='));
       let marker: { assertions?: string[]; mutations?: string[] } | undefined;
       try { marker = markerLine ? JSON.parse(markerLine.slice('LATTICE_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
-      const status = interruptError ? 'FAIL' : interruptSignal ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
-      const reason = interruptError ? `interrupt cleanup failed: ${interruptError.message}` : interruptSignal ? `runner received ${interruptSignal}` : code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`;
+      const status = interruptError ? 'FAIL' : interruptSignal || schedulerCancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
+      const reason = interruptError ? `interrupt cleanup failed: ${interruptError.message}` : interruptSignal ? `runner received ${interruptSignal}` : schedulerCancellationReason ?? (code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`);
       done({
       name: entry.name,
       status,
@@ -338,6 +339,8 @@ export async function runScheduled(entries: FullSuiteEntry[], jobs: number, exec
   const running = new Map<Promise<void>, FullSuiteEntry>();
   const resourceBlockedAt = new Map<string, number>();
   const results: FullSuiteResult[] = [];
+  let terminalFailureName: string | undefined;
+  schedulerCancellationReason = undefined;
   const compatible = (entry: FullSuiteEntry) => [...running.values()].every((other) => !claimsConflict(entry, other));
   const launch = (entry: FullSuiteEntry) => {
     const blockedAt = resourceBlockedAt.get(entry.name);
@@ -345,14 +348,25 @@ export async function runScheduled(entries: FullSuiteEntry[], jobs: number, exec
     let task!: Promise<void>;
     task = execute(entry).then((result) => {
       if (!result || result.name !== entry.name || !['PASS', 'FAIL', 'TIMEOUT', 'INTERRUPTED'].includes(result.status)) throw new Error(`missing or invalid terminal result for ${entry.name}`);
-      results.push({ ...result, declaredResources: entry.resources, acquiredResources: entry.resources.map((claim) => claim.canonicalKey!), lockWaitMs });
+      const effective = terminalFailureName && result.status === 'PASS'
+        ? { ...result, status: 'INTERRUPTED' as const, reason: `cancelled after terminal failure ${terminalFailureName}`, failureOutcome: { status: 'INTERRUPTED' as const, reason: `cancelled after terminal failure ${terminalFailureName}` } }
+        : result;
+      results.push({ ...effective, declaredResources: entry.resources, acquiredResources: entry.resources.map((claim) => claim.canonicalKey!), lockWaitMs });
+      if (!terminalFailureName && (result.status === 'FAIL' || result.status === 'TIMEOUT')) {
+        terminalFailureName = result.name;
+        schedulerCancellationReason = `cancelled after terminal failure ${result.name}`;
+        for (const child of activeChildren) {
+          try { killProcessTree(child.pid); } catch (error) { interruptError = error as Error; }
+        }
+      }
     }).finally(() => { running.delete(task); });
     running.set(task, entry);
   };
   while (pending.length || running.size) {
+    if (terminalFailureName && pending.length) for (const entry of pending.splice(0)) results.push({ name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason: `cancelled after terminal failure ${terminalFailureName}`, declaredResources: entry.resources, acquiredResources: [], lockWaitMs: 0, cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null }, assertionInventory: [], mutationInventory: [], failureOutcome: { status: 'INTERRUPTED', reason: `cancelled after terminal failure ${terminalFailureName}` } });
     if (interruptSignal && pending.length) for (const entry of pending.splice(0)) results.push({ name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason: `runner received ${interruptSignal}`, declaredResources: entry.resources, acquiredResources: [], lockWaitMs: 0, cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null }, assertionInventory: [], mutationInventory: [], failureOutcome: { status: 'INTERRUPTED', reason: `runner received ${interruptSignal}` } });
     let launched = false;
-    while (running.size < jobs) {
+    while (!terminalFailureName && running.size < jobs) {
       for (const candidate of pending) if (!compatible(candidate) && !resourceBlockedAt.has(candidate.name)) resourceBlockedAt.set(candidate.name, performance.now());
       const index = pending.findIndex(compatible); if (index < 0) break;
       launch(pending.splice(index, 1)[0]!); launched = true;
@@ -361,6 +375,7 @@ export async function runScheduled(entries: FullSuiteEntry[], jobs: number, exec
     else if (!launched && pending.length) throw new Error(`resource scheduler deadlock at ${pending[0]!.name}`);
   }
   const byName = new Map(results.map((result) => [result.name, result]));
+  schedulerCancellationReason = undefined;
   return entries.map((entry) => byName.get(entry.name)!).filter(Boolean);
 }
 

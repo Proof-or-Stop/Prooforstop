@@ -5,12 +5,13 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const root = resolve(process.cwd());
+const gitCwd = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const runtimeLock = join(root, '.lattice', 'runtime', 'full-suite-runtime-sentinel.lock');
 const mainWriteLock = join(root, '.lattice', 'locks', 'full-suite-main-write-sentinel.lock');
 const fixedPath = join(root, '.lattice', 'runtime', 'full-suite-fixed-sentinel');
 const acquired: string[] = [];
 try {
-  execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: gitCwd, stdio: 'ignore' });
   mkdirSync(join(root, '.lattice', 'runtime'), { recursive: true });
   mkdirSync(join(root, '.lattice', 'locks'), { recursive: true });
   for (const path of [runtimeLock, mainWriteLock, fixedPath]) { mkdirSync(path, { recursive: false }); acquired.push(path); }
