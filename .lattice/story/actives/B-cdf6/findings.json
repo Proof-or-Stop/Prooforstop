@@ -536,7 +536,7 @@
       "desc": "scripts/verify-entrypoints.mjs:521 (and :975) assert verify_codex output on STDOUT (execFileSync return value), but cli-engine.ts writes the verdict via process.stderr (log() at cli-engine.ts:920-923 plus the thrown Error path), so verifyInitOut is always empty and the assertion fails with a misleading 'output ()' message. Reproduced independently on this story's HEAD (f3b2aca) AND on a clean isolated checkout of main (75d76cc6cd, pre-B-cdf6) - confirmed pre-existing, not a B-cdf6 regression. Also confirmed test:entrypoints is not part of root npm test's chain (package.json:15), so it does not affect the DONE-blocking suite or the CHK-005:happy:0 receipt. Advisory only: not blocking, out of this story's material scope, but worth a paper trail since verify-entrypoints.mjs is otherwise a load-bearing regression suite for the Codex adapter.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-12T10:37:53.689Z",
@@ -544,7 +544,11 @@
       "reviewRunId": "B-cdf6:RR-016",
       "_hash": "b6ee178cccc37d9efea7b7963767bb9edd21805c3c74c08ae47ac4a4bbfc118e",
       "signatureTag": "missing|unknown|scripts-verify-entrypoints",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED as pre-existing and out of scope, with the reviewer's own evidence corroborated. The reviewer reproduced this identically on an isolated clean checkout of main (pre-B-cdf6) and confirmed test:entrypoints is NOT in root npm test's chain. I independently confirmed the stream asymmetry it describes: 'Codex adapter checks passed' appears in neither stdout nor the merged stream on a current run, because verify_codex currently exits non-zero for a DIFFERENT and separately-recorded reason - the global-fallback heartbeat check has a fixed 30s budget while session_brief takes ~101s in this repo (319 active stories), which I logged earlier as B-META-framework-audit:F-013. So two independent defects overlap on the same assertion: F-025's stdout/stderr mismatch and F-013's under-budgeted heartbeat. Neither is caused by the brand rename, neither is in the DONE-blocking suite, and fixing either means touching the Codex adapter verification design rather than a brand token. Accepted as risk rather than silently closed, with both finding IDs recorded so the overlap is findable by whoever fixes that area.",
+      "resolvedAt": "2026-08-12T10:43:20.531Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
