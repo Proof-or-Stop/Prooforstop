@@ -185,6 +185,34 @@
         "scanEscalationReason": null
       },
       "_hash": "3b74d7031318a4b597e149bdbadff52bedb87a332f39e263d159e9f0f7414174"
+    },
+    {
+      "id": "B-cdf6:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed for RR-018 (head 6da79bb). All 6 checklist items done; every must-priority verificationIntent (36 total across CHK-001..005) has a matching verificationEvidence row by intentRef, zero gaps; CHK-006 has zero must intents. CHK-005:happy:0 previously carried an F-024-flagged permanent waiver; that waiver is now gone, replaced by a real mechanical receipt (scripts/verify-done-suite-green.mjs, exitCode 0, selectorMatched, earned under the new bounded/audited commandTimeoutMs override) independently confirmed to not be a text claim. Independently verified both claims in the rebind request rather than trusting them: (1) B-META F-013 heartbeat-timeout fix - read resolveGlobalFallbackHeartbeatTimeoutMs end to end (Zod + handler + core resolver triple validation, no drift possible), ran codex-heartbeat-timeout-smoke.ts directly (pass, includes negative cases: non-zero-exit fallback still fails, zero-exit-no-activity fallback still fails, above-cap refused not clamped, short/missing reason refused, reason-without-budget refused), then reproduced live against the real CLI: verify_codex --heartbeatTimeoutMs=120000 with a valid reason now reports 8/8 pass with the override visibly armed and attributed in the check detail; separately reproduced all three refusal paths live at the CLI boundary (above-cap, short-reason, reason-without-override all refused). Override is scoped to the global-fallback heartbeat only, does not touch the 10s local-wrapper probe. Conclusion: the override does not weaken the check's guarantee - a genuinely broken fallback still fails, distinctly from a budget timeout. (2) Suite-green claim - ran a fresh npm test myself against this exact head (6da79bb, unchanged since review_run_start), completed in ~26 minutes with exit code 0 per the harness completion notification; grepped the full ~1550-line log for AssertionError (0), ENFILE (0), npm ERR (0), non-zero exit markers (0); both explicit TOTAL/PASS/FAIL summary lines read FAIL 0. Ordering confirmed: HEAD did not move between review_run_start and this run. All 25 findings on this story remain resolved (24) or accepted_risk (1, F-025); no open findings. No blocker identified; recording a clean pass so the gate can proceed to CLI preflight.",
+      "createdAt": "2026-08-12T15:00:41.856Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-018",
+      "envelopeId": "6c3763ca15ea50751a160faf4c175ace621071536a78ca74027945204a33e234",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/handlers/codex-adapter.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "66f3b7b5d93feeefd6e1968a25a38ca0c2ef54cb2f9f3572802f19b6ae29b757"
     }
   ]
 }
