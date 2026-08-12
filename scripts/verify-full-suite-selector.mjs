@@ -6,12 +6,15 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 
 const root = process.cwd();
-const receiptPath = process.env.B9812_SELECTOR_RECEIPT ?? '/tmp/b9812-final-v2-contract-capture.json';
+const receiptPath = process.env.B9812_SELECTOR_RECEIPT ?? '/tmp/b9812-final-v3-contract-capture.json';
 const artifacts = [
-  '/tmp/b9812-final-v2-cohort-jobs1.json', '/tmp/b9812-final-v2-cohort-jobs1.identity',
-  '/tmp/b9812-final-v2-cohort-jobs3.json', '/tmp/b9812-final-v2-cohort-jobs3.identity',
-  '/tmp/b9812-final-v2-serial.json', '/tmp/b9812-final-v2-serial.exit', '/tmp/b9812-final-v2-serial.identity', '/tmp/b9812-final-v2-serial.timing',
-  ...[1, 2, 3].flatMap(index => [`/tmp/b9812-final-v2-run${index}.json`, `/tmp/b9812-final-v2-run${index}.exit`, `/tmp/b9812-final-v2-run${index}.identity`, `/tmp/b9812-final-v2-run${index}.timing`]),
+  '/tmp/b9812-final-v3-cohort-jobs1.json', '/tmp/b9812-final-v3-cohort-jobs1.identity',
+  '/tmp/b9812-final-v3-cohort-jobs3.json', '/tmp/b9812-final-v3-cohort-jobs3.identity',
+  '/tmp/b9812-final-v3-serial.json', '/tmp/b9812-final-v3-serial.exit', '/tmp/b9812-final-v3-serial.identity', '/tmp/b9812-final-v3-serial.timing',
+  ...[1, 2, 3].flatMap(index => [`/tmp/b9812-final-v3-run${index}.json`, `/tmp/b9812-final-v3-run${index}.exit`, `/tmp/b9812-final-v3-run${index}.identity`, `/tmp/b9812-final-v3-run${index}.timing`]),
+  ...[3, 5].flatMap(jobs => [`/tmp/b9812-final-v3-jobs${jobs}.json`, `/tmp/b9812-final-v3-jobs${jobs}.exit`, `/tmp/b9812-final-v3-jobs${jobs}.identity`, `/tmp/b9812-final-v3-jobs${jobs}.timing`]),
+  '/tmp/b9812-final-v3-stress20.log', '/tmp/b9812-final-v3-stress20.exit', '/tmp/b9812-final-v3-stress20.timing',
+  '/tmp/b9812-final-v3-injected-fixtures.log', '/tmp/b9812-final-v3-injected-fixtures.exit',
   '.lattice/story/actives/B-9812/done-required-evidence.json',
   'scripts/verify-full-suite-contract.mjs',
   'scripts/verify-full-suite-selector.mjs',
@@ -82,7 +85,11 @@ if (args.length === 1 && args[0] === '--capture') {
   const current = { head: 'h', material: 'm' };
   const files = { verifier: 'd' };
   const selector = 'CHK-001:happy:0';
-  const valid = { schema: 'b9812.full-suite-contract-capture.v2', ...current, fileDigests: files, predicates: { [selector]: { passed: true, outputDigest: digest(`VERIFIED ${selector}`) } } };
+  const retainedSelector = 'CHK-001:edge:0';
+  const valid = { schema: 'b9812.full-suite-contract-capture.v2', ...current, fileDigests: files, predicates: {
+    [selector]: { passed: true, outputDigest: digest(`VERIFIED ${selector}`) },
+    [retainedSelector]: { passed: true, outputDigest: digest(`VERIFIED ${retainedSelector}`) },
+  } };
   const sameHead = (a, b) => a === b;
   validateSelectorReceipt(valid, selector, current, files, sameHead);
   for (const [label, mutation] of [
@@ -95,13 +102,19 @@ if (args.length === 1 && args[0] === '--capture') {
     let rejected = false; try { validateSelectorReceipt(changed, selector, current, files, sameHead); } catch { rejected = true; }
     assert.equal(rejected, true, `${label} must fail closed`);
   }
+  const removedOne = structuredClone(valid);
+  delete removedOne.predicates[selector];
+  validateSelectorReceipt(removedOne, retainedSelector, current, files, sameHead);
+  let removedSelectorRejected = false;
+  try { validateSelectorReceipt(removedOne, selector, current, files, sameHead); } catch { removedSelectorRejected = true; }
+  assert.equal(removedSelectorRejected, true, 'removing one evidence component suppresses only its selector');
   const bytes = JSON.stringify(valid); assert.notEqual(digest(`${bytes}x`), digest(bytes), 'changed receipt byte must alter sidecar digest');
   const metadataDescendant = { head: 'new', material: 'm' };
   validateSelectorReceipt(valid, selector, metadataDescendant, files, () => true);
   let sourceDriftRejected = false;
   try { validateSelectorReceipt(valid, selector, metadataDescendant, files, () => false); } catch { sourceDriftRejected = true; }
   assert.equal(sourceDriftRejected, true, 'non-metadata descendant must fail closed');
-  process.stdout.write('FULL_SUITE_SELECTOR_SELF_TEST=PASS assertions=8\n');
+  process.stdout.write('FULL_SUITE_SELECTOR_SELF_TEST=PASS assertions=10\n');
 } else {
   throw new Error('usage: verify-full-suite-selector.mjs --capture | --all | --selector CHK-nnn:lane:index | --self-test');
 }

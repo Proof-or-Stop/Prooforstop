@@ -58,8 +58,8 @@ const sha256 = value => `sha256:${createHash('sha256').update(value).digest('hex
 const canonicalize = value => Array.isArray(value) ? value.map(canonicalize) : value && typeof value === 'object'
   ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonicalize(value[key])])) : value;
 const canonical = value => JSON.stringify(canonicalize(value));
-const cohort1Path = process.env.B9812_COHORT_JOBS1 ?? '/tmp/b9812-final-v2-cohort-jobs1.json';
-const cohort3Path = process.env.B9812_COHORT_JOBS3 ?? '/tmp/b9812-final-v2-cohort-jobs3.json';
+const cohort1Path = process.env.B9812_COHORT_JOBS1 ?? '/tmp/b9812-final-v3-cohort-jobs1.json';
+const cohort3Path = process.env.B9812_COHORT_JOBS3 ?? '/tmp/b9812-final-v3-cohort-jobs3.json';
 const receiptFailures = [];
 const receiptCheck = (condition, message) => { if (!condition) receiptFailures.push(message); return Boolean(condition); };
 const readJsonReceipt = path => { try { return JSON.parse(readFileSync(path, 'utf8')); } catch (error) { receiptFailures.push(`${path}: ${error.message}`); return null; } };
@@ -88,8 +88,8 @@ const acceptanceSelector = acceptanceOutput.match(/ProofStory acceptance rollout
 const acceptancePassed = receiptCheck(Boolean(acceptanceSelector), 'acceptance frozen-cohort assertions missing')
   && receiptCheck(acceptanceAliasOutput.includes(acceptanceSelector), 'acceptance /tmp and /private/tmp aliases do not execute the same assertions');
 
-const parallelPrefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-final-v2-run';
-const serialPrefix = process.env.B9812_SERIAL_PREFIX ?? '/tmp/b9812-final-v2-serial';
+const parallelPrefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-final-v3-run';
+const serialPrefix = process.env.B9812_SERIAL_PREFIX ?? '/tmp/b9812-final-v3-serial';
 const parallel = [];
 let expectedMaterial;
 let orderedNames;
