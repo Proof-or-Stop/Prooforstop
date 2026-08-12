@@ -59,9 +59,19 @@ const cohortSemanticEqual = receiptCheck(cohort1 && cohort3 && canonical(normali
   && receiptCheck(cohort1.cohortJobs === 1 && cohort3.cohortJobs === 3, 'cohort job bindings differ')
   && receiptCheck(Boolean(cohort1.sourceInventoryDigest && cohort3.sourceInventoryDigest), 'cohort raw digests missing');
 let acceptanceOutput = '';
-try { if (cohort3) acceptanceOutput = execFileSync(process.execPath, ['packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js', `--cohort=${cohort3Path}`], { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }); }
+let acceptanceAliasOutput = '';
+try {
+  if (cohort3) {
+    const relativeAcceptance = 'packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js';
+    acceptanceOutput = execFileSync(process.execPath, [relativeAcceptance, `--cohort=${cohort3Path}`], { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+    const aliasRoot = root.startsWith('/private/tmp/') ? root.replace('/private/tmp/', '/tmp/') : root.startsWith('/tmp/') ? root.replace('/tmp/', '/private/tmp/') : root;
+    acceptanceAliasOutput = execFileSync(process.execPath, [`${aliasRoot}/${relativeAcceptance}`, `--cohort=${cohort3Path}`], { cwd: aliasRoot, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  }
+}
 catch (error) { receiptFailures.push(`acceptance frozen-cohort verifier failed: ${error.message}`); }
-const acceptancePassed = receiptCheck(/ProofStory acceptance rollout smoke: PASS \((\d+) assertions\)/.test(acceptanceOutput), 'acceptance frozen-cohort assertions missing');
+const acceptanceSelector = acceptanceOutput.match(/ProofStory acceptance rollout smoke: PASS \((\d+) assertions\)/)?.[0];
+const acceptancePassed = receiptCheck(Boolean(acceptanceSelector), 'acceptance frozen-cohort assertions missing')
+  && receiptCheck(acceptanceAliasOutput.includes(acceptanceSelector), 'acceptance /tmp and /private/tmp aliases do not execute the same assertions');
 
 const parallelPrefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-final-v2-run';
 const serialPrefix = process.env.B9812_SERIAL_PREFIX ?? '/tmp/b9812-final-v2-serial';

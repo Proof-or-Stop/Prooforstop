@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   acceptanceRolloutHistoryDigest,
   acceptanceRolloutSourceRecordDigest,
@@ -443,7 +444,7 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
   process.stdout.write(`ProofStory acceptance rollout smoke: PASS (${assertions} assertions)\n`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   if (issuerMutationMode) {
     try { runIssuerMutationSmoke(); }
     catch (error) {
