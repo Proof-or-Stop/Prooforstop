@@ -22,16 +22,16 @@ assert.ok(incremental.includes("LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1"));
 assert.ok(!runner.includes('rmSync('), 'runner must not accept or recursively delete arbitrary member cleanup roots');
 assert.equal(300_000 < 300_000, false, 'exactly 300000ms is outside the accepted performance boundary');
 
-if (process.env.B9812_COHORT_JOBS1 && process.env.B9812_COHORT_JOBS3) {
-  const one = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS1, 'utf8'));
-  const three = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS3, 'utf8'));
+{
+  const one = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS1 ?? '/tmp/b9812-cohort-jobs1.json', 'utf8'));
+  const three = JSON.parse(readFileSync(process.env.B9812_COHORT_JOBS3 ?? '/tmp/b9812-cohort-jobs3.json', 'utf8'));
   assert.deepEqual(one.registeredSeedIds, three.registeredSeedIds);
   const semanticRecords = input => input.sourceRecords.map(record => ({ pairId: record.pairId, arm: record.arm, storyId: record.storyId, claimClass: record.claimClass, defectClass: record.defectClass, defectPresent: record.defectPresent, shouldBlock: record.shouldBlock, scenario: record.observationReceipt.scenario, topologyStatus: record.observationReceipt.gateArtifacts?.[0]?.status, preReviewStatus: record.observationReceipt.gateArtifacts?.[1]?.status, checkInventory: record.observationReceipt.checkInventory, mutationInventory: record.observationReceipt.mutationInventory, restored: Boolean(record.observationReceipt.restorationCommitSha) })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
   assert.deepEqual(semanticRecords(one), semanticRecords(three));
 }
 
 const prefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-mechanical-run';
-const expectedMaterial = process.env.B9812_MATERIAL_HASH;
+const expectedMaterial = process.env.B9812_MATERIAL_HASH ?? '626604853fdf2e2d46eb64c842567dfd1021f7cdd1cb75d0eeee27a6bd58b981';
 let ordered;
 for (let i = 1; i <= 3; i++) {
   const artifact = JSON.parse(readFileSync(`${prefix}${i}.json`, 'utf8'));
