@@ -8,7 +8,7 @@
   },
   "scripts": {
     "audit:silent-catches": "node scripts/audit-silent-catches.mjs",
-    "build": "cd packages/main && npm run build",
+    "build": "npm --prefix packages/utils run build && npm --prefix packages/main run build",
     "build:lab": "npm --prefix packages/lab run build",
     "package:desktop:host": "node scripts/package-desktop.mjs host",
     "package:desktop:release": "node scripts/package-desktop.mjs release",
