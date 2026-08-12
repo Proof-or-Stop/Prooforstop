@@ -356,6 +356,26 @@
         ".lattice/story/actives/B-cdf6/review-runs.json"
       ],
       "_hash": "2f4c65bde105f19a393d75ed998f19eae032b4626b9275cf9d344d858ba8566a"
+    },
+    {
+      "id": "B-META-framework-audit:F-020",
+      "desc": "A rename-exposed stale pin in a LIVE gate test was skipped on the reasoning that tests/red/** is 'past RED evidence'. Commit 78178ef2b6 of this story explicitly excluded tests/red/** from the brand sweep with that rationale, but red-b2aa7-chk006-receipt.mjs and red-b2aa7-f005-receipt.mjs are registered as lattice.config.json validate.commands[61] and [67] - they are LIVE gate inputs, not inert history. They hardcoded the old bin name while asserting the emitted repair guidance ('lattice red_evidence_get' at chk006:323 and f005:151), so when redEvidenceRepairGuidance() was CORRECTLY rebranded per brand-rename-mapping.md:121 ('Hardcoded lattice <cmd> hints and error strings | RENAMED'), both receipts began failing. Consequence: `proof-or-stop validate` was red - i.e. CLAUDE.md's own '全绿 = 可以提交' bar was unmet - while root `npm test` stayed green, because these two commands are in validate.commands but NOT in the npm test chain. So the story could look green on the most-run signal while the mandated gate was red. Diagnostic subtlety worth recording: the failure text described a BEHAVIOUR regression ('the repair round trip stopped being lossless: the malformed original is no longer preserved byte-identically...'), which is misleading - a per-sub-condition probe proved every behavioural assertion still held and only the brand literal differed. The same misdiagnosis-risk pattern as F-012/F-013/F-018.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T17:28:12.216Z",
+      "reviewRound": "",
+      "gapFingerprint": "b484bca2e588b4274bd2dd7f4897360c1b0bc4084b633c8a843ea8d1975fbe47",
+      "files": [
+        "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs:323",
+        "packages/main/tests/red/red-b2aa7-f005-receipt.mjs:151",
+        "lattice.config.json",
+        "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+        "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+      ],
+      "_hash": "b1e9a778d9f9f643b4292ed596c9a35b90e85233b3fe762a28dbab73db6d5fc2"
     }
   ]
 }
