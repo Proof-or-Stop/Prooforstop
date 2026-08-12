@@ -297,6 +297,37 @@
         "scanEscalationReason": null
       },
       "_hash": "f8225b2379310808eceb64994e3e29d0e00462a360ea39c36331d406e38c565c"
+    },
+    {
+      "id": "B-74af:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Final round-4 incremental concept review passed. RR-011 is SAFE_INCREMENTAL with no changed files, affected contracts, current claims, finding deltas, impacted files, impacted intents, or unresolved findings. Git independently confirms packages/main/src and the B-74af checklist are unchanged since the prior fresh concept pass; intervening changes are lifecycle/review/test metadata only. Canonical status-first semantics remain intact: running/background/silent/unknown/unavailable monitor the same task independent of elapsed time; completed results are consumed once; replacement is limited to authoritative failed/cancelled/missing/dead/operator-cancelled terminal states and is single-attempt/idempotent; partial INIT recovery dispatches exactly missingAgents. No active elapsed-only restart residue was found. Protected provider/cross-host explicit timeout implementations remain zero-diff from main. Current session_brief reports recent validation PASS and checklist evidence remains 19/19 passing with no waivers.",
+      "createdAt": "2026-08-12T12:44:55.613Z",
+      "reviewRound": "2026-08-12T12:42:52.898Z",
+      "reviewRunId": "B-74af:RR-011",
+      "envelopeId": "4f3ab4b553fa5ee036aad50df19d4ba7ee2e036ae9d2aa7ffdad62520c868807",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-liveness-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74af/checklist.json",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44b146f7809de444700ed3e9f8447d3e9bfb578025001e6e8687c0ea0d8704f0"
     }
   ]
 }
