@@ -302,6 +302,26 @@
         "packages/main/src/core/command-policy.ts"
       ],
       "_hash": "6103691b286028e2e689d51adf67cec73a915ccf4b8809b8c90f0c025913a4f6"
+    },
+    {
+      "id": "B-META-framework-audit:F-017",
+      "desc": "Two independent wall-clock budgets govern one verification-evidence write and are NOT reconciled, so raising the sanctioned one is silently insufficient. B-cdf6 fixed B-META-framework-audit:F-012 by adding a bounded audited per-evidence override (commandTimeoutMs, cap 7200000ms matching lattice.config.json's own budget for the same command). But cli-engine.ts:1058-1060 still applies an OUTER CLI watchdog that defaults to 5 minutes idle and a per-command max budget, and kills the process (exit 2 for verification_evidence_add) regardless of the inner commandTimeoutMs. So an operator who correctly sets commandTimeoutMs=2700000 for a 21-24 minute witness still gets killed at 5 minutes unless they ALSO raise LATTICE_IDLE_TIMEOUT_MS and LATTICE_MAX_TIMEOUT_MS in the same invocation - two env vars whose names appear nowhere in the failure they prevent. The inner budget is a first-class, validated, audited, receipt-stamped parameter; the outer one is an env var with a hardcoded default. Nothing validates that the inner budget is achievable under the outer one, so the framework accepts a request it knows it cannot honour. Credit where due: the implementer disclosed this limitation unprompted and documented it in the refusal message, the --help text and CLAUDE.md, rather than shipping it silently - which is why it is a medium follow-up rather than a latent trap.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T09:55:15.924Z",
+      "reviewRound": "",
+      "gapFingerprint": "b2f43dca67ec013fea8dd473430db1deb5d7bccba74deb1fb2f5049773c49f6b",
+      "files": [
+        "packages/main/src/cli-engine.ts:1058",
+        "packages/main/src/core/validation-executor.ts:61",
+        "lattice.config.json:146",
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "_hash": "e90afdb78698957beeb697e2031eda5e2a91309634a5ffe9608f77e45e7bea8f"
     }
   ]
 }
