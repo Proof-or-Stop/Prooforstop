@@ -530,6 +530,21 @@
       "resolvedAt": "2026-08-12T08:19:43.851Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-025",
+      "desc": "scripts/verify-entrypoints.mjs:521 (and :975) assert verify_codex output on STDOUT (execFileSync return value), but cli-engine.ts writes the verdict via process.stderr (log() at cli-engine.ts:920-923 plus the thrown Error path), so verifyInitOut is always empty and the assertion fails with a misleading 'output ()' message. Reproduced independently on this story's HEAD (f3b2aca) AND on a clean isolated checkout of main (75d76cc6cd, pre-B-cdf6) - confirmed pre-existing, not a B-cdf6 regression. Also confirmed test:entrypoints is not part of root npm test's chain (package.json:15), so it does not affect the DONE-blocking suite or the CHK-005:happy:0 receipt. Advisory only: not blocking, out of this story's material scope, but worth a paper trail since verify-entrypoints.mjs is otherwise a load-bearing regression suite for the Codex adapter.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T10:37:53.689Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-016",
+      "_hash": "b6ee178cccc37d9efea7b7963767bb9edd21805c3c74c08ae47ac4a4bbfc118e",
+      "signatureTag": "missing|unknown|scripts-verify-entrypoints",
+      "signatureTagSource": "auto"
     }
   ]
 }
