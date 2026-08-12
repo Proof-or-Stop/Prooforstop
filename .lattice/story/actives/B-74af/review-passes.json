@@ -173,6 +173,38 @@
         "scanEscalationReason": null
       },
       "_hash": "a0c195f78c777acffa9d550b10a53ee4dd464ba02ffaccb4724e70cc518e334f"
+    },
+    {
+      "id": "B-74af:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept review passed: the fresh SAFE_INCREMENTAL basis reports no source, contract, intent, or finding delta since RP-004; direct Git checks confirm production source and checklist are unchanged. Canonical foreground/running/background/unknown monitoring, completed-result-once, terminal-only single replacement, and exact missingAgents dispatch remain intact; no active elapsed-only restart residue exists; protected provider/cross-host timeout files remain zero-diff. The aggregate liveness suite was independently rerun and completed on the same monitored exec session with all registry, INIT, provider timeout, cross-host, and retry checks passing.",
+      "createdAt": "2026-08-12T11:41:25.952Z",
+      "reviewRound": "2026-08-12T11:39:03.767Z",
+      "reviewRunId": "B-74af:RR-008",
+      "envelopeId": "cb6a0eb8db02a2d9a1b3595fbc44106ed1376a03f6903d997d4e63c9ffd6d6ef",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-liveness-policy.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-74af/checklist.json",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6e6792f5a94a0f8fb1e90638bff7f03ef6f174699ff86fd033fc2aae1f7a0e4"
     }
   ]
 }
