@@ -33,6 +33,49 @@
         "scanEscalationReason": null
       },
       "_hash": "abc71a1117c1d3f42b2664541f250c09c3447ea0d79d541852db09b1a6e13b5a"
+    },
+    {
+      "id": "B-cdf6:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-completeness re-review bound to head c0e9a5b. F-014 fix confirmed. F-011 accepted_risk confirmed pre-existing/out-of-scope. Targeted sweep for F-016-class read-both compat holes found and filed F-020 (medium): runtime-environment-checks.ts:333 bypasses readBrandEnv for LATTICE_CODEX_ENTRYPOINT while the same file uses it correctly at line 1129. No other functional compat holes found; remaining lattice-* residue inspected is cosmetic identifier naming or correctly frozen/aliased per the mapping table.",
+      "createdAt": "2026-08-12T04:14:35.272Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-010",
+      "envelopeId": "db9e69bc1f1be0a66f19b149da972f3a906342a0fb8f5b04fa31a682b06c8f10",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/lattice-codex.js",
+          "bin/lattice.js",
+          "bin/proof-or-stop-codex.js",
+          "bin/proof-or-stop.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/audit-config.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/stale-detector.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/init-assets.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/runtime-root.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/handlers/audit.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e81156b06b2ab8e0551847227bc26c90b45e5c086187e14cadeda81e7697066"
     }
   ]
 }
