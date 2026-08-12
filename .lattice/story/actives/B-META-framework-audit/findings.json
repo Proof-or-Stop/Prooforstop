@@ -227,6 +227,24 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "_hash": "0c4b6c9788f71b7cce17e23225f61f0e03154a9b28250665e148cd8126fa4303"
+    },
+    {
+      "id": "B-META-framework-audit:F-013",
+      "desc": "verify_codex's 'Global fallback heartbeat' check fails on any repository large enough that session_brief exceeds 30 seconds, reporting it as an adapter defect rather than as a timeout. Measured on B-cdf6's worktree: DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000 (core/codex-adapter-checks.ts:87) but a real global-fallback session_brief run takes ~101s (measured twice, once with the deprecated LATTICE_* env spelling and once with the canonical PROOF_OR_STOP_* spelling; both completed successfully and printed '# proof-or-stop session brief'). So the underlying code path is HEALTHY and the check still reports [x] 'heartbeat command failed'. The cost is 319 active stories under .lattice/story/actives being aggregated, i.e. repository scale, not a code defect. CLI startup itself is fast (0.45s for --version), which isolates the cost to session_brief's data aggregation rather than to module loading. CAUTION FOR FUTURE DIAGNOSIS: comparing against the main checkout is misleading here - main's session_brief appears to run in 0.03s but is actually CRASHING instantly with MODULE_NOT_FOUND because main has no built dist, so 'main is 3400x faster' is an artifact of comparing a working command against a crash. I made exactly that mistake before checking main's actual output.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T04:23:43.883Z",
+      "reviewRound": "",
+      "gapFingerprint": "7d1e9b3d21784858455598626023aee3eca1f789791ee94319450413d9b95caf",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts:87",
+        "packages/main/src/core/codex-adapter-checks.ts:750",
+        "packages/main/src/core/codex-adapter-checks.ts"
+      ],
+      "_hash": "30d62f328d1bbdd18e4f22ebf109fa95329413786248c9495ef363923985b749"
     }
   ]
 }

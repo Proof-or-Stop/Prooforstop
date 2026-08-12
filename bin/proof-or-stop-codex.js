@@ -6,24 +6,42 @@
  * so a teammate branch (or an in-flight story) invoking the old name keeps
  * working. All behaviour lives in this file; the alias adds nothing.
  */
-process.env.LATTICE_ACTIVITY_SOURCE = 'codex';
-process.env.LATTICE_ACTIVITY_RECORD_READONLY = '1';
-process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
+// B-cdf6 (concept round-2 sweep): this committed wrapper previously wrote ONLY the
+// deprecated LATTICE_* spellings, while the wrapper `init` GENERATES into new projects
+// dual-writes both. That asymmetry happened to work only because every reader currently
+// falls back via readBrandEnv - i.e. it depended on no reader ever going canonical-only,
+// which is exactly the fragile assumption F-020 caught breaking. These helpers mirror the
+// generated wrapper's contract: write BOTH spellings, read canonical-first BY PRESENCE.
+function setEnv(suffix, value) {
+  process.env['PROOF_OR_STOP_' + suffix] = value;
+  process.env['LATTICE_' + suffix] = value;
+}
+function readEnv(suffix) {
+  const canonical = process.env['PROOF_OR_STOP_' + suffix];
+  if (canonical !== undefined) return canonical;
+  return process.env['LATTICE_' + suffix];
+}
+function deleteEnv(suffix) {
+  delete process.env['PROOF_OR_STOP_' + suffix];
+  delete process.env['LATTICE_' + suffix];
+}
 
-if (!process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK) {
-  process.env.LATTICE_OWNER_SESSION_ADAPTER_TASK =
+setEnv('ACTIVITY_SOURCE', 'codex');
+setEnv('ACTIVITY_RECORD_READONLY', '1');
+setEnv('CODEX_ENTRYPOINT', 'local-wrapper');
+
+if (!readEnv('OWNER_SESSION_ADAPTER_TASK')) {
+  setEnv('OWNER_SESSION_ADAPTER_TASK',
     process.env.CODEX_THREAD_ID ||
     process.env.CODEX_SESSION_ID ||
     process.env.OPENAI_SESSION_ID ||
     process.env.TERM_SESSION_ID ||
-    '';
+    '');
 }
-process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = 'codex';
-process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT =
-  process.env.LATTICE_OWNER_SESSION_ADAPTER_AGENT ||
-  process.env.LATTICE_AGENT ||
-  'main';
-delete process.env.LATTICE_ACTIVITY_SESSION;
+setEnv('OWNER_SESSION_ADAPTER_PROVIDER', 'codex');
+setEnv('OWNER_SESSION_ADAPTER_AGENT',
+  readEnv('OWNER_SESSION_ADAPTER_AGENT') || readEnv('AGENT') || 'main');
+deleteEnv('ACTIVITY_SESSION');
 
 /**
  * Sibling bootstrap wrappers, canonical first. The deprecated `lattice.js` name

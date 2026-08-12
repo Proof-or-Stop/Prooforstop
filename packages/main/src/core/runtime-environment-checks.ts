@@ -329,8 +329,15 @@ export function classifyRuntimeEntrypointAuthority(
   }
 
   const recoveryCommand = renderLocalEntrypointRecoveryCommand(worktreeRoot!, input.command, input.commandArgs);
+  // B-cdf6:F-020 — read BOTH brand spellings, same as line ~1129 does for this exact
+  // semantic check. A raw `input.env?.LATTICE_CODEX_ENTRYPOINT` access here would miss the
+  // canonical PROOF_OR_STOP_CODEX_ENTRYPOINT spelling, which is equally valid under the
+  // additive compat contract. Since classifyRuntimeEntrypointAuthority runs on EVERY command
+  // in a self-host worktree (cli-engine.ts passes env: process.env), missing it would
+  // misclassify a legitimate global-fallback session_brief heartbeat as a runtime-authority
+  // violation. Same bug class as F-016 (idleLattice), which is why this was swept for.
   const isExplicitSessionBriefFallback = input.command === 'session_brief'
-    && input.env?.LATTICE_CODEX_ENTRYPOINT === 'global-fallback';
+    && readBrandEnv('CODEX_ENTRYPOINT', input.env) === 'global-fallback';
   if (isExplicitSessionBriefFallback) {
     return {
       status: 'exempt',
