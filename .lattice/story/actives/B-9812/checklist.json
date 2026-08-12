@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Establish a reproducible full-suite performance and coverage baseline",
-      "context": "Produce machine-readable wall, user, and system timing per root npm test member together with process launch counts, suite membership, assertion and mutation inventories, and failure outcomes. Pin the current 46-member passing baseline and the 1688.9-second reference. Measure only from a clean temporary clone after a same-material packages/main build without polluting the project directory.",
+      "context": "Produce machine-readable timing, process-launch, membership, assertion, mutation, and failure baselines for the frozen current canonical inventory (45 members on the B-9812 base). Bidirectional completeness must incorporate any required member merged before final verification. Measure only in clean temporary clones after same-material builds.",
       "relatedDocs": [
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-infra.md",
@@ -11,7 +11,56 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From a clean temporary clone at the story material HEAD, build packages/main and run the current canonical root suite baseline; emit machine-readable per-member wall, user, system, exit status, process-launch count, assertion inventory, mutation inventory, and failure outcome for the frozen current canonical inventory (45 on the B-9812 base), with bidirectional completeness requiring every later-merged required canonical member to enter the inventory and forbidding omissions, including the measured 1688.9-second historical reference; WHY: optimization needs a reproducible oracle for both speed and retained coverage without freezing an obsolete member count.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the baseline collector twice against unchanged material and compare normalized membership, assertion, mutation, and outcome inventories; all semantic inventories match while timings may vary, and the source worktree remains unchanged; WHY: the baseline must be deterministic and non-polluting.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Measure from a temporary clone whose absolute path contains spaces and after clearing generated dist before the required same-material build; the collector attributes every member in the frozen current canonical inventory (45 on the B-9812 base, plus any later-merged required canonical members discovered by the bidirectional completeness contract) exactly once and binds results to the rebuilt HEAD/material hash; WHY: path quoting, stale-build assumptions, and later inventory growth must not corrupt or shrink the oracle.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Force one baseline member to exit nonzero after emitting partial output; the report preserves its timing and failure status, marks the overall run failed, and does not misclassify later absent members as passing; WHY: failure outcomes are part of the comparison contract.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate the baseline inventory by deleting one member, duplicating one member, and deleting one assertion or mutation signature in separate trials; the equivalence checker fails each trial with the exact missing or duplicate identity; WHY: a faster but smaller suite must be mechanically rejected.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempt to benchmark with mismatched source and dist material or with outputs written inside the project worktree; the collector refuses or reports a binding violation and leaves tracked files untouched; WHY: stale artifacts and benchmark pollution could create false performance evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The terminal prints a machine-readable baseline naming every canonical member, its status and duration, and confirms the frozen inventory is complete with no duplicates or skips.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/tasks/full-suite-baseline.ts",
+          "docs/dev/full-suite-performance.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/full-suite-baseline-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -24,7 +73,71 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Schedule at least two manifest tasks declared parallel-safe with distinct temporary roots; execution intervals overlap, both pass, and the report names their acquired resources and unique roots; WHY: the contract must enable real concurrency rather than merely describe it.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Schedule pairs sharing each protected class in turn: Git common-dir, fixed port or path, shared runtime lock, and main-write lock; conflicting intervals never overlap while unrelated work continues, and lock-wait time is recorded; WHY: every declared shared resource must be mechanically serialized.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "On normal completion, timeout, and external interruption, verify all worker descendants are terminated and every task-owned temporary root is removed without touching another task root; WHY: safe concurrency includes process-tree and filesystem lifecycle ownership.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Give two lexically different paths that resolve through symlink or realpath to the same Git common-dir or fixed path; the scheduler canonicalizes them to one resource key and serializes the tasks; WHY: textual path inequality must not bypass isolation.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Run an unclassified manifest member and a member with an unknown resource kind; execution fails closed or runs serially with an explicit diagnostic, never concurrently by default; WHY: incomplete classifications must not become unsafe optimism.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Use jobs=1, jobs greater than member count, and a queue containing both exclusive and parallel-safe tasks; all members execute once without deadlock or starvation and statuses match; WHY: boundary worker counts and mixed locks exercise scheduler progress.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate the scheduler to ignore one protected resource key; a collision sentinel that holds the resource while writing an ownership token detects overlap and fails the test; WHY: the isolation test must bite if locking is removed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Spawn a grandchild that ignores the first termination signal and keeps a file or port open, then timeout its member; the scheduler escalates termination for the owned process tree, reports TIMEOUT, and a probe proves no descendant or resource survives; WHY: killing only the direct child leaks interference into later tests.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Make cleanup target resolution point outside the task-owned temporary root; cleanup is refused and the external sentinel remains intact; WHY: concurrent cleanup must be bounded and non-destructive.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The runner reports each test's resource class and lock wait, runs compatible tests concurrently, and rejects unsafe or unclassified concurrent work.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "packages/main/smoke-manifest.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -37,7 +150,72 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the optimized acceptance rollout and prove each logical cohort is generated exactly once, frozen with a content digest, and reused by all consumers; the complete prior diagnostics, mutation/restoration outcomes, reviewer-lane results, and quorum assertions equal the pinned baseline inventory; WHY: removing duplicate generation must not remove acceptance coverage.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Execute independent cohort cases concurrently in isolated temporary repositories and retain the required real dist and CLI black-box sentinel cases; every case passes once and the output records both batch/in-process and real-CLI paths; WHY: speedup must preserve process-boundary coverage where it matters.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For every matrix check moved in-process or into a batch entry, run an equivalence sample through the real CLI and compare normalized exit class, diagnostic codes, and evidence artifacts; mismatches are zero; WHY: handler reuse must remain behaviorally equivalent to the production entrypoint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Tamper with one byte of the frozen cohort or change its bound material hash before reuse; digest verification rejects the artifact before any acceptance claim is made; WHY: reuse is safe only when identity and integrity are enforced.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Cause one concurrent cohort case to fail midway after mutation but before restoration; that case reports failure, its repository is restored or quarantined, sibling repositories remain unchanged, and the overall rollout fails; WHY: case isolation must survive partial execution.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with jobs=1 and with the supported parallel worker count; cohort membership, diagnostics, mutations, restorations, reviewer lanes, quorum outcomes, and digest are equivalent independent of completion order; WHY: concurrency must not alter semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate the implementation to invoke cohort generation twice or accept an unsigned or stale cached cohort; a generation-count or digest-binding assertion fails; WHY: the principal duplicate-work regression must be directly killed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Introduce a divergence that is visible only through the real CLI wrapper, such as argument normalization or exit-code mapping, while leaving the in-process handler unchanged; the CLI equivalence sentinel fails; WHY: replacing all black-box checks with handlers would hide entrypoint regressions.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Force two cases to share a repository or temporary path and write distinct ownership sentinels; the isolation guard rejects scheduling or the collision test fails before results can pass; WHY: concurrent cohort speedup must not rely on accidental non-overlap.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The acceptance rollout summary shows one digest-bound cohort generation, retained CLI sentinels, and every rollout diagnostic and restoration assertion passing.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
@@ -50,12 +228,77 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the deterministic canonical incremental-context schedules for mixed reviewer writers, ABA, cutoff, restoration, and intent-hardening mutations; every pinned assertion and failure-matrix cell from the old suite is present and produces the same outcome; WHY: shorter execution must preserve race and mutation coverage, not just lower iteration count.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Shard only scenarios declared independent and run them concurrently with deterministic seed or schedule recorded in the report; jobs=1 and parallel runs have identical normalized member, assertion, mutation, and failure outcomes; WHY: concurrency must be reproducible and semantically neutral.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "If redundant burn-in iterations move to a stress command, prove canonical root npm test still runs deterministic representatives that kill every previously covered mutation class and prove the stress command retains the full twenty-iteration campaign; WHY: classification may move probabilistic repetition but not coverage.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Replay each failing randomized or scheduled scenario from its recorded seed and schedule under jobs=1; it reaches the same failure class and identifies the responsible lane or mutation; WHY: race failures must be diagnosable rather than flaky.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Exercise ABA transitions at the cutoff boundary and restoration immediately before and after the binding read; stale evidence is rejected and valid restored state is accepted exactly as in the baseline matrix; WHY: off-by-one timing is the core concurrency boundary.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Run a shard that times out beside successful shards; successful results remain attributable, the full command fails, and no state from the timed-out shard appears in another shard; WHY: partial shard completion must not contaminate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reduce canonical schedules or iterations without supplying an equivalent mutation-kill mapping; the old-versus-new inventory comparison fails on the missing assertion or mutation class; WHY: raw speed cannot authorize silent race-coverage shrinkage.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Remove seed recording or introduce order-dependent shared state between shards; repeat/replay comparison detects nondeterminism or cross-shard contamination and fails; WHY: parallel tests must not exchange hidden state.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Mutate ABA, cutoff, or restoration guards one at a time; at least one retained deterministic canonical case fails for every mutation previously killed by the twenty-iteration suite; WHY: the reduced long tail must still bite the actual race protections.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The canonical suite reports deterministic incremental-context and intent-hardening coverage separately from optional burn-in, with the same injected mutations detected.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
       "title": "Route canonical root npm test through the safe scheduler with complete membership",
-      "context": "Replace the 46-command npm run serial chain with the resource-aware runner. Add a bidirectional completeness check between the old script inventory and the new manifest so omissions, duplicates, and unexpected skips fail. Preserve focused test diagnostic entries. An initial FAIL or TIMEOUT must remain failed and cannot be masked by automatic serial retry. Parallel execution and jobs=1 must produce equivalent member status and critical evidence.",
+      "context": "Replace the current 45-command serial chain with a resource-aware runner over the frozen current canonical inventory, with bidirectional checks that automatically expose omissions, duplicates, skips, and later required-member drift. Preserve focused test entries and make first FAIL/TIMEOUT terminal.",
       "relatedDocs": [
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-infra.md",
@@ -63,7 +306,76 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run canonical root npm test through the resource-aware scheduler and compare its manifest bidirectionally with the frozen current canonical inventory (45 on the B-9812 base) plus every later-merged required canonical member; every identity appears exactly once, no required later member can be omitted, no unexpected skip occurs, and all focused diagnostic entrypoints remain callable; WHY: replacing the shell chain must retain complete suite membership while allowing the authoritative inventory to grow.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the canonical manifest with jobs=1 and with safe parallelism; normalized member status, exit class, critical evidence, assertion inventory, and mutation inventory are equivalent, while the parallel report demonstrates overlap only for non-conflicting resources; WHY: scheduling must change time but not verdicts.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Make one member fail with a unique diagnostic; root npm test exits nonzero, reports the original first failure and member logs, and does not convert the result to pass through retry; WHY: the canonical command must remain trustworthy and debuggable.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run with an empty filtered selection, an unknown member request, jobs=1, and jobs larger than the suite; invalid or empty selections fail explicitly where appropriate, and valid worker boundaries execute each selected member once; WHY: scheduler argument boundaries must not create silent success.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Queue a long exclusive member between many short parallel-safe members; the lock-aware scheduler eventually runs it without deadlock or starvation and records its wait; WHY: safety must not sacrifice progress.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Interrupt canonical npm test while members are active; root exits nonzero after bounded process-tree cleanup and emits a terminal interrupted status for started members rather than fabricated PASS or SKIP results; WHY: operator cancellation must preserve truthful terminal state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delete, duplicate, rename, or mark skipped one manifest member in separate mutations, including a required member merged after the B-9812 base; the bidirectional completeness contract fails before or during execution with the exact inventory discrepancy; WHY: omissions and duplicates are the easiest way to manufacture a faster suite, and later-required members must not fall outside a frozen snapshot.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Add a retry path that reruns an initial FAIL or TIMEOUT serially and returns only the later pass; a terminal-first-outcome test proves root remains failed and retains both observations without status laundering; WHY: retry must never mask the first authoritative failure.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Mutate result aggregation so a worker rejection, signal exit, or missing terminal record is treated as success; fail-closed aggregation tests make root npm test exit nonzero; WHY: scheduler plumbing failures must not become green builds.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Running npm test executes the complete manifest through the safe scheduler, prints a critical-path summary, and exits nonzero on the first observed failed or timed-out member without retry masking.",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/full-suite-manifest.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/run-all-smokes-smoke.ts",
+          "scripts/verify-full-suite-membership.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-006",
@@ -76,7 +388,79 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In a clean temporary clone bound to the implementation HEAD, perform the required same-material packages/main build and run canonical root npm test three consecutive times; each run executes the completeness-checked full set, all members pass, and each independently measured wall time is below 300000 milliseconds; WHY: the user-visible performance goal requires repeatable end-to-end proof rather than one warm outlier.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "For all three runs persist machine-readable per-member timing, critical path, worker utilization, resource-lock wait, process-launch counts, material identity, and terminal outcomes; totals reconcile with the root result and expose the bottleneck; WHY: the performance claim must be auditable and regression-ready.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run the same material with jobs=1 and compare full membership, assertions, mutations, statuses, and critical evidence to the parallel runs; all semantic fields match even though jobs=1 need not meet the five-minute target; WHY: concurrency safety requires a serial oracle.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Generate DONE-required validation evidence through the canonical root npm test path and verify the receipt names the exact command, HEAD/material/story-files hashes, exit status, full-suite identity, and fresh timing; WHY: optimization must not weaken the lifecycle gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Execute the three-run proof with cold filesystem state for the first run and ordinary warm state thereafter without sharing task-owned temporary repositories between runs; every run remains below the limit and semantically equivalent; WHY: the threshold must not depend on a hidden dirty fixture.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Set available workers to one less and one more than the recommended default while preserving safe resource limits; runs either complete correctly or refuse unsupported capacity explicitly, with no oversubscription-induced false pass; WHY: the scheduler must handle realistic host variability safely.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Approach the 300000-millisecond boundary using a controlled slow member; elapsed time is measured by a monotonic clock, a run at or above the limit fails the performance assertion, and report serialization time cannot hide the breach; WHY: the acceptance threshold needs exact boundary semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject, in separate trials, a shared-path collision, a fixed-port collision, a timeout with a surviving grandchild attempt, and an ordinary member failure; locking prevents unsafe overlap, cleanup leaves no descendant or resource, and every timeout or failure makes root npm test fail terminally; WHY: concurrency safety must be proven by failures that bite.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Tamper with timing output, drop a slow member, forge a PASS without a terminal record, or reuse evidence from another material hash; reconciliation, completeness, terminal-state, or freshness checks reject every trial; WHY: the sub-five-minute claim must resist evidence fabrication and suite shrinkage.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Mutate resource classification or lock acquisition so two known-conflicting sentinel members overlap; ownership-token assertions fail and no DONE-required PASS receipt is emitted; WHY: lifecycle evidence must be impossible when concurrency isolation regresses.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "A clean-clone benchmark report shows three consecutive complete npm test runs below 300000 ms, jobs=1 equivalence, zero leaked children, and every safety mutation detected.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [
+          "scripts/verify-full-suite-performance.mjs"
+        ],
+        "test": [
+          "scripts/verify-full-suite-performance.mjs"
+        ]
+      }
     }
   ]
 }

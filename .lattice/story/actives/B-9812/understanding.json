@@ -1,0 +1,33 @@
+{
+  "task": "Reduce canonical root npm test from 1688.9 seconds to under 300 seconds through safe resource-aware concurrency and redundant-work elimination without weakening assurance.",
+  "outcome": "After running the same-material build and npm test, the terminal reports every completeness-checked full-suite member PASS and a total duration below 300 seconds; three clean temporary-clone runs produce the same result with no leaked children or hidden retry.",
+  "facts": [
+    "The current B-9812 base has 45 canonical root members; the previously measured B-cdf6 descendant had 46 because it additionally included audit-scan-bin-token.",
+    "Most members use unique mkdtemp roots and can run concurrently, while repository-scanning and wrapper-authority tests need explicit repository-read or exclusive resource declarations.",
+    "The acceptance suite currently creates 24 production cohort cases because runCohort is invoked twice; each case repeats the same 26-command CLI lifecycle.",
+    "The real CLI sentinel can stay in proofstory-pre-review-check-smoke while frozen cohort mutation and threshold checks run from one generated cohort in process.",
+    "Intent-hardening uses repeated CLI calls through one helper and needs differential assertion inventory before any batching; incremental-context has two deterministic masks plus a 20-iteration identical-mask burn-in that can be separated only with a retained mutation-killing deterministic case.",
+    "The existing run-all-smokes runner retries TIMEOUT and allowlisted FAIL results, so canonical mode requires no-retry as a hard default rather than an optional flag."
+  ],
+  "constraints": [
+    "Preserve current deterministic assertions, mutation bites, dist and CLI black-box sentinels, and gate semantics.",
+    "Unknown or conflicting shared resources run serially; isolated temporary roots are required for concurrent writers.",
+    "An initial FAIL or TIMEOUT remains terminal for the canonical full suite.",
+    "Membership completeness must fail on omissions, duplicates, or unexpected skips.",
+    "Performance acceptance uses three clean temporary-clone runs after same-material builds and records machine-readable timings."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "packages/main/src/tasks/run-all-smokes.ts",
+    "packages/main/src/tasks/run-all-smokes-smoke.ts",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+    "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-08-12T12:35:58.655Z"
+}
