@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-9812:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality PASS at f556bcb7f9/source 371ec93. Reproduced no-arg 52-selector verifier after real review_run_start; output root rejects project and ancestor authorization while permitting disjoint external roots; focused runner smoke PASS 78 including resource-only lockWait, Windows/POSIX cleanup, unique TMP roots, terminal aggregation and CPU isolation; unsandboxed prebind of 127.0.0.1:43127 makes canonical sentinel exit 1 EADDRINUSE and cleanup rebind succeeds; fixed-port OS receipt is detected/PASS; reports truthfully separate five explicit-marker members from 42 runner-terminal-only members with detailedAssertions=null rather than claiming detailed internal inventory. No correctness, safety, type, dead-code, or delivered-document blocker found.",
+      "createdAt": "2026-08-12T22:07:55.530Z",
+      "reviewRound": "2026-08-12T22:03:50.648Z",
+      "reviewRunId": "B-9812:RR-011",
+      "envelopeId": "3d0efea71a7bee4addcb6a1f5a7ef954c505202045fd49761b8038e004023431",
+      "writerSessionId": "sess-2d447fa04563eebd0e8ea3404480133e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f42b27e71febf7fed2b6b6f02ece861b9f012ee5e51b5a6c358003728848751"
+    },
+    {
+      "id": "B-9812:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept replacement is complete at HEAD f556bcb7f9: F-030 is fixed by documenting the resource-aware root runner and the combined prefix plus serial-reference authority; repository-wide scans found no remaining current 22-step/serial-root contract. The authority resolves to 47 unique scripted members, resource policy fails closed, the canonical sentinel consumes protected resources, focused runner smoke passed 78 assertions, all 52 bound selectors passed, three jobs=4 evidence runs are 47/47 under five minutes, and no sentinel/temp residue remains. No concept deletion residue or promised-but-undelivered blocker found.",
+      "createdAt": "2026-08-12T22:09:24.975Z",
+      "reviewRound": "2026-08-12T22:03:50.648Z",
+      "reviewRunId": "B-9812:RR-012",
+      "envelopeId": "493b72f7c7414648838fb44987d016bb4edaeb9e175cb6a80fded188bdec9959",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f5fec0d10765fec32d29ee955967abe2a6bfe3392c2266fe5f033ef7b03abc26"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ff1ed35a703bb5caf4bc1357681d7adfcd74858885fd9a978a24eb489a86460"
+    }
+  ]
+}

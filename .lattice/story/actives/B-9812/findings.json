@@ -999,6 +999,79 @@
       "resolvedAt": "2026-08-12T22:04:16.621Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9812:F-037",
+      "desc": "F-035 remains mechanically unresolved: the new scheduler/stress receipts serialize asserted constants rather than observed per-intent outcomes. full-suite-runner-smoke.ts:242-250 writes protectedPairs for all five classes, distinctRootsOverlap, aliases, failClosed, progress, mutation bites, and lifecycle as literal true values; actual scheduling at lines 102-125 exercises a generic fixed-path conflict plus fixed-port, but does not schedule and observe conflicting pairs for git-common-dir, runtime-lock, or main-write-lock. review-incremental-context-smoke.ts:1614-1627 similarly writes sameGuardClassOutcome, every mutationKillMap entry, every per-iteration guard class, ABA/cutoff/restoration as constants; it does not execute a seed-removal mutation, per-guard mutation, shard timeout/isolation, or jobs=1-vs-parallel shard comparison. verify-full-suite-contract.mjs:229-235 then gates CHK-002 and CHK-004 selectors on those constants. Removing the promised mechanisms would not suppress the corresponding selector, so all 52 are still not intent-specific mechanical evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T22:07:18.402Z",
+      "reviewRound": "2026-08-12T22:03:50.648Z",
+      "reviewRunId": "B-9812:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f796193fa7ef11b85e8e9a631c279d9f7087fde8d753c1fe31d045e27de9d78",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|remains-mechanically-unresolved",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-038",
+      "desc": "The final full-suite reports now truthfully label unavailable internal inventories, but that truth exposes a remaining coverage gap. In each final jobs4 receipt, only 5 of 47 members emit explicit summary markers; the other 42 are listed under summaryInventory.runnerTerminalOnly with detailedAssertions=null and mutationInventory=[], carrying only a synthetic terminal-exit assertion. CHK-001:happy:0/adversarial:0, CHK-005:happy:1, and CHK-006:happy:2 require retained per-member assertion/mutation inventories and serial/parallel equivalence, including detection when one assertion or mutation signature is deleted. verify-full-suite-contract.mjs:163-178 accepts the 42 unavailable inventories as valid, and serial equivalence at lines 128-134 compares only names/status plus the same coarse coverageInventory. Therefore the reports are honest but do not prove the required assertion/mutation completeness or equivalence for most canonical members.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T22:07:18.458Z",
+      "reviewRound": "2026-08-12T22:03:50.648Z",
+      "reviewRunId": "B-9812:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "234d1bf37e742ffc210f2526da9b260fff689335f111420d1c51952c1432cc7a",
+      "files": [
+        "scripts/verify-full-suite-contract.mjs",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|mjs|final-full-suite",
+      "signatureTagSource": "auto"
     }
   ]
 }
