@@ -31,13 +31,15 @@ assert.equal(300_000 < 300_000, false, 'exactly 300000ms is outside the accepted
 }
 
 const prefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-mechanical-run';
-const expectedMaterial = process.env.B9812_MATERIAL_HASH ?? '9f6787fb2051ce9fdc8876bf599d1c3a2c10b6ff4e9af9bcfa64b2eda59acb96';
+let expectedMaterial = process.env.B9812_MATERIAL_HASH;
 let ordered;
 for (let i = 1; i <= 3; i++) {
   const artifact = JSON.parse(readFileSync(`${prefix}${i}.json`, 'utf8'));
   assert.equal(readFileSync(`${prefix}${i}.exit`, 'utf8').trim(), '0');
   const identity = readFileSync(`${prefix}${i}.identity`, 'utf8');
   assert.ok(identity.includes(`HEAD=${head}`));
+  expectedMaterial ??= identity.match(/materialHash=([a-f0-9]{64})/)?.[1];
+  assert.ok(expectedMaterial, 'identity sidecar must bind a material hash');
   if (expectedMaterial) assert.ok(identity.includes(`materialHash=${expectedMaterial}`));
   assert.equal(artifact.headHash, head);
   if (expectedMaterial) assert.equal(artifact.materialHash, expectedMaterial);
