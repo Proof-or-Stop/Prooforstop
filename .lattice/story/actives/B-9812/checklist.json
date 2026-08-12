@@ -1,0 +1,82 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Establish a reproducible full-suite performance and coverage baseline",
+      "context": "Produce machine-readable wall, user, and system timing per root npm test member together with process launch counts, suite membership, assertion and mutation inventories, and failure outcomes. Pin the current 46-member passing baseline and the 1688.9-second reference. Measure only from a clean temporary clone after a same-material packages/main build without polluting the project directory.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Define and enforce a resource-isolation contract for concurrent tests",
+      "context": "Extend the smoke manifest and runner with parallel-safe, exclusive Git common-dir, exclusive fixed port or path, shared runtime lock, and main-write lock classifications. Run tasks concurrently only when isolation is proven. Require unique temporary roots and reliable child cleanup on timeout or interruption. Mechanically serialize conflicting resources, and default unknown classifications to fail closed or serial execution.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/session-ownership-and-write-leases.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Eliminate duplicate acceptance rollout cohorts and repeated CLI cold starts",
+      "context": "Preserve real dist and CLI black-box sentinels and all rollout diagnostics, mutation and restoration checks, reviewer lanes, and quorum assertions. Generate each cohort once, freeze it with a signed digest, and reuse it. Run independent cases concurrently in isolated temporary repositories. Reuse an in-process context or batch entry for matrix checks that do not need repeated process-boundary verification, with explicit equivalence checks against the real CLI path.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Reduce incremental-context and intent-hardening long tails without losing race coverage",
+      "context": "Safely shard independent scenarios and use deterministic seeds or schedules for mixed reviewer writers, ABA, cutoff, and restoration cases. Do not claim equivalence merely by reducing the twenty-iteration loop. If redundant burn-in moves to a stress layer, retain deterministic canonical cases that kill the same mutations and provide an old-versus-new assertion and failure-matrix comparison.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Route canonical root npm test through the safe scheduler with complete membership",
+      "context": "Replace the 46-command npm run serial chain with the resource-aware runner. Add a bidirectional completeness check between the old script inventory and the new manifest so omissions, duplicates, and unexpected skips fail. Preserve focused test diagnostic entries. An initial FAIL or TIMEOUT must remain failed and cannot be masked by automatic serial retry. Parallel execution and jobs=1 must produce equivalent member status and critical evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Prove three consecutive sub-five-minute runs and concurrency safety",
+      "context": "After a same-material build in a clean temporary clone, run canonical root npm test three consecutive times with every run below 300000 milliseconds and every member in the completeness-checked full set passing. Record per-member timing, critical path, worker utilization, and resource-lock wait. Establish jobs=1 result equivalence and use mutations that introduce shared-path conflicts, timeout, child leakage, and test failure to prove resource locking, cleanup, and fail-closed behavior. DONE-required receipts must still accurately record canonical root npm test.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
