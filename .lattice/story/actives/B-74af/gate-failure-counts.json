@@ -4,5 +4,11 @@
     "command": "story_advance",
     "lastReason": "Cannot enter TEST: lattice validate did not pass\nSummary: Validation result could not persist its canonical evidence transaction\n\n→ 修复后重跑 lattice validate，再 story_advance --phase=TEST",
     "lastAt": "2026-08-12T12:00:45.034Z"
+  },
+  "story_advance/6f816b5bbe81": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter TEST: pass B-74af:RP-005 failed closeout metadata retention: untrusted closeout artifact path: gate-failure-counts.json; invalid closeout artifact: gate-failure-counts.json. → The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run lattice story_advance '{\"storyId\":\"B-74af\",\"phase\":\"REVIEW\"}' to enter a new currentReviewRound, and subsequently run lattice rev",
+    "lastAt": "2026-08-12T12:41:44.396Z"
   }
 }
