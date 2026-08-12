@@ -1001,13 +1001,29 @@
         },
         {
           "intentRef": "CHK-005:happy:0",
-          "kind": "waiver",
-          "waiverType": "deferred_gate_evidence",
-          "note": "WAIVER waiverType=deferred_gate_evidence. REVERTED from 'permanent' after B-cdf6:F-024, and the reviewer was right: my waiver text argued the DEFERRED case (it explicitly tied un-receiptability to B-META-framework-audit:F-012 and committed to replacing this waiver once F-012 is fixed) while wearing the 'permanent' label - which happens to be the label proofstory.ts:850 accepts as coverage. That is precisely the incentive pattern I had already logged myself as B-META-framework-audit:F-016, so choosing it was not defensible. The genuine mitigations below are arguments that shipping with the HONEST deferred label is safe; they were never arguments that 'permanent' was the truthful label. I conflated those two things. WHAT THIS COVERS: CHK-005:happy:0, 'root npm test passes end to end'. WHY NO MECHANICAL RECEIPT IS POSSIBLE TODAY: the intent is pinned immutably (checklist.ts:600-644) to a command that executes the real suite, measured at 21-24 minutes, while every production call site of runSingleAllowlistedCommand omits timeoutMs and therefore runs under the 270s DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS (validation-executor.ts:43). Providing the command times out; omitting it is refused as receipt_command_mismatch; pinning a cheaper proxy would re-create the B-cdf6:F-006 defect of verifying a marker instead of a run. DEFERRED, not permanent, because fixing F-012 (a per-evidence timeout override, or a distinct receipt_command_timeout error) would make a genuine receipt obtainable - at which point this waiver should be REPLACED. WHY THE FACT IS STILL FULLY PROVEN, independently of this row - verified, not asserted: root `npm test` is a DONE-required command in lattice.config.json with its OWN 7200000ms (2 hour) ceiling, architecturally separate from the 270s checklist-evidence path, so DONE cannot pass without a real green run of the whole suite. The test-coverage reviewer also re-ran the entire suite itself against this head (24m31s, exit 0, 0 failure lines) rather than trusting my report, and confirmed the green postdates the last material commit. And AB-004's four other refs carry genuine mechanical receipts (exitCode 0, selectorMatched true) for the negative regression tests that prove the brand gate actually bites and the docs-drift extractor did not go vacuously blind. CONSEQUENCE I AM ACCEPTING: with the honest label restored, the ProofStory completeness gate will again report review_completeness_missing_evidence for this ref. That gap is real and should stay visible rather than be relabelled away; the structural fix belongs to F-012 and F-016, not to this story.",
-          "headHash": "3c9b4630575e27733128e2e1fcfd9ab5b657a2b5",
-          "materialHash": "833fae6d1c17c6ed4b3b1d641b226d815998f7bf168e981718ca25dd006524dd",
-          "storyFilesHash": "b4b0f9f40d267822bab22e17cec44119b25dc5727bba4aaf3c0a5ceebb0b4759",
-          "timestamp": "2026-08-12T08:19:06.681Z"
+          "kind": "manual_transcript",
+          "file": "scripts/verify-done-suite-green.mjs",
+          "command": "node scripts/verify-done-suite-green.mjs",
+          "result": "pass",
+          "note": "Root DONE-blocking suite green, earned as a REAL tool-executed receipt under the new bounded audited timeout override rather than a waiver. Replaces the deferred_gate_evidence waiver that F-021/F-024 forced when no receipt was obtainable.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1d93f64f69ed90cdc9bb27b66ac484819e647213e19262418ed47556cf70a197",
+            "outputTail": "DONE-SUITE GREEN: npm test exit=0, 0 failure lines, 334 stage lines observed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-12T10:17:10.759Z",
+            "timeoutMs": 2700000,
+            "timeoutOverride": {
+              "timeoutMs": 2700000,
+              "defaultTimeoutMs": 270000,
+              "reason": "The pinned witness executes the root DONE-blocking suite (npm test), measured at 21-24 minutes, so the 270000ms default kills it mid-run and the refusal masquerades as receipt_selector_absent. This is exactly the B-META-framework-audit:F-012 defect that story B-cdf6 just fixed; 45 minutes is well under the 7200000ms cap and comfortably above the observed worst case, and lattice.config.json already sanctions 7200000ms for this same command as a DONE-required check."
+            }
+          },
+          "headHash": "8aad7ddb2e71559b9a0f70d2a24616b50d800bf9",
+          "materialHash": "60bffc7cff06b9a50ce82fe5477c95117900d6c6fc36eab668ec645959530078",
+          "storyFilesHash": "58c399bd16dadc9d1a16ef153c6e2ed3050dc38866e75a0286e6142c38074197",
+          "timestamp": "2026-08-12T10:17:10.944Z"
         }
       ]
     },
