@@ -1,3 +1,19 @@
 {"type":"dispatch","storyId":"B-74af","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"lattice-review-story-init","sessionId":"sess-f0ba99e0bd450a439e5e450f9404fa23","timestamp":"2026-08-12T09:34:11.549Z"}
 {"type":"dispatch","storyId":"B-74af","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","sessionId":"sess-31d4947736a565544e3e9396b53ab9d5","timestamp":"2026-08-12T09:34:13.840Z"}
 {"type":"phase_transition","storyId":"B-74af","attemptId":"","fromPhase":"INIT","toPhase":"INIT_CHECK","materialHash":"f5fdca086062ae55057afdb09f1e9b74b57adba36bec3c58a099193167abb3a2","storyFilesHash":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","reviewRound":"","timestamp":"2026-08-12T09:36:59.542Z"}
+{"type":"phase_transition","storyId":"B-74af","attemptId":"","fromPhase":"INIT_CHECK","toPhase":"PLAN","materialHash":"f5fdca086062ae55057afdb09f1e9b74b57adba36bec3c58a099193167abb3a2","storyFilesHash":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","reviewRound":"","timestamp":"2026-08-12T09:38:50.790Z"}
+{"type":"dispatch","storyId":"B-74af","phase":"PLAN","source":"lattice dispatch","targetKind":"checklist","agentType":"verification-intent","sessionId":"sess-b6d2aff95b17ea644829a834c3557d8e","itemId":"CHK-001","checklistId":"CHK-001","timestamp":"2026-08-12T09:40:07.829Z"}
+{"type":"dispatch","storyId":"B-74af","phase":"PLAN","source":"lattice dispatch","targetKind":"checklist","agentType":"verification-intent","sessionId":"sess-b6d2aff95b17ea644829a834c3557d8e","itemId":"CHK-002","checklistId":"CHK-002","timestamp":"2026-08-12T09:40:08.393Z"}
+{"type":"dispatch","storyId":"B-74af","phase":"PLAN","source":"lattice dispatch","targetKind":"checklist","agentType":"verification-intent","sessionId":"sess-b6d2aff95b17ea644829a834c3557d8e","itemId":"CHK-003","checklistId":"CHK-003","timestamp":"2026-08-12T09:40:08.972Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":2,"issueCount":13,"timestamp":"2026-08-12T09:45:34.254Z"}
+{"type":"dispatch","storyId":"B-74af","phase":"PLAN","source":"lattice dispatch","targetKind":"scope-plan-review","agentType":"lattice-review-scope-plan","sessionId":"sess-b6d2aff95b17ea644829a834c3557d8e","timestamp":"2026-08-12T09:48:13.949Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":5,"timestamp":"2026-08-12T09:53:18.709Z"}
+{"type":"phase_transition","storyId":"B-74af","attemptId":"","fromPhase":"PLAN","toPhase":"DEV","materialHash":"f5fdca086062ae55057afdb09f1e9b74b57adba36bec3c58a099193167abb3a2","storyFilesHash":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","reviewRound":"","timestamp":"2026-08-12T09:54:05.634Z"}
+{"type":"dispatch","checklistId":"CHK-001","agent":"main-agent","timestamp":"2026-08-12T09:54:19.803Z"}
+{"type":"dispatch","checklistId":"CHK-002","agent":"main-agent","timestamp":"2026-08-12T09:54:20.708Z"}
+{"type":"dispatch","checklistId":"CHK-003","agent":"main-agent","timestamp":"2026-08-12T09:54:21.615Z"}
+{"type":"dispatch","storyId":"B-74af","phase":"DEV","source":"lattice dispatch","targetKind":"checklist","agentType":"lattice-implementer","sessionId":"sess-b6d2aff95b17ea644829a834c3557d8e","itemId":"CHK-001","checklistId":"CHK-001","timestamp":"2026-08-12T09:54:22.473Z"}
+{"type":"dispatch","storyId":"B-74af","phase":"DEV","source":"lattice dispatch","targetKind":"checklist","agentType":"lattice-implementer","sessionId":"sess-b6d2aff95b17ea644829a834c3557d8e","itemId":"CHK-001","checklistId":"CHK-001","timestamp":"2026-08-12T10:09:53.415Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-08-12T10:13:27.200Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-08-12T10:13:28.264Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-08-12T10:13:29.348Z"}

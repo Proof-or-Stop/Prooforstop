@@ -1,0 +1,156 @@
+{
+  "storyId": "B-74af",
+  "checkedAt": "2026-08-12T09:52:51.795Z",
+  "features": [
+    {
+      "feature": "Remove elapsed-time-only stuck inference and restart advice from active agent guidance.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "original intent snapshot; background; packages/main/src/handlers/story-dispatch.ts"
+    },
+    {
+      "feature": "Preserve the startup heartbeat so the coordinating host can identify the exact dispatched task.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 verificationIntent; packages/main/src/handlers/story-dispatch.ts"
+    },
+    {
+      "feature": "After silence or elapsed time, query authoritative host-native task status rather than infer death.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background; understanding; decision option A"
+    },
+    {
+      "feature": "For foreground or running work beyond 600 seconds, monitor the same task identity and consume its eventual result once.",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 happy; CHK-003 happy"
+    },
+    {
+      "feature": "For host-reported background work beyond ten minutes, continue bounded repeated monitoring without duplicate dispatch.",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "original intent; CHK-001 happy; CHK-003 happy"
+    },
+    {
+      "feature": "For unknown, unavailable, stale, or inconsistent status, record uncertainty and remain monitor-only.",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 edge; CHK-003 edge"
+    },
+    {
+      "feature": "Authorize restart only after authoritative failed, cancelled, confirmed missing or dead, or explicit operator cancellation state.",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "intent collision; CHK-001 adversarial"
+    },
+    {
+      "feature": "An authorized terminal retry occurs at most once, records the terminal reason, and cannot accept a late write from the former attempt.",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan CHK-001; CHK-003 edge"
+    },
+    {
+      "feature": "Apply identical semantics to every active INIT, PLAN, DEV, and REVIEW role, compatibility alias, target cardinality, special prompt, guard hint, and transition hint.",
+      "covered_by": "CHK-002, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 happy and edge; prompt consolidation role map"
+    },
+    {
+      "feature": "Preserve each role result and evidence duty while changing liveness language.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 edge; prompt consolidation exact contract summary"
+    },
+    {
+      "feature": "Centralize the policy in the core layer and render it from all production guidance surfaces.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan CHK-001 and CHK-002; scope contract"
+    },
+    {
+      "feature": "Regression coverage includes foreground, background, unknown, terminal, single-retry, mutation, effective CLI prompt, and forbidden-residue cases.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003 verificationIntent; plan CHK-003"
+    },
+    {
+      "feature": "Explicit provider.codex, cross-host review, and host-run subprocess deadlines remain bounded, fail closed, and retain their existing timeout tests.",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding constraint; decision; protectedFiles"
+    },
+    {
+      "feature": "Build a new scheduler, host task registry, or replacement host-native status API.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Decision option C rejects this architectural expansion; Proofbound emits canonical host guidance and the host supplies authoritative task status.",
+      "source": "decision options and rationale"
+    },
+    {
+      "feature": "Change Codex command namespaces or route host-neutral workflow commands through a Codex-specific wrapper.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The command-boundary decision requires workflow commands to remain host-neutral; this story changes liveness guidance only.",
+      "source": "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md"
+    },
+    {
+      "feature": "Modify unrelated untracked .remember, B-cdf6 flow, or CODEX-FINDINGS artifacts.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit scope-contract exclusions preserve unrelated user work.",
+      "source": "scope_contract_show"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "packages/main/src/core/machine.ts",
+      "packages/main/src/handlers/story-create.ts",
+      "packages/main/src/handlers/story-dispatch.ts",
+      "packages/main/src/handlers/transition-effects.ts",
+      "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+      "packages/main/src/tasks/flow-stability-smoke.ts",
+      "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+      "packages/main/src/tasks/review-pass-discard-smoke.ts"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 16,
+    "covered": 13,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2d44578e141695fe9d71d66cb202f131696c2ab215c6be47c2ea34ca2b88132c",
+  "openQuestions": []
+}

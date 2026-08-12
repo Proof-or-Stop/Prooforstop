@@ -1,0 +1,115 @@
+{
+  "storyId": "B-74af",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/core/machine.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/agent-liveness-policy.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/core/codex-review-leaf.ts",
+    "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/core/host-run.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/.remember/**",
+    "packages/main/src/B-cdf6-flow.html",
+    "packages/main/src/B-cdf6-flow.md",
+    "packages/main/src/CODEX-FINDINGS.md"
+  ],
+  "acknowledgements": [],
+  "createdAt": "2026-08-12T09:48:06.149Z",
+  "updatedAt": "2026-08-12T09:48:06.149Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/core/agent-liveness-policy.ts",
+      "allowedChangeKinds": [
+        "add"
+      ],
+      "intentRefs": [
+        "CHK-001"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/story-dispatch.ts",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/story-create.ts",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/transition-effects.ts",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/machine.ts",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-002"
+      ]
+    },
+    {
+      "path": "packages/main/src/tasks/*.ts",
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-003"
+      ]
+    }
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/agent-liveness-policy.ts": "packages/main/src/core/agent-liveness-policy.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts": "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts": "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/handlers/cross-host-review.ts": "packages/main/src/handlers/cross-host-review.ts",
+    "packages/main/src/core/codex-review-leaf.ts": "packages/main/src/core/codex-review-leaf.ts",
+    "packages/main/src/providers/codex-cli.ts": "packages/main/src/providers/codex-cli.ts",
+    "packages/main/src/core/host-run.ts": "packages/main/src/core/host-run.ts",
+    "packages/main/src/.remember/**": ".remember/**",
+    "packages/main/src/B-cdf6-flow.html": "B-cdf6-flow.html",
+    "packages/main/src/B-cdf6-flow.md": "B-cdf6-flow.md",
+    "packages/main/src/CODEX-FINDINGS.md": "CODEX-FINDINGS.md",
+    "packages/main/src/tasks/*.ts": "packages/main/src/tasks/*.ts"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}

@@ -1,0 +1,30 @@
+{
+  "task": "Prevent elapsed-time-only restarts of long-running host-native reviewers and workers.",
+  "outcome": "When a reviewer or worker runs longer than ten minutes, Proof-or-Stop reports that it is still running or in the background and continues monitoring it. It starts a replacement only after the host reports a conclusive failed, cancelled, or missing task state.",
+  "facts": [
+    "Current Claude transcript contains foreground agent completions after 75, 86, and 98 minutes.",
+    "Current Claude transcript contains background reviewer completions after approximately 15, 31, and 47 minutes.",
+    "Existing generated guidance in story-dispatch.ts and transition-effects.ts says ten minutes without a result may be treated as stalled and restarted.",
+    "story-create.ts and core/machine.ts contain an even more aggressive four-minute restart recommendation.",
+    "Explicit subprocess deadlines such as cross_host_review are separate fail-closed mechanisms and remain in scope only as an excluded boundary."
+  ],
+  "constraints": [
+    "Do not restart solely from elapsed wall time.",
+    "Prefer authoritative host-native task status when the host exposes it.",
+    "Continue monitoring running/background tasks and do not duplicate when status is unknown.",
+    "Only conclusive terminal evidence authorizes a replacement.",
+    "Preserve explicit bounded subprocess timeout enforcement.",
+    "Do not edit story storage or fixtures directly."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/init-check-required-agents-smoke.ts"
+  ],
+  "timestamp": "2026-08-12T09:39:17.030Z"
+}
