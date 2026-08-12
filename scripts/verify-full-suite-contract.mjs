@@ -7,6 +7,21 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const root = process.cwd();
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+const RECEIPT_METADATA_ALLOWLIST = new Set([
+  'owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json',
+  'checklist.json', 'findings.json', 'process-events.jsonl',
+]);
+export function receiptHeadIsAdmissible({ ancestor, materialEqual, changedPaths }) {
+  const prefix = '.lattice/story/actives/B-9812/';
+  return ancestor && materialEqual && changedPaths.every(path => path.startsWith(prefix) && RECEIPT_METADATA_ALLOWLIST.has(path.slice(prefix.length)));
+}
+function assertReceiptHead(receiptHead, receiptMaterial, currentMaterial) {
+  let ancestor = true;
+  try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, head], { cwd: root, stdio: 'ignore' }); }
+  catch { ancestor = false; }
+  const changedPaths = ancestor ? execFileSync('git', ['diff', '--name-only', `${receiptHead}..${head}`], { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean) : [];
+  return receiptHeadIsAdmissible({ ancestor, materialEqual: receiptMaterial === currentMaterial, changedPaths });
+}
 const runnerSource = readFileSync('packages/main/src/tasks/full-suite-runner.ts', 'utf8');
 const runnerSmokeSource = readFileSync('packages/main/src/tasks/full-suite-runner-smoke.ts', 'utf8');
 const cohortSource = readFileSync('scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'utf8');
@@ -17,6 +32,10 @@ const smokeOutput = execFileSync(process.execPath, ['packages/main/dist/tasks/fu
 assert.match(smokeOutput, /full-suite-runner-smoke: PASS \((\d+) assertions\)/);
 const smokeAssertions = Number(smokeOutput.match(/PASS \((\d+) assertions\)/)?.[1]);
 assert.ok(smokeAssertions >= 44);
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/checklist.json'] }), true, 'metadata-only descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: false, materialEqual: true, changedPaths: [] }), false, 'non-ancestor receipt is rejected');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['packages/main/src/tasks/full-suite-runner.ts'] }), false, 'source diff is rejected even with matching material claim');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/unapproved.json'] }), false, 'metadata path outside strict allowlist is rejected');
 const guardOutput = execFileSync(process.execPath, ['packages/main/dist/tasks/review-incremental-context-smoke.js', '--guard-map-only'], { cwd: root, encoding: 'utf8' });
 assert.match(guardOutput, /INCREMENTAL_GUARD_CLASSES=review-run-identity,mixed-envelope-selection,pass-finding-write-serialization,signed-result-admissibility,lane-no-overwrite,real-review-gate/);
 
@@ -84,13 +103,17 @@ for (let index = 1; index <= 3; index++) {
   const identity = readTextReceipt(`${parallelPrefix}${index}.identity`);
   const timing = readTextReceipt(`${parallelPrefix}${index}.timing`);
   if (!artifact) continue;
+  const receiptHead = identity.match(/HEAD=([a-f0-9]{40})/)?.[1];
+  const receiptMaterial = identity.match(/materialHash=([a-f0-9]{64})/)?.[1];
   let valid = receiptCheck(exit === '0', `run${index} exit is not zero`)
-    && receiptCheck(identity.includes(`HEAD=${head}`), `run${index} HEAD binding mismatch`)
+    && receiptCheck(Boolean(receiptHead && receiptMaterial), `run${index} identity sidecar incomplete`)
     && receiptCheck(/checkout=.* .*|pathWithSpaces=true/.test(identity), `run${index} checkout path does not prove spaces`);
-  expectedMaterial ??= identity.match(/materialHash=([a-f0-9]{64})/)?.[1];
+  expectedMaterial ??= receiptMaterial;
+  const currentMaterial = execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' });
+  valid = receiptCheck(Boolean(receiptHead && receiptMaterial && assertReceiptHead(receiptHead, receiptMaterial, currentMaterial)), `run${index} receipt head is not an admissible metadata-only ancestor`) && valid;
   valid = receiptCheck(expectedMaterial && identity.includes(`materialHash=${expectedMaterial}`), `run${index} material binding mismatch`) && valid;
   valid = receiptCheck(/user\s+[0-9.]+/.test(timing) && /sys(?:tem)?\s+[0-9.]+/.test(timing), `run${index} CPU timing missing`) && valid;
-  valid = receiptCheck(canonical(artifact.startIdentity) === canonical({ headHash: head, materialHash: expectedMaterial }), `run${index} start identity mismatch`) && valid;
+  valid = receiptCheck(canonical(artifact.startIdentity) === canonical({ headHash: receiptHead, materialHash: expectedMaterial }), `run${index} start identity mismatch`) && valid;
   valid = receiptCheck(canonical(artifact.endIdentity) === canonical(artifact.startIdentity) && artifact.identityDrift === false, `run${index} end identity drift`) && valid;
   valid = receiptCheck(artifact.overallStatus === 'PASS' && artifact.total === 46 && artifact.passed === 46, `run${index} terminal totals invalid`) && valid;
   valid = receiptCheck(artifact.retries === 0 && artifact.jobs === 4 && artifact.processLaunchCount === 46, `run${index} launch/retry accounting invalid`) && valid;
@@ -114,8 +137,10 @@ const serialValid = receiptCheck(serial && readTextReceipt(`${serialPrefix}.exit
 
 const doneReceiptPath = process.env.B9812_DONE_RECEIPT ?? '.lattice/story/actives/B-9812/done-required-evidence.json';
 const doneReceiptText = existsSync(doneReceiptPath) ? readTextReceipt(doneReceiptPath) : '';
+const doneReceipt = doneReceiptText ? JSON.parse(doneReceiptText) : null;
+const currentMaterialForDone = execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' });
 const doneReceiptValid = receiptCheck(Boolean(doneReceiptText), `DONE-required receipt missing: ${doneReceiptPath}`)
-  && receiptCheck(doneReceiptText.includes(head) && doneReceiptText.includes(expectedMaterial), 'DONE-required identity mismatch')
+  && receiptCheck(Boolean(doneReceipt && assertReceiptHead(doneReceipt.headHash, doneReceipt.materialHash, currentMaterialForDone) && doneReceipt.materialHash === expectedMaterial), 'DONE-required identity mismatch')
   && receiptCheck(/npm test|full-suite-runner/.test(doneReceiptText), 'DONE-required command mismatch');
 
 const proof = {
