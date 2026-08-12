@@ -111,6 +111,40 @@
         "scanEscalationReason": null
       },
       "_hash": "426eb82c3b78130b34e1f97475da5e641bc8fb5f44ff90e192dd5f3a612aa3af"
+    },
+    {
+      "id": "B-cdf6:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASS bound to head f3b2aca. CHK-005:happy:0 receipt verified genuine (mechanical/exit0/selectorMatched, headHash=8aad7ddb2e is the fix commit, storyFilesHash matches current context, timeoutOverride lives only in the tool-owned receipt not the caller schema). F-012 fix verified sound via smoke suite plus a personal mutation test on checklist.ts (neutered if(run.timedOut), confirmed the smoke breaks with the OLD misdiagnosis, restored and reconfirmed green). No selector-laundering hole for this receipt (verify-done-suite-green.mjs is a strong witness). Independent verification pass: tsc clean, process-fact-contract/prompt-baseline/lattice-residue/tool-executed-evidence-receipt-smoke all green on fresh rebuild. All 24 prior findings resolved/dismissed. Filed one new low advisory F-025 (pre-existing verify-entrypoints.mjs stdout/stderr mismatch, reproduced identically on clean main, confirmed not part of npm test chain, does not affect this receipt). No blocker this round.",
+      "createdAt": "2026-08-12T10:38:47.167Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-016",
+      "envelopeId": "d790a6cc1b41dd4ad40bda99327e77eb3c8de43a71307c94dfe6b5fae3641522",
+      "writerSessionId": "sess-9a7d88c7fd9facada1536ec0cf731786",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          "bin/bootstrap-runner.js",
+          "CLAUDE.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "scripts/verify-done-suite-green.mjs",
+          "scripts/verify-entrypoints.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/codex-adapter-checks.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc308a6615684f52d03d23e585616e086f6d3f70f76a0607bc65c0eaa23de55c"
     }
   ]
 }
