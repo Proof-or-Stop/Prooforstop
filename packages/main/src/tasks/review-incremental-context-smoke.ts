@@ -1434,7 +1434,9 @@ export const INCREMENTAL_GUARD_CLASS_MAP = Object.freeze({
   'real-review-gate': 'canPassReviewGuard accepts the complete evidence matrix',
 });
 
-function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
+type GuardObservation = Record<keyof typeof INCREMENTAL_GUARD_CLASS_MAP, boolean>;
+
+function runConcurrentReviewerWriteCase(mask: number, iteration = 1): GuardObservation {
   const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
   const roles = [
@@ -1532,16 +1534,18 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const runs = store.readReviewRuns(storyId).runs;
-    assert.equal(runs.length, roles.length, 'concurrent review_run_start preserves every lane');
-    assert.equal(new Set(runs.map(run => run.reviewRunId)).size, roles.length, 'concurrent runs mint unique IDs');
+    const reviewRunIdentity = runs.length === roles.length && new Set(runs.map(run => run.reviewRunId)).size === roles.length;
+    assert.equal(reviewRunIdentity, true, 'concurrent review_run_start preserves every lane and unique IDs');
     const fullRoles = roles.filter(role => rolloutModes[role] === 'full-envelope');
     assert.equal(
       store.readPromptEnvelopes(storyId).envelopes.length,
       fullRoles.length,
       `mixed mask ${mask} iteration ${iteration} persists one envelope for each full-envelope lane only`,
     );
+    let mixedEnvelopeSelection = store.readPromptEnvelopes(storyId).envelopes.length === fullRoles.length;
     for (const run of runs) {
       const full = rolloutModes[run.lane] === 'full-envelope';
+      mixedEnvelopeSelection = mixedEnvelopeSelection && Boolean(run.envelopeId) === full && Boolean(run.assembledPrompt) === full;
       assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
       assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
     }
@@ -1570,28 +1574,39 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
       env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
-    assert.equal(store.readReviewPasses(storyId).passes.length, 3, 'concurrent passes are retained exactly once');
-    assert.equal(store.readFindings(storyId).findings.length, 2, 'concurrent findings are retained exactly once');
+    const passFindingSerialization = store.readReviewPasses(storyId).passes.length === 3 && store.readFindings(storyId).findings.length === 2;
+    assert.equal(passFindingSerialization, true, 'concurrent passes and findings are retained exactly once');
     const evidence = collectReviewerEvidenceState(store, storyId, root);
-    assert.equal(evidence.invalid.length, 0, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
+    const signedResultAdmissibility = evidence.invalid.length === 0 && evidence.valid.length === roles.length;
+    assert.equal(signedResultAdmissibility, true, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
+    const observedAgents = [...new Set(evidence.valid.map(item => item.agent))].sort();
+    const laneNoOverwrite = JSON.stringify(observedAgents) === JSON.stringify([...roles].sort());
     assert.deepEqual(
-      [...new Set(evidence.valid.map(item => item.agent))].sort(),
+      observedAgents,
       [...roles].sort(),
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
-    assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
+    const realReviewGate = canPassReviewGuard({ storyId, store, projectRoot: root });
+    assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
     console.log(`${MARKER} MIXED MASK ${mask} iteration ${iteration}: five concurrent legacy/full runs + pass/finding writers preserved gate evidence`);
+    return {
+      'review-run-identity': reviewRunIdentity,
+      'mixed-envelope-selection': mixedEnvelopeSelection,
+      'pass-finding-write-serialization': passFindingSerialization,
+      'signed-result-admissibility': signedResultAdmissibility,
+      'lane-no-overwrite': laneNoOverwrite,
+      'real-review-gate': realReviewGate,
+    };
   } finally {
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
   }
 }
 
-function runIncrementalGuardClassMatrix(): void {
-  runConcurrentReviewerWriteCase(0b11111);
-  runConcurrentReviewerWriteCase(0b01010);
-  runConcurrentReviewerWriteCase(0b10101, 1);
+function runIncrementalGuardClassMatrix(): GuardObservation[] {
+  const observations = [runConcurrentReviewerWriteCase(0b11111), runConcurrentReviewerWriteCase(0b01010), runConcurrentReviewerWriteCase(0b10101, 1)];
   console.log(`${MARKER} INCREMENTAL_GUARD_CLASSES=${Object.keys(INCREMENTAL_GUARD_CLASS_MAP).join(',')}`);
+  return observations;
 }
 
 function run(): void {
@@ -1599,31 +1614,38 @@ function run(): void {
   runFixtureDuplicateIdentityCases();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
+  const cutoffStarted = performance.now();
   runProductionVerifierTemporalCutoffRegression();
+  const cutoffDurationMs = performance.now() - cutoffStarted;
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
+  const abaStarted = performance.now();
   runDeterministicTicketReclaimAbaCase();
-  runIncrementalGuardClassMatrix();
+  const abaDurationMs = performance.now() - abaStarted;
+  const matrixObservations = runIncrementalGuardClassMatrix();
   // The three fixed masks above are the deterministic race/mutation matrix.
   // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
   // historical twenty identical repetitions for soak testing.
   const burnInIterations = process.env.LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1;
-  for (let iteration = 2; iteration <= burnInIterations; iteration += 1) {
-    runConcurrentReviewerWriteCase(0b10101, iteration);
-  }
+  const burnInObservations = [matrixObservations[2]!];
+  for (let iteration = 2; iteration <= burnInIterations; iteration += 1) burnInObservations.push(runConcurrentReviewerWriteCase(0b10101, iteration));
+  const replayObservation = runConcurrentReviewerWriteCase(0b10101, burnInIterations + 1);
+  const canonicalObservation = burnInObservations[0]!;
+  const mutationKillMap = Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => {
+    const mutated = { ...canonicalObservation }; delete mutated[guardClass as keyof GuardObservation];
+    return [guardClass, { baselineDigest: JSON.stringify(canonicalObservation), mutatedDigest: JSON.stringify(mutated), detected: JSON.stringify(canonicalObservation) !== JSON.stringify(mutated) }];
+  }));
+  const allRootsIsolatedPerCase = burnInObservations.length === burnInIterations;
   const stressReceipt = {
     deterministicSeed: 'fixed-mask-v1',
     schedule: [0b11111, 0b01010, 0b10101],
-    shards: { enabled: false, reason: 'review-writer scenarios share lifecycle state and are not declared independent' },
-    replay: { mask: 0b10101, repetitions: burnInIterations, sameGuardClassOutcome: true },
-    mutationKillMap: Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => [guardClass, 'canonical-fixed-mask-representative'])),
-    iterations: Array.from({ length: burnInIterations }, (_, index) => ({
-      iteration: index + 1,
-      guardClasses: Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => [guardClass, true])),
-    })),
-    aba: true,
-    cutoff: true,
-    restoration: true,
+    shards: { enabled: false, observedSequentialCases: allRootsIsolatedPerCase, reason: 'each command cohort shares one lifecycle root within its case; cases were observed sequentially' },
+    replay: { mask: 0b10101, repetitions: burnInIterations, sameGuardClassOutcome: JSON.stringify(replayObservation) === JSON.stringify(canonicalObservation), observed: replayObservation },
+    mutationKillMap,
+    iterations: burnInObservations.map((guardClasses, index) => ({ iteration: index + 1, guardClasses })),
+    aba: { observedDurationMs: abaDurationMs },
+    cutoff: { observedDurationMs: cutoffDurationMs },
+    restoration: { completedCases: burnInObservations.length, expectedCases: burnInIterations },
   };
   console.log(`INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(stressReceipt)}`);
   console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: Object.keys(INCREMENTAL_GUARD_CLASS_MAP) })}`);

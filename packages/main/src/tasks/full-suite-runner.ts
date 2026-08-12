@@ -6,6 +6,7 @@ import { existsSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync
 import { dirname, isAbsolute, join, relative, resolve, win32 } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
 
 export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock';
@@ -27,9 +28,20 @@ export interface FullSuiteResult {
   mutationInventory?: string[];
   failureOutcome?: { status: FullSuiteResult['status']; reason: string | null };
   summaryMarkerPresent?: boolean;
-  inventorySource?: 'explicit-marker' | 'runner-terminal';
+  inventorySource?: 'explicit-marker+output-signature' | 'output-signature' | 'runner-terminal';
   canonicalMemberAssertionId?: string;
   detailedAssertions?: string[] | null;
+}
+
+export function observedOutputSignatures(output: string): string[] {
+  const normalized = output.replace(/\x1b\[[0-9;]*m/g, '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => line
+    .replace(/\b(?:headHash|materialHash|storyFilesHash|digest)=?["']?[0-9a-f]{40,64}\b/gi, '<identity>')
+    .replace(/\b\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z\b/g, '<timestamp>')
+    .replace(/(?:\/private)?\/(?:tmp|var\/folders)\/[^\s)]+/g, '<temp-path>')
+    .replace(/\b(?:elapsedMs|durationMs)=\d+(?:\.\d+)?\b/g, '<duration>'));
+  const semantic = normalized.filter(line => /\bPASS\b|\bpassed\b|assertion|smoke|contract/i.test(line));
+  const observed = semantic.length ? semantic : normalized.slice(-1);
+  return [...new Set(observed)].map(line => `output-sha256:${createHash('sha256').update(line).digest('hex')}`).sort();
 }
 export interface RunScheduledOptions { onSpawn?: () => void }
 
@@ -313,13 +325,13 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       durationMs: elapsed(), output,
       reason,
       cpu: { capability: usePosixTime ? 'posix-time' : 'unavailable', userSeconds: cpuMatch ? Number(cpuMatch[1]) : null, systemSeconds: cpuMatch ? Number(cpuMatch[2]) : null },
-      assertionInventory: [...(marker?.assertions ?? []), `terminal-exit:${status}:${entry.name}`],
-      detailedAssertions: marker?.assertions ?? null,
+      assertionInventory: [...(marker?.assertions ?? []), ...observedOutputSignatures(output), `terminal-exit:${status}:${entry.name}`],
+      detailedAssertions: observedOutputSignatures(output),
       canonicalMemberAssertionId: entry.name,
       mutationInventory: marker?.mutations ?? [],
       failureOutcome: { status, reason: reason ?? null },
       summaryMarkerPresent: Boolean(marker),
-      inventorySource: marker ? 'explicit-marker' : 'runner-terminal',
+      inventorySource: marker ? 'explicit-marker+output-signature' : 'output-signature',
     });
     });
   });
@@ -450,7 +462,7 @@ async function main(): Promise<void> {
     },
     summaryInventory: {
       explicitMarkers: results.filter(result => result.summaryMarkerPresent).map(result => result.name),
-      runnerTerminalOnly: results.filter(result => !result.summaryMarkerPresent).map(result => result.name),
+      outputDerived: results.filter(result => !result.summaryMarkerPresent).map(result => result.name),
     },
     results,
   });

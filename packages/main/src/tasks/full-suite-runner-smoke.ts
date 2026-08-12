@@ -10,7 +10,7 @@ import {
   FULL_SUITE_ENTRIES, canonicalizeEntries, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
-  pathIsContained, validateJsonOutputPath,
+  observedOutputSignatures, pathIsContained, validateJsonOutputPath,
   type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
 } from './full-suite-runner.js';
 
@@ -21,6 +21,11 @@ const claim = (key: string, access: 'shared' | 'exclusive' = 'shared'): Resource
 const entry = (name: string, resources: ResourceClaim[] = [], priority = 0): FullSuiteEntry => ({ name, resources, priority, tempOwnership: 'runner-owned-unique' });
 
 async function main(): Promise<void> {
+  const observations = {
+    aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
+    mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
+    lifecycle: { normalCleanup: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
+  };
   const collisionPath = join(process.cwd(), '.lattice', 'runtime', 'full-suite-fixed-sentinel');
   mkdirSync(collisionPath, { recursive: true });
   const sentinelPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-resource-sentinel.js');
@@ -69,6 +74,7 @@ async function main(): Promise<void> {
     ['empty resource key', () => validateInventory([{ ...entry('test:a'), resources: [{ class: 'fixed-path', key: '', access: 'shared' }] }], 'npm run test:a', scripts)],
   ] as Array<[string, () => unknown]>) {
     let rejected = false; try { operation(); } catch { rejected = true; }
+    if (rejected) observations.failClosedThrows++;
     assert(rejected, `${label} inventory fails closed`);
   }
 
@@ -89,7 +95,9 @@ async function main(): Promise<void> {
         entry('future-alias', [{ class: 'runtime-lock', key: join(canonicalRoot, 'dir-alias', 'future', 'runtime.lock'), access: 'shared' }]),
       ], canonicalRoot);
       assert(normalized[0]!.resources[0]!.canonicalKey === normalized[1]!.resources[0]!.canonicalKey, 'symlink aliases collide on canonical filesystem resource key');
+      if (normalized[0]!.resources[0]!.canonicalKey === normalized[1]!.resources[0]!.canonicalKey) observations.aliasCollisions++;
       assert(normalized[0]!.resources[1]!.canonicalKey === normalized[1]!.resources[1]!.canonicalKey, 'Git aliases collide on canonical common-dir resource key');
+      if (normalized[0]!.resources[1]!.canonicalKey === normalized[1]!.resources[1]!.canonicalKey) observations.aliasCollisions++;
       assert(normalized[2]!.resources[0]!.canonicalKey === 'fixed-port:43210', 'fixed port claim has a stable canonical key');
       assert(normalized[3]!.resources[0]!.canonicalKey?.endsWith('/.lattice/runtime/main-write.lock'), 'clean clone canonicalizes a not-yet-created nested lock from its nearest existing ancestor');
       assert(normalized[4]!.resources[0]!.canonicalKey === normalized[5]!.resources[0]!.canonicalKey, 'missing lexical aliases through a symlinked ancestor canonicalize to one future resource key');
@@ -120,8 +128,24 @@ async function main(): Promise<void> {
   const ignoredPortEntries = [entry('port-a'), entry('port-b')]; let mutationOverlap = false; const mutationActive: string[] = [];
   await runScheduled(ignoredPortEntries, 2, async item => { if (mutationActive.length) mutationOverlap = true; mutationActive.push(item.name); await new Promise(done => setTimeout(done, 20)); mutationActive.pop(); return pass(item.name); });
   assert(mutationOverlap, 'fixed-port claim removal mutation bites through ownership-token overlap');
+  observations.mutationBites.removedFixedPortKey = mutationOverlap;
+  const protectedPairs: Record<string, { overlapCount: number; completionCount: number; blockedWaitMs: number; serialized: boolean }> = {};
+  for (const [label, resourceClass, key] of [
+    ['gitCommonDir', 'git-common-dir', 'observed-git'], ['fixedPath', 'fixed-path', 'observed-path'], ['fixedPortKey', 'fixed-port', '43127'],
+    ['runtimeLock', 'runtime-lock', 'observed-runtime'], ['mainWriteLock', 'main-write-lock', 'observed-main'],
+  ] as const) {
+    let activeOwners = 0; let overlapCount = 0; let completionCount = 0;
+    const pair = [0, 1].map(index => entry(`${label}-${index}`, [{ class: resourceClass, key, access: 'exclusive', canonicalKey: `${resourceClass}:${key}` }]));
+    const pairResults = await runScheduled(pair, 2, async item => {
+      if (activeOwners) overlapCount++; activeOwners++; await new Promise(done => setTimeout(done, 20)); activeOwners--; completionCount++; return pass(item.name);
+    });
+    const blockedWaitMs = pairResults[1]?.lockWaitMs ?? 0;
+    protectedPairs[label] = { overlapCount, completionCount, blockedWaitMs, serialized: overlapCount === 0 && completionCount === 2 && blockedWaitMs > 0 };
+    assert(protectedPairs[label]!.serialized, `${resourceClass} protected pair serializes from observed ownership and wait telemetry`);
+  }
   assert((scheduledResults.find((result) => result.name === 'writer')?.lockWaitMs ?? 0) >= 45, 'lockWaitMs includes deterministic compatibility queue wait');
   const capacityOnly = await runScheduled([entry('capacity-a'), entry('capacity-b')], 1, async (item) => { await new Promise(done => setTimeout(done, 20)); return pass(item.name); });
+  observations.completedMembers += scheduledResults.length + capacityOnly.length;
   assert(capacityOnly[1]?.lockWaitMs === 0, 'worker-capacity queue time is not reported as resource lock wait');
 
   const launchOrder: string[] = [];
@@ -151,6 +175,7 @@ async function main(): Promise<void> {
   let missingTerminalRejected = false;
   try { await runScheduled([entry('missing-terminal')], 1, async () => undefined as unknown as FullSuiteResult); } catch { missingTerminalRejected = true; }
   assert(missingTerminalRejected, 'missing terminal aggregation trial fails closed without fabricated PASS');
+  observations.mutationBites.inventoryOmission = missingTerminalRejected;
   let killFailureObserved = false;
   try { killProcessTree(123, () => { const error = new Error('denied') as NodeJS.ErrnoException; error.code = 'EPERM'; throw error; }); } catch (error) { killFailureObserved = String(error).includes('failed to terminate'); }
   assert(killFailureObserved, 'non-ESRCH process tree termination failure is surfaced');
@@ -166,6 +191,7 @@ async function main(): Promise<void> {
   try {
     const artifact = join(root, 'result.json'); writeResultArtifact(artifact, { complete: true });
     assert(JSON.parse(readFileSync(artifact, 'utf8')).complete === true, 'completion artifact atomically replaces final path');
+    observations.lifecycle.normalCleanup = JSON.parse(readFileSync(artifact, 'utf8')).complete === true;
     const project = join(root, 'project'); mkdirSync(project); writeFileSync(join(project, 'package.json'), '{}');
     let overwriteRejected = false;
     try { validateJsonOutputPath(project, join(project, 'package.json'), project); } catch { overwriteRejected = true; }
@@ -175,6 +201,7 @@ async function main(): Promise<void> {
     let projectOwnedRejected = false;
     try { validateJsonOutputPath(project, join(project, 'result.json'), project); } catch { projectOwnedRejected = true; }
     assert(projectOwnedRejected, 'OUTPUT_ROOT cannot authorize the project root');
+    observations.lifecycle.outsideRootRefused = projectOwnedRejected;
     let ancestorOwnedRejected = false;
     try { validateJsonOutputPath(project, outsideOutput, root); } catch { ancestorOwnedRejected = true; }
     assert(ancestorOwnedRejected, 'OUTPUT_ROOT cannot be an ancestor of the project root');
@@ -193,9 +220,17 @@ async function main(): Promise<void> {
     writeFileSync(join(cpuFixture, 'plain.js'), `console.log('plain member');\n`);
     writeFileSync(join(cpuFixture, 'package.json'), JSON.stringify({ scripts: { 'test:cpu': 'node cpu.js', 'test:plain': 'node plain.js' } }));
     const plainResult = await runEntry(entry('test:plain'), cpuFixture);
-    assert(plainResult.summaryMarkerPresent === false && plainResult.inventorySource === 'runner-terminal'
-      && plainResult.detailedAssertions === null && plainResult.mutationInventory?.length === 0
-      && plainResult.assertionInventory?.[0] === 'terminal-exit:PASS:test:plain', 'runner terminal assertion remains explicitly distinct from unavailable internal assertion and mutation inventory');
+    assert(plainResult.summaryMarkerPresent === false && plainResult.inventorySource === 'output-signature'
+      && plainResult.detailedAssertions?.length === 1 && plainResult.mutationInventory?.length === 0
+      && plainResult.assertionInventory?.includes(plainResult.detailedAssertions[0]!), 'real member output produces nonempty detailed signatures without fabricating mutation inventory');
+    const baselineSignatures = observedOutputSignatures('plain member\nPASS stable assertion\n');
+    const repeatedSignatures = observedOutputSignatures('plain member\nPASS stable assertion\n');
+    const deletedSignatures = observedOutputSignatures('plain member\n');
+    const changedSeedSignatures = observedOutputSignatures('plain member\nPASS stable assertion seed=42\n');
+    assert(JSON.stringify(baselineSignatures) === JSON.stringify(repeatedSignatures), 'identical member output yields deterministic sorted and deduplicated signatures');
+    assert(baselineSignatures.length === 1 && deletedSignatures.length === 1 && baselineSignatures[0] !== deletedSignatures[0], 'deleting one observed assertion line bites the output-derived inventory');
+    assert(changedSeedSignatures[0] !== baselineSignatures[0], 'meaningful assertion seeds and numbers remain inventory-significant');
+    assert(cpuResult.assertionInventory?.includes('cpu-fixture') && cpuResult.detailedAssertions?.length, 'explicit marker assertions are retained alongside observed output signatures');
     const isolatedRoots = cpuResult.output.match(/TEMP_ROOTS=([^\n]+)/)?.[1]?.split('|') ?? [];
     assert(isolatedRoots.length === 4 && new Set(isolatedRoots).size === 1 && isolatedRoots[0] === cpuResult.tempRoot, `member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP (${isolatedRoots.join('|')} vs ${cpuResult.tempRoot})`);
     const heartbeat = join(root, 'heartbeat');
@@ -208,10 +243,12 @@ async function main(): Promise<void> {
     await new Promise((done) => setTimeout(done, 80)); const before = readFileSync(heartbeat, 'utf8').length;
     await new Promise((done) => setTimeout(done, 100));
     assert(before === readFileSync(heartbeat, 'utf8').length, 'timeout kills complete descendant process group');
+    observations.lifecycle.timeoutGrandchild = before === readFileSync(heartbeat, 'utf8').length;
     const interruptedPromise = runEntry({ ...entry('test:hang'), timeoutMs: 10_000 }, root, process.execPath);
     await new Promise((done) => setTimeout(done, 100)); interruptForTest('SIGTERM');
     const interrupted = await interruptedPromise;
     assert(interrupted.status === 'INTERRUPTED' && interrupted.reason?.includes('SIGTERM'), 'external interruption reports INTERRUPTED');
+    observations.lifecycle.externalInterrupt = interrupted.status === 'INTERRUPTED' && Boolean(interrupted.reason?.includes('SIGTERM'));
     resetInterruptForTest();
   } finally { rmSync(root, { recursive: true, force: true }); }
 
@@ -240,14 +277,14 @@ async function main(): Promise<void> {
   } finally { rmSync(interruptRoot, { recursive: true, force: true }); rmSync(interruptOutputRoot, { recursive: true, force: true }); }
 
   process.stdout.write(`FULL_SUITE_SCHEDULER_RECEIPT=${JSON.stringify({
-    distinctRootsOverlap: true,
-    protectedPairs: { gitCommonDir: true, fixedPath: true, fixedPortKey: true, runtimeLock: true, mainWriteLock: true },
+    distinctRootsOverlap: { observed: unrelatedOverlap, activeWitness: scheduledResults.map(result => result.name) },
+    protectedPairs,
     fixedPortOsCollision,
-    canonicalAliasesCollide: true,
-    unknownAndUnclassifiedFailClosed: true,
-    workerBoundariesProgress: true,
-    mutationBites: { removedFixedPortKey: true, inventoryOmission: true },
-    lifecycle: { normalCleanup: true, timeoutGrandchild: true, externalInterrupt: true, outsideRootRefused: true },
+    canonicalAliasesCollide: { observed: observations.aliasCollisions >= 2, collisionCount: observations.aliasCollisions },
+    unknownAndUnclassifiedFailClosed: { observed: observations.failClosedThrows === 5, throwCount: observations.failClosedThrows },
+    workerBoundariesProgress: { observed: observations.completedMembers > 0, completionCount: observations.completedMembers },
+    mutationBites: observations.mutationBites,
+    lifecycle: observations.lifecycle,
   })}\n`);
   process.stdout.write(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
   process.stdout.write(`full-suite-runner-smoke: PASS (${checks.length} assertions)\n`);

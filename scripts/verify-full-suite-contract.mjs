@@ -132,6 +132,18 @@ const serialValid = receiptCheck(serial && readTextReceipt(`${serialPrefix}.exit
   && receiptCheck(serial.results.map(result => result.name).join('\n') === orderedNames, 'serial inventory differs')
   && receiptCheck(canonical(serial.coverageInventory) === canonical(parallel[0]?.coverageInventory), 'serial coverage inventory differs')
   && receiptCheck(canonical(serial.results.map(({ name, status }) => ({ name, status }))) === canonical(parallel[0]?.results.map(({ name, status }) => ({ name, status }))), 'serial outcomes differ');
+const inventoriesEqual = (left, right) => left.every(leftResult => {
+  const rightResult = right.find(result => result.name === leftResult.name);
+  return rightResult && canonical(leftResult.detailedAssertions) === canonical(rightResult.detailedAssertions)
+    && canonical(leftResult.mutationInventory) === canonical(rightResult.mutationInventory);
+});
+const serialParallelInventoriesEqual = receiptCheck(Boolean(serial && parallel[0] && inventoriesEqual(serial.results, parallel[0].results)), 'serial/parallel per-member assertion or mutation inventory differs');
+const inventoryDeletionBites = Boolean(serial?.results?.[0]?.detailedAssertions?.length && parallel[0] && (() => {
+  const mutated = structuredClone(serial.results);
+  mutated[0].detailedAssertions = mutated[0].detailedAssertions.slice(1);
+  return !inventoriesEqual(mutated, parallel[0].results);
+})());
+receiptCheck(inventoryDeletionBites, 'deleting one member assertion signature did not break inventory equivalence');
 
 const doneReceiptPath = process.env.B9812_DONE_RECEIPT ?? '.lattice/story/actives/B-9812/done-required-evidence.json';
 const doneReceiptText = existsSync(doneReceiptPath) ? readTextReceipt(doneReceiptPath) : '';
@@ -153,28 +165,28 @@ const stressLine = stressText.split(/\r?\n/).find(line => line.startsWith('INCRE
 let stressReceipt = null;
 try { stressReceipt = stressLine ? JSON.parse(stressLine.slice('INCREMENTAL_STRESS_RECEIPT='.length)) : null; } catch { stressReceipt = null; }
 const stressValid = receiptCheck(Boolean(stressReceipt && stressReceipt.iterations?.length === 20), 'stress20 receipt does not contain 20 iterations')
-  && receiptCheck(stressReceipt.iterations.every(iteration => Object.keys(iteration.guardClasses ?? {}).length === 6 && Object.values(iteration.guardClasses).every(Boolean)), 'stress20 guard-class outcome mismatch')
-  && receiptCheck(stressReceipt.aba === true && stressReceipt.cutoff === true && stressReceipt.restoration === true, 'stress20 ABA/cutoff/restoration outcome missing')
+  && receiptCheck(stressReceipt.iterations.every(iteration => Object.keys(iteration.guardClasses ?? {}).length === 6 && Object.values(iteration.guardClasses).every(Boolean)), 'stress20 observed guard-class outcome mismatch')
+  && receiptCheck(stressReceipt.aba?.observedDurationMs > 0 && stressReceipt.cutoff?.observedDurationMs > 0 && stressReceipt.restoration?.completedCases === 20, 'stress20 ABA/cutoff/restoration observations missing')
   && receiptCheck(stressReceipt.deterministicSeed === 'fixed-mask-v1' && stressReceipt.schedule?.join(',') === '31,10,21', 'stress20 seed/schedule receipt missing')
   && receiptCheck(stressReceipt.shards?.enabled === false && stressReceipt.replay?.sameGuardClassOutcome === true, 'stress20 shard/replay contract missing')
-  && receiptCheck(Object.keys(stressReceipt.mutationKillMap ?? {}).length === 6, 'stress20 mutation-kill map incomplete');
+  && receiptCheck(Object.keys(stressReceipt.mutationKillMap ?? {}).length === 6 && Object.values(stressReceipt.mutationKillMap).every(mutation => mutation.detected && mutation.baselineDigest !== mutation.mutatedDigest), 'stress20 mutation-kill observations incomplete');
 const jobsEdgeValid = receiptCheck(Boolean(jobs3?.overallStatus === 'PASS' && jobs3.jobs === 3 && jobs3.total === EXPECTED_MEMBERS), 'jobs3 edge receipt invalid')
   && receiptCheck(Boolean(jobs5?.overallStatus === 'PASS' && jobs5.jobs === 5 && jobs5.total === EXPECTED_MEMBERS), 'jobs5 edge receipt invalid');
 const memberReportValid = parallel.length === 3 && parallel.every(run =>
   run.baselineComparison?.historicalSerialMs === 1_688_918
   && run.results.every(result => result.canonicalMemberAssertionId === result.name
     && Array.isArray(result.assertionInventory) && result.assertionInventory.some(assertion => assertion === `terminal-exit:PASS:${result.name}`) && Array.isArray(result.mutationInventory)
+    && Array.isArray(result.detailedAssertions) && result.detailedAssertions.length > 0 && result.detailedAssertions.every(assertion => assertion.startsWith('output-sha256:'))
     && result.failureOutcome?.status === result.status
     && result.cpu && (result.cpu.capability === 'unavailable' || (Number.isFinite(result.cpu.userSeconds) && Number.isFinite(result.cpu.systemSeconds))))
 );
 const memberInventoryTruthful = parallel.length === 3 && parallel.every(run => {
   const markerNames = run.results.filter(result => result.summaryMarkerPresent).map(result => result.name);
-  const terminalOnlyNames = run.results.filter(result => !result.summaryMarkerPresent).map(result => result.name);
+  const outputDerivedNames = run.results.filter(result => !result.summaryMarkerPresent).map(result => result.name);
   return canonical(run.summaryInventory?.explicitMarkers ?? []) === canonical(markerNames)
-    && canonical(run.summaryInventory?.runnerTerminalOnly ?? []) === canonical(terminalOnlyNames)
-    && run.results.every(result => result.summaryMarkerPresent
-      ? Array.isArray(result.detailedAssertions)
-      : result.inventorySource === 'runner-terminal' && result.detailedAssertions === null && result.mutationInventory.length === 0);
+    && canonical(run.summaryInventory?.outputDerived ?? []) === canonical(outputDerivedNames)
+    && run.results.every(result => Array.isArray(result.detailedAssertions) && result.detailedAssertions.length > 0
+      && (result.summaryMarkerPresent ? result.inventorySource === 'explicit-marker+output-signature' : result.inventorySource === 'output-signature'));
 });
 const explicitLongTailMarkers = parallel.length === 3 && parallel.every(run =>
   ['test:full-suite-runner-smoke', 'test:full-suite-resource-sentinel', 'test:review-incremental-context-smoke', 'test:proofstory-intent-hardening-smoke', 'test:proofstory-acceptance-rollout']
@@ -192,11 +204,11 @@ const schedulerLine = smokeOutput.split(/\r?\n/).find(line => line.startsWith('F
 let schedulerReceipt = null;
 try { schedulerReceipt = schedulerLine ? JSON.parse(schedulerLine.slice('FULL_SUITE_SCHEDULER_RECEIPT='.length)) : null; } catch { schedulerReceipt = null; }
 const schedulerProof = {
-  overlap: schedulerReceipt?.distinctRootsOverlap === true,
-  protectedPairs: schedulerReceipt && Object.values(schedulerReceipt.protectedPairs ?? {}).every(Boolean) && Object.keys(schedulerReceipt.protectedPairs ?? {}).length === 5,
-  aliases: schedulerReceipt?.canonicalAliasesCollide === true,
-  failClosed: schedulerReceipt?.unknownAndUnclassifiedFailClosed === true,
-  progress: schedulerReceipt?.workerBoundariesProgress === true,
+  overlap: schedulerReceipt?.distinctRootsOverlap?.observed === true && schedulerReceipt.distinctRootsOverlap.activeWitness?.length > 1,
+  protectedPairs: schedulerReceipt && Object.values(schedulerReceipt.protectedPairs ?? {}).every(observation => observation.serialized && observation.overlapCount === 0 && observation.completionCount === 2 && observation.blockedWaitMs > 0) && Object.keys(schedulerReceipt.protectedPairs ?? {}).length === 5,
+  aliases: schedulerReceipt?.canonicalAliasesCollide?.observed === true && schedulerReceipt.canonicalAliasesCollide.collisionCount >= 2,
+  failClosed: schedulerReceipt?.unknownAndUnclassifiedFailClosed?.observed === true && schedulerReceipt.unknownAndUnclassifiedFailClosed.throwCount === 5,
+  progress: schedulerReceipt?.workerBoundariesProgress?.observed === true && schedulerReceipt.workerBoundariesProgress.completionCount > 0,
   mutations: schedulerReceipt?.mutationBites?.removedFixedPortKey === true && schedulerReceipt?.mutationBites?.inventoryOmission === true,
   lifecycle: schedulerReceipt && Object.values(schedulerReceipt.lifecycle ?? {}).every(Boolean),
   fixedPortOs: schedulerReceipt?.fixedPortOsCollision,
@@ -211,7 +223,7 @@ const proof = {
   identityAndBudget: parallel.length === 3 && /performance\.now/.test(runnerSource) && /identityChanged/.test(runnerSource) && parallel.every(run => run.durationMs < 300_000 && !run.identityDrift),
   terminal: /failure is terminal and never retried/.test(runnerSmokeSource) && parallel.length === 3 && parallel.every(run => run.retries === 0),
   inventory: parallel.length === 3 && parallel.every(run => run.total === EXPECTED_MEMBERS && run.coverageInventory.canonicalMembers.length === EXPECTED_MEMBERS),
-  serialEquivalent: serialValid && serial.results.every(result => result.status === 'PASS'),
+  serialEquivalent: serialValid && serialParallelInventoriesEqual && inventoryDeletionBites && serial.results.every(result => result.status === 'PASS'),
   cohortEquivalent: cohortSemanticEqual && normalizedOne.length === 12,
   cohortIntegrity: acceptancePassed && /semanticInventoryDigest/.test(cohortSource) && /copied cohort runner is byte-identical/.test(acceptanceSource) && /tempCohort = clone\(control\)/.test(acceptanceSource),
   cohortIsolation: acceptancePassed && cohortSemanticEqual && /withProductionCaseSlot/.test(cohortSource) && /evidenceGitCwd/.test(cohortSource) && /controlRestored/.test(cohortSource),
@@ -230,7 +242,7 @@ const conditions = {
   'CHK-001': [proof.auditableReports && proof.memberReport && proof.explicitLongTailMarkers, proof.threeRuns && proof.memberReport, proof.inventory && proof.identityAndBudget, proof.terminal && proof.focusedBehavior.injectedFailures, proof.focusedRunner && proof.inventory && proof.memberReport, proof.identityAndBudget && proof.focusedBehavior.outputBoundary],
   'CHK-002': [schedulerProof.overlap, schedulerProof.protectedPairs && proof.focusedBehavior.lockWait, schedulerProof.lifecycle && proof.processTree, schedulerProof.aliases, schedulerProof.failClosed && proof.strictArguments, schedulerProof.progress, schedulerProof.mutations, schedulerProof.lifecycle && proof.focusedBehavior.crossPlatformCleanup, schedulerProof.lifecycle && proof.focusedBehavior.outputBoundary],
   'CHK-003': [proof.cohortIntegrity, proof.cohortIsolation, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation, proof.cohortEquivalent, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation],
-  'CHK-004': [proof.incrementalMap && proof.stress20 && stressReceipt.schedule.length === 3, proof.incrementalMap && proof.serialEquivalent && stressReceipt.shards.enabled === false, proof.incrementalMap && proof.stress20 && stressReceipt.iterations.length === 20, proof.stress20 && stressReceipt.replay.sameGuardClassOutcome, proof.stress20 && stressReceipt.aba && stressReceipt.cutoff && stressReceipt.restoration, proof.focusedBehavior.injectedFailures && schedulerProof.lifecycle, proof.incrementalMap && Object.keys(stressReceipt.mutationKillMap).length === 6, proof.stress20 && stressReceipt.deterministicSeed === 'fixed-mask-v1', proof.stress20 && Object.keys(stressReceipt.mutationKillMap).length === 6],
+  'CHK-004': [proof.incrementalMap && proof.stress20 && stressReceipt.schedule.length === 3, proof.incrementalMap && proof.serialEquivalent && stressReceipt.shards.enabled === false && stressReceipt.shards.observedSequentialCases, proof.incrementalMap && proof.stress20 && stressReceipt.iterations.length === 20, proof.stress20 && stressReceipt.replay.sameGuardClassOutcome, proof.stress20 && stressReceipt.aba.observedDurationMs > 0 && stressReceipt.cutoff.observedDurationMs > 0 && stressReceipt.restoration.completedCases === 20, proof.focusedBehavior.injectedFailures && schedulerProof.lifecycle, proof.incrementalMap && Object.values(stressReceipt.mutationKillMap).every(value => value.detected), proof.stress20 && stressReceipt.deterministicSeed === 'fixed-mask-v1', proof.stress20 && Object.values(stressReceipt.mutationKillMap).every(value => value.detected)],
   'CHK-005': [proof.inventory, proof.serialEquivalent, proof.terminal, proof.strictArguments, proof.keyedResources, proof.processTree, proof.inventory, proof.terminal, proof.terminal],
   'CHK-006': [proof.threeRuns, proof.auditableReports && proof.memberReport, proof.serialEquivalent, proof.doneRequired, proof.threeRuns && proof.identityAndBudget, proof.jobsEdge, proof.identityAndBudget, proof.processTree && schedulerProof.lifecycle && proof.terminal && proof.focusedBehavior.injectedFailures && fixedPortOsValid, proof.identityAndBudget && proof.focusedBehavior.cpuSpoof, schedulerProof.mutations && proof.doneRequired && proof.focusedBehavior.protectedClasses],
 };
