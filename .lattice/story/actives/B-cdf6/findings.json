@@ -457,7 +457,7 @@
       "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts currently FAILS on this story branch (reproduced live: node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exits with ERR_ASSERTION, actual=[{file:packages/main/src/cli-engine.ts,line:814,label:unapproved non-literal dynamic module load,text:import() `file://${initPath}`...}], expected=[]). Root cause verified: this story (commit aad24a037e, 2026-08-11T13:12:46+08:00) correctly re-pinned PINNED_EXECUTABLE_SOURCE_FINGERPRINTS for packages/main/src/cli-engine.ts to c67969720875... after the CHK-002 bin-rename edit, but a LATER edit to the same file (commit 31835c09ed, 2026-08-11T21:46:46+08:00, CHK-006 normalize residual Proofbound spelling and stale constant identifiers) changed cli-engine.ts again without re-running the repin, so the guards structural AST fingerprint for cli-engine.ts is now stale and the pre-approved dynamic-import call site at line 814 (`await import(file://${initPath})`) is reported as a NEW unapproved dynamic load rather than a recognized pre-existing one. This is a currently-red gate on this branch (not a pre-existing main failure; I did not need to check main because the repin commit and the drift-causing commit are both story commits), so npm test / lattice validate is not actually green right now despite the story treating CHK-005 happy:0 (root npm test passes) as satisfied. This is not the same defect as F-021 (stale CHK-005:happy:0 evidence NOTE); this is a currently-failing mechanical gate blocking a truthful GREEN claim. Fix requires either restoring cli-engine.ts to the exact structure the c67969720875... fingerprint was computed against, or recomputing and re-pinning the fingerprint for the CHK-006 edit (with the same comment discipline the CHK-002 repin used, confirming no NEW dynamic load was introduced, only the CHK-006 prose/constant changes).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-12T04:36:12.400Z",
@@ -469,7 +469,11 @@
         "packages/main/src/cli-engine.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Reviewer's diagnosis was exactly right and I verified every step. The guard failed with ERR_ASSERTION on an unapproved non-literal dynamic module load at cli-engine.ts:814: CHK-002 re-pinned that file's AST fingerprint after the bin rename, but a later CHK-006 edit to the SAME file was never re-pinned. Fixing that one revealed 8 further drifts it had masked. I checked provenance for each: all five affected files (cli-engine.ts, serve.ts, closeout-trust-smoke.ts, parent-roadmap-totality-smoke.ts, and the two bin wrappers) were touched by THIS story, so none are pre-existing - they are all mine. Repinned 4 AST fingerprints across BOTH mirrored copies (retired-authority-vocabulary-guard-smoke.ts and verify-process-fact-contract.mjs), and registered the two local bin wrappers in the authoritative BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS map plus the knownBenignNonLiteralLoaderCalls registry. The bin/lattice-codex.js entry moved to the canonical bin/proof-or-stop-codex.js with the loader argument changed from 'localLattice' to the loop variable 'candidate', because the canonical wrapper now probes a LIST of sibling bootstraps (canonical first, deprecated alias as fallback). Guard now reports PASS builds=781 cacheHits=2 fullAnalysis=1250. Every repin carries an inline rationale; no assertion deleted or weakened. NOTE the reviewer's wider point stands and I am recording it: this guard is NOT in the npm test chain, so my earlier 'root suite green' statements were true but did not establish CLAUDE.md's 'lattice validate 全绿' bar, which was genuinely red at that moment.",
+      "resolvedAt": "2026-08-12T05:24:08.614Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
