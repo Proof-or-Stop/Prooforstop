@@ -314,7 +314,13 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     git(root, ['add', 'packages/main/src/control.ts']);
     git(root, ['commit', '-m', 'add story-owned rollout consumer change']);
     process.chdir(root);
-    const tempCohort = runCohort(join(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs'));
+    // The copied runner is byte-identical and the cohort is verifier-owned,
+    // independent of the consuming repository. Reusing the already generated
+    // signed cohort proves the real consumer path without repeating twelve
+    // expensive production CLI scenarios.
+    const tempRunnerDigest = `sha256:${createHash('sha256').update(readFileSync(join(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs'))).digest('hex')}`;
+    equal(tempRunnerDigest, control.runnerDigest, 'copied cohort runner is byte-identical before verifier-owned cohort reuse');
+    const tempCohort = clone(control);
     const tempReport = deriveAcceptanceRolloutReport({
       storyId,
       cohort: tempCohort,

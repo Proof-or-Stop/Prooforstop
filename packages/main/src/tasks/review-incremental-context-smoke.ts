@@ -1589,7 +1589,11 @@ function run(): void {
   runDeterministicTicketReclaimAbaCase();
   runConcurrentReviewerWriteCase(0b11111);
   runConcurrentReviewerWriteCase(0b01010);
-  for (let iteration = 1; iteration <= 20; iteration += 1) {
+  // The three fixed masks above are the deterministic race/mutation matrix.
+  // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
+  // historical twenty identical repetitions for soak testing.
+  const burnInIterations = process.env.LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1;
+  for (let iteration = 1; iteration <= burnInIterations; iteration += 1) {
     runConcurrentReviewerWriteCase(0b10101, iteration);
   }
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);

@@ -1,5 +1,17 @@
 # Test Runner Consolidation Plan
 
+## Canonical root-suite execution (B-9812)
+
+The root `npm test` contract is now distinct from smoke auto-discovery. It uses
+`full-suite-runner.ts`, whose explicit resource-classified inventory is checked
+bidirectionally against `test:serial-reference` before execution. Unknown,
+duplicate, missing, or extra members fail closed. Compatible isolated/read-only
+members share a bounded worker pool; repo writers take an exclusive lock.
+Timeouts kill the member process group, output is bounded, and a first-run FAIL
+or TIMEOUT is terminal: the canonical path never retries to green. The prior
+`run-all-smokes` discovery runner remains available for its broader noncanonical
+smoke/coverage use cases.
+
 This decision document records the chosen architecture for consolidating the
 project's test runner and decomposes the implementation into follow-up Proofbound
 stories. The deliberation history is captured under Proofbound story **B-35aa**.

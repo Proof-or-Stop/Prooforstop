@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { execFileSync } from 'node:child_process';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -15,6 +16,22 @@ import { canonicalJson } from '../packages/main/dist/core/digest.js';
 const RUNNER_RELATIVE_PATH = 'scripts/run-proofstory-acceptance-rollout-cohort.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, '..');
+const execFileAsync = promisify(execFile);
+const productionCaseLimit = Math.max(1, Number(process.env.LATTICE_ROLLOUT_COHORT_JOBS || 2));
+let productionCasesActive = 0;
+const productionCaseWaiters = [];
+
+async function withProductionCaseSlot(work) {
+  if (productionCasesActive >= productionCaseLimit) {
+    await new Promise(resolveSlot => productionCaseWaiters.push(resolveSlot));
+  }
+  productionCasesActive += 1;
+  try { return await work(); }
+  finally {
+    productionCasesActive -= 1;
+    productionCaseWaiters.shift()?.();
+  }
+}
 
 function sha256(value) {
   return `sha256:${createHash('sha256').update(value).digest('hex')}`;
@@ -75,8 +92,8 @@ function materializeStory(root, record) {
   return readJson(join(storyDir, 'rollout-observation.json'));
 }
 
-function runProductionCase({ storyId, pairId, arm, scenario, completedAt }) {
-  const output = execFileSync(process.execPath, [
+async function runProductionCase({ storyId, pairId, arm, scenario, completedAt }) {
+  const { stdout: output } = await withProductionCaseSlot(() => execFileAsync(process.execPath, [
     join(projectRoot, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js'),
     '--rollout-cohort-case',
   ], {
@@ -89,7 +106,7 @@ function runProductionCase({ storyId, pairId, arm, scenario, completedAt }) {
       LATTICE_ROLLOUT_COHORT_SCENARIO: scenario,
     },
     maxBuffer: 32 * 1024 * 1024,
-  });
+  }));
   const line = output.split(/\r?\n/).find(row => row.startsWith('PROOFSTORY_ROLLOUT_CASE='));
   if (!line) throw new Error(`registered production cohort case did not emit evidence for ${storyId}`);
   const evidence = JSON.parse(line.slice('PROOFSTORY_ROLLOUT_CASE='.length));
@@ -111,7 +128,7 @@ function runProductionCase({ storyId, pairId, arm, scenario, completedAt }) {
   }
 }
 
-function pairRecords({ pairId, index, claimClass, defectClass, seededDefectId, shouldBlock, defectPresent }) {
+async function pairRecords({ pairId, index, claimClass, defectClass, seededDefectId, shouldBlock, defectPresent }) {
   const completedAt = new Date(Date.parse('2026-07-23T12:00:00.000Z') + index * 60_000).toISOString();
   const base = {
     pairId,
@@ -129,22 +146,22 @@ function pairRecords({ pairId, index, claimClass, defectClass, seededDefectId, s
     : 'control';
   const baselineStoryId = `B-cb${String(index + 1).padStart(2, '0')}`;
   const candidateStoryId = `B-cc${String(index + 1).padStart(2, '0')}`;
+  const [baselineReceipt, candidateReceipt] = await Promise.all([
+    runProductionCase({ storyId: baselineStoryId, pairId, arm: 'baseline', scenario, completedAt }),
+    runProductionCase({ storyId: candidateStoryId, pairId, arm: 'candidate', scenario, completedAt }),
+  ]);
   return [
     makeSourceRecord({
       ...base,
       arm: 'baseline',
       storyId: baselineStoryId,
-      observationReceipt: runProductionCase({
-        storyId: baselineStoryId, pairId, arm: 'baseline', scenario, completedAt,
-      }),
+      observationReceipt: baselineReceipt,
     }),
     makeSourceRecord({
       ...base,
       arm: 'candidate',
       storyId: candidateStoryId,
-      observationReceipt: runProductionCase({
-        storyId: candidateStoryId, pairId, arm: 'candidate', scenario, completedAt,
-      }),
+      observationReceipt: candidateReceipt,
     }),
   ];
 }
@@ -154,17 +171,21 @@ function pairRecords({ pairId, index, claimClass, defectClass, seededDefectId, s
  * real temporary Story artifact tree before it enters the frozen inventory.
  */
 export function runProofStoryAcceptanceRolloutCohort() {
+  return runProofStoryAcceptanceRolloutCohortAsync();
+}
+
+async function runProofStoryAcceptanceRolloutCohortAsync() {
   const tempRoot = mkdtempSync(join(tmpdir(), 'proofstory-rollout-cohort-'));
   try {
     const registeredSeedIds = ['seed-c2-omission', 'seed-forged-receipt', 'seed-stale-binding'];
-    const rows = [
-      ...pairRecords({ pairId: 'PAIR-OMISSION', index: 0, claimClass: 'user_visible', defectClass: 'omission', seededDefectId: registeredSeedIds[0], shouldBlock: true, defectPresent: true }),
-      ...pairRecords({ pairId: 'PAIR-FORGERY', index: 1, claimClass: 'safety', defectClass: 'forgery', seededDefectId: registeredSeedIds[1], shouldBlock: true, defectPresent: true }),
-      ...pairRecords({ pairId: 'PAIR-FRESHNESS', index: 2, claimClass: 'lifecycle', defectClass: 'freshness', seededDefectId: registeredSeedIds[2], shouldBlock: true, defectPresent: true }),
-      ...pairRecords({ pairId: 'PAIR-DOCS', index: 3, claimClass: 'docs_only', defectClass: 'control', shouldBlock: false, defectPresent: false }),
-      ...pairRecords({ pairId: 'PAIR-LEGACY', index: 4, claimClass: 'legacy', defectClass: 'control', shouldBlock: false, defectPresent: false }),
-      ...pairRecords({ pairId: 'PAIR-ORDINARY', index: 5, claimClass: 'ordinary', defectClass: 'control', shouldBlock: false, defectPresent: false }),
-    ];
+    const rows = (await Promise.all([
+      pairRecords({ pairId: 'PAIR-OMISSION', index: 0, claimClass: 'user_visible', defectClass: 'omission', seededDefectId: registeredSeedIds[0], shouldBlock: true, defectPresent: true }),
+      pairRecords({ pairId: 'PAIR-FORGERY', index: 1, claimClass: 'safety', defectClass: 'forgery', seededDefectId: registeredSeedIds[1], shouldBlock: true, defectPresent: true }),
+      pairRecords({ pairId: 'PAIR-FRESHNESS', index: 2, claimClass: 'lifecycle', defectClass: 'freshness', seededDefectId: registeredSeedIds[2], shouldBlock: true, defectPresent: true }),
+      pairRecords({ pairId: 'PAIR-DOCS', index: 3, claimClass: 'docs_only', defectClass: 'control', shouldBlock: false, defectPresent: false }),
+      pairRecords({ pairId: 'PAIR-LEGACY', index: 4, claimClass: 'legacy', defectClass: 'control', shouldBlock: false, defectPresent: false }),
+      pairRecords({ pairId: 'PAIR-ORDINARY', index: 5, claimClass: 'ordinary', defectClass: 'control', shouldBlock: false, defectPresent: false }),
+    ])).flat();
     const sourceRecords = rows
       .map(record => materializeStory(tempRoot, record))
       .sort((a, b) => a.pairId.localeCompare(b.pairId) || a.arm.localeCompare(b.arm) || a.storyId.localeCompare(b.storyId));
@@ -193,7 +214,7 @@ export function runProofStoryAcceptanceRolloutCohort() {
 
 if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   const outArgPath = process.argv.find(arg => arg.startsWith('--out='))?.slice('--out='.length);
-  const cohort = runProofStoryAcceptanceRolloutCohort();
+  const cohort = await runProofStoryAcceptanceRolloutCohort();
   const serialized = `${JSON.stringify(cohort, null, 2)}\n`;
   if (outArgPath) {
     const outPath = resolve(outArgPath);
