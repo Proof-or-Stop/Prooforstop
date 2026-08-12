@@ -34,7 +34,12 @@ const semanticRecords = input => input.sourceRecords.map(record => ({
   preReviewCodes: record.observationReceipt.gateArtifacts?.[1]?.report?.codes ?? [],
   checkInventory: record.observationReceipt.checkInventory ?? null,
   mutationInventory: record.observationReceipt.mutationInventory ?? null,
-  mutationResults: record.observationReceipt.mutationResults ?? null,
+  mutationResults: (record.observationReceipt.mutationResults ?? []).map(result => ({
+    mutationId: result.mutationId,
+    expectedCode: result.expectedCode,
+    observedCode: result.observedCode,
+    controlRestored: result.controlRestored,
+  })),
   controlRestored: record.observationReceipt.controlRestored ?? Boolean(record.observationReceipt.restorationCommitSha),
 })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
 
