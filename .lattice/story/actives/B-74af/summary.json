@@ -1,0 +1,56 @@
+{
+  "storyId": "B-74af",
+  "changes": "Introduced one canonical status-first liveness policy and applied it to INIT, PLAN, DEV, REVIEW, story creation, and missing-reviewer recovery guidance. Active, background, silent, unknown, and unavailable status now keeps the same task under monitoring; completed results are consumed once; an authoritative failed, cancelled, missing, dead, or operator-cancelled terminal state permits one replacement. Existing configured subprocess timeout and retry contracts remain unchanged.",
+  "usage": "Dispatch a reviewer or worker through the existing Lattice role prompts, then poll its authoritative task status. Keep monitoring the same task while status is active, background, silent, unknown, or unavailable. Consume completed output once. Start one replacement only after a terminal failed, cancelled, missing, dead, or operator-cancelled status, and record the terminal reason.",
+  "expectedOutcome": "A Codex or Claude task can continue beyond ten minutes or remain in the background without being duplicated or restarted merely because time elapsed; deterministic terminal failure still allows one bounded replacement.",
+  "actualTranscript": "Claude transcript inspection showed foreground tasks completing after 61 to 98 minutes and explicit background tasks completing after 8 to 47 minutes. The final routine validation passed 93 of 93 commands in 855 seconds, and DONE-required build plus root test suite passed in 1544 seconds while the same process was continuously monitored. Reviewer coverage was 19 of 19 with zero findings, and delivery review passed.",
+  "outcomeDiff": "No difference: observed behavior and validation match the expected status-first monitoring outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "Two closeout attempts reached explicit failure states under machine load: one transient root-suite exit and one ENFILE file-table overflow while several worktrees ran full suites concurrently. Wait for competing suites to finish before retrying a terminal resource failure. Sandbox Git index-lock restrictions can prevent automatic evidence commits, so verify the canonical artifacts and commit their exact metadata paths manually when necessary.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 187594
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 111474
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 914953
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 4375062
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 6184453
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 7557143
+    }
+  },
+  "totalDurationMs": 19331462,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-08-12T14:56:02.110Z",
+  "updatedAt": "2026-08-12T14:56:02.110Z"
+}
