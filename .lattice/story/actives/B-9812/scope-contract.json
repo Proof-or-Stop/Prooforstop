@@ -44,9 +44,33 @@
     ".githooks/**"
   ],
   "scopeChangeReason": "F-013 requires replacing the root-test comment/token seam hack with an executable production seam assertion against the independent serial membership authority; add exactly production-test-seam-guard.ts while retaining all previous scope and production exclusions.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Required build-path helpers ensure standard root build cleans ignored dist and binds every main source input to emitted output before performance evidence.",
+      "timestamp": "2026-08-12T23:44:03.271Z",
+      "paths": [
+        "scripts/build-main-with-binding.mjs",
+        "scripts/full-suite-build-binding.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/build-main-with-binding.mjs",
+        "scripts/full-suite-build-binding.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "465c76ea4bb7edbed809383be45194d322ca2dd9",
+      "materialHash": "99c1fa2d6f5df62a37bca0c1105d1404568dfe0dd88ebc16784ad210e6ad27b6",
+      "anchors": [
+        "standard_root_build",
+        "same_material_benchmark",
+        "stale_dist_fail_closed"
+      ]
+    }
+  ],
   "createdAt": "2026-08-12T12:39:13.990Z",
-  "updatedAt": "2026-08-12T15:37:34.244Z",
+  "updatedAt": "2026-08-12T23:44:03.271Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -81,6 +105,8 @@
     ".githooks/**": ".githooks/**",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
     "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-    "packages/main/src/tasks/production-test-seam-guard.ts": "packages/main/src/tasks/production-test-seam-guard.ts"
+    "packages/main/src/tasks/production-test-seam-guard.ts": "packages/main/src/tasks/production-test-seam-guard.ts",
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/full-suite-build-binding.mjs": "scripts/full-suite-build-binding.mjs"
   }
 }
