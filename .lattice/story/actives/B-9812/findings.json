@@ -733,6 +733,244 @@
       "resolvedAt": "2026-08-12T21:08:35.196Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9812:F-030",
+      "desc": "concept-cleanup: docs/requirements/decisions/done-full-test-gate-execution-plan.md:9-18 still presents the root `scripts.test` contract as a 22-step serial `npm test` chain and uses that stale shape as a current evidence anchor, while package.json:15-17 now replaces it with `full-suite-runner.js` plus an independently named 47-member serial-reference inventory. Repository-wide grep finds this as the remaining current root-chain description. Because this document is a CHK-001/CHK-006 related requirements source, the canonical-runner concept replacement is incomplete and leaves future DONE-gate work with a false current topology.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T21:11:48.733Z",
+      "reviewRound": "2026-08-12T21:07:50.057Z",
+      "reviewRunId": "B-9812:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "da54e468ad2a0c138d46e2b1256a8957ea3113eef533a07b4c9ec76304537811",
+      "files": [
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "package.json"
+      ],
+      "signatureTag": "missing|md|concept-cleanup-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-031",
+      "desc": "The immutable full-suite verifier is not replayable at the actual REVIEW HEAD. The capture is bound to 1a0939ad, while normal reviewer dispatch adds prompt-envelopes.json and review-runs.json; METADATA_ALLOWLIST omits both. Reproduction at ec0b070d1c: node scripts/verify-full-suite-contract.mjs exits 1 with 'capture HEAD is not an admissible metadata-only ancestor'. Thus all 52 pinned selectors lose mechanical evidence as soon as the required reviewer protocol runs. Add the normal signed review metadata files to the narrow allowlist and test a real review_run_start/dispatch descendant while continuing to reject source, unknown metadata, and non-ancestor drift.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T21:13:23.597Z",
+      "reviewRound": "2026-08-12T21:07:50.057Z",
+      "reviewRunId": "B-9812:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afcfc7f4d01894c4b68625cac8bd936e0d41b8732df590b959080ffc4a8db929",
+      "files": [
+        "scripts/verify-full-suite-selector.mjs"
+      ],
+      "signatureTag": "missing|mjs|immutable-full-suite",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-032",
+      "desc": "LATTICE_FULL_SUITE_OUTPUT_ROOT is trusted as an authorization boundary even when it is the project root. Reproduction: importing validateJsonOutputPath and calling validateJsonOutputPath(process.cwd(), 'package.json', process.cwd()) returns the tracked package.json path instead of rejecting it. The real runner then writes the result artifact after execution, so an environment variable can re-enable the tracked-project overwrite that CHK-001:adversarial:1 and prior F-021 require to be impossible. Require the owned output root itself to be a proven task-owned out-of-tree directory (or reject all in-project outputs), and add the environment-bypass mutation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T21:13:25.288Z",
+      "reviewRound": "2026-08-12T21:07:50.057Z",
+      "reviewRunId": "B-9812:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fde9a33c1d52d6ce4c3e3aba02c91b9841945443cd6a3083822e30abfce1ef2b",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|lattice-full-suite",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-033",
+      "desc": "The canonical fixed-port resource sentinel claims fixed-port-resource-key:43127 without ever opening or probing port 43127. It imports no net API and only mkdirs three paths. In an unsandboxed localhost reproduction, I pre-bound 127.0.0.1:43127 and packages/main/dist/tasks/full-suite-resource-sentinel.js still exited 0/PASS. The smoke's fixed-port mutation uses only an in-memory active array, so it cannot detect a wrong port or a task that fails to consume the declared resource. This leaves the prior protected-resource safety gap open; bind the declared port in the canonical sentinel and prove pre-binding/collision fails terminally, with a supported host strategy rather than silently skipping.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T21:13:26.943Z",
+      "reviewRound": "2026-08-12T21:07:50.057Z",
+      "reviewRunId": "B-9812:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7819efaf3814800c9aa2af694ac4f0a62a51253582aa4f2109d414dc4b4b6ffa",
+      "files": [
+        "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "adversarial|ts|canonical-fixed-port",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-034",
+      "desc": "The final report openly shows detailed assertion inventory unavailable for 42 of 47 canonical members (and 43 empty mutation inventories), yet verify-full-suite-contract marks CHK-001:happy:0/1 and the per-member baseline contract PASS by checking only that empty arrays exist plus five long-tail markers. canonicalMemberAssertionId is only a membership ID, not an assertion inventory. Reproduction: /tmp/b9812-final-v3-run1.json summaryInventory.unavailable has 42 members; emptyAssertions=42, emptyMutations=43. Therefore the claimed old-vs-new semantic coverage baseline cannot detect assertion or mutation shrinkage for most of the suite. Either collect truthful detailed inventories for every member or narrow the acceptance claim and stop emitting VERIFIED for those selectors.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T21:13:28.609Z",
+      "reviewRound": "2026-08-12T21:07:50.057Z",
+      "reviewRunId": "B-9812:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "31db537ae2090de3ec41a75a7fc5d7cab45c462a8de5002cc1ea93eea8c3f5bc",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|final-report-openly",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-035",
+      "desc": "F-024 is not mechanically resolved for all 52 intents. scripts/verify-full-suite-contract.mjs:196-203 still maps materially different promises to coarse shared booleans. For example CHK-002:happy:0 is gated only by `proof.keyedResources` (three source regexes), not observed interval overlap or unique temp roots; CHK-004:happy:1 is gated by incrementalMap plus the whole-suite serial oracle, not a seeded jobs=1/parallel shard equivalence; CHK-004:edge:0, edge:1, adversarial:1, and adversarial:2 are each gated only by stressValid, whose receipt booleans are constructed unconditionally at review-incremental-context-smoke.ts:1614-1622 after repetitions and contain no replay seed/schedule, cutoff boundary outcome, cross-shard contamination mutation, or per-guard mutation bite. CHK-004:edge:2 uses only generic runner injectedFailures, not a timed-out incremental shard beside successful shards. Thus deleting these promised mechanisms would not suppress their selectors; the component-removal self-test only deletes a stored selector from the receipt and does not mutate these behavioral predicates.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T21:14:14.579Z",
+      "reviewRound": "2026-08-12T21:07:50.057Z",
+      "reviewRunId": "B-9812:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "695d14bf67da6832e2e367302dec530cda335ed202b171c27ac79ee6cff51a71",
+      "files": [
+        "scripts/verify-full-suite-contract.mjs",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "adversarial|mjs|mechanically-resolved-intents",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-036",
+      "desc": "Current REVIEW metadata makes the required fast mechanical verifier unusable. The capture at 1a0939 is otherwise same-material and its descendant changes through b58618f are entirely allowlisted, but the normal final dispatch commit ec0b070 adds .lattice/story/actives/B-9812/prompt-envelopes.json and review-runs.json. scripts/verify-full-suite-selector.mjs:32-38 and scripts/verify-full-suite-contract.mjs:24-37 omit both lifecycle files, so `node scripts/verify-full-suite-contract.mjs` fails in 0.22s with `capture HEAD is not an admissible metadata-only ancestor`; `--evaluate-internal` likewise rejects all three jobs4 receipts and DONE identity. This reproduces immediately after review_run_start, invalidating the current-round 52 selector receipts despite unchanged material.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T21:14:14.632Z",
+      "reviewRound": "2026-08-12T21:07:50.057Z",
+      "reviewRunId": "B-9812:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "99450cae9f2dda2685de1be3ffb7adcda4e34f96b7fe0469e47d183d57396082",
+      "files": [
+        "scripts/verify-full-suite-selector.mjs",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "missing|mjs|current-review-metadata",
+      "signatureTagSource": "auto"
     }
   ]
 }
