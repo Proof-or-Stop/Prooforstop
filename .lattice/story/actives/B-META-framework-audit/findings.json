@@ -282,6 +282,26 @@
         "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
       ],
       "_hash": "ae4b2d9be5f3daa4aa63073ef083caabe63e1926b4014131d15ffa5478b119c4"
+    },
+    {
+      "id": "B-META-framework-audit:F-016",
+      "desc": "A ProofStory acceptance binding can only be authored in PLAN, but whether an intent is RECEIPTABLE is often only discoverable in REVIEW - and by then the only remedy resets the whole story. Measured on B-cdf6: the reviewGateMode=enforce completeness gate blocks REVIEW->TEST with 'review_completeness_missing_evidence: Verification intent CHK-005:happy:0 is bound to ProofStory acceptance coverage but lacks passing verification evidence', because proofstory.ts:845-851 deliberately (and correctly) refuses to count a deferred_gate_evidence waiver as coverage. The bound intent is STRUCTURALLY un-receiptable: it is pinned immutably to a command that runs the real ~21min suite, exceeding the 270s receipt-executor ceiling (F-012), so providing the command times out and omitting it is refused as receipt_command_mismatch. The obvious fix - drop that ref from the binding - is impossible without a full rewind: proofstory_contract_set reports 'Allowed phases: PLAN' (refused in both REVIEW and DEV), and returning to PLAN resets every non-pending checklist item to pending (checklist.ts:1277), which here means discarding 6 completed items plus 23 resolved findings' worth of lifecycle state. So the practical choice collapses to (a) reclassify the waiver as 'permanent' - which the gate DOES accept - or (b) rewind the entire story. Option (a) is a one-word edit that silently converts 'temporarily unprovable, revisit when F-012 is fixed' into 'permanently unprovable', which is exactly the kind of semantic downgrade an audit trail should resist; option (b) is disproportionate. Neither is good, and the operator is pushed toward (a) by cost alone.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T07:55:16.671Z",
+      "reviewRound": "",
+      "gapFingerprint": "39f97f37d58d42a46913236aac7411c0c510bd26940d5d09733e4df541207df8",
+      "files": [
+        "packages/main/src/core/proofstory.ts:845",
+        "packages/main/src/handlers/checklist.ts:1277",
+        "packages/main/src/core/validation-executor.ts:43",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "_hash": "6103691b286028e2e689d51adf67cec73a915ccf4b8809b8c90f0c025913a4f6"
     }
   ]
 }
