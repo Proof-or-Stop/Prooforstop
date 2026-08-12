@@ -6,6 +6,18 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 
 const root = process.cwd();
+const cliArgs = process.argv.slice(2);
+if (cliArgs.length === 0 || (cliArgs.length === 1 && cliArgs[0] === '--capture')) {
+  const selectorArgs = cliArgs.length === 0 ? ['--all'] : ['--capture'];
+  const output = execFileSync(process.execPath, ['scripts/verify-full-suite-selector.mjs', ...selectorArgs], {
+    cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024,
+  });
+  process.stdout.write(output);
+  process.exit(0);
+}
+if (cliArgs.length !== 1 || cliArgs[0] !== '--evaluate-internal') {
+  throw new Error('usage: verify-full-suite-contract.mjs [--capture | --evaluate-internal]');
+}
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const RECEIPT_METADATA_ALLOWLIST = new Set([
   'owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json',

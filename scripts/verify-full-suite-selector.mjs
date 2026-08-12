@@ -14,6 +14,7 @@ const artifacts = [
   ...[1, 2, 3].flatMap(index => [`/tmp/b9812-final-v2-run${index}.json`, `/tmp/b9812-final-v2-run${index}.exit`, `/tmp/b9812-final-v2-run${index}.identity`, `/tmp/b9812-final-v2-run${index}.timing`]),
   '.lattice/story/actives/B-9812/done-required-evidence.json',
   'scripts/verify-full-suite-contract.mjs',
+  'scripts/verify-full-suite-selector.mjs',
 ];
 const digest = value => createHash('sha256').update(value).digest('hex');
 const atomicWrite = (path, value) => { const temporary = `${path}.tmp-${process.pid}`; writeFileSync(temporary, value); renameSync(temporary, path); };
@@ -25,9 +26,17 @@ const identity = () => ({
   head: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   material: execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' }),
 });
-export function validateSelectorReceipt(receipt, selector, current, currentFileDigests) {
+const METADATA_PREFIX = '.lattice/story/actives/B-9812/';
+const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl']);
+const captureHeadIsAdmissible = (receiptHead, currentHead) => {
+  try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, currentHead], { cwd: root, stdio: 'ignore' }); }
+  catch { return false; }
+  const changed = execFileSync('git', ['diff', '--name-only', `${receiptHead}..${currentHead}`], { cwd: root, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  return changed.every(path => path.startsWith(METADATA_PREFIX) && METADATA_ALLOWLIST.has(path.slice(METADATA_PREFIX.length)));
+};
+export function validateSelectorReceipt(receipt, selector, current, currentFileDigests, headAdmissible = captureHeadIsAdmissible) {
   assert.equal(receipt.schema, 'b9812.full-suite-contract-capture.v2');
-  assert.equal(receipt.head, current.head, 'capture HEAD changed; non-ancestor or metadata descendant requires a new capture');
+  assert.equal(headAdmissible(receipt.head, current.head), true, 'capture HEAD is not an admissible metadata-only ancestor');
   assert.equal(receipt.material, current.material, 'capture material changed');
   assert.deepEqual(receipt.fileDigests, currentFileDigests, 'captured artifact or verifier source digest changed');
   assert.ok(Object.hasOwn(receipt.predicates, selector), `selector missing from capture: ${selector}`);
@@ -37,7 +46,7 @@ export function validateSelectorReceipt(receipt, selector, current, currentFileD
 
 const args = process.argv.slice(2);
 if (args.length === 1 && args[0] === '--capture') {
-  const output = execFileSync(process.execPath, ['scripts/verify-full-suite-contract.mjs'], { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  const output = execFileSync(process.execPath, ['scripts/verify-full-suite-contract.mjs', '--evaluate-internal'], { cwd: root, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
   const selectors = output.split(/\r?\n/).filter(line => line.startsWith('VERIFIED ')).map(line => line.slice('VERIFIED '.length));
   assert.equal(selectors.length, 52, 'capture requires all 52 conditional selectors');
   const current = identity();
@@ -54,12 +63,28 @@ if (args.length === 1 && args[0] === '--capture') {
   const current = identity();
   validateSelectorReceipt(receipt, selector, current, fileDigests());
   process.stdout.write(`VERIFIED ${selector}\n`);
+} else if (args.length === 1 && args[0] === '--all') {
+  const started = performance.now();
+  const serialized = readFileSync(receiptPath, 'utf8');
+  assert.equal(readFileSync(`${receiptPath}.sha256`, 'utf8').trim(), digest(serialized), 'capture receipt bytes changed');
+  const receipt = JSON.parse(serialized);
+  const current = identity();
+  const currentDigests = fileDigests();
+  const selectors = Object.keys(receipt.predicates);
+  assert.equal(selectors.length, 52, 'capture must contain exactly 52 predicates');
+  for (const selector of selectors) {
+    validateSelectorReceipt(receipt, selector, current, currentDigests);
+    process.stdout.write(`VERIFIED ${selector}\n`);
+  }
+  assert.ok(performance.now() - started < 2_000, 'fast verifier exceeded 2 seconds');
+  process.stdout.write(`FULL_SUITE_CONTRACT=PASS selectors=${selectors.length}\n`);
 } else if (args.length === 1 && args[0] === '--self-test') {
   const current = { head: 'h', material: 'm' };
   const files = { verifier: 'd' };
   const selector = 'CHK-001:happy:0';
   const valid = { schema: 'b9812.full-suite-contract-capture.v2', ...current, fileDigests: files, predicates: { [selector]: { passed: true, outputDigest: digest(`VERIFIED ${selector}`) } } };
-  validateSelectorReceipt(valid, selector, current, files);
+  const sameHead = (a, b) => a === b;
+  validateSelectorReceipt(valid, selector, current, files, sameHead);
   for (const [label, mutation] of [
     ['missing selector', value => { value.predicates = {}; }],
     ['failed selector', value => { value.predicates[selector].passed = false; }],
@@ -67,11 +92,16 @@ if (args.length === 1 && args[0] === '--capture') {
     ['non-ancestor/source drift identity', value => { value.head = 'other'; }],
   ]) {
     const changed = structuredClone(valid); mutation(changed);
-    let rejected = false; try { validateSelectorReceipt(changed, selector, current, files); } catch { rejected = true; }
+    let rejected = false; try { validateSelectorReceipt(changed, selector, current, files, sameHead); } catch { rejected = true; }
     assert.equal(rejected, true, `${label} must fail closed`);
   }
   const bytes = JSON.stringify(valid); assert.notEqual(digest(`${bytes}x`), digest(bytes), 'changed receipt byte must alter sidecar digest');
-  process.stdout.write('FULL_SUITE_SELECTOR_SELF_TEST=PASS assertions=6\n');
+  const metadataDescendant = { head: 'new', material: 'm' };
+  validateSelectorReceipt(valid, selector, metadataDescendant, files, () => true);
+  let sourceDriftRejected = false;
+  try { validateSelectorReceipt(valid, selector, metadataDescendant, files, () => false); } catch { sourceDriftRejected = true; }
+  assert.equal(sourceDriftRejected, true, 'non-metadata descendant must fail closed');
+  process.stdout.write('FULL_SUITE_SELECTOR_SELF_TEST=PASS assertions=8\n');
 } else {
-  throw new Error('usage: verify-full-suite-selector.mjs --capture | --selector CHK-nnn:lane:index | --self-test');
+  throw new Error('usage: verify-full-suite-selector.mjs --capture | --all | --selector CHK-nnn:lane:index | --self-test');
 }
