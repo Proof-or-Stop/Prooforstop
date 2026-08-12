@@ -1,0 +1,376 @@
+{
+  "findings": [
+    {
+      "id": "B-9812:F-001",
+      "desc": "scripts/verify-full-suite-contract.mjs:15-23,57-63 does not mechanically gate the 52 intent selectors it certifies: it runs one 20-assertion runner smoke, performs source-token/string-presence checks, then prints every VERIFIED CHK-* selector unconditionally. Focused rerun `node scripts/verify-full-suite-contract.mjs` at review HEAD e60bfde fails at line 40 because all three performance receipts/identity sidecars are bound to 9178942, not the review HEAD. The artifacts also contain no user/system timing, assertionInventory, mutationInventory, serial jobs=1 oracle, DONE-required receipt, or mutation results. Consequently the recorded common outputDigest cannot substantiate CHK-001 baseline/failure/mutation cases, CHK-002 protected resource keys and bounded root cleanup, CHK-004 old-vs-new mutation equivalence, CHK-005 aggregation/selection mutations, or CHK-006 serial/boundary/safety-mutation/DONE evidence; these must intents remain uncovered despite selectorMatched=true.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T15:21:04.222Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2afa44fc8da5751f412f1ee8bf83a9ae4c87ba393118d4f939f4dc21b5a02e5e",
+      "files": [
+        "scripts/verify-full-suite-contract.mjs",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-full",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-002",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:11-12,18-65,135-174 and full-suite-runner-smoke.ts:31-52 only model three global modes (isolated/repo-read/repo-write) and test one global reader/writer exclusion. There are no resource identities/keys for Git common-dir, fixed port/path, shared runtime lock, or main-write lock; no realpath/symlink canonicalization; no per-task temporary-root ownership; and the canonical inventory contains zero repo-write entries. The three proof artifacts confirm every member was classified only isolated/repo-read. Therefore CHK-002 happy:0-2, edge:0-1, and adversarial:0/2 are not exercised, and the required collision mutation cannot bite if a protected-key lock is removed because no protected-key lock or collision sentinel exists.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T15:21:26.101Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8717bf9709e9ae9d4ebe455be2df923767e1d3d0c4f2b345e3e431552feabcc7",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-003",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:1589-1598 reduces the canonical 0b10101 campaign from 20 iterations to 1, but no changed test records an old-vs-new assertion/failure inventory, injects the previously killed ABA/cutoff/restoration mutations, or proves replay/jobs=1 equivalence; proofstory-intent-hardening-smoke.ts is unchanged. scripts/verify-full-suite-contract.mjs:21 merely checks that the ternary source text exists before unconditionally printing every CHK-004 selector. This is exactly the prohibited reduction without mutation-kill mapping, so CHK-004 happy:0-2, edge:0-2, and adversarial:0-2 lack valid evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T15:21:40.921Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8410b809037734ab43b0ecea525b71e128cd701b4eaeed5276ceb09453033add",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-004",
+      "desc": "doc-promise-undelivered: CHK-002 promises keyed serialization for Git common-dir, fixed port/path, shared runtime lock, and main-write lock plus canonicalized aliases and unique temp-root lifecycle evidence. packages/main/src/tasks/full-suite-runner.ts:11-13 and 142-170 implement only three coarse global modes (isolated/repo-read/repo-write); entries at 18-64 are manually labeled, no protected resource keys/realpath canonicalization/unique-root ownership exist, and the smoke checks only a generic reader/writer lock. Thus known-conflicting resources cannot be distinguished or mechanically serialized and 37 members are optimistically concurrent without the promised isolation proof.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T15:21:42.254Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-001",
+      "_hash": "023c01f720567ed44206007971db5ffc640da8265e4c36a81c7a7fe063c8daf0",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|promise-undelivered-promises",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-005",
+      "desc": "scripts/verify-full-suite-contract.mjs:57-62 unconditionally prints every one of the 52 VERIFIED selectors after a narrow set of source-substring and artifact-shape checks; it does not execute the selector-specific fixed-port/path collisions, lock-key mutations, clean-clone baseline mutations, jobs=1 full-suite oracle, stress-20 mutation mapping, or DONE-required evidence checks it certifies. All 51 mechanical receipts therefore share one non-specific output rather than proof of their must intent. Reproduction at review HEAD e60bfde: node scripts/verify-full-suite-contract.mjs exits 1 at line 40 because the saved identity is HEAD 9178942, so the command currently cited by every receipt does not pass at the signed review HEAD.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T15:21:52.945Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-001",
+      "_hash": "f7b7287d6e5946bb92b37c5170e49d7d7d93d46ab05c0cbdb3d8961c9cc124b2",
+      "files": [
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-full",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-006",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:147 lock-wait timing starts inside launch(), after the scheduler has already withheld an incompatible entry. A repo writer that actually waited about 160ms behind a reader reported lockWaitMs=0 in a direct runScheduled reproduction; this makes the promised resource-wait telemetry materially false and hides scheduler contention.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:01.834Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "fba3186590166ad65f15578e51fec3673144a364cdbc370e772fce10e912ba75",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-007",
+      "desc": "CHK-001 and CHK-006 baseline/report promises are only partial. FullSuiteResult at packages/main/src/tasks/full-suite-runner.ts:13 and the artifact at :198 record wall duration/status/output/resource but no per-member user/system CPU, assertion inventory, mutation inventory, failure inventory, unique temp root, or build/material proof. writeResultArtifact at :96-100 accepts paths inside the source worktree instead of refusing them. scripts/verify-full-suite-contract.mjs:33-55 reads three pre-existing /tmp artifacts but supplies no clean-clone collector, no two-run semantic inventory comparison, no jobs=1 full-suite result-equivalence run, no one-less/one-more worker proof, and no DONE-required receipt inspection. The visible baseline and auditability promised by CHK-001/006 are not delivered even though the timing artifacts show 46 PASS under five minutes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T15:22:03.749Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-001",
+      "_hash": "efad49e5e6c9c27a6f3203a3e757af6ccb6ea379f78384ba1890e9c185b7ca8b",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|baseline-report-promises",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-008",
+      "desc": "scripts/run-proofstory-acceptance-rollout-cohort.mjs:20 accepts malformed LATTICE_ROLLOUT_COHORT_JOBS via Math.max(1, Number(...)); NaN remains NaN, so the active>=limit guard at line 25 is always false and all 12 expensive production cases run concurrently. packages/main/src/tasks/full-suite-runner.ts:181-182 similarly turns --jobs Infinity into an unbounded scheduler limit and silently coerces other malformed values instead of failing closed. Invalid capacity input can disable the safety bound.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:04.802Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "1cde576b899532feaedc30b388309db9e5f2c417081bfd1824e78740b689ce53",
+      "files": [
+        "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "edge|mjs|scripts-proofstory-acceptance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-009",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:117-128 and 185-198 measure all acceptance durations with Date.now(), which is wall-clock and can move backwards, while scripts/verify-full-suite-contract.mjs:22 only asserts the compile-time tautology 300000 < 300000 is false. No controlled boundary test or monotonic elapsed clock exists, so a clock adjustment can under-report a >=300000ms run and the verifier still passes.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:07.536Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "0e4e33dd8f0448d28c755ca328c423a3db13c971fc3da1ba6e05111194069fda",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-010",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:185 starts execution without capturing source identity, then line 198 reads HEAD/materialHash only after every member has finished and never compares start/end identity. If tracked material or HEAD changes mid-run, the artifact binds mixed-material test outcomes to only the final identity, allowing stale or foreign results to appear same-material.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:10.352Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "22753527576a075d61a29b3e03889c15361e2f410b38903f03fb78ab5d8e6192",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-011",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1711 promises the canonical producer uses a bounded three-process pool, but scripts/run-proofstory-acceptance-rollout-cohort.mjs:20 defaults canonical execution to 2 and root npm test sets no LATTICE_ROLLOUT_COHORT_JOBS override. The documented production behavior is therefore not implemented.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:12.978Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "25162d024c16a768c574f8526bdc203afe9df0e94604fc02ec05613ddc0b3c84",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+      ],
+      "signatureTag": "doc-promise-undelivered|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-012",
+      "desc": "CHK-004 explicitly forbids claiming equivalence merely by reducing the twenty-iteration loop, but packages/main/src/tasks/review-incremental-context-smoke.ts:1592-1597 does exactly that: canonical 10101 repetitions drop from 20 to 1 behind LATTICE_INCREMENTAL_STRESS, with no old-versus-new assertion/failure matrix, mutation-kill map, recorded seed/schedule, shard timeout test, or test that actually runs the stress-20 path. scripts/verify-full-suite-contract.mjs:21 only checks for the source substring. proofstory-intent-hardening-smoke.ts is not changed or sharded at all despite the checklist title/promise. Therefore the speedup has not demonstrated retained race/mutation coverage.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T15:22:17.885Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-001",
+      "_hash": "d8474b65e4e84ddba6d1c4207862d05ea47499bedf64be2d16c37f7055082696",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "scripts/verify-full-suite-contract.mjs",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|explicitly-forbids-claiming",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-013",
+      "desc": "CHK-005 requires bidirectional completeness that automatically exposes any later required canonical member, but packages/main/src/tasks/full-suite-runner.ts:15-18 and package.json:16-17 are two manually co-authored copies of the same list with no independent required-member source or discovery. Deleting/omitting a future member from both passes validateInventory. package.json:15 attempts to pass --canonical-includes npm run test:production-test-seam-guard npm run test:closeout-trust, but full-suite-runner.ts only parses --jobs and --json-output at :181-184, so --canonical-includes and its values are silently ignored. Current-main 45 membership plus the new runner smoke is present, but the promised automatic later-merge drift detection is not implemented.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T15:22:29.106Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-001",
+      "_hash": "b5ffffd1cc19adce4abee15107433d821e32ebf2c3874f7162038beee1ca121f",
+      "files": [
+        "package.json",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|json|requires-bidirectional-completeness",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-014",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:103-106 silently swallows both process-group and direct-child SIGKILL failures, treating every error as already gone. This violates AGENTS.md Fail-fast MUTATION policy and can report TIMEOUT or INTERRUPTED after EPERM or another kill failure while descendants remain alive; only ESRCH can be safely treated as gone, and cleanup failure must be surfaced.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:34.439Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "063c140fcc4f050478731a64d6fe63b3b64f63b02021f1851f2a9647966db8d6",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-015",
+      "desc": "CHK-003:edge:2 requires jobs=1 and supported parallel cohort runs to have equivalent membership, diagnostics, mutations, restorations, reviewer lanes, quorum outcomes, and digest. The saved artifacts disagree on sourceInventoryDigest (jobs1 sha256:759a6f... vs jobs3 sha256:9009c9...) even though runnerDigest and 12-row membership match. scripts/verify-full-suite-contract.mjs:25-31 deliberately compares only a reduced semantic projection and omits sourceInventoryDigest, signed source-record digests, host verdict details, and diagnostic/restoration identity, then still prints VERIFIED CHK-003:edge:2. The required digest/order-invariant reproducibility is therefore false, not proven.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T15:22:39.292Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-001",
+      "_hash": "7f62f1638d4193bc56677dafdeaf7fd5c8b4c4774fdf08f2e88362417da96976",
+      "files": [
+        "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "edge|mjs|edge-requires-jobs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-016",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:198 sets processLaunchCount to results.length rather than incrementing on spawn. Pending entries synthesized as INTERRUPTED at line 161 are therefore counted as launched; the supplied SIGINT smoke starts one process with jobs=1 but its artifact claims the full inventory launch count. The machine-readable process telemetry is false on precisely the partial/failure path it must diagnose.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:54.880Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "e45dde32939bd753a184204510d8620fca11af0d66409b1458777ea98fb76d29",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-017",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:181-184 scans only two known option names and silently ignores every unknown option or missing value; package.json:11 already relies on an unimplemented --canonical-includes argument. Typos and malformed invocations can run the entire suite with unintended defaults or omit the requested artifact without an error, and the no-op root argument obscures the actual canonical membership contract.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T15:22:56.848Z",
+      "reviewRound": "2026-08-12T15:16:01.187Z",
+      "reviewRunId": "B-9812:RR-003",
+      "_hash": "1e9952e0963e4c548db71953f6aa91deb0dc2db84ebf148858b8693451dd05a5",
+      "files": [
+        "package.json",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "edge|json|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
