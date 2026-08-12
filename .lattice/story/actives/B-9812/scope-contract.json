@@ -15,7 +15,9 @@
     "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
     "docs/requirements/decisions/test-runner-consolidation-plan.md",
     "docs/requirements/decisions/testing-infra.md",
-    "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
   ],
   "allowedCreate": [
     "packages/main/src/tasks/full-suite-*.ts",
@@ -40,10 +42,10 @@
     ".github/**",
     ".githooks/**"
   ],
-  "scopeChangeReason": "B-9812 changes test orchestration and test-only long-tail execution while protecting production gate semantics and DONE evidence consumers.",
+  "scopeChangeReason": "Formal DEV correction after INIT-only extension commands were mechanically unavailable: add exactly the two direct truth-source decision docs for the acceptance cohort concurrency/reuse contract and deterministic incremental burn-in/stress-tier contract; implementation paths and production exclusions remain unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-08-12T12:39:13.990Z",
-  "updatedAt": "2026-08-12T12:39:13.990Z",
+  "updatedAt": "2026-08-12T13:45:04.231Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -75,6 +77,8 @@
     "packages/main/src/handlers/**": "packages/main/src/handlers/**",
     "packages/main/src/mcp/**": "packages/main/src/mcp/**",
     ".github/**": ".github/**",
-    ".githooks/**": ".githooks/**"
+    ".githooks/**": ".githooks/**",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
   }
 }
