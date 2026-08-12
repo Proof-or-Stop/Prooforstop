@@ -439,6 +439,252 @@
       "resolvedAt": "2026-08-12T18:50:51.311Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9812:F-018",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:120-135 checks containment with a hard-coded / separator, and killProcessTree at lines 200-205 returns immediately when negative-PID group kill reports ESRCH. On Windows runEntry explicitly uses detached=false (line 228), so there is no owned POSIX process group; the direct child still needs termination, but an ESRCH from kill(-pid) is treated as proof the whole tree is gone. An injected reproduction recorded only [-123] and never attempted +123. Internal Windows resource paths are also rejected by the slash-only containment test. Timeout/interruption cleanup is therefore not cross-platform safe.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T18:54:14.328Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-004",
+      "_hash": "7fbb8bca6b2cc112a58aa0d12c7cab215575221a28fad61c7fa7cac0307e6442",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-019",
+      "desc": "scripts/run-proofstory-acceptance-rollout-cohort.mjs:47-70 defines the jobs=1/jobs=3 semantic inventory without hostVerdicts, reviewer lanes/rounds, transcriptRefs, waiverRefs, or the signed observation identity, and line 240 derives semanticInventoryDigest from that reduced projection. scripts/verify-full-suite-contract.mjs consumes the same projection for cohort equivalence. A parallel run can lose or alter genuine 3-round x 2-host/quorum evidence while retaining topology/pre-review/mutation fields and still compare equal, contrary to the required reviewer/quorum equivalence boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T18:54:16.275Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-004",
+      "_hash": "2aab07c3c3c1477e478ea78d5a08778b0b5a9c56edcec1de623a6d0b3d57ba41",
+      "files": [
+        "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-proofstory-acceptance",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-020",
+      "desc": "scripts/verify-full-suite-selector.mjs:29-35 allows only six metadata files when accepting a capture HEAD ancestor, but the final metadata-only commits from capture HEAD 47b315be54 to review HEAD 97b544c also change index.json and process-metrics.json. At the current HEAD, `node scripts/verify-full-suite-selector.mjs --all` fails with `capture HEAD is not an admissible metadata-only ancestor`, even though all captured file digests still match. The immutable fast verifier therefore cannot validate the exact final review material it is meant to protect.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T18:54:18.733Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-004",
+      "_hash": "332a725aac4cff40cbe89ae5164d2c1c06eeee4045832c33dafe99b82fda1856",
+      "files": [
+        "scripts/verify-full-suite-selector.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-full",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-021",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:192-197 accepts any --json-output target and atomically replaces it without requiring the target to be outside the project ownership root; main() writes it only at lines 334-349 after the end-identity read. A caller can therefore select package.json or another tracked path, overwrite it after identityDrift was declared false, and the runner will not report the mutation. This violates the required non-polluting outside-worktree evidence boundary and makes the generic artifact writer destructive.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T18:54:31.738Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-004",
+      "_hash": "e1e462a263f2ee6b2c2dd7cc9c13010fccd5717b8b8e7340c232452c606599e4",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-022",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:268-276 computes every member lockWaitMs from one suite-wide queuedAt timestamp, so worker-capacity and priority delay are reported as resource-lock delay even when the entry has zero resource claims. Direct reproduction with jobs=1 and two resource-free entries reported the second member lockWaitMs about 82ms with acquiredResources empty. This telemetry cannot distinguish lock contention from ordinary queueing and makes the promised resource-lock wait evidence inaccurate.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-12T18:54:33.575Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-004",
+      "_hash": "9ee4526509f78a76d5125cc13fd4cec9e98272ffaa7334f39d5339afaf624982",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-023",
+      "desc": "scripts/verify-full-suite-selector.mjs:29-35 rejects the current clean REVIEW HEAD even though 47b315b..97b544c contains only story metadata: its metadata-only allowlist omits index.json and process-metrics.json, both changed by normal finding-resolution/checklist lifecycle commits. Reproduction at HEAD 97b544c: `node scripts/verify-full-suite-contract.mjs`, `--selector CHK-002:happy:1`, and `--selector CHK-004:adversarial:2` all fail with `capture HEAD is not an admissible metadata-only ancestor`; only the synthetic self-test passes. All 52 checklist receipts cite that now-failing no-arg command and are therefore not mechanically replayable in this review round; the DONE receipt at 47b315b fails the same admissibility predicate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T18:54:58.782Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8fc68b35c6467d669d5e815faab83101db200a0a1507d94b98699f64704d50dd",
+      "files": [
+        "scripts/verify-full-suite-selector.mjs",
+        "scripts/verify-full-suite-contract.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-full",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-024",
+      "desc": "scripts/verify-full-suite-contract.mjs:158-183 still certifies materially different intents with coarse shared booleans and source-substring presence rather than the required behavior. Concrete gaps: CHK-001:happy:0 maps only to criticalPath/launch/lock telemetry and never checks the historical 1688.9 reference or per-member user/system/assertion/mutation/failure inventories; CHK-001:edge:1 maps to a synthetic runScheduled FAIL and never forces a root member to emit partial output or verifies absent members. CHK-002:happy:1 is `keyedResources && focusedRunner`, while the smoke schedules collisions only for fixed-path and the final artifacts contain no fixed-port resource at all, so Git/fixed-port/runtime/main-write pairs are not each mechanically serialized. Every CHK-004 selector maps to the same source-declared six-name guard map; `--guard-map-only` runs only the three writer masks and does not execute ABA/cutoff/restoration mutations, stress-20, shard timeout, replay, or old-vs-new failure-matrix comparison. CHK-006:edge:1 maps to argument parsing rather than one-less/one-more full runs, and CHK-006:adversarial:0 maps to generic cleanup/keyed/terminal booleans without injecting shared-path, fixed-port, timeout-grandchild, and ordinary failure trials. The selector output is now conditional, but these predicates can remain true when the promised behavior is deleted, so the corresponding must intents remain uncovered.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T18:55:18.328Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6db2b8a4a70ce611c3ba073fff927a3c11b09f9027b10fd2ab810b92f0c0c748",
+      "files": [
+        "scripts/verify-full-suite-contract.mjs",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-full",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-025",
+      "desc": "doc-promise-undelivered: scripts/verify-full-suite-selector.mjs:29-30,35-44 admits only six metadata filenames, but the current review HEAD 97b544c differs from captured HEAD 47b315b by index.json and process-metrics.json as well as allowed metadata. Reproduction at the signed review HEAD: `node scripts/verify-full-suite-contract.mjs` fails `capture HEAD is not an admissible metadata-only ancestor`; only `--self-test` passes. Thus the 52 selector receipts are stale at this review round and F-005/F-007's claimed final evidence is not executable/current.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T18:55:53.401Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-006",
+      "_hash": "1ba5124d87aeca63d5c12db2f1fcda684f3f9a931c44ddf812d277622cefd5ae",
+      "signatureTag": "missing|unknown|promise-undelivered-scripts",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-026",
+      "desc": "doc-promise-undelivered: packages/main/src/tasks/full-suite-runner.ts:35-73 declares all 46 canonical members either resources=[] or shared-only claims; the canonical policy contains zero exclusive claims and zero fixed-port claims. The only producer of LATTICE_FULL_SUITE_TEMP_ROOT is runEntry at :229 and repository scan finds no member consuming it. Synthetic claims in full-suite-runner-smoke do not prove the real 46 members obey unique-root ownership or serialize Git common-dir/fixed-port/path/runtime/main-write conflicts. CHK-002's canonical keyed-isolation promise and prior F-004 remain undelivered.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T18:55:55.320Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-006",
+      "_hash": "da89b9f7eb6890e06283ca9b94b371aedfb1861fc1556a6f0da2269c35f16361",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-027",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:13-24,332-351 and /tmp/b9812-final-v2-run1.json still omit the CHK-001 promised per-member user/system CPU, assertion inventory, mutation inventory, and failure inventory: each result has only name/status/wall/output/temp/resources/wait, while one aggregate `/usr/bin/time` sidecar reports CPU and coverageInventory is a static three-suite/five-class list. writeResultArtifact at :198-203 also accepts any resolved path rather than refusing worktree outputs. F-007's machine-readable baseline/report contract is therefore still only partial.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T18:55:57.315Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-006",
+      "_hash": "c5c94578a170e274b546dbb2e78b234f14bad7fc8f812299aa32f5b30071e393",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-028",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:1590-1613 exposes stress20 only through an environment branch, but no package script or changed test executes LATTICE_INCREMENTAL_STRESS=1; scripts/verify-full-suite-contract.mjs:51-52 runs only --guard-map-only (three iteration-1 masks) and :171 certifies all nine CHK-004 selectors from source regexes plus that one output. There is no executed stress20 result or old-20 versus canonical-1 outcome/mutation comparison. F-012's prohibited 20-to-1 coverage reduction remains unproven despite the six-name prose map.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T18:55:59.207Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-006",
+      "_hash": "f5d3ddb02b7491bb348753a3fd6e40f7bd47a3fac837c6c140d23147dfcbcb17",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9812:F-029",
+      "desc": "scripts/run-proofstory-acceptance-rollout-cohort.mjs:45-70 defines the stable semantic digest without hostVerdicts, quorumReceipt, or reviewRoundIds; scripts/verify-full-suite-contract.mjs:58-91 repeats the same reduced projection and only runs the real acceptance consumer for jobs3. A direct mutation of the jobs1 receipt from genuine 3x2 to codex-only 3x1 plus forged quorum/review rounds leaves semanticInventoryDigest byte-identical (sha256:24aa8563...). Therefore jobs1/jobs3 equivalence can pass while reviewer lanes/quorum differ, so prior F-015 and CHK-003:edge:2 remain unresolved.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T18:56:01.065Z",
+      "reviewRound": "2026-08-12T18:49:53.984Z",
+      "reviewRunId": "B-9812:RR-006",
+      "_hash": "6bbda763640d5c2d9cc482d1babe51edc0bcc2e57a1ad98cbd9efc324fa92665",
+      "signatureTag": "edge|unknown|scripts-proofstory-acceptance",
+      "signatureTagSource": "auto"
     }
   ]
 }
