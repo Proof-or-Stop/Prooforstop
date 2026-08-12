@@ -14,7 +14,9 @@
     "packages/main/src/tasks/review-pass-discard-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/init-check-required-agents-smoke.ts",
-    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/provider-codex-smoke.ts",
+    "packages/main/src/tasks/agent-liveness-suite-smoke.ts"
   ],
   "protectedFiles": [
     "packages/main/src/handlers/cross-host-review.ts",
@@ -28,10 +30,10 @@
     "packages/main/src/B-cdf6-flow.md",
     "packages/main/src/CODEX-FINDINGS.md"
   ],
-  "scopeChangeReason": "Re-attest the same frozen path scope with AST hunk kinds add/remove/modify; adding imports and replacing prompt lines are semantic add/remove hunks inside already-approved files, not a path-scope expansion.",
+  "scopeChangeReason": "REVIEW found that effective-surface and timeout coverage was split across separate commands, so intent-level receipts could not prove the combined claim. Add one test-only batch smoke that executes the already-scoped focused smokes in one reproducible command; production scope remains unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-08-12T09:48:06.149Z",
-  "updatedAt": "2026-08-12T10:15:20.441Z",
+  "updatedAt": "2026-08-12T10:31:36.068Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/agent-liveness-policy.ts",
@@ -118,7 +120,9 @@
     "packages/main/src/B-cdf6-flow.html": "B-cdf6-flow.html",
     "packages/main/src/B-cdf6-flow.md": "B-cdf6-flow.md",
     "packages/main/src/CODEX-FINDINGS.md": "CODEX-FINDINGS.md",
-    "packages/main/src/tasks/*.ts": "packages/main/src/tasks/*.ts"
+    "packages/main/src/tasks/*.ts": "packages/main/src/tasks/*.ts",
+    "packages/main/src/tasks/provider-codex-smoke.ts": "packages/main/src/tasks/provider-codex-smoke.ts",
+    "packages/main/src/tasks/agent-liveness-suite-smoke.ts": "packages/main/src/tasks/agent-liveness-suite-smoke.ts"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",

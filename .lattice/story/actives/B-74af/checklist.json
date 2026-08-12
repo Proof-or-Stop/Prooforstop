@@ -96,18 +96,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "State matrix keeps >600s foreground/running on the original identity with zero replacement.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:11:29.148Z"
+            "executedAt": "2026-08-12T11:09:28.264Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -116,18 +116,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "State matrix keeps >600s background work on the original identity and accepts its late result once.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:11:31.984Z"
+            "executedAt": "2026-08-12T11:09:32.956Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -136,18 +136,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Unknown and unavailable observations remain monitor-only without duplicate dispatch.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:11:34.913Z"
+            "executedAt": "2026-08-12T11:09:37.415Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -156,18 +156,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "All nonterminal observations ignore elapsedMs for replacement decisions.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:11:37.751Z"
+            "executedAt": "2026-08-12T11:09:41.928Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -176,18 +176,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Only authoritative terminal states authorize one replacement; repeat terminal observations are held.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:11:40.494Z"
+            "executedAt": "2026-08-12T11:09:46.376Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -196,18 +196,18 @@
           "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
           "result": "pass",
           "note": "Cross-host bounded timeout and fail-closed policy ceiling remain enforced.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "afef5dae9f096a508f58eb302ab221affe9715dd52c2c982652abec56f97eb10",
             "outputTail": "  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:11:49.968Z"
+            "executedAt": "2026-08-12T11:10:02.650Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         }
       ],
       "userSeesSnapshot": {
@@ -228,7 +228,7 @@
       ],
       "status": "done",
       "startTime": "2026-08-12T09:54:20.700Z",
-      "endTime": "2026-08-12T10:13:28.096Z",
+      "endTime": "2026-08-12T11:12:24.961Z",
       "verificationIntent": {
         "happy": [
           {
@@ -315,38 +315,37 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Every registered canonical role, alias, target kind, and allowed phase renders canonical guidance.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:11:52.785Z"
+            "executedAt": "2026-08-12T11:10:07.370Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
-          "kind": "logic_test",
-          "verdict": "success",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/init-check-required-agents-smoke.js",
           "result": "pass",
-          "note": "Effective story_create and missing-init guard outputs render canonical guidance.",
+          "note": "Re-run immutable pinned verifier after REVIEW remediation; command now covers all effective liveness surfaces through the guarded aggregate suite.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "a7dafc3915201f989cf63d71a63a1320a6d3f0f4e3a3537fadc82689ea71f9bb",
-            "outputTail": "✓ init check required agents smoke passed\n",
+            "outputDigest": "9d954746e4a4c87d9e148ec0d1b7b3d2407764c6aefeca4aceeaa0da1ca51be5",
+            "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\ntyped dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n✓ flow stability smoke passed\n✓ init check required agents smoke passed\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n(node:62830) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ init check required agents smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:12:04.686Z"
+            "executedAt": "2026-08-12T11:03:42.251Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
+          "timestamp": "2026-08-12T11:03:42.612Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -355,18 +354,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Product, topology, cluster, scope, aliases, and special dispatch builders carry identical required fragments.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:12:07.560Z"
+            "executedAt": "2026-08-12T11:10:12.406Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -375,18 +374,18 @@
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
           "note": "INIT and DEV dispatch retain heartbeat, result-recording, mutation, and role-boundary duties.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "4f71ed475fa3be2264860aa95e7d89fcaeb614c81fde2953aea50f905f17cd6e",
-            "outputTail": "typed dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n",
+            "outputDigest": "41c417b8c4eee811a9cbfed4ba56baabfbdd2461581a744d1cbb582a084bfa86",
+            "outputTail": "typed dispatch role/cardinality/mutation smoke PASS\nagent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\ntyped dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n✓ flow stability smoke passed\n✓ init check required agents smoke passed\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n(node:28127) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ review pass and discard smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:12:34.796Z"
+            "executedAt": "2026-08-12T11:11:58.516Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -395,30 +394,30 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Active src and generated dist scans reject residual elapsed-only restart guidance.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:12:37.664Z"
+            "executedAt": "2026-08-12T11:12:01.616Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
           "kind": "logic_test",
           "verdict": "success",
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
-          "note": "REVIEW transition guidance explicitly distinguishes live/background, unknown, completed, and terminal states.",
+          "note": "Tool-executed proof that every effective hint explicitly distinguishes running/background, unknown/unavailable, completed, and conclusive terminal states; the pinned smoke now invokes the guarded full liveness suite before its original selector.",
           "mechanical": false,
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
+          "timestamp": "2026-08-12T11:04:07.698Z"
         }
       ],
       "userSeesSnapshot": {
@@ -438,7 +437,7 @@
       ],
       "status": "done",
       "startTime": "2026-08-12T09:54:21.607Z",
-      "endTime": "2026-08-12T10:13:29.182Z",
+      "endTime": "2026-08-12T11:12:26.096Z",
       "verificationIntent": {
         "happy": [
           {
@@ -534,38 +533,37 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Foreground/background >600s matrix monitors the same task and consumes completion once.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:12:40.534Z"
+            "executedAt": "2026-08-12T11:12:04.650Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
-          "kind": "logic_test",
-          "verdict": "success",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/review-pass-discard-smoke.js",
           "result": "pass",
-          "note": "Focused effective CLI INIT and item dispatch outputs use the canonical policy.",
+          "note": "Re-run immutable review-pass-discard pin after guarded aggregate-suite coverage was added; mechanically covers story_create, dispatch, INIT guards, DEV/repair prompts, and REVIEW next steps.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "4f71ed475fa3be2264860aa95e7d89fcaeb614c81fde2953aea50f905f17cd6e",
-            "outputTail": "typed dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n",
+            "outputDigest": "ce77c1e108b8b2ca43386c417f35c173e612ec780f958ee0b00557a9584207b3",
+            "outputTail": "typed dispatch role/cardinality/mutation smoke PASS\nagent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\ntyped dispatch role/cardinality/mutation smoke PASS\n✓ review pass and discard smoke passed\n✓ flow stability smoke passed\n✓ init check required agents smoke passed\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n(node:19238) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ review pass and discard smoke passed\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:13:08.014Z"
+            "executedAt": "2026-08-12T11:07:16.528Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
+          "timestamp": "2026-08-12T11:07:16.694Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -574,18 +572,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Repeated unknown/unavailable observations preserve identity with zero duplicate launch.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:13:10.675Z"
+            "executedAt": "2026-08-12T11:12:07.628Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -594,18 +592,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Failed, cancelled, missing, dead, and operator-cancelled authorize only one reasoned replacement.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:13:13.270Z"
+            "executedAt": "2026-08-12T11:12:10.632Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -614,18 +612,18 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Action assertions catch both premature restart and failure-to-recover mutations.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:13:15.857Z"
+            "executedAt": "2026-08-12T11:12:13.647Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -634,38 +632,37 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Residual src/dist elapsed-only restart scan passes while explicit subprocess contracts stay separate.",
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "4fcc5c3e61705978a2db4277176c496fe9ee69d367e8ac7b1b11c35b2abd01df",
             "outputTail": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:13:18.459Z"
+            "executedAt": "2026-08-12T11:12:16.859Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "timestamp": "2026-08-12T11:12:16.870Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
           "kind": "logic_test",
-          "verdict": "success",
           "command": "node packages/main/dist/tasks/provider-codex-smoke.js",
           "result": "pass",
-          "note": "Provider Codex timeout classification, fail-closed behavior, and bounded provider execution remain enforced.",
+          "note": "Re-run immutable provider Codex pin after deterministic timeout-only retry, five-attempt cap, early terminal stop, and guarded cross-host suite coverage were added.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "9e7c3fb932c3c3277fd74628ea399236fd341067c5c82bf191d1ef46149b791a",
-            "outputTail": "✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n(node:89003) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n",
+            "outputDigest": "118993faccc3318925690c1156a3919a575eb64961d787d90fa7d20741bed364",
+            "outputTail": "ecutor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n(node:19266) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .lattice-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n\n✓ cross_host_review smoke passed (24 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed\n(node:73206) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n",
             "selectorMatched": true,
-            "executedAt": "2026-08-12T10:13:19.494Z"
+            "executedAt": "2026-08-12T11:09:15.479Z"
           },
-          "headHash": "6cbd479ae41637a80492acc9e349e39d5b8c04d6",
-          "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-          "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-          "timestamp": "2026-08-12T10:13:19.643Z"
+          "headHash": "e5b3571c0c0625280d87ad6e0d1468e78abad38e",
+          "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+          "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
+          "timestamp": "2026-08-12T11:09:15.688Z"
         }
       ],
       "userSeesSnapshot": {
@@ -675,6 +672,48 @@
         "attestedAt": "2026-08-12T10:13:29.340Z",
         "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb"
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-12T10:24:24.051Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after REVIEW identified partial missing-lane duplicate guidance and incomplete mechanical coverage receipts.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-12T10:24:24.944Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after REVIEW identified partial missing-lane duplicate guidance and incomplete mechanical coverage receipts.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-12T11:12:24.961Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW remediation implemented and all immutable pinned verification commands re-executed mechanically.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-12T11:12:26.096Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW remediation implemented and all immutable pinned verification commands re-executed mechanically.",
+      "agent": "main-agent"
     }
   ]
 }
