@@ -549,6 +549,26 @@
       "resolvedAt": "2026-08-12T10:43:20.531Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-026",
+      "desc": "CHK-006 (\"Complete the rename under the past-evidence-only freeze criterion\") has verificationIntent=null and zero verificationEvidence entries in checklist.json, despite status=done. This story is NOT express channel (6 checklist items, priority=high, active riskSignals: Security/Credentials, State Machine/Gate, Validation Framework), so all three intent columns (happy/edge/adversarial) are required per the test-coverage review rules, not optional. CHK-006 is substantial, concrete work (plan.md CHK-006 section specifies a 6-point Verify list: npm test green, old-name compat proof via LATTICE_*/lattice.config.json/bin/lattice.js/@lattice/core fixture, pre-push hook still arms, fresh-init contains no bin/lattice.js, widened gate roots pass, 13 salt literals + 12 stored _hash values byte-unchanged) — none of that verification was ever captured as verificationIntent/verificationEvidence on CHK-006, and process-events.jsonl confirms no verification_evidence_add event was ever recorded for CHK-006 (only plan_updated/dispatch/subagent_result). A spot check also shows LATTICE_* still appears in 40 files under packages/main/src/core alone (1263 hits repo-wide) alongside newer PROOF_OR_STOP_* names, so it is not obviously safe to assume this item's read-both compatibility claim is verified without a recorded check. This is a coverage gap the test-coverage reviewer role exists to catch, distinct from the F-019 review-run fix which is otherwise sound.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-12T19:29:24.291Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-020",
+      "_hash": "d6591b8f7b1a1602eafc2bbd22961fd4957ec22b6518f39b90254899c3fde86b",
+      "files": [
+        "packages/main/src/core/init-assets.ts",
+        "packages/main/src/core/lattice-paths.ts",
+        ".lattice/story/actives/B-cdf6/checklist.json"
+      ],
+      "signatureTag": "missing|ts|complete-rename-past",
+      "signatureTagSource": "auto"
     }
   ]
 }
