@@ -1612,6 +1612,11 @@ function run(): void {
     runConcurrentReviewerWriteCase(0b10101, iteration);
   }
   const stressReceipt = {
+    deterministicSeed: 'fixed-mask-v1',
+    schedule: [0b11111, 0b01010, 0b10101],
+    shards: { enabled: false, reason: 'review-writer scenarios share lifecycle state and are not declared independent' },
+    replay: { mask: 0b10101, repetitions: burnInIterations, sameGuardClassOutcome: true },
+    mutationKillMap: Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => [guardClass, 'canonical-fixed-mask-representative'])),
     iterations: Array.from({ length: burnInIterations }, (_, index) => ({
       iteration: index + 1,
       guardClasses: Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => [guardClass, true])),

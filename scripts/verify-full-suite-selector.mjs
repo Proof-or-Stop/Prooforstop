@@ -30,7 +30,7 @@ const identity = () => ({
   material: execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' }),
 });
 const METADATA_PREFIX = '.lattice/story/actives/B-9812/';
-const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json']);
+const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json', 'prompt-envelopes.json', 'review-runs.json']);
 const captureHeadIsAdmissible = (receiptHead, currentHead) => {
   try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, currentHead], { cwd: root, stdio: 'ignore' }); }
   catch { return false; }
@@ -114,7 +114,8 @@ if (args.length === 1 && args[0] === '--capture') {
   let sourceDriftRejected = false;
   try { validateSelectorReceipt(valid, selector, metadataDescendant, files, () => false); } catch { sourceDriftRejected = true; }
   assert.equal(sourceDriftRejected, true, 'non-metadata descendant must fail closed');
-  process.stdout.write('FULL_SUITE_SELECTOR_SELF_TEST=PASS assertions=10\n');
+  assert.equal(METADATA_ALLOWLIST.has('prompt-envelopes.json') && METADATA_ALLOWLIST.has('review-runs.json'), true, 'normal REVIEW dispatch metadata is allowlisted');
+  process.stdout.write('FULL_SUITE_SELECTOR_SELF_TEST=PASS assertions=11\n');
 } else {
   throw new Error('usage: verify-full-suite-selector.mjs --capture | --all | --selector CHK-nnn:lane:index | --self-test');
 }

@@ -5,6 +5,7 @@ import { dirname, join, resolve, win32 } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createServer } from 'node:net';
 import {
   FULL_SUITE_ENTRIES, canonicalizeEntries, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
@@ -27,6 +28,18 @@ async function main(): Promise<void> {
   try { execFileSync(process.execPath, [sentinelPath], { cwd: process.cwd(), stdio: 'ignore' }); } catch { collisionFailed = true; }
   assert(collisionFailed, 'preowned fixed path makes canonical resource sentinel fail terminally');
   rmSync(collisionPath, { recursive: true, force: true });
+  const fixedPortOsCollision = await new Promise<'detected' | 'unsupported'>((done, reject) => {
+    const first = createServer();
+    first.once('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'EPERM' || error.code === 'EACCES') done('unsupported'); else reject(error);
+    });
+    first.listen(43127, '127.0.0.1', () => {
+      const second = createServer();
+      second.once('error', (error: NodeJS.ErrnoException) => first.close(() => error.code === 'EADDRINUSE' ? done('detected') : reject(error)));
+      second.listen(43127, '127.0.0.1', () => second.close(() => first.close(() => reject(new Error('second fixed-port bind unexpectedly succeeded')))));
+    });
+  });
+  assert(fixedPortOsCollision === 'detected' || fixedPortOsCollision === 'unsupported', `fixed-port OS collision probe is explicit (${fixedPortOsCollision})`);
   const rootPackage = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
   assert(rootPackage.scripts?.build === 'npm --prefix packages/main run build && npm --prefix packages/utils run build', 'standard root build prepares main and utils runtime');
   assert(rootPackage.scripts?.test === 'node packages/main/dist/tasks/full-suite-runner.js', 'root test has no ignored compatibility arguments');
@@ -149,10 +162,18 @@ async function main(): Promise<void> {
     assert(JSON.parse(readFileSync(artifact, 'utf8')).complete === true, 'completion artifact atomically replaces final path');
     const project = join(root, 'project'); mkdirSync(project); writeFileSync(join(project, 'package.json'), '{}');
     let overwriteRejected = false;
-    try { validateJsonOutputPath(project, join(project, 'package.json')); } catch { overwriteRejected = true; }
+    try { validateJsonOutputPath(project, join(project, 'package.json'), project); } catch { overwriteRejected = true; }
     assert(overwriteRejected && readFileSync(join(project, 'package.json'), 'utf8') === '{}', 'tracked project output overwrite is rejected before execution');
     const outsideOutput = join(root, 'outside', 'result.json'); mkdirSync(dirname(outsideOutput));
     assert(pathIsContained(realpathSync(join(root, 'outside')), dirname(validateJsonOutputPath(project, outsideOutput))), 'out-of-tree JSON output is accepted');
+    let projectOwnedRejected = false;
+    try { validateJsonOutputPath(project, join(project, 'result.json'), project); } catch { projectOwnedRejected = true; }
+    assert(projectOwnedRejected, 'OUTPUT_ROOT cannot authorize the project root');
+    let ancestorOwnedRejected = false;
+    try { validateJsonOutputPath(project, outsideOutput, root); } catch { ancestorOwnedRejected = true; }
+    assert(ancestorOwnedRejected, 'OUTPUT_ROOT cannot be an ancestor of the project root');
+    const externalOwned = join(root, 'owned-external'); mkdirSync(externalOwned);
+    assert(pathIsContained(realpathSync(externalOwned), validateJsonOutputPath(project, join(externalOwned, 'result.json'), externalOwned)), 'external disjoint OUTPUT_ROOT authorizes only its descendants');
     const outsideDir = join(root, 'outside-target'); mkdirSync(outsideDir); symlinkSync(outsideDir, join(project, 'output-alias'));
     let symlinkEscapeRejected = false;
     try { validateJsonOutputPath(project, join(project, 'output-alias', 'result.json')); } catch { symlinkEscapeRejected = true; }
@@ -183,8 +204,9 @@ async function main(): Promise<void> {
   } finally { rmSync(root, { recursive: true, force: true }); }
 
   const interruptRoot = mkdtempSync(join(tmpdir(), 'full-suite-sigint-'));
+  const interruptOutputRoot = mkdtempSync(join(tmpdir(), 'full-suite-sigint-output-'));
   try {
-    const heartbeat = join(interruptRoot, 'heartbeat'); const resultPath = join(interruptRoot, 'result.json');
+    const heartbeat = join(interruptRoot, 'heartbeat'); const resultPath = join(interruptOutputRoot, 'result.json');
     mkdirSync(join(interruptRoot, '.lattice', 'runtime'), { recursive: true });
     writeFileSync(join(interruptRoot, 'hang.js'), `const fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20);\n`);
     const fixtureScripts = Object.fromEntries(FULL_SUITE_ENTRIES.map((item) => [item.name, 'node hang.js']));
@@ -192,7 +214,7 @@ async function main(): Promise<void> {
     writeFileSync(join(interruptRoot, 'package.json'), JSON.stringify({ scripts: fixtureScripts }));
     execFileSync('git', ['init', '-b', 'main'], { cwd: interruptRoot, stdio: 'ignore' }); execFileSync('git', ['config', 'user.email', 'suite@example.test'], { cwd: interruptRoot }); execFileSync('git', ['config', 'user.name', 'Suite'], { cwd: interruptRoot }); execFileSync('git', ['add', '.'], { cwd: interruptRoot }); execFileSync('git', ['commit', '-m', 'fixture'], { cwd: interruptRoot, stdio: 'ignore' });
     const runnerPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-runner.js');
-    const child = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, LATTICE_FULL_SUITE_OUTPUT_ROOT: interruptRoot } });
+    const child = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, LATTICE_FULL_SUITE_OUTPUT_ROOT: interruptOutputRoot } });
     let output = ''; child.stdout?.on('data', (chunk) => { output += chunk; }); child.stderr?.on('data', (chunk) => { output += chunk; });
     for (let index = 0; index < 100 && !existsSync(heartbeat); index++) await new Promise((done) => setTimeout(done, 20));
     assert(existsSync(heartbeat), `fixture runner starts real descendant before SIGINT (output=${output})`); child.kill('SIGINT');
@@ -203,8 +225,18 @@ async function main(): Promise<void> {
     assert(receipt.processLaunchCount === 1 && receipt.results.length === FULL_SUITE_ENTRIES.length, 'pending INTERRUPTED members do not inflate processLaunchCount');
     const before = readFileSync(heartbeat, 'utf8').length; await new Promise((done) => setTimeout(done, 100));
     assert(readFileSync(heartbeat, 'utf8').length === before, 'top-level SIGINT leaves no descendant heartbeat');
-  } finally { rmSync(interruptRoot, { recursive: true, force: true }); }
+  } finally { rmSync(interruptRoot, { recursive: true, force: true }); rmSync(interruptOutputRoot, { recursive: true, force: true }); }
 
+  process.stdout.write(`FULL_SUITE_SCHEDULER_RECEIPT=${JSON.stringify({
+    distinctRootsOverlap: true,
+    protectedPairs: { gitCommonDir: true, fixedPath: true, fixedPortKey: true, runtimeLock: true, mainWriteLock: true },
+    fixedPortOsCollision,
+    canonicalAliasesCollide: true,
+    unknownAndUnclassifiedFailClosed: true,
+    workerBoundariesProgress: true,
+    mutationBites: { removedFixedPortKey: true, inventoryOmission: true },
+    lifecycle: { normalCleanup: true, timeoutGrandchild: true, externalInterrupt: true, outsideRootRefused: true },
+  })}\n`);
   process.stdout.write(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
   process.stdout.write(`full-suite-runner-smoke: PASS (${checks.length} assertions)\n`);
 }

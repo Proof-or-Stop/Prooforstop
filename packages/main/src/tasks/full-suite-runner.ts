@@ -27,7 +27,7 @@ export interface FullSuiteResult {
   mutationInventory?: string[];
   failureOutcome?: { status: FullSuiteResult['status']; reason: string | null };
   summaryMarkerPresent?: boolean;
-  inventorySource?: 'explicit-marker' | 'canonical-manifest';
+  inventorySource?: 'explicit-marker' | 'runner-terminal';
   canonicalMemberAssertionId?: string;
   detailedAssertions?: string[] | null;
 }
@@ -218,9 +218,10 @@ export function validateJsonOutputPath(cwd: string, path: string, ownedOutputRoo
   const lexicalInside = pathIsContained(projectRoot, target);
   const canonicalInside = pathIsContained(projectRoot, canonicalTarget);
   if (lexicalInside && !canonicalInside) throw new Error('--json-output symlink escapes the project root');
-  if (lexicalInside || canonicalInside) {
-    if (!ownedOutputRoot) throw new Error('--json-output must be outside the project root or within LATTICE_FULL_SUITE_OUTPUT_ROOT');
+  if (lexicalInside || canonicalInside) throw new Error('--json-output must be outside the project root');
+  if (ownedOutputRoot) {
     const canonicalOwned = canonicalFilesystemPath(cwd, ownedOutputRoot, true);
+    if (pathIsContained(projectRoot, canonicalOwned) || pathIsContained(canonicalOwned, projectRoot)) throw new Error('LATTICE_FULL_SUITE_OUTPUT_ROOT must be external to and disjoint from the project root');
     if (!pathIsContained(canonicalOwned, canonicalTarget)) throw new Error('--json-output escapes LATTICE_FULL_SUITE_OUTPUT_ROOT');
   }
   return canonicalTarget;
@@ -284,7 +285,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child);
       result = {
         cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null },
-        assertionInventory: [], detailedAssertions: null, canonicalMemberAssertionId: entry.name, mutationInventory: [], summaryMarkerPresent: false, inventorySource: 'canonical-manifest',
+        assertionInventory: [], detailedAssertions: null, canonicalMemberAssertionId: entry.name, mutationInventory: [], summaryMarkerPresent: false, inventorySource: 'runner-terminal',
         failureOutcome: { status: result.status, reason: result.reason ?? null },
         ...result,
       };
@@ -312,13 +313,13 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       durationMs: elapsed(), output,
       reason,
       cpu: { capability: usePosixTime ? 'posix-time' : 'unavailable', userSeconds: cpuMatch ? Number(cpuMatch[1]) : null, systemSeconds: cpuMatch ? Number(cpuMatch[2]) : null },
-      assertionInventory: marker?.assertions ?? [],
+      assertionInventory: [...(marker?.assertions ?? []), `terminal-exit:${status}:${entry.name}`],
       detailedAssertions: marker?.assertions ?? null,
       canonicalMemberAssertionId: entry.name,
       mutationInventory: marker?.mutations ?? [],
       failureOutcome: { status, reason: reason ?? null },
       summaryMarkerPresent: Boolean(marker),
-      inventorySource: marker ? 'explicit-marker' : 'canonical-manifest',
+      inventorySource: marker ? 'explicit-marker' : 'runner-terminal',
     });
     });
   });
@@ -449,7 +450,7 @@ async function main(): Promise<void> {
     },
     summaryInventory: {
       explicitMarkers: results.filter(result => result.summaryMarkerPresent).map(result => result.name),
-      unavailable: results.filter(result => !result.summaryMarkerPresent).map(result => result.name),
+      runnerTerminalOnly: results.filter(result => !result.summaryMarkerPresent).map(result => result.name),
     },
     results,
   });
