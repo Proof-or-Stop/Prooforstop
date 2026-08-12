@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn, execFileSync } from 'node:child_process';
-import { cpus, tmpdir } from 'node:os';
+import { tmpdir } from 'node:os';
 import { existsSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -169,6 +169,14 @@ export function isUnderFullSuiteBudget(durationMs: number): boolean {
   return Number.isFinite(durationMs) && durationMs >= 0 && durationMs < 300_000;
 }
 
+export function shouldEnforceFullSuiteBudget(jobs: number): boolean {
+  return jobs > 1;
+}
+
+export function fullSuiteBudgetBreached(durationMs: number, jobs: number): boolean {
+  return shouldEnforceFullSuiteBudget(jobs) && !isUnderFullSuiteBudget(durationMs);
+}
+
 export function writeResultArtifact(path: string, value: unknown): void {
   const target = resolve(path);
   const temporary = `${target}.tmp-${process.pid}`;
@@ -288,7 +296,7 @@ async function main(): Promise<void> {
   if (!serialReference) throw new Error('missing test:serial-reference membership authority');
   FULL_SUITE_ENTRIES = canonicalizeEntries(entriesFromSerialReference(serialReference, pkg.scripts), cwd);
   validateInventory(FULL_SUITE_ENTRIES, serialReference, pkg.scripts);
-  const jobs = args.jobs ?? Math.min(8, Math.max(2, cpus().length));
+  const jobs = args.jobs ?? 4;
   const startIdentity = readIdentity(cwd);
   const wallStartedAt = new Date().toISOString();
   const started = performance.now();
@@ -305,13 +313,15 @@ async function main(): Promise<void> {
   const failures = results.filter((result) => result.status !== 'PASS');
   for (const failure of failures) process.stderr.write(`\n--- ${failure.name} ${failure.status} ---\n${failure.output}\n`);
   const durationMs = performance.now() - started;
-  const budgetBreached = !isUnderFullSuiteBudget(durationMs);
+  const performanceBudgetApplied = shouldEnforceFullSuiteBudget(jobs);
+  const budgetBreached = fullSuiteBudgetBreached(durationMs, jobs);
   if (identityDrift) process.stderr.write('\nfull-suite identity drift: HEAD/material changed during execution\n');
   if (budgetBreached) process.stderr.write(`\nfull-suite performance budget exceeded: ${durationMs.toFixed(1)}ms >= 300000ms\n`);
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
   const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
   if (args.jsonOutput) writeResultArtifact(args.jsonOutput, {
-    schemaVersion: 'lattice.full_suite_result.v2', startIdentity, endIdentity, identityDrift, budgetBreached,
+    schemaVersion: 'lattice.full_suite_result.v2', startIdentity, endIdentity, identityDrift,
+    performanceBudgetMs: 300_000, performanceBudgetApplied, budgetBreached,
     headHash: startIdentity.headHash, materialHash: startIdentity.materialHash, startedAt: wallStartedAt, durationMs, jobs,
     maxWorkers: jobs, workerUtilization: results.reduce((sum, result) => sum + result.durationMs, 0) / Math.max(1, durationMs * jobs),
     processLaunchCount, retries: 0, passed: results.length - failures.length, total: results.length,

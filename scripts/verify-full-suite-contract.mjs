@@ -85,6 +85,7 @@ for (let index = 1; index <= 3; index++) {
   valid = receiptCheck(artifact.overallStatus === 'PASS' && artifact.total === 46 && artifact.passed === 46, `run${index} terminal totals invalid`) && valid;
   valid = receiptCheck(artifact.retries === 0 && artifact.jobs === 4 && artifact.processLaunchCount === 46, `run${index} launch/retry accounting invalid`) && valid;
   valid = receiptCheck(artifact.durationMs < 300_000 && artifact.workerUtilization > 0 && artifact.workerUtilization <= 1, `run${index} performance/utilization invalid`) && valid;
+  valid = receiptCheck(artifact.performanceBudgetMs === 300_000 && artifact.performanceBudgetApplied === true && artifact.budgetBreached === false, `run${index} performance budget telemetry invalid`) && valid;
   valid = receiptCheck(Boolean(artifact.criticalPath?.name && artifact.criticalPath.durationMs > 0), `run${index} critical path missing`) && valid;
   valid = receiptCheck(artifact.coverageInventory?.canonicalMembers?.length === 46 && artifact.coverageInventory?.assertionSuites?.length && artifact.coverageInventory?.mutationClasses?.length, `run${index} coverage inventory invalid`) && valid;
   valid = receiptCheck(artifact.results.every(result => result.status === 'PASS' && Array.isArray(result.declaredResources) && Array.isArray(result.acquiredResources) && result.lockWaitMs >= 0 && result.tempRoot), `run${index} member telemetry invalid`) && valid;
@@ -96,6 +97,7 @@ for (let index = 1; index <= 3; index++) {
 const serial = readJsonReceipt(`${serialPrefix}.json`);
 const serialValid = receiptCheck(serial && readTextReceipt(`${serialPrefix}.exit`).trim() === '0', 'serial exit invalid')
   && receiptCheck(serial.jobs === 1 && serial.total === 46 && serial.passed === 46 && serial.retries === 0, 'serial totals invalid')
+  && receiptCheck(serial.performanceBudgetMs === 300_000 && serial.performanceBudgetApplied === false && serial.budgetBreached === false, 'serial budget exemption is not explicit')
   && receiptCheck(serial.results.map(result => result.name).join('\n') === orderedNames, 'serial inventory differs')
   && receiptCheck(canonical(serial.coverageInventory) === canonical(parallel[0]?.coverageInventory), 'serial coverage inventory differs')
   && receiptCheck(canonical(serial.results.map(({ name, status }) => ({ name, status }))) === canonical(parallel[0]?.results.map(({ name, status }) => ({ name, status }))), 'serial outcomes differ');

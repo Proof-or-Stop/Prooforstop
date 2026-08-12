@@ -7,7 +7,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   FULL_SUITE_ENTRIES, canonicalizeEntries, entriesFromSerialReference, interruptForTest,
-  identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs,
+  fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   type FullSuiteEntry, type FullSuiteResult, type ResourceClaim,
 } from './full-suite-runner.js';
@@ -86,6 +86,9 @@ async function main(): Promise<void> {
     assert(rejected, `strict argument parser rejects ${args.join(' ')}`);
   }
   assert(isUnderFullSuiteBudget(299_999.999) && !isUnderFullSuiteBudget(300_000) && !isUnderFullSuiteBudget(300_001), 'performance boundary accepts below and rejects at or above 300000ms');
+  assert(!shouldEnforceFullSuiteBudget(1) && shouldEnforceFullSuiteBudget(4), 'serial oracle is exempt while canonical parallel execution enforces the performance budget');
+  assert(!fullSuiteBudgetBreached(299_999.999, 4) && fullSuiteBudgetBreached(300_000, 4) && fullSuiteBudgetBreached(300_001, 4), 'jobs4 performance predicate bites below, at, and above the exact boundary');
+  assert(!fullSuiteBudgetBreached(300_000, 1) && !fullSuiteBudgetBreached(900_000, 1), 'jobs1 serial oracle reports but does not enforce the parallel performance boundary');
   assert(!identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'm' }) && identityChanged({ headHash: 'h', materialHash: 'm' }, { headHash: 'h', materialHash: 'changed' }), 'start/end identity comparison fails on material drift');
 
   const terminal = await runScheduled([entry('first-fail'), entry('pass')], 2, async (item) => item.name === 'first-fail' ? { ...pass(item.name), status: 'FAIL' } : pass(item.name));
