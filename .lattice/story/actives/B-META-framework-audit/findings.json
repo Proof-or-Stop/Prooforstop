@@ -245,6 +245,23 @@
         "packages/main/src/core/codex-adapter-checks.ts"
       ],
       "_hash": "30d62f328d1bbdd18e4f22ebf109fa95329413786248c9495ef363923985b749"
+    },
+    {
+      "id": "B-META-framework-audit:F-014",
+      "desc": "The convergence breaker's pass-rate counter PUNISHES EFFECTIVE REVIEW. It tripped on B-cdf6 with 'pass-rate 2/12=17%<35%' where the 12 review runs and 2 passes are: concept 2 runs, quality 3, test-coverage 4, docs 3, with clean passes only from docs and concept. The low ratio is not a runaway signature - it is the direct arithmetic consequence of reviewers DOING THEIR JOB WELL. Across those runs they registered 19 findings including 1 critical and 7 high, every one of which was independently reproducible and 13 of which were genuinely fixed. Specifically: the critical F-006 (a verifier that reported GREEN for a suite that never ran, proven with a 2-line stub), F-016 (a persisted config key renamed with no read-both fallback, silently ignoring existing projects' values on merge), F-022 (an AST-fingerprint guard left red, meaning CLAUDE.md's 'lattice validate 全绿' bar was not actually met), and F-021 (an evidence row still claiming mechanical:true for a design that had been deleted). A lane that finds a real bug CANNOT record a pass - review_pass_set would be a false 'no blocker' claim - so each honest finding mathematically drives the pass-rate DOWN. The incentive is inverted: a story whose reviewers rubber-stamp everything sails through at 100%, while a story whose reviewers catch a critical defect gets hard-frozen. Compounding it, fixing findings changes material, which stales reviewer Prompt Envelopes and forces re-runs, which adds MORE runs to the denominator while the numerator can only grow after every finding in that lane is resolved.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T05:25:15.754Z",
+      "reviewRound": "",
+      "gapFingerprint": "29095a7ea1cc12a87223a2673ae4201164eaf0777ef80e8a855e7750617de593",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        ".lattice/story/actives/B-cdf6/breaker-state.json"
+      ],
+      "_hash": "fff78579b7c004acf207ced1e8347799a42f63fffea5f77510e970e83cbb767a"
     }
   ]
 }
