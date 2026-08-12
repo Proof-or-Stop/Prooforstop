@@ -322,6 +322,40 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "_hash": "e90afdb78698957beeb697e2031eda5e2a91309634a5ffe9608f77e45e7bea8f"
+    },
+    {
+      "id": "B-META-framework-audit:F-018",
+      "desc": "The local bootstrap reports a RESOURCE-EXHAUSTION failure as a MISSING-BUILD failure, sending the reader to a remedy that cannot help. Observed during B-cdf6: a full npm test run went red with 7 failure lines, and the top of each was 'proof-or-stop local bootstrap is not ready.' followed by 'Recovery: 1. npm --prefix packages/main run build / 2. npm --prefix packages/utils run build / 3. Retry the same command' - i.e. it tells you to build. The dist WAS built and the build was not the problem. The true cause appears only at the BOTTOM of the message: 'Original error: ENFILE: file table overflow, open .../packages/main/dist/handlers/frozen-claim-drift-check.js'. Statistical proof it was purely environmental: that run contained 32 ENFILE occurrences and ZERO AssertionError lines, and an immediate clean re-run on a quieter machine returned REAL_EXIT=0 with ENFILE 0 and AssertionError 0 against the identical tree. So the bootstrap treats 'cannot open the file' as 'the file is not there', which are different failures with different remedies. Note also a near-miss in diagnosis: another story's `npm test --jobs 4` was concurrently running and was the obvious culprit, but timestamps excluded it (that process started 21:54:17 while this failure occurred 21:53:04, 73s earlier) - so an operator following the loudest signal would have blamed the wrong thing twice over.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T14:27:18.595Z",
+      "reviewRound": "",
+      "gapFingerprint": "9eadf160977527dccd78fb009866845f38e4099eb8e9240564d681ca617843b5",
+      "files": [
+        "bin/bootstrap-runner.js"
+      ],
+      "_hash": "bd5e47e3d9f0269b0bafa7bb1afaec5826ea5fe004b98788148cf3e6e317b2a3"
+    },
+    {
+      "id": "B-META-framework-audit:F-019",
+      "desc": "Resolving a reviewer finding invalidates that reviewer's Prompt Envelope, which forces a re-run, whose new finding (if any) repeats the cycle - so an effective review round is self-perpetuating and the cost is unbounded in practice. Measured on B-cdf6: 18 review runs produced 6 passes. The gate rejects with 'finding <id> Prompt Envelope is invalid: eligibilityDigest, changedFilesDigest, impactedFilesDigest do not match authoritative recomputation' and, critically, it rejects on findings that are ALREADY RESOLVED (F-024 and F-025 were both status=resolved when they blocked). It also fails BEFORE the CLI preflight gates execute (0 gate lines in that run's output), so a story cannot even learn whether its remaining gates pass until every envelope is re-bound. The mechanism itself is correct and desirable - a verdict computed against pre-fix material must not vouch for post-fix material - but there is no convergence guarantee: fixing findings is exactly what changes material, and changed material is exactly what stales the verdicts, so the only way to converge is for a round to produce ZERO findings. On this story that took: round 1 four lanes / 19 findings, round 2 three lanes, round 3+ five further re-runs, each ~5-30 minutes of reviewer time plus (for the suite-witnessing lane) a 21-26 minute test run. This interacts badly with two other recorded defects: F-007/F-014 (the convergence breaker counts those honest re-runs as a runaway signature and hard-froze the story three times, each needing a human --ack) and F-010 (the unfreeze path is itself deadlocked and needs the lease-owner-identity workaround).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T15:02:42.454Z",
+      "reviewRound": "",
+      "gapFingerprint": "c5906760e9c2e61d19863bc0230613e6becdea5941cf2816babae93787dde565",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        ".lattice/story/actives/B-cdf6/review-runs.json"
+      ],
+      "_hash": "2f4c65bde105f19a393d75ed998f19eae032b4626b9275cf9d344d858ba8566a"
     }
   ]
 }
