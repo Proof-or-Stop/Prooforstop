@@ -28,9 +28,10 @@
     "packages/main/src/B-cdf6-flow.md",
     "packages/main/src/CODEX-FINDINGS.md"
   ],
+  "scopeChangeReason": "Re-attest the same frozen path scope with AST hunk kinds add/remove/modify; adding imports and replacing prompt lines are semantic add/remove hunks inside already-approved files, not a path-scope expansion.",
   "acknowledgements": [],
   "createdAt": "2026-08-12T09:48:06.149Z",
-  "updatedAt": "2026-08-12T09:48:06.149Z",
+  "updatedAt": "2026-08-12T10:15:20.441Z",
   "fileRules": [
     {
       "path": "packages/main/src/core/agent-liveness-policy.ts",
@@ -44,6 +45,8 @@
     {
       "path": "packages/main/src/handlers/story-dispatch.ts",
       "allowedChangeKinds": [
+        "add",
+        "remove",
         "modify"
       ],
       "intentRefs": [
@@ -53,6 +56,8 @@
     {
       "path": "packages/main/src/handlers/story-create.ts",
       "allowedChangeKinds": [
+        "add",
+        "remove",
         "modify"
       ],
       "intentRefs": [
@@ -62,6 +67,8 @@
     {
       "path": "packages/main/src/handlers/transition-effects.ts",
       "allowedChangeKinds": [
+        "add",
+        "remove",
         "modify"
       ],
       "intentRefs": [
@@ -71,6 +78,8 @@
     {
       "path": "packages/main/src/core/machine.ts",
       "allowedChangeKinds": [
+        "add",
+        "remove",
         "modify"
       ],
       "intentRefs": [
@@ -80,6 +89,8 @@
     {
       "path": "packages/main/src/tasks/*.ts",
       "allowedChangeKinds": [
+        "add",
+        "remove",
         "modify"
       ],
       "intentRefs": [
