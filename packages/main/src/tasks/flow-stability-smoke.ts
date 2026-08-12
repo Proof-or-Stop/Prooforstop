@@ -66,7 +66,7 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, isTerminalReviewerFindingStatus, signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
@@ -1418,6 +1418,177 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
     assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null);
   } finally {
     rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-cdf6 / B-META F-019 regression — the resolved-finding forgiveness
+// circularity. The supersede filter in collectReviewerEvidenceState used to
+// forgive a stale-bound TERMINAL finding only when its lane ALSO held
+// currently-valid evidence. Every remedy for staleness writes its own
+// `lattice: record ... metadata` commit, which advances HEAD and re-stales the
+// bindings it just established; when a whole lane goes stale in one sweep its
+// passes never enter `valid`, so the lane is missing from
+// agentsWithCurrentValidEvidence and the forgiveness for its already-resolved
+// findings could never fire. This pins the fix AND the three things that must
+// keep blocking.
+function assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-flow-f019-terminal-forgive-'));
+  try {
+    const { store, storyId, reviewRound } = createReviewStore(root);
+    const agents = [
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+    ];
+    const runIds = seedReviewRuns(root, store, storyId, reviewRound, agents);
+
+    // Stale the ENTIRE test-coverage lane with a SUPERSEDED_PASS_ISSUE_CODES-class
+    // binding issue, using the same mechanism as the adjacent supersede test: mint
+    // a NEWER signed run on the lane so every record still bound to the older run
+    // is non-latest (`stale_run`). Signatures stay valid throughout — this is a
+    // binding-freshness issue, exactly like the real B-cdf6 envelope-recomputation
+    // drift, not a forgery. (A materialHash mutation cannot be used here: the
+    // fixture root is not a git repo, so checkEvidenceFreshnessForGit
+    // short-circuits to fresh when git HEAD is unavailable.)
+    //
+    // Both the resolved finding AND the lane's pass stay bound to the OLD run, so
+    // the lane ends up with NO valid evidence — the precondition that used to
+    // withhold forgiveness.
+    const laneAgent = 'lattice-review-test-coverage';
+    const runsData = store.readReviewRuns(storyId);
+    const previousLaneRun = runsData.runs.find(run => run.lane === laneAgent);
+    assert.ok(previousLaneRun, 'test-coverage run fixture should exist');
+    const newerLaneRunId = `${storyId}:RR-090`;
+    const newerStartedAt = '2026-04-27T11:59:00.000Z';
+    runsData.runs.push({
+      ...previousLaneRun,
+      reviewRunId: newerLaneRunId,
+      startedAt: newerStartedAt,
+      _hash: signReviewRun(
+        storyId,
+        newerLaneRunId,
+        previousLaneRun.agent,
+        previousLaneRun.lane,
+        reviewRound,
+        newerStartedAt,
+        previousLaneRun.headHash,
+        previousLaneRun.materialHash,
+        previousLaneRun.promptHash,
+      ),
+    });
+    store.writeReviewRuns(storyId, runsData);
+
+    const laneRunId = runIds.get(laneAgent)!;
+    const resolvedFinding: Finding = {
+      ...makeFinding(storyId, laneAgent, reviewRound, '120', laneRunId),
+      status: 'resolved',
+      resolvedReason: 'defect fixed; the recorded defect no longer exists',
+      resolvedAt: '2026-04-27T12:30:00.000Z',
+    };
+    const openFinding: Finding = {
+      ...makeFinding(storyId, laneAgent, reviewRound, '121', laneRunId),
+      status: 'open',
+    };
+    // The lane's pass carries a SUPERSEDED_PASS_ISSUE_CODES-class defect too
+    // (`prompt_envelope_mismatch`: an envelopeId that is not its run's signed
+    // binding) — the same code class as the real B-cdf6 failure. A non-latest-run
+    // pass alone would NOT do: that rejection is deliberately relaxed for passes
+    // (review-run-binding-race friction #2), so this uses a cause that genuinely
+    // invalidates a pass, proving forgiveness is not extended to passes.
+    const lanePass = {
+      ...makeReviewPass(storyId, laneAgent, reviewRound, '122', laneRunId),
+      envelopeId: 'envelope-that-is-not-the-signed-run-binding',
+    };
+
+    // 1. RESOLVED finding on a fully stale lane (NO valid evidence for that lane).
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '123', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '124', runIds.get('lattice-review-quality')!),
+        resolvedFinding,
+      ],
+    });
+    store.writeReviewPasses(storyId, { passes: [lanePass] });
+
+    const forgivenState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      forgivenState.valid.some(record => record.agent === laneAgent),
+      false,
+      'F-019 precondition: the whole test-coverage lane must have NO valid evidence (this is what used to withhold forgiveness)',
+    );
+    assert.equal(
+      forgivenState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === resolvedFinding.id),
+      false,
+      'F-019: a RESOLVED finding with a stale binding must be forgiven even when its lane holds no currently-valid evidence',
+    );
+
+    // 2. A PASS with the same stale binding must STILL block — a pass is an
+    // affirmative claim about current material, so it must be re-earned.
+    assert.equal(
+      forgivenState.invalid.some(issue => issue.kind === 'pass' && issue.evidenceId === lanePass.id),
+      true,
+      'F-019 must NOT extend forgiveness to a stale-bound review pass',
+    );
+
+    // 3. An OPEN finding with the same stale binding must STILL block — that is
+    // the case where staleness could genuinely mislead.
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '125', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '126', runIds.get('lattice-review-quality')!),
+        resolvedFinding,
+        openFinding,
+      ],
+    });
+    const openState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      openState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === openFinding.id),
+      true,
+      'F-019 must NOT forgive an OPEN finding with a stale binding',
+    );
+    assert.equal(
+      openState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === resolvedFinding.id),
+      false,
+      'F-019: the resolved finding stays forgiven alongside a blocking open finding',
+    );
+    assert.ok(
+      getGuardFailureReason(storyId, store, 'TEST', root),
+      'F-019: the REVIEW gate must still fail closed while the stale open finding / pass are unresolved',
+    );
+
+    // 4. Handler 编码约定 — a payload that bypasses Zod must still be rejected.
+    // A finding carrying a non-canonical / injected "terminal-looking" status
+    // must NOT earn forgiveness; only the explicit allowlist counts.
+    for (const bypassStatus of ['RESOLVED', 'resolved ', 'closed', 'fixed', 'suspected', 'disproven', '', undefined]) {
+      assert.equal(
+        isTerminalReviewerFindingStatus(bypassStatus),
+        false,
+        `F-019 allowlist must reject non-canonical status ${JSON.stringify(bypassStatus)}`,
+      );
+    }
+    assert.equal(isTerminalReviewerFindingStatus('resolved'), true, 'resolved must be terminal');
+    assert.equal(isTerminalReviewerFindingStatus('dismissed'), true, 'dismissed must be terminal');
+
+    const injectedFinding = {
+      ...makeFinding(storyId, laneAgent, reviewRound, '127', laneRunId),
+      status: 'closed' as unknown as Finding['status'],
+    } as Finding;
+    store.writeFindings(storyId, {
+      findings: [
+        makeFinding(storyId, 'lattice-review-concept', reviewRound, '128', runIds.get('lattice-review-concept')!),
+        makeFinding(storyId, 'lattice-review-quality', reviewRound, '129', runIds.get('lattice-review-quality')!),
+        injectedFinding,
+      ],
+    });
+    const injectedState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      injectedState.invalid.some(issue => issue.kind === 'finding' && issue.evidenceId === injectedFinding.id),
+      true,
+      'F-019: a bypassing finding with an injected non-allowlisted status must still be rejected',
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+    resetConfigCache();
   }
 }
 
@@ -4943,6 +5114,7 @@ assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift();
 assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness();
 assertReviewPreflightSurfacesStoryFilesHashAdvisories();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
+assertResolvedFindingStaleBindingIsForgivenWithoutValidLaneEvidence();
 assertReviewRunBindingRaceAcceptsNonLatestFreshPass();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 assertNonReviewerFindingsDoNotCountAsReviewerEvidence();
