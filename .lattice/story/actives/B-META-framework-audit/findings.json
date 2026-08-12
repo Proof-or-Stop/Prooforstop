@@ -262,6 +262,26 @@
         ".lattice/story/actives/B-cdf6/breaker-state.json"
       ],
       "_hash": "fff78579b7c004acf207ced1e8347799a42f63fffea5f77510e970e83cbb767a"
+    },
+    {
+      "id": "B-META-framework-audit:F-015",
+      "desc": "The same AST fingerprint literal is mirrored in THREE independent places with no single source of truth, so repinning it correctly in two of them still breaks the build - and the breakage surfaces far from the edit. Locations: (1) packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (the BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS map, the functional consumer); (2) scripts/verify-process-fact-contract.mjs:1883-1889 (a closeout-trust boundary list); (3) scripts/verify-process-fact-contract.mjs:1985-1986 (a separate reconstruction-completeness TOKEN LIST that asserts the hash STRINGS still appear verbatim inside file (1)). Measured on B-cdf6: fixing a legitimate fingerprint drift (F-022) updated (1) and (2) but not (3), which then failed with 'retired vocabulary guard must enforce narrow compatibility usage: 1ec6b25b...' - and because package.json chains test:process-fact-contract with &&, npm test went RED. Nothing in the F-022 edit site hints that a third copy exists; location (3) is a flat list of opaque token strings with no filename adjacency, so it is invisible to a reader editing the map in (1) and invisible to a grep for the surrounding identifier. Worse, the failure is semantically MISLEADING: the message says the guard 'must enforce narrow compatibility usage', which reads as a policy violation in the guard, when the actual cause is a stale expectation in a mirror. The CHK-002 implementer had already been bitten by the (1)/(2) pair and documented it; (3) was still missed, which is evidence that documentation alone does not fix a three-way mirror.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-12T05:57:55.750Z",
+      "reviewRound": "",
+      "gapFingerprint": "d9618eb64282fb8f5c0f8ed04602f9e6ddfe4b8981ecd8652b31acf5c7404ff8",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs:1985",
+        "scripts/verify-process-fact-contract.mjs:1883",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:1439",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "_hash": "ae4b2d9be5f3daa4aa63073ef083caabe63e1926b4014131d15ffa5478b119c4"
     }
   ]
 }

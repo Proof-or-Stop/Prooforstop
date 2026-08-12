@@ -52,7 +52,18 @@ const MIN_STAGE_LINES = 20;
 
 if (res.status !== 0) {
   console.log(`DONE-SUITE RED: npm test exit=${res.status}`);
-  for (const l of failureLines.slice(0, 5)) console.log(`  ${l.trim()}`);
+  // Surface WHY it is red. A bare exit code is useless to the next reader: npm chains
+  // ~47 steps with `&&`, so the failing step must be named. failureLines only catches
+  // AssertionError / `Error:` / `FAIL n>0`, and several verifiers fail with none of those
+  // (e.g. 'Process fact contract failed:' followed by bullet lines), so fall back to the
+  // tail of combined output when no failure line matched.
+  if (failureLines.length > 0) {
+    for (const l of failureLines.slice(0, 8)) console.log(`  ${l.trim()}`);
+  } else {
+    const tail = combined.trimEnd().split('\n').slice(-15);
+    console.log('  (no AssertionError/Error:/FAIL line matched; last 15 lines of output)');
+    for (const l of tail) console.log(`  ${l}`);
+  }
   process.exit(1);
 }
 if (failureLines.length > 0) {
