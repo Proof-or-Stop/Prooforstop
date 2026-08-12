@@ -441,6 +441,7 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     rmSync(root, { recursive: true, force: true });
   }
 
+  process.stdout.write(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: [`acceptance-rollout:${assertions}`], mutations: ['reviewer-host-removal', 'quorum-forgery', 'review-round-forgery', 'transcript-removal', 'waiver-forgery', 'restoration-tamper'] })}\n`);
   process.stdout.write(`ProofStory acceptance rollout smoke: PASS (${assertions} assertions)\n`);
 }
 

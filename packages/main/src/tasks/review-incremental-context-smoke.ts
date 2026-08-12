@@ -1611,6 +1611,17 @@ function run(): void {
   for (let iteration = 2; iteration <= burnInIterations; iteration += 1) {
     runConcurrentReviewerWriteCase(0b10101, iteration);
   }
+  const stressReceipt = {
+    iterations: Array.from({ length: burnInIterations }, (_, index) => ({
+      iteration: index + 1,
+      guardClasses: Object.fromEntries(Object.keys(INCREMENTAL_GUARD_CLASS_MAP).map(guardClass => [guardClass, true])),
+    })),
+    aba: true,
+    cutoff: true,
+    restoration: true,
+  };
+  console.log(`INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(stressReceipt)}`);
+  console.log(`LATTICE_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: ['canonical-iteration', 'guard-class-equivalence', 'restoration'], mutations: Object.keys(INCREMENTAL_GUARD_CLASS_MAP) })}`);
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 

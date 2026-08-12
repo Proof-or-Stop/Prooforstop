@@ -3,7 +3,7 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { existsSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, win32 } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
@@ -22,6 +22,14 @@ export interface FullSuiteResult {
   acquiredResources?: string[];
   lockWaitMs?: number;
   tempRoot?: string;
+  cpu?: { capability: 'posix-time' | 'unavailable'; userSeconds: number | null; systemSeconds: number | null };
+  assertionInventory?: string[];
+  mutationInventory?: string[];
+  failureOutcome?: { status: FullSuiteResult['status']; reason: string | null };
+  summaryMarkerPresent?: boolean;
+  inventorySource?: 'explicit-marker' | 'canonical-manifest';
+  canonicalMemberAssertionId?: string;
+  detailedAssertions?: string[] | null;
 }
 export interface RunScheduledOptions { onSpawn?: () => void }
 
@@ -42,8 +50,14 @@ const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
 // comes only from test:serial-reference; a later reference member without a policy
 // fails closed before execution.
 const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
-  isolated('test:full-suite-runner-smoke'),
-  repoRead('test:main-write-lock-coverage', {}, [{ class: 'main-write-lock', key: '.lattice/runtime/main-write.lock', access: 'shared' }]),
+  repoRead('test:full-suite-runner-smoke'),
+  repoRead('test:full-suite-resource-sentinel', {}, [
+    { class: 'fixed-port', key: '43127', access: 'exclusive' },
+    { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive' },
+    { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive' },
+    { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive' },
+  ]),
+  repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
   repoRead('test:lattice-residue'), repoRead('test:proof-or-stop-prompt-baseline'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
@@ -117,6 +131,11 @@ function validateResourceClaims(claims: ResourceClaim[], owner: string): void {
   }
 }
 
+export function pathIsContained(ownershipRoot: string, candidate: string, pathApi: Pick<typeof import('node:path'), 'relative' | 'isAbsolute'> = { relative, isAbsolute }): boolean {
+  const rel = pathApi.relative(ownershipRoot, candidate);
+  return rel === '' || (!rel.startsWith('..') && !pathApi.isAbsolute(rel));
+}
+
 function canonicalFilesystemPath(cwd: string, key: string, allowOutsideOwnershipRoot = false): string {
   const absolute = resolve(cwd, key);
   let canonical: string;
@@ -131,7 +150,7 @@ function canonicalFilesystemPath(cwd: string, key: string, allowOutsideOwnership
     canonical = join(realpathSync(ancestor), relative(ancestor, absolute));
   }
   const ownershipRoot = realpathSync(cwd);
-  if (!allowOutsideOwnershipRoot && canonical !== ownershipRoot && !canonical.startsWith(`${ownershipRoot}/`)) {
+  if (!allowOutsideOwnershipRoot && !pathIsContained(ownershipRoot, canonical)) {
     throw new Error(`resource path escapes ownership root: ${key}`);
   }
   return canonical;
@@ -189,6 +208,23 @@ export function fullSuiteBudgetBreached(durationMs: number, jobs: number): boole
   return shouldEnforceFullSuiteBudget(jobs) && !isUnderFullSuiteBudget(durationMs);
 }
 
+export function validateJsonOutputPath(cwd: string, path: string, ownedOutputRoot?: string): string {
+  const projectRoot = realpathSync(cwd);
+  const unresolved = resolve(cwd, path);
+  const lexicalRelative = relative(resolve(cwd), unresolved);
+  const target = resolve(projectRoot, lexicalRelative);
+  const canonicalTarget = canonicalFilesystemPath(dirname(target), target, true);
+  const lexicalInside = pathIsContained(projectRoot, target);
+  const canonicalInside = pathIsContained(projectRoot, canonicalTarget);
+  if (lexicalInside && !canonicalInside) throw new Error('--json-output symlink escapes the project root');
+  if (lexicalInside || canonicalInside) {
+    if (!ownedOutputRoot) throw new Error('--json-output must be outside the project root or within LATTICE_FULL_SUITE_OUTPUT_ROOT');
+    const canonicalOwned = canonicalFilesystemPath(cwd, ownedOutputRoot, true);
+    if (!pathIsContained(canonicalOwned, canonicalTarget)) throw new Error('--json-output escapes LATTICE_FULL_SUITE_OUTPUT_ROOT');
+  }
+  return canonicalTarget;
+}
+
 export function writeResultArtifact(path: string, value: unknown): void {
   const target = resolve(path);
   const temporary = `${target}.tmp-${process.pid}`;
@@ -197,16 +233,22 @@ export function writeResultArtifact(path: string, value: unknown): void {
 }
 
 type Kill = (pid: number, signal: NodeJS.Signals) => void;
-export function killProcessTree(pid: number | undefined, kill: Kill = process.kill): void {
+type Taskkill = (pid: number) => void;
+export function killProcessTree(pid: number | undefined, kill: Kill = process.kill, platform = process.platform, taskkill: Taskkill = (target) => { execFileSync('taskkill', ['/PID', String(target), '/T', '/F'], { stdio: 'ignore' }); }): void {
   if (!pid) return;
+  if (platform === 'win32') {
+    try { taskkill(pid); return; }
+    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ESRCH') throw new Error(`failed to terminate Windows process tree ${pid}: ${(error as Error).message}`); return; }
+  }
   try { kill(-pid, 'SIGKILL'); return; }
   catch (groupError) {
-    if ((groupError as NodeJS.ErrnoException).code === 'ESRCH') return;
     try { kill(pid, 'SIGKILL'); } catch (directError) {
       if ((directError as NodeJS.ErrnoException).code !== 'ESRCH') {
         throw new AggregateError([groupError, directError], `failed to terminate process tree ${pid}`);
       }
+      if ((groupError as NodeJS.ErrnoException).code === 'ESRCH') return;
     }
+    if ((groupError as NodeJS.ErrnoException).code === 'ESRCH') return;
     throw new Error(`failed to terminate process group ${pid}: ${(groupError as Error).message}`);
   }
 }
@@ -224,9 +266,13 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'lattice-full-suite-member-'));
   return await new Promise((finish) => {
-    const child = spawn(npmCommand, ['run', entry.name], {
+    const usePosixTime = process.platform !== 'win32' && existsSync('/usr/bin/time') && npmCommand === 'npm';
+    const command = usePosixTime ? '/usr/bin/time' : npmCommand;
+    const timingPath = join(tempRoot, 'cpu.time');
+    const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
+    const child = spawn(command, commandArgs, {
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot },
+      env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
     onSpawn?.(); activeChildren.add(child);
     let output = '';
@@ -235,6 +281,12 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     let settled = false;
     const done = (result: FullSuiteResult) => {
       if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child);
+      result = {
+        cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null },
+        assertionInventory: [], detailedAssertions: null, canonicalMemberAssertionId: entry.name, mutationInventory: [], summaryMarkerPresent: false, inventorySource: 'canonical-manifest',
+        failureOutcome: { status: result.status, reason: result.reason ?? null },
+        ...result,
+      };
       try { rmSync(tempRoot, { recursive: true }); }
       catch (error) { result = { ...result, status: 'FAIL', reason: `owned temp cleanup failed: ${(error as Error).message}` }; }
       finish({ ...result, tempRoot });
@@ -245,12 +297,29 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       catch (error) { done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: `timeout cleanup failed: ${(error as Error).message}` }); }
     }, entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
     child.on('error', (error) => done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: error.message }));
-    child.on('exit', (code, signal) => done({
+    child.on('exit', (code, signal) => {
+      const timing = usePosixTime && existsSync(timingPath) ? readFileSync(timingPath, 'utf8') : '';
+      const cpuMatch = timing.match(/^real\s+[0-9.]+\s*\nuser\s+([0-9.]+)\s*\nsys\s+([0-9.]+)\s*$/);
+      const markerLine = output.split(/\r?\n/).find(line => line.startsWith('LATTICE_FULL_SUITE_SUMMARY='));
+      let marker: { assertions?: string[]; mutations?: string[] } | undefined;
+      try { marker = markerLine ? JSON.parse(markerLine.slice('LATTICE_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
+      const status = interruptError ? 'FAIL' : interruptSignal ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
+      const reason = interruptError ? `interrupt cleanup failed: ${interruptError.message}` : interruptSignal ? `runner received ${interruptSignal}` : code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`;
+      done({
       name: entry.name,
-      status: interruptError ? 'FAIL' : interruptSignal ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL',
+      status,
       durationMs: elapsed(), output,
-      reason: interruptError ? `interrupt cleanup failed: ${interruptError.message}` : interruptSignal ? `runner received ${interruptSignal}` : code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`,
-    }));
+      reason,
+      cpu: { capability: usePosixTime ? 'posix-time' : 'unavailable', userSeconds: cpuMatch ? Number(cpuMatch[1]) : null, systemSeconds: cpuMatch ? Number(cpuMatch[2]) : null },
+      assertionInventory: marker?.assertions ?? [],
+      detailedAssertions: marker?.assertions ?? null,
+      canonicalMemberAssertionId: entry.name,
+      mutationInventory: marker?.mutations ?? [],
+      failureOutcome: { status, reason: reason ?? null },
+      summaryMarkerPresent: Boolean(marker),
+      inventorySource: marker ? 'explicit-marker' : 'canonical-manifest',
+    });
+    });
   });
 }
 
@@ -265,21 +334,26 @@ function claimsConflict(left: FullSuiteEntry, right: FullSuiteEntry): boolean {
 export async function runScheduled(entries: FullSuiteEntry[], jobs: number, execute: (entry: FullSuiteEntry) => Promise<FullSuiteResult>): Promise<FullSuiteResult[]> {
   if (!Number.isInteger(jobs) || jobs < 1 || jobs > MAX_JOBS) throw new Error(`jobs must be an integer between 1 and ${MAX_JOBS}`);
   for (const entry of entries) for (const claim of entry.resources) if (!claim.canonicalKey) throw new Error(`uncanonicalized resource for ${entry.name}`);
-  const queuedAt = performance.now();
   const pending = entries.map((entry, index) => ({ entry, index })).sort((a, b) => (b.entry.priority ?? 0) - (a.entry.priority ?? 0) || a.index - b.index).map(({ entry }) => entry);
   const running = new Map<Promise<void>, FullSuiteEntry>();
+  const resourceBlockedAt = new Map<string, number>();
   const results: FullSuiteResult[] = [];
   const compatible = (entry: FullSuiteEntry) => [...running.values()].every((other) => !claimsConflict(entry, other));
   const launch = (entry: FullSuiteEntry) => {
-    const lockWaitMs = performance.now() - queuedAt;
+    const blockedAt = resourceBlockedAt.get(entry.name);
+    const lockWaitMs = blockedAt === undefined ? 0 : performance.now() - blockedAt;
     let task!: Promise<void>;
-    task = execute(entry).then((result) => { results.push({ ...result, declaredResources: entry.resources, acquiredResources: entry.resources.map((claim) => claim.canonicalKey!), lockWaitMs }); }).finally(() => { running.delete(task); });
+    task = execute(entry).then((result) => {
+      if (!result || result.name !== entry.name || !['PASS', 'FAIL', 'TIMEOUT', 'INTERRUPTED'].includes(result.status)) throw new Error(`missing or invalid terminal result for ${entry.name}`);
+      results.push({ ...result, declaredResources: entry.resources, acquiredResources: entry.resources.map((claim) => claim.canonicalKey!), lockWaitMs });
+    }).finally(() => { running.delete(task); });
     running.set(task, entry);
   };
   while (pending.length || running.size) {
-    if (interruptSignal && pending.length) for (const entry of pending.splice(0)) results.push({ name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason: `runner received ${interruptSignal}`, declaredResources: entry.resources, acquiredResources: [], lockWaitMs: performance.now() - queuedAt });
+    if (interruptSignal && pending.length) for (const entry of pending.splice(0)) results.push({ name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason: `runner received ${interruptSignal}`, declaredResources: entry.resources, acquiredResources: [], lockWaitMs: 0, cpu: { capability: 'unavailable', userSeconds: null, systemSeconds: null }, assertionInventory: [], mutationInventory: [], failureOutcome: { status: 'INTERRUPTED', reason: `runner received ${interruptSignal}` } });
     let launched = false;
     while (running.size < jobs) {
+      for (const candidate of pending) if (!compatible(candidate) && !resourceBlockedAt.has(candidate.name)) resourceBlockedAt.set(candidate.name, performance.now());
       const index = pending.findIndex(compatible); if (index < 0) break;
       launch(pending.splice(index, 1)[0]!); launched = true;
     }
@@ -310,6 +384,7 @@ async function main(): Promise<void> {
   validateInventory(FULL_SUITE_ENTRIES, serialReference, pkg.scripts);
   const jobs = args.jobs ?? 4;
   const startIdentity = readIdentity(cwd);
+  const jsonOutput = args.jsonOutput ? validateJsonOutputPath(cwd, args.jsonOutput, process.env.LATTICE_FULL_SUITE_OUTPUT_ROOT) : undefined;
   const wallStartedAt = new Date().toISOString();
   const started = performance.now();
   let processLaunchCount = 0;
@@ -331,7 +406,7 @@ async function main(): Promise<void> {
   if (budgetBreached) process.stderr.write(`\nfull-suite performance budget exceeded: ${durationMs.toFixed(1)}ms >= 300000ms\n`);
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
   const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
-  if (args.jsonOutput) writeResultArtifact(args.jsonOutput, {
+  if (jsonOutput) writeResultArtifact(jsonOutput, {
     schemaVersion: 'lattice.full_suite_result.v2', startIdentity, endIdentity, identityDrift,
     performanceBudgetMs: 300_000, performanceBudgetApplied, budgetBreached,
     headHash: startIdentity.headHash, materialHash: startIdentity.materialHash, startedAt: wallStartedAt, durationMs, jobs,
@@ -345,8 +420,29 @@ async function main(): Promise<void> {
       mutationClasses: ['inventory-omission', 'resource-key-collision', 'descendant-cleanup', 'identity-drift', 'incremental-guard-class'],
       assertionSuites: ['test:full-suite-runner-smoke', 'test:review-incremental-context-smoke', 'test:proofstory-acceptance-rollout'],
     },
+    baselineComparison: {
+      historicalSerialMs: 1_688_918,
+      currentMs: durationMs,
+      speedup: 1_688_918 / Math.max(1, durationMs),
+      inventoryCount: results.length,
+    },
+    cpuInventory: {
+      capability: process.platform === 'win32' ? 'unavailable' : 'posix-time',
+      membersMeasured: results.filter(result => result.cpu?.userSeconds !== null).length,
+      userSeconds: results.reduce((sum, result) => sum + (result.cpu?.userSeconds ?? 0), 0),
+      systemSeconds: results.reduce((sum, result) => sum + (result.cpu?.systemSeconds ?? 0), 0),
+    },
+    summaryInventory: {
+      explicitMarkers: results.filter(result => result.summaryMarkerPresent).map(result => result.name),
+      unavailable: results.filter(result => !result.summaryMarkerPresent).map(result => result.name),
+    },
     results,
   });
+  const postWriteIdentity = readIdentity(cwd);
+  if (identityChanged(endIdentity, postWriteIdentity)) {
+    process.stderr.write('\nfull-suite identity drift: output write changed HEAD/material\n');
+    process.exitCode = 1;
+  }
   if (interruptSignal) process.exitCode = interruptSignal === 'SIGINT' ? 130 : 143;
   else if (failures.length || interruptError || identityDrift || budgetBreached) process.exitCode = 1;
 }

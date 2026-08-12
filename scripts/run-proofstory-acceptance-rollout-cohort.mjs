@@ -67,7 +67,46 @@ export function semanticCohortRecords(sourceRecords) {
       controlRestored: result.controlRestored,
     })),
     controlRestored: record.observationReceipt.controlRestored ?? Boolean(record.observationReceipt.restorationCommitSha),
+    reviewerFacts: {
+      hostVerdicts: (record.observationReceipt.hostVerdicts ?? []).map(verdict => ({
+        hostId: verdict.hostId, provider: verdict.provider, runId: verdict.runId, decision: verdict.decision,
+      })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))),
+      quorum: record.observationReceipt.quorumReceipt ? {
+        rounds: record.observationReceipt.quorumReceipt.rounds,
+        emittedCount: record.observationReceipt.quorumReceipt.emittedCount,
+        runIds: record.observationReceipt.quorumReceipt.runIds ?? [],
+        reviewerPasses: (record.observationReceipt.quorumReceipt.reviewerPasses ?? []).map(pass => ({ lane: pass.lane, passId: pass.passId, reviewRunId: pass.reviewRunId })),
+      } : null,
+      reviewRoundIds: record.observationReceipt.reviewRoundIds ?? [],
+      reviewRoundCount: (record.observationReceipt.reviewRoundIds ?? []).length,
+      transcriptRefs: record.observationReceipt.transcriptRefs ?? [],
+      waiverRefs: record.observationReceipt.waiverRefs ?? [],
+      topologyAuthority: record.observationReceipt.gateArtifacts?.[0]?.report?.authority ?? null,
+      preReviewAuthority: record.observationReceipt.gateArtifacts?.[1]?.report?.authority ?? null,
+      preReviewTranscript: record.observationReceipt.gateArtifacts?.[1]?.report?.transcript ?? null,
+    },
   })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+}
+
+export function semanticCohortDigest(sourceRecords) {
+  return sha256(canonicalJson(semanticCohortRecords(sourceRecords)));
+}
+
+export function assertSemanticDigestBitesReviewerFacts(cohort) {
+  const original = semanticCohortDigest(cohort.sourceRecords);
+  const trials = [
+    ['host-3x1', copy => { copy.sourceRecords[0].observationReceipt.hostVerdicts = copy.sourceRecords[0].observationReceipt.hostVerdicts.filter(v => v.provider !== 'codex'); }],
+    ['quorum', copy => { copy.sourceRecords[0].observationReceipt.quorumReceipt.rounds = 2; }],
+    ['reviewer-round', copy => { copy.sourceRecords[0].observationReceipt.quorumReceipt.reviewerPasses[0].reviewRunId = 'forged'; }],
+    ['transcript', copy => { copy.sourceRecords[0].observationReceipt.transcriptRefs = []; }],
+    ['waiver', copy => { copy.sourceRecords[0].observationReceipt.waiverRefs = ['forged-waiver']; }],
+    ['authority', copy => { copy.sourceRecords[0].observationReceipt.gateArtifacts[1].report.authority = 'diagnostic_only'; }],
+  ];
+  for (const [label, mutate] of trials) {
+    const copy = structuredClone(cohort); mutate(copy);
+    if (semanticCohortDigest(copy.sourceRecords) === original) throw new Error(`semantic digest failed to bite ${label}`);
+  }
+  return trials.map(([label]) => label);
 }
 
 function writeJson(path, value) {
@@ -237,7 +276,7 @@ async function runProofStoryAcceptanceRolloutCohortAsync() {
       registeredSeedIds,
       sourceRecords,
       sourceInventoryDigest: sha256(canonicalJson(sourceRecords)),
-      semanticInventoryDigest: sha256(canonicalJson(semanticCohortRecords(sourceRecords))),
+      semanticInventoryDigest: semanticCohortDigest(sourceRecords),
       cohortJobs: productionCaseLimit,
       runnerPath: RUNNER_RELATIVE_PATH,
       runnerDigest: sha256(readFileSync(runnerPath)),
@@ -249,6 +288,14 @@ async function runProofStoryAcceptanceRolloutCohortAsync() {
 
 if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   const args = process.argv.slice(2);
+  const selfTestArg = args.find(arg => arg.startsWith('--semantic-self-test='));
+  if (selfTestArg) {
+    if (args.length !== 1) throw new Error(`unknown or duplicate argument: ${args.join(' ')}`);
+    const cohort = JSON.parse(readFileSync(resolve(selfTestArg.slice('--semantic-self-test='.length)), 'utf8'));
+    const mutations = assertSemanticDigestBitesReviewerFacts(cohort);
+    process.stdout.write(`COHORT_SEMANTIC_MUTATIONS=PASS ${mutations.join(',')}\n`);
+    process.exit(0);
+  }
   if (args.some(arg => !arg.startsWith('--out=')) || args.filter(arg => arg.startsWith('--out=')).length > 1) throw new Error(`unknown or duplicate argument: ${args.join(' ')}`);
   const outArgPath = args.find(arg => arg.startsWith('--out='))?.slice('--out='.length);
   if (args.length && !outArgPath) throw new Error('--out requires a path');

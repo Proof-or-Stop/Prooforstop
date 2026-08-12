@@ -4,8 +4,10 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+import { semanticCohortRecords } from './run-proofstory-acceptance-rollout-cohort.mjs';
 
 const root = process.cwd();
+const EXPECTED_MEMBERS = 47;
 const cliArgs = process.argv.slice(2);
 if (cliArgs.length === 0 || (cliArgs.length === 1 && cliArgs[0] === '--capture')) {
   const selectorArgs = cliArgs.length === 0 ? ['--all'] : ['--capture'];
@@ -21,7 +23,7 @@ if (cliArgs.length !== 1 || cliArgs[0] !== '--evaluate-internal') {
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 const RECEIPT_METADATA_ALLOWLIST = new Set([
   'owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json',
-  'checklist.json', 'findings.json', 'process-events.jsonl',
+  'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json',
 ]);
 export function receiptHeadIsAdmissible({ ancestor, materialEqual, changedPaths }) {
   const prefix = '.lattice/story/actives/B-9812/';
@@ -45,6 +47,7 @@ assert.match(smokeOutput, /full-suite-runner-smoke: PASS \((\d+) assertions\)/);
 const smokeAssertions = Number(smokeOutput.match(/PASS \((\d+) assertions\)/)?.[1]);
 assert.ok(smokeAssertions >= 44);
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/checklist.json'] }), true, 'metadata-only descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/index.json', '.lattice/story/actives/B-9812/process-metrics.json'] }), true, 'normal REVIEW lifecycle metadata descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: false, materialEqual: true, changedPaths: [] }), false, 'non-ancestor receipt is rejected');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['packages/main/src/tasks/full-suite-runner.ts'] }), false, 'source diff is rejected even with matching material claim');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/unapproved.json'] }), false, 'metadata path outside strict allowlist is rejected');
@@ -55,25 +58,6 @@ const sha256 = value => `sha256:${createHash('sha256').update(value).digest('hex
 const canonicalize = value => Array.isArray(value) ? value.map(canonicalize) : value && typeof value === 'object'
   ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonicalize(value[key])])) : value;
 const canonical = value => JSON.stringify(canonicalize(value));
-const semanticRecords = input => input.sourceRecords.map(record => ({
-  pairId: record.pairId, arm: record.arm, storyId: record.storyId, claimClass: record.claimClass,
-  defectClass: record.defectClass, defectPresent: record.defectPresent, shouldBlock: record.shouldBlock,
-  scenario: record.observationReceipt.scenario,
-  topologyStatus: record.observationReceipt.gateArtifacts?.[0]?.status,
-  topologyDiagnostics: record.observationReceipt.gateArtifacts?.[0]?.report?.diagnostics ?? [],
-  preReviewStatus: record.observationReceipt.gateArtifacts?.[1]?.status,
-  preReviewCodes: record.observationReceipt.gateArtifacts?.[1]?.report?.codes ?? [],
-  checkInventory: record.observationReceipt.checkInventory ?? null,
-  mutationInventory: record.observationReceipt.mutationInventory ?? null,
-  mutationResults: (record.observationReceipt.mutationResults ?? []).map(result => ({
-    mutationId: result.mutationId,
-    expectedCode: result.expectedCode,
-    observedCode: result.observedCode,
-    controlRestored: result.controlRestored,
-  })),
-  controlRestored: record.observationReceipt.controlRestored ?? Boolean(record.observationReceipt.restorationCommitSha),
-})).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
-
 const cohort1Path = process.env.B9812_COHORT_JOBS1 ?? '/tmp/b9812-final-v2-cohort-jobs1.json';
 const cohort3Path = process.env.B9812_COHORT_JOBS3 ?? '/tmp/b9812-final-v2-cohort-jobs3.json';
 const receiptFailures = [];
@@ -82,8 +66,8 @@ const readJsonReceipt = path => { try { return JSON.parse(readFileSync(path, 'ut
 const readTextReceipt = path => { try { return readFileSync(path, 'utf8'); } catch (error) { receiptFailures.push(`${path}: ${error.message}`); return ''; } };
 const cohort1 = readJsonReceipt(cohort1Path);
 const cohort3 = readJsonReceipt(cohort3Path);
-const normalizedOne = cohort1 ? semanticRecords(cohort1) : [];
-const normalizedThree = cohort3 ? semanticRecords(cohort3) : [];
+const normalizedOne = cohort1 ? semanticCohortRecords(cohort1.sourceRecords) : [];
+const normalizedThree = cohort3 ? semanticCohortRecords(cohort3.sourceRecords) : [];
 const cohortSemanticEqual = receiptCheck(cohort1 && cohort3 && canonical(normalizedOne) === canonical(normalizedThree), 'cohort jobs1/jobs3 semantic records differ')
   && receiptCheck(cohort1.semanticInventoryDigest === cohort3.semanticInventoryDigest, 'cohort semantic digests differ')
   && receiptCheck(cohort1.semanticInventoryDigest === sha256(canonical(normalizedOne)), 'cohort semantic digest is forged')
@@ -127,12 +111,12 @@ for (let index = 1; index <= 3; index++) {
   valid = receiptCheck(/user\s+[0-9.]+/.test(timing) && /sys(?:tem)?\s+[0-9.]+/.test(timing), `run${index} CPU timing missing`) && valid;
   valid = receiptCheck(canonical(artifact.startIdentity) === canonical({ headHash: receiptHead, materialHash: expectedMaterial }), `run${index} start identity mismatch`) && valid;
   valid = receiptCheck(canonical(artifact.endIdentity) === canonical(artifact.startIdentity) && artifact.identityDrift === false, `run${index} end identity drift`) && valid;
-  valid = receiptCheck(artifact.overallStatus === 'PASS' && artifact.total === 46 && artifact.passed === 46, `run${index} terminal totals invalid`) && valid;
-  valid = receiptCheck(artifact.retries === 0 && artifact.jobs === 4 && artifact.processLaunchCount === 46, `run${index} launch/retry accounting invalid`) && valid;
+  valid = receiptCheck(artifact.overallStatus === 'PASS' && artifact.total === EXPECTED_MEMBERS && artifact.passed === EXPECTED_MEMBERS, `run${index} terminal totals invalid`) && valid;
+  valid = receiptCheck(artifact.retries === 0 && artifact.jobs === 4 && artifact.processLaunchCount === EXPECTED_MEMBERS, `run${index} launch/retry accounting invalid`) && valid;
   valid = receiptCheck(artifact.durationMs < 300_000 && artifact.workerUtilization > 0 && artifact.workerUtilization <= 1, `run${index} performance/utilization invalid`) && valid;
   valid = receiptCheck(artifact.performanceBudgetMs === 300_000 && artifact.performanceBudgetApplied === true && artifact.budgetBreached === false, `run${index} performance budget telemetry invalid`) && valid;
   valid = receiptCheck(Boolean(artifact.criticalPath?.name && artifact.criticalPath.durationMs > 0), `run${index} critical path missing`) && valid;
-  valid = receiptCheck(artifact.coverageInventory?.canonicalMembers?.length === 46 && artifact.coverageInventory?.assertionSuites?.length && artifact.coverageInventory?.mutationClasses?.length, `run${index} coverage inventory invalid`) && valid;
+  valid = receiptCheck(artifact.coverageInventory?.canonicalMembers?.length === EXPECTED_MEMBERS && artifact.coverageInventory?.assertionSuites?.length && artifact.coverageInventory?.mutationClasses?.length, `run${index} coverage inventory invalid`) && valid;
   valid = receiptCheck(artifact.results.every(result => result.status === 'PASS' && Array.isArray(result.declaredResources) && Array.isArray(result.acquiredResources) && result.lockWaitMs >= 0 && result.tempRoot), `run${index} member telemetry invalid`) && valid;
   const names = artifact.results.map(result => result.name).join('\n');
   orderedNames ??= names; valid = receiptCheck(names === orderedNames, `run${index} canonical order mismatch`) && valid;
@@ -141,7 +125,7 @@ for (let index = 1; index <= 3; index++) {
 
 const serial = readJsonReceipt(`${serialPrefix}.json`);
 const serialValid = receiptCheck(serial && readTextReceipt(`${serialPrefix}.exit`).trim() === '0', 'serial exit invalid')
-  && receiptCheck(serial.jobs === 1 && serial.total === 46 && serial.passed === 46 && serial.retries === 0, 'serial totals invalid')
+  && receiptCheck(serial.jobs === 1 && serial.total === EXPECTED_MEMBERS && serial.passed === EXPECTED_MEMBERS && serial.retries === 0, 'serial totals invalid')
   && receiptCheck(serial.performanceBudgetMs === 300_000 && serial.performanceBudgetApplied === false && serial.budgetBreached === false, 'serial budget exemption is not explicit')
   && receiptCheck(serial.results.map(result => result.name).join('\n') === orderedNames, 'serial inventory differs')
   && receiptCheck(canonical(serial.coverageInventory) === canonical(parallel[0]?.coverageInventory), 'serial coverage inventory differs')
@@ -154,6 +138,36 @@ const currentMaterialForDone = execFileSync(process.execPath, ['--input-type=mod
 const doneReceiptValid = receiptCheck(Boolean(doneReceiptText), `DONE-required receipt missing: ${doneReceiptPath}`)
   && receiptCheck(Boolean(doneReceipt && assertReceiptHead(doneReceipt.headHash, doneReceipt.materialHash, currentMaterialForDone) && doneReceipt.materialHash === expectedMaterial), 'DONE-required identity mismatch')
   && receiptCheck(/npm test|full-suite-runner/.test(doneReceiptText), 'DONE-required command mismatch');
+const jobs3 = readJsonReceipt(process.env.B9812_JOBS3_RECEIPT ?? '/tmp/b9812-final-v3-jobs3.json');
+const jobs5 = readJsonReceipt(process.env.B9812_JOBS5_RECEIPT ?? '/tmp/b9812-final-v3-jobs5.json');
+const stressText = readTextReceipt(process.env.B9812_STRESS20_RECEIPT ?? '/tmp/b9812-final-v3-stress20.log');
+const stressLine = stressText.split(/\r?\n/).find(line => line.startsWith('INCREMENTAL_STRESS_RECEIPT='));
+let stressReceipt = null;
+try { stressReceipt = stressLine ? JSON.parse(stressLine.slice('INCREMENTAL_STRESS_RECEIPT='.length)) : null; } catch { stressReceipt = null; }
+const stressValid = receiptCheck(Boolean(stressReceipt && stressReceipt.iterations?.length === 20), 'stress20 receipt does not contain 20 iterations')
+  && receiptCheck(stressReceipt.iterations.every(iteration => Object.keys(iteration.guardClasses ?? {}).length === 6 && Object.values(iteration.guardClasses).every(Boolean)), 'stress20 guard-class outcome mismatch')
+  && receiptCheck(stressReceipt.aba === true && stressReceipt.cutoff === true && stressReceipt.restoration === true, 'stress20 ABA/cutoff/restoration outcome missing');
+const jobsEdgeValid = receiptCheck(Boolean(jobs3?.overallStatus === 'PASS' && jobs3.jobs === 3 && jobs3.total === EXPECTED_MEMBERS), 'jobs3 edge receipt invalid')
+  && receiptCheck(Boolean(jobs5?.overallStatus === 'PASS' && jobs5.jobs === 5 && jobs5.total === EXPECTED_MEMBERS), 'jobs5 edge receipt invalid');
+const memberReportValid = parallel.length === 3 && parallel.every(run =>
+  run.baselineComparison?.historicalSerialMs === 1_688_918
+  && run.results.every(result => result.canonicalMemberAssertionId === result.name
+    && Array.isArray(result.assertionInventory) && Array.isArray(result.mutationInventory)
+    && result.failureOutcome?.status === result.status
+    && result.cpu && (result.cpu.capability === 'unavailable' || (Number.isFinite(result.cpu.userSeconds) && Number.isFinite(result.cpu.systemSeconds))))
+);
+const explicitLongTailMarkers = parallel.length === 3 && parallel.every(run =>
+  ['test:full-suite-runner-smoke', 'test:full-suite-resource-sentinel', 'test:review-incremental-context-smoke', 'test:proofstory-intent-hardening-smoke', 'test:proofstory-acceptance-rollout']
+    .every(name => run.results.find(result => result.name === name)?.summaryMarkerPresent === true)
+);
+const focusedBehavior = {
+  outputBoundary: smokeOutput.includes('tracked project output overwrite is rejected before execution') && smokeOutput.includes('symlink output escape is rejected'),
+  crossPlatformCleanup: smokeOutput.includes('POSIX group ESRCH falls back') && smokeOutput.includes('Windows cleanup uses supported taskkill') && smokeOutput.includes('Windows separators and drive boundaries'),
+  lockWait: smokeOutput.includes('worker-capacity queue time is not reported as resource lock wait') && smokeOutput.includes('deterministic compatibility queue wait'),
+  protectedClasses: ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'].every(resourceClass => smokeOutput.includes(`canonical manifest exercises protected class ${resourceClass}`)) && smokeOutput.includes('preowned fixed path makes canonical resource sentinel fail terminally') && smokeOutput.includes('fixed-port claim removal mutation bites'),
+  injectedFailures: ['timeout kills complete descendant process group', 'failure is terminal and never retried', 'tracked project output overwrite is rejected'].every(text => smokeOutput.includes(text)),
+  cpuSpoof: smokeOutput.includes('member stderr cannot spoof dedicated CPU timing file'),
+};
 
 const proof = {
   focusedRunner: smokeAssertions >= 44,
@@ -163,24 +177,29 @@ const proof = {
   strictArguments: /unknown argument/.test(runnerSource) && /finite positive integer/.test(runnerSource),
   identityAndBudget: parallel.length === 3 && /performance\.now/.test(runnerSource) && /identityChanged/.test(runnerSource) && parallel.every(run => run.durationMs < 300_000 && !run.identityDrift),
   terminal: /failure is terminal and never retried/.test(runnerSmokeSource) && parallel.length === 3 && parallel.every(run => run.retries === 0),
-  inventory: parallel.length === 3 && parallel.every(run => run.total === 46 && run.coverageInventory.canonicalMembers.length === 46),
+  inventory: parallel.length === 3 && parallel.every(run => run.total === EXPECTED_MEMBERS && run.coverageInventory.canonicalMembers.length === EXPECTED_MEMBERS),
   serialEquivalent: serialValid && serial.results.every(result => result.status === 'PASS'),
   cohortEquivalent: cohortSemanticEqual && normalizedOne.length === 12,
   cohortIntegrity: acceptancePassed && /semanticInventoryDigest/.test(cohortSource) && /copied cohort runner is byte-identical/.test(acceptanceSource) && /tempCohort = clone\(control\)/.test(acceptanceSource),
   cohortIsolation: acceptancePassed && cohortSemanticEqual && /withProductionCaseSlot/.test(cohortSource) && /evidenceGitCwd/.test(cohortSource) && /controlRestored/.test(cohortSource),
   incrementalMap: /INCREMENTAL_GUARD_CLASS_MAP/.test(incrementalSource) && /LATTICE_INCREMENTAL_STRESS === '1' \? 20 : 1/.test(incrementalSource) && /INCREMENTAL_GUARD_CLASSES/.test(guardOutput),
   threeRuns: parallel.length === 3 && parallel.every(run => run.receiptValid && run.overallStatus === 'PASS' && run.durationMs < 300_000),
-  auditableReports: parallel.length === 3 && parallel.every(run => run.criticalPath && run.processLaunchCount === 46 && run.results.every(result => result.lockWaitMs >= 0)),
+  auditableReports: parallel.length === 3 && parallel.every(run => run.criticalPath && run.processLaunchCount === EXPECTED_MEMBERS && run.results.every(result => result.lockWaitMs >= 0)),
   doneRequired: doneReceiptValid,
+  jobsEdge: jobsEdgeValid,
+  stress20: stressValid,
+  memberReport: memberReportValid,
+  explicitLongTailMarkers,
+  focusedBehavior,
 };
 
 const conditions = {
-  'CHK-001': [proof.auditableReports, proof.threeRuns, proof.inventory && proof.identityAndBudget, proof.terminal, proof.focusedRunner && proof.inventory, proof.identityAndBudget],
-  'CHK-002': [proof.keyedResources, proof.keyedResources && proof.focusedRunner, proof.cleanup && proof.processTree, proof.keyedResources, proof.keyedResources && proof.strictArguments, proof.keyedResources && proof.focusedRunner, proof.keyedResources && proof.focusedRunner, proof.processTree, proof.cleanup],
+  'CHK-001': [proof.auditableReports && proof.memberReport && proof.explicitLongTailMarkers, proof.threeRuns && proof.memberReport, proof.inventory && proof.identityAndBudget, proof.terminal && proof.focusedBehavior.injectedFailures, proof.focusedRunner && proof.inventory && proof.memberReport, proof.identityAndBudget && proof.focusedBehavior.outputBoundary],
+  'CHK-002': [proof.keyedResources, proof.keyedResources && proof.focusedBehavior.protectedClasses && proof.focusedBehavior.lockWait, proof.cleanup && proof.processTree, proof.keyedResources, proof.keyedResources && proof.strictArguments, proof.keyedResources && proof.focusedRunner, proof.keyedResources && proof.focusedBehavior.protectedClasses, proof.processTree && proof.focusedBehavior.crossPlatformCleanup, proof.cleanup && proof.focusedBehavior.outputBoundary],
   'CHK-003': [proof.cohortIntegrity, proof.cohortIsolation, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation, proof.cohortEquivalent, proof.cohortIntegrity, proof.cohortIntegrity, proof.cohortIsolation],
-  'CHK-004': [proof.incrementalMap, proof.incrementalMap && proof.serialEquivalent, proof.incrementalMap, proof.incrementalMap, proof.incrementalMap, proof.incrementalMap, proof.incrementalMap, proof.incrementalMap, proof.incrementalMap],
+  'CHK-004': [proof.incrementalMap && proof.stress20, proof.incrementalMap && proof.serialEquivalent, proof.incrementalMap && proof.stress20, proof.stress20, proof.stress20, proof.focusedBehavior.injectedFailures, proof.incrementalMap && proof.stress20, proof.stress20, proof.stress20],
   'CHK-005': [proof.inventory, proof.serialEquivalent, proof.terminal, proof.strictArguments, proof.keyedResources, proof.processTree, proof.inventory, proof.terminal, proof.terminal],
-  'CHK-006': [proof.threeRuns, proof.auditableReports, proof.serialEquivalent, proof.doneRequired, proof.threeRuns && proof.identityAndBudget, proof.strictArguments, proof.identityAndBudget, proof.processTree && proof.keyedResources && proof.terminal, proof.identityAndBudget, proof.keyedResources && proof.doneRequired],
+  'CHK-006': [proof.threeRuns, proof.auditableReports && proof.memberReport, proof.serialEquivalent, proof.doneRequired, proof.threeRuns && proof.identityAndBudget, proof.jobsEdge, proof.identityAndBudget, proof.processTree && proof.keyedResources && proof.terminal && proof.focusedBehavior.injectedFailures, proof.identityAndBudget && proof.focusedBehavior.cpuSpoof, proof.keyedResources && proof.doneRequired && proof.focusedBehavior.protectedClasses],
 };
 const counts = { 'CHK-001': [2, 2, 2], 'CHK-002': [3, 3, 3], 'CHK-003': [3, 3, 3], 'CHK-004': [3, 3, 3], 'CHK-005': [3, 3, 3], 'CHK-006': [4, 3, 3] };
 const lanes = ['happy', 'edge', 'adversarial'];
@@ -198,5 +217,5 @@ if (receiptFailures.length) {
   for (const failure of receiptFailures) process.stderr.write(`UNVERIFIED ${failure}\n`);
   process.exitCode = 1;
 } else {
-  console.log(`FULL_SUITE_CONTRACT=PASS head=${head} material=${expectedMaterial} members=46 focusedAssertions=${smokeAssertions}`);
+  console.log(`FULL_SUITE_CONTRACT=PASS head=${head} material=${expectedMaterial} members=${EXPECTED_MEMBERS} focusedAssertions=${smokeAssertions}`);
 }

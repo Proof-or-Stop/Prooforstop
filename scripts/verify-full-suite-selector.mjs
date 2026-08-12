@@ -27,7 +27,7 @@ const identity = () => ({
   material: execFileSync(process.execPath, ['--input-type=module', '-e', "import{currentMaterialHash}from'./packages/main/dist/core/evidence-freshness.js';process.stdout.write(currentMaterialHash(process.cwd())??'')"], { cwd: root, encoding: 'utf8' }),
 });
 const METADATA_PREFIX = '.lattice/story/actives/B-9812/';
-const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl']);
+const METADATA_ALLOWLIST = new Set(['owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json', 'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json']);
 const captureHeadIsAdmissible = (receiptHead, currentHead) => {
   try { execFileSync('git', ['merge-base', '--is-ancestor', receiptHead, currentHead], { cwd: root, stdio: 'ignore' }); }
   catch { return false; }
