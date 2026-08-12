@@ -1001,23 +1001,13 @@
         },
         {
           "intentRef": "CHK-005:happy:0",
-          "kind": "manual_transcript",
-          "file": "scripts/verify-done-suite-green.mjs",
-          "command": "node scripts/verify-done-suite-green.mjs",
-          "result": "pass",
-          "note": "MECHANIZED with a real execution receipt. Verifies the recorded result of a completed out-of-band npm test run rather than re-running it, because the receipt executor kills any pinned command at DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270_000 (core/validation-executor.ts:43) and the suite exceeds that - three earlier attempts were refused at exactly 270.3s with receipt_selector_absent, recorded as B-META-framework-audit:F-012. Fails closed on three independent conditions: the log must carry an explicit REAL_EXIT=0 marker (a killed run leaves none), it must contain zero AssertionError / Error: / FAIL n>0 lines, and it must be NEWER than every tracked source file except the verifier itself, so a stale green run cannot vouch for later edits. That staleness guard fired twice during development and forced a genuine re-run, which is evidence it is not decorative. Authoritative run: npmtest4.log, REAL_EXIT=0, 0 failure lines.",
-          "mechanical": true,
-          "receipt": {
-            "exitCode": 0,
-            "outputDigest": "f52d74846d6134e47544088cd33622b7924c762a5e46934b55084620d03b22ce",
-            "outputTail": "DONE-SUITE GREEN: npm test exit=0, 0 failure lines (recorded run, newer than all tracked sources)\n",
-            "selectorMatched": true,
-            "executedAt": "2026-08-11T18:50:07.069Z"
-          },
-          "headHash": "258df768f8a9ab36816af880a88f9b5a1c269ea1",
-          "materialHash": "0bfab2a656f33bab01b18d1f557567fe4fff09c6838ca3b1c2644654696f399c",
-          "storyFilesHash": "0ce929052d004a65d0beffdd14103b28c47eae0c2c286a96ab3cc194b8efb5c4",
-          "timestamp": "2026-08-11T18:50:07.253Z"
+          "kind": "waiver",
+          "waiverType": "deferred_gate_evidence",
+          "note": "WAIVER (deferred_gate_evidence) for B-cdf6:F-021, replacing a DISHONEST evidence row. THE PROBLEM: the prior row for this intent was recorded ~75 minutes BEFORE the F-006 rewrite and claimed mechanical:true / receipt.selectorMatched:true, with an outputTail quoting '(recorded run, newer than all tracked sources)' - text the CURRENT verifier structurally cannot emit, because the log-reading design that printed it was deleted. It therefore contradicted F-006's own resolution, which states the rewritten verifier can no longer be receipt-pinned. WHY A WAIVER RATHER THAN A CORRECTED RECEIPT: the intent is pinned immutably to 'node scripts/verify-done-suite-green.mjs' (checklist.ts:616/621). That command now always executes the real suite, measured by the test-coverage reviewer at 21m13.82s, about 4.7x the receipt executor's DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270_000 (validation-executor.ts:43) - so the executor kills it before a verdict prints and refuses the write as receipt_selector_absent. I confirmed both horns first-hand: providing the command times out, omitting it is refused as receipt_command_mismatch. Pinning a cheaper proxy would re-create the exact F-006 defect (verifying a marker instead of a run). The framework limitation is B-META-framework-audit:F-012. deferred rather than permanent because a fix to F-012 (a per-evidence timeout, or a distinct timeout error) would make a real receipt obtainable. WHAT IS SUBSTANTIVELY ESTABLISHED, each directly observed: (1) node scripts/verify-done-suite-green.mjs printed 'DONE-SUITE GREEN: npm test exit=0, 0 failure lines, 334 stage lines observed'; 334 satisfies the script's own >=20 positive-evidence guard, which exists precisely so a truncated or stubbed run cannot read as green. (2) The test-coverage reviewer independently reproduced the identical verdict in its own 21-minute run. (3) The fabricated-log attack that defeated the previous design is structurally impossible now: grep for readFileSync/existsSync/statSync/DONE_SUITE_LOG in that file returns 0, leaving a live spawnSync of npm test as the only data source.",
+          "headHash": "723597d69aface733a913f3ef4eca6eb9746219f",
+          "materialHash": "954fa41524164d6986b64d865ca8c371210f07bde9cf5fd22d17bf656466c2b6",
+          "storyFilesHash": "c35fc1b0c03fe3fe3e2691f8c456b0bc0fdf935528edad18e61f7ab365f81e08",
+          "timestamp": "2026-08-12T05:37:20.129Z"
         }
       ]
     },
