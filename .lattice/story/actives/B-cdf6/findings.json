@@ -417,6 +417,21 @@
       "resolvedAt": "2026-08-11T20:16:50.625Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-020",
+      "desc": "packages/main/src/core/runtime-environment-checks.ts:333 checks input.env?.LATTICE_CODEX_ENTRYPOINT === \"global-fallback\" via raw property access instead of readBrandEnv(\"CODEX_ENTRYPOINT\") — the exact read-both fallback helper the SAME FILE correctly uses at line 1129 for the identical value/purpose. classifyRuntimeEntrypointAuthority is called from cli-engine.ts:770 with env: process.env on every command in a self-host worktree, and its own comment says this is the sole exemption for the explicit global-fallback session_brief heartbeat. If an operator or a future doc/generator emits the fully-renamed canonical form PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback (equally valid per the additive compat contract), this exemption silently fails to match, misclassifying an explicit global-fallback heartbeat as a worktree runtime-authority violation instead of exempting it. Same bug class as F-016 (idleLattice/idleProofOrStop config key): a renamed identifier whose old spelling still resolves only because the current write side (GLOBAL_CODEX_FALLBACK_COMMAND in codex-adapter-checks.ts and init-assets.ts generated docs) has not yet moved to the canonical name, with zero read-both fallback at this one call site. Fix: replace the raw property read at runtime-environment-checks.ts:333 with readBrandEnv(\"CODEX_ENTRYPOINT\", input.env).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-12T04:13:02.253Z",
+      "reviewRound": "2026-08-11T19:24:58.503Z",
+      "reviewRunId": "B-cdf6:RR-010",
+      "_hash": "bd700d70f41fec84918e7be6fbbcbf15cd11054d67f72806e2e03f5c6d808ff0",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
