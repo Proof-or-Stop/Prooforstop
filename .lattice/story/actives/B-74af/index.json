@@ -1,0 +1,56 @@
+{
+  "storyId": "B-74af",
+  "name": "background-aware-agent-liveness-monitoring",
+  "title": "Make reviewer and worker liveness background-aware instead of restarting after ten minutes",
+  "description": "Current reviewer and worker guidance treats ten minutes without a result as stalled even though host-native agents may remain alive in the background and complete much later. Replace elapsed-time restart advice with authoritative host-status monitoring: running/background tasks keep being monitored; unknown state remains non-duplicating and observable; restart is allowed only after terminal failure, cancellation, missing task/process, or another conclusive dead-state signal.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "agent-liveness",
+    "background-agent",
+    "codex-monitoring",
+    "reviewer-restart"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-08-12T09:33:50.648Z",
+  "startedAt": "2026-08-12T09:33:50.648Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-12T09:33:51.431Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-12T09:36:59.025Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "The word production only describes existing prompt entrypoints; this story does not touch a production environment or perform an emergency operation.",
+      "at": "2026-08-12T09:36:18.203Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-74af",
+    "branch": "story/B-74af",
+    "createdAt": "2026-08-12T09:36:55.121Z"
+  }
+}
