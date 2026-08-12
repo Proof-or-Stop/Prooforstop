@@ -1,0 +1,44 @@
+{
+  "storyId": "B-9812",
+  "name": "safe-parallel-full-suite-under-five-minutes",
+  "title": "Run the complete root test suite safely in parallel in under five minutes",
+  "description": "An isolated measurement at commit 58c7cdc showed that root npm test passed all 46 members but took 1688.9 seconds. proofstory-acceptance-rollout, review-incremental-context-smoke, and proofstory-intent-hardening-smoke consumed 79.9 percent of the total. One acceptance cohort case took 26.42 seconds, with about 95.2 percent spent in 26 fresh-process Lattice CLI invocations while Git and build together took less than 0.5 seconds. Implement safe concurrency and eliminate redundant initialization so canonical root npm test completes in less than 300 seconds on each of three consecutive runs from a reproducible clean temporary clone after a same-material packages/main build. Preserve the complete current test membership, deterministic assertions, mutation bites, black-box dist and CLI boundaries, and DONE-required evidence semantics. The target must not be met by deleting tests, silently reducing coverage, moving current required members out of the canonical full suite, concurrently writing an unisolated repository, or converting an initial FAIL or TIMEOUT into PASS through serial retry. Repeated stress iterations may move to an explicit stress layer only when equivalence is proven and the canonical full suite retains deterministic coverage of the same concurrency, ABA, and restoration contracts without weakening gate assurance.",
+  "type": "refactor",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "full test performance",
+    "safe parallel smoke runner",
+    "acceptance rollout",
+    "incremental context",
+    "five minute budget"
+  ],
+  "createdAt": "2026-08-12T12:30:36.394Z",
+  "startedAt": "2026-08-12T12:30:36.394Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-12T12:30:36.987Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-12T12:33:43.287Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-9812",
+    "branch": "story/B-9812",
+    "createdAt": "2026-08-12T12:33:40.426Z"
+  }
+}

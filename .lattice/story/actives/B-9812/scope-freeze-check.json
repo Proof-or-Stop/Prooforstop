@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9812",
+  "checkedAt": "2026-08-12T12:33:21.063Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "be6a9da70151976d4929ffffe4f0fc5ccfd3eaa5e2cf9703c5ce25020ca182b2",
+  "executionBoundaryHash": "2014d735ef6b94a60de479c273e41514ae1729f094ecdecd18c95cc52cfbb130",
+  "freshnessHash": "5182ff1499c8fceaa574623b5a16a4f999716218106cd39b36aaaf32dfa3c79e",
+  "effectiveExcludedKeywords": [
+    "allowing failed or timed-out tests to become green through automatic retry",
+    "changing product behavior unrelated to test execution",
+    "removing current deterministic coverage solely to meet the budget",
+    "running concurrent writers against an unisolated shared repository",
+    "weakening production gates or evidence freshness semantics"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "allowing failed or timed-out tests to become green through automatic retry",
+      "source": "scopeBoundary.excluded",
+      "text": "allowing failed or timed-out tests to become green through automatic retry",
+      "excluded": true
+    },
+    {
+      "keyword": "changing product behavior unrelated to test execution",
+      "source": "scopeBoundary.excluded",
+      "text": "changing product behavior unrelated to test execution",
+      "excluded": true
+    },
+    {
+      "keyword": "removing current deterministic coverage solely to meet the budget",
+      "source": "scopeBoundary.excluded",
+      "text": "removing current deterministic coverage solely to meet the budget",
+      "excluded": true
+    },
+    {
+      "keyword": "running concurrent writers against an unisolated shared repository",
+      "source": "scopeBoundary.excluded",
+      "text": "running concurrent writers against an unisolated shared repository",
+      "excluded": true
+    },
+    {
+      "keyword": "weakening production gates or evidence freshness semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "weakening production gates or evidence freshness semantics",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "681eb205391dec80bf000da1a1a53a759c3e7fd1248691d1a7769314bce543aa"
+}
