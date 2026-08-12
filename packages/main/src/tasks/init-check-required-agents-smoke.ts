@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
+import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -187,4 +188,5 @@ try {
   rmSync(root, { recursive: true, force: true });
 }
 
+runAgentLivenessSuiteForPinnedEvidence();
 console.log('✓ init check required agents smoke passed');

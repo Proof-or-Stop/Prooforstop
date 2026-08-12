@@ -12,6 +12,7 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from '../handlers/stray-file-cleanup.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
+import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -882,4 +883,5 @@ assertStrayCleanupAllowsGeneratedReviewMetadata();
 assertDocsDriftAllowsBootstrapAndLegacyCommands();
 assertChannelAllowsExplicitMainAgentPlanOwnership();
 
+runAgentLivenessSuiteForPinnedEvidence();
 console.log('✓ review pass and discard smoke passed');

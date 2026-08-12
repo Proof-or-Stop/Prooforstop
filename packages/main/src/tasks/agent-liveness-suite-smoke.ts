@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const tasksDir = dirname(fileURLToPath(import.meta.url));
+const suitePath = fileURLToPath(import.meta.url);
+const childMarker = 'LATTICE_AGENT_LIVENESS_SUITE_CHILD';
 const childSmokes = [
   'agent-dispatch-registry-smoke.js',
   'review-pass-discard-smoke.js',
@@ -15,16 +17,30 @@ const childSmokes = [
   'repair-retry-loop-smoke.js',
 ] as const;
 
-for (const childName of childSmokes) {
-  const childPath = join(tasksDir, childName);
-  try {
-    execFileSync(process.execPath, [childPath], { stdio: 'inherit' });
-  } catch (error) {
-    const status = typeof error === 'object' && error !== null && 'status' in error
-      ? String(error.status)
-      : 'unknown';
-    throw new Error(`agent-liveness-suite-smoke child failed: ${childName} (exit ${status})`, { cause: error });
+export function runAgentLivenessSuite(): void {
+  for (const childName of childSmokes) {
+    const childPath = join(tasksDir, childName);
+    try {
+      execFileSync(process.execPath, [childPath], {
+        env: { ...process.env, [childMarker]: '1' },
+        stdio: 'inherit',
+      });
+    } catch (error) {
+      const status = typeof error === 'object' && error !== null && 'status' in error
+        ? String(error.status)
+        : 'unknown';
+      throw new Error(`agent-liveness-suite-smoke child failed: ${childName} (exit ${status})`, { cause: error });
+    }
   }
 }
 
-console.log('agent-liveness-suite-smoke PASS');
+export function runAgentLivenessSuiteForPinnedEvidence(): void {
+  if (process.env[childMarker] === '1') return;
+  runAgentLivenessSuite();
+  console.log('agent-liveness-suite-smoke PASS');
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === suitePath) {
+  runAgentLivenessSuite();
+  console.log('agent-liveness-suite-smoke PASS');
+}
