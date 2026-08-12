@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   AGENT_DISPATCH_ACCEPTED_TYPES,
   AGENT_DISPATCH_REGISTRY,
@@ -29,6 +31,12 @@ import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
 import { captureReviewerReadEvent } from '../core/reviewer-read-evidence.js';
 import { DEFAULT_PHASE_TOOLS } from '../core/config.js';
 import { REVIEW_RUN_LANES, resolveReviewRunLane } from '../core/review-run.js';
+import {
+  AGENT_LIVENESS_GUIDANCE_REQUIRED_FRAGMENTS,
+  decideAgentLiveness,
+  renderAgentLivenessGuidance,
+  type AgentHostTaskStatus,
+} from '../core/agent-liveness-policy.js';
 import type {
   AgentDispatchMutationCommand,
   AgentDispatchRegistryEntry,
@@ -44,6 +52,66 @@ const ALL_MUTATIONS: readonly AgentDispatchMutationCommand[] = [
   'checklist_update', 'init_check_set', 'scope_check_save', 'review_run_start',
   'finding_add', 'review_pass_set', 'delivery_check_set', 'finding_resolve',
 ];
+
+const NONTERMINAL_LIVENESS_STATES: readonly AgentHostTaskStatus[] = [
+  'foreground', 'running', 'background', 'silent', 'unknown', 'unavailable',
+];
+const TERMINAL_FAILURE_STATES: readonly AgentHostTaskStatus[] = [
+  'failed', 'cancelled', 'missing', 'dead', 'operator-cancelled',
+];
+
+function assertCanonicalLivenessGuidance(prompt: string, label: string): void {
+  for (const fragment of AGENT_LIVENESS_GUIDANCE_REQUIRED_FRAGMENTS) {
+    assert.match(prompt, new RegExp(fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${label} missing canonical liveness fragment: ${fragment}`);
+  }
+  assert.doesNotMatch(prompt, /no output for 4 minutes|no result (?:for|after) 10 minutes|treat as (?:stuck|stalled).*restart/i, `${label} must not infer failure from elapsed time`);
+}
+
+for (const status of NONTERMINAL_LIVENESS_STATES) {
+  const decision = decideAgentLiveness({ status, elapsedMs: 60 * 60 * 1000, replacementAlreadyAttempted: false });
+  assert.equal(decision.action, 'monitor-same-task', `${status} beyond 600s must keep monitoring`);
+  assert.equal(decision.preserveTaskIdentity, true, `${status} must preserve the original task identity`);
+  assert.equal(decision.replacementAuthorized, false, `${status} must never authorize a duplicate`);
+}
+assert.equal(
+  decideAgentLiveness({ status: 'completed', elapsedMs: 60 * 60 * 1000, replacementAlreadyAttempted: false }).action,
+  'accept-completed-result',
+  'a late original result must be consumed exactly once',
+);
+assert.equal(
+  decideAgentLiveness({ status: 'completed', elapsedMs: 60 * 60 * 1000, resultAlreadyConsumed: true, replacementAlreadyAttempted: false }).action,
+  'hold-completed',
+  'a repeated completed observation must not consume the original result twice',
+);
+for (const status of TERMINAL_FAILURE_STATES) {
+  const first = decideAgentLiveness({ status, elapsedMs: 1, replacementAlreadyAttempted: false });
+  assert.equal(first.action, 'replace-once', `${status} must authorize recovery`);
+  assert.equal(first.replacementAuthorized, true, `${status} must authorize one replacement`);
+  assert.match(first.recordReason ?? '', new RegExp(status.replace('-', '.')), `${status} replacement must retain a reason`);
+  const repeated = decideAgentLiveness({ status, elapsedMs: 1, replacementAlreadyAttempted: true });
+  assert.equal(repeated.action, 'hold-terminal', `${status} must not launch a second replacement`);
+  assert.equal(repeated.replacementAuthorized, false, `${status} retry must be capped at one`);
+}
+assertCanonicalLivenessGuidance(renderAgentLivenessGuidance({ label: 'state-matrix-smoke' }), 'canonical renderer');
+
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const activeLivenessSurfaces = [
+  'handlers/story-dispatch',
+  'handlers/story-create',
+  'handlers/transition-effects',
+  'core/machine',
+];
+for (const relativePath of activeLivenessSurfaces) {
+  for (const [tree, extension] of [['src', 'ts'], ['dist', 'js']] as const) {
+    const path = resolve(packageRoot, tree === 'src' ? '..' : '.', tree === 'src' ? 'src' : '', `${relativePath}.${extension}`);
+    const source = readFileSync(path, 'utf8');
+    assert.doesNotMatch(
+      source,
+      /no output for 4 minutes|no result (?:for|after) 10 minutes|treat as (?:stuck|stalled)[^\n]*(?:restart|re-dispatch)/i,
+      `${tree}/${relativePath} must not retain elapsed-only restart guidance`,
+    );
+  }
+}
 
 function assertCoverageComplete(
   entries: readonly AgentDispatchRegistryEntry[],
@@ -346,6 +414,14 @@ try {
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
   }));
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['config', 'user.email', 'smoke@example.com'], { cwd: root });
+  execFileSync('git', ['config', 'user.name', 'Smoke'], { cwd: root });
+  execFileSync('git', ['add', 'lattice.config.json'], { cwd: root });
+  execFileSync('git', [
+    'commit', '-qm', 'smoke baseline',
+    '--author=lattice-implementer <lattice-implementer@noreply.local>',
+  ], { cwd: root });
   const store = new StoryStore(root);
   const storyId = 'B-dispatch-consumer';
   const now = '2026-07-16T00:00:00.000Z';
@@ -664,6 +740,7 @@ try {
     'init-review': /INIT_REVIEW_START/,
     'product-init-review': /product-reviewer/,
     'scope-plan-review': /scope_check_save/,
+    'topology-critic-review': /topology_critic_receipt_set/,
     'story-review': /review_run_start/,
     'coverage-review': /review_run_start/,
     'delivery-review': /delivery_check_set/,
@@ -675,21 +752,25 @@ try {
     if (entry.canonicalName === 'lattice-review-channel') continue;
     for (const agentType of [entry.canonicalName, ...entry.aliases]) {
       for (const identifierKind of entry.targetCardinality === 'story-only' ? [null] : entry.identifierKinds) {
-        store.writeStory(storyId, { ...store.readStory(storyId), phase: entry.allowedPhases[0] });
-        const target = identifierKind === 'itemId'
-          ? { itemId: 'CHK-001' }
-          : identifierKind === 'findingId'
-            ? { findingId: 'F-001' }
-            : identifierKind === 'clusterId'
-              ? { clusterId: 'CL-001' }
-              : {};
-        const expectedPromptBuilder = resolveAgentDispatchPromptBuilder(entry, identifierKind ?? undefined);
-        const prompt = handlers.dispatch({ storyId, agentType, ...target }).prompt;
-        assert.match(prompt, promptPatterns[expectedPromptBuilder], `${agentType}/${identifierKind || 'story'} must render ${expectedPromptBuilder}`);
-        if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${agentType} must not receive commit instructions`);
-        if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${agentType} must not complete an item`);
-        if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /lattice checklist_update/, `${agentType} must not mutate checklist status`);
-        actualPromptCoverage.add(expectedPromptBuilder);
+        for (const phase of entry.allowedPhases) {
+          store.writeStory(storyId, { ...store.readStory(storyId), phase });
+          const target = identifierKind === 'itemId'
+            ? { itemId: 'CHK-001' }
+            : identifierKind === 'findingId'
+              ? { findingId: 'F-001' }
+              : identifierKind === 'clusterId'
+                ? { clusterId: 'CL-001' }
+                : {};
+          const expectedPromptBuilder = resolveAgentDispatchPromptBuilder(entry, identifierKind ?? undefined);
+          const prompt = handlers.dispatch({ storyId, agentType, ...target }).prompt;
+          const label = `${agentType}/${identifierKind || 'story'}/${phase}`;
+          assert.match(prompt, promptPatterns[expectedPromptBuilder], `${label} must render ${expectedPromptBuilder}`);
+          assertCanonicalLivenessGuidance(prompt, label);
+          if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
+          if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
+          if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /lattice checklist_update/, `${label} must not mutate checklist status`);
+          actualPromptCoverage.add(expectedPromptBuilder);
+        }
       }
     }
   }

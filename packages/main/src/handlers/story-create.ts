@@ -31,6 +31,7 @@ import { loadConfig, LATTICE_CONFIG_FILENAME } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
+import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -1175,7 +1176,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
           `  · Agent({ subagent_type: "lattice-review-story-init", prompt: \`Review the initial background + checklist of story ${storyId} (run lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}' to get the standard prompt)\` })\n` +
           `  · Agent({ subagent_type: "product-reviewer", prompt: \`Run lattice dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}' to get the standard prompt; whether pass/fail, must call init_check_set, agentId must be exactly product-reviewer\` })\n` +
           `  · Do not have the main agent self-invoke lattice init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
-          `  · If a reviewer produces no output for 4 minutes, treat as stuck: rerun lattice dispatch to fetch the prompt and restart the reviewer; if the old reviewer returns later, take the latest init_check_set as authoritative\n` +
+          `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
           `  · INIT_CHECK gate requires both lattice-review-story-init and product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
           `  · Before story_advance, run lattice init_preflight --storyId=${storyId}; it is read-only, writes no evidence, and creates no worktree\n` +
           `  · After init_preflight reports READY, call lattice story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to enter INIT_CHECK`;

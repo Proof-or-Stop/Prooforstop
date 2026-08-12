@@ -55,6 +55,7 @@ import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
 import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
+import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -349,10 +350,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   }
 
   function appendDispatchLivenessGuidance(lines: string[], label: string): void {
-    lines.push('Execution rhythm / liveness:');
-    lines.push(`- After starting, first output \`DISPATCH_START:${label}\` so the main agent knows the process has started.`);
-    lines.push('- If there is no output for 4 minutes, the main agent should ask about status once; if there is still no result after 10 minutes/600s, consider it stalled and feel free to restart this reviewer/worker.');
-    lines.push('- If this is a retry, please explain the previous stalled state in the final reply, to avoid mistaking network/startup failures for review conclusions.');
+    lines.push(renderAgentLivenessGuidance({ label, startSignal: `DISPATCH_START:${label}` }));
     lines.push('');
   }
 
@@ -381,10 +379,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether the checklist is broken down into items that are user-observable, verifiable, and non-overlapping',
         '- Whether there are high-risk signals but insufficient PLAN/decision/verification preparation',
         '',
-        'Execution rhythm / timeout:',
+        renderAgentLivenessGuidance({ label: 'lattice-review-story-init/story', startSignal: 'INIT_REVIEW_START' }),
         '- After starting, first output `INIT_REVIEW_START`; after finishing reading background/checklist, output `INIT_REVIEW_READ_DONE`.',
         '- Within 5 minutes at the latest, you must choose one of two: call init_check_set, or output an explicit blocker + current blocking point.',
-        '- If there is no output for 4 minutes, the main agent should treat the reviewer as stuck and may rerun this dispatch to restart the reviewer.',
         '',
         'Hard requirements:',
         `- Regardless of whether the conclusion is pass or fail, you must call init_check_set once to record the result; merely outputting a textual conclusion does not count as complete.`,
@@ -420,6 +417,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether the background clearly explains why the user needs this, not just the engineering mechanics',
         '- Whether each checklist item has a user-observable outcome',
         '- Whether the post-completion outcome lets the user recognize the work as complete, rather than still wondering what comes next',
+        '',
+        renderAgentLivenessGuidance({ label: 'product-reviewer/story', startSignal: 'DISPATCH_START:product-reviewer/story' }),
         '',
         'Hard requirements:',
         '- Whether the conclusion is pass or fail, you must call init_check_set once to record the result; outputting only a text conclusion does not count as complete.',
@@ -511,6 +510,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     return { prompt: [
       `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
       `Working directory: ${root}`,
+      '',
+      renderAgentLivenessGuidance({ label: 'lattice-review-topology-critic/story', startSignal: 'DISPATCH_START:lattice-review-topology-critic/story' }),
+      '',
       'Use the canonical lattice-review-topology-critic role. Do not edit implementation or story files.',
       `Run lattice acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
       'A missing, partial, unsupported, stale, or tampered basis cannot receive pass.',
@@ -1068,10 +1070,14 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // clusterId branch — reuse cluster.ts's finding_dispatch (outputs string).
       // Wrap as { prompt } to keep the interface consistent.
       const clusterHandlers = createClusterHandlers(ctx);
-      const prompt = clusterHandlers.finding_dispatch({
+      const clusterPrompt = clusterHandlers.finding_dispatch({
         storyId: args.storyId,
         clusterId: args.clusterId!,
       });
+      const prompt = `${renderAgentLivenessGuidance({
+        label: `${canonicalType}/${args.clusterId!}`,
+        startSignal: `DISPATCH_START:${canonicalType}/${args.clusterId!}`,
+      })}\n\n${clusterPrompt}`;
       appendDispatchEvent({
         storyId: args.storyId,
         agentType: canonicalType,

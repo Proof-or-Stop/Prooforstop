@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-74af",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e00f46868b5d64e787f37cf12e62b5044bbd60f58460bd4b11983a6cf778307e",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "CHK-001",
+      "claim": "One canonical status-first liveness policy governs host-native dispatched agents.",
+      "doneMeans": "Running/background and unknown tasks keep the same identity under monitoring; only authoritative terminal or missing/dead state can authorize one replacement.",
+      "requiredEvidence": [
+        "logic_test",
+        "source_inspection"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "CHK-002",
+      "claim": "Every active INIT, PLAN, DEV, and REVIEW guidance surface uses the canonical policy.",
+      "doneMeans": "Effective prompt smokes cover all registered roles and special recovery/transition surfaces with no elapsed-only restart wording.",
+      "requiredEvidence": [
+        "logic_test",
+        "source_inspection"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "CHK-003",
+      "claim": "Regression coverage rejects elapsed-only restarts and preserves explicit subprocess deadlines.",
+      "doneMeans": "Focused mutation-sensitive smokes and build pass while protected timeout files remain unchanged.",
+      "requiredEvidence": [
+        "logic_test",
+        "command"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-08-12T09:48:06.728Z",
+  "updatedAt": "2026-08-12T09:48:07.509Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260812094728",
+    "acceptedInterpretationHash": "sha256:7f83e28bfe11b93fba20de3f94463eff5ce5f1fc441617e235c21fccf39c5e81",
+    "acceptedAt": "2026-08-12T09:48:07.509Z"
+  }
+}

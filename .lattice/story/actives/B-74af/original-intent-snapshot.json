@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-74af",
+  "sourceText": "我记得好像是10分钟并没有真正切断，而是会“进入后台”，我们的当前目录下的claude的session有发生过这种事情，你检查一下是不是这样。如果是这样，我们需要更稳健地处理，不是只有确定性知道是卡死才应该重启，否则应该持续监控codex的进展，而不是到了10分钟就重启",
+  "normalizedOutcome": "Long-running Codex or Claude agents remain monitored on the same task identity beyond ten minutes; elapsed time alone never triggers replacement, and one replacement is allowed only after an authoritative terminal or missing/dead signal.",
+  "acceptanceClaim": "All active Lattice agent guidance is status-first and background-aware, while explicit bounded subprocess timeout enforcement remains unchanged.",
+  "keyRequirementIds": [
+    "CHK-001",
+    "CHK-002",
+    "CHK-003"
+  ],
+  "requestHash": "sha256:482f12d29085966c9a996c483d63fe19ffd0a1876a761d59e44697bdccbfab11",
+  "createdAt": "2026-08-12T09:47:27.799Z",
+  "updatedAt": "2026-08-12T09:47:27.799Z"
+}
