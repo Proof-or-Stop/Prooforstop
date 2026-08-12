@@ -42,17 +42,27 @@ async function main(): Promise<void> {
   const canonicalRoot = mkdtempSync(join(tmpdir(), 'full-suite-claims-'));
   try {
     writeFileSync(join(canonicalRoot, 'tracked'), 'x');
+    mkdirSync(join(canonicalRoot, 'real-dir'));
     execFileSync('git', ['init', '-b', 'main'], { cwd: canonicalRoot, stdio: 'ignore' });
     const alias = `${canonicalRoot}-alias`; symlinkSync(canonicalRoot, alias);
+    symlinkSync(join(canonicalRoot, 'real-dir'), join(canonicalRoot, 'dir-alias'));
     try {
       const normalized = canonicalizeEntries([
         entry('real', [{ class: 'fixed-path', key: join(canonicalRoot, 'tracked'), access: 'exclusive' }, { class: 'git-common-dir', key: canonicalRoot, access: 'shared' }]),
         entry('alias', [{ class: 'fixed-path', key: join(alias, 'tracked'), access: 'shared' }, { class: 'git-common-dir', key: alias, access: 'shared' }]),
         entry('port', [{ class: 'fixed-port', key: '43210', access: 'exclusive' }]),
+        entry('future-lock', [{ class: 'main-write-lock', key: join(canonicalRoot, '.lattice', 'runtime', 'main-write.lock'), access: 'exclusive' }]),
+        entry('future-real', [{ class: 'runtime-lock', key: join(canonicalRoot, 'real-dir', 'future', 'runtime.lock'), access: 'exclusive' }]),
+        entry('future-alias', [{ class: 'runtime-lock', key: join(canonicalRoot, 'dir-alias', 'future', 'runtime.lock'), access: 'shared' }]),
       ], canonicalRoot);
       assert(normalized[0]!.resources[0]!.canonicalKey === normalized[1]!.resources[0]!.canonicalKey, 'symlink aliases collide on canonical filesystem resource key');
       assert(normalized[0]!.resources[1]!.canonicalKey === normalized[1]!.resources[1]!.canonicalKey, 'Git aliases collide on canonical common-dir resource key');
       assert(normalized[2]!.resources[0]!.canonicalKey === 'fixed-port:43210', 'fixed port claim has a stable canonical key');
+      assert(normalized[3]!.resources[0]!.canonicalKey?.endsWith('/.lattice/runtime/main-write.lock'), 'clean clone canonicalizes a not-yet-created nested lock from its nearest existing ancestor');
+      assert(normalized[4]!.resources[0]!.canonicalKey === normalized[5]!.resources[0]!.canonicalKey, 'missing lexical aliases through a symlinked ancestor canonicalize to one future resource key');
+      let escapeRejected = false;
+      try { canonicalizeEntries([entry('escape', [{ class: 'fixed-path', key: '../outside', access: 'exclusive' }])], canonicalRoot); } catch { escapeRejected = true; }
+      assert(escapeRejected, 'filesystem resource key cannot escape its declared ownership root');
     } finally { rmSync(alias); }
   } finally { rmSync(canonicalRoot, { recursive: true, force: true }); }
 

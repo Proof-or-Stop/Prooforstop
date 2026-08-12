@@ -3,7 +3,7 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { existsSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { currentMaterialHash } from '../core/evidence-freshness.js';
@@ -117,12 +117,24 @@ function validateResourceClaims(claims: ResourceClaim[], owner: string): void {
   }
 }
 
-function canonicalFilesystemPath(cwd: string, key: string): string {
+function canonicalFilesystemPath(cwd: string, key: string, allowOutsideOwnershipRoot = false): string {
   const absolute = resolve(cwd, key);
-  if (existsSync(absolute)) return realpathSync(absolute);
-  const parent = dirname(absolute);
-  if (!existsSync(parent)) throw new Error(`resource path parent does not exist: ${key}`);
-  return join(realpathSync(parent), absolute.slice(parent.length + 1));
+  let canonical: string;
+  if (existsSync(absolute)) canonical = realpathSync(absolute);
+  else {
+  let ancestor = dirname(absolute);
+  while (!existsSync(ancestor)) {
+    const parent = dirname(ancestor);
+    if (parent === ancestor) throw new Error(`resource path has no resolvable ancestor: ${key}`);
+    ancestor = parent;
+  }
+    canonical = join(realpathSync(ancestor), relative(ancestor, absolute));
+  }
+  const ownershipRoot = realpathSync(cwd);
+  if (!allowOutsideOwnershipRoot && canonical !== ownershipRoot && !canonical.startsWith(`${ownershipRoot}/`)) {
+    throw new Error(`resource path escapes ownership root: ${key}`);
+  }
+  return canonical;
 }
 
 export function canonicalizeEntries(entries: FullSuiteEntry[], cwd: string): FullSuiteEntry[] {
@@ -136,7 +148,7 @@ export function canonicalizeEntries(entries: FullSuiteEntry[], cwd: string): Ful
       } else if (claim.class === 'git-common-dir') {
         const repository = canonicalFilesystemPath(cwd, claim.key);
         const common = execFileSync('git', ['rev-parse', '--git-common-dir'], { cwd: repository, encoding: 'utf8' }).trim();
-        value = canonicalFilesystemPath(repository, common);
+        value = canonicalFilesystemPath(repository, common, true);
       } else value = canonicalFilesystemPath(cwd, claim.key);
       return { ...claim, canonicalKey: `${claim.class}:${value}` };
     });
