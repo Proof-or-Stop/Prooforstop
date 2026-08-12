@@ -87,6 +87,100 @@ export const DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS = 10_000;
 export const DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000;
 
 /**
+ * B-cdf6 (B-META F-013): hard cap for a global-fallback heartbeat timeout override.
+ *
+ * `session_brief` aggregates every active story before it writes its heartbeat, so its
+ * cost scales with repository size: on this repo (319 entries under the active story
+ * dir) it needs ~101s and cannot finish inside the 30s default, which made the check
+ * fail on any sufficiently large repo with no way for an operator to pass it honestly.
+ *
+ * The cap is 10 minutes: one order of magnitude above the default, which is ample for a
+ * single `session_brief` on a very large repo while still bounding a diagnostic that an
+ * operator waits on interactively. A request ABOVE the cap is REFUSED, never silently
+ * clamped (same rule as {@link EVIDENCE_COMMAND_TIMEOUT_CAP_MS} for F-012).
+ *
+ * Canonical single source of truth: the CLI schema (`command-catalog.ts`) and the
+ * runtime re-validation in {@link resolveGlobalFallbackHeartbeatTimeoutMs} both use THIS
+ * constant, so the Zod bound and the handler enforcement can never drift apart.
+ */
+export const GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS = 600_000;
+
+/**
+ * B-cdf6 (B-META F-013): minimum characters for `heartbeatTimeoutReason`.
+ * Mirrors the F-012 `commandTimeoutReason` bar so a raised budget always explains itself.
+ */
+export const HEARTBEAT_TIMEOUT_REASON_MIN_CHARS = 30;
+
+/**
+ * B-cdf6 (B-META F-013): the audited override block for the global-fallback heartbeat.
+ * Supplying `timeoutMs` REQUIRES a `reason`; both are echoed into the check detail so a
+ * reviewer sees the budget the pass was earned under.
+ */
+export interface GlobalFallbackHeartbeatTimeoutOverride {
+  timeoutMs: number;
+  reason: string;
+}
+
+/**
+ * B-cdf6 (B-META F-013): resolve + BOUND the global-fallback heartbeat budget.
+ *
+ * Per the Handler 编码约定 this is the runtime re-validation layer: the Zod bound in
+ * `command-catalog.ts` is only the first line of defence, and this function is called at
+ * the `runCodexAdapterChecks` entry so any Zod-bypassing path (internal fn call, stale
+ * JSON, direct core import) is rejected on exactly the same terms.
+ *
+ * Rules (all REFUSALS, never a silent clamp or a silent downgrade to the default):
+ * - non-finite / non-integer / non-positive `timeoutMs` → throw
+ * - `timeoutMs` above {@link GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS} → throw
+ * - `timeoutMs` without a `reason` of >= {@link HEARTBEAT_TIMEOUT_REASON_MIN_CHARS}
+ *   trimmed chars → throw
+ * - a `reason` with no `timeoutMs` → throw (a reason alone raises nothing, so accepting
+ *   it silently would let an operator believe a budget was armed when it was not)
+ *
+ * With no override supplied the result is byte-identical to the pre-F-013 default.
+ */
+export function resolveGlobalFallbackHeartbeatTimeoutMs(
+  override?: Partial<GlobalFallbackHeartbeatTimeoutOverride>,
+  legacyTimeoutMs?: number,
+): { timeoutMs: number; override?: GlobalFallbackHeartbeatTimeoutOverride } {
+  const rawTimeout = override?.timeoutMs;
+  const rawReason = override?.reason;
+  const hasTimeout = rawTimeout !== undefined && rawTimeout !== null;
+  const trimmedReason = typeof rawReason === 'string' ? rawReason.trim() : '';
+
+  if (!hasTimeout) {
+    if (trimmedReason.length > 0) {
+      throw new Error(
+        '[heartbeat_timeout_reason_without_override] heartbeatTimeoutReason was supplied without heartbeatTimeoutMs; '
+        + 'a reason alone raises no budget. Pass both, or neither.',
+      );
+    }
+    // No override: preserve the legacy single-knob behaviour exactly.
+    return { timeoutMs: legacyTimeoutMs ?? DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS };
+  }
+
+  if (typeof rawTimeout !== 'number' || !Number.isFinite(rawTimeout) || !Number.isInteger(rawTimeout) || rawTimeout <= 0) {
+    throw new Error(
+      `[heartbeat_timeout_invalid] heartbeatTimeoutMs must be a positive integer number of milliseconds, got ${JSON.stringify(rawTimeout)}.`,
+    );
+  }
+  if (rawTimeout > GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS) {
+    throw new Error(
+      `[heartbeat_timeout_above_cap] heartbeatTimeoutMs=${rawTimeout}ms exceeds the cap `
+      + `${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms. This is REFUSED, not clamped: if a single session_brief truly `
+      + 'needs longer than the cap, the repository scale itself is the defect to fix.',
+    );
+  }
+  if (trimmedReason.length < HEARTBEAT_TIMEOUT_REASON_MIN_CHARS) {
+    throw new Error(
+      `[heartbeat_timeout_reason_too_short] heartbeatTimeoutReason must be >= ${HEARTBEAT_TIMEOUT_REASON_MIN_CHARS} `
+      + `characters after trimming (got ${trimmedReason.length}); a raised heartbeat budget must be attributable.`,
+    );
+  }
+  return { timeoutMs: rawTimeout, override: { timeoutMs: rawTimeout, reason: trimmedReason } };
+}
+
+/**
  * Resolve the preferred verify_codex command from available local wrappers.
  * Falls back to the documented global-thin command when local wrappers are intentionally absent.
  */
@@ -150,6 +244,18 @@ interface RunCodexChecksOptions {
   storyId?: string;
   store?: StoryStore;
   timeoutMs?: number;
+  /**
+   * B-cdf6 (B-META F-013): bounded audited override for the GLOBAL-FALLBACK heartbeat
+   * budget only. Requires {@link heartbeatTimeoutReason}; validated (and REFUSED above
+   * the cap) by {@link resolveGlobalFallbackHeartbeatTimeoutMs} at this entry, so a
+   * Zod-bypassing internal caller is held to the same bounds as the CLI.
+   *
+   * Deliberately separate from the legacy `timeoutMs`, which collapses the local-wrapper
+   * and global-fallback budgets into one knob: raising the global budget must not also
+   * loosen the deliberately conservative 10s local wrapper probe.
+   */
+  heartbeatTimeoutMs?: number;
+  heartbeatTimeoutReason?: string;
 }
 
 function readText(path: string): string {
@@ -504,6 +610,25 @@ function activityForEntrypoint(root: string, tool: string, entrypoint: string): 
     .find(entry => entry.tool === tool && entry.entrypoint === entrypoint) || null;
 }
 
+/**
+ * B-cdf6 (B-META F-013): did the child get KILLED by our own timeout, rather than
+ * exiting on its own with a real error?
+ *
+ * `execFileSync` surfaces a timeout kill as `code === 'ETIMEDOUT'`; Node also sets
+ * `signal` to the kill signal (SIGTERM by default) and may set `killed`. Any one of
+ * those is sufficient evidence, so all three are accepted: a heartbeat that was killed
+ * has no chance to print its verdict, so reporting it as a generic "command failed" (the
+ * F-013 misdiagnosis: the stderr progress line `[0.1s] running session_brief...` was
+ * shown as if it were the failure reason) actively misleads the operator into hunting a
+ * brand/adapter defect instead of raising the budget.
+ */
+function isTimeoutKill(e: any): boolean {
+  return e?.code === 'ETIMEDOUT'
+    || e?.signal === 'SIGTERM'
+    || e?.signal === 'SIGKILL'
+    || e?.killed === true;
+}
+
 function runHeartbeat(
   root: string,
   checks: CodexAdapterCheck[],
@@ -515,12 +640,14 @@ function runHeartbeat(
   expectedEntrypoint: string,
   timeoutMs: number,
   displayCommand?: string,
+  timeoutOverride?: GlobalFallbackHeartbeatTimeoutOverride,
 ): void {
   const retryCommand = displayCommand || (
     id === 'local-wrapper-heartbeat'
       ? 'node bin/lattice-codex.js session_brief'
       : `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`
   );
+  const startedAt = Date.now();
   try {
     execFileSync(command, args, {
       cwd: root,
@@ -538,9 +665,41 @@ function runHeartbeat(
       },
     });
   } catch (e: any) {
+    // B-cdf6 (B-META F-013): a KILLED heartbeat is a distinct failure from a heartbeat
+    // that ran and reported an error. Name the budget it was killed at and the remedy,
+    // instead of printing the truncated progress line as if it were the cause.
+    if (isTimeoutKill(e)) {
+      const elapsedMs = Date.now() - startedAt;
+      const isGlobalFallback = id === 'global-fallback-heartbeat';
+      const remedy = isGlobalFallback
+        ? ` Raise the budget for this run with --heartbeatTimeoutMs=<ms> (cap ${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms) plus `
+          + `--heartbeatTimeoutReason='<>= ${HEARTBEAT_TIMEOUT_REASON_MIN_CHARS} chars explaining why this repo needs longer>'.`
+        : '';
+      push(
+        checks,
+        id,
+        label,
+        'fail',
+        true,
+        `[heartbeat_command_timeout] heartbeat did not finish within the armed budget of ${timeoutMs}ms `
+        + `(killed after ~${elapsedMs}ms). The command was killed before it could print a verdict, so this is a BUDGET `
+        + `outcome, not evidence that the entrypoint is broken. On a large repository session_brief aggregates every `
+        + `active story before writing its heartbeat, so its cost scales with repository size.${remedy}`,
+        retryCommand,
+      );
+      return;
+    }
     push(checks, id, label, 'fail', true, `heartbeat command failed: ${e?.stderr?.toString?.().trim() || e?.message || e}`, retryCommand);
     return;
   }
+
+  // B-cdf6 (B-META F-013): a raised budget is an exceptional act, so every verdict earned
+  // under one says so. Appended to the DETAIL (not swapped in) so the existing assertions
+  // on these strings keep matching, and empty when no override was armed.
+  const armedSuffix = timeoutOverride
+    ? ` (heartbeatTimeoutMs=${timeoutOverride.timeoutMs}ms override armed, default `
+      + `${DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS}ms; reason: ${timeoutOverride.reason})`
+    : '';
 
   const record = activityForEntrypoint(root, 'session_brief', expectedEntrypoint);
   if (!record) {
@@ -573,14 +732,14 @@ function runHeartbeat(
     return;
   }
   if (!record.entrypoint && expectedEntrypoint === 'global-fallback') {
-    push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession}; installed global CLI has no entrypoint field yet`);
+    push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession}; installed global CLI has no entrypoint field yet${armedSuffix}`);
     return;
   }
   if (record.entrypoint !== expectedEntrypoint) {
     push(checks, id, label, 'fail', true, `entrypoint=${String(record.entrypoint)} expected ${expectedEntrypoint}`, retryCommand);
     return;
   }
-  push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession} entrypoint=${expectedEntrypoint}`);
+  push(checks, id, label, 'pass', true, `source=codex session=${opaqueSession} entrypoint=${expectedEntrypoint}${armedSuffix}`);
 }
 
 function isPackagedDesktopRuntime(): boolean {
@@ -747,7 +906,13 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
   }
 }
 
-function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeHeartbeats: boolean, timeoutMs: number): void {
+function checkGlobalFallback(
+  root: string,
+  checks: CodexAdapterCheck[],
+  executeHeartbeats: boolean,
+  timeoutMs: number,
+  timeoutOverride?: GlobalFallbackHeartbeatTimeoutOverride,
+): void {
   if (!executeHeartbeats) {
     push(checks, 'global-fallback-heartbeat', 'Global fallback heartbeat', 'warn', false, 'not executed in this diagnostic mode', `${GLOBAL_CODEX_FALLBACK_COMMAND} session_brief`);
     return;
@@ -808,6 +973,8 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
     `codex-check-global-${Date.now()}`,
     'global-fallback',
     timeoutMs,
+    undefined,
+    timeoutOverride,
   );
 }
 
@@ -826,7 +993,13 @@ function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<s
 export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptions = {}): CodexAdapterCheckResult {
   const checks: CodexAdapterCheck[] = [];
   const localHeartbeatTimeoutMs = options.timeoutMs ?? DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS;
-  const globalFallbackHeartbeatTimeoutMs = options.timeoutMs ?? DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS;
+  // B-cdf6 (B-META F-013): runtime re-validation boundary. Throws (never clamps) on an
+  // out-of-bounds / unattributed override, including on paths that never touched Zod.
+  const resolvedGlobalHeartbeat = resolveGlobalFallbackHeartbeatTimeoutMs(
+    { timeoutMs: options.heartbeatTimeoutMs, reason: options.heartbeatTimeoutReason },
+    options.timeoutMs,
+  );
+  const globalFallbackHeartbeatTimeoutMs = resolvedGlobalHeartbeat.timeoutMs;
   const executeLocalHeartbeat = options.executeLocalHeartbeat ?? options.executeHeartbeats === true;
   const executeGlobalHeartbeat = options.executeGlobalHeartbeat ?? options.executeHeartbeats === true;
   const agentAssetResolution = resolveAgentAssetResolution(root);
@@ -840,7 +1013,13 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
   checkExcludedAssets(root, checks);
   checkCodexNativeHooks(root, checks);
   checkLocalWrapper(root, checks, executeLocalHeartbeat, localHeartbeatTimeoutMs);
-  checkGlobalFallback(root, checks, executeGlobalHeartbeat, globalFallbackHeartbeatTimeoutMs);
+  checkGlobalFallback(
+    root,
+    checks,
+    executeGlobalHeartbeat,
+    globalFallbackHeartbeatTimeoutMs,
+    resolvedGlobalHeartbeat.override,
+  );
   checkAuxAvailability(checks, options.registryNames);
 
   const hardFailures = checks.filter(check => check.hard && check.status === 'fail');

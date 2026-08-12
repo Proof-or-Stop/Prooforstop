@@ -21,6 +21,7 @@ import {
   computeCodexAdapterMaterialSnapshot,
   DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS,
   DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS,
+  GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS,
   GLOBAL_CODEX_FALLBACK_COMMAND,
   LOCAL_CODEX_VERIFY_COMMAND,
   LOCAL_INIT_VERIFY_COMMAND,
@@ -57,6 +58,13 @@ assert(
   DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS > DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS,
   'global fallback heartbeat should have a larger default budget than local wrapper probes',
 );
+// B-cdf6 (B-META F-013): the override cap must stay above the default (otherwise it could
+// never help) and bounded (otherwise an interactive diagnostic could hang indefinitely).
+assert(
+  GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS > DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS,
+  'heartbeat timeout cap must exceed the default it raises above',
+);
+assert(GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS === 600_000, 'heartbeat timeout cap should stay bounded at 10 minutes');
 
 // CODEX_README_TEMPLATE is the default export; check for the CANONICAL wrapper commands.
 // B-cdf6: the generated guide must teach `bin/proof-or-stop-codex.js`, not the retained
@@ -323,7 +331,18 @@ function assertGlobalFallbackHeartbeatIgnoresParentCodexEntrypoint() {
     process.env.PATH = `${fakeBin}:${previousPath || ''}`;
     process.env.LATTICE_CODEX_ENTRYPOINT = 'local-wrapper';
 
-    const checkResult = runCodexAdapterChecks(root, { executeHeartbeats: true });
+    // B-cdf6 (B-META F-013): this assertion runs the REAL `session_brief` against this
+    // repository, whose cost scales with the number of active stories. Under the bare
+    // 30s default it was already being KILLED here (the whole point of F-013), so the
+    // check must be armed with the bounded, attributed override — otherwise this test
+    // fails for repository scale rather than for the entrypoint behaviour it asserts.
+    // The assertion itself is unchanged: the heartbeat must still genuinely pass.
+    const checkResult = runCodexAdapterChecks(root, {
+      executeHeartbeats: true,
+      heartbeatTimeoutMs: Math.min(300_000, GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS),
+      heartbeatTimeoutReason:
+        'verify-codex-assets runs the real session_brief against this large self-host repo, whose aggregation cost exceeds the default heartbeat budget.',
+    });
     if (!checkResult.ok) {
       console.error(renderCodexAdapterChecks(checkResult));
     }

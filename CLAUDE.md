@@ -843,6 +843,26 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 
 **注意外层 CLI watchdog 仍然生效**：默认 5 分钟无输出 / 15 分钟总时长即被外层 watchdog 杀掉（`cli-engine.ts`）。所以一条静默跑多分钟的 pinned command，除了 `commandTimeoutMs` 还需为同一次调用抬高 `LATTICE_IDLE_TIMEOUT_MS` / `LATTICE_MAX_TIMEOUT_MS`。超时报错文案里会提示这一点。
 
+#### verify_codex heartbeat 超时：独立报错 + 有界受审计的 override（B-cdf6 / B-META F-013）
+
+`verify_codex` 的 **Global fallback heartbeat** check 会执行真实安装的 `proof-or-stop session_brief` 来证明 global-fallback 入口**有响应且会记 activity**。该执行的默认预算是 `DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000`（`core/codex-adapter-checks.ts`）。
+
+- **超时是独立报错，不再伪装成 adapter 缺陷**：命令被预算杀掉时报 `[heartbeat_command_timeout]`，写明**实际武装的预算**、已耗时、以及「这是预算结果、不是入口坏了」。旧文案把被杀进程的 stderr 进度行原样当失败原因输出（`heartbeat command failed: [0.1s] running session_brief...`），读起来像 adapter / 品牌缺陷，导致排查方向完全跑偏。**真的跑完并报错**的命令仍然报原来的 `heartbeat command failed`。
+- **为何不换更便宜的探针**：`session_brief` 是 `classifyRuntimeEntrypointAuthority`（`core/runtime-environment-checks.ts`）里**唯一**被硬编码豁免 `stale_global_runtime_in_worktree` 拦截的命令（`input.command === 'session_brief' && CODEX_ENTRYPOINT === 'global-fallback'`）。在 story worktree 里，global CLI 跑 `status` / `next` / `help` 全部在 dispatch 前被拦掉、**不写任何 activity 行**，因此无法当 liveness 探针；`runtime-entrypoint-authority-smoke.ts` 还显式断言 `help` / `version` / `check --help` **不得**成为 fallback 豁免。换便宜命令 = 要拓宽一个刻意收窄的安全豁免面，所以**刻意保留完整 `session_brief`**，只把预算做成有界可审计的。
+- **成本来源是仓库规模**：`session_brief` 要先聚合所有 active story 才写 heartbeat（本仓 319 条 → ~101s），CLI 启动只占 0.45s。
+
+| 约束 | 规则 |
+|---|---|
+| 参数 | `verify_codex` 新增 `--heartbeatTimeoutMs` + `--heartbeatTimeoutReason`（只影响 global-fallback，不放宽 10s 的本地 wrapper 探针） |
+| 上限 | `GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS = 600_000`（10 分钟，默认值的一个数量级以上）；**边界含等号** |
+| 超上限 | **拒绝**（`[heartbeat_timeout_above_cap]`），**不静默 clamp** |
+| 理由 | `heartbeatTimeoutReason` 必填且 trim 后 ≥ 30 字符，否则 `[heartbeat_timeout_reason_too_short]`；只给理由不给预算 → `[heartbeat_timeout_reason_without_override]`；非正整数 / 字符串 → `[heartbeat_timeout_invalid]` |
+| 可见 | 武装的预算 + 理由追加进该 check 的 detail：`(heartbeatTimeoutMs=<n>ms override armed, default 30000ms; reason: ...)` |
+| 不削弱既有检查 | 仍要求 activity 行存在、`source=codex`、entrypoint 匹配、session token 已脱敏；非零退出 / 无 activity 仍 fail |
+| 默认路径不变 | 不传 override 时行为与 F-013 前**逐字节一致**（30s 默认、detail 无后缀） |
+
+**双层校验（Handler 编码约定）**：Zod（`command-catalog.ts` 的 `.int().positive().max(CAP)` / `.min(30)`）只是第一道防线；`resolveGlobalFallbackHeartbeatTimeoutMs` 在 **`verify_codex` handler 入口**和 **`runCodexAdapterChecks` 核心入口**各再校验一次，故绕开 Zod 的内部 fn 调用 / 老 JSON 同样被拒。cap / default / 最小理由长度由 `core/codex-adapter-checks.ts` 单点导出、schema 与 handler 同时 import，两层不会漂移。回归 smoke：`packages/main/src/tasks/codex-heartbeat-timeout-smoke.js`（含被杀 → 报超时、真坏 → 仍 fail 的负向用例）。
+
 ### CLI gate（REVIEW→TEST preflight，机械判定，秒级返回）
 
 进入 REVIEW 后由 `story_advance --phase=TEST` 自动跑 CLI gate，任一 fail 即 block 推进：

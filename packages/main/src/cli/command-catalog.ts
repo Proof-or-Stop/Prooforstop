@@ -26,6 +26,14 @@ import {
   DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   EVIDENCE_COMMAND_TIMEOUT_CAP_MS,
 } from '../core/validation-executor.js';
+// B-cdf6 (B-META F-013): same single-source discipline as F-012 above — the Zod bound and
+// the runtime re-validation in codex-adapter-checks import the SAME cap/default/min
+// constants, so the two layers can never drift apart.
+import {
+  DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS,
+  GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS,
+  HEARTBEAT_TIMEOUT_REASON_MIN_CHARS,
+} from '../core/codex-adapter-checks.js';
 import {
   autopilotModeSchema,
   backgroundSectionSchema,
@@ -1972,6 +1980,8 @@ Behavior:
   { name: 'verify_codex', description: 'Verify Codex adapter assets, entrypoint heartbeat, and hard evidence', schema: {
     json: z.boolean().optional().describe('Structured JSON output.'),
     storyId: z.string().optional().describe('Optional Story ID; defaults to inferring from the story/* branch and recording process-event evidence.'),
+    heartbeatTimeoutMs: z.number().int().positive().max(GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS, `heartbeatTimeoutMs must be <= ${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms`).optional().describe(`B-cdf6 bounded audited override: raise the GLOBAL-FALLBACK heartbeat budget above the ${DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS}ms default. session_brief aggregates every active story before writing its heartbeat, so a large repository legitimately needs longer and would otherwise fail this check with no honest way to pass. Requires heartbeatTimeoutReason. Cap ${GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_CAP_MS}ms; above the cap is REFUSED, never clamped. Does NOT affect the conservative local wrapper probe. The armed budget + reason are echoed into the check detail.`),
+    heartbeatTimeoutReason: z.string().min(HEARTBEAT_TIMEOUT_REASON_MIN_CHARS, `heartbeatTimeoutReason must be >= ${HEARTBEAT_TIMEOUT_REASON_MIN_CHARS} characters`).optional().describe('B-cdf6: attributable justification REQUIRED whenever heartbeatTimeoutMs is supplied. Echoed into the check detail so a reviewer sees the pass was earned under a raised budget.'),
   }},
   { name: 'codex_doctor', description: 'Report Codex adapter diagnostics status', schema: {
     json: z.boolean().optional().describe('Structured JSON output.'),
