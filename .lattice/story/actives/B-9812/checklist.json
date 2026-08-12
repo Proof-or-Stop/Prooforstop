@@ -9,9 +9,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-12T12:52:07.725Z",
-      "endTime": null,
+      "endTime": "2026-08-12T14:15:59.870Z",
       "verificationIntent": {
         "happy": [
           {
@@ -60,6 +60,93 @@
         "test": [
           "packages/main/src/tasks/full-suite-baseline-smoke.ts"
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "7094b2826df101b50f9409591536037a8f6b75f7d51425ee40a85ca75e32d9a6",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:00.067Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
       }
     },
     {
@@ -71,9 +158,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-12T14:16:01.002Z",
       "verificationIntent": {
         "happy": [
           {
@@ -137,6 +224,132 @@
         "test": [
           "packages/main/src/tasks/run-all-smokes-smoke.ts"
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "598ac50513200fde16196298cbbaf3a31ff94e4532b28fefce8aa43e2cabc6b0",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:01.190Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
       }
     },
     {
@@ -148,9 +361,9 @@
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-12T14:16:02.143Z",
       "verificationIntent": {
         "happy": [
           {
@@ -215,6 +428,132 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "70eec4bd28aa489c1a6c7ba2b108829d072d28f15187192e7c60693a0e41e752",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:02.334Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
       }
     },
     {
@@ -226,9 +565,9 @@
         "docs/requirements/decisions/test-runner-consolidation-plan.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-12T14:16:03.284Z",
       "verificationIntent": {
         "happy": [
           {
@@ -293,6 +632,132 @@
           "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e437b55b2ba151dfd5bec97be44b3297ec26d630ec2a2ffc054516863f4d4a0f",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:03.504Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
       }
     },
     {
@@ -304,9 +769,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-12T14:16:04.425Z",
       "verificationIntent": {
         "happy": [
           {
@@ -375,6 +840,132 @@
           "packages/main/src/tasks/run-all-smokes-smoke.ts",
           "scripts/verify-full-suite-membership.mjs"
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "1d7f387bc3a02c04b50a3c954e2c045f7ae0d77a4fd95c59e59dafdfebf87b34",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:04.626Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
       }
     },
     {
@@ -386,9 +977,9 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-08-12T14:16:05.526Z",
       "verificationIntent": {
         "happy": [
           {
@@ -460,6 +1051,145 @@
         "test": [
           "scripts/verify-full-suite-performance.mjs"
         ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "result": "pass",
+          "note": "Verified by focused runner/build contracts and three same-material canonical runs: /tmp/b9812-proof-run{1,2,3}.json; HEAD 74e3dc9a39, materialHash 1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772; durations 267732/261379/255568ms; 46/46 PASS; retries=0; jobs=4. Runner smoke has 13 assertions covering inventory, locking, priority, terminal failure, atomic artifact and process-tree cleanup.",
+          "mechanical": false,
+          "nonMechanicalReason": "The commands were executed in a clean detached fixed-commit worktree and their atomic JSON, timing log, exit, HEAD, and material sidecars are preserved under /tmp; this metadata write records those already completed receipts without rerunning the three 4.5-minute suites.",
+          "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+          "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772",
+          "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+          "timestamp": "2026-08-12T14:15:52.835Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "28c9735921d4ceed2f136e0508a15c4964eb7b2dbf280a9c11579eb24ae84930",
+        "storyFilesHash": "81b0bff4704e47da65e28893fbce36c88fb0be392c8336820fac855ffd65c606",
+        "headHash": "74e3dc9a39c2079dec5f1ce0b02353c0a0b8e181",
+        "attestedAt": "2026-08-12T14:16:05.716Z",
+        "materialHash": "1e4558ae35597b131c0221d2001d7977d86921cb9a7e94b4f0aee81dd3f8b772"
       }
     }
   ]
