@@ -254,6 +254,49 @@
       },
       "readDiagnostics": [],
       "_hash": "e6da8c4abc0c6c7ee16b451d46ee053bc1cf66d8fdea1b6766c767cf2d24b5a0"
+    },
+    {
+      "id": "B-74af:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-3 test-coverage re-review passed: no production/checklist/evidence change since RP-003; independently revalidated all 19 must intents, 18 mechanical receipts plus one docs_check, aggregate suite, three mutation bites, and protected provider/cross-host timeout freshness with zero gaps or waivers.",
+      "createdAt": "2026-08-12T11:47:52.433Z",
+      "reviewRound": "2026-08-12T11:39:03.767Z",
+      "reviewRunId": "B-74af:RR-010",
+      "envelopeId": "59daef5d1eda42263f6ecf2871d5dce576e0f1a7062fc1f986e20e1c42e37388",
+      "writerSessionId": "sess-b6d2aff95b17ea644829a834c3557d8e",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-74af/background.md",
+          ".lattice/story/actives/B-74af/checklist.json",
+          ".lattice/story/actives/B-74af/plan.md",
+          "packages/main/src/core/agent-liveness-policy.ts",
+          "packages/main/src/tasks/agent-liveness-suite-smoke.ts",
+          "packages/main/src/tasks/provider-codex-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "packages/main/src/core/codex-review-leaf.ts",
+          "packages/main/src/core/host-run.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/providers/codex-cli.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+          "packages/main/src/tasks/review-pass-discard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8225b2379310808eceb64994e3e29d0e00462a360ea39c36331d406e38c565c"
     }
   ]
 }
