@@ -31,7 +31,7 @@ assert.equal(300_000 < 300_000, false, 'exactly 300000ms is outside the accepted
 }
 
 const prefix = process.env.B9812_PROOF_PREFIX ?? '/tmp/b9812-mechanical-run';
-const expectedMaterial = process.env.B9812_MATERIAL_HASH ?? '626604853fdf2e2d46eb64c842567dfd1021f7cdd1cb75d0eeee27a6bd58b981';
+const expectedMaterial = process.env.B9812_MATERIAL_HASH ?? '9f6787fb2051ce9fdc8876bf599d1c3a2c10b6ff4e9af9bcfa64b2eda59acb96';
 let ordered;
 for (let i = 1; i <= 3; i++) {
   const artifact = JSON.parse(readFileSync(`${prefix}${i}.json`, 'utf8'));
