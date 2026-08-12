@@ -1102,7 +1102,9 @@ function main(): void {
     'node packages/main/dist/tasks/production-test-seam-guard.js',
     'root package must expose the focused production test seam guard script',
   );
-  assert.match(packageJson.scripts?.test ?? '', /npm run test:production-test-seam-guard/, 'root npm test must run the production seam guard');
+  assert.equal(packageJson.scripts?.test, 'node packages/main/dist/tasks/full-suite-runner.js', 'root npm test must delegate to the canonical full-suite runner');
+  const serialReference = [packageJson.scripts?.['test:serial-reference-prefix'], packageJson.scripts?.['test:serial-reference']].filter(Boolean).join(' && ');
+  assert.match(serialReference, /(?:^|&&\s*)npm run test:production-test-seam-guard(?:\s*&&|$)/, 'canonical serial membership authority must include the production seam guard');
   const latticeConfig = readFileSync(join(repoRoot, 'lattice.config.json'), 'utf8');
   assert.match(latticeConfig, /packages\/main\/dist\/tasks\/production-test-seam-guard\.js/, 'routine validate must run the production seam guard');
   const scanRoots = [join(repoRoot, 'packages/main/src/core'), join(repoRoot, 'packages/main/src/handlers')];

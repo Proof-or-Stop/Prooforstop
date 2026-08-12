@@ -1425,6 +1425,15 @@ function runDeterministicTicketReclaimAbaCase(): void {
   }
 }
 
+export const INCREMENTAL_GUARD_CLASS_MAP = Object.freeze({
+  'review-run-identity': 'concurrent review_run_start preserves every lane and unique IDs',
+  'mixed-envelope-selection': 'each legacy/full lane binds only its selected representation',
+  'pass-finding-write-serialization': 'three passes and two findings are retained exactly once',
+  'signed-result-admissibility': 'collector accepts every current signed result',
+  'lane-no-overwrite': 'collector counts every reviewer lane once',
+  'real-review-gate': 'canPassReviewGuard accepts the complete evidence matrix',
+});
+
 function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
   const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
@@ -1578,6 +1587,13 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
   }
 }
 
+function runIncrementalGuardClassMatrix(): void {
+  runConcurrentReviewerWriteCase(0b11111);
+  runConcurrentReviewerWriteCase(0b01010);
+  runConcurrentReviewerWriteCase(0b10101, 1);
+  console.log(`${MARKER} INCREMENTAL_GUARD_CLASSES=${Object.keys(INCREMENTAL_GUARD_CLASS_MAP).join(',')}`);
+}
+
 function run(): void {
   runPolicyCases();
   runFixtureDuplicateIdentityCases();
@@ -1587,13 +1603,12 @@ function run(): void {
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
   runDeterministicTicketReclaimAbaCase();
-  runConcurrentReviewerWriteCase(0b11111);
-  runConcurrentReviewerWriteCase(0b01010);
+  runIncrementalGuardClassMatrix();
   // The three fixed masks above are the deterministic race/mutation matrix.
   // Canonical full-suite runs add one 10101 burn-in; stress runs retain the
   // historical twenty identical repetitions for soak testing.
   const burnInIterations = process.env.LATTICE_INCREMENTAL_STRESS === '1' ? 20 : 1;
-  for (let iteration = 1; iteration <= burnInIterations; iteration += 1) {
+  for (let iteration = 2; iteration <= burnInIterations; iteration += 1) {
     runConcurrentReviewerWriteCase(0b10101, iteration);
   }
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
@@ -1605,6 +1620,8 @@ if (isDirectRun) {
     runDeterministicTicketReclaimAbaCase();
   } else if (process.argv.includes('--cutoff-verifier-only')) {
     runProductionVerifierTemporalCutoffRegression();
+  } else if (process.argv.includes('--guard-map-only')) {
+    runIncrementalGuardClassMatrix();
   } else {
     run();
   }

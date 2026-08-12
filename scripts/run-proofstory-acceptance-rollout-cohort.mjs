@@ -17,7 +17,14 @@ const RUNNER_RELATIVE_PATH = 'scripts/run-proofstory-acceptance-rollout-cohort.m
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, '..');
 const execFileAsync = promisify(execFile);
-const productionCaseLimit = Math.max(1, Number(process.env.LATTICE_ROLLOUT_COHORT_JOBS || 2));
+const MAX_COHORT_JOBS = 12;
+export function parseCohortJobs(value = '3') {
+  if (!/^[1-9]\d*$/.test(value)) throw new Error(`LATTICE_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed > MAX_COHORT_JOBS) throw new Error(`LATTICE_ROLLOUT_COHORT_JOBS must be a finite positive integer <= ${MAX_COHORT_JOBS}`);
+  return parsed;
+}
+const productionCaseLimit = parseCohortJobs(process.env.LATTICE_ROLLOUT_COHORT_JOBS ?? '3');
 let productionCasesActive = 0;
 const productionCaseWaiters = [];
 
@@ -35,6 +42,27 @@ async function withProductionCaseSlot(work) {
 
 function sha256(value) {
   return `sha256:${createHash('sha256').update(value).digest('hex')}`;
+}
+
+export function semanticCohortRecords(sourceRecords) {
+  return sourceRecords.map(record => ({
+    pairId: record.pairId,
+    arm: record.arm,
+    storyId: record.storyId,
+    claimClass: record.claimClass,
+    defectClass: record.defectClass,
+    defectPresent: record.defectPresent,
+    shouldBlock: record.shouldBlock,
+    scenario: record.observationReceipt.scenario,
+    topologyStatus: record.observationReceipt.gateArtifacts?.[0]?.status,
+    topologyDiagnostics: record.observationReceipt.gateArtifacts?.[0]?.report?.diagnostics ?? [],
+    preReviewStatus: record.observationReceipt.gateArtifacts?.[1]?.status,
+    preReviewCodes: record.observationReceipt.gateArtifacts?.[1]?.report?.codes ?? [],
+    checkInventory: record.observationReceipt.checkInventory ?? null,
+    mutationInventory: record.observationReceipt.mutationInventory ?? null,
+    mutationResults: record.observationReceipt.mutationResults ?? null,
+    controlRestored: record.observationReceipt.controlRestored ?? Boolean(record.observationReceipt.restorationCommitSha),
+  })).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
 }
 
 function writeJson(path, value) {
@@ -204,6 +232,8 @@ async function runProofStoryAcceptanceRolloutCohortAsync() {
       registeredSeedIds,
       sourceRecords,
       sourceInventoryDigest: sha256(canonicalJson(sourceRecords)),
+      semanticInventoryDigest: sha256(canonicalJson(semanticCohortRecords(sourceRecords))),
+      cohortJobs: productionCaseLimit,
       runnerPath: RUNNER_RELATIVE_PATH,
       runnerDigest: sha256(readFileSync(runnerPath)),
     };
@@ -213,7 +243,10 @@ async function runProofStoryAcceptanceRolloutCohortAsync() {
 }
 
 if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
-  const outArgPath = process.argv.find(arg => arg.startsWith('--out='))?.slice('--out='.length);
+  const args = process.argv.slice(2);
+  if (args.some(arg => !arg.startsWith('--out=')) || args.filter(arg => arg.startsWith('--out=')).length > 1) throw new Error(`unknown or duplicate argument: ${args.join(' ')}`);
+  const outArgPath = args.find(arg => arg.startsWith('--out='))?.slice('--out='.length);
+  if (args.length && !outArgPath) throw new Error('--out requires a path');
   const cohort = await runProofStoryAcceptanceRolloutCohort();
   const serialized = `${JSON.stringify(cohort, null, 2)}\n`;
   if (outArgPath) {
