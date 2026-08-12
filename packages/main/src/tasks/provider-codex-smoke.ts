@@ -196,6 +196,63 @@ try {
   assert.equal(timed.timedOut, true, 'a bounded timeout is detected from the kill signal');
   assert.equal(timed.attempts, 1);
 
+  // Injected-runner coverage makes the retry contract deterministic: only a
+  // timeout retries, the policy caps attempts at five, and the first later
+  // non-timeout result (success or failure) is terminal.
+  let timeoutThenSuccessCalls = 0;
+  const timeoutThenSuccess = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 4,
+    env: { PATH: binDir },
+  }, () => {
+    timeoutThenSuccessCalls += 1;
+    return timeoutThenSuccessCalls < 3
+      ? { status: null, signal: 'SIGTERM', stdout: '', stderr: '' }
+      : { status: 0, signal: null, stdout: 'done', stderr: '' };
+  });
+  assert.equal(timeoutThenSuccessCalls, 3, 'timeout-only failures retry until a non-timeout result arrives');
+  assert.equal(timeoutThenSuccess.attempts, 3, 'attempt evidence includes both timeouts and the terminal success');
+  assert.equal(timeoutThenSuccess.exitCode, 0);
+  assert.equal(timeoutThenSuccess.timedOut, false, 'the terminal attempt determines final timeout classification');
+
+  let cappedTimeoutCalls = 0;
+  const cappedTimeout = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 99,
+    env: { PATH: binDir },
+  }, () => {
+    cappedTimeoutCalls += 1;
+    return { status: null, signal: 'SIGKILL', stdout: '', stderr: '' };
+  });
+  assert.equal(cappedTimeoutCalls, 5, 'maxAttempts values above policy are capped at exactly five runner calls');
+  assert.equal(cappedTimeout.attempts, 5, 'bounded result records the exact five-attempt policy cap');
+  assert.equal(cappedTimeout.timedOut, true);
+
+  let timeoutThenFailureCalls = 0;
+  const timeoutThenFailure = runBoundedCodexProvider({
+    provider: 'codex',
+    argv: ['exec'],
+    cwd: projectRoot,
+    timeoutMs: 5_000,
+    maxAttempts: 5,
+    env: { PATH: binDir },
+  }, () => {
+    timeoutThenFailureCalls += 1;
+    return timeoutThenFailureCalls === 1
+      ? { status: null, signal: 'SIGTERM', stdout: '', stderr: '' }
+      : { status: 7, signal: null, stdout: '', stderr: 'terminal failure' };
+  });
+  assert.equal(timeoutThenFailureCalls, 2, 'a later non-timeout failure stops retries early');
+  assert.equal(timeoutThenFailure.attempts, 2);
+  assert.equal(timeoutThenFailure.exitCode, 7);
+  assert.equal(timeoutThenFailure.timedOut, false);
+
   // ----------------------------------------------------------------------------
   // 8. End-to-end through executePlannedSteps with the DEFAULT executor (real spawn):
   //    enabled + credentialed + available codex runs, evidence is redacted, and
