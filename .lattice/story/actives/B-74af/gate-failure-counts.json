@@ -4,5 +4,11 @@
     "command": "story_advance",
     "lastReason": "Cannot enter TEST: CLI gate preflight did not pass (codex-adapter)\n\nREVIEW→TEST CLI gate preflight:\n  [✓] validate --channel: pass — Normal channel: dispatch/subagent_result structured evidence coverage complete; commit author only as auxiliary signal\n  [✓] validate --concept: pass — 1 symbol(s) deleted, no residual references\n  [✓] validate --lint: pass — lint pass: tsc (skipped: ruff, importGraph)\n  [✓] validate --docs-drift: pass — CLAUDE.md command references aligned with registry (335 stale",
     "lastAt": "2026-08-12T11:37:17.234Z"
+  },
+  "story_advance/1b9b82f147e8": {
+    "count": 1,
+    "command": "story_advance",
+    "lastReason": "Cannot enter TEST: pass B-74af:RP-001 failed closeout metadata retention: untrusted closeout artifact path: checklist.json; invalid closeout artifact: checklist.json; untrusted closeout artifact path: gate-failure-counts.json; invalid closeout artifact: gate-failure-counts.json. → The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; first return to DEV to fix and commit, then run lattice story_advance '{\"storyId\":\"B",
+    "lastAt": "2026-08-12T11:38:12.157Z"
   }
 }
