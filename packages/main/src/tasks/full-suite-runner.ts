@@ -43,7 +43,12 @@ export function observedOutputSignatures(output: string): string[] {
       return `INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(visit(value))}`;
     } catch { return line; }
   };
-  const normalized = output.replace(/\x1b\[[0-9;]*m/g, '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => normalizeStressReceipt(line)
+  const normalized = output.replace(/\x1b\[[0-9;]*m/g, '').split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+    // Structured summary fields are parsed below. Hashing their raw JSON would
+    // duplicate those facts and make formatting or timing-only metadata part of
+    // the semantic output inventory.
+    .filter(line => !line.startsWith('LATTICE_FULL_SUITE_SUMMARY='))
+    .map(line => normalizeStressReceipt(line)
     .replace(/^- B-[0-9a-f]{4}(?= \[[A-Z_]+\] )/, '- B-<fixture>')
     .replace(/\b(?:headHash|materialHash|storyFilesHash|digest)=?["']?[0-9a-f]{40,64}\b/gi, '<identity>')
     .replace(/\b\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z\b/g, '<timestamp>')
@@ -329,14 +334,16 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
       try { marker = markerLine ? JSON.parse(markerLine.slice('LATTICE_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
       const status = interruptError ? 'FAIL' : interruptSignal || schedulerCancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
       const reason = interruptError ? `interrupt cleanup failed: ${interruptError.message}` : interruptSignal ? `runner received ${interruptSignal}` : schedulerCancellationReason ?? (code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`);
+      const outputSignatures = observedOutputSignatures(output);
+      const markerAssertions = marker?.assertions ?? [];
       done({
       name: entry.name,
       status,
       durationMs: elapsed(), output,
       reason,
       cpu: { capability: usePosixTime ? 'posix-time' : 'unavailable', userSeconds: cpuMatch ? Number(cpuMatch[1]) : null, systemSeconds: cpuMatch ? Number(cpuMatch[2]) : null },
-      assertionInventory: [...(marker?.assertions ?? []), ...observedOutputSignatures(output), `terminal-exit:${status}:${entry.name}`],
-      detailedAssertions: observedOutputSignatures(output),
+      assertionInventory: [...markerAssertions, ...outputSignatures, `terminal-exit:${status}:${entry.name}`],
+      detailedAssertions: [...markerAssertions, ...outputSignatures],
       canonicalMemberAssertionId: entry.name,
       mutationInventory: marker?.mutations ?? [],
       failureOutcome: { status, reason: reason ?? null },

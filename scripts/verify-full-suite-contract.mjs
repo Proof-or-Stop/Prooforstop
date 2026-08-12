@@ -176,7 +176,9 @@ const memberReportValid = parallel.length === 3 && parallel.every(run =>
   run.baselineComparison?.historicalSerialMs === 1_688_918
   && run.results.every(result => result.canonicalMemberAssertionId === result.name
     && Array.isArray(result.assertionInventory) && result.assertionInventory.some(assertion => assertion === `terminal-exit:PASS:${result.name}`) && Array.isArray(result.mutationInventory)
-    && Array.isArray(result.detailedAssertions) && result.detailedAssertions.length > 0 && result.detailedAssertions.every(assertion => assertion.startsWith('output-sha256:'))
+    && Array.isArray(result.detailedAssertions) && result.detailedAssertions.length > 0
+    && result.detailedAssertions.every(assertion => typeof assertion === 'string' && assertion.length > 0)
+    && result.detailedAssertions.some(assertion => assertion.startsWith('output-sha256:'))
     && result.failureOutcome?.status === result.status
     && result.cpu && (result.cpu.capability === 'unavailable' || (Number.isFinite(result.cpu.userSeconds) && Number.isFinite(result.cpu.systemSeconds))))
 );

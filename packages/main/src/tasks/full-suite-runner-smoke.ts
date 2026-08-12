@@ -242,6 +242,20 @@ async function main(): Promise<void> {
     assert(JSON.stringify(stressOne) === JSON.stringify(stressTwo), 'only observedDurationMs values normalize recursively inside incremental stress receipts');
     assert(JSON.stringify(stressOne) !== JSON.stringify(stressSeedChanged) && JSON.stringify(stressOne) !== JSON.stringify(stressCountChanged), 'stress seed, iteration count and status remain inventory-significant');
     assert(cpuResult.assertionInventory?.includes('cpu-fixture') && cpuResult.detailedAssertions?.length, 'explicit marker assertions are retained alongside observed output signatures');
+    writeFileSync(join(cpuFixture, 'marker-a.js'), `console.log('PASS stable marker member');console.log('LATTICE_FULL_SUITE_SUMMARY={"assertions":["marker-proof"],"mutations":["marker-mutation"],"timing":"0.1s"}');\n`);
+    writeFileSync(join(cpuFixture, 'marker-b.js'), `console.log('PASS stable marker member');console.log('LATTICE_FULL_SUITE_SUMMARY={ "timing":"9.9s", "mutations":["marker-mutation"], "assertions":["marker-proof"] }');\n`);
+    writeFileSync(join(cpuFixture, 'marker-changed.js'), `console.log('PASS stable marker member');console.log('LATTICE_FULL_SUITE_SUMMARY='+JSON.stringify({assertions:['marker-proof-changed'],mutations:['marker-mutation-changed'],timing:'0.1s'}));\n`);
+    writeFileSync(join(cpuFixture, 'package.json'), JSON.stringify({ scripts: {
+      'test:marker-a': 'node marker-a.js', 'test:marker-b': 'node marker-b.js', 'test:marker-changed': 'node marker-changed.js',
+    } }));
+    const markerA = await runEntry(entry('test:marker-a'), cpuFixture);
+    const markerB = await runEntry(entry('test:marker-b'), cpuFixture);
+    const markerChanged = await runEntry(entry('test:marker-changed'), cpuFixture);
+    assert(JSON.stringify(markerA.detailedAssertions) === JSON.stringify(markerB.detailedAssertions)
+      && JSON.stringify(markerA.mutationInventory) === JSON.stringify(markerB.mutationInventory), 'marker JSON formatting and timing-only serialization do not alter member inventory');
+    assert(JSON.stringify(markerA.detailedAssertions) !== JSON.stringify(markerChanged.detailedAssertions)
+      && JSON.stringify(markerA.mutationInventory) !== JSON.stringify(markerChanged.mutationInventory), 'changing parsed marker assertions and mutations alters member inventory');
+    assert(markerA.detailedAssertions?.includes('marker-proof') && markerA.detailedAssertions.some(value => value.startsWith('output-sha256:')), 'marker assertions and non-marker output signatures are retained as separate facts');
     const isolatedRoots = cpuResult.output.match(/TEMP_ROOTS=([^\n]+)/)?.[1]?.split('|') ?? [];
     assert(isolatedRoots.length === 4 && new Set(isolatedRoots).size === 1 && isolatedRoots[0] === cpuResult.tempRoot, `member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP (${isolatedRoots.join('|')} vs ${cpuResult.tempRoot})`);
     const heartbeat = join(root, 'heartbeat');
