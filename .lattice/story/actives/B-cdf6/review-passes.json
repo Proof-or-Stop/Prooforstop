@@ -145,6 +145,46 @@
         "scanEscalationReason": null
       },
       "_hash": "cc308a6615684f52d03d23e585616e086f6d3f70f76a0607bc65c0eaa23de55c"
+    },
+    {
+      "id": "B-cdf6:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Independently verified all 14 symbols flagged by validate --concept. (1) detectLatticeBrand, formatLatticeProductLine, formatLatticeVersionLine, isAnyLatticeStoryMetadataPath, isLatticeLifecycleArtifactPath, renderLatticeBootstrapScript, renderLatticeCodexAdapterManifest, renderLatticeCodexWrapperScript: all still-exported deprecated aliases (export const X = <new-canonical-name>), confirmed live call sites in cli-engine.ts, lattice-only-absence-smoke.ts, verify-codex-assets.mjs. (2) runLattice, runLatticeExpectFail, runLatticeRaw, writeLatticeConfig: module-local helpers renamed atomically per-file (def + all call sites in same commit) to runProofOrStopRaw / writeProofOrStopConfig; the only remaining substring hits (runLatticeResidueGate, runLatticeFromCwdExpectFail) are distinct symbols that merely share a prefix, zero cross-file dangling callers. (3) resolveLatticeCommandPath: fully renamed to resolveGlobalCliCommandPath with both call sites updated in the same diff, zero remaining references anywhere. (4) main (15226/15335=99.3% of residuals): substring-scanner false-positive avalanche matching the ubiquitous word / packages/main path segment repo-wide; the one real deletion (bin/lattice-codex.js own main()) was replaced by delegation to bin/proof-or-stop-codex.js's own main(), no dangling caller. Cross-check: npx tsc --noEmit clean on packages/main, packages/utils, packages/lab. Manually inspected all 109 non-main residual entries via structured --json output; every one is pattern (a) live alias or (b) same-file rename/substring collision, zero genuine dangling references. F-012 commandTimeoutMs override and brand-env.ts F-018 dead-export cleanup checked and unrelated to any brand-symbol deletion, consistent with clean build. Verdict: gate residual count is a false positive by construction. No blocker found.",
+      "createdAt": "2026-08-12T10:53:57.218Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-017",
+      "envelopeId": "70c7c515e727bbc76bdd45fee6585fd10fd8ea5240e1a655e60f485f4388e41a",
+      "writerSessionId": "sess-9a7d88c7fd9facada1536ec0cf731786",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "bin/lattice-codex.js",
+          "bin/proof-or-stop-codex.js",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/review-preflight.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/tasks/artifact-release-ledger-smoke.ts",
+          "packages/main/src/tasks/experience-layer-ab-shadow-gate-smoke.ts",
+          "packages/main/src/tasks/field-regression-cli-smoke.ts",
+          "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+          "packages/main/src/tasks/worktree-authority-smoke.ts",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-done-merge-preflight.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/core/brand-env.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3b74d7031318a4b597e149bdbadff52bedb87a332f39e263d159e9f0f7414174"
     }
   ]
 }
