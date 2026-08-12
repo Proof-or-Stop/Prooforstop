@@ -423,7 +423,7 @@
       "desc": "packages/main/src/core/runtime-environment-checks.ts:333 checks input.env?.LATTICE_CODEX_ENTRYPOINT === \"global-fallback\" via raw property access instead of readBrandEnv(\"CODEX_ENTRYPOINT\") — the exact read-both fallback helper the SAME FILE correctly uses at line 1129 for the identical value/purpose. classifyRuntimeEntrypointAuthority is called from cli-engine.ts:770 with env: process.env on every command in a self-host worktree, and its own comment says this is the sole exemption for the explicit global-fallback session_brief heartbeat. If an operator or a future doc/generator emits the fully-renamed canonical form PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback (equally valid per the additive compat contract), this exemption silently fails to match, misclassifying an explicit global-fallback heartbeat as a worktree runtime-authority violation instead of exempting it. Same bug class as F-016 (idleLattice/idleProofOrStop config key): a renamed identifier whose old spelling still resolves only because the current write side (GLOBAL_CODEX_FALLBACK_COMMAND in codex-adapter-checks.ts and init-assets.ts generated docs) has not yet moved to the canonical name, with zero read-both fallback at this one call site. Fix: replace the raw property read at runtime-environment-checks.ts:333 with readBrandEnv(\"CODEX_ENTRYPOINT\", input.env).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-12T04:13:02.253Z",
@@ -431,7 +431,11 @@
       "reviewRunId": "B-cdf6:RR-010",
       "_hash": "bd700d70f41fec84918e7be6fbbcbf15cd11054d67f72806e2e03f5c6d808ff0",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified the inconsistency before fixing: runtime-environment-checks.ts:333 read input.env?.LATTICE_CODEX_ENTRYPOINT by raw property access while line ~1129 of the SAME file reads the identical semantic value via readBrandEnv('CODEX_ENTRYPOINT'). Since classifyRuntimeEntrypointAuthority runs on every command in a self-host worktree (cli-engine.ts passes env: process.env), the canonical PROOF_OR_STOP_CODEX_ENTRYPOINT spelling would have been missed and a legitimate global-fallback session_brief heartbeat misclassified as a runtime-authority violation. Fixed to readBrandEnv with an inline comment naming this finding and its F-016 kinship. PROVEN by execution, not inspection: a global-fallback session_brief now completes and prints '# proof-or-stop session brief' under BOTH the deprecated LATTICE_* names and the canonical PROOF_OR_STOP_* names. Additionally closed the write-side asymmetry the reviewer flagged but chose not to file: this repo's committed bin/proof-or-stop-codex.js wrote ONLY deprecated spellings while the init-GENERATED wrapper dual-writes both - it worked only because every reader currently falls back, which is precisely the assumption F-020 caught breaking. It now uses the same setEnv/readEnv/deleteEnv contract; both codex entrypoints verified working.",
+      "resolvedAt": "2026-08-12T05:24:09.541Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cdf6:F-021",
