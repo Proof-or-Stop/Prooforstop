@@ -3,7 +3,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { runEntry, runScheduled, validateInventory, type FullSuiteEntry, type FullSuiteResult } from './full-suite-runner.js';
+import { runEntry, runScheduled, validateInventory, writeResultArtifact, type FullSuiteEntry, type FullSuiteResult } from './full-suite-runner.js';
 
 const checks: string[] = [];
 function assert(condition: unknown, message: string): void { if (!condition) throw new Error(message); checks.push(message); }
@@ -59,6 +59,9 @@ async function main(): Promise<void> {
 
   const root = mkdtempSync(join(tmpdir(), 'full-suite-runner-smoke-'));
   try {
+    const artifact = join(root, 'result.json');
+    writeResultArtifact(artifact, { complete: true });
+    assert(JSON.parse(readFileSync(artifact, 'utf8')).complete === true, 'completion artifact atomically replaces its final path');
     const heartbeat = join(root, 'heartbeat');
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20)`) }],{stdio:'ignore'});setInterval(()=>{},1000);\n`);
     const timeout = await runEntry({ name: 'test:hang', resource: 'isolated', timeoutMs: 300 }, root, process.execPath);

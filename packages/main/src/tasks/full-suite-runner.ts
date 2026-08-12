@@ -2,7 +2,7 @@
 
 import { spawn } from 'node:child_process';
 import { cpus } from 'node:os';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -89,6 +89,13 @@ export function validateInventory(entries: FullSuiteEntry[], serialReference: st
   }
 }
 
+export function writeResultArtifact(path: string, value: unknown): void {
+  const target = resolve(path);
+  const temporary = `${target}.tmp-${process.pid}`;
+  writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`);
+  renameSync(temporary, target);
+}
+
 function killTree(child: ReturnType<typeof spawn>): void {
   if (!child.pid) return;
   try { process.kill(-child.pid, 'SIGKILL'); } catch { try { child.kill('SIGKILL'); } catch { /* already gone */ } }
@@ -168,7 +175,7 @@ async function main(): Promise<void> {
   for (const failure of failures) process.stderr.write(`\n--- ${failure.name} ${failure.status} ---\n${failure.output}\n`);
   const durationMs = Date.now() - started;
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
-  if (jsonOutput) writeFileSync(resolve(jsonOutput), `${JSON.stringify({ schemaVersion: 'lattice.full_suite_result.v1', startedAt: new Date(started).toISOString(), durationMs, jobs, retries: 0, passed: results.length - failures.length, total: results.length, results }, null, 2)}\n`);
+  if (jsonOutput) writeResultArtifact(jsonOutput, { schemaVersion: 'lattice.full_suite_result.v1', startedAt: new Date(started).toISOString(), durationMs, jobs, retries: 0, passed: results.length - failures.length, total: results.length, results });
   if (failures.length) process.exitCode = 1;
 }
 
