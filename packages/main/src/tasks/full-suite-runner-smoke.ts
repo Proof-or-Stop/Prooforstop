@@ -3,7 +3,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { runEntry, runScheduled, validateInventory, writeResultArtifact, type FullSuiteEntry, type FullSuiteResult } from './full-suite-runner.js';
+import { interruptForTest, resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact, type FullSuiteEntry, type FullSuiteResult } from './full-suite-runner.js';
 
 const checks: string[] = [];
 function assert(condition: unknown, message: string): void { if (!condition) throw new Error(message); checks.push(message); }
@@ -56,6 +56,10 @@ async function main(): Promise<void> {
   ], 1, async (entry) => { launchOrder.push(entry.name); return pass(entry.name); });
   assert(launchOrder[0] === 'long-priority', 'estimated priority launches the longest member first');
   assert(reportOrder.map((result) => result.name).join(',') === 'short-first-in-inventory,long-priority', 'priority preserves complete canonical report order');
+  const oversizedJobs = await runScheduled([{ name: 'only', resource: 'isolated' }], 99, async entry => pass(entry.name));
+  assert(oversizedJobs.length === 1, 'jobs greater than member count executes each member once');
+  const empty = await runScheduled([], 4, async entry => pass(entry.name));
+  assert(empty.length === 0, 'empty selection completes without deadlock');
 
   const terminal = await runScheduled([
     { name: 'first-fail', resource: 'isolated' }, { name: 'pass', resource: 'isolated' },
@@ -74,6 +78,12 @@ async function main(): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 80)); const before = readFileSync(heartbeat, 'utf8').length;
     await new Promise((resolve) => setTimeout(resolve, 100)); const after = readFileSync(heartbeat, 'utf8').length;
     assert(before === after, 'timeout kills the complete descendant process group');
+    const interruptedPromise = runEntry({ name: 'test:hang', resource: 'isolated', timeoutMs: 10_000 }, root, process.execPath);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    interruptForTest('SIGTERM');
+    const interrupted = await interruptedPromise;
+    assert(interrupted.status === 'INTERRUPTED' && interrupted.reason?.includes('SIGTERM'), 'external interruption kills active process groups and reports INTERRUPTED');
+    resetInterruptForTest();
   } finally { rmSync(root, { recursive: true, force: true }); }
 
   process.stdout.write(`full-suite-runner-smoke: PASS (${checks.length} assertions)\n`);

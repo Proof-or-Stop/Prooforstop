@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { cpus } from 'node:os';
 import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { currentMaterialHash } from '../core/evidence-freshness.js';
 
 export type ResourceMode = 'isolated' | 'repo-read' | 'repo-write';
 export interface FullSuiteEntry { name: string; resource: ResourceMode; timeoutMs?: number; priority?: number }
-export interface FullSuiteResult { name: string; status: 'PASS' | 'FAIL' | 'TIMEOUT'; durationMs: number; output: string; reason?: string }
+export interface FullSuiteResult { name: string; status: 'PASS' | 'FAIL' | 'TIMEOUT' | 'INTERRUPTED'; durationMs: number; output: string; reason?: string; resource?: ResourceMode; lockWaitMs?: number }
 
 // This is the canonical inventory.  The serial-reference npm script is a second,
 // independently parsed representation so an omitted or duplicated member fails
@@ -64,6 +66,8 @@ export const FULL_SUITE_ENTRIES: FullSuiteEntry[] = [
 
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MAX_OUTPUT_BYTES = 64 * 1024;
+const activeChildren = new Set<ReturnType<typeof spawn>>();
+let interruptSignal: NodeJS.Signals | undefined;
 
 export function parseSerialReference(text: string): string[] {
   return text.split(/\s*&&\s*/).map((part) => {
@@ -101,21 +105,30 @@ function killTree(child: ReturnType<typeof spawn>): void {
   try { process.kill(-child.pid, 'SIGKILL'); } catch { try { child.kill('SIGKILL'); } catch { /* already gone */ } }
 }
 
+function requestInterrupt(signal: NodeJS.Signals): void {
+  interruptSignal = signal;
+  for (const child of activeChildren) killTree(child);
+}
+
+export function interruptForTest(signal: NodeJS.Signals = 'SIGTERM'): void { requestInterrupt(signal); }
+export function resetInterruptForTest(): void { interruptSignal = undefined; }
+
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm'): Promise<FullSuiteResult> {
   const started = Date.now();
   return await new Promise((finish) => {
     const child = spawn(npmCommand, ['run', entry.name], { cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
+    activeChildren.add(child);
     let output = '';
     const append = (chunk: unknown) => { output = (output + String(chunk)).slice(-MAX_OUTPUT_BYTES); };
     child.stdout?.on('data', append); child.stderr?.on('data', append);
     let settled = false;
-    const done = (result: FullSuiteResult) => { if (settled) return; settled = true; clearTimeout(timer); finish(result); };
+    const done = (result: FullSuiteResult) => { if (settled) return; settled = true; clearTimeout(timer); activeChildren.delete(child); finish(result); };
     const timer = setTimeout(() => {
       killTree(child);
       done({ name: entry.name, status: 'TIMEOUT', durationMs: Date.now() - started, output, reason: `exceeded ${entry.timeoutMs ?? DEFAULT_TIMEOUT_MS}ms` });
     }, entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
     child.on('error', (error) => done({ name: entry.name, status: 'FAIL', durationMs: Date.now() - started, output, reason: error.message }));
-    child.on('exit', (code, signal) => done({ name: entry.name, status: code === 0 ? 'PASS' : 'FAIL', durationMs: Date.now() - started, output, reason: code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}` }));
+    child.on('exit', (code, signal) => done({ name: entry.name, status: interruptSignal ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL', durationMs: Date.now() - started, output, reason: interruptSignal ? `runner received ${interruptSignal}` : code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}` }));
   });
 }
 
@@ -132,10 +145,11 @@ export async function runScheduled(entries: FullSuiteEntry[], jobs: number, exec
       ? !writer
       : !writer && readers === 0 && running.size === 0;
   const launch = (entry: FullSuiteEntry) => {
+    const queuedAt = Date.now();
     if (entry.resource === 'repo-read') readers++;
     if (entry.resource === 'repo-write') writer = true;
     let task!: Promise<void>;
-    task = execute(entry).then((result) => { results.push(result); }).finally(() => {
+    task = execute(entry).then((result) => { results.push({ ...result, resource: entry.resource, lockWaitMs: Math.max(0, Date.now() - queuedAt - result.durationMs) }); }).finally(() => {
       if (entry.resource === 'repo-read') readers--;
       if (entry.resource === 'repo-write') writer = false;
       running.delete(task);
@@ -143,6 +157,9 @@ export async function runScheduled(entries: FullSuiteEntry[], jobs: number, exec
     running.add(task);
   };
   while (pending.length || running.size) {
+    if (interruptSignal && pending.length) {
+      for (const entry of pending.splice(0)) results.push({ name: entry.name, status: 'INTERRUPTED', durationMs: 0, output: '', reason: `runner received ${interruptSignal}`, resource: entry.resource, lockWaitMs: 0 });
+    }
     let launched = false;
     while (running.size < jobs) {
       const index = pending.findIndex(compatible);
@@ -166,6 +183,8 @@ async function main(): Promise<void> {
   const jsonArg = process.argv.indexOf('--json-output');
   const jsonOutput = jsonArg >= 0 ? process.argv[jsonArg + 1] : undefined;
   const started = Date.now();
+  process.once('SIGINT', () => requestInterrupt('SIGINT'));
+  process.once('SIGTERM', () => requestInterrupt('SIGTERM'));
   const results = await runScheduled(FULL_SUITE_ENTRIES, jobs, async (entry) => {
     const result = await runEntry(entry, cwd);
     process.stdout.write(`${result.status} ${result.name} ${(result.durationMs / 1000).toFixed(1)}s${result.reason ? ` (${result.reason})` : ''}\n`);
@@ -175,8 +194,10 @@ async function main(): Promise<void> {
   for (const failure of failures) process.stderr.write(`\n--- ${failure.name} ${failure.status} ---\n${failure.output}\n`);
   const durationMs = Date.now() - started;
   process.stdout.write(`full-suite: ${results.length - failures.length}/${results.length} passed in ${(durationMs / 1000).toFixed(1)}s; retries=0; jobs=${jobs}\n`);
-  if (jsonOutput) writeResultArtifact(jsonOutput, { schemaVersion: 'lattice.full_suite_result.v1', startedAt: new Date(started).toISOString(), durationMs, jobs, retries: 0, passed: results.length - failures.length, total: results.length, results });
-  if (failures.length) process.exitCode = 1;
+  const critical = [...results].sort((a, b) => b.durationMs - a.durationMs)[0];
+  if (jsonOutput) writeResultArtifact(jsonOutput, { schemaVersion: 'lattice.full_suite_result.v1', headHash: execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim(), materialHash: currentMaterialHash(cwd), startedAt: new Date(started).toISOString(), durationMs, jobs, maxWorkers: jobs, workerUtilization: results.reduce((sum, result) => sum + result.durationMs, 0) / Math.max(1, durationMs * jobs), processLaunchCount: results.length, retries: 0, passed: results.length - failures.length, total: results.length, criticalPath: critical ? { name: critical.name, durationMs: critical.durationMs } : null, interruptedBy: interruptSignal ?? null, results });
+  if (interruptSignal) process.exitCode = interruptSignal === 'SIGINT' ? 130 : 143;
+  else if (failures.length) process.exitCode = 1;
 }
 
 const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
