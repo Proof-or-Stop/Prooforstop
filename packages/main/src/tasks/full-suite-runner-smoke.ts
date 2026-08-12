@@ -12,8 +12,8 @@ const pass = (name: string): FullSuiteResult => ({ name, status: 'PASS', duratio
 async function main(): Promise<void> {
   const rootPackage = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { scripts?: Record<string, string> };
   assert(
-    rootPackage.scripts?.build === 'npm --prefix packages/utils run build && npm --prefix packages/main run build',
-    'standard root build prepares utils before the main runtime',
+    rootPackage.scripts?.build === 'npm --prefix packages/main run build && npm --prefix packages/utils run build',
+    'standard root build prepares the main dependency before the complete utils runtime',
   );
   const scripts = { 'test:a': 'x', 'test:b': 'x' };
   validateInventory([{ name: 'test:a', resource: 'isolated' }, { name: 'test:b', resource: 'repo-read' }], 'npm run test:a && npm run test:b', scripts);
