@@ -56,6 +56,7 @@ import {
   redEvidenceRepairGuidance,
   renderRedEvidenceQuarantineNotice,
 } from './red-evidence-artifact-validation.js';
+import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -1135,7 +1136,8 @@ export function getGuardFailureReason(
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
         `   Agent({ subagent_type: "lattice-review-story-init", prompt: \`lattice dispatch '{"storyId":"${storyId}","agentType":"lattice-review-story-init"}'\` })\n` +
-        `   and have product-reviewer call init_check_set as well; if the reviewer produces no output for 4 minutes, re-dispatch and restart the reviewer.\n` +
+        `   and have product-reviewer call init_check_set as well.\n` +
+        `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   lattice init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }

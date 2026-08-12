@@ -634,7 +634,7 @@ function assertChannelAllowsExplicitMainAgentPlanOwnership(): void {
   }
 }
 
-async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
+async function assertInitDispatchPromptHasStatusFirstLivenessGuidance(): Promise<void> {
   const root = initRepo('lattice-init-dispatch-timeout-');
   try {
     const storyId = 'B-init';
@@ -656,8 +656,12 @@ async function assertInitDispatchPromptHasTimeoutGuidance(): Promise<void> {
     const output = await runLattice(root, 'dispatch', { storyId, agentType: 'lattice-review-story-init' });
     assert.match(output, /INIT_REVIEW_START/, 'init dispatch should ask reviewer to emit start heartbeat');
     assert.match(output, /INIT_REVIEW_READ_DONE/, 'init dispatch should ask reviewer to emit read heartbeat');
-    assert.match(output, /5 minutes/, 'init dispatch should include an upper time bound');
-    assert.match(output, /4 minutes/, 'init dispatch should include main-agent retry guidance');
+    assert.match(output, /Within 5 minutes.*init_check_set.*explicit blocker/, 'init dispatch should preserve the reviewer progress duty');
+    assert.match(output, /Host-native task liveness policy/, 'init dispatch should include the canonical liveness policy');
+    assert.match(output, /foreground, running, or background/, 'init dispatch should monitor live foreground/background work');
+    assert.match(output, /unknown or temporarily unavailable/, 'init dispatch should preserve ambiguous task identity');
+    assert.match(output, /authoritative failed, cancelled, missing, or dead status/, 'init dispatch should require terminal evidence before replacement');
+    assert.doesNotMatch(output, /treat (?:the reviewer |it )?as (?:stuck|stalled).*restart/i, 'init dispatch must not infer a stall from elapsed time');
     assert.match(output, /init_check_set/, 'init dispatch should still require result recording');
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch');
@@ -682,8 +686,10 @@ async function assertItemDispatchWritesChannelEvidence(): Promise<void> {
     });
     assert.match(output, /CHK-001/, 'item dispatch should still return the item prompt');
     assert.match(output, /DISPATCH_START:lattice-implementer\/CHK-001/, 'item dispatch should ask worker to emit a liveness heartbeat');
-    assert.match(output, /4 minutes/, 'item dispatch should include status-check timing');
-    assert.match(output, /10 minutes\/600s/, 'item dispatch should include stalled retry timing');
+    assert.match(output, /Host-native task liveness policy/, 'item dispatch should include the canonical liveness policy');
+    assert.match(output, /including after 10 minutes\/600s/, 'item dispatch should explicitly protect long-running work');
+    assert.match(output, /do not dispatch a duplicate/, 'item dispatch should prevent duplicate workers');
+    assert.doesNotMatch(output, /no result after 10 minutes\/600s.*restart/i, 'item dispatch must not use elapsed-only restart timing');
 
     const events = new StoryStore(root).readProcessEvents(storyId);
     const dispatchEvent = events.find(ev => ev.type === 'dispatch' && ev.itemId === 'CHK-001');
@@ -870,7 +876,7 @@ await assertDiscardFailureDoesNotMarkSuccess();
 await assertPurgeDropsSafeInitCommit();
 await assertPurgeTombstonesBuriedSafeInitCommit();
 await assertDoctorRepairCleansTerminalWorktrees();
-await assertInitDispatchPromptHasTimeoutGuidance();
+await assertInitDispatchPromptHasStatusFirstLivenessGuidance();
 await assertItemDispatchWritesChannelEvidence();
 assertStrayCleanupAllowsGeneratedReviewMetadata();
 assertDocsDriftAllowsBootstrapAndLegacyCommands();

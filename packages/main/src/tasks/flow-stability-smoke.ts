@@ -4054,6 +4054,11 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     // reviewer Agent call lines and the liveness reminder unchanged.
     assert.match(nextSteps.REVIEW, /launch the above reviewers in parallel to review code/);
     assert.match(nextSteps.REVIEW, /reviewer liveness: each reviewer should first output REVIEW_START after starting/);
+    assert.match(nextSteps.REVIEW, /Host-native task liveness policy/);
+    assert.match(nextSteps.REVIEW, /foreground, running, or background/);
+    assert.match(nextSteps.REVIEW, /unknown or temporarily unavailable/);
+    assert.match(nextSteps.REVIEW, /authoritative failed, cancelled, missing, or dead status/);
+    assert.doesNotMatch(nextSteps.REVIEW, /no result for 10 minutes\/600s treat as stalled, restart/i);
 
     // 3b. renderRelatedDocsHint: with checklist relatedDocs, the DEV header +
     //     line shape must be byte-identical to the inline original.

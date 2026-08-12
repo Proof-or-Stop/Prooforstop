@@ -6,6 +6,8 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { StoryStore } from '../core/store.js';
+import { getGuardFailureReason } from '../core/machine.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -98,7 +100,17 @@ try {
   });
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert.ok(storyId, 'story_create should return story id');
+  assert.match(created, /Host-native task liveness policy/, 'story_create should render the canonical task liveness policy');
+  assert.match(created, /foreground, running, or background/, 'story_create should preserve live reviewer identity');
+  assert.match(created, /unknown or temporarily unavailable/, 'story_create should not duplicate an ambiguous reviewer');
+  assert.doesNotMatch(created, /no output for 4 minutes.*restart/i, 'story_create must not restart on elapsed silence');
   freezeScope(root, storyId!);
+
+  const missingAll = getGuardFailureReason(storyId!, new StoryStore(root), 'INIT_CHECK', root, root) ?? '';
+  assert.match(missingAll, /\[missing_init_check\]/, 'machine guard fixture must exercise the no-init-check branch');
+  assert.match(missingAll, /Host-native task liveness policy/, 'missing-init guard should render the canonical liveness policy');
+  assert.match(missingAll, /unknown or temporarily unavailable/, 'missing-init guard should preserve ambiguous reviewer identity');
+  assert.doesNotMatch(missingAll, /no output for 4 minutes.*restart/i, 'missing-init guard must not restart on elapsed silence');
 
   run(root, 'init_check_set', { storyId, issues: [], agentId: 'lattice-review-story-init' });
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
