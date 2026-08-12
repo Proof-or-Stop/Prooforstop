@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-74af",
   "mode": "observe",
-  "cutoffAt": "2026-08-12T10:16:13.831Z",
-  "planBasisDigest": "sha256:1e10f5cbe1084892cf9a4962f93f6f231f5ca40e3d3be41d927b6f1c173cf6b0",
+  "cutoffAt": "2026-08-12T11:13:04.154Z",
+  "planBasisDigest": "sha256:ee401b1cb8a735792add6c97e71b4fc1f65041792cba4b55cbfc1813a6b0d5f5",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-74af",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:1e10f5cbe1084892cf9a4962f93f6f231f5ca40e3d3be41d927b6f1c173cf6b0",
+      "priorPlanBasisDigest": "sha256:ee401b1cb8a735792add6c97e71b4fc1f65041792cba4b55cbfc1813a6b0d5f5",
       "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -60,12 +60,14 @@
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/handlers/transition-effects.ts",
               "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
               "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
               "scope:file:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+              "scope:file:packages/main/src/tasks/provider-codex-smoke.ts",
               "scope:file:packages/main/src/tasks/review-pass-discard-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:2286071277e1f1659bc8a49782b4e77a974104bf0ef5e89743c940efeb92a225"
+          "resultDigest": "sha256:cb53ededa8a9a6efd4383da3d03cc8046e2fdc466f8c19f88ddd96ffd7d04e04"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -113,12 +115,14 @@
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/handlers/transition-effects.ts",
               "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
               "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
               "scope:file:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+              "scope:file:packages/main/src/tasks/provider-codex-smoke.ts",
               "scope:file:packages/main/src/tasks/review-pass-discard-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:929bf97237edfc594122f4a3f93b33fcfb2e5732e1e68a03e2f9b4208a2663f5"
+          "resultDigest": "sha256:e07abc4e444549d714da08ee50d1f8f36fa5ab159e7742333af03b70d493e8d8"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -144,12 +148,14 @@
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/handlers/transition-effects.ts",
               "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
               "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
               "scope:file:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+              "scope:file:packages/main/src/tasks/provider-codex-smoke.ts",
               "scope:file:packages/main/src/tasks/review-pass-discard-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:edd3a589453bd438144449f5b7d677bb4f11354a8cdca046b05b032333391e39"
+          "resultDigest": "sha256:a965d94dfde5c17913b923c5372c95907746951c9b9e58350f18f8bade610c3d"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -168,8 +174,10 @@
             "scope:file:packages/main/src/handlers/story-dispatch.ts",
             "scope:file:packages/main/src/handlers/transition-effects.ts",
             "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+            "scope:file:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
             "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
             "scope:file:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+            "scope:file:packages/main/src/tasks/provider-codex-smoke.ts",
             "scope:file:packages/main/src/tasks/review-pass-discard-smoke.ts",
             "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
           ],
@@ -186,12 +194,14 @@
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/handlers/transition-effects.ts",
               "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
               "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
               "scope:file:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+              "scope:file:packages/main/src/tasks/provider-codex-smoke.ts",
               "scope:file:packages/main/src/tasks/review-pass-discard-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:0f1fe812c5261e594ff52cbca46e5e0a92bf5eabc51ed7a9315dc74ff4f41143"
+          "resultDigest": "sha256:5c62e99c95b5db75245c8ab1859dd6448203325f7d2ab30d75f3a18f861b7032"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -212,7 +222,7 @@
             "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
             "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
             "source-file:packages/main/src/core/agent-liveness-policy.ts:sha256:815c589960f361b839dcc05f28e6f1dbfc63138fe8b8843398ae9e96839ca260",
-            "source-file:packages/main/src/core/machine.ts:sha256:84dd63ec6f9eba1b448b6ec00b1839fbd811d5c113feeae2a38016ab2cf340f3",
+            "source-file:packages/main/src/core/machine.ts:sha256:6c4eed5b34c756d80bc77367f3deec20563922e86cfabe94c1a63a3a69faecee",
             "source-file:packages/main/src/core/pre-review-check.ts:sha256:168821c01771a8c9a151efbe15f0eee5b7bc2b1fcb0fa05c526932329b2c04b9",
             "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:ea1f1f2175640d18170dd1e41e8a3886e6761c17054ab4d8f99a8bf429cd0880",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:de0d4a41293d8c824b81d1e5eb364127e83f1ddef432ceffd64f0944a354d94e",
@@ -221,9 +231,11 @@
             "source-file:packages/main/src/handlers/transition-effects.ts:sha256:2877930679a00c9fbd16165e1aeafa99b2e361a93828b937ec4d56feb6d97bed",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:06ae759af6bf058f590f697d54d18a67751c71161686199bcb4bb007f1d43ad4",
             "source-file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts:sha256:d962339e4310ae2950a6c324dc56eb1a67acd1b52c459d47de6023795f436497",
-            "source-file:packages/main/src/tasks/flow-stability-smoke.ts:sha256:7011ce694cf750f7c44e6697b9fca82c6c3b07ca0ee39bcdcb4ec9f2a6389643",
-            "source-file:packages/main/src/tasks/init-check-required-agents-smoke.ts:sha256:ed34fec7914fb540597161db102784aabd8d283a216abeaf7e4216ee4e7cde4e",
-            "source-file:packages/main/src/tasks/review-pass-discard-smoke.ts:sha256:78c0a66b12ad21323ee69d46a6bfd9190707b12bfff7477458bf77faf9f7f996",
+            "source-file:packages/main/src/tasks/agent-liveness-suite-smoke.ts:sha256:28cb29ea77cae23ee9e6dad2544ef370d55312ffc1090ee9e802bb855ae9e60f",
+            "source-file:packages/main/src/tasks/flow-stability-smoke.ts:sha256:c7cdc92b3bca220667826a6c82c839be58b2d950e4b6070b607a4b4080dacdc7",
+            "source-file:packages/main/src/tasks/init-check-required-agents-smoke.ts:sha256:594afc5386f6803021853039aa9d32ed5a0f4f12f5b0ce53696a97304b703e47",
+            "source-file:packages/main/src/tasks/provider-codex-smoke.ts:sha256:b2b967e44656c95fe5f069796d3e97108e52b0bf982613ebefd8ca86b0c02b11",
+            "source-file:packages/main/src/tasks/review-pass-discard-smoke.ts:sha256:4581faf7eb0fb53775a9dde9349d0782b686355f1636d5f56f93897141e5e3f4",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
             "source-file:scripts/verify-process-fact-contract.mjs:sha256:df653aaef44ddb04a32269fdc3c6a17d8311a175fcb9de1d850c9b0a9f9c3165"
           ],
@@ -240,12 +252,14 @@
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/handlers/transition-effects.ts",
               "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
               "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
               "scope:file:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+              "scope:file:packages/main/src/tasks/provider-codex-smoke.ts",
               "scope:file:packages/main/src/tasks/review-pass-discard-smoke.ts"
             ]
           },
-          "resultDigest": "sha256:5f09392409fb9aec408692880fef844567345dc50041cbd20a6e70a3ae2c734b"
+          "resultDigest": "sha256:a30982d96e82e20e602cb087779a3ae1122882c2efb09d69b139c63b9cb6d19e"
         }
       ],
       "scopeRefs": [
@@ -258,8 +272,10 @@
         "scope:file:packages/main/src/handlers/story-dispatch.ts",
         "scope:file:packages/main/src/handlers/transition-effects.ts",
         "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "scope:file:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
         "scope:file:packages/main/src/tasks/flow-stability-smoke.ts",
         "scope:file:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "scope:file:packages/main/src/tasks/provider-codex-smoke.ts",
         "scope:file:packages/main/src/tasks/review-pass-discard-smoke.ts"
       ],
       "sourceInventoryRefs": [
@@ -283,8 +299,10 @@
         "source-file:closure:packages/main/src/handlers/transition-effects.ts",
         "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
         "source-file:closure:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/agent-liveness-suite-smoke.ts",
         "source-file:closure:packages/main/src/tasks/flow-stability-smoke.ts",
         "source-file:closure:packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/provider-codex-smoke.ts",
         "source-file:closure:packages/main/src/tasks/review-pass-discard-smoke.ts",
         "source-file:closure:scripts/run-proofstory-pre-review-live-proof.mjs",
         "source-file:closure:scripts/verify-process-fact-contract.mjs",
@@ -349,10 +367,10 @@
       ],
       "snapshotSeal": {
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
-        "inventoryDirectoryDigest": "sha256:a5ad7096d8ef04b3db3a5913e6e1f22a2794aaba398141bf16e5f7aa5e81060a",
+        "inventoryDirectoryDigest": "sha256:50de844ee2409d3cb77e2c62044ac8a738a72842006c068cf0df214701de54fb",
         "inventoryDirectoryCount": 21,
-        "sourceSnapshotDigest": "sha256:990875d7c6b16acef0f142f21662419808e9e43d51e0498f65e6d5de89781bae",
-        "sourceSnapshotCount": 785,
+        "sourceSnapshotDigest": "sha256:c0c66d12364f83e417046de13e128f235946d91e60d60b91aa9a891854dfcaa0",
+        "sourceSnapshotCount": 786,
         "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
         "status": "partial",
         "issues": [
@@ -392,171 +410,171 @@
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
           }
         ],
-        "sealDigest": "sha256:3401d11a95d4588949f8711db049b60c29c5066d8f30c76d81e6cb5797609074"
+        "sealDigest": "sha256:dcc23effc1e3d0b75274faaff8366ef0c4eb2035b0b4d391b1003b7ce2ec382b"
       },
       "binding": {
-        "headHash": "0e02dd6c2da289d54befc0593fc24dab71478d5a",
-        "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-        "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
+        "headHash": "c102e1abddfe6f0c40502f720bb60196f66c4a17",
+        "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+        "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
         "scopeCheckDigest": "sha256:f2fe17631eac5a0153ee33bab656121bc9f0b2809b19bfcc633beb8a452b7354",
-        "scopeContractDigest": "sha256:bfeb16ce9d9df6d4e71498d5ea1dc5a4875e2f81ce7ab85574515376fb694272",
-        "closureFilesHash": "sha256:4f724c5786115fa641d59a4547c1f9b07447e2bb828b7af1474e42055fd9e0d3"
+        "scopeContractDigest": "sha256:5fcb582093306ec14cfcf41d375e56e692729e7595db6fef4fcd05c41eee1b92",
+        "closureFilesHash": "sha256:bb7c9f680f6e39ab3021068b09eae51d1a051e5a652e3aa61ff9ff16df97f3b3"
       },
-      "receiptRef": "receipt:coverage-basis:B-74af:pre_review:ef2edfd9b9b486ca",
-      "basisDigest": "sha256:3ec35e8d81dbbda990372b8a527391ca835b3ac2318c58cd2aeaaac33dd97287"
+      "receiptRef": "receipt:coverage-basis:B-74af:pre_review:ec9f02a3a0f3e40a",
+      "basisDigest": "sha256:601b3a78592ee6cdb7a215c84b6e7d30d8d1cb40c5e4542f9c1a0cf7d9587f63"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-74af:pre_review:ef2edfd9b9b486ca",
+      "receiptRef": "receipt:coverage-basis:B-74af:pre_review:ec9f02a3a0f3e40a",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
       "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
       "storyId": "B-74af",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:3ec35e8d81dbbda990372b8a527391ca835b3ac2318c58cd2aeaaac33dd97287",
+      "basisDigest": "sha256:601b3a78592ee6cdb7a215c84b6e7d30d8d1cb40c5e4542f9c1a0cf7d9587f63",
       "topologyDigest": "sha256:f964bda86b87f26e13e8fc8373d7c2be20ede4d2b1cd84239c7028d352773925",
       "scopeCheckDigest": "sha256:f2fe17631eac5a0153ee33bab656121bc9f0b2809b19bfcc633beb8a452b7354",
-      "scopeContractDigest": "sha256:bfeb16ce9d9df6d4e71498d5ea1dc5a4875e2f81ce7ab85574515376fb694272",
-      "headHash": "0e02dd6c2da289d54befc0593fc24dab71478d5a",
-      "materialHash": "f216f7e23a0681a9785149da2aae261b81cac94300429ddc2793c0f41ad42bcb",
-      "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-      "closureFilesHash": "sha256:4f724c5786115fa641d59a4547c1f9b07447e2bb828b7af1474e42055fd9e0d3",
-      "sealDigest": "sha256:3401d11a95d4588949f8711db049b60c29c5066d8f30c76d81e6cb5797609074",
+      "scopeContractDigest": "sha256:5fcb582093306ec14cfcf41d375e56e692729e7595db6fef4fcd05c41eee1b92",
+      "headHash": "c102e1abddfe6f0c40502f720bb60196f66c4a17",
+      "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3",
+      "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
+      "closureFilesHash": "sha256:bb7c9f680f6e39ab3021068b09eae51d1a051e5a652e3aa61ff9ff16df97f3b3",
+      "sealDigest": "sha256:dcc23effc1e3d0b75274faaff8366ef0c4eb2035b0b4d391b1003b7ce2ec382b",
       "workspaceIdentityDigest": "sha256:52586e00ec6ba9d9a78e42497813f5a7ff6a4b4a02e137d0c73fa74b7fb4e583",
-      "signature": "kr9ZrOZcM6UvdnrBiDUcNmkbtV79QewzA/s6+zWTmmJAk9rdgF7JRAVswwy3I2Pp1F/1LacDDJEEjL6U8D3bAQ=="
+      "signature": "HUEhqADDhHG25LbWdeUzPArTVKP2xFKtjawdb3xsBUDBBxXtAr9+99S8hze5g4d+JmouOQZ6DYApeRhfoXOsBw=="
     }
   },
   "topologyDigest": "sha256:f964bda86b87f26e13e8fc8373d7c2be20ede4d2b1cd84239c7028d352773925",
   "scopeCheckDigest": "sha256:f2fe17631eac5a0153ee33bab656121bc9f0b2809b19bfcc633beb8a452b7354",
-  "scopeContractDigest": "sha256:bfeb16ce9d9df6d4e71498d5ea1dc5a4875e2f81ce7ab85574515376fb694272",
-  "storyFilesHash": "28c3ba43a78ceee371bbedadef39d7c58330d27cd23e04e57c6f95d1a3b4d911",
-  "closureFilesHash": "sha256:4f724c5786115fa641d59a4547c1f9b07447e2bb828b7af1474e42055fd9e0d3",
+  "scopeContractDigest": "sha256:5fcb582093306ec14cfcf41d375e56e692729e7595db6fef4fcd05c41eee1b92",
+  "storyFilesHash": "0532c5e1e0617383cd1203f72d291bc547c034b1840f2b635eeea69f56dea785",
+  "closureFilesHash": "sha256:bb7c9f680f6e39ab3021068b09eae51d1a051e5a652e3aa61ff9ff16df97f3b3",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:0",
       "itemId": "CHK-001",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d9ab94518790b0f2e4c247e2daa14dc61a7feabeeee5de2f835f8019be161fd3"
+      "evidenceDigest": "sha256:54fca1346f1c0df08b730df5641191d98d9eb3529672d9a3f80031ebbf922d1c"
     },
     {
       "intentRef": "CHK-001:adversarial:1",
       "itemId": "CHK-001",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d5317b8a8b73332c70a9af200cfb81ee3c069ef84c94768e1f6fa11cdfa4effc"
+      "evidenceDigest": "sha256:5be04c31697cb55293db52e929d0f028dbeb3fc0f82ec990313ef3678ddd2c58"
     },
     {
       "intentRef": "CHK-001:edge:0",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:88dde5866fd56b125c2a477eb8e2226b26e24f3d62e1dffa2092e1b2a560c3bb"
+      "evidenceDigest": "sha256:d23e164ab7562640b79cde784fa43d47bc9ba232324d1a4bafeedf5783a437c3"
     },
     {
       "intentRef": "CHK-001:edge:1",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:154781129d364a9f72d1195ba084aa8765fa32ee0de16b66c58004e5bccd1a1f"
+      "evidenceDigest": "sha256:24fdce9faab081de393d1f801572c090fe0884d368b0ab9433dcb673d5de3806"
     },
     {
       "intentRef": "CHK-001:happy:0",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:1dbbe3da92aad87fee690b944bde16cb7cd892ecdd5904224fae4adcdf11ec49"
+      "evidenceDigest": "sha256:a84c8ff3d31870636877e91119fbecd00f4fcc24cc6a0ea40a8db94e3da06c78"
     },
     {
       "intentRef": "CHK-001:happy:1",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:dd4a8b67d0c8cd3beb53f8de153a2726b54a507960a977bf6723cad33aef7b47"
+      "evidenceDigest": "sha256:ff6eb01e1f58a9216942dad24b996b4f468594cf8a695e50c7c4faae0076f621"
     },
     {
       "intentRef": "CHK-002:adversarial:0",
       "itemId": "CHK-002",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d8f57110c44812d9fef3d706ff2b7b18e50471dee5ed5e4ddf9d34e56686b1f0"
+      "evidenceDigest": "sha256:f075ad406b2afa3e59e67b3df9ab426183927ac6758e4626cc7b864c5e079062"
     },
     {
       "intentRef": "CHK-002:edge:0",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d76ba072562c3c6a05a10ddc59f2aa00bc437d76144f1110409cf4161c231a72"
+      "evidenceDigest": "sha256:a068e0c5f67e9d208f0c39933289f6f6a484e08e7d77fc9eb5e8ef88978f5bc5"
     },
     {
       "intentRef": "CHK-002:edge:1",
       "itemId": "CHK-002",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bbc3a5c1b7173f665759f2b3a8c6a8232d34a46f2441540b3621be7dcf85191e"
+      "evidenceDigest": "sha256:2427550b5debcb3dee4718ee3e079856ea0cf67caad8d624de4d73133bd27115"
     },
     {
       "intentRef": "CHK-002:happy:0",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:2325c2765fb7aeb245271c75febae9acdc49d8cd802fc13da253099119559e9c"
+      "evidenceDigest": "sha256:a23722bfd284b7b107970f0dc6876fd9dd2241037612a3281786aed17f34a93e"
     },
     {
       "intentRef": "CHK-002:happy:1",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:bf01e08bdd417cdc08dcc1362697e0e6ce728bb38b8d0c03d09ef7a226faa18a"
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c7d69f19e768a8eab64e6d0429bffd3aac9e557b306b3440ecba947d82b6a4b0"
     },
     {
       "intentRef": "CHK-003:adversarial:0",
       "itemId": "CHK-003",
       "evidenceIndex": 4,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:8f7332c240c56d569dd2e5964dd2888d2f8312e074d118f04793a8a7a96bc0dc"
+      "evidenceDigest": "sha256:17ebebe8262b18ee03f1f86fa912dc89d4d471fb5ceda9f5f387b6f6aa76d71b"
     },
     {
       "intentRef": "CHK-003:adversarial:1",
       "itemId": "CHK-003",
       "evidenceIndex": 5,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:724f0475c1924717b3460df276f01888b203ec9f969d407955f05b4aa0c755d2"
+      "evidenceDigest": "sha256:cafdfd7e64bae7b632a23b1c3ca514dd0155f4d839aa138f2ba6d7723376ab54"
     },
     {
       "intentRef": "CHK-003:adversarial:2",
       "itemId": "CHK-003",
       "evidenceIndex": 6,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:0824ebbcfc08690b3f0455ad5ae95229970df2a88380b3be5985d715ee6ef381"
+      "evidenceDigest": "sha256:9fe468a0aa82e693bbc1e15761dbb9d35da0a9ba6b53379207200acd1624d485"
     },
     {
       "intentRef": "CHK-003:edge:0",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:d7bf3fc575d17304fdbb61a2a0d383ff43d55d2fc46506b03e990bcc116c2a66"
+      "evidenceDigest": "sha256:2c0bb6e0f069cc5f8ae5624bafd8178de473bf1ae2e0414579f864d62640b455"
     },
     {
       "intentRef": "CHK-003:edge:1",
       "itemId": "CHK-003",
       "evidenceIndex": 3,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:0837caf7aed61eb5e1a344cd79a956e47fbd793a803a3a622211397938c33f84"
+      "evidenceDigest": "sha256:21d178f65b0830dbc2e9e85cd5ee4b1a90a63d350118c52196c3f2fcee8ded90"
     },
     {
       "intentRef": "CHK-003:happy:0",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:1d146ef13e15fcad5dee5068d2c0e07a293a21a335ee280ffaf06a9ad64837bf"
+      "evidenceDigest": "sha256:39042c57d1fb41ff1aab25f9f6d4d4db2c9db1548ec79282258e9bf21d3d6cd7"
     },
     {
       "intentRef": "CHK-003:happy:1",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
-      "kind": "logic_test",
-      "evidenceDigest": "sha256:ae85a15f164fb3e5441999e7fef89624666336f9817b89d5c3834f2d33a7d51d"
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:e7bbb6b806c95ceafce54cb45a400f7f2fa5be2f2efda5dc39449b4794fc9596"
     }
   ],
   "executableProof": {
@@ -589,7 +607,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-08-12T10:16:13.831Z",
+  "issuedAt": "2026-08-12T11:13:04.154Z",
   "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
-  "signature": "hBKHPHS3lMXsPiRkc8lefapug8BAU/qaOHtMj4Ex7oWkcOd7qoXvF1+cd+K1KH+OJyBq96ZBdv51liIJUhzyBg=="
+  "signature": "baALlWcPpb+xyVc8Rt7Sq7rfZYKyaTvjmvmkjiODzTbQzUvbqSFVZ2FID3K4AYcZeTVRoU6j/eMghCtHOwWCCg=="
 }
