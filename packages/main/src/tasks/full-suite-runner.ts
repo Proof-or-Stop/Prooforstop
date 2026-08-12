@@ -34,7 +34,17 @@ export interface FullSuiteResult {
 }
 
 export function observedOutputSignatures(output: string): string[] {
-  const normalized = output.replace(/\x1b\[[0-9;]*m/g, '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => line
+  const normalizeStressReceipt = (line: string): string => {
+    if (!line.startsWith('INCREMENTAL_STRESS_RECEIPT=')) return line;
+    try {
+      const value = JSON.parse(line.slice('INCREMENTAL_STRESS_RECEIPT='.length));
+      const visit = (input: unknown): unknown => Array.isArray(input) ? input.map(visit) : input && typeof input === 'object'
+        ? Object.fromEntries(Object.entries(input).map(([key, nested]) => [key, key === 'observedDurationMs' ? '<observed-duration>' : visit(nested)])) : input;
+      return `INCREMENTAL_STRESS_RECEIPT=${JSON.stringify(visit(value))}`;
+    } catch { return line; }
+  };
+  const normalized = output.replace(/\x1b\[[0-9;]*m/g, '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => normalizeStressReceipt(line)
+    .replace(/^- B-[0-9a-f]{4}(?= \[[A-Z_]+\] )/, '- B-<fixture>')
     .replace(/\b(?:headHash|materialHash|storyFilesHash|digest)=?["']?[0-9a-f]{40,64}\b/gi, '<identity>')
     .replace(/\b\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z\b/g, '<timestamp>')
     .replace(/(?:\/private)?\/(?:tmp|var\/folders)\/[^\s)]+/g, '<temp-path>')
