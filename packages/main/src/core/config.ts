@@ -352,6 +352,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
     'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_topology_check', 'acceptance_basis', 'pre_review_check_read', 'acceptance_rollout_report_read', 'acceptance_rollout_check', 'topology_critic_receipt_check',
     'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
+    'red_evidence_envelope_check', // W2d (B-9ff1): read-only §1.1 envelope admissibility pre-flight; command-policy declares allowedPhases:all readOnly, so every phase bucket must reach it. Executes no envelope, writes nothing, changes no gate verdict
+
     'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'parent_roadmap_status', 'parent_roadmap_evaluate', // Parent-roadmap totality diagnostics; read-only and no server-backed completion semantics
     'guard_session_status', // B-6bfd CHK-004: read-only guard session projection

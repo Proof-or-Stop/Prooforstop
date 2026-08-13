@@ -20,6 +20,10 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'acceptance_rollout_report_read',
   'acceptance_rollout_check',
   'topology_critic_receipt_check',
+  // W2d (B-9ff1): read-only RED assertion-envelope admissibility pre-flight. It
+  // must append NOTHING (no hook, no activity log, no process event), which is
+  // exactly what this membership guarantees at the CLI choke point.
+  'red_evidence_envelope_check',
   'finding_list',
   'bug_list',
   'test_list',

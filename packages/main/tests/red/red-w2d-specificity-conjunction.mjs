@@ -115,17 +115,20 @@ assert.equal(matcherValueSpecificity('Error: .* pattern not found', policy).rule
   'rule 1 is exact membership, not substring containment');
 assert.equal(validate([literal('A1', 'Error: .* pattern not found')]).ok, true,
   'a literal merely CONTAINING a blocklist entry is admissible');
-// No silent trimming: rule 1 tests the value AS STORED. ' .* ' is NOT a member
-// (it differs from '.*'), so rule 1 PASSES — and the BOUNDS layer rejects the
-// untrimmed value as R1-3. A validator that silently trimmed would report R1-2
-// here and hide the whitespace violation.
-assert.equal(matcherValueSpecificity(' .* ', policy).rule1, true,
-  'rule 1 must not silently trim: the stored value " .* " is not a blocklist member');
+// No silent trimming: the blocklist clause tests the value AS STORED, so ' .* '
+// is NOT a blocklist member (it differs from '.*'); what it violates is the
+// TRIMMED clause, which §1.6 assigns to R1-3 (bounds). A validator that silently
+// trimmed would report R1-2 here and hide the whitespace violation — the exact
+// R1-2/R1-3 collapse §1.6 forbids.
 {
+  const untrimmedSpecificity = matcherValueSpecificity(' .* ', policy);
+  assert.equal(untrimmedSpecificity.notBlocklisted, true,
+    'blocklist membership is tested on the value AS STORED: " .* " is not the member ".*"');
+  assert.equal(untrimmedSpecificity.trimmed, false, 'the untrimmed clause is what " .* " violates');
   const untrimmed = validate([literal('A1', ' .* ')]);
   assert.equal(untrimmed.ok, false, 'an untrimmed value rejects');
-  assert.ok(untrimmed.rejections.some((r) => r.tag === 'R1-3'),
-    `an untrimmed value is a BOUNDS failure (R1-3), got ${JSON.stringify(tagsOf(untrimmed))}`);
+  assert.deepEqual(tagsOf(untrimmed), ['R1-3'],
+    `an untrimmed value is a BOUNDS failure tagged R1-3 ALONE, got ${JSON.stringify(tagsOf(untrimmed))}`);
 }
 
 // ── 2. §1.3 rule 2 — THE AND-vs-OR DIFFERENTIAL TABLE ───────────────────────

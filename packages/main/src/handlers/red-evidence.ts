@@ -1,5 +1,5 @@
 /**
- * Red-evidence mutating CLI commands for the trusted RED-evidence subsystem.
+ * Red-evidence CLI commands for the trusted RED-evidence subsystem.
  *
  *   - `red_evidence_binding_set` (W2b / B-e10d) registers the per-story target
  *     binding (§1.1.3). W2c ADDS the §1.1.3 binding-FREEZE rule now that
@@ -8,6 +8,15 @@
  *     two chain-control records (§4.1), owner-gated and serialized under one
  *     mkdir claim (append.ts), with a DERIVED `approvedBy` and the §3.3 write-time
  *     expectedRedTargets membership gate (CHK-012).
+ *   - `red_evidence_envelope_check` (W2d / B-9ff1) is READ-ONLY: it validates a
+ *     candidate §1.1 assertion envelope against the resolved policy and the
+ *     story's COMMITTED target binding so an operator learns the envelope is
+ *     inadmissible — with a correctly tagged §1.6 reason — BEFORE spending a
+ *     run. It follows the read-only house pattern of `acceptance_topology_check`,
+ *     `topology_critic_receipt_check` and `proofstory_gate_check`: derived
+ *     output only, no caller-submitted status, and an inadmissible verdict is
+ *     surfaced by THROWING the rendered report (non-zero exit) rather than by
+ *     writing anything. See the fence note on the handler itself.
  *
  * Authorization is layered exactly like every other mutating story command:
  *   1. The story-owner LEASE is enforced UPSTREAM at the single CLI choke point
@@ -23,17 +32,28 @@
  * discriminator), and no gate consumes the chain in this leaf.
  */
 
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve as resolvePath } from 'node:path';
+
 import type { HandlerContext } from './context.js';
 import { StoryStore } from '../core/store.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { getSessionId } from '../core/owner-session.js';
+import { loadConfig } from '../core/config.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { resolveExpectedRedTargets, type ExpectedRedTargetsInput } from '../core/proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import {
   appendTargetBinding,
   emptyRedTargetBindingsFile,
+  findTargetBinding,
+  readCommittedTargetBindings,
   targetBindingDigest,
+  RED_TARGET_BINDINGS_FILENAME,
+  type RedTargetBindingEntry,
 } from '../core/red-evidence/target-bindings.js';
+import { resolveRedEvidencePolicy } from '../core/red-evidence/policy.js';
+import { validateAssertionEnvelope } from '../core/red-evidence/envelope.js';
 import { isRedEvidenceV2, type RedEvidenceRecordV2 } from '../core/red-evidence/record-v2.js';
 import { partitionChain, resolveChainHead } from '../core/red-evidence/chain.js';
 import { controlOperationKey } from '../core/red-evidence/operation-key.js';
@@ -165,6 +185,60 @@ function deriveApprovedBy(actor: string | undefined): string {
   return `${actor ?? 'unknown'}@${getSessionId()}`;
 }
 
+/**
+ * Resolve the operator's `assertionFile` argument to an absolute path.
+ *
+ * Deterministic order: an absolute path is used verbatim; a relative path is
+ * resolved against the PROJECT ROOT first (the repo-relative convention every
+ * other path argument in this CLI follows) and only then against the process
+ * cwd, so the same argument means the same file regardless of which subdirectory
+ * the operator happens to stand in.
+ */
+function resolveAssertionFilePath(root: string, assertionFile: string): string {
+  if (isAbsolute(assertionFile)) return assertionFile;
+  const fromRoot = resolvePath(root, assertionFile);
+  if (existsSync(fromRoot)) return fromRoot;
+  return resolvePath(process.cwd(), assertionFile);
+}
+
+/**
+ * §1.1.3 anti-swap lookup for the envelope CHECK: read the story's target
+ * binding from the COMMITTED tree at HEAD (W2b `readCommittedTargetBindings`),
+ * never the live story directory — the same rule the runner follows, so the
+ * pre-flight answers the question the run will actually ask. An uncommitted or
+ * post-review edit is invisible here on purpose.
+ *
+ * Returns null when the story has no committed bindings file or no entry for the
+ * target; the envelope validator turns that into the §1.6 R1-6 rejection.
+ */
+function readCommittedBindingForTarget(
+  store: StoryStore,
+  root: string,
+  storyId: string,
+  acceptanceTargetRef: string | null,
+): RedTargetBindingEntry | null {
+  if (!acceptanceTargetRef) return null;
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  let storyRel: string;
+  try {
+    storyRel = relative(realpathSync(gitCwd), realpathSync(store.storyDirPath(storyId)));
+  } catch {
+    storyRel = relative(gitCwd, store.storyDirPath(storyId));
+  }
+  const relPath = join(storyRel, RED_TARGET_BINDINGS_FILENAME).replace(/\\/g, '/');
+  let file;
+  try {
+    file = readCommittedTargetBindings({ gitCwd, ref: 'HEAD', relPath });
+  } catch (error) {
+    throw new Error(
+      `red_evidence_envelope_check: could not read the COMMITTED target bindings at HEAD:${relPath} — ${(error as Error).message}. ` +
+        'Nothing was written; this check is read-only.',
+    );
+  }
+  if (!file) return null;
+  return findTargetBinding(file, acceptanceTargetRef) ?? null;
+}
+
 export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store, root } = ctx;
   return {
@@ -251,6 +325,127 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
           { label: 'red-evidence chain (binding freeze)' },
         );
       });
+    },
+
+    /**
+     * W2d (B-9ff1) — READ-ONLY §1.1 envelope admissibility pre-flight.
+     *
+     * `red_evidence_envelope_check(storyId, assertionFile)` answers ONE question:
+     * would this candidate assertion envelope be admissible, and if not, WHICH
+     * §1.6 rejection class does it fall in? It exists so an operator learns an
+     * envelope is inadmissible with a correctly tagged reason BEFORE spending a
+     * run.
+     *
+     * §5.5 FENCE NOTE: §5.5 fences the W2/W3 boundary — W2 defines and answers
+     * the single gate-consumption QUERY, W3 wires gates to consume the answer.
+     * This command is not that query and is not a new query surface added to
+     * satisfy an enforcement need: it consumes no chain, returns no target
+     * verdict, is consumed by no gate, and changes no gate verdict. It is an
+     * operator pre-flight over a candidate file that is not evidence yet, so it
+     * sits OUTSIDE the §5.5 fence.
+     *
+     * READ-ONLY, mechanically: the handler reads config, the story record, the
+     * candidate file, and the COMMITTED bindings blob; it writes no artifact, no
+     * process event, no chain record, and no gate verdict, spawns no RED run,
+     * and never calls autoCommitStoryMetadata. `command-policy` classifies it
+     * `readOnly`/`destructiveRisk: none` and `cli/activity-policy` lists it in
+     * READ_ONLY_COMMANDS, which suppresses the CLI's own hook / activity-log /
+     * process-event write surfaces. The only child processes are the W2b
+     * committed-tree reader's `git rev-parse` / `git show` — evidence READS,
+     * never an envelope execution.
+     *
+     * An INADMISSIBLE envelope THROWS the rendered report (so the CLI exits
+     * non-zero and a script cannot mistake a rejection for a pass), which is the
+     * same enforce-shape the read-only ProofStory checkers use.
+     */
+    red_evidence_envelope_check(args: { storyId: string; assertionFile: string; json?: boolean }): string {
+      const storyId = String(args.storyId ?? '').trim();
+      if (!storyId) throw new Error('red_evidence_envelope_check: storyId is required');
+      const assertionFileArg = String(args.assertionFile ?? '').trim();
+      if (!assertionFileArg) {
+        throw new Error('red_evidence_envelope_check: assertionFile is required (path to the candidate §1.1 assertion envelope JSON)');
+      }
+
+      try {
+        store.readStory(storyId);
+      } catch {
+        throw new Error(`Story ${storyId} not found`);
+      }
+
+      const assertionPath = resolveAssertionFilePath(root, assertionFileArg);
+      if (!existsSync(assertionPath)) {
+        throw new Error(`red_evidence_envelope_check: assertion file not found: ${assertionPath}`);
+      }
+      let assertion: unknown;
+      try {
+        assertion = JSON.parse(readFileSync(assertionPath, 'utf-8'));
+      } catch (error) {
+        throw new Error(`red_evidence_envelope_check: ${assertionPath} is not valid JSON — ${(error as Error).message}`);
+      }
+
+      // Fail closed on an unresolvable policy: without §1.2 bounds and floors
+      // there is nothing to validate against, and guessing defaults would answer
+      // a question the project has not configured.
+      const policyResult = resolveRedEvidencePolicy(loadConfig(root).redEvidence);
+      if (!policyResult.ok) {
+        throw new Error(
+          `red_evidence_envelope_check: the red-evidence policy does not resolve, so no envelope can be validated (fail-closed):\n${policyResult.diagnostics
+            .map((diagnostic) => `  - ${diagnostic.message}`)
+            .join('\n')}`,
+        );
+      }
+
+      const acceptanceTargetRef =
+        typeof (assertion as { acceptanceTargetRef?: unknown })?.acceptanceTargetRef === 'string'
+          ? String((assertion as { acceptanceTargetRef?: unknown }).acceptanceTargetRef)
+          : null;
+      const committedBinding = readCommittedBindingForTarget(store, root, storyId, acceptanceTargetRef);
+
+      const result = validateAssertionEnvelope({
+        assertion,
+        policy: policyResult.snapshot,
+        policyDigest: policyResult.policyDigest,
+        committedBinding,
+      });
+
+      const report = {
+        schemaVersion: 'proofstory.red_evidence_envelope_check.v1' as const,
+        ok: result.ok,
+        storyId,
+        assertionFile: assertionPath,
+        policyDigest: policyResult.policyDigest,
+        assertionDigest: result.assertionDigest,
+        binding: result.binding,
+        rejections: result.rejections,
+        diagnostics: result.diagnostics,
+      };
+
+      if (result.ok) {
+        if (args.json) return JSON.stringify(report, null, 2);
+        return [
+          'Red-evidence envelope: ADMISSIBLE',
+          `Story: ${storyId}`,
+          `Envelope: ${assertionPath}`,
+          `Acceptance target: ${result.binding?.acceptanceTargetRef ?? '<none>'}`,
+          `Matched binding: adapterId=${result.binding?.adapterId ?? '<none>'} testCaseRef=${result.binding?.testCaseRef ?? '<none>'} (committed tree, HEAD)`,
+          `assertionDigest: ${result.assertionDigest}`,
+          `policyDigest: ${policyResult.policyDigest}`,
+          'This check is read-only: it validated the envelope and executed nothing. Running the RED evidence is a separate step.',
+        ].join('\n');
+      }
+
+      const text = [
+        'Red-evidence envelope: NOT ADMISSIBLE',
+        `Story: ${storyId}`,
+        `Envelope: ${assertionPath}`,
+        `policyDigest: ${policyResult.policyDigest}`,
+        `Rejections (§1.6): ${result.rejections.length}`,
+        ...result.rejections.map((rejection) => `  - [${rejection.tag}] ${rejection.code}: ${rejection.message}`),
+        `Diagnostics: ${result.diagnostics.length}`,
+        ...result.diagnostics.map((diagnostic) => `  - ${diagnostic.message}`),
+        'Nothing was written and no gate verdict changed; fix the envelope before spending a run.',
+      ].join('\n');
+      throw new Error(args.json ? JSON.stringify(report, null, 2) : text);
     },
 
     red_evidence_quarantine(args: {

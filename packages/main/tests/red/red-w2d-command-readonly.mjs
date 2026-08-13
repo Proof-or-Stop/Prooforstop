@@ -180,8 +180,10 @@ try {
     },
     'an inadmissible envelope reports its EXACT §1.6 tag and exits non-zero',
   );
-  assert.ok(!/ADMISSIBLE\b/.test(rejectionMessage.replace(/NOT ADMISSIBLE/g, '')),
-    `the success verdict must be ABSENT for an inadmissible envelope; got:\n${rejectionMessage}`);
+  assert.equal(rejectionMessage.split('\n')[0], 'Red-evidence envelope: NOT ADMISSIBLE',
+    `the verdict line must state NOT ADMISSIBLE; got:\n${rejectionMessage}`);
+  assert.ok(!rejectionMessage.includes('Red-evidence envelope: ADMISSIBLE'),
+    `the success verdict line must be ABSENT for an inadmissible envelope; got:\n${rejectionMessage}`);
   assert.ok(!rejectionMessage.includes(expectedDigest),
     'no computed assertionDigest is advertised for an inadmissible envelope');
 
