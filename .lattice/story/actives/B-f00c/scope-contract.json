@@ -1,0 +1,57 @@
+{
+  "storyId": "B-f00c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/validation-lineage.ts",
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/phase-gates.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Add done-required-validation-smoke.ts to allowedModify (scope reviewer OQ-1): its modify-then-revert block (lines 698-723) encodes the OLD per-commit -m semantic (reusable=false for byte-identical endpoints) which the net-diff fix intentionally corrects to trusted; the block will be updated to assert the new semantic plus a retained genuine-change negative case.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "F-003 fix: the shared-classifier extraction moved the merge-lineage git-commands out of validation-evidence-reuse.ts, so this static process-fact contract must be updated to verify them in validation-lineage.ts and drop the now-obsolete rev-list token.",
+      "timestamp": "2026-07-26T04:22:32.040Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "62b56b91cf65112d186b8d2327bcb177ab70221f",
+      "materialHash": "87c617f937b42c2bd22d43227c5340984039be3e54b473210f4cfbf48595dde0"
+    }
+  ],
+  "createdAt": "2026-07-26T03:17:26.125Z",
+  "updatedAt": "2026-07-26T04:22:32.040Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-evidence-reuse.ts": "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts": "packages/main/src/core/validation-evidence-admissibility.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/validation-lineage.ts": "packages/main/src/core/validation-lineage.ts",
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+    "packages/main/src/handlers/verdict.ts": "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/phase-gates.ts": "packages/main/src/core/phase-gates.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs"
+  }
+}

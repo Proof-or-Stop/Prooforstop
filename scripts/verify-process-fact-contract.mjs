@@ -5045,8 +5045,15 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(reuseText.includes(token), `DONE-required pre-run reuse must preserve canonical/shared-lineage check: ${token}`);
   }
   const routineReuseText = read('packages/main/src/core/validation-evidence-reuse.ts');
-  for (const token of ['merge-base', '--is-ancestor', 'rev-list', 'diff-tree', 'isStoryMetadataPath', 'untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
+  for (const token of ['untrusted-lineage-path', 'effectiveEnvironmentDigest', 'buildValidationExecutableLookup', "env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD'", "command.includes('\\\\')", 'platformPath.isAbsolute(command)', 'identity-missing-malformed-or-legacy', 'current-verification-coverage-incomplete', 'head-changed-during-reuse-evaluation']) {
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
+  }
+  // B-f00c: the merge-lineage git-command logic was extracted into the shared
+  // validation-lineage.ts classifier (used by both the reuse and admissibility copies).
+  // The net-endpoint diff replaces the per-commit union, so rev-list is no longer used.
+  const lineageText = read('packages/main/src/core/validation-lineage.ts');
+  for (const token of ['merge-base', '--is-ancestor', 'diff-tree', 'isStoryMetadataPath']) {
+    assert(lineageText.includes(token), `shared merge-lineage classifier contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
   const expectedValidationTransportKeys = [
