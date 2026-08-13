@@ -118,20 +118,44 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
-// 5) Large diff (>1500 changed metadata paths) does not throw ENOBUFS and stays trusted.
+// 5) Large diff output actually EXCEEDS Node's default 1 MiB child_process maxBuffer, and
+//    classifyMergeLineage/netDiffChangedPaths (which use GIT_LINEAGE_MAXBUFFER=1GiB) still
+//    succeed instead of throwing ENOBUFS. This block must be self-verifying: it first proves
+//    the SAME raw `git diff-tree` call throws when run WITHOUT the override (Node's default),
+//    so the fixture is provably large enough to exercise the fix. (B-f00c:F-004 — the prior
+//    1500-file fixture only produced ~118KB, far under the 1 MiB default, so the old version
+//    of this assertion never actually exercised GIT_LINEAGE_MAXBUFFER at all: it would have
+//    passed identically even if that constant were reverted or removed.)
 {
   const root = mkdtempSync(join(tmpdir(), 'merge-lineage-large-'));
   try {
     git(root, ['init', '-q']); git(root, ['config', 'user.email', 't@t']); git(root, ['config', 'user.name', 't']); git(root, ['config', 'commit.gpgsign', 'false']);
     writeFileSync(join(root, 'seed'), 'x\n'); git(root, ['add', '.']); git(root, ['commit', '-qm', 'seed']);
     const H1 = git(root, ['rev-parse', 'HEAD']);
+    // 8000 files x ~230-byte padded names ~= 1.8 MiB of raw diff-tree output (measured),
+    // comfortably past Node's 1 MiB default, while staying fast to create (~1s vs ~18s at
+    // 25k tiny files) — file COUNT dominates wall time far more than per-file byte size.
+    const FILE_COUNT = 8_000;
     mkdirSync(join(root, '.lattice/story/actives/B-big'), { recursive: true });
-    for (let i = 0; i < 1500; i++) writeFileSync(join(root, `.lattice/story/actives/B-big/f${i}-${'p'.repeat(40)}.json`), `{"i":${i}}\n`);
+    for (let i = 0; i < FILE_COUNT; i++) writeFileSync(join(root, `.lattice/story/actives/B-big/f${i}-${'p'.repeat(220)}.json`), `{"i":${i}}\n`);
     git(root, ['add', '.']); git(root, ['commit', '-qm', 'many metadata files']);
     const H2 = git(root, ['rev-parse', 'HEAD']);
+
+    const rawArgs = ['diff-tree', '-r', '--no-commit-id', '--name-only', '--no-renames', '-z', H1, H2];
+    // Node's child_process default maxBuffer is 1 MiB. Calling the SAME diff-tree command
+    // with no override must throw, proving the fixture's raw output genuinely exceeds it.
+    assert.throws(
+      () => execFileSync('git', rawArgs, { cwd: root, encoding: 'utf8' }),
+      /maxBuffer|ENOBUFS/i,
+      `fixture must exceed Node's default 1 MiB maxBuffer to be a discriminating test for GIT_LINEAGE_MAXBUFFER (increase FILE_COUNT if this stops throwing)`,
+    );
+    // Measure the true size directly (with a large explicit buffer) for a readable failure message.
+    const rawSize = Buffer.byteLength(execFileSync('git', rawArgs, { cwd: root, encoding: 'utf8', maxBuffer: 1024 * 1024 * 1024 }));
+    assert.ok(rawSize > 1024 * 1024, `raw diff-tree output must exceed 1 MiB (got ${rawSize} bytes)`);
+
     const changed = netDiffChangedPaths(H1, H2, root);
-    assert.equal(changed.length >= 1500, true, `large net diff returns all paths (got ${changed.length})`);
-    assert.deepEqual(classifyMergeLineage({ evidenceHead: H1, currentHead: H2, gitCwd: root, metadataRoot: root }), { kind: 'trusted-descendant' }, 'large metadata-only diff is trusted');
+    assert.equal(changed.length >= FILE_COUNT, true, `large net diff returns all paths (got ${changed.length})`);
+    assert.deepEqual(classifyMergeLineage({ evidenceHead: H1, currentHead: H2, gitCwd: root, metadataRoot: root }), { kind: 'trusted-descendant' }, 'large metadata-only diff (>1 MiB raw output) is trusted, not ENOBUFS');
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
