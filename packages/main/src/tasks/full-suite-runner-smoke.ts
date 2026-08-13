@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
+import { classifyRuntimeEntrypointAuthority } from '../core/runtime-environment-checks.js';
 import {
   FULL_SUITE_ENTRIES, canonicalizeEntries, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
@@ -362,6 +363,25 @@ async function main(): Promise<void> {
     const tamperedOutput = `${tampered.stdout}${tampered.stderr}`;
     assert(tampered.status !== 0 && /source\/dist build binding mismatch/.test(tamperedOutput) && !/unknown argument/.test(tamperedOutput) && !existsSync(launchMarker), 'tampered dist makes direct npm test fail before argument parsing with launches0');
   } finally { rmSync(staleRoot, { recursive: true, force: true }); }
+
+  const gitProbeRoot = mkdtempSync(join(tmpdir(), 'full-suite-git-probe-'));
+  try {
+    const slowBin = join(gitProbeRoot, 'slow'); const hungBin = join(gitProbeRoot, 'hung');
+    mkdirSync(slowBin); mkdirSync(hungBin);
+    writeFileSync(join(slowBin, 'git'), '#!/bin/sh\nsleep 2.2\nexec /usr/bin/git "$@"\n'); chmodSync(join(slowBin, 'git'), 0o755);
+    writeFileSync(join(hungBin, 'git'), '#!/bin/sh\nsleep 30\n'); chmodSync(join(hungBin, 'git'), 0o755);
+    const authorityInput = {
+      command: 'agent_prompt', commandArgs: ['--role=implementation-reviewer'], projectRoot: process.cwd(),
+      invokedEntrypoint: join(process.cwd(), 'bin/lattice.js'), loadedCorePackageRoot: join(process.cwd(), 'packages/main'),
+    };
+    const slowDecision = classifyRuntimeEntrypointAuthority({ ...authorityInput, env: { ...process.env, PATH: `${slowBin}:${process.env.PATH ?? ''}` } });
+    assert(slowDecision.status === 'pass', 'authoritative git identity probes retry a transient two-second timeout');
+    const hungStarted = performance.now();
+    const hungDecision = classifyRuntimeEntrypointAuthority({ ...authorityInput, env: { ...process.env, PATH: `${hungBin}:${process.env.PATH ?? ''}` } });
+    const hungElapsed = performance.now() - hungStarted;
+    assert(hungDecision.status === 'blocked' && hungDecision.reasonCode === 'runtime_authority_probe_timeout_in_worktree', 'hung authoritative git identity probe reports a precise timeout');
+    assert(hungElapsed >= 15_000 && hungElapsed < 19_000, 'hung authoritative git identity probe stops within its monotonic total budget');
+  } finally { rmSync(gitProbeRoot, { recursive: true, force: true }); }
 
   const dynamicMarkerPatterns = [
     /(?:actual=|output=|\b(?:elapsed|duration)(?:Ms)?\s*[=:]\s*\d|\bPID\s*[=:]?\s*\d|\bB-[0-9a-f]{4}\b)/i,
