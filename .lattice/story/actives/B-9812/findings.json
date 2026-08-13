@@ -1334,7 +1334,7 @@
       "desc": "Current final REVIEW again makes the required immutable verifier unusable. `node scripts/verify-full-suite-contract.mjs` at clean source HEAD d63c3de fails immediately with `capture HEAD is not an admissible metadata-only ancestor`. The capture is at 8493717 with the same material hash, and `git diff --name-only 8493717..HEAD` contains only story metadata; the sole path excluded by both exact allowlists is `.lattice/story/actives/B-9812/stall-adjudication.json`, created by normal convergence review commit cfe9d261. scripts/verify-full-suite-selector.mjs:34-40 and scripts/verify-full-suite-contract.mjs:27-34 omit this lifecycle artifact, so all 52 selectors are unavailable in the very final REVIEW they must support. F-041 itself is closed: runner, selector, and contract now preflight the source/dist binding, and smoke contains real stale-source/tampered-dist launches=0 bites. Fix the bounded metadata policy for stall-adjudication in both verifier layers, add a positive exact-path and negative unknown-path self-test, recapture if required, and prove the no-arg command passes after fresh review dispatch metadata.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-13T04:43:25.470Z",
@@ -1393,14 +1393,18 @@
         "packages/main/src/tasks/full-suite-runner-smoke.ts"
       ],
       "signatureTag": "missing|mjs|current-final-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: immutable replay omitted normal stall-adjudication.json and scope-contract.json lifecycle descendants. Fixed both selector and contract bounded allowlists, added actual descendant positive fixtures, and retained unknown metadata/source/nonancestor denial. ReproTest: final no-arg verifier at metadata descendants PASS 52 in 1.87s; capture /tmp/b9812-final-v3-contract-capture.json PASS all 52; unknown-path negative remains enforced.",
+      "resolvedAt": "2026-08-13T06:55:46.500Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-045",
       "desc": "CHK-004:adversarial:1 is still falsely certified after the F-042 fix. In packages/main/src/tasks/review-incremental-context-smoke.ts:1688-1705, scheduleMutation only reruns the same isolated, passing scenarios in order [21,10,31] and declares detected=true because JSON.stringify of the ordered receipt differs from the baseline [31,10,21]. The digest must differ solely because the array/mask order differs; no seed recording is removed and no order-dependent shared state is introduced. The final stress receipt confirms every reordered observation remains all-true while detected=true. scripts/verify-full-suite-contract.mjs:170-172 then accepts this tautology for stressValid, and CHK-004:adversarial:1 at :261 inherits it. This cannot detect the promised hidden cross-shard state or nondeterminism regression. Add a real injection that shares/order-depends state across reordered shards (or suppresses seed recording), assert the normalized per-mask outcomes/attribution change or verifier fails, and compare order-insensitive semantic maps so a mere permutation is not itself the detection signal.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T04:45:22.364Z",
@@ -1437,14 +1441,18 @@
         "scripts/verify-full-suite-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|adversarial-still-falsely",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: schedule mutation compared reordered serialization rather than executing predecessor-dependent transitions, and missing seed was only a digest difference. Fixed actual shared-state transition execution: baseline passes, reordered run fails with orderViolation, and missing seed is deterministically rejected. ReproTest: /tmp/b9812-final-v3-stress20.log records scheduleMutation completed=true threw=false baselinePassed=true reorderedPassed=false orderViolation=true missingSeedRejected=true detected=true across the final 20-iteration run; capture PASS 52.",
+      "resolvedAt": "2026-08-13T06:55:47.281Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-046",
       "desc": "Current final HEAD does not have replayable verificationEvidence. At HEAD d63c3de8b8, the immutable pinned command `node scripts/verify-full-suite-contract.mjs` exits nonzero before emitting any of the 52 selectors: `/tmp/b9812-final-v3-contract-capture.json` is bound to 8493717369, and the intervening diff includes `.lattice/story/actives/B-9812/scope-contract.json` and `stall-adjudication.json`, which are intentionally outside scripts/verify-full-suite-selector.mjs:34-40 METADATA_ALLOWLIST. The observed failure is `capture HEAD is not an admissible metadata-only ancestor`. Build binding itself passes, so this is specifically a stale final selector capture, not a missing build. WHY: every must intent currently cites this exact command; a final REVIEW cannot pass when the cited command fails and the scope changed after capture. Re-capture after the final scope/source state, refresh all 52 mechanical receipts, and prove post-dispatch no-arg replay.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T04:46:22.149Z",
@@ -1475,7 +1483,11 @@
         "scripts/verify-full-suite-contract.mjs"
       ],
       "signatureTag": "missing|mjs|current-final-head",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: final HEAD evidence replay was blocked by bounded lifecycle metadata drift. Fixed strict known lifecycle allowlist and regenerated final same-material receipts. ReproTest: serial/jobs3/jobs5/jobs4x3 all 47/47 with zero retries/drift and exact per-member inventories; DONE-required PASS 158608ms; capture PASS 52 and checklist readback 52/52 mechanical passing evidence using immutable no-arg command.",
+      "resolvedAt": "2026-08-13T06:55:48.051Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
