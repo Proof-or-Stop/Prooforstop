@@ -110,6 +110,23 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-007",
+      "desc": "[codex host-B #4, orchestrator-verified against spec text] greenExempt:false on a non-present-in-red matcher is accepted; it must reject. Section 1.1 states greenExempt is 'legal ONLY on polarity present-in-red matchers (any other polarity CARRYING IT is rejected)' - the test is whether the field is PRESENT, not whether it is true. The implementer's documented ambiguity resolution 5 reasoned that false cannot change assertion identity under section 0.4 and therefore accepted it; that reasoning is wrong on this clause. Reject on presence regardless of value, and add the fixture.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T18:02:23.467Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "_hash": "035c6ea392e720d67f9b4bb93e4fea35d4a8a0506038d845df876456bde5f066",
+      "files": [
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-orchestrator",
+      "signatureTagSource": "auto"
     }
   ]
 }
