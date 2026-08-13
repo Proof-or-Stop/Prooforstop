@@ -416,9 +416,9 @@
       "id": "CHK-010",
       "title": "Compute assertionDigest as CANON over the assertion subobject including policyDigest and excluding assertionDigest",
       "context": "assertionDigest = W2a CANON over the assertion subobject with policyDigest INCLUDED and assertionDigest itself EXCLUDED. A validator that forgets to strip the field, or omits policyDigest, produces a different digest on the same envelope; both directions are asserted.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-13T17:31:52.084Z",
-      "endTime": null,
+      "endTime": "2026-08-13T17:31:52.872Z",
       "verificationIntent": {
         "happy": [
           {
