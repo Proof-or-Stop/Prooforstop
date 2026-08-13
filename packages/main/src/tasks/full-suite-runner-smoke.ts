@@ -16,6 +16,12 @@ import {
 
 const checks: string[] = [];
 function assert(condition: unknown, message: string): void { if (!condition) throw new Error(message); checks.push(message); }
+function assertWithDetail(condition: unknown, stableMessage: string, detail: string): void {
+  if (!condition) throw new Error(`${stableMessage}: ${detail}`);
+  checks.push(stableMessage);
+}
+const isolatedTempRootsMatch = (roots: string[], expected: string | undefined): boolean =>
+  roots.length === 4 && new Set(roots).size === 1 && roots[0] === expected;
 const pass = (name: string): FullSuiteResult => ({ name, status: 'PASS', durationMs: 1, output: '' });
 const claim = (key: string, access: 'shared' | 'exclusive' = 'shared'): ResourceClaim => ({ class: 'fixed-path', key, access, canonicalKey: `fixed-path:${key}` });
 const entry = (name: string, resources: ResourceClaim[] = [], priority = 0): FullSuiteEntry => ({ name, resources, priority, tempOwnership: 'runner-owned-unique' });
@@ -258,7 +264,15 @@ async function main(): Promise<void> {
       && JSON.stringify(markerA.mutationInventory) !== JSON.stringify(markerChanged.mutationInventory), 'changing parsed marker assertions and mutations alters member inventory');
     assert(markerA.detailedAssertions?.includes('marker-proof') && markerA.detailedAssertions.some(value => value.startsWith('output-sha256:')), 'marker assertions and non-marker output signatures are retained as separate facts');
     const isolatedRoots = cpuResult.output.match(/TEMP_ROOTS=([^\n]+)/)?.[1]?.split('|') ?? [];
-    assert(isolatedRoots.length === 4 && new Set(isolatedRoots).size === 1 && isolatedRoots[0] === cpuResult.tempRoot, `member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP (${isolatedRoots.join('|')} vs ${cpuResult.tempRoot})`);
+    const tempOwnershipLabel = 'member consumes one unique temp ownership root through LATTICE/TMPDIR/TMP/TEMP';
+    assertWithDetail(isolatedTempRootsMatch(isolatedRoots, cpuResult.tempRoot), tempOwnershipLabel, `${isolatedRoots.join('|')} vs ${cpuResult.tempRoot}`);
+    assert(checks.includes(tempOwnershipLabel) && !checks.some(message => message.includes(cpuResult.tempRoot!)), 'successful temp ownership marker records a stable label without dynamic paths');
+    for (const [roots, expected] of [[[cpuResult.tempRoot!, cpuResult.tempRoot!], cpuResult.tempRoot], [[], cpuResult.tempRoot]] as const) {
+      let diagnostic = '';
+      try { assertWithDetail(isolatedTempRootsMatch([...roots], expected), tempOwnershipLabel, `${roots.join('|')} vs ${expected}`); }
+      catch (error) { diagnostic = (error as Error).message; }
+      assert(diagnostic.startsWith(`${tempOwnershipLabel}:`) && diagnostic.includes(`vs ${expected}`), 'invalid temp ownership roots fail with dynamic diagnostic detail');
+    }
     const heartbeat = join(root, 'heartbeat');
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20)`) }],{stdio:'ignore'});setInterval(()=>{},1000);\n`);
     let launches = 0;
