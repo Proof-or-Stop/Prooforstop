@@ -652,6 +652,21 @@
       "resolvedAt": "2026-08-13T12:02:49.271Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-031",
+      "desc": "packages/main/src/core/lattice-brand.ts (LATTICE_PRODUCT_NAME, LATTICE_PRIMARY_BIN) -- these two @deprecated backward-compat re-exports have zero import consumers anywhere in packages/*/src (grep for imports of LATTICE_PRODUCT_NAME / LATTICE_PRIMARY_BIN returns only the declaration site itself and two smoke-file comments mentioning the name in prose, none importing it). Unlike LATTICE_CLI_VERSION/PROOF_OR_STOP_CLI_VERSION in the same file, which carry an explicit comment justifying why the old symbol must remain as the version-bump regex write target, LATTICE_PRODUCT_NAME/LATTICE_PRIMARY_BIN carry no such justification and no caller exercises the deprecated-alias path. Low severity: typed `as const` literals, zero runtime cost, no correctness impact -- flagging per reviewer role check-item-1 (defined but never called/imported), dead-code-in-practice risk if left un-consumed.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-13T12:18:55.786Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-034",
+      "_hash": "5440cafa83dd6448e213c6068504c7133a2b7de0ecb1ab4fa126b373271cfd51",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
