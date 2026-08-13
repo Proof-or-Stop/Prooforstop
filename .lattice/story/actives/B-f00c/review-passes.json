@@ -445,6 +445,36 @@
         "scanEscalationReason": null
       },
       "_hash": "adf8c56bd7f6c895b148a908f6e8a501eee0c70c2cec4cd56674b04331aa167a"
+    },
+    {
+      "id": "B-f00c:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation at current head: since my last CONCEPT pass (RP-011, commit 0d7da02, verifying the F-005 ENOBUFS-flake fix), the only intervening change is a metadata-only commit (07ed7ff) that resolved finding B-f00c:F-005 via finding_resolve -- confirmed zero code diff (git diff 0d7da02..HEAD -- packages/ scripts/ lattice.config.json is empty; only .lattice/ story-metadata commits followed, from other reviewer lanes running in parallel). Changed-file scope vs main is unchanged: lattice.config.json, validation-evidence-admissibility.ts, validation-evidence-reuse.ts, validation-lineage.ts, done-required-validation-smoke.ts, validation-reuse-merge-lineage-smoke.ts, verify-process-fact-contract.mjs. Re-ran the concept-residue grep sweep for the retired per-commit diff-tree -m union algorithm and its removed reject codes (lineage_empty, empty-descendant-lineage) across production *.ts/*.md/*.json (excluding node_modules/dist/.git/.lattice-metadata/the spec proposal doc) -- zero residue; both consumer sites still route through the single shared classifyMergeLineage in validation-lineage.ts. Rebuilt packages/main (tsc, clean) and re-ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js -- passed. Both checklist items (CHK-001, CHK-002) remain done; all findings F-001 through F-005 are resolved. No blocker.",
+      "createdAt": "2026-08-13T17:46:54.587Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-029",
+      "envelopeId": "c8d0f7e0dc486e17b13774a14e876b8ed71e0a2259fca4dae172a96a6755ad77",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "packages/main/src/core/validation-lineage.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/done-validation-reuse-merge-lineage-fix-proposal.md",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c63be92ef5e523f5507a950ef2e012f57b611717d84072750f7760265098b3d"
     }
   ]
 }
