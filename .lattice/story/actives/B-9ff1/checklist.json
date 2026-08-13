@@ -152,9 +152,9 @@
       "id": "CHK-004",
       "title": "Reject the timeout-is-failure with script-exit linkage incompatibility at schema time via the expectedExitClass enum",
       "context": "expectedExitClass is a closed enum; an envelope combining timeout-is-failure with a script-exit adapter linkage is REJECTED at schema time, not deferred to a run, because it is decidable from the envelope alone.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-13T17:31:38.005Z",
-      "endTime": null,
+      "endTime": "2026-08-13T17:31:38.834Z",
       "verificationIntent": {
         "happy": [
           {
