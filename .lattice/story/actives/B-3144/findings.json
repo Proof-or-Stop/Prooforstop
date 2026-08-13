@@ -464,6 +464,20 @@
       "_hash": "b95c112d4e9b0316bf9fbe64fed19a79a6791e1accf7e0a06a00ad63d6d96c8f",
       "signatureTag": "adversarial|unknown|host-codex-independent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-025",
+      "desc": "HOST-B codex reported: unvalidated verdictId permits path traversal during verdict-cache deletion. packages/main/src/handlers/quorum-prune.ts:167 joins a committed row raw verdictId into a verdictId.json path with no containment validation. A verdictId such as dot-dot-slash traversal resolves to the repository package.json; after the evidence commit, rmSync deletes it and the command still reports success. Fix: require the canonical verdict-ID shape and verify the resolved path stays directly beneath the story verdict directory.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T20:51:57.212Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "_hash": "5aeaea30fa4edf94a55ac25e0234b0d638a6d71a07991e5d91e574ce7d714032",
+      "signatureTag": "adversarial|unknown|host-codex-reported",
+      "signatureTagSource": "auto"
     }
   ]
 }
