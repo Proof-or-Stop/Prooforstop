@@ -400,6 +400,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0f0a6b923d3c6b7d7b81f613c7d0ee857d50e97b465bd882458a1b54d6df9ce8"
+    },
+    {
+      "id": "B-cdf6:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Re-bind pass for new round 2026-08-13T05:25:24.496Z at head 339138dbaa. Scope per review_incremental_context: only packages/main/src/tasks/rollout-check-smoke.ts changed since my prior pass (B-cdf6:RP-011). Verified commit 602bf8b8dd directly: the two rewritten assertions are a genuine fix, not a substitute-guard - independently measured 5x proof-or-stop story_create, 2x proof-or-stop session_brief, 0x lattice in story_create --help, matching the commit message exactly. runCli/runJson use execFileSync against the real compiled CLI. Each new assert.match is paired with doesNotMatch on the deprecated form, strengthening not disabling the guard. Ran rollout-check-smoke.js: PASS exit 0. tsc --noEmit -p packages/main: clean. JC1 (CHK-004:edge:0 waiverType=permanent): substance verified genuinely green (self-test 38/38 exit0; koala/brand-prose/brand-exec all PASS exit0). Confirmed verify-lattice-residue.mjs:553 renders a live counter, not a literal; git log -S29/29 on the file returns no commit. Confirmed both refusals are real (checklist.ts:733 receipt_selector_mismatch on durable resubmission, :792 receipt_selector_absent on re-run) and no repair path was overlooked (verification_intent_repair only backfills missing lanes; intent frozen from DEV). Confirmed proofstory.ts:846-851 makes deferred_gate_evidence vs permanent load-bearing (deferred returns false, permanent+non-fail returns true) - a real distinction, not decorative. Cross-checked story-scoped F-024: that waiver was correctly reverted permanent->deferred because F-012s timeout-override fix later made a real receipt obtainable (verified CHK-005:happy:0 now has a mechanical receipt). CHK-004:edge:0 differs structurally: no future fix restores 29/29 short of deleting 9 tests (a regression), so permanent is the honest label, not a repeat of the laundering pattern. JC2 (B-META F-021..F-024): verified all cited mechanisms. F-021: convergence-breaker.ts:838 gates on isAdvance||isTakeoverCommand; cli-engine.ts:1395-1398 computes isTakeoverCommand from parsed.takeover||parsed.forceTakeover with no story_resume carve-out; command-policy.ts:155 classifies story_resume storyScopedMutating; ownership-gate.ts:255-259 confirms plain non-owner resume is separately refused. Both refusal paths are live and unexempted as claimed. F-023: evidence-freshness.ts:458/464 currentStoryFilesHash filters via isMaterialExcludedPath before hashing, confirmed verbatim. F-023 is a genuine timestamped self-correction of F-022 (created ~16min later, narrows the claim with a measured hash-drift example), not retconning. No inaccuracies found in any of the four B-META findings. Verdict: PASS, no quality findings this round.",
+      "createdAt": "2026-08-13T05:32:51.837Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-030",
+      "envelopeId": "d64bd7e7d4544da7b3cb99b8019341f7379a78859637bd47920c8418bc9a6acc",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b74b1cd18bad166d4b21d6d61fa7a01a00ba190023ad15b466767dea72978b2f"
     }
   ]
 }
