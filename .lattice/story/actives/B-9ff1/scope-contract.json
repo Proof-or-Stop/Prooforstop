@@ -27,9 +27,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "W2d envelope validation plus one read-only command; the command needs the same registration recipe W2b and W2c used, including packages/main/src/registry.ts and core/lifecycle-registry.ts.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "activity-policy.ts is where the story's central read-only claim becomes mechanically enforced: adding red_evidence_envelope_check to READ_ONLY_COMMANDS is what guarantees at the CLI choke point that the pre-flight appends no hook, no activity log and no process event. CHK-012 asserts exactly that property, so this edit is squarely in scope; it was simply missed from the allowedModify list when the contract was authored.",
+      "timestamp": "2026-08-13T17:52:40.850Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ccc5342b80e4cba03e00e0cfacde8ccb4ecc6e5c",
+      "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76"
+    }
+  ],
   "createdAt": "2026-08-13T16:29:28.426Z",
-  "updatedAt": "2026-08-13T16:29:28.426Z",
+  "updatedAt": "2026-08-13T17:52:40.850Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -49,6 +66,7 @@
     "packages/main/src/core/red-evidence/envelope.ts": "packages/main/src/core/red-evidence/envelope.ts",
     "packages/main/src/core/red-evidence/specificity.ts": "packages/main/src/core/red-evidence/specificity.ts",
     "packages/main/src/tasks/red-evidence-envelope-smoke.ts": "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
-    "packages/main/tests/red/**": "packages/main/tests/red/**"
+    "packages/main/tests/red/**": "packages/main/tests/red/**",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts"
   }
 }
