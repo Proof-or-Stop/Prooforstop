@@ -24,7 +24,9 @@
         "CHK-002",
         "CHK-003",
         "CHK-004",
-        "CHK-005"
+        "CHK-005",
+        "CHK-015",
+        "CHK-016"
       ],
       "verificationIntentRefs": [
         "CHK-001:happy:0",
@@ -70,10 +72,20 @@
         "CHK-005:edge:5",
         "CHK-005:adversarial:0",
         "CHK-005:adversarial:1",
-        "CHK-005:adversarial:2"
+        "CHK-005:adversarial:2",
+        "CHK-015:happy:0",
+        "CHK-015:edge:0",
+        "CHK-015:edge:1",
+        "CHK-015:adversarial:0",
+        "CHK-015:adversarial:1",
+        "CHK-016:happy:0",
+        "CHK-016:edge:0",
+        "CHK-016:edge:1",
+        "CHK-016:adversarial:0",
+        "CHK-016:adversarial:1"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "The section 1.1 envelope schema validates every field at schema time: matcher ids unique, kind limited to literal-line and class with no pattern language, literal values trimmed within one to maxMatcherLen BYTES, closed stream and polarity enums, at least one present-in-red matcher, greenExempt only on present-in-red, the decidable timeout-is-failure with script-exit incompatibility rejected up front, and targetArtifactRef path syntax rejected for absolute, empty, dot, dot-dot and backslash segments."
+      "acceptanceClaim": "The section 1.1 envelope schema validates every field at schema time: matcher ids unique, kind limited to literal-line and class with no pattern language, the matcher array bounded at one to maxMatchers, a class matcher value naming a registered matcherClassRegistry entry case-sensitively, literal values trimmed within one to maxMatcherLen BYTES, closed stream and polarity enums, at least one present-in-red matcher, greenExempt only on present-in-red, the decidable timeout-is-failure with script-exit incompatibility rejected up front, and targetArtifactRef path syntax rejected for absolute, empty, dot, dot-dot and backslash segments."
     },
     {
       "id": "AB-SPECIFICITY",
@@ -167,7 +179,7 @@
     }
   ],
   "diagnosticGaps": [],
-  "note": "W2d envelope validation: 4 acceptance bindings cover all 14 checklist items and 98 verificationIntents; the convergence anchors are the two differential tables (AND-vs-OR, total-bits-vs-per-symbol) and the two-direction assertionDigest proof.",
+  "note": "W2d envelope validation: 4 acceptance bindings cover all 16 checklist items; convergence anchors are the two differential tables (AND-vs-OR, total-bits-vs-per-symbol), the two-direction assertionDigest proof, and the full R1-x tag discrimination including the R1-3 count and registry bounds.",
   "createdAt": "2026-08-13T16:37:43.446Z",
-  "updatedAt": "2026-08-13T16:37:43.446Z"
+  "updatedAt": "2026-08-13T16:47:39.066Z"
 }

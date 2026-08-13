@@ -618,6 +618,108 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-015",
+      "title": "Enforce the matcher array count bound of one to maxMatchers, rejecting a vacuous or oversized matcher set as R1-3",
+      "context": "Spec section 1.1 point 1: matchers is an array of 1..policy.maxMatchers matcher objects. Section 1.6 R1-3 enumerates BOTH triggers explicitly: a record with 0 matchers, or more than policy.maxMatchers, is REJECTED. This is a COUNT bound and is distinct from the per-value byte-length bound maxMatcherLen already covered by CHK-002. A vacuous envelope carrying zero matchers is a gaming vector: it would assert nothing at all.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-9ff1/background.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An envelope carrying a matcher count within 1..policy.maxMatchers under the frozen default policy is accepted by the count check.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exactly 1 matcher and exactly policy.maxMatchers matchers are both admissible (inclusive bounds on each end).",
+            "type": "cli"
+          },
+          {
+            "desc": "The count bound is evaluated against policy.maxMatchers resolved from the frozen default policy, not a hard-coded constant.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Committed test: an envelope with ZERO matchers is rejected with tag R1-3 and nothing else is reported as the primary failure — a vacuous envelope asserts nothing and must never be admissible.",
+            "type": "cli"
+          },
+          {
+            "desc": "Committed test: an envelope with policy.maxMatchers + 1 matchers is rejected with tag R1-3.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-016",
+      "title": "Require a class matcher value to name a registered matcherClassRegistry entry case-sensitively, rejecting an unregistered class as R1-3",
+      "context": "Spec section 1.1 point 1: for kind=class the value MUST be the exact, case-sensitive name key of a policy.matcherClassRegistry entry (section 1.2); a value naming no registry entry is rejected. Section 1.6 R1-3 lists 'a class value naming no registry entry' among its triggers. This is a registry-escape gaming vector: an unregistered class name would otherwise pass through unchecked. Distinct from CHK-008, which governs whether a class matcher may be the SOLE present-in-red evidence.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-9ff1/background.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A class matcher whose value exactly matches a registered matcherClassRegistry name under the frozen default policy is accepted by the membership check.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Membership is CASE-SENSITIVE: a value differing only in case from a registered name is rejected.",
+            "type": "cli"
+          },
+          {
+            "desc": "The registry consulted is the one resolved from policy, so a policy with a different registry changes the admissible class set.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Committed test: a class matcher naming no registry entry at all is rejected with tag R1-3 — the registry-escape vector is closed.",
+            "type": "cli"
+          },
+          {
+            "desc": "Committed test: the rejection is tagged R1-3 (matcher and path bounds), NOT R1-2 — an unregistered class name is a bounds failure, not a minimum-specificity failure.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-13T16:47:18.083Z",
+      "phase": "PLAN",
+      "itemId": "CHK-015",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer (scope-check _hash b67028b4) found the section 1.6 R1-3 matcher COUNT bound (0 matchers / more than maxMatchers) named in no checklist title; CHK-002 covers only the per-value byte-length bound maxMatcherLen, which is a different bound. Adding as a named item so gate review covers it.",
+      "addedTitle": "Enforce the matcher array count bound of one to maxMatchers, rejecting a vacuous or oversized matcher set as R1-3",
+      "addedContext": "Spec section 1.1 point 1: matchers is an array of 1..policy.maxMatchers matcher objects. Section 1.6 R1-3 enumerates BOTH triggers explicitly: a record with 0 matchers, or more than policy.maxMatchers, is REJECTED. This is a COUNT bound and is distinct from the per-value byte-length bound maxMatcherLen already covered by CHK-002. A vacuous envelope carrying zero matchers is a gaming vector: it would assert nothing at all."
+    },
+    {
+      "timestamp": "2026-08-13T16:47:18.737Z",
+      "phase": "PLAN",
+      "itemId": "CHK-016",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope reviewer (scope-check _hash b67028b4) found the section 1.6 R1-3 class-registry membership check named in no checklist title; CHK-008 covers only the sole-present-in-red rule, not membership. Adding as a named item so gate review covers it.",
+      "addedTitle": "Require a class matcher value to name a registered matcherClassRegistry entry case-sensitively, rejecting an unregistered class as R1-3",
+      "addedContext": "Spec section 1.1 point 1: for kind=class the value MUST be the exact, case-sensitive name key of a policy.matcherClassRegistry entry (section 1.2); a value naming no registry entry is rejected. Section 1.6 R1-3 lists 'a class value naming no registry entry' among its triggers. This is a registry-escape gaming vector: an unregistered class name would otherwise pass through unchecked. Distinct from CHK-008, which governs whether a class matcher may be the SOLE present-in-red evidence."
     }
   ]
 }
