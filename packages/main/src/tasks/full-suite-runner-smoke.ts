@@ -306,9 +306,9 @@ async function main(): Promise<void> {
     const child = spawn(process.execPath, [runnerPath, '--jobs', '1', '--json-output', resultPath], { cwd: interruptRoot, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, LATTICE_FULL_SUITE_OUTPUT_ROOT: interruptOutputRoot } });
     let output = ''; child.stdout?.on('data', (chunk) => { output += chunk; }); child.stderr?.on('data', (chunk) => { output += chunk; });
     for (let index = 0; index < 100 && !existsSync(heartbeat); index++) await new Promise((done) => setTimeout(done, 20));
-    assert(existsSync(heartbeat), `fixture runner starts real descendant before SIGINT (output=${output})`); child.kill('SIGINT');
+    assertWithDetail(existsSync(heartbeat), 'fixture runner starts real descendant before SIGINT', `output=${output}`); child.kill('SIGINT');
     const exitCode = await new Promise<number | null>((done) => child.on('exit', done));
-    assert(exitCode === 130, `top-level SIGINT exits 130 (actual=${exitCode}; output=${output})`);
+    assertWithDetail(exitCode === 130, 'top-level SIGINT exits 130', `actual=${exitCode}; output=${output}`);
     const receipt = JSON.parse(readFileSync(resultPath, 'utf8')) as { interruptedBy: string; processLaunchCount: number; results: FullSuiteResult[] };
     assert(receipt.interruptedBy === 'SIGINT' && receipt.results.every(({ status }) => status === 'INTERRUPTED'), 'SIGINT receipt marks started and pending members INTERRUPTED');
     assert(receipt.processLaunchCount === 1 && receipt.results.length === FULL_SUITE_ENTRIES.length, 'pending INTERRUPTED members do not inflate processLaunchCount');
@@ -316,6 +316,16 @@ async function main(): Promise<void> {
     assert(readFileSync(heartbeat, 'utf8').length === before, 'top-level SIGINT leaves no descendant heartbeat');
   } finally { rmSync(interruptRoot, { recursive: true, force: true }); rmSync(interruptOutputRoot, { recursive: true, force: true }); }
 
+  const dynamicMarkerPatterns = [
+    /(?:actual=|output=|\b(?:elapsed|duration)(?:Ms)?\s*[=:]\s*\d|\bPID\s*[=:]?\s*\d|\bB-[0-9a-f]{4}\b)/i,
+    /(?:\/private)?\/(?:tmp|var\/folders)\//,
+  ];
+  const hasDynamicMarkerDetail = (message: string): boolean => dynamicMarkerPatterns.some(pattern => pattern.test(message));
+  for (const example of ['actual=130', 'output=dynamic', '/tmp/random', '/private/var/folders/random', 'durationMs=12', 'PID 42', 'B-cd45']) {
+    assert(hasDynamicMarkerDetail(example), 'dynamic assertion marker scan recognizes forbidden runtime detail');
+  }
+  const dynamicLabels = checks.filter(hasDynamicMarkerDetail);
+  assertWithDetail(dynamicLabels.length === 0, 'emitted assertion markers contain only stable labels', dynamicLabels.join(' | '));
   process.stdout.write(`FULL_SUITE_SCHEDULER_RECEIPT=${JSON.stringify({
     distinctRootsOverlap: { observed: unrelatedOverlap, activeWitness: scheduledResults.map(result => result.name) },
     protectedPairs,
