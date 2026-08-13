@@ -193,6 +193,24 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-012",
+      "desc": "[codex host-B #8 CONVERGED with test-coverage F-002] The read-only regression cannot prove what it claims. Its mechanism is a before/after SHA-256 snapshot of .lattice/, which detects writes there and nothing else; it never intercepts child_process, so it cannot detect a spawned process. ORCHESTRATOR ADJUDICATION: the handler DOES spawn git via the W2b committed-binding reader (target-bindings.ts runGit uses spawnSync), and that is CORRECT and deliberate - reading the binding from the committed tree rather than the live directory is W2b's anti-swap property. The DEV handoff's phrase 'no process spawning' was too absolute and is not a code defect. What must be fixed is the EVIDENCE: either narrow the claim to what the snapshot proves (no writes under .lattice, no chain record, no gate change) or genuinely assert the spawn set. Do not remove the git read.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T18:02:26.631Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "_hash": "135df2574b81ed9fd79be9d5564ca2e53cb1f62c89c6373f966d75d1e0c83333",
+      "files": [
+        "packages/main/tests/red/red-w2d-command-readonly.mjs",
+        "packages/main/src/tasks/red-evidence-envelope-smoke.ts"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host-converged",
+      "signatureTagSource": "auto"
     }
   ]
 }
