@@ -83,7 +83,7 @@
     {
       "id": "CHK-011",
       "title": "Validate the assertion against the committed target binding and recompute targetBindingDigest, returning tagged R1-1, R1-2, R1-3 and R1-6 rejections",
-      "context": "Section 1.1.3: the assertion's adapterId and testCaseRef MUST equal the committed binding for its acceptanceTargetRef (read via the W2b committed-tree reader), and targetBindingDigest MUST recompute over the createdAt-stripped three-field subobject. Rejections are returned tagged R1-1 (schema), R1-2, R1-3 (specificity) and R1-6 (binding mismatch) so callers can distinguish them.",
+      "context": "Section 1.1.3: the assertion's adapterId and testCaseRef MUST equal the committed binding for its acceptanceTargetRef (read via the W2b committed-tree reader), and targetBindingDigest MUST recompute over the createdAt-stripped three-field subobject. Rejections carry the section 1.6 tags, mapped correctly: R1-1 = missing target-exercised proof; R1-2 = below-threshold or class-only matcher set (the minimum-specificity failure); R1-3 = matcher and path BOUNDS (a schema-bounds tag that explicitly covers path validation, NOT a specificity tag); R1-6 = unregistered or mismatched target binding. An implementer must not collapse R1-2 and R1-3 into one 'specificity' bucket.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -91,7 +91,7 @@
     {
       "id": "CHK-012",
       "title": "Land the read-only red_evidence_envelope_check command following the acceptance_topology_check house pattern and record the section 5.5 fence reasoning",
-      "context": "red_evidence_envelope_check(storyId, assertionFile) validates a candidate envelope against the resolved policy and the story's registered binding BEFORE a run is spent, following the verified read-only house pattern of acceptance_topology_check (cli/command-catalog.ts:2581), topology_critic_receipt_check (:2610) and proofstory_gate_check (:2754). It changes no gate verdict. The story records explicitly that a read-only operator pre-flight is not a new query surface added to satisfy an enforcement need and therefore sits outside the section 5.5 fence.",
+      "context": "red_evidence_envelope_check(storyId, assertionFile) validates a candidate envelope against the resolved policy and the story's registered binding BEFORE a run is spent, following the verified read-only house pattern of acceptance_topology_check, topology_critic_receipt_check and proofstory_gate_check in packages/main/src/cli/command-catalog.ts (anchored by command name because that file drifts). It changes no gate verdict. SUCCESS OUTPUT CONTRACT: on an admissible envelope it reports the computed assertionDigest, the matched binding reference (acceptanceTargetRef, adapterId, testCaseRef) and the resolved policyDigest, so the operator can proceed; the smoke asserts that success transcript, not only the rejection cases. The story records explicitly that a read-only operator pre-flight is not a new query surface added to satisfy an enforcement need and therefore sits outside the section 5.5 fence.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -100,6 +100,17 @@
       "id": "CHK-013",
       "title": "Register red-evidence-envelope-smoke in lattice.config.json validate.commands and wire the new command through the registration recipe",
       "context": "packages/main/src/tasks/red-evidence-envelope-smoke.ts covers the schema rules, the three specificity rules, the exact entropy formula, the assertionDigest both directions, the binding validation and the tagged rejection matrix; register it in lattice.config.json validate.commands and wire red_evidence_envelope_check through the registration points its read-only phase/level class requires, verified by the three existing registry contracts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-014",
+      "title": "Define and assert the admissible-envelope success output reporting assertionDigest, matched binding and resolved policyDigest",
+      "context": "The operator's primary use case is the happy path: an admissible envelope must produce a legible confirmation carrying the computed assertionDigest, the matched binding reference and the resolved policyDigest. Without this the DONE outcome transcript could only demonstrate rejections. The smoke asserts the success transcript alongside the tagged rejection matrix.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-9ff1/background.md"
+      ],
       "status": "pending",
       "startTime": null,
       "endTime": null
