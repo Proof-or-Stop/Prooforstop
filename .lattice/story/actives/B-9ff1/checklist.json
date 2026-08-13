@@ -56,9 +56,9 @@
       "id": "CHK-002",
       "title": "Enforce trimmed literal values within one to maxMatcherLen bytes and the closed stream and polarity enums",
       "context": "Literal values MUST be stored trimmed (leading/trailing whitespace rejects) with byte length in 1..policy.maxMatcherLen; stream and polarity are closed enums, polarity being {present-in-red, absent-in-green, present-in-green}. Byte length, not code-unit length.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-13T17:31:34.663Z",
-      "endTime": null,
+      "endTime": "2026-08-13T17:31:35.507Z",
       "verificationIntent": {
         "happy": [
           {
