@@ -264,6 +264,37 @@
         "scanEscalationReason": null
       },
       "_hash": "9e335abe4a2b9e9eb50967032598e5d72a37abd97ded601f56d91d469b6381f4"
+    },
+    {
+      "id": "B-f00c:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation at current material (head 4361ba5) after F-004 fix commit 8165a3f, the only material-code delta since prior clean pass RP-007 (verified via git diff adc4bb4..4361ba5 -- packages/: 1 file, 32 lines, confined to block 5 of validation-reuse-merge-lineage-smoke.ts). Reviewed the fix for code quality: (1) assert.throws(fn, /maxBuffer|ENOBUFS/i, msg) is correct Node assert/strict usage -- experimentally confirmed the regex matches the real error (spawnSync git ENOBUFS, e.code=ENOBUFS) that Node v22.13.0 throws on maxBuffer overflow, and confirmed assert.throws tests the regex against error.message with the 3rd arg used as the custom failure message, not a second matcher. (2) Fixture generation is reasonably fast: measured block 5 in isolation at roughly 5.3s (file writes ~0.68s, git add+commit dominates at ~3.5s, rmSync ~1s), full 7-block smoke suite ~9.7s wall -- well within any validate-tier budget. rawArgs in the smoke (diff-tree -r --no-commit-id --name-only --no-renames -z) exactly matches netDiffChangedPaths' production git invocation in validation-lineage.ts line 21, and the 1 GiB override literal in the smoke's comment matches GIT_LINEAGE_MAXBUFFER at validation-lineage.ts line 9. (3) No dead code / unused imports / type issues in the diff: rawSize is consumed by assert.ok, changed by the two trailing asserts, FILE_COUNT by both the loop bound and the length assertion; no new any/as-any casts. (4) Mutation-resistance verified live: temporarily reverted the GIT_LINEAGE_MAXBUFFER constant from its 1 GiB value down to Node's 1 MiB default in validation-lineage.ts, rebuilt, reran the smoke -- it threw ENOBUFS and failed (exit 1) inside netDiffChangedPaths, confirming block 5's new assertions are genuinely discriminating (not a vacuous pass) and would have caught the original F-004 gap. Restored the file, rebuilt, reran clean (exit 0), and confirmed git status shows zero diff on validation-lineage.ts. (5) Independently rebuilt (npm run build in packages/main, tsc clean, no errors) and reran fresh at true HEAD: node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js (pass, exit 0), node packages/main/dist/tasks/done-required-validation-smoke.js (pass), node scripts/verify-process-fact-contract.mjs (pass). No proof/receipt/provider/run metadata surfaces touched by this diff. No blocker.",
+      "createdAt": "2026-08-13T17:01:37.049Z",
+      "reviewRound": "2026-08-13T16:55:49.597Z",
+      "reviewRunId": "B-f00c:RR-019",
+      "envelopeId": "38462466a74e122f3095b665f553745ff2b8fba8a59299bd92fc878f7f081d54",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          ".lattice/story/actives/B-f00c/review-passes.json",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Unchanged since RP-007 full read, verified by git diff adc4bb4..4361ba5 showing zero code delta outside validation-reuse-merge-lineage-smoke.ts; this round focuses on the F-004 delta plus fresh build/run re-verification."
+      },
+      "_hash": "0a72c6ce0ad965722b8cd7918cbb2c2e6535a8550b9af894079f8587a7022a3c"
     }
   ]
 }
