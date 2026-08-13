@@ -1340,17 +1340,22 @@
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "logic_test",
-          "verdict": "success",
           "file": "scripts/verify-full-suite-contract.mjs",
           "command": "node scripts/verify-full-suite-contract.mjs",
           "result": "pass",
-          "note": "Final immutable verifier fast-validates the digest-bound 52-predicate capture at HEAD 47b315be54e6d775709427c59f5c3232e5d76a24 / material 1361a538.",
-          "headHash": "cfa85f3a6240167ef449c2af71a6f589ec10fcbc",
+          "note": "Digest-bound verifier consumes runner-smoke receipts for empty and unknown selection refusal plus jobs boundary execution.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e0f59534d1174312411fa5dfdddc3ce405de27c119140e9c1b79c1cf5a36e296",
+            "outputTail": "VERIFIED CHK-001:happy:0\nVERIFIED CHK-001:happy:1\nVERIFIED CHK-001:edge:0\nVERIFIED CHK-001:edge:1\nVERIFIED CHK-001:adversarial:0\nVERIFIED CHK-001:adversarial:1\nVERIFIED CHK-002:happy:0\nVERIFIED CHK-002:happy:1\nVERIFIED CHK-002:happy:2\nVERIFIED CHK-002:edge:0\nVERIFIED CHK-002:edge:1\nVERIFIED CHK-002:edge:2\nVERIFIED CHK-002:adversarial:0\nVERIFIED CHK-002:adversarial:1\nVERIFIED CHK-002:adversarial:2\nVERIFIED CHK-003:happy:0\nVERIFIED CHK-003:happy:1\nVERIFIED CHK-003:happy:2\nVERIFIED CHK-003:edge:0\nVERIFIED CHK-003:edge:1\nVERIFIED CHK-003:edge:2\nVERIFIED CHK-003:adversarial:0\nVERIFIED CHK-003:adversarial:1\nVERIFIED CHK-003:adversarial:2\nVERIFIED CHK-004:happy:0\nVERIFIED CHK-004:happy:1\nVERIFIED CHK-004:happy:2\nVERIFIED CHK-004:edge:0\nVERIFIED CHK-004:edge:1\nVERIFIED CHK-004:edge:2\nVERIFIED CHK-004:adversarial:0\nVERIFIED CHK-004:adversarial:1\nVERIFIED CHK-004:adversarial:2\nVERIFIED CHK-005:happy:0\nVERIFIED CHK-005:happy:1\nVERIFIED CHK-005:happy:2\nVERIFIED CHK-005:edge:0\nVERIFIED CHK-005:edge:1\nVERIFIED CHK-005:edge:2\nVERIFIED CHK-005:adversarial:0\nVERIFIED CHK-005:adversarial:1\nVERIFIED CHK-005:adversarial:2\nVERIFIED CHK-006:happy:0\nVERIFIED CHK-006:happy:1\nVERIFIED CHK-006:happy:2\nVERIFIED CHK-006:happy:3\nVERIFIED CHK-006:edge:0\nVERIFIED CHK-006:edge:1\nVERIFIED CHK-006:edge:2\nVERIFIED CHK-006:adversarial:0\nVERIFIED CHK-006:adversarial:1\nVERIFIED CHK-006:adversarial:2\nFULL_SUITE_CONTRACT=PASS selectors=52\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T13:54:02.816Z"
+          },
+          "headHash": "1c104a672815b986b61d1bea78dd050724ebd05e",
           "materialHash": "e836ff7f72219026a106466f9104c7c4e5d81d50369a4f919eb94370c5dace59",
           "storyFilesHash": "95330b8fdc65e03f6f77692a7b6d1ca50e550a5f6466c815140dbd4796f26ef3",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-13T13:52:50.501Z"
+          "timestamp": "2026-08-13T13:54:02.963Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
