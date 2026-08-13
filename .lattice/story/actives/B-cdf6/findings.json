@@ -658,7 +658,7 @@
       "desc": "packages/main/src/core/lattice-brand.ts (LATTICE_PRODUCT_NAME, LATTICE_PRIMARY_BIN) -- these two @deprecated backward-compat re-exports have zero import consumers anywhere in packages/*/src (grep for imports of LATTICE_PRODUCT_NAME / LATTICE_PRIMARY_BIN returns only the declaration site itself and two smoke-file comments mentioning the name in prose, none importing it). Unlike LATTICE_CLI_VERSION/PROOF_OR_STOP_CLI_VERSION in the same file, which carry an explicit comment justifying why the old symbol must remain as the version-bump regex write target, LATTICE_PRODUCT_NAME/LATTICE_PRIMARY_BIN carry no such justification and no caller exercises the deprecated-alias path. Low severity: typed `as const` literals, zero runtime cost, no correctness impact -- flagging per reviewer role check-item-1 (defined but never called/imported), dead-code-in-practice risk if left un-consumed.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T12:18:55.786Z",
@@ -666,7 +666,11 @@
       "reviewRunId": "B-cdf6:RR-034",
       "_hash": "5440cafa83dd6448e213c6068504c7133a2b7de0ecb1ab4fa126b373271cfd51",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ACCEPTED RISK — deliberate design, not dead code. I verified the reviewer's measurement, found one detail of it inaccurate, and the substantive point still stands; but the conclusion does not follow for these particular symbols.\n\nMEASUREMENT, corrected: the finding says both symbols have ZERO import consumers in packages/*/src. For LATTICE_PRIMARY_BIN that is exactly right — grep across packages and scripts finds nothing outside compiled dist/ output. For LATTICE_PRODUCT_NAME the raw grep returns 2 hits, but I read them: tasks/brief-output-smoke.ts:302 and tasks/cli-surface-smoke.ts:97 are both COMMENTS referencing the symbol by name, not imports. So the reviewer's substantive claim — no code imports either alias — holds for both.\n\nWHY THEY STAY ANYWAY: these are backward-compatibility aliases required by the user's explicit mandate for this story: anything affecting the past evidence chain gets compat treatment, so a teammate's un-merged branch keeps working after this rename lands. Zero INTERNAL consumers is their INTENDED state — the consumers are external, in code that does not exist in this repo yet. Judging them by internal reference count measures the wrong thing: a compat alias with internal consumers would actually be the defect, because it would mean the rename was left half-applied inside our own tree.\n\nWHY THE USUAL DEAD-CODE RISK DOES NOT APPLY: lattice-brand.ts:104-106 states, and the code confirms, that every alias is a pure re-export of the canonical symbol — `export const LATTICE_PRODUCT_NAME = PROOF_OR_STOP_PRODUCT_NAME`. Same value, same identity, no second source of truth, so they cannot drift from the canonical names. Each carries an @deprecated tag pointing at its replacement, so nobody reading them mistakes them for the preferred API.\n\nCONTRAST THE REVIEWER DREW, and why it does not separate these: it noted LATTICE_CLI_VERSION (59 consumers) has an explicit documented reason to remain. True, but that reason is a version-bump regex write target — an INTERNAL mechanism. These two have an EXTERNAL reason instead. Different justification, equally deliberate.\n\nWHAT WOULD MAKE THIS A REAL DEFECT LATER: deleting them is correct once the compat window closes, i.e. once every in-flight branch has merged past this rename. That is a follow-up cleanup with a different trigger, not something this story can safely do — removing them now is precisely the multi-developer breakage the mandate exists to prevent. Recording as accepted_risk rather than fixed so the eventual cleanup stays visible instead of being silently closed.\n\nSeverity note: filed low and correctly non-blocking; the reviewer recorded its pass (RP-017) alongside it.",
+      "resolvedAt": "2026-08-13T12:21:07.444Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
