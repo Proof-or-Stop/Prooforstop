@@ -585,7 +585,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Admissible envelope produces success output containing computed assertionDigest (sha256:...), matched binding reference (acceptanceTargetRef, adapterId, testCaseRef), and resolved policyDigest; smoke asserts all three present in transcript; WHY: the DONE outcome transcript requires demonstrable success not only rejections",
+            "type": "cli"
+          },
+          {
+            "desc": "Success output policyDigest matches the frozen default sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767; WHY: validates against the W2a known-good digest pinned in the frozen default policy",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "assertionDigest in success output matches manual recomputation via canonDigestOmitting over the fixture assertion subobject; WHY: the output digest is freshly computed not echoed from the input or cached",
+            "type": "cli"
+          },
+          {
+            "desc": "Matched binding reference in output includes all three fields (acceptanceTargetRef, adapterId, testCaseRef) not just the target ref alone; WHY: operator needs all three to proceed to the run step",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two envelopes differing by one matcher value produce different assertionDigest values in their respective success outputs; WHY: proves the digest is recomputed per-envelope not cached or hardcoded",
+            "type": "cli"
+          },
+          {
+            "desc": "Success output for an inadmissible envelope is ABSENT -- instead the tagged rejection is reported; WHY: success output must only appear for genuinely admissible envelopes, never for rejected ones",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
