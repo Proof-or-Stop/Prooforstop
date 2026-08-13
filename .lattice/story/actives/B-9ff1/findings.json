@@ -38,6 +38,26 @@
       ],
       "signatureTag": "missing|mjs|read-claim-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-003",
+      "desc": "CHK-013:happy:0 literal intent text reads: red-evidence-envelope-smoke.ts listed in lattice.config.json validate.commands and lattice validate runs it successfully. The bound evidence (packages/main/tests/red/red-w2c-validate-registration.mjs) only statically enumerates dist/tasks/red-evidence-* on disk and cross-checks it against the validate.commands array in config; it never invokes the lattice validate command itself. CHK-013:happy:1 separately runs the smoke by direct node invocation (node packages/main/dist/tasks/red-evidence-envelope-smoke.js), not through the lattice validate pipeline. So no committed evidence in this story exercises the actual validate-pipeline invocation path (spawn args/cwd/timeout handling for this entry) end to end; the binder self-flagged this exact gap (lattice validate was not run for this binding). Registration-in-config + direct-invocation-passes only jointly approximate the literal intent, and this exact substitution pattern was previously used for the same reason in W2c (red-w2c-validate-registration.mjs), so it is a known, repeated, but still real gap against the literal command the intent names.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-13T17:59:01.170Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "reviewRunId": "B-9ff1:RR-001",
+      "_hash": "3b3b0a42d56cfdad558dcb5521f1c180e914f0ed0047597c96bc7d654d90f169",
+      "files": [
+        "packages/main/tests/red/red-w2c-validate-registration.mjs",
+        "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+        "lattice.config.json"
+      ],
+      "signatureTag": "missing|mjs|happy-literal-intent",
+      "signatureTagSource": "auto"
     }
   ]
 }
