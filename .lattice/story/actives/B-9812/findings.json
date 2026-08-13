@@ -1494,7 +1494,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:166-184,368-371 can delete a pre-existing foreign empty directory on FAIL/TIMEOUT/INTERRUPT. cleanupManifestForEntry records the declared path but never proves it was absent before spawn or places a token in every owned target; cleanupOwnedTargets treats any empty directory as owned and removes it without checking ownershipToken. Reproduction against current dist: pre-create `.lattice/runtime/preexisting-empty`, run a runner-cleanable entry whose child exits 7, and the result reports cleanup outcome `removed` with `targetExistsAfter:false`. This contradicts docs/requirements/decisions/test-runner-consolidation-plan.md:18-21 and CHK-002 happy/adversarial cleanup boundaries: an external task's empty lock/root can be erased merely because the member failed to acquire it. Require an authoritative pre-spawn absence/creation receipt or a matching per-launch owner marker for every removable directory; retain any target whose ownership cannot be proven, and add an empty-foreign-target regression alongside the existing nonempty case.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T07:03:36.678Z",
@@ -1532,7 +1532,11 @@
         "docs/requirements/decisions/test-runner-consolidation-plan.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: cleanup treated a pre-existing empty target as runner-owned and could delete it after cancellation. Fixed structured pre-spawn existence/type/marker observations, zero-spawn rejection of every pre-existing target, atomic per-launch token markers on all sentinel directories, and cleanup requiring absentBefore plus exact live token. Also declared runner-smoke real fixed-path and fixed-port collisions so canonical scheduling prevents fixture overlap. ReproTest: durable runner smoke PASS130; pre-existing empty/file/symlink remain with launches0; missing/tampered/foreign markers remain and terminal FAIL; token-owned SIGTERM targets are removed without sibling damage; final serial/jobs3/jobs5/jobs4x3 all 47/47, inventories equal, retries0/driftfalse; capture PASS52.",
+      "resolvedAt": "2026-08-13T08:29:50.769Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
