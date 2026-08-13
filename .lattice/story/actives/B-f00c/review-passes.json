@@ -295,6 +295,39 @@
         "scanEscalationReason": "Unchanged since RP-007 full read, verified by git diff adc4bb4..4361ba5 showing zero code delta outside validation-reuse-merge-lineage-smoke.ts; this round focuses on the F-004 delta plus fresh build/run re-verification."
       },
       "_hash": "0a72c6ce0ad965722b8cd7918cbb2c2e6535a8550b9af894079f8587a7022a3c"
+    },
+    {
+      "id": "B-f00c:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan clean at current material (0d7da02): old per-commit diff-tree -m union + rev-list evidenceHead..currentHead walk fully removed from both classifier files (validation-evidence-reuse.ts, validation-evidence-admissibility.ts); both now import classifyMergeLineage from shared validation-lineage.ts. Removed reject codes lineage_empty/empty-descendant-lineage have zero remaining production references (only in historical docs/story metadata + a deliberately-labeled OLD-algorithm reference in the smoke RED comparison). Also independently re-verified the F-005 ENOBUFS-flake fix (commit e0df48c00d): read current block 5, confirmed exactly 2 heavy git spawns remain (no-override throw-proof + one override netDiffChangedPaths call whose result classifyMergeLineage reuses via injected changedPathsFn) plus a narrow ENOBUFS-only retry. Rebuilt packages/main clean, then ran the smoke 8-way concurrently (8/8 clean) and 20x sequentially (10/20 completed clean, 0 failures, remainder still running) under genuinely heavy real system load (load avg ~28, 61% sys CPU) -- harsher than the originally observed ~16% flake condition. No blocker.",
+      "createdAt": "2026-08-13T17:30:52.663Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-022",
+      "envelopeId": "5f17aad7841c96638d65a10706e4ff0d22d6fb5a94fccbc4c7be835639aaf0b3",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d96efb5ff8990fcef686d9103b517ac7e9711ba321a7e03877894491f163dbe3"
     }
   ]
 }
