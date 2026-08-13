@@ -523,6 +523,35 @@
         "scanEscalationReason": null
       },
       "_hash": "e7092004c4129609427183ef01283d3efb0dba9ef5e41cd0c6bdc920efe4f301"
+    },
+    {
+      "id": "B-cdf6:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified my own F-032 disposition (accepted_risk) via independent mechanical re-checks bound to head 4bb4c0e26e / round 2026-08-13T05:25:24.496Z. Reproduced the verification_evidence_add refusal for CHK-006:happy:0 live; confirmed verificationIntentProtectedPhases at checklist.ts:1406; confirmed PLAN->DEV vs CHK-006 startTime gap (~5.5h) from process-events.jsonl; confirmed 6/6 checklist items done; ran verify-lattice-residue.mjs live (3/3 PASS); tsc --noEmit -p packages/main clean; confirmed sibling RP-015/RP-016/RP-017 bound to this same current round; confirmed B-META-framework-audit:F-016 open/high with legitimate checklist.ts:1277 cross-reference; confirmed accepted_risk is a real resolutionType enum at finding.ts:206; spot-checked CHK-002:adversarial:2 (fresh mechanical receipt) and CHK-004:edge:0 (sound permanent waiver); recounted 36 must-intents directly. finding_list: 32 total, 31 resolved + 1 dismissed, 0 open. Disposition holds: accepted_risk is the honest instrument, not a rationalization -- verified-but-unbound work is mechanically distinct from missing binding. No new blocker found. PASS.",
+      "createdAt": "2026-08-13T13:03:55.714Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-036",
+      "envelopeId": "f4a6aba0d3896fe6295af126acfabc10573a9ec545b4f032dfb91b758e71ef7f",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/process-events.jsonl",
+          ".lattice/story/actives/B-cdf6/review-passes.json",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8c1bfbd710ddc936658458e359a8908713610e23a16374633da299ee5f37bed"
     }
   ]
 }
