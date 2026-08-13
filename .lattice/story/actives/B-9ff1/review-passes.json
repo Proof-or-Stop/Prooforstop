@@ -1,0 +1,51 @@
+{
+  "passes": [
+    {
+      "id": "B-9ff1:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality lane: purity, type-safety, entropy/digest determinism, read-only claim, and test quality all checked; tsc clean; all 5 red tests + smoke pass. No findings.",
+      "createdAt": "2026-08-13T18:00:34.577Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "reviewRunId": "B-9ff1:RR-002",
+      "envelopeId": "aeb47f63a6a461bf07b9930ea8dfb89c532512c835f24c4838097962f8b8e1b8",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/registries.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/core/red-evidence/target-bindings.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/red-evidence/canon.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ffa5e79a964b7abace107b0555c7a2729f56708e1da15989c430e53913b5d6c6"
+    }
+  ]
+}
