@@ -144,6 +144,38 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-009",
+      "desc": "packages/main/src/core/red-evidence/envelope.ts:274-434: the matcherSetEvaluable gate (line 385, requiring rawMatchers.length in [1,maxMatchers] AND bounded.length>0) suppresses the ENTIRE §1.3 block — per-matcher rule1/2 AND the rule-3 class-only-present-in-red check — whenever the matcher COUNT is out of bounds. This contradicts the modules own documented invariant at envelope.ts:236-237 (\"Every check runs — nothing short-circuits — so co-occurring faults are ALL reported and no tag suppresses another\"). Concrete failing input verified against dist: an envelope with 9 matchers (policy.maxMatchers=8) where the sole present-in-red matcher is a class matcher (stderr-nonempty) and the other 8 are valid present-in-green literals — this genuinely violates §1.3 rule 3 (a class matcher can never be the sole present-in-red evidence, spec:411-414, tag R1-2) in addition to the count-bound R1-3. validateAssertionEnvelope returns ONLY [{tag:R1-3,code:matcher-count-above-maximum}] — the R1-2 rule-3 violation is silently dropped, never surfaced to the operator. Verified by direct probe against packages/main/dist/core/red-evidence/envelope.js (matches src at HEAD). R1-1 is unaffected (computed independently, still fires alongside R1-3 when co-occurring — confirmed by a second probe), so this is specific to the R1-2 §1.3 block. None of the 3 committed regressions (red-w2d-rejection-matrix.mjs, red-w2d-specificity-conjunction.mjs, red-evidence-envelope-smoke.ts) construct an over/under-count fixture that ALSO carries a rule1/2/3 violation, so the gap is untested as well as unimplemented.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-08-13T18:02:25.009Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "reviewRunId": "B-9ff1:RR-004",
+      "_hash": "369668a0d09b8b0ca8414efa96f956d3663a0b4ae0a963b976320931d04d3f9e",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-010",
+      "desc": "[codex host-B #6, orchestrator-verified] Absolute-path detection recognizes only a leading slash. Section 1.1.3 requires targetArtifactRef to be slash-normalized AND RELATIVE, rejecting an absolute path at envelope schema time as R1-3. Failing input: targetArtifactRef 'C:/outside' is slash-normalized and absolute yet returns ok:true. Reject non-relative forms generally, not just the POSIX leading-slash form.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T18:02:25.129Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "_hash": "d9d3aec8063a2f6d846b4709e9d163345c309e09e2f7381b14236b1385165aeb",
+      "files": [
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-orchestrator",
+      "signatureTagSource": "auto"
     }
   ]
 }
