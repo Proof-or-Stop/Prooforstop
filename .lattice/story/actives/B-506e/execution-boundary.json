@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-506e",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node --test *",
+    "node -e *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/red-evidence/",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+    "packages/main/tests/red/",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "v2 chain plane + quarantine/recover + enforce-gate guard; no run execution, no envelope/matchers, no gate rewiring.",
+  "createdAt": "2026-07-25T10:00:14.202Z",
+  "updatedAt": "2026-07-25T10:00:14.202Z",
+  "_hash": "55f770bb3072c78b8b22afd0e3bb0bc4cdb345dd6515933c6aa2050096c60b15"
+}

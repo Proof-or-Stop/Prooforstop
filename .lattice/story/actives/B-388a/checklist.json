@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Dedupe full-identity-triple re-attestations in evaluateHostVerdictRounds before fraud-detection grouping",
+      "context": "core/host-independence.ts evaluateHostVerdictRounds: before grouping a run's accepted verdicts through groupByIndependentHost, collapse verdicts sharing the exact (hostId, sessionId, keyId) triple into one (keep the latest by ledger/array order -- append-only, chronological), so a benign same-host re-attestation supersedes rather than poisons. Partial identity overlaps (different hostId sharing only session or key) must remain untouched and still flow into the existing union-find fraud check.",
+      "userSees": "A story whose host_verdict ledger contains a benign re-attestation (same host, same identity, re-submitted after a storyFilesHash-stable material drift) now has that round counted as valid instead of invalidated as 'duplicate host/session/key identity'. A story whose ledger contains two DIFFERENT hostIds sharing one session/key (impersonation) is still correctly rejected.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/host-independence.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/host-independence-reattest-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

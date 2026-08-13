@@ -1,0 +1,158 @@
+{
+  "storyId": "B-f00c",
+  "name": "dedup-merge-lineage-validation-reuse",
+  "title": "Fix merge-lineage false positive forcing redundant DONE validation re-runs (reuse + admissibility copies via one shared classifier)",
+  "description": "A main-merge makes git diff-tree -m re-list the story's own content-unchanged files as untrusted-lineage-path, so DONE validation reuse is refused (and autopilot_review_submit --deriveBindings hard-throws) despite identical materialHash/storyFilesHash/identity.digest, forcing a redundant ~17 min full-suite re-run. Replace the per-commit -m union with a hardened net endpoint diff in one shared classifier used by both copies.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "validation-reuse",
+    "merge-lineage",
+    "diff-tree",
+    "done-validation",
+    "admissibility",
+    "hot-main"
+  ],
+  "createdAt": "2026-07-26T03:07:44.100Z",
+  "startedAt": "2026-07-26T03:07:44.100Z",
+  "endedAt": "2026-08-13T18:53:11.003Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-26T03:07:44.827Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-26T03:10:30.375Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-26T03:11:33.156Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-26T03:31:30.279Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-26T03:46:02.664Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-26T05:14:34.182Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-c932726c0fccd3480f50a4b536497e27",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T16:36:50.932Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T16:36:56.172Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-13T16:47:01.472Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T16:55:28.998Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T16:55:49.597Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-13T17:18:05.675Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-13T17:18:14.443Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-13T18:03:19.190Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-13T18:53:11.003Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-08-13T17:18:14.443Z"
+}

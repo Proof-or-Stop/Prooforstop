@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-7813",
+  "checkedAt": "2026-07-26T07:27:34.847Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "e7ec3c6e44ee52f02001bed6b504fb464488f9f6c581ce452983f1003c25988a",
+  "executionBoundaryHash": "79f7b7a19eaf7767d1ba1d8fbc2b3467af5fc3f2845929abf7d699c558f3d6d3",
+  "freshnessHash": "0fce3ddcad90342f1bae3f3ca4f1047010254a213da22c43574cf992aff8cbe5",
+  "effectiveExcludedKeywords": [
+    "Any other step of the evidence-integrity program",
+    "Changing the existing convergence-breaker advance-count semantics or its maxAdvance=20 threshold",
+    "The optional PreToolUse early-warning seatbelt on review_run_start (spec section 4) — its own separate follow-on, not in this story acceptance"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any other step of the evidence-integrity program",
+      "source": "scopeBoundary.excluded",
+      "text": "Any other step of the evidence-integrity program",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the existing convergence-breaker advance-count semantics or its maxAdvance=20 threshold",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the existing convergence-breaker advance-count semantics or its maxAdvance=20 threshold",
+      "excluded": true
+    },
+    {
+      "keyword": "The optional PreToolUse early-warning seatbelt on review_run_start (spec section 4) — its own separate follow-on, not in this story acceptance",
+      "source": "scopeBoundary.excluded",
+      "text": "The optional PreToolUse early-warning seatbelt on review_run_start (spec section 4) — its own separate follow-on, not in this story acceptance",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [
+    {
+      "digest": "d4b4101637764aaef83bde250f3c86e35a2d185c2531c680a77783cce1379505",
+      "overlapTerms": [
+        "## Conversation Texture The operator wants the review loop to fail loudly and early when a task is ill-posed, instead of silently burning rounds while plan.md drifts from reality. This story delivers the blocking adjudication and the unreachable-item escape hatch that closes the loop; the optional early-warning PreToolUse seatbelt on starting another round is explicitly its own separate follow-on, not part of this story's acceptance.",
+        "## Key Insight The loss was not the round count itself — it was taking 12 rounds to discover the task was ill-posed. A raw absolute cap would have stopped the spinning but never surfaced the unreachability. The fix is a forced adjudication point: on stall, refuse to mint another ordinary review round until a human records ONE structured action — authorize continuation with a reason + bounded budget, re-plan/split, record a root-cause/architecture escalation, explicitly resolve/disprove/defer the blocking findings or shrink scope, OR declare a checklist item unreachable. The real goal is to surface 'are we converging, or is this task ill-posed?' early and force plan.md/claims to reconcile with evidence at that point.",
+        "## Tradeoff A pure numeric cap is too crude (it cannot tell a converging story from an ill-posed one and would block legitimate progress); a pure advisory (today's behavior) is too weak (it is ignored — 20+ rounds happened). The chosen middle path is a stall-triggered BLOCK that is cleared only by a recorded structured decision, plus a hard upper bound / privileged override so the adjudication cannot itself be ignored indefinitely. The breaker must consider whether blockers are actually decreasing and whether new material genuinely requires another round, not just the raw count. It must extend core/review-convergence.ts and coordinate with core/convergence-breaker.ts (which counts advances, not review rounds) and the story_resume --ack path so the two brakes do not double-count.",
+        "## Trigger Event Step 3 of the evidence-integrity program (docs/evidence-integrity-program-spec.md §3), opened 2026-07-26. Root incidents: F-058 (a checklist item, CHK-003 of story B-bf52, was unreachable from the requirement text yet review spun for 12 rounds before anyone noticed, and the story ended NOT DELIVERED) and F-059 (that story's plan.md claimed items delivered from round 4 onward and was never reconciled with the authoritative evidence). The S3 incident and the B-bf52 burn reached 14 finding-bearing rounds / 46 review runs with no effective brake.",
+        "## Trigger Event Step 3 of the evidence-integrity program (docs/evidence-integrity-program-spec.md §3), opened 2026-07-26. Root incidents: F-058 (a checklist item, CHK-003 of story B-bf52, was unreachable from the requirement text yet review spun for 12 rounds before anyone noticed, and the story ended NOT DELIVERED) and F-059 (that story's plan.md claimed items delivered from round 4 onward and was never reconciled with the authoritative evidence). The S3 incident and the B-bf52 burn reached 14 finding-bearing rounds / 46 review runs with no effective brake. ## Key Insight The loss was not the round count itself — it was taking 12 rounds to discover the task was ill-posed. A raw absolute cap would have stopped the spinning but never surfaced the unreachability. The fix is a forced adjudication point: on stall, refuse to mint another ordinary review round until a human records ONE structured action — authorize continuation with a reason + bounded budget, re-plan/split, record a root-cause/architecture escalation, explicitly resolve/disprove/defer the blocking findings or shrink scope, OR declare a checklist item unreachable. The real goal is to surface 'are we converging, or is this task ill-posed?' early and force plan.md/claims to reconcile with evidence at that point. ## Tradeoff A pure numeric cap is too crude (it cannot tell a converging story from an ill-posed one and would block legitimate progress); a pure advisory (today's behavior) is too weak (it is ignored — 20+ rounds happened). The chosen middle path is a stall-triggered BLOCK that is cleared only by a recorded structured decision, plus a hard upper bound / privileged override so the adjudication cannot itself be ignored indefinitely. The breaker must consider whether blockers are actually decreasing and whether new material genuinely requires another round, not just the raw count. It must extend core/review-convergence.ts and coordinate with core/convergence-breaker.ts (which counts advances, not review rounds) and the story_resume --ack path so the two brakes do not double-count. ## Conversation Texture The operator wants the review loop to fail loudly and early when a task is ill-posed, instead of silently burning rounds while plan.md drifts from reality. This story delivers the blocking adjudication and the unreachable-item escape hatch that closes the loop; the optional early-warning PreToolUse seatbelt on starting another round is explicitly its own separate follow-on, not part of this story's acceptance.",
+        "Add a hard ceiling / privileged override and prevent double-counting with the existing convergence-breaker and story_resume --ack",
+        "Add the structured resolution actions that clear the stall block (incl. declare-checklist-item-unreachable)",
+        "core/convergence-breaker.ts (maxAdvance=20, AUTO_RECOVERY_BUDGET=1, cleared by story_resume --ack) counts ADVANCES and is the only current brake; it never bit on review-round runaway. The new review-round adjudication must have a hard upper bound or a privileged override so it cannot be ignored indefinitely, and must NOT double-count review rounds against the convergence-breaker's advance count or conflict with the story_resume --ack recovery path. Verify both brakes coexist and each still fires on its own trigger.",
+        "core/review-convergence.ts already computes the stall/trend signal (STALL_MIN_ROUNDS=4, STALL_WINDOW=3 non-improving). handlers/transition-effects.ts:284-289 currently consumes it advisory-only inside a try/catch that never blocks — it only appends output text. Make the stall trigger REFUSE to mint another ordinary review round (block the REVIEW re-entry / new-round transition) until a structured resolution is recorded. Extend the existing detector; do not build a new one. The refusal must carry a structured prompt naming the allowed §3 actions.",
+        "Harden the stall detector from advisory to a blocking adjudication at the review-round mint site",
+        "On stall, require exactly ONE recorded action to clear the block: (a) human authorizes continuation with a reason + a bounded additional round budget; (b) the story is re-planned / split; (c) a root-cause / architecture escalation is recorded; (d) the blocking findings are explicitly resolved / disproven / deferred, or scope is shrunk; or (e) a checklist item is declared UNREACHABLE (the F-058 case a raw cap never surfaces — declaring it closes the loop instead of spinning). Provide the CLI command(s) + persisted, signed record consumed by the gate; the unreachable declaration must reconcile plan.md/claims (F-059) rather than leave them drifting.",
+        "RED-first smoke: reproduce the stall refusal and the F-058 unreachable-item scenario; register in validate",
+        "RED-first. (1) Drive a story to >= threshold non-improving completed review rounds and assert the Nth ordinary round is MINTED before the fix and REFUSED after, with the structured prompt. (2) Reproduce the F-058 scenario (a checklist item unreachable from the requirement) and assert that declaring it unreachable CLOSES the loop instead of spinning another round. (3) Assert the existing convergence-breaker + story_resume --ack still work and are not double-counted. Register the smoke in lattice.config.json validate.commands + package.json.",
+        "Step 3 of the evidence-integrity program (docs/evidence-integrity-program-spec.md §3): the review-budget circuit breaker. Today a story's review can balloon to 20+ rounds with no effective brake — the S3 incident and the B-bf52 burn (14 finding-bearing rounds / 46 review runs) — and worse, it took 12 rounds to discover a task was ill-posed (F-058: CHK-003 was unreachable from the message text; the story ended NOT DELIVERED), while F-059 shows plan.md claimed items delivered from round 4 onward and was never corrected. A numeric cap alone would not surface unreachability; a forced adjudication point would. Extend, do NOT rebuild: core/review-convergence.ts already has a stall/trend detector (STALL_MIN_ROUNDS=4, STALL_WINDOW=3 non-improving window), but handlers/transition-effects.ts:284-289 consumes it advisory-only inside a try/catch that never blocks the transition — it only appends text. core/convergence-breaker.ts is the only hard brake today, but it counts ADVANCES (maxAdvance=20, AUTO_RECOVERY_BUDGET=1, cleared by story_resume --ack), so 14 review rounds passed under it. This story hardens the stall detector into a blocking decision point at the review-round mint site, adds the structured resolution actions that clear it (including declaring a checklist item unreachable — the F-058 case), and adds a hard ceiling / privileged override that does not double-count with the existing convergence-breaker or story_resume --ack. The optional PreToolUse seatbelt on review_run_start (spec §4) is not part of this story's acceptance criteria and is left to its own follow-on.",
+        "Turn the advisory review-convergence stall detector into a mandatory blocking adjudication so a story cannot mint unlimited ordinary review rounds without a recorded escalation, re-plan, finding resolution, or unreachable-item declaration"
+      ],
+      "overlapRatio": 0.7894736842105263,
+      "previousStoryId": "B-22b7",
+      "previousReason": "re-create with reproFirstBypassReason recorded at intake (repro-first STORY_INTAKE exception: the defect is an advisory-not-blocking review-loop gate, reproduced by a DEV state-machine smoke not a repro_probe)",
+      "previousDiscardedAt": "2026-07-26T07:25:04.095Z",
+      "mitigation": "B-22b7 (digest d4b4101637) was discarded and re-created as B-7813 solely to record the reproFirstBypassReason at intake — the documented repro-first STORY_INTAKE exception for this advisory-not-blocking review-loop gate (the defect is a design gap reproduced by a DEV state-machine smoke, CHK-004, not a repro_probe runtime crash). The direction is INTENTIONALLY identical (same 4-item Step-3 scope); the only delta is the intake bypass field. This is not a churn or gate-bypass — it is the CLI-recommended path (the story_create warning explicitly said 'pass reproFirstBypassReason')."
+    }
+  ],
+  "issues": [],
+  "_hash": "bb55bd960b879aba84c7cec72808ac54f8d121dcc8f226c1a3b576bd28b14f9b"
+}

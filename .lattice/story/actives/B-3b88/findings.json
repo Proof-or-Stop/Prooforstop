@@ -1,0 +1,135 @@
+{
+  "findings": [
+    {
+      "id": "B-3b88:F-001",
+      "desc": "doc-code-drift: verification_evidence_refresh_stale help text and workflow guides still describe pre-fix semantics. packages/main/src/cli/command-catalog.ts:479 description is unchanged: \"Refresh HEAD/material hashes for stale verificationEvidence (rerun command)\" -- it was NOT updated even though plan.md CHK-002 step 4 explicitly says to adjust this command help text. Per the new checklist.ts behavior (lines ~1063-1075), refresh_stale now REFUSES any stale row with a non-empty command + result:pass (leaves it stale, prints a refusal message) and only re-stamps command-less attestation rows -- it never reruns anything. The live help text still implies a rerun-then-refresh workflow. docs/requirements/decisions/story-lifecycle.md:195 and :278 and docs/requirements/decisions/testing-infra.md:166 repeat the same stale workflow: \"after re-running the corresponding verification command, drop dryRun to refresh the metadata\" / \"it only refreshes ... does not prove the test actually ran, so the command in the dry-run output should be re-run first.\" Under the new code this instructed workflow no longer works for command-backed pass rows: calling refresh_stale (even after manually re-running the command) will always be refused; the correct new path is verification_evidence_add with a fresh result, not refresh_stale. Severity high: this is a live, user-facing command-description/workflow-doc mismatch with the exact behavior this story intentionally changed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-25T23:27:05.669Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-003",
+      "_hash": "be9f2f077a32edce9ebf39fa34598af11032c81d56ce7a1293b87cf6186c1cf5",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/checklist.ts",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "signatureTag": "missing|ts|code-drift-verification",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 630b6d9: updated command-catalog.ts help, evidence-stale-hint.ts recovery block, story-lifecycle.md (x2) and testing-infra.md to state that refresh_stale refuses command-backed result:pass rows (re-run + re-record via verification_evidence_add) and only re-stamps command-less attestation.",
+      "resolvedAt": "2026-07-25T23:49:13.164Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b88:F-002",
+      "desc": "doc-promise-undelivered: CHK-002 plan.md mechanism step 4 promises \"Adjust the summary line + the command help (\\\"(rerun command)\\\")\" so documented refresh_stale semantics match the new honest behavior. Only the in-code per-row/summary lines (packages/main/src/handlers/checklist.ts:1074,1103) were updated. Two other surfaces still describe the OLD blanket-refresh concept verbatim: (1) packages/main/src/cli/command-catalog.ts:479 tool description literally reads \"Refresh HEAD/material hashes for stale verificationEvidence (rerun command)\" -- the ONLY text an agent sees via `lattice help`/`--help`/MCP tool listing, unchanged, with no mention that command-backed pass rows are now refused; (2) packages/main/src/core/evidence-stale-hint.ts renderEvidenceStaleHint (lines ~88-112) whose \"Run to recover: lattice verification_evidence_refresh_stale\" block is asserted byte-identical across packages/main/src/handlers/session.ts, packages/main/src/handlers/hints.ts, packages/main/src/handlers/transition-orchestrator.ts (pinned by packages/main/src/tasks/verification-freshness-smoke.ts) and shown to every agent that hits EVIDENCE STALE -- still instructs the recovery recipe unconditionally, with no caveat that command-backed pass rows will be refused and require re-running via verification_evidence_add first. This leaves the pre-fix concept (\"refresh_stale generically recovers stale evidence\") as residual, misleading guidance on exactly the surfaces meant to prevent false evidence beliefs -- the core goal of this story.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-25T23:30:32.980Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-004",
+      "_hash": "6e5cef0273d78c97da8c36d99212eec966667888998b1083ac8ee8f1953de90c",
+      "signatureTag": "missing|unknown|promise-undelivered-plan",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 630b6d9: the concept lane additionally named core/evidence-stale-hint.ts renderEvidenceStaleHint (byte-identical across session/hints/transition-orchestrator, pinned by verification-freshness-smoke) — its 'Run to recover' header now carries the command-backed-refusal caveat, keeping the block line-count and cross-surface byte-identicality intact (verified: the pinned byte-identical assertions pass).",
+      "resolvedAt": "2026-07-25T23:49:14.318Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b88:F-003",
+      "desc": "doc-code-drift: docs/requirements/decisions/story-lifecycle.md:265 TEST-phase tool table row for verification_evidence_refresh_stale still reads \"Refresh the HEAD/material hash of stale evidence based on the coverage report\" — a blanket description that was NOT updated by this diff and contradicts the corrected, adjacent bullets in the SAME file (line 195 and line 278), which now correctly state that refresh only re-stamps command-less attestation and REFUSES stale command-backed result:pass rows (per checklist.ts CHK-002 fix). A reader consulting only the TEST-phase table (the first place a reader looks for command behavior) would believe refresh_stale unconditionally refreshes any stale evidence — i.e. the exact laundering behavior this story just eliminated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-25T23:56:39.309Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-008",
+      "_hash": "ae6e90731d4c3c556dba19b35dbc857da9ca339fde2a93d65f50df18c2da725a",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: story-lifecycle.md:265 TEST-phase tool table row now states refresh re-stamps command-less attestation only and refuses command-backed result:pass. Repo-wide sweep confirms no other LIVE misleading refresh_stale description remains (the only old-wording hit is a frozen 2026-06-13 translation-audit snapshot in cli-engine-english-open-source-execution-plan.md, out of scope).",
+      "resolvedAt": "2026-07-25T23:58:39.535Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b88:F-004",
+      "desc": "doc-code-drift residue (comment): packages/main/src/core/evidence-stale-hint.ts:87 JSDoc example under the explicit contract \"Output format (must remain stable — all three surfaces assert this format by byte-equality):\" still shows the OLD pre-CHK-002 line `Run to recover:` with no caveat, while the actual renderEvidenceStaleHint output 20 lines below (line 107) now emits `Run to recover (refresh re-stamps command-less attestation only; a command-backed result:pass is REFUSED — re-run it and re-record via verification_evidence_add):`. This is the exact pre-fix concept (\"refresh_stale generically recovers\") left as residue in a comment inside the very file this story edited to fix F-002 in this same lane — a maintainer reading the doc-comment contract would believe the shipped byte format lacks the refusal caveat. Comments count as residue per this role's rules. Fix: update the line-87 example to match the real line-107 output (or reference it) so the illustrative format and the shipped format cannot drift again.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-26T00:03:05.103Z",
+      "reviewRound": "2026-07-25T23:21:13.602Z",
+      "reviewRunId": "B-3b88:RR-013",
+      "_hash": "b7247c03e6d0c7efffefc10e7aa224721854676e2806c7fef388a6e17d02259e",
+      "signatureTag": "missing|unknown|code-drift-residue",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the JSDoc 'Output format' example line in evidence-stale-hint.ts now carries the same command-backed-refusal caveat as the real rendered output.",
+      "resolvedAt": "2026-07-26T00:04:22.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3b88:F-005",
+      "desc": "doc-code-drift: all 4 refresh_stale surfaces (command-catalog.ts, story-lifecycle.md x3, testing-infra.md, evidence-stale-hint.ts) still describe the pre-B-1507 blanket 'REFUSED / never re-executes' narrative that RP-010 correctly attested at 2026-07-26T11:14-11:23. Since then, main's B-1507 merged into story/B-3b88 (commit f13af54181, 2026-07-26T12:33:50) added pinned-command re-execution to writeStaleRefresh/verification_evidence_refresh_stale, and a same-story regression fix (73ff9cf478, 2026-07-26T23:24:14, 'restore unconditional command-backed-pass demotion in refresh') clarified the exact non-pin fallback. Current delivered semantics (packages/main/src/handlers/checklist.ts writeStaleRefresh + async verification_evidence_refresh_stale handler) is now two-branch, neither branch matching the docs: (a) when the row's intent carries a `.verification` pin, the pinned command is RE-EXECUTED via enforceAndStampEvidence/runSingleAllowlistedCommand; on a real pass the row is re-stamped as a fresh mechanical:true COVERED receipt bound to current head/material -- not refused, no manual re-add needed; (b) when there is no pin, the pin command is unavailable, or the re-run does not pass, ANY command-backed result:pass row reaching the write path is unconditionally DEMOTED in place to mechanical:false with an explicit nonMechanicalReason audit string -- the row IS rewritten with fresh head/material hashes, it is not left untouched/'refused'. None of the surfaces below reflect either branch: all say a stale command-backed result:pass row 'is REFUSED'/'is refused', and two explicitly claim it 'never re-executes', which is false whenever a verification pin exists. Locations: packages/main/src/cli/command-catalog.ts:491 (verification_evidence_refresh_stale description: '...command-backed result:pass rows are refused and must be re-run + re-recorded via verification_evidence_add (never silently re-certified)'); docs/requirements/decisions/story-lifecycle.md:195 ('...REFUSED (never silently re-certified) — re-run its command and re-record...'); story-lifecycle.md:265 (TEST-phase tool table row: '...is refused and must be re-run + re-recorded...'); story-lifecycle.md:278 ('It never re-executes, so a stale command-backed result:pass row is REFUSED rather than re-certified...'); docs/requirements/decisions/testing-infra.md:166 (same TEST-phase table wording); packages/main/src/core/evidence-stale-hint.ts:87-88 JSDoc example AND :107-108 the actual live renderer string shown to callers who hit stale evidence (both: 'a command-backed result:pass is REFUSED — re-run it and re-record via verification_evidence_add'). evidence-stale-hint.ts is especially load-bearing since its renderer output is the literal remediation text a caller sees at runtime, and it steers toward a manual re-run+re-add workflow even on rows the tool would already auto-re-execute via the pin, while mischaracterizing the safety fallback as blanket refusal rather than an auditable in-place demotion. Same category/file-set as resolved F-001/F-003/F-004; reopened by the later B-1507 merge + regression fix landing after those docs were written. Repo-wide sweep (grep 'refresh_stale' across *.md/*.ts outside .worktrees/dist/node_modules) found no other live description carrying the stale wording; B-1507's own plan.md and refresh-stale-honesty-smoke.ts already correctly describe the pin-reexecution behavior, confirming these 4 files are the only remaining drifted surfaces.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-27T01:24:18.368Z",
+      "reviewRound": "2026-07-27T01:20:13.611Z",
+      "reviewRunId": "B-3b88:RR-024",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-3b88/background.md",
+          ".lattice/story/actives/B-3b88/checklist.json",
+          ".lattice/story/actives/B-3b88/plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-3b88/findings.json",
+          ".lattice/story/actives/B-3b88/review-passes.json",
+          "packages/main/src/tasks/refresh-stale-honesty-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5016e904c6b5fe3989f2ad0c159d93740db303c0e56b787ae85b0454184afcda",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "packages/main/src/core/evidence-stale-hint.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|code-drift-refresh",
+      "signatureTagSource": "auto",
+      "resolvedReason": "All five surfaces now describe the delivered semantics (re-execute pinned verifier; otherwise demote in place to a non-mechanical attestation with an audit reason), replacing the pre-merge 'REFUSED / never re-executes' wording. evidence-stale-hint.ts keeps its byte-identical block line count.",
+      "resolvedAt": "2026-07-27T01:26:35.084Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

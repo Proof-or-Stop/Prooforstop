@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5027",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Red regression tests for packages/main/src/handlers/evaluate.ts",
+    "Red reproducibility test for experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs"
+  ],
+  "excluded": [
+    "Changing existing runtime receipts",
+    "Production fixes",
+    "Story 7 work"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to first write Red tests verifying the two reported files/issues.",
+  "createdAt": "2026-07-28T21:20:46.571Z",
+  "updatedAt": "2026-07-28T21:20:46.571Z",
+  "_hash": "be53c81bf9e08e6eac996edd5cf16b9f57d858d8349a07073552e68c1497d84c"
+}

@@ -1,0 +1,41 @@
+{
+  "task": "A corrupt red-evidence.json fails in three uncontrolled ways at the LIVE dev/review/done enforce gate: it crashes with a bare TypeError, or it is silently misread as absent evidence, or it lets a raw SyntaxError escape. None of these is a controlled, diagnosable, repairable failure.",
+  "outcome": "After this story, an operator whose red-evidence.json is corrupt gets a controlled failure that names the artifact path, the offending record index or id, and the offending field; can still inspect the artifact and repair it through the CLI; and can tell corruption apart from a simply absent artifact. No valid v1 verdict changes.",
+  "facts": [
+    "store.readRedEvidence delegates to a private readJson that is a bare JSON.parse-and-cast with no schema, no shape check and no runtime validation between parse and the typed domain.",
+    "classifyRedRecordSchemaSafe returns 'v1' for ANY object lacking a schemaVersion member without validating the legacy v1 shape, so 'v1' is a residual class rather than a validated one; it returns 'v1' for arrays too, since typeof [] is 'object'.",
+    "redEvidenceRecordSatisfied dereferences record.observedFailure.trim() before establishing it is a string; a repo-wide sweep confirmed this is the ONLY unguarded per-record dereference in production source.",
+    "redEvidenceSatisfied iterates with Array.prototype.some, which short-circuits, so a malformed entry placed after a satisfying one is never examined and the verdict depends on array position.",
+    "The records array itself is trusted: a non-array records value throws a non-iterable TypeError before any record is examined.",
+    "A non-object JSON root ([], 'x', null, 42) does NOT crash: the raw parsed value flows through and every consumer reads it as absent evidence, so corruption is indistinguishable from absence.",
+    "There are TEN production readRedEvidence call sites on current main; three arrived with the B-506e merge and the count was wrong twice before being re-derived.",
+    "lattice.config.json sets devGateMode, reviewGateMode and doneGateMode all to enforce.",
+    "Sibling story B-506e merged into main at 4d417a0c4b and closed exactly one class: a record that is null or a bare string now yields a typed RedEvidenceSchemaError.",
+    "The write path is already correct and atomic: appendRedEvidence validates every mandatory field, and writeJsonFile writes to a temp sibling, re-parses it, then renames atomically.",
+    "packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs is on main and passes, printing 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec; that constant is main's own pinned value.",
+    "PLAN-phase exploratory scan (read-only, 2026-07-26, main checkout): 105 red-evidence artifacts / 144 records, 0 bad envelopes, 0 malformed records, and 0 records that satisfy the gate today while being schema-invalid. So decision D-3's full validation would flip NOTHING on current real data and its hardest constraint is vacuous in practice. This is a point-in-time snapshot of one machine and is NOT the deliverable: CHK-003 must still ship a committed, re-runnable scan executed at merge time, because new stories are being created continuously by parallel sessions."
+  ],
+  "constraints": [
+    "No record that is well-formed under the legacy v1 schema and previously produced SATISFIED may produce a different outcome; the pinned invariance digest must not move and must not be re-pinned.",
+    "A blank observedFailure (empty or whitespace) is legacy-tolerated: it must keep producing UNSATISFIED with NO new diagnostic and must never be quarantined, because scenario 3 of the invariance harness depends on that exact report shape.",
+    "Malformed entries are quarantined, not thrown and not silently dropped: throwing breaks CLI recoverability because red_evidence_get and red_evidence_add both read before acting.",
+    "Full validation may flip records that are schema-invalid yet currently SATISFIED; every such flip must be enumerated by the migration scan and justified before merge.",
+    "packages/main/src/core/red-evidence/ leaf files owned by B-506e must not be modified; the execution boundary blocks that path.",
+    "Re-derive every existing-system claim against CURRENT main by symbol, never by line number, and never carry over an earlier reading: the inventory has been stale twice and main moved mid-story once."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/tests/red/",
+    "lattice.config.json",
+    "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md"
+  ],
+  "timestamp": "2026-07-26T22:24:09.323Z"
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8df9",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a repro-first RED artifact under packages/main/tests/red/ and register it in lattice.config.json",
+    "Bring agentResults and issues into the signInitCheck / recomputeInitCheckHash signature domain in packages/main/src/core/init-check-gate.ts",
+    "Decide and record a migration position for existing init-check.json files, including what an absent agentResults field hashes to",
+    "Preserve the fallback audit block across the init_check_set merge so a human manual attestation is not silently relabelled",
+    "Restate or re-argue the init_check_set owner-lease exemption justification in packages/main/src/core/command-policy.ts",
+    "Update existing smoke tests whose expectations the signature-domain change legitimately invalidates",
+    "Verify _hash before trusting previous.agentResults in the init_check_set carry-forward (packages/main/src/handlers/init-check.ts, packages/main/src/core/store.ts readInitCheck)"
+  ],
+  "excluded": [
+    "Adding agentId validation, caller-identity checks, session binding, or dispatch-evidence cross-checks to init_check_set",
+    "Any change under packages/main/src/core/red-evidence/",
+    "Changes to the draft-check or delivery-check signature domains, which have the same shape but are separate artifacts",
+    "Changing the REQUIRED_INIT_CHECK_AGENTS set or the number of required reviewers",
+    "Changing whether one caller can invoke init_check_set twice with different registered agentIds to satisfy both required reviewers. This is BY DESIGN per EXP-001 and is positively asserted by four smoke tests; closing it would remove load-bearing behaviour and is explicitly not this story's job",
+    "Re-signing the existing corpus by routing it through the handler. Roughly 195 of 637 files carry an actor absent from AGENT_DISPATCH_REGISTRY and would throw agent_dispatch_actor_unknown, so this is not implementable and any design assuming it must be rejected"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorization covers THIS ITEM: it was ranked by risk x cost, the user approved that order with 'proceed in this order', and then instructed running each item through to DONE without pausing for approval. The detailed boundary below is the main agent's derivation from a read-only investigation, not dictated by the user. It was constrained by two pre-materialization draft reviews (round 1: 2 high / 3 medium / 1 low, draft discarded; round 2: 1 low) and two INIT reviewers (0 critical / 0 high). The excluded entries are load-bearing, not formalities: the first one records behaviour that must NOT be changed.",
+  "createdAt": "2026-07-27T22:19:59.245Z",
+  "updatedAt": "2026-07-27T22:19:59.245Z",
+  "_hash": "6aa2c76cacf87f957ecdf5c11f10b2b5cdc7ec5a443c2470a45d011740e7735c"
+}

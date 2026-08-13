@@ -1,0 +1,86 @@
+{
+  "storyId": "B-8b69",
+  "checkedAt": "2026-07-25T16:41:36.675Z",
+  "headHash": "9c0421a70cfd7f0fcb36c7ca5ffe7212e8e94f26",
+  "materialHash": "3508b0d434a69a4de1d45674d4f235036555280460fba7a0ebf4eadde18fd2f0",
+  "storyFilesHash": "22594ae78a88f2e2ee7138f27fb684888e090505e5ee2a4e9f18d06b7792eccd",
+  "reviewRound": "2026-07-25T12:17:45.684Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/plan-init-reopen.md",
+      "promise": "Add a gated PLAN->INIT reopen: new REOPEN machine event, PLAN->INIT edge guarded by canReopenToInit (PLAN-only), requires a non-empty reason enforced by the orchestrator.",
+      "status": "verified",
+      "verifiedBy": "code-read (lifecycle-registry.ts REOPEN edge, machine.ts canReopenToInitGuard/PLAN.on.REOPEN, transition-orchestrator.ts REOPEN remap+reason check) + independently re-ran node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js (real subprocess CLI calls against a real mkdtemp git repo, no mocks) which drives reopen with a reason from PLAN and asserts phase becomes INIT, and drives reopen without a reason and asserts refusal citing the reason requirement.",
+      "evidence": "exit 0, both suites GREEN at HEAD 9c0421a70c (~42s wall); asserted at plan-init-reopen-roundtrip-smoke.ts lines 236-257"
+    },
+    {
+      "docPath": "docs/requirements/decisions/plan-init-reopen.md",
+      "promise": "Reopen is refused from any non-PLAN phase (structurally: canReopenToInitGuard checks story.phase==='PLAN').",
+      "status": "verified",
+      "verifiedBy": "code-read (guard checks story.phase==='PLAN' unconditionally, so DEV/REVIEW/TEST/INIT_CHECK are all excluded by the same check, not phase-enumerated) + smoke exercises the INIT_CHECK case concretely (reopenFromCheck assertion, lines 228-231): illegal-transition refusal, phase does not move.",
+      "evidence": "smoke assertion reopenFromCheck.code!=0 + phaseOf stays INIT_CHECK; DEV/REVIEW cases covered by the same PLAN-only structural guard per review findings F-002/F-003 resolution (commit 7dee7d7f89)"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8b69/plan.md (CHK-002)",
+      "promise": "Fix dev_start worktree-reuse so a bounce from inside the worktree reuses it instead of false-failing (resolveWorktreePath resolves against main repo root; storyRel strips worktree-dir prefix as defense-in-depth); dev_start from main root stays byte-identical; deleted-worktree dir re-bootstraps cleanly.",
+      "status": "verified",
+      "verifiedBy": "code-read (worktree.ts resolveWorktreePath now uses resolveMainRepoRoot() instead of getRepoRoot(); storyRel worktreeDir/storyId prefix strip; F-008 stale-registration self-prune before git worktree add) + independently re-ran the round-trip smoke (from-inside-worktree reuse, no .worktrees-prefixed false-fail) and assertDevStartReuseFromMainAndRebootstrap (from-main reuse + delete-dir-only-no-external-prune re-bootstrap).",
+      "evidence": "exit 0 GREEN, no 'does not contain .worktrees' string in output (asserted); worktree present after both reuse and rebootstrap"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8b69/plan.md (CHK-003)",
+      "promise": "Correct the contradictory title-freeze guidance to name reopen-to-INIT (not INIT_CHECK); INIT_CHECK stays frozen (invariant preserved).",
+      "status": "verified",
+      "verifiedBy": "code-read (checklist.ts refusal message now branches PLAN vs DEV, both naming phase=INIT reopen, no INIT_CHECK reference) + smoke assertions frozenAtPlan (message matches /reopen to INIT/, shows phase\":\"INIT, does NOT match /back to INIT_CHECK/) and frozenAtCheck (edit still rejected at INIT_CHECK, title unchanged).",
+      "evidence": "smoke exit 0 GREEN; assertions at plan-init-reopen-roundtrip-smoke.ts lines 278-298"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8b69/plan.md (CHK-004) + background.md",
+      "promise": "Permanent round-trip smoke drives story_create -> INIT_CHECK -> PLAN -> reopen INIT -> edit title -> re-review -> re-advance INIT_CHECK -> PLAN entirely from inside the worktree, no git surgery, no hand-edited checklist.json; GREEN after fix, RED before fix (missing PLAN->INIT edge + dev_start path bug); auto-discovered by run-all-smokes.",
+      "status": "verified",
+      "verifiedBy": "GREEN independently re-confirmed by this review (fresh execution, real dist/cli.js, real git repos in tmpdir, real subprocess calls, no mocking of the machine/orchestrator/worktree code). RED-before-fix was NOT independently reproduced by this reviewer (would require reverting source + rebuilding dist, which the delivery-review task explicitly asked to avoid); relies on the checklist.json-recorded RED repro at commit bfcd86d198 (stash of the 7 non-fix files to parent 6495f31, smoke failed with 'Cannot transition from PLAN to INIT') plus 6 independent review passes (RP-001..RP-006, reviewRunIds RR-006/007/008/011/012/014) that each independently re-ran the smoke GREEN and cross-checked the fix commits by hash. The cited commit hashes (bfcd86d198, 7dee7d7f89, e95284fd30, bff69bdbfc) were confirmed to exist in this repo's git history by this review.",
+      "evidence": "GREEN: exit 0 at HEAD 9c0421a70c; RED: checklist.json CHK-004:adversarial:0 verificationEvidence note + corroborating review-passes RP-001..RP-006"
+    },
+    {
+      "docPath": "docs/requirements/decisions/plan-init-reopen.md (Invariants preserved)",
+      "promise": "dev_start from the main root stays byte-identical; the transition graph is otherwise unchanged (only PLAN gains a rollback edge to INIT).",
+      "status": "verified",
+      "verifiedBy": "independently re-ran node packages/main/dist/tasks/flow-stability-smoke.js, which asserts a sha256 baseline of checkPhaseTransition for every ordered phase pair; the diff's rebaselined hash (d14e6aa25c...) is the only change to that file, and the derived PLAN.allowedRollback delta ([]->['INIT']) is the sole documented change, confirming no other transition silently moved.",
+      "evidence": "flow-stability-smoke.js exit 0 GREEN, self-consistent with the rebaselined hash"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8b69/findings.json (F-005 resolution, folded into decision.json's scope-freeze-invariant promise)",
+      "promise": "Reopening to INIT resets any already-done/in_progress checklist item to pending, so a retitled requirement cannot silently keep a stale 'done' status decoupled from re-verified code.",
+      "status": "verified",
+      "verifiedBy": "code-read (transition-orchestrator.ts REOPEN branch iterates checklist items, resets done/in_progress to pending + clears startTime/endTime) + smoke seeds CHK-001 as done before reopen and asserts it becomes pending immediately after (lines 242-260).",
+      "evidence": "smoke exit 0 GREEN, assertion statusOf(...)==='pending' after reopen"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js run by this reviewer at HEAD 9c0421a70c: real dist/cli.js subprocess calls (execFileSync) against a real git repo created via mkdtemp+git init in the OS temp dir. Exercises story_advance phase=INIT with/without reason from a PLAN worktree and from a non-PLAN phase (INIT_CHECK). Output: '✓ plan-init-reopen round-trip smoke passed' / '✓ dev_start from-main reuse + deleted-worktree re-bootstrap passed', exit code 0, ~42s wall clock."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke run (assertDevStartReuseFromMainAndRebootstrap suite): real dev_start CLI calls from the main repo root against a story with an already-existing real worktree on disk (reuse case), then after rmSync-deleting only the worktree directory (no external git worktree prune), a second real dev_start call that must self-heal via its own stale-registration prune before git worktree add. Both assertions passed, exit 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Same smoke run: real checklist_update CLI calls attempting a title edit at PLAN (rejected, message asserted to match /reopen to INIT/ and NOT /back to INIT_CHECK/) and at INIT_CHECK (rejected, scope-freeze invariant), plus a real title edit at INIT (accepted) that is asserted to persist through the round trip back to PLAN. All assertions passed, exit 0."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The full round-trip smoke itself (this reviewer's independent execution, HEAD 9c0421a70c, exit 0) IS the CHK-004 deliverable; also independently re-ran node packages/main/dist/tasks/flow-stability-smoke.js (exit 0) to confirm the derived transition-graph diff (PLAN gains one rollback edge to INIT, nothing else) is honest, and reviewed the smoke source (packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts) line-by-line to confirm it uses no mocks: real execFileSync against the built cli.js, real mkdtemp git repos, real StoryStore reads for assertions.",
+      "waiverReason": "RED-before-fix was not independently re-executed by this delivery reviewer (would require reverting the 5 fix source files and rebuilding dist, which the delivery-review task instructions explicitly asked to avoid to keep the review efficient). RED is instead corroborated by: (1) a checklist.json-recorded RED repro at commit bfcd86d198 with a specific failure message ('Cannot transition from PLAN to INIT'), confirmed by this reviewer to exist in git history; (2) 6 independent DEV-phase review passes (RP-001..RP-006 across concept/quality/test-coverage lanes) that each re-ran the smoke GREEN and cross-checked fix commits by hash rather than trusting narrative claims alone; (3) direct code inspection confirming the pre-fix machine.ts had no PLAN->INIT edge (git diff shows the REOPEN edge as a pure addition, not a modification of pre-existing logic), making the claimed RED failure mode structurally inevitable."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items (CHK-001..CHK-004) map to concrete code changes verified against the diff (lifecycle-registry.ts, machine.ts, transition-orchestrator.ts, worktree.ts, checklist.ts, story-advance.ts, command-catalog.ts) and to real-machine test coverage in the new plan-init-reopen-roundtrip-smoke.ts, which this reviewer independently re-executed (GREEN, exit 0, real subprocess CLI calls, no mocks) alongside flow-stability-smoke.ts (GREEN, confirms the transition-graph diff is limited to the one documented new edge). The story went through a genuinely rigorous DEV-phase review: 8 findings (F-001..F-008, including one CRITICAL doc-promise-undelivered gap on the checklist-reset invariant and two evidence-integrity findings on prior reviewers' own false citations) were raised and resolved with strong, re-verified evidence across 6 independent review passes; this delivery review independently confirmed the cited fix/RED commit hashes exist in the repo history and spot-checked the F-006 atomicity claim (checklist reset is co-located inside the same mkdir persist-claim critical section as the phase write, before the finally-release) directly against source. No TODO/FIXME/HACK markers in the diff. No unresolved findings remain (finding_list: all 8 status=resolved, evidenceState=verified). One honest gap: this reviewer did not personally re-reproduce the pre-fix RED failure (would require a source revert + rebuild the task instructions asked to avoid); RED is corroborated by cited commit hashes + 6 independent prior review passes rather than a fresh repro, and is disclosed as a waiver on the CHK-004 real-machine-test entry."
+  },
+  "_hash": "6b5ed2b961a51671ef556a2f698604cbe97c68656e1883734016c6ed3548e873"
+}

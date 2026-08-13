@@ -39,3 +39,5 @@ At the end, output:
 - Coverage summary: total intent count, must-gap count, waiver count.
 - List of finding ids that were written.
 - If there are no findings, you must call `lattice review_pass_set '{"storyId":"<ID>","reviewRunId":"<reviewRunId from review_run_start>","agent":"lattice-review-test-coverage","note":"test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker."}'`, then clearly state that the test coverage review passed.
+
+Wave 4 coverage boundary: require executable coverage of verifier-owned `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`; prompt prose is not evidence. Cover current signed receipt, full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), degraded-3x1 rejection, all thresholds/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history.

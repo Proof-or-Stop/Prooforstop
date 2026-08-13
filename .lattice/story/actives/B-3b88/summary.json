@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3b88",
+  "changes": "core/verification.ts gains detectEvidenceRowContradiction, a pure predicate comparing a command's target-file stem against the row's own file field (dist/src and .js/.ts/.cjs normalized). handlers/checklist.ts wires it into BOTH verification_evidence_add and verification_evidence_batch_add so a self-contradictory evidence row is refused on either write path, and makes verification_evidence_refresh_stale leave a command-backed result:pass row stale (REFUSED) instead of re-stamping freshness hashes onto an unexecuted claim; command-less attestation rows still refresh. CLI help, the shared stale-evidence recovery hint, its JSDoc example, and two decision docs now state the refusal semantics.",
+  "usage": "lattice verification_evidence_add --storyId=B-xxxx --itemId=CHK-001 --intentRef=CHK-001:happy:0 --kind=logic_test --command='node packages/main/dist/tasks/foo-smoke.js' --file='packages/main/src/tasks/bar-smoke.ts' --result=pass --note='...'  → refused: the command targets foo-smoke while the file field names bar-smoke. lattice verification_evidence_refresh_stale --storyId=B-xxxx → command-backed pass rows print REFUSED and stay stale; re-run the command and re-record with verification_evidence_add.",
+  "expectedOutcome": "A verification evidence row whose command and file fields name different targets is refused with an explicit error naming both stems, and refresh_stale never marks an unexecuted command-backed pass as fresh on changed material.",
+  "actualTranscript": "verification_evidence_add: evidence row is self-contradictory: command targets \"gate-repeat-block-smoke\" but the file field names \"convergence-breaker-smoke\"  ||  refresh_stale: '- CHK-001:happy:0: node .../x.js → REFUSED (command-backed pass; re-run to re-verify — refresh will not re-certify)' and 'Refreshed 0/1 stale evidence item(s), refused 1 command-backed pass row(s)'.",
+  "outcomeDiff": "No difference — both behaviors match the expected outcome exactly, verified by evidence-selfcheck-smoke and refresh-stale-honesty-smoke (23 assertions across happy/edge/adversarial, both PASS).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for the two delivered behaviors. The guard is conservative by construction: it fires only when both a command target stem and a file stem are derivable, so commands like 'npm test' with no script argument cannot produce a false refusal.",
+  "pitfalls": "Three real traps hit here. (1) Changing a behavior requires sweeping EVERY surface that describes it: reviewers filed four separate findings (F-001..F-004) for the CLI help text, the shared stale-evidence hint renderer, two decision docs, and finally the hint's own JSDoc example — each fix invalidated the round and cost another review cycle. (2) The stale-evidence hint block is asserted byte-identical across session_brief / hints / transition-orchestrator, so a new caveat must be folded into an existing line rather than added as a new one. (3) autopilot_review_submit with a runId that was already used produces a second verdict with the same host/session/key identity, and the round is then discarded as 'duplicate host/session/key identity' — always mint fresh runIds instead of resubmitting the same ones. Also note this story's own evidence is command-backed, so refresh cannot re-certify it after any material drift: re-run the two smokes and re-record via verification_evidence_add.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2924386
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 229272
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1659005
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1957680
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 9213577
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 10190811
+    }
+  },
+  "totalDurationMs": 26175541,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-26T04:44:37.990Z",
+  "updatedAt": "2026-07-26T04:44:37.990Z"
+}

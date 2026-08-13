@@ -1,0 +1,52 @@
+{
+  "storyId": "B-e10d",
+  "checkedAt": "2026-07-25T07:30:28.602Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-007",
+      "severity": "medium",
+      "desc": "checklist CHK-006 context lists the six registration files as registry.ts (MAIN_TOOLS), cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, core/process-fact-registry.ts. Verified against source: the MAIN_TOOLS array is actually declared and exported at packages/main/src/cli/command-catalog.ts:228 (export const MAIN_TOOLS: ToolDef[] = [...]), and re-exported by cli-engine.ts (import { MAIN_TOOLS } from ./cli/command-catalog.js; export { MAIN_TOOLS };) -- NOT defined in registry.ts. registry.ts is a separate mechanism (createMainRegistry / registerBatch, the handler-dispatch table); it is a genuinely required registration point (confirmed by packages/main/src/tasks/command-ownership-contract.ts:136, which checks that MAIN_TOOLS-listed commands have a registered handler in createMainRegistry -- a DISPATCHABILITY check, not the MAIN_TOOLS schema definition itself), but the parenthetical (MAIN_TOOLS) attached to registry.ts implies the MAIN_TOOLS array/schema lives there, which is incorrect and could send an implementer looking in the wrong file for the MAIN_TOOLS catalog entry."
+    },
+    {
+      "id": "INIT-008",
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs and checklist CHK-008 context describe the three enumeration arrays in scripts/verify-process-fact-contract.mjs near :1013, :1229, :1265 uniformly as MAIN_TOOLS command-name enumeration arrays. Verified against source: only the array at line 1013 (inside assertProofStoryProgressiveBoundary) is actually checked against MAIN_TOOLS/cli/command-catalog.ts (assert message literally reads CLI schema: ProofStory command missing from MAIN_TOOLS: dollar-commandName, checked via catalogText.includes(name colon commandName)). The array at line 1229 (same function) is checked against core/command-policy.ts entries instead (assert message ProofStory pre-DEV command missing policy: commandName, using commandPolicyPath). The array near line 1265 lives inside a different function, assertProofStoryGateConsumedFacts (starts line 1260); it is actually const commands = [ at line 1263 with the loop trigger for (const commandName of commands) at line 1277 -- not itself an inline for-of over an array literal the way the other two are -- and is checked against core/process-fact-levels.ts plus core/process-fact-registry.ts (levelRegistry/registry), not MAIN_TOOLS. Calling all three MAIN_TOOLS arrays is imprecise: two of the three validate different registries (command-policy.ts and process-fact-levels/registry.ts respectively) -- though the cited line numbers do still land inside the correct enumeration for adding the new command in each case."
+    },
+    {
+      "id": "INIT-009",
+      "severity": "low",
+      "desc": "background.md Conversational Texture uses the workstream code W2c (the section 1.1.3 binding-freeze rule ... lands with the chain in W2c) without ever defining what W2c refers to. W2a is glossed inline via the Trigger Event paragraph (story B-c054, RFC 8785 CANON plus fail-closed policy resolver) and W2b is this story per index.json description (Second implementation leaf, W2b), but W2c appears nowhere else in background.md, index.json, or checklist.json and has no gloss, so a fresh reader cannot determine which future story or spec area W2c denotes."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-25T07:25:42.021Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-25T07:30:28.602Z",
+      "issues": [
+        {
+          "id": "INIT-007",
+          "severity": "medium",
+          "desc": "checklist CHK-006 context lists the six registration files as registry.ts (MAIN_TOOLS), cli/command-catalog.ts, core/command-policy.ts, core/config.ts, core/process-fact-levels.ts, core/process-fact-registry.ts. Verified against source: the MAIN_TOOLS array is actually declared and exported at packages/main/src/cli/command-catalog.ts:228 (export const MAIN_TOOLS: ToolDef[] = [...]), and re-exported by cli-engine.ts (import { MAIN_TOOLS } from ./cli/command-catalog.js; export { MAIN_TOOLS };) -- NOT defined in registry.ts. registry.ts is a separate mechanism (createMainRegistry / registerBatch, the handler-dispatch table); it is a genuinely required registration point (confirmed by packages/main/src/tasks/command-ownership-contract.ts:136, which checks that MAIN_TOOLS-listed commands have a registered handler in createMainRegistry -- a DISPATCHABILITY check, not the MAIN_TOOLS schema definition itself), but the parenthetical (MAIN_TOOLS) attached to registry.ts implies the MAIN_TOOLS array/schema lives there, which is incorrect and could send an implementer looking in the wrong file for the MAIN_TOOLS catalog entry."
+        },
+        {
+          "id": "INIT-008",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs and checklist CHK-008 context describe the three enumeration arrays in scripts/verify-process-fact-contract.mjs near :1013, :1229, :1265 uniformly as MAIN_TOOLS command-name enumeration arrays. Verified against source: only the array at line 1013 (inside assertProofStoryProgressiveBoundary) is actually checked against MAIN_TOOLS/cli/command-catalog.ts (assert message literally reads CLI schema: ProofStory command missing from MAIN_TOOLS: dollar-commandName, checked via catalogText.includes(name colon commandName)). The array at line 1229 (same function) is checked against core/command-policy.ts entries instead (assert message ProofStory pre-DEV command missing policy: commandName, using commandPolicyPath). The array near line 1265 lives inside a different function, assertProofStoryGateConsumedFacts (starts line 1260); it is actually const commands = [ at line 1263 with the loop trigger for (const commandName of commands) at line 1277 -- not itself an inline for-of over an array literal the way the other two are -- and is checked against core/process-fact-levels.ts plus core/process-fact-registry.ts (levelRegistry/registry), not MAIN_TOOLS. Calling all three MAIN_TOOLS arrays is imprecise: two of the three validate different registries (command-policy.ts and process-fact-levels/registry.ts respectively) -- though the cited line numbers do still land inside the correct enumeration for adding the new command in each case."
+        },
+        {
+          "id": "INIT-009",
+          "severity": "low",
+          "desc": "background.md Conversational Texture uses the workstream code W2c (the section 1.1.3 binding-freeze rule ... lands with the chain in W2c) without ever defining what W2c refers to. W2a is glossed inline via the Trigger Event paragraph (story B-c054, RFC 8785 CANON plus fail-closed policy resolver) and W2b is this story per index.json description (Second implementation leaf, W2b), but W2c appears nowhere else in background.md, index.json, or checklist.json and has no gloss, so a fresh reader cannot determine which future story or spec area W2c denotes."
+        }
+      ]
+    }
+  ],
+  "_hash": "17015e826973902ae22b3f224e2a35148ad69b3ba03d9cdfd1a6a1619ed6af31"
+}

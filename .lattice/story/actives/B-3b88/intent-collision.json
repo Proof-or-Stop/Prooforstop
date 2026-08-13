@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3b88",
+  "id": "IC-20260725224527",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Deliver exactly two zero-schema mechanical guards in handlers/checklist.ts: (1) verification_evidence_add refuses a row whose command and file fields name contradictory targets; (2) verification_evidence_refresh_stale leaves command-backed result:pass rows stale instead of re-certifying them. No schema change, no tool-executed receipts (Step 2), no quorum/round changes.",
+  "acceptedInterpretationHash": "sha256:8367c1e8d33f905ae4cea450cb2ccace893c880063152692d908d9e668de5a5c",
+  "notes": "Intent is unambiguous; the two deliverables are the two checklist items, scope-bounded to Step 1.",
+  "createdAt": "2026-07-25T22:45:27.171Z",
+  "updatedAt": "2026-07-25T22:45:27.171Z"
+}

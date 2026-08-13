@@ -4,7 +4,7 @@ import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
   UnderstandingData, DecisionData, StorySummaryData,
   StoryTestRun, StoryTestRunsData, FindingData, EvalEvidenceData,
-  StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, ReviewPassData,
+  StoryProcessMetrics, ProcessEvent, ScopeCheckData, InitCheckData, StallAdjudicationData, ReviewPassData,
   DeliveryCheckData, ImplementationReviewResultData, ReviewRunData, GrillData,
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
@@ -14,8 +14,15 @@ import type {
   RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
   AcceptanceBasisArtifactV1,
   PreReviewCheckArtifactV1,
+  AcceptanceRolloutArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
+import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
+import {
+  redEvidenceArtifactParseError,
+  retainQuarantinedRecordsOnWrite,
+  validateRedEvidenceArtifact,
+} from './red-evidence-artifact-validation.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
 import type { ClusterData } from './cluster-types.js';
@@ -111,16 +118,39 @@ export class StoryStore {
   }
 
   private readJson<T>(storyId: string, file: string): T {
+    return this.readJsonCandidate<T>(storyId, file).data;
+  }
+
+  /**
+   * `readJson`, but the chosen candidate's PATH comes back with the data.
+   *
+   * `wrapParseError` (B-2aa7 CHK-004, §10.2.1 row E7) lets one artifact turn the
+   * raw `SyntaxError` that `JSON.parse` throws — which names neither the file nor
+   * the story — into a TYPED error naming the path, at the only place where the
+   * path is still in scope. Omitting it rethrows the original error verbatim, so
+   * every other artifact's read behaviour is byte-for-byte unchanged.
+   */
+  private readJsonCandidate<T>(
+    storyId: string,
+    file: string,
+    wrapParseError?: (cause: unknown, filePath: string) => Error,
+  ): JsonCandidate<T> {
     const tried: string[] = [];
     const candidates: JsonCandidate<T>[] = [];
     for (const dir of this.candidateStoryDirs(storyId)) {
       const filePath = join(dir, file);
       tried.push(filePath);
       if (existsSync(filePath)) {
-        candidates.push({ filePath, data: JSON.parse(readFileSync(filePath, 'utf-8')) as T });
+        let data: T;
+        try {
+          data = JSON.parse(readFileSync(filePath, 'utf-8')) as T;
+        } catch (e) {
+          throw wrapParseError ? wrapParseError(e, filePath) : e;
+        }
+        candidates.push({ filePath, data });
       }
     }
-    if (candidates.length > 0) return this.chooseJsonCandidate(file, candidates).data;
+    if (candidates.length > 0) return this.chooseJsonCandidate(file, candidates);
     throw new StoryArtifactMissingError(`File not found: ${tried.join(' or ')}`);
   }
 
@@ -546,6 +576,21 @@ export class StoryStore {
     this.writeJson(storyId, 'init-check.json', data);
   }
 
+  // ── Stall Adjudication (B-7813 CHK-002: stall_resolution_set writes the signed
+  // stall-adjudication.json consumed by the DEV→REVIEW convergence-stall mint gate) ──
+
+  readStallAdjudication(storyId: string): StallAdjudicationData | null {
+    try {
+      return this.readJson<StallAdjudicationData>(storyId, 'stall-adjudication.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeStallAdjudication(storyId: string, data: StallAdjudicationData): void {
+    this.writeJson(storyId, 'stall-adjudication.json', data);
+  }
+
   // ── Scope Anti-Expansion (B-85ba: INIT→INIT_CHECK boundary freeze gate) ──
 
   readScopeBoundary(storyId: string): ScopeBoundaryData | null {
@@ -801,6 +846,15 @@ export class StoryStore {
     this.writeJson(storyId, 'pre-review-check.json', data);
   }
 
+  readAcceptanceRolloutReport(storyId: string): AcceptanceRolloutArtifactV1 | null {
+    try { return this.readJson<AcceptanceRolloutArtifactV1>(storyId, 'acceptance-rollout-report.json'); }
+    catch (e) { if (e instanceof StoryArtifactMissingError) return null; throw e; }
+  }
+
+  writeAcceptanceRolloutReport(storyId: string, data: AcceptanceRolloutArtifactV1): void {
+    this.writeJson(storyId, 'acceptance-rollout-report.json', data);
+  }
+
   readTopologyCriticReceipt(storyId: string): TopologyCriticReceiptV1 | null {
     try { return this.readJson<TopologyCriticReceiptV1>(storyId, 'topology-critic-receipt.json'); }
     catch (e) { if (e instanceof StoryArtifactMissingError) return null; throw e; }
@@ -848,17 +902,98 @@ export class StoryStore {
     this.writeJson(storyId, 'scope-shrinkage-decision.json', data);
   }
 
+  /**
+   * The trust boundary between the on-disk red-evidence file and the typed
+   * domain (B-2aa7, decisions D-1/D-3/D-4/D-8). This method is the I/O shell:
+   * it locates and parses the file, and `core/red-evidence-artifact-validation.ts`
+   * — a pure leaf — decides what is well-formed.
+   *
+   * Three outcomes, and they are deliberately different:
+   *  - ABSENT file        -> `null`, the ordinary not-configured path (row E4/B3).
+   *  - ENVELOPE fault     -> a typed `RedEvidenceArtifactError` NAMING THE PATH,
+   *                          including an unparseable file (row E7 requires a
+   *                          throw, just a typed one). Validated BEFORE any
+   *                          record, so an envelope fault can never be reported
+   *                          as a record fault (§2.4).
+   *  - MALFORMED RECORD   -> D-4 quarantine: `records` keeps only well-formed
+   *                          entries and the rejected ones are RETAINED on
+   *                          `malformedRecords`. Never dropped, never thrown.
+   *
+   * The W2c / B-506e unsupported-per-record-schemaVersion rejection is unchanged
+   * and still runs ahead of the v1 shape check; it now sits behind the envelope
+   * check, which is what stops it being handed the characters of a string.
+   *
+   * `malformedRecords` on the returned value is ALWAYS this read's own
+   * classification. The validator strips any occurrence of that key found on
+   * disk, so the file cannot tell this method what was quarantined — which it
+   * must not be able to do, because `writeRedEvidence` below re-inserts every
+   * quarantined `value` back into `records`, and `records` is gate evidence.
+   */
   readRedEvidence(storyId: string): RedEvidenceData | null {
+    const artifactFile = 'red-evidence.json';
+    let candidate: JsonCandidate<unknown>;
     try {
-      return this.readJson<RedEvidenceData>(storyId, 'red-evidence.json');
+      candidate = this.readJsonCandidate<unknown>(storyId, artifactFile, (cause, filePath) =>
+        redEvidenceArtifactParseError(filePath, cause));
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+    return validateRedEvidenceArtifact(candidate.data, candidate.filePath);
+  }
+
+  /**
+   * The WRITE counterpart of {@link StoryStore.readRedEvidence}, and the point
+   * where D-4's "never drop" stops depending on every caller remembering it.
+   *
+   * `readRedEvidence` hands the typed domain a CLEAN `records` array and retains
+   * the rejected entries on the derived `malformedRecords` key, so any writer
+   * that rebuilds an envelope from that clean array persists the clean subset and
+   * DELETES the quarantined originals. `restoreQuarantinedRecords` lets a caller
+   * avoid that; `red_evidence_create` calls it. The chain appender cannot — it
+   * lives under `core/red-evidence/`, owned by the merged sibling B-506e — and
+   * the corruption precheck the chain commands were given instead runs BEFORE
+   * the chain lock, while the appender re-reads INSIDE it. An artifact that
+   * becomes malformed between those two reads is quarantined by the locked read
+   * and dropped by the rebuild, with the pre-lock refusal none the wiser.
+   *
+   * So the rule is applied HERE, to whatever is about to be persisted, and it
+   * therefore holds for every writer, present and future, blocked or not.
+   * `retainQuarantinedRecordsOnWrite` is pure and fails closed: it re-inserts
+   * each retained entry at its on-disk index, strips the derived key so it is
+   * never persisted, and throws rather than write a lossy envelope when the
+   * reconstruction cannot be proven.
+   *
+   * `data` is whatever the caller passes, and this method does not read the
+   * artifact first, so an IN-MEMORY payload arrives here with its
+   * `malformedRecords` intact — nothing had stripped it. Only entries the
+   * validator itself derived are honoured (provenance, not shape: an entry is
+   * five ordinary members and a literal can look perfect), and a payload
+   * claiming any other is REFUSED rather than written, because writing it would
+   * persist an envelope missing the records it claims are quarantined. Pass the
+   * object `readRedEvidence` returned, or a spread of it, and this is a no-op.
+   */
+  writeRedEvidence(storyId: string, data: RedEvidenceData): void {
+    this.writeJson(storyId, 'red-evidence.json', retainQuarantinedRecordsOnWrite(data));
+  }
+
+  // ── Red target bindings (W2b / B-e10d, §1.1.3) ──
+  //
+  // Storage location: <storyDir>/<storyId>/red-target-bindings.json, schema
+  // proofstory.red_target_bindings.v1. Exactly one binding per
+  // acceptanceTargetRef; the uniqueness / digest / committed-tree semantics live
+  // in core/red-evidence/target-bindings.ts. Read is null-safe on cold start.
+  readRedTargetBindings(storyId: string): RedTargetBindingsFile | null {
+    try {
+      return this.readJson<RedTargetBindingsFile>(storyId, 'red-target-bindings.json');
     } catch (e) {
       if (e instanceof StoryArtifactMissingError) return null;
       throw e;
     }
   }
 
-  writeRedEvidence(storyId: string, data: RedEvidenceData): void {
-    this.writeJson(storyId, 'red-evidence.json', data);
+  writeRedTargetBindings(storyId: string, data: RedTargetBindingsFile): void {
+    this.writeJson(storyId, 'red-target-bindings.json', data);
   }
 
   readProofStorySpikes(storyId: string): ProofStorySpikeData | null {

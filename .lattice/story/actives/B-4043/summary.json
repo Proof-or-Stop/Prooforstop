@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4043",
+  "changes": "Implements ProofStory acceptance topology Wave 4: role guidance integrated with the canonical acceptance topology and pre-review commands (sourced from packages/main/templates/agents/*.md, not regenerable host shims); a verifier-owned before/after rollout cohort with deterministic success metrics (core/acceptance-rollout.ts, scripts/run-proofstory-acceptance-rollout-cohort.mjs); bounded project-level warn-to-enforce admission thresholds; opt-in enforcement with tested rollback wired into the DEV->REVIEW gate (transition-orchestrator.ts); and the canonical execution plan updated with the measured Wave 4 status. New CLI: acceptance_rollout_report / _read / _check.",
+  "usage": "Run lattice acceptance_rollout_report / acceptance_rollout_report_read / acceptance_rollout_check. Default mode is observe; enforcement is opt-in per project policy and rolls back by configuration alone. The smokes now accept --cohort=<path>, --story=<id>, --out=<path> and --quiet so they can be pinned as tool-executed verification commands.",
+  "expectedOutcome": "The acceptance-rollout gate runs in observe mode by default, its report/check commands are available, and every declared verification intent is backed by evidence the tool itself executed rather than a caller-authored claim.",
+  "actualTranscript": "All 15 declared verificationIntents are covered: 12 executable intents (CHK-001..CHK-004) carry mechanical receipts produced by the CLI executing an immutable pinned {command, selector} - receipts stamped 2026-07-27T11:44:07Z-11:49:44Z with exitCode 0, outputDigest and outputTail; the remaining 3 (CHK-005) are type=docs and non-executable by design. proofstory-acceptance-rollout-smoke: PASS (57 assertions); pre-review-check --proof-scenarios: PASS with all 17 mutations biting, 5 positive and 1 transcript scenario passing, Wave 3A/Wave 4 leakage absent; verify-process-fact-contract: verified. Four reviewer lanes (concept, quality, test-coverage, docs) passed the current round with 0 open findings, and the review quorum recorded 4/4 lanes with 3 rounds x 2 hosts.",
+  "outcomeDiff": "No difference: observe-mode default, the three commands, and tool-executed coverage for every intent all match the expected outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "CHK-005 happy/edge/adversarial are type=docs, so they are covered by audited non-mechanical attestation rather than tool execution - by design, since a docs contract has no executable proof unit. One orphan evidence row (CHK-004:hardening:issuance-replay-integrity) maps to no declared intent and was accepted as harmless (F-015); it does not affect gate coverage.",
+  "pitfalls": "Closeout took many rounds. Root causes worth knowing: (1) This story changes package.json and lattice.config.json, so EVERY main merge is related drift that invalidates reviewer passes and forces a full re-review round; main gained ~1650 commits during closeout. (2) Two findings (F-017, F-019) correctly caught evidence that had been hash-re-stamped rather than genuinely re-run - the fix was converting to the B-ec67 tool-executed pinned-command contract that main landed mid-flight. (3) The pinned-command mechanism constrains what can be pinned: executable+argv only (no env prefix, no shell redirect), a 270s per-command timeout, and the selector is matched against only the FIRST 12000 characters of output, so a trailing success marker is unreachable - hence the --quiet/--cohort/--story/--out options added here. (4) Changing scripts/run-proofstory-acceptance-rollout-cohort.mjs invalidates every previously frozen cohort because the envelope pins a runnerDigest; regenerate the cohort after touching the runner. (5) Long tool-executed refreshes need LATTICE_IDLE_TIMEOUT_MS raised as well as LATTICE_MAX_TIMEOUT_MS, or the 300s idle watchdog aborts them.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 193946
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 91957
+    },
+    "PLAN": {
+      "count": 7,
+      "durationMs": 2459528
+    },
+    "DEV": {
+      "count": 21,
+      "durationMs": 109850707
+    },
+    "REVIEW": {
+      "count": 15,
+      "durationMs": 168222933
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 52176093
+    }
+  },
+  "totalDurationMs": 332995565,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-27T12:59:32.389Z",
+  "updatedAt": "2026-07-27T12:59:32.389Z"
+}

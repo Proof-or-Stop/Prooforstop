@@ -378,6 +378,12 @@ try {
   );
   assert.equal(JSON.stringify(store.readChecklist(storyId)), checklistAfterEligible, 'all real evidence writer surfaces reject matrix projections atomically');
   assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsAfterEligible, 'alternate matrix evidence writers append no process event');
+  // B-ec67 F-006: an executable (type:cli) intent's evidence write must be a mechanical
+  // receipt (selector) or an audited non-mechanical attestation. These false-positive
+  // controls are non-matrix and genuinely un-executable in this fixture, so they migrate
+  // to the audited escape (nonMechanicalReason) — the write still succeeds and preserves
+  // the note/command, which is all these assertions check.
+  const nonMatrixEscape = 'non-matrix false-positive control; execution not applicable in this acceptance-topology fixture';
   assert.match(
     run(writerCliRoot, 'verification_evidence_add', {
       storyId,
@@ -387,17 +393,21 @@ try {
       command: 'node warning-threshold.test.mjs',
       result: 'pass',
       note: 'Result: warning threshold test passed with expected fallback.',
+      nonMechanicalReason: nonMatrixEscape,
     }, false, 'main-agent'),
     /Verification evidence recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.note, 'Result: warning threshold test passed with expected fallback.', 'false-positive control persists ordinary evidence through the real CLI');
+  // B-ec67 F-007: checklist_update no longer accepts executable-intent evidence (it does
+  // not execute pinned commands); a non-matrix row is now refused with the F-007 code
+  // (NOT the matrix-projection code), directing callers to verification_evidence_add.
   assert.match(
     run(writerCliRoot, 'checklist_update', {
       storyId,
       itemId: 'CHK-001',
       verificationEvidence: [{ intentRef: 'INT-001', kind: 'logic_test', command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts', result: 'pass', note: 'Registry source assertion passed.' }],
-    }, false, 'main-agent'),
-    /verificationEvidence updated/,
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
   );
   assert.match(
     run(writerCliRoot, 'verification_evidence_add', {
@@ -408,6 +418,7 @@ try {
       command: 'printf acceptance_matrix',
       result: 'pass',
       note: 'Literal-output assertion passed independently.',
+      nonMechanicalReason: nonMatrixEscape,
     }, false, 'main-agent'),
     /Verification evidence recorded/,
   );
@@ -421,6 +432,7 @@ try {
         command: 'node cli-contract-test.mjs acceptance_matrix',
         result: 'pass',
         note: 'CLI argument-contract assertion passed independently.',
+        nonMechanicalReason: nonMatrixEscape,
       }],
     }, false, 'main-agent'),
     /Verification evidence batch recorded/,

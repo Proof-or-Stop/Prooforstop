@@ -26,7 +26,7 @@ export const AGENT_DISPATCH_REGISTRY = [
     identifierKinds: ['itemId', 'findingId', 'clusterId'],
     promptBuilder: 'implementer-dispatch',
     promptBuilderByIdentifier: { itemId: 'implementer-dispatch', findingId: 'finding-repair', clusterId: 'cluster-repair' },
-    permittedMutations: ['checklist_update', 'finding_resolve'],
+    permittedMutations: ['checklist_update', 'finding_resolve', 'red_evidence_binding_set', 'red_evidence_quarantine', 'red_evidence_recover'],
     commitAllowed: true,
     reviewerLane: null,
     evidenceOwnership: ['checklist-status', 'finding-resolution', 'cluster-resolution'],
@@ -193,7 +193,7 @@ const VALID_PHASES = new Set(['IDEA', 'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVI
 const VALID_CARDINALITIES = new Set(['story-only', 'exactly-one']);
 const VALID_IDENTIFIERS = new Set(['itemId', 'findingId', 'clusterId']);
 const VALID_PROMPT_BUILDERS = new Set(['implementer-dispatch', 'verification-intent-item', 'init-review', 'product-init-review', 'scope-plan-review', 'topology-critic-review', 'story-review', 'item-review', 'coverage-review', 'delivery-review', 'finding-repair', 'cluster-repair']);
-const VALID_MUTATIONS = new Set(['checklist_update', 'init_check_set', 'scope_check_save', 'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'review_run_start', 'finding_add', 'review_pass_set', 'delivery_check_set', 'finding_resolve']);
+const VALID_MUTATIONS = new Set(['checklist_update', 'init_check_set', 'scope_check_save', 'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'review_run_start', 'finding_add', 'review_pass_set', 'delivery_check_set', 'finding_resolve', 'red_evidence_binding_set', 'red_evidence_quarantine', 'red_evidence_recover']);
 const VALID_EVIDENCE_OWNERSHIP = new Set(['checklist-status', 'verification-intent', 'init-check', 'scope-check', 'topology-exclusion-approval', 'topology-critic-receipt', 'review-run', 'finding', 'review-pass', 'delivery-check', 'finding-resolution', 'cluster-resolution']);
 
 function requireString(value: unknown, label: string): asserts value is string {

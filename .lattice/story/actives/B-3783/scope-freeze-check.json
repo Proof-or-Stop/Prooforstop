@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3783",
+  "checkedAt": "2026-07-25T21:35:03.899Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "387e15fba3f85ecb8de29744cdf8240d9fecb4bea6fd051b79b5691a3707f16e",
+  "executionBoundaryHash": "0fed7085d43301d532893cc540a6318c480653b266af7b67040615f20b61d847",
+  "freshnessHash": "be93d4785ca2779fcfaf47d542ee649d2a1f4f44bf479c72a64cd1e4a66e7c2e",
+  "effectiveExcludedKeywords": [
+    "Adding new agent types or refactoring registry-to-enum derivation",
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "Modifying command-catalog.ts dispatch.agentType enum or its derivation from AGENT_DISPATCH_ACCEPTED_TYPES (catalog is already correct)",
+    "repair UX",
+    "Rewriting unrelated portions of command-catalog-smoke.ts beyond the retired-consistency loop",
+    "Un-retiring lattice-review-channel in agent-dispatch-registry.ts (ACCEPTED_TYPES filter / resolveAgentDispatchType retired rejection must stay)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding new agent types or refactoring registry-to-enum derivation",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding new agent types or refactoring registry-to-enum derivation",
+      "excluded": true
+    },
+    {
+      "keyword": "Modifying command-catalog.ts dispatch.agentType enum or its derivation from AGENT_DISPATCH_ACCEPTED_TYPES (catalog is already correct)",
+      "source": "scopeBoundary.excluded",
+      "text": "Modifying command-catalog.ts dispatch.agentType enum or its derivation from AGENT_DISPATCH_ACCEPTED_TYPES (catalog is already correct)",
+      "excluded": true
+    },
+    {
+      "keyword": "Rewriting unrelated portions of command-catalog-smoke.ts beyond the retired-consistency loop",
+      "source": "scopeBoundary.excluded",
+      "text": "Rewriting unrelated portions of command-catalog-smoke.ts beyond the retired-consistency loop",
+      "excluded": true
+    },
+    {
+      "keyword": "Un-retiring lattice-review-channel in agent-dispatch-registry.ts (ACCEPTED_TYPES filter / resolveAgentDispatchType retired rejection must stay)",
+      "source": "scopeBoundary.excluded",
+      "text": "Un-retiring lattice-review-channel in agent-dispatch-registry.ts (ACCEPTED_TYPES filter / resolveAgentDispatchType retired rejection must stay)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "23e9c634708398c43b0f8d3ece03e563dec090badb8489afca8dca64c3b16a71"
+}

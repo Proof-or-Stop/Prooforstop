@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3b88",
+  "sourceText": "Make the tool refuse false verification evidence instead of relying on the agent remembering rules. First, the two cheapest zero-schema fixes: reject an evidence row whose command and file fields contradict (F-049/F-050), and stop verification_evidence_refresh_stale from re-certifying a stale command-backed pass onto changed material (F-045/F-046/F-047).",
+  "normalizedOutcome": "verification_evidence_add refuses a row whose command and file fields name contradictory targets; verification_evidence_refresh_stale leaves a command-backed result:pass row stale instead of silently re-certifying it, while still refreshing command-less attestation rows.",
+  "acceptanceClaim": "Both false-evidence channels are mechanically closed: the two RED smokes (evidence-selfcheck, refresh-stale-honesty) go from failing to passing.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:cc353de258080169f7156df2b4b90d8b55f235acfbdcdf36e22bbf2923560dca",
+  "createdAt": "2026-07-25T22:44:49.904Z",
+  "updatedAt": "2026-07-25T22:44:49.904Z"
+}

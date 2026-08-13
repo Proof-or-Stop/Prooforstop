@@ -1,0 +1,72 @@
+{
+  "storyId": "B-8b69",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/checklist.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Necessary out-of-scope rebaseline of the B-3740 phase-flow regression guard: the in-scope machine change (new gated PLAN->INIT reopen edge) legitimately adds INIT to PLAN.allowedRollback and changes the phase-flow transition-health hash. Updated the expected getPhaseInfo(PLAN).allowedRollback to [INIT] and the baseline hash to match; no behavior change beyond the intended new edge.",
+      "timestamp": "2026-07-25T11:26:17.769Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6495f3199d9c00e15ff23a0942b9ec2002852a9f",
+      "materialHash": "be69ab40454231f1bbf57ad9460d45aee6db9a6609dc73d846c4a13432664f5f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The decision spec authored at PLAN for the lattice-review-scope-plan reviewer to check checklist coverage against. It is story documentation (the design record for this change), not part of the shipped code surface, so it was not in the checklist file declarations; recording it as a reviewer-visible in-story doc.",
+      "timestamp": "2026-07-25T12:17:24.708Z",
+      "paths": [
+        "docs/requirements/decisions/plan-init-reopen.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/plan-init-reopen.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d8be77be60276354723b12a0ba086f1dcc3c1739",
+      "materialHash": "afe1f97f2259ef2dfd0c53b48dd82e4aeb463b6267211d3537f393561fa31a18"
+    }
+  ],
+  "createdAt": "2026-07-25T10:57:58.509Z",
+  "updatedAt": "2026-07-25T12:17:24.708Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/handlers/story-advance.ts": "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts": "packages/main/src/tasks/plan-init-reopen-roundtrip-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "docs/requirements/decisions/plan-init-reopen.md": "docs/requirements/decisions/plan-init-reopen.md"
+  }
+}

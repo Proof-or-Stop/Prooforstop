@@ -1,0 +1,1251 @@
+{
+  "schemaVersion": "proofstory.pre_review_check.v1",
+  "storyId": "B-c054",
+  "mode": "observe",
+  "cutoffAt": "2026-07-25T04:36:16.976Z",
+  "planBasisDigest": "sha256:4460693ad83d922f1c9e92ba35a297e4679e1a069d8c3d370875b9b4b1d4d977",
+  "preReviewBasisArtifact": {
+    "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+    "basis": {
+      "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+      "storyId": "B-c054",
+      "phaseBasis": "pre_review",
+      "priorPlanBasisDigest": "sha256:4460693ad83d922f1c9e92ba35a297e4679e1a069d8c3d370875b9b4b1d4d977",
+      "status": "partial",
+      "generatedBy": {
+        "verifier": "acceptance-coverage-basis-verifier",
+        "command": "lattice pre_review_check",
+        "algorithmVersion": "v1"
+      },
+      "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+      "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+      "discoveryMethods": [
+        "scope_contract",
+        "process_fact_registry",
+        "handler_dispatch_inventory",
+        "static_call_graph",
+        "runtime_trace"
+      ],
+      "adapterResults": [
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "handler-dispatch-inventory:plan:v1",
+          "method": "handler_dispatch_inventory",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:packages/main/src/cli/command-catalog.ts:sha256:42c237f49144fbbaddf5cee447705601f664565d72a3cd00ce00bddea9046465",
+            "source-file:packages/main/src/handlers/doctor.ts:sha256:c758d6356d3963497db6162179d40ee39e0f8cf6962c934f0edc5d8572b872aa",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+            "source-file:packages/main/src/registry.ts:sha256:3a8ebab41083110c69933459e78611e444e91b65ae9b03191e9b5ee5019e70fb"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:handler_dispatch_inventory:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:file:lattice.config.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/red-evidence/canon.ts",
+              "scope:file:packages/main/src/core/red-evidence/policy.ts",
+              "scope:file:packages/main/src/core/red-evidence/registries.ts",
+              "scope:file:packages/main/src/handlers/doctor.ts",
+              "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+              "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+              "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+            ]
+          },
+          "resultDigest": "sha256:e7ce6c277b3b6c864c062eaad896ccb273e1335eb5277e5c25e007c8d0e1b707"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "process-fact-registry:plan:v1",
+          "method": "process_fact_registry",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+            "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+            "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+            "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+            "process-fact:artifact:pre-review-check.json:b0d932560f345ed4130e89e7674f3e61967bf107d592f0e0082ba2186bc5aad4",
+            "process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0",
+            "process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe",
+            "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+            "source-file:packages/main/src/core/pre-review-check.ts:sha256:165d7b40329427dade41f4b602560992a92fcad99274a82c094295256f8609e4",
+            "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:88be1e78263b2cf40111e39698eb7f33491a346e45f996ea535d6b281356e9d2",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
+            "source-file:packages/main/src/registry.ts:sha256:3a8ebab41083110c69933459e78611e444e91b65ae9b03191e9b5ee5019e70fb",
+            "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:b4b392bd96e033d496c8d5ae932a9fbf907f1b8b8c4754b1d1d7cef4ae29c994"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:process_fact_registry:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:file:lattice.config.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/red-evidence/canon.ts",
+              "scope:file:packages/main/src/core/red-evidence/policy.ts",
+              "scope:file:packages/main/src/core/red-evidence/registries.ts",
+              "scope:file:packages/main/src/handlers/doctor.ts",
+              "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+              "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+              "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+            ]
+          },
+          "resultDigest": "sha256:fc67d53e00bd5c51643e9aabd50fae9dda7b7de4c3335e9ca861bd67646bf827"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "runtime-trace:plan:v1",
+          "method": "runtime_trace",
+          "pathRefs": [],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "runtime-fact-registry:sha256:87ef03b700851edd8ffd68380361b4d635c8436f7bd3fac51a4b920a4056a6d6",
+            "runtime-trace:story:B-c054:bounded"
+          ],
+          "asymmetryPolicy": {
+            "kind": "bounded_non_exhaustive",
+            "policyRef": "policy:bounded-runtime:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:file:lattice.config.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/red-evidence/canon.ts",
+              "scope:file:packages/main/src/core/red-evidence/policy.ts",
+              "scope:file:packages/main/src/core/red-evidence/registries.ts",
+              "scope:file:packages/main/src/handlers/doctor.ts",
+              "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+              "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+              "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+            ]
+          },
+          "resultDigest": "sha256:281707c5ce3b26fdce9ee7414d16bccec9211dab750467ef19c9a59eebacc7cb"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "scope-contract:plan:v1",
+          "method": "scope_contract",
+          "pathRefs": [],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:file:lattice.config.json",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/red-evidence/canon.ts",
+            "scope:file:packages/main/src/core/red-evidence/policy.ts",
+            "scope:file:packages/main/src/core/red-evidence/registries.ts",
+            "scope:file:packages/main/src/handlers/doctor.ts",
+            "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+            "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+            "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+            "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:scope_contract:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:file:lattice.config.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/red-evidence/canon.ts",
+              "scope:file:packages/main/src/core/red-evidence/policy.ts",
+              "scope:file:packages/main/src/core/red-evidence/registries.ts",
+              "scope:file:packages/main/src/handlers/doctor.ts",
+              "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+              "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+              "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+            ]
+          },
+          "resultDigest": "sha256:a2392e99492b89f61602f56c9709ae7fd1cd00083e2995981cbfdf2357d504ee"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "static-call-graph:plan:v1",
+          "method": "static_call_graph",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+            "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:packages/main/src/core/acceptance-topology.ts:sha256:84368d03a6a5ed3157ae5fae7d760f3711b68220e46eb21a65d1910253d276ac",
+            "source-file:packages/main/src/core/config.ts:sha256:c3e456640191997675551f0e225525fb54536d670b67dde07a37f46268121b51",
+            "source-file:packages/main/src/core/pre-review-check.ts:sha256:165d7b40329427dade41f4b602560992a92fcad99274a82c094295256f8609e4",
+            "source-file:packages/main/src/core/pre-review-live-proof.ts:sha256:88be1e78263b2cf40111e39698eb7f33491a346e45f996ea535d6b281356e9d2",
+            "source-file:packages/main/src/core/red-evidence/canon.ts:sha256:02a81d30d9e2d8fe3c7768f1e7bc42c65c98ae7e334e19144d022756ce7e07b4",
+            "source-file:packages/main/src/core/red-evidence/policy.ts:sha256:9a39a6d4d4a3a155ceb5136fe696ef19679189d3896a8da54c1145f8f2b2c209",
+            "source-file:packages/main/src/core/red-evidence/registries.ts:sha256:58f6a9eda3d6bd46409a718189d4e19531cdb826e492418836387745743734a2",
+            "source-file:packages/main/src/handlers/doctor.ts:sha256:c758d6356d3963497db6162179d40ee39e0f8cf6962c934f0edc5d8572b872aa",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:77c890f0a744d644f8c5a9eadf3d1979c3c7c10f59ffba67a83b21a701162a32",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
+            "source-file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts:sha256:9a382cef7ac44f09dd26046f11c4bfeedfbd640e30f60f230ecfe04d60b168df",
+            "source-file:packages/main/tests/red/red-w2a-canon-differential.mjs:sha256:12a3d595609dbef2fefa90a4ee2e6c17f7a31c13affc4440cb39e5ef823eb160",
+            "source-file:packages/main/tests/red/red-w2a-policy-failclosed.mjs:sha256:96b7212c69e16ae54e99661d3b0fbaec22bf863e9d764df754512be4c9eeaeb7",
+            "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:b4b392bd96e033d496c8d5ae932a9fbf907f1b8b8c4754b1d1d7cef4ae29c994"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:static_call_graph:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:file:lattice.config.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/red-evidence/canon.ts",
+              "scope:file:packages/main/src/core/red-evidence/policy.ts",
+              "scope:file:packages/main/src/core/red-evidence/registries.ts",
+              "scope:file:packages/main/src/handlers/doctor.ts",
+              "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+              "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+              "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+            ]
+          },
+          "resultDigest": "sha256:bbbeef534f61719c9cc9439c23d2aa1eacfde559427ee422627253f6e172f083"
+        }
+      ],
+      "scopeRefs": [
+        "scope:checklist:CHK-001",
+        "scope:checklist:CHK-002",
+        "scope:checklist:CHK-003",
+        "scope:checklist:CHK-004",
+        "scope:checklist:CHK-005",
+        "scope:checklist:CHK-006",
+        "scope:checklist:CHK-007",
+        "scope:checklist:CHK-008",
+        "scope:checklist:CHK-009",
+        "scope:checklist:CHK-010",
+        "scope:file:lattice.config.json",
+        "scope:file:packages/main/src/core/config.ts",
+        "scope:file:packages/main/src/core/red-evidence/canon.ts",
+        "scope:file:packages/main/src/core/red-evidence/policy.ts",
+        "scope:file:packages/main/src/core/red-evidence/registries.ts",
+        "scope:file:packages/main/src/handlers/doctor.ts",
+        "scope:file:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+        "scope:file:packages/main/tests/red/red-w2a-canon-differential.mjs",
+        "scope:file:packages/main/tests/red/red-w2a-policy-failclosed.mjs"
+      ],
+      "sourceInventoryRefs": [
+        "artifact:acceptance-basis.json",
+        "artifact:pre-review-check.json",
+        "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+        "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
+        "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+        "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+        "process-fact:artifact:pre-review-check.json:b0d932560f345ed4130e89e7674f3e61967bf107d592f0e0082ba2186bc5aad4",
+        "process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0",
+        "process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe",
+        "source-file:closure:lattice.config.json",
+        "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+        "source-file:closure:packages/main/src/core/config.ts",
+        "source-file:closure:packages/main/src/core/pre-review-check.ts",
+        "source-file:closure:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:closure:packages/main/src/core/red-evidence/canon.ts",
+        "source-file:closure:packages/main/src/core/red-evidence/policy.ts",
+        "source-file:closure:packages/main/src/core/red-evidence/registries.ts",
+        "source-file:closure:packages/main/src/handlers/doctor.ts",
+        "source-file:closure:packages/main/src/handlers/proofstory.ts",
+        "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:closure:packages/main/src/tasks/red-evidence-policy-canon-smoke.ts",
+        "source-file:closure:packages/main/tests/red/red-w2a-canon-differential.mjs",
+        "source-file:closure:packages/main/tests/red/red-w2a-policy-failclosed.mjs",
+        "source-file:closure:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source-file:closure:scripts/verify-process-fact-contract.mjs",
+        "source-file:config:lattice.config.json",
+        "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:artifact%3Apre-review-check.json:packages/main/src/core/pre-review-check.ts",
+        "source-file:consumer:artifact%3Apre-review-check.json:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:pre_review_check:packages/main/src/core/pre-review-check.ts",
+        "source-file:consumer:pre_review_check:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:pre_review_check_read:packages/main/src/core/pre-review-check.ts",
+        "source-file:consumer:pre_review_check_read:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+        "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+        "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+        "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts",
+        "source-file:producer:artifact%3Apre-review-check.json:packages/main/src/core/pre-review-check.ts",
+        "source-file:producer:artifact%3Apre-review-check.json:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:producer:artifact%3Apre-review-check.json:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source-file:producer:pre_review_check:packages/main/src/core/pre-review-check.ts",
+        "source-file:producer:pre_review_check:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:producer:pre_review_check:scripts/run-proofstory-pre-review-live-proof.mjs",
+        "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-check.ts",
+        "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-live-proof.ts",
+        "source-file:producer:pre_review_check_read:scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "plannedPathRecords": [],
+      "plannedActualReconciliations": [],
+      "enumeratedPathRefs": [
+        "path:process-fact:acceptance_basis->consumer:<audit-only>",
+        "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+        "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+      ],
+      "excludedPathRefs": [],
+      "blindSpots": [
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+      ],
+      "snapshotSeal": {
+        "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+        "inventoryDirectoryDigest": "sha256:5ea591ae63b93455585d897619a6cd98d0f1485e677d6637c49c8ea31113fdd2",
+        "inventoryDirectoryCount": 21,
+        "sourceSnapshotDigest": "sha256:a9f2e03a82ed12d1f588ae8163f3e4dfb70de4c283fd1f2d2f299dd42dcbb59a",
+        "sourceSnapshotCount": 757,
+        "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
+        "status": "partial",
+        "issues": [
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate"
+          }
+        ],
+        "sealDigest": "sha256:e7b1d8fca1eb3170b29ba71209177e74236f8d7cbeb9b403ef46f8e8c6262cf0"
+      },
+      "binding": {
+        "headHash": "a809d085c8298b2dda7a1f1f3e978aa7b867a62b",
+        "materialHash": "9f0bb219d36ea8246c4ceb3faea1f044e12b8102ae1e323cbbf43267378d9ccb",
+        "storyFilesHash": "c9969f1dd280fd023728c4cf872464f7c2fa71545f8d7301a904d6179c7de5e7",
+        "scopeCheckDigest": "sha256:83d77532a690964e13bce3da3c4883c0d6373324fefed0fe638d86d9125ba5de",
+        "scopeContractDigest": "sha256:550ae58d1ddda52c6902a253dd9920d78025403bd97ba8fd975f1f78a3a7f101",
+        "closureFilesHash": "sha256:0f3b72b18e7de83aaea071250f1ecf9c4f2e484cc6eaefa258e0d8be845d95db"
+      },
+      "receiptRef": "receipt:coverage-basis:B-c054:pre_review:44bd9c396820f0b3",
+      "basisDigest": "sha256:9b32df4b771021cfd0b0e428a60110d058d8c314a58ce3231b0c1e3284a9386b"
+    },
+    "receipt": {
+      "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+      "receiptRef": "receipt:coverage-basis:B-c054:pre_review:44bd9c396820f0b3",
+      "issuer": "acceptance-coverage-basis-verifier",
+      "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+      "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+      "storyId": "B-c054",
+      "phaseBasis": "pre_review",
+      "basisDigest": "sha256:9b32df4b771021cfd0b0e428a60110d058d8c314a58ce3231b0c1e3284a9386b",
+      "topologyDigest": "sha256:cd112eec29e9e48d6cfa98d10e80b1676304d6e9b2074c65c9d4967f9585ef25",
+      "scopeCheckDigest": "sha256:83d77532a690964e13bce3da3c4883c0d6373324fefed0fe638d86d9125ba5de",
+      "scopeContractDigest": "sha256:550ae58d1ddda52c6902a253dd9920d78025403bd97ba8fd975f1f78a3a7f101",
+      "headHash": "a809d085c8298b2dda7a1f1f3e978aa7b867a62b",
+      "materialHash": "9f0bb219d36ea8246c4ceb3faea1f044e12b8102ae1e323cbbf43267378d9ccb",
+      "storyFilesHash": "c9969f1dd280fd023728c4cf872464f7c2fa71545f8d7301a904d6179c7de5e7",
+      "closureFilesHash": "sha256:0f3b72b18e7de83aaea071250f1ecf9c4f2e484cc6eaefa258e0d8be845d95db",
+      "sealDigest": "sha256:e7b1d8fca1eb3170b29ba71209177e74236f8d7cbeb9b403ef46f8e8c6262cf0",
+      "workspaceIdentityDigest": "sha256:7ee8bae0651d047ed323bf40d60f2f0369b1f225719796d6d4f292595b5d2436",
+      "signature": "RmWAjwPIvBQQ3UOESRmvWhdiPYNKgqB8My/pNIK/u6SMNsD9ZJd/lWWeUoFfrabJnOmAkqfKvAft8N5rNjDhCQ=="
+    }
+  },
+  "topologyDigest": "sha256:cd112eec29e9e48d6cfa98d10e80b1676304d6e9b2074c65c9d4967f9585ef25",
+  "scopeCheckDigest": "sha256:83d77532a690964e13bce3da3c4883c0d6373324fefed0fe638d86d9125ba5de",
+  "scopeContractDigest": "sha256:550ae58d1ddda52c6902a253dd9920d78025403bd97ba8fd975f1f78a3a7f101",
+  "storyFilesHash": "c9969f1dd280fd023728c4cf872464f7c2fa71545f8d7301a904d6179c7de5e7",
+  "closureFilesHash": "sha256:0f3b72b18e7de83aaea071250f1ecf9c4f2e484cc6eaefa258e0d8be845d95db",
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 12,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6afd3af6d84d35635ca2d98ebf880c44a4efe40627e7806372d271fae2c6ac7b"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 13,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a2da52e7255aa455e71c87aeafa7e8f038fb3b5d69eb9d43f3d1c6774d6342ed"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 14,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:96e2a9ba9dd2d1958fb2eb0345f3a33d4f856bba358d43faacb7193a5b3968b2"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3f3757717f18084092101eff51f0f79a52c402e9141e1ff8925977c9c0dad125"
+    },
+    {
+      "intentRef": "CHK-001:edge:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5598c76fe746edb0b40a503809fbbf825f518b5631749dbd6ceae12e0c95eb9a"
+    },
+    {
+      "intentRef": "CHK-001:edge:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c47b1432ba85ab61328764cf6bc766c268babd6de0bd13763524cd8241d56c44"
+    },
+    {
+      "intentRef": "CHK-001:edge:3",
+      "itemId": "CHK-001",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ef9aa7d4ec9ca13501839abe88a9bb73d47e6c41d41a0fdca8e1c7c10d27b9da"
+    },
+    {
+      "intentRef": "CHK-001:edge:4",
+      "itemId": "CHK-001",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:07689cf99fb18265c56362899d477876737d7428f32154f12cd596dbbde49636"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c9b5f480c8ee3c03268a92f4db36ebeb2a8c37d0be9290c43d2c1a4a7fa341d9"
+    },
+    {
+      "intentRef": "CHK-001:happy:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d2125a413a06cc495d7586d9813484fabae23521cd46ef126a291e6ffe82a31b"
+    },
+    {
+      "intentRef": "CHK-001:happy:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:501a68a4f1b874731126c72399a5daf55f22d82dd434f62389f1af107b13417e"
+    },
+    {
+      "intentRef": "CHK-001:happy:3",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7546bd392cafa4758890396dc6a2a9cd4ef262171ec5171a0cbb60fe94cf12af"
+    },
+    {
+      "intentRef": "CHK-001:happy:4",
+      "itemId": "CHK-001",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b82c7d181a3c03a7517142f8612a85705b2f01672cfd57d6cb5cee1a3cbf77cf"
+    },
+    {
+      "intentRef": "CHK-001:happy:5",
+      "itemId": "CHK-001",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:54f1dc052f5179638cfdfd1aedab0caa5c799e9f7fa931d65987bfd2374f98cf"
+    },
+    {
+      "intentRef": "CHK-001:happy:6",
+      "itemId": "CHK-001",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:576856643155fd8dd4bef499598b4959be7fa79edc5928704c97aff199bf8f26"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8c7c9fc6a1d56f9af99b3f9306a335cb2dd51445a316116e450789e04f8cb9da"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d7730505f005173cb85bc8687f7fedcc1be4ec840f49948c9d908f827ddc5ef9"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:bf9f34a28933cb89d8a346145196619b88987bf6a8d1be59fb81c9883eda1df2"
+    },
+    {
+      "intentRef": "CHK-002:edge:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:987c366e62e7244bbe1bd574ead84bfa4258cf1cff694157e70778e10d1c4c25"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:45895720a42092e2aea5b7380f1b421c9bf219952d5591af4904d752ded4374a"
+    },
+    {
+      "intentRef": "CHK-002:happy:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:edb755d9e24bcabf77782d6edd54a26e839ba504264db12c627dec96adfff5b9"
+    },
+    {
+      "intentRef": "CHK-002:happy:2",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5ca5662d383b8b0a35c440b6c2050198004531bef97ca9bffd6619464ea1e061"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7eab4b86f724957357a23c79b5c904431b17438ab4217a70bca8047950a1a211"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:4fbca513cc113c5d6f67ff98e7744205e8ecabd64a1ca50ee544cd2d7a8dab30"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e12926ffced142b045ad1cb07530fa42becb90e494a6ef41bb2a2500229a5f3d"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:be6bc3a73eed401aac42e74824b3b55288e57b4cd0d36237d900ce433ec1cb18"
+    },
+    {
+      "intentRef": "CHK-003:edge:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e356045a5e45a32d6fe67dfd02bf5681caeb4d16b47143d5b45812c31092e53f"
+    },
+    {
+      "intentRef": "CHK-003:edge:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e3f15ce7c0205a673a36f6ac5e842a46a557ecea96268977fdf478450f2cf689"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6374fd07733da5252408af974d7518866ec9ebf5a986f9bddde3b102ea454ef6"
+    },
+    {
+      "intentRef": "CHK-003:happy:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c6b111b1d4cfae493d5489d402cad33b84e07faaf7ae31bc348cbad6b0a131b8"
+    },
+    {
+      "intentRef": "CHK-003:happy:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a5cd73686e1d9edeebd2753fd036ab50157e1f09f90176d98cc5edb9bf6d7714"
+    },
+    {
+      "intentRef": "CHK-003:happy:3",
+      "itemId": "CHK-003",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:928600b8790881f3c0666e9058f384fb8f7857d19782ec777458196a4ddc2d6d"
+    },
+    {
+      "intentRef": "CHK-003:happy:4",
+      "itemId": "CHK-003",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f261e61595d8591e59dc81e31a2c1b9a6c645b1d9de9efe4acae499adb64ca5d"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:52e34db9d6a1371c03119543665cd167133a92b5d30a2e54b6d79b59034a22b3"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7ecfe211fa1cf92d82d97b11cdd8b922ba9b05ea5c01b2cec0fba1c33ade9b45"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:2",
+      "itemId": "CHK-004",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3bdd0973363990fa61a2190092407de3793e5c69a41d74c2644c711c85cbb9c8"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7859df398d480c063df7fdfbee74bac5a7c0b4dc47468840185c47f31921830b"
+    },
+    {
+      "intentRef": "CHK-004:edge:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8b69ca0545b85852d57cd43412feb80b1bace062e4f1b3ae2262de6e1073d58b"
+    },
+    {
+      "intentRef": "CHK-004:edge:2",
+      "itemId": "CHK-004",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c1d5db7f180899cd5dbd55130e117c0d499189ed88506f9371fa828d062af603"
+    },
+    {
+      "intentRef": "CHK-004:edge:3",
+      "itemId": "CHK-004",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:64f1ca5e2554a9fdf1976e4621f3a6c9e3aec0631ac68ae0d305432950b0506f"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6b19047105761316ba6c95ca494b5fd0000e4602e7ceb53b80e2176e4fc4bb79"
+    },
+    {
+      "intentRef": "CHK-004:happy:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e100b9d01e9c79c21fdcfd7cac311e769b3edc47e2a12ef298d0f471d9c518a5"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 14,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:209059afb0b5fe78e877025eb489cfd051216f7473af20d7eb0059163b6947de"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 15,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b85ab8fd38fe5af09c1defdb4e847bad15177a8ddc9cd0953a38d3a578ea531f"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 16,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b902a9a2f990b6f7f0a11f07b8efa712e7a56538a271cbba7192444f473273b3"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5166f901538ad112521d1ceaa6a5fe07fc2080ee2145ad2907a5e9f3dc05931a"
+    },
+    {
+      "intentRef": "CHK-005:edge:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a54489c07236495e79976c4db42f63b5322d7fa5d09536de2f88234642ef15cd"
+    },
+    {
+      "intentRef": "CHK-005:edge:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3ded3a64b5c1ab28ed80a967b5f1effd126e7f3a4d7bcf22221b4df0ee04e534"
+    },
+    {
+      "intentRef": "CHK-005:edge:3",
+      "itemId": "CHK-005",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:458ab92948f932b0abdb6db6d6f807458386a1d6dcd69ee51a42be772bb37069"
+    },
+    {
+      "intentRef": "CHK-005:edge:4",
+      "itemId": "CHK-005",
+      "evidenceIndex": 12,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:06d362d938fa8acc53276d44a2329af5504a69c17f5f608fc9fe6149ce799fde"
+    },
+    {
+      "intentRef": "CHK-005:edge:5",
+      "itemId": "CHK-005",
+      "evidenceIndex": 13,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:57ed11b8e4b9d039f078f730fffccd63932e39eb50fd19edb334a332a56919c7"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:af32ccece0316921fd7add81b2e0d49926f99febb102915e517dd57118d1329d"
+    },
+    {
+      "intentRef": "CHK-005:happy:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f076a86678dedf0099fd4fb7815bafc88a07184ee5f625f0a80699ce0ed7aa0d"
+    },
+    {
+      "intentRef": "CHK-005:happy:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a8ecdf25cbde1b20aa58db56e1481c8ed8e612af02321eb06a5997e68e03b542"
+    },
+    {
+      "intentRef": "CHK-005:happy:3",
+      "itemId": "CHK-005",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7dcadef850fab4f83f3bd673468e55f28de242793f5d38ad05ed5a40ad35a771"
+    },
+    {
+      "intentRef": "CHK-005:happy:4",
+      "itemId": "CHK-005",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8f6affdd18f336e84d50fb9f61e495869d6da5b20403412e25726c62051736f1"
+    },
+    {
+      "intentRef": "CHK-005:happy:5",
+      "itemId": "CHK-005",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:39557daea9132736179bf8cea0ba6233381ba13fee6cbfaff39fd58391b76734"
+    },
+    {
+      "intentRef": "CHK-005:happy:6",
+      "itemId": "CHK-005",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:194f634a42cd3c0ecf1c097e7e6017edad9bbf7366f3d493cf07c603f523826a"
+    },
+    {
+      "intentRef": "CHK-005:happy:7",
+      "itemId": "CHK-005",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0639c8bd7082d46332fd7277e1ebf03c0bb8c9f13f35b10cd94fd7fd338ca6bb"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 12,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:339ab60112943485ff3427f72175b418442469d0af6db628d55b3a647d394da8"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:1",
+      "itemId": "CHK-006",
+      "evidenceIndex": 13,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:db171973f09d89848e894426f6fab77228e110617bd992f653b4d5ab5499d10b"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:2",
+      "itemId": "CHK-006",
+      "evidenceIndex": 14,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:330e2359f519b30e84b9ae17eab35fb938a515e86a2107ee2d4b336f4470c1a7"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:3",
+      "itemId": "CHK-006",
+      "evidenceIndex": 15,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ac0358b66747a9b261103c47871a8a4af8f7bc8174740a96cba82dec225e9d96"
+    },
+    {
+      "intentRef": "CHK-006:edge:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:825ee3ba28abd03037808c449f5e9f1adac1f5b24f2bae4ae591feee680ce4f2"
+    },
+    {
+      "intentRef": "CHK-006:edge:1",
+      "itemId": "CHK-006",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c62fab862170bebfd341df9c5b59580021d3de44545b7fe68565588154347ffc"
+    },
+    {
+      "intentRef": "CHK-006:edge:2",
+      "itemId": "CHK-006",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:126ed1ce3be03ccfe6cc37d887417be0aca6288ba2c1cabeda4e70f087f453f4"
+    },
+    {
+      "intentRef": "CHK-006:edge:3",
+      "itemId": "CHK-006",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:246ade577b5b7079381fa4e9923509eb9d7b54c81ecbc73f408ecce5ad6c6337"
+    },
+    {
+      "intentRef": "CHK-006:edge:4",
+      "itemId": "CHK-006",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:74612de65b9233eda0c05ba677f1308a88d46d755e776539b93e54f3f2cfb6a5"
+    },
+    {
+      "intentRef": "CHK-006:happy:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:31a7d57621cc699fc4ebaf3bf875945ef5591219e5033afb4bbe869134a8168c"
+    },
+    {
+      "intentRef": "CHK-006:happy:1",
+      "itemId": "CHK-006",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f7c2f967612f295171a2017fef366fbf9d36dde824a5f180df3808d3c1fa5a4f"
+    },
+    {
+      "intentRef": "CHK-006:happy:2",
+      "itemId": "CHK-006",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e5e75b6688eb9857de28aaf1ab7a240a8e44112e6555d3e9c130e01bbf3d1f09"
+    },
+    {
+      "intentRef": "CHK-006:happy:3",
+      "itemId": "CHK-006",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c0224bd43d024acee682c2e315bd8e285fb5e05b75d7905751399c3cc7433b42"
+    },
+    {
+      "intentRef": "CHK-006:happy:4",
+      "itemId": "CHK-006",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:01aa0c45f7962a827047aea0bef66967d761b0b79960f27eb61b0f2144c456e8"
+    },
+    {
+      "intentRef": "CHK-006:happy:5",
+      "itemId": "CHK-006",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:bc98add5fff2e86ef18618f0d8beb21614384dbb973b0a1790c1256ec5c6a9ae"
+    },
+    {
+      "intentRef": "CHK-006:happy:6",
+      "itemId": "CHK-006",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5bc4f53c041d75d7d7d1459122db23630496c94ab7343e4d569aa0c92d4c2dd2"
+    },
+    {
+      "intentRef": "CHK-007:adversarial:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:efe29b98aaba24fa771d39a08dc7f293000cd45da65eb8191eee52176bbef65e"
+    },
+    {
+      "intentRef": "CHK-007:adversarial:1",
+      "itemId": "CHK-007",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1b07548af5d1733b60a83f23098f15a9af8529a9dad53fcf164b6522ea98d5e8"
+    },
+    {
+      "intentRef": "CHK-007:edge:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6e26647d7b4bffb5985b012ee8d3bd75c7625b0bd8086f6df67a1087634b6910"
+    },
+    {
+      "intentRef": "CHK-007:edge:1",
+      "itemId": "CHK-007",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c2dd87706bff3ece84aea6d16cb3bbd5c89d60b5426feb34802b6f86e474edf0"
+    },
+    {
+      "intentRef": "CHK-007:happy:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:43662bd4669eea512d4c064e9750e0f7d930521f86ead2fef1fa86b31cd6fc53"
+    },
+    {
+      "intentRef": "CHK-007:happy:1",
+      "itemId": "CHK-007",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2f8b807f0db17a1405da112bf493d1f25e86db07fa7fbeb3926781ed79340a33"
+    },
+    {
+      "intentRef": "CHK-008:adversarial:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:71b21416736c99fef3bcaaaa802f9c13d4b7703917effe850cc1664874587b97"
+    },
+    {
+      "intentRef": "CHK-008:adversarial:1",
+      "itemId": "CHK-008",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6290f1e2f228ef71cdfa58914dc17e8ddd9d9cb0cc71d8b27f640a3d15ab14c6"
+    },
+    {
+      "intentRef": "CHK-008:adversarial:2",
+      "itemId": "CHK-008",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:fc8baa164d5a87a761bdedfa4de568cc9e4bcdad1cc3881ed6a8fd31caf9e2a5"
+    },
+    {
+      "intentRef": "CHK-008:edge:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8c5fa67d058cf8f8a1d366b93dee58181287a154a3615f60a71099fd0105212e"
+    },
+    {
+      "intentRef": "CHK-008:edge:1",
+      "itemId": "CHK-008",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:94f091743724ec0ab6d08ac92a08c97b6e8e0f13180d4599bfdc202e2c9cc0ba"
+    },
+    {
+      "intentRef": "CHK-008:happy:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b4abba88dc78cdffb3342fd87c7e2f70e403bd856b273ceed0528ea7d52b5bf0"
+    },
+    {
+      "intentRef": "CHK-008:happy:1",
+      "itemId": "CHK-008",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:80ce0406c8efb1bfe99a10f93898df7ae2707edcc0ab6a101d4d5647bac2420c"
+    },
+    {
+      "intentRef": "CHK-008:happy:2",
+      "itemId": "CHK-008",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:27721ecea6981a0fcb24c50ed4188a64e9cf31598e297ba2e9dd62f5b960f44d"
+    },
+    {
+      "intentRef": "CHK-008:happy:3",
+      "itemId": "CHK-008",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:492fe7a5a796c4d55726fa0bf62c8ef42c4669ee5a8208ec9c1b86e057049bf3"
+    },
+    {
+      "intentRef": "CHK-009:adversarial:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 4,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:cf70717ae83eea95578e1798416dbb1100741ef42284cb98d04c21794f0fc0eb"
+    },
+    {
+      "intentRef": "CHK-009:adversarial:1",
+      "itemId": "CHK-009",
+      "evidenceIndex": 5,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:e6c19b0c9212a839afafcb28f0004dd62c8f0781ea0c5308daaf647c750d9276"
+    },
+    {
+      "intentRef": "CHK-009:edge:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 2,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:5a85cd4a99deffa6acc21cf652ed4d33c45d22d159447fdeec332a2e309899b2"
+    },
+    {
+      "intentRef": "CHK-009:edge:1",
+      "itemId": "CHK-009",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:481a4d909c8ec35c28d9d11381726cafa24257d85ab5ab20a9362ba3d272f61e"
+    },
+    {
+      "intentRef": "CHK-009:happy:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 0,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:c79442f7d563bb2e50d391cc6ccb391c45bc8e62a099eeaba6eb849765c29292"
+    },
+    {
+      "intentRef": "CHK-009:happy:1",
+      "itemId": "CHK-009",
+      "evidenceIndex": 1,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:1861eef315b9c48c70b1d2aa0a2c0de33095e457939cddf169ad0fe20e909e58"
+    },
+    {
+      "intentRef": "CHK-010:adversarial:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f4c75320df54a39b434a3607bbb120e5e4c9b40d66d4060744b8290cf37957d3"
+    },
+    {
+      "intentRef": "CHK-010:adversarial:1",
+      "itemId": "CHK-010",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a39bf994336606316276ebdca32a68d48e0ff8d9dc1e318272e9bc994938346b"
+    },
+    {
+      "intentRef": "CHK-010:edge:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f40928d8d081c38179e63a49b4d6f2720524aa66a7e894332a15744d26bd95fe"
+    },
+    {
+      "intentRef": "CHK-010:edge:1",
+      "itemId": "CHK-010",
+      "evidenceIndex": 5,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:9bbec3d1a007a56db2304c29c5d2d2934027737f2c0e7983a88051351be4bb58"
+    },
+    {
+      "intentRef": "CHK-010:edge:2",
+      "itemId": "CHK-010",
+      "evidenceIndex": 6,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:c4cc3119ec8116c741adc24f3a7f84b43291696ab1b9fb73e3cb07a0888f6a9b"
+    },
+    {
+      "intentRef": "CHK-010:happy:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a021b7748c238f7436f889995e379a71d8a3c78f5ebb90612553d36c7a374fb6"
+    },
+    {
+      "intentRef": "CHK-010:happy:1",
+      "itemId": "CHK-010",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:281e1ee1e7a401f5b89f615ce8da9e3138c8711d0cd7df297ac94c1257f2392c"
+    },
+    {
+      "intentRef": "CHK-010:happy:2",
+      "itemId": "CHK-010",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b6a715bda4d9f87d5c0e9057fc3e21b0cf12b22ea873a5065c8bde01676dd021"
+    },
+    {
+      "intentRef": "CHK-010:happy:3",
+      "itemId": "CHK-010",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:915e38ad4dd0eec3625f7834e183cf3a55fa8581d799b908972d7997fad78e51"
+    }
+  ],
+  "executableProof": {
+    "schemaVersion": "proofstory.pre_review_executable_proof.v1",
+    "storyId": "B-c054",
+    "producer": "registered-verification-command",
+    "verifier": "pre-review-check-command-runner",
+    "commandDigests": [],
+    "caseRecordsEncoding": "gzip-base64",
+    "caseRecords": "",
+    "provenance": {
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
+    },
+    "bindingProofs": []
+  },
+  "codes": [
+    "PR_NEW_PATH_UNMAPPED",
+    "PR_COVERAGE_BASIS_CHANGED",
+    "PR_COVERAGE_INCONCLUSIVE",
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE"
+  ],
+  "status": "inconclusive",
+  "issuedAt": "2026-07-25T04:36:16.976Z",
+  "signerPublicKey": "00gcM7H5Amw/DnKQu6nfdIUKn5PpXXjYXeTQE79mpv0=",
+  "signature": "Dh9op6cc2tI+r9yZYbZ69r8BnhhUG8mDqHk/8yQBlEIrhbiEqltg3ESY01qe2Fq9ypFlUhZ/6mtfNu5yiS8UCQ=="
+}

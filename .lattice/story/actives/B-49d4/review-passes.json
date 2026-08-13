@@ -1,0 +1,101 @@
+{
+  "passes": [
+    {
+      "id": "B-49d4:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Round-2+ quality re-review after CL-004 (F-006/F-007 fix) + def4df7f18 + 0b1ef6a6f7. Live-ran red-b49d4-registration-derivation.mjs (26/26 GREEN), red-b49d4-harness-registration.mjs (32 registered + 3 excluded, exit 0), red-b49d4-chk002-receipt.mjs (exit 0, matches waiver-quoted counts verbatim). F-006 fix verdict: legitimate narrowing, DECIDED genuinely bites (DECISION_ARM_IS_LIVE row empirically drops a candidate to unaccounted on this run) and both failure directions (unaccounted member, unreadable decision record) are loud RED, never silent GREEN; no coverage of substance is lost because the two real b2aa7 receipts remain both spawned-in-practice (chk007) and decided-on-record, only the false spawned-claim for the b49d4 receipt was removed. Six waivers verdict: honest, not a dodge -- CHK-001s three are permanently unearnable by construction (receipt now silent forever once the artifact it gates is fixed) and CHK-003s three are stale only because a literal-count selector text no longer matches post-fix live output while the underlying proposition still holds (verified live output matches each waiver notes quoted string exactly); re-earning would require either reintroducing a regression or a PLAN-owned re-pin (verificationIntent is phase-frozen per checklist.ts:1287-1290, confirmed in source). Noted as an irony worth a future PLAN follow-up: CHK-003s own selectors pinned literal counts, the exact anti-pattern this story exists to eliminate -- recommend a lightweight follow-up to re-pin those three intents to structural markers rather than counts, non-blocking. F-002 (open, medium): read is DEFER, not blocking -- empirically and by construction any divergence between the three registered-or-excluded map implementations cannot silently pass, because each guard independently fails loud (undecided/wronglyRegistered) against the same ground-truth config; verified this directly when a transient uncommitted edit to red-b49d4-harness-registration.mjs (external to this diff, self-reverted before I could attribute it, not caused by any writeFileSync path in the reviewed sources) dropped one exclusion entry and the guard failed loudly naming it, corroborating the fail-loud claim. Real cost of F-002 is DRY/maintenance burden (3 places to update prose), not a live coverage gap; a shared canonical exclusion-reasons module would also require touching red-b2aa7-chk007-receipt.mjs which is outside this storys declared scope contract. No new blocking defects found. Dead-code/type-safety/IO-isolation checks clean on all changed files; no unused imports; all catch blocks have safe fail-loud fallbacks; no CLAUDE.md/README changes so no doc-promise-undelivered risk.",
+      "createdAt": "2026-07-27T19:59:40.634Z",
+      "reviewRound": "2026-07-27T19:47:16.995Z",
+      "reviewRunId": "B-49d4:RR-009",
+      "envelopeId": "f564329297cc35cbb2674ca6a3a93f23e3d92b44fdb1523f7534a55f2babe43e",
+      "writerSessionId": "sess-14ce788c48429840fd642741e2150a60",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49d4/checklist.json",
+          ".lattice/story/actives/B-49d4/scope-check.json",
+          ".lattice/story/actives/B-49d4/scope-contract.json",
+          "lattice.config.json",
+          "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-49d4/decision.json",
+          ".lattice/story/actives/B-49d4/findings.json",
+          ".lattice/story/actives/B-49d4/plan.md",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1c8be912a39c4e37b3dbda892f0e06a3c9c36b7a2c99460f454b34b223e2e75d"
+    },
+    {
+      "id": "B-49d4:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round follow-up on F-001/F-002/F-003/F-006. F-001 and F-003 fixes verified sound (mirror-based probing, audited BLOCK D self-mention skip with bite proven both directions). F-006 fix verified: derive() no longer computes reachability by textual BFS; it claims only REGISTERED and DECIDED and explicitly disclaims EXECUTED. No live concept residue of reachability/NEVER-RUN found -- the only remaining textual traces are an explicitly-documented, permanently-frozen historical receipt (red-b49d4-chk001-receipt.mjs, whose header names F-005/F-006 and states the old row IDs are historical) plus matching waiver notes in checklist verificationEvidence, and PLAN-phase artifacts (plan.md/decision.json/understanding.json) that are frozen-at-DEV-start problem framing, not live shipped-code claims -- neither counts as unaddressed residue. F-002 remains open (my own finding, medium, does not block this critical-only round): disposition is DEFER, not fix-now or dismiss. Reasoning: (1) the duplication's practical blast radius is bounded -- both chk007 and harness-registration are independently registered and each checks its OWN exclusion map every run, so any one-sided edit surfaces as a FAIL on at least one of them, unlike F-001/F-003/F-006 which were silent false-greens; (2) a proper fix means editing red-b2aa7-chk007-receipt.mjs, which is itself a PINNED verification receipt for the already-DONE sibling story B-2aa7 (its checklist.json pins an exact outputDigest/outputTail for CHK-007) -- touching it deserves its own deliberate RED-first treatment (this story's own methodology) as a follow-up, not a rushed round-3+ patch under critical-only blocking pressure. Filed F-008 (low) with additional evidence: the DECIDED/'excluded' label has forked into three different enforcement STRENGTHS (chk007 behaviorally re-verifies its own excluded entries every run; harness-registration only bookkeeps, with zero live re-verification for its own third entry red-b49d4-chk001-receipt.mjs; derive() is a third, purely-advisory pass-through of harness-registration's map) -- currently low-risk because the unverified entry's underlying artifact is independently registered, but the shared label no longer means one consistent thing. Checked for other silent naming-based behavior forks post-F-003: none found -- BLOCK D's mention-skip and BLOCK C's decidedNames extraction are both scoped, audited reads of declared data, not textual-mention inference. No critical finding this round.",
+      "createdAt": "2026-07-27T20:00:06.826Z",
+      "reviewRound": "2026-07-27T19:47:16.995Z",
+      "reviewRunId": "B-49d4:RR-013",
+      "envelopeId": "6ddc767fdec21ede564dd9586a626e1700cfb63f56afeb80a6d2e9bdfa1d391d",
+      "writerSessionId": "sess-14ce788c48429840fd642741e2150a60",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49d4/plan.md",
+          ".lattice/story/actives/B-49d4/scope-contract.json",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-2aa7/checklist.json",
+          ".lattice/story/actives/B-49d4/checklist.json",
+          ".lattice/story/actives/B-49d4/decision.json",
+          ".lattice/story/actives/B-49d4/understanding.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3757a1bed7e03831adf32a127eff5d7666328fc83ce1353edd542918a46941f4"
+    },
+    {
+      "id": "B-49d4:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Verified F-005/F-006/F-007 fixes are genuine (not narrower framing): reproduced DECIDED-arm bite by removing an exclusion entry from the real committed decider (both the decider and the spawning derivation guard correctly went RED naming the dropped member), reproduced the shape-arm bite by removing a src/tasks .ts counterpart (row went RED), confirmed no live code claims execution/reachability anymore (only dead code in the excluded, 0-byte, unregistered pre-fix receipt), and swept all 32 registered red/*.mjs for vacuity (none silent) plus the 3 excluded ones (all confirmed silent/0-byte, matching their stated reasons). Filed F-009 (medium, non-blocking) for a real but trivially-fixable gap: CHK-002 evidence is storyFilesHash-stale after the fix commits, unlike CHK-001/CHK-003 it reproduces cleanly on re-run and should just be refreshed before DONE. No other blocking gaps found in this round.",
+      "createdAt": "2026-07-27T20:11:32.824Z",
+      "reviewRound": "2026-07-27T19:47:16.995Z",
+      "reviewRunId": "B-49d4:RR-011",
+      "envelopeId": "81cc41ffe9e2c8a4fc812c261497536bccd36453eb6fe47102acd68df6d861fe",
+      "writerSessionId": "sess-14ce788c48429840fd642741e2150a60",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-49d4/background.md",
+          ".lattice/story/actives/B-49d4/checklist.json",
+          ".lattice/story/actives/B-49d4/plan.md",
+          "lattice.config.json",
+          "packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-harness-registration.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/tests/red/red-b2aa7-artifact-validation.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs",
+          "packages/main/tests/red/red-b49d4-chk002-receipt.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "506fcb1c6bb1c4bb49128fe4a5ad6fda3b79a4a44007b943b353e0dee32f4a5f"
+    }
+  ]
+}

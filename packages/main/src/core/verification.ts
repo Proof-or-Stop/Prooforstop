@@ -2,9 +2,10 @@ import type {
   ChecklistData,
   ChecklistItem,
   VerificationCoverageEntry,
-  VerificationCoverageReport,
   VerificationEvidence,
   VerificationIntentItem,
+  VerificationIntentType,
+  VerificationCoverageReport,
   VerificationLane,
   VerificationPriority,
 } from './types.js';
@@ -15,6 +16,7 @@ import { evaluateAttestationEvidence, type AttestationIssue } from './attestatio
 import { evaluateActorTrustEvidence, type ActorTrustIssue, type ActorTrustOptions } from './actor-trust.js';
 import { evaluateFactProvenanceEvidence, type FactProvenanceIssue, type FactProvenanceOptions } from './fact-provenance.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
+import { isWithdrawnChecklistStatus } from './checklist-status.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -44,6 +46,100 @@ export function collectVerificationIntents(item: ChecklistItem): Array<{
 
 export function evidenceMatches(evidence: VerificationEvidence, ref: string): boolean {
   return evidence.intentRef === ref;
+}
+
+/** Matches a script-like path tail: .js/.ts/.cjs/.mjs/.cts/.mts. */
+const SCRIPT_EXT_RE = /\.(?:c|m)?[jt]s$/;
+
+/** Basename stem of a path-like token when it names a script file, else null. */
+function scriptFileStem(pathLike: string): string | null {
+  const base = (pathLike.trim().split(/[\\/]/).pop() || '');
+  if (!SCRIPT_EXT_RE.test(base)) return null;
+  return base.replace(SCRIPT_EXT_RE, '');
+}
+
+/** The target-file stem a command runs: the last script-like token, else null. */
+function commandTargetStem(command: string): string | null {
+  let stem: string | null = null;
+  for (const token of command.trim().split(/\s+/)) {
+    const s = scriptFileStem(token);
+    if (s) stem = s;
+  }
+  return stem;
+}
+
+/**
+ * B-3b88 CHK-001: detect an internally self-contradictory evidence row whose
+ * `command` names one target script and whose `file` field names a different
+ * one (F-049: command→gate-repeat-block-smoke.js, file→convergence-breaker-smoke.ts).
+ * Returns a human-readable reason when the two disagree, else null.
+ *
+ * Conservative by design (no false positives): only fires when BOTH a command
+ * target stem AND a file stem are derivable. Comparison is on the basename stem,
+ * so dist↔src and .js↔.ts spellings of the same target are NOT a contradiction;
+ * a command with no script argument (e.g. `npm test`) yields no stem and is allowed.
+ */
+export function detectEvidenceRowContradiction(row: { command?: string; file?: string }): string | null {
+  const command = typeof row.command === 'string' ? row.command.trim() : '';
+  const file = typeof row.file === 'string' ? row.file.trim() : '';
+  if (!command || !file) return null;
+  const cmdStem = commandTargetStem(command);
+  const fileStem = scriptFileStem(file);
+  if (!cmdStem || !fileStem) return null;
+  if (cmdStem !== fileStem) {
+    return `evidence row is self-contradictory: command targets "${cmdStem}" but the file field names "${fileStem}"`;
+  }
+  return null;
+}
+
+/**
+ * B-ec67: the command-executable verification intent types. logic|cli|browser can be
+ * proven by running a pinned command; manual|docs are attestation-only.
+ */
+const EXECUTABLE_INTENT_TYPES: ReadonlySet<VerificationIntentType> = new Set<VerificationIntentType>(['logic', 'cli', 'browser']);
+
+export function isExecutableIntentType(type: VerificationIntentType): boolean {
+  return EXECUTABLE_INTENT_TYPES.has(type);
+}
+
+/**
+ * B-ec67 CHK-004 — the GATE-side escape-hatch closure. Given an executable intent's
+ * evidence that would otherwise be scored 'covered', decide whether it truly covers:
+ *
+ *  - mechanical === true  → an executed receipt; covers ONLY when the receipt proves
+ *    it (selectorMatched && exitCode === 0). Anything else is non-mechanical.
+ *  - mechanical === false → an explicit non-mechanical attestation (manual|docs
+ *    recorded against an executable intent, or the audited escape). NEVER covers —
+ *    this is what stops `type:manual` from being a universal bypass at the gate.
+ *  - mechanical === undefined → legacy prose-only evidence written before B-ec67.
+ *    Grandfathered: keeps its historical 'covered' status so in-flight stories do
+ *    not hard-break. This is SAFE (not a bypass) because after B-ec67 F-006/F-007/F-001
+ *    NO write path can mint mechanical:undefined for a NEW executable-intent write:
+ *      - verification_evidence_add / _batch_add refuse an executable write that provides
+ *        neither a selector (→ mechanical:true receipt) nor a nonMechanicalReason
+ *        (→ mechanical:false attestation) [executable_intent_requires_selector_or_reason];
+ *      - checklist_update's bulk setter refuses a fabricated executable pass row
+ *        [checklist_update_executable_evidence_unenforced];
+ *      - verification_evidence_refresh_stale carries mechanical/receipt/nonMechanicalReason
+ *        forward (and demotes a refreshed receipt to mechanical:false) instead of dropping
+ *        them.
+ *    So `mechanical === undefined` on an executable intent ⟺ genuinely pre-mechanism legacy
+ *    data loaded from disk. Do NOT globally demote undefined here — that would hard-break
+ *    every in-flight story's grandfathered prose evidence (the migration break).
+ *
+ * Non-executable (manual|docs) intents are unaffected and stay 'covered'.
+ */
+function coverageStatusForCoveredEvidence(
+  type: VerificationIntentType,
+  evidence: VerificationEvidence,
+): VerificationCoverageEntry['status'] {
+  if (!isExecutableIntentType(type)) return 'covered';
+  if (evidence.mechanical === true) {
+    const receipt = evidence.receipt;
+    return receipt && receipt.selectorMatched && receipt.exitCode === 0 ? 'covered' : 'non_mechanical';
+  }
+  if (evidence.mechanical === false) return 'non_mechanical';
+  return 'covered'; // mechanical === undefined → legacy grandfather
 }
 
 /**
@@ -110,6 +206,10 @@ export function buildVerificationCoverage(
   const actorTrustIssues: ActorTrustIssue[] = [];
   const factProvenanceIssues: FactProvenanceIssue[] = [];
   for (const item of cl.items) {
+    // B-1909 CHK-002: a withdrawn item is recorded-undeliverable; its verification
+    // intents are no longer part of the story's required coverage, so they never
+    // appear as required/blocking entries. (Terminal but not delivered.)
+    if (isWithdrawnChecklistStatus(item.status)) continue;
     for (const collected of collectVerificationIntents(item)) {
       const priority = collected.intent.priority || 'must';
       const evidence = pickEvidence(item, collected.ref);
@@ -124,7 +224,11 @@ export function buildVerificationCoverage(
           !headMatches(evidence.headHash, currentHead) &&
           !(isEvidenceFresh?.(evidence.headHash, evidence) ?? false)
         ) status = 'stale';
-        else status = 'covered';
+        // B-ec67 CHK-004: an executable intent is 'covered' ONLY by an executed
+        // receipt (or grandfathered legacy evidence); a non-mechanical attestation
+        // is demoted to 'non_mechanical'. Lives HERE in the coverage gate — not only
+        // in the write handler — so recording type:manual cannot bypass execution.
+        else status = coverageStatusForCoveredEvidence(collected.intent.type, evidence);
 
         // Evidence quality classification (balanced: warning, strict: blocking)
         if (status === 'covered' && qualityProfile !== 'light') {

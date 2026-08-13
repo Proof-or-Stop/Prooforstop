@@ -14,6 +14,7 @@ import { join } from 'path';
 import type { StoryPhase, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
 import { summarizeReviewerStatus } from './reviewer-status.js';
+import { isTerminalChecklistStatus } from './checklist-status.js';
 
 // ── Public types ──
 
@@ -130,7 +131,9 @@ function hasSummary(store: StoryStore, storyId: string): boolean {
 function isChecklistAllDone(store: StoryStore, storyId: string): boolean {
   try {
     const cl = store.readChecklist(storyId);
-    return cl.items.length > 0 && cl.items.every(i => i.status === 'done');
+    // B-1909 CHK-002: a withdrawn item is terminal (accounted for), so a
+    // checklist of done+withdrawn items counts as all-done for phase readiness.
+    return cl.items.length > 0 && cl.items.every(i => isTerminalChecklistStatus(i.status));
   } catch {
     return false;
   }

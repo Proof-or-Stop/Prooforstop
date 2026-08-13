@@ -237,3 +237,7 @@ Don't hard-guess and keep going.
 - "The checklist context was written wrong, I edited it on the way" → violates a hard rule, checklist metadata is the main agent's domain
 - "I'm not sure whether the main agent wants A or B, so I'll do A first and see" → not allowed, stop and ask
 - "Let me write the return summary in more detail so the main agent can understand it" → not allowed, 2–5 line hard ceiling
+
+## Acceptance rollout boundary
+
+Use verifier-owned `acceptance_topology_check` and `pre_review_check_read`; prompt prose is never gate evidence. Inspect `acceptance_rollout_report_read` and `acceptance_rollout_check`, and require a current signed PASS receipt with genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), never degraded 3x1. Observe/warn/enforce must keep identical status and diagnostics; enforce alone blocks. Rollback only changes `proofStory.acceptanceRolloutGateMode` to warn/observe and must preserve every report, receipt, diagnostic, and prior evidence.

@@ -26,7 +26,15 @@ import {
   renderAuxiliaryClassification,
   scanAuxiliaryWorktreeResidues,
 } from '../core/auxiliary-worktree-cleanup.js';
+// B-70a6 F-005: the zombie repair below writes a TERMINAL phase out of band, so it
+// must rescue any pending reopen audit first. handlers/transition-orchestrator.ts
+// does not import this module, so the dependency stays one-directional.
+import {
+  reconcileReopenAuditBeforeOutOfBandPhaseChange,
+  renderOutOfBandReopenAuditNotice,
+} from './transition-orchestrator.js';
 import { summarizeChecklist } from './checklist.js';
+import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 
 // B-7c05 CHK-004: phases treated as terminal for the brief story_list default.
@@ -565,7 +573,11 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
         const bugs = sourceStore.readBugs(id);
         const evidence = sourceStore.readTestEvidence(id);
 
-        const clDone = cl.items.filter(i => i.status === 'done').length;
+        // B-1909 CHK-002: clDone counts DELIVERED (done) items only; withdrawn
+        // items are terminal-but-not-delivered and surfaced separately so the row
+        // never renders a withdrawn item as done nor looks permanently stuck.
+        const clDone = cl.items.filter(i => isDeliveredChecklistStatus(i.status)).length;
+        const clWithdrawn = cl.items.filter(i => isWithdrawnChecklistStatus(i.status)).length;
         const clTotal = cl.items.length;
         const bugsOpen = bugs.bugs.filter(b => b.status === 'open').length;
         const bugsFixed = bugs.bugs.filter(b => b.status === 'fixed').length;
@@ -590,7 +602,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           priority: story.priority,
           type: story.type,
           ...(mainPhase ? { mainPhase } : {}),
-          checklist: clTotal > 0 ? `${clDone}/${clTotal}` : '-',
+          checklist: clTotal > 0 ? `${clDone}/${clTotal}${clWithdrawn > 0 ? ` +${clWithdrawn}w` : ''}` : '-',
           bugs: bugsOpen > 0 ? `${bugsOpen} open, ${bugsFixed} fixed` : (bugsFixed > 0 ? `${bugsFixed} fixed` : 'none'),
           tests: evidence && evidence.result ? evidence.result.toLowerCase() : 'none',
           ...(metricsField ? { metrics: metricsField } : {}),
@@ -752,8 +764,41 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
           }
 
           if (repair) {
+            // B-70a6 F-005: this repair writes the TERMINAL phase DONE directly
+            // (see below) — it never routes through runStoryTransitionInner, so
+            // the reopen-audit reconciliation that runs there never runs here,
+            // and after DONE there is no transition left to heal a crashed
+            // reopen. The worktree removal a few lines down can also destroy the
+            // copy holding the record. Rescue the audit event FIRST, into the
+            // surviving store's log, and only THEN read the story object that the
+            // phase write persists (reading it earlier would resurrect a record
+            // the rescue just cleared). Never throws: the repair is legitimate.
+            //
+            // CONCURRENCY RESIDUAL (B-70a6 F-013): a ONE-TIME SCAN, taken WITHOUT
+            // the per-story transition lock, so it covers only a record already
+            // on disk when the repair starts — never a reopen racing it. The lock
+            // is deliberately NOT taken HERE in particular: this whole repair
+            // already runs inside withMainWriteLock (see the call at the bottom of
+            // story_reconcile), while the established order is transitionLock ->
+            // mainWriteLock, so acquiring it here would invert that order and let
+            // a repair sit on the main write lock waiting for a transition that is
+            // itself fail-fasting on the main write lock. B-70a6 F-014: that
+            // lock-order reason is SPECIFIC TO THIS SITE and must not be carried
+            // over to story_discard, which takes its main write lock only AFTER
+            // its rescue and destruction and so would not invert anything; the
+            // reasons that hold there are different ones. Full reasoning + the
+            // follow-up scope live on
+            // reconcileReopenAuditBeforeOutOfBandPhaseChange.
+            const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({
+              storyId: z.storyId,
+              store,
+              recordRoots: [z.worktreePath],
+            });
             const story = store.readStory(z.storyId);
             const actions: string[] = [];
+            for (const notice of renderOutOfBandReopenAuditNotice(z.storyId, reopenAuditRescue)) {
+              lines.push(`    ${notice}`);
+            }
 
             // Clean up worktree directory
             if (z.worktreeExists && z.worktreePath) {

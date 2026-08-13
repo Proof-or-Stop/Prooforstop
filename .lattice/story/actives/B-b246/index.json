@@ -4,11 +4,11 @@
   "title": "Tier-C provider-execution receipt verification (claude) run 13199-3007-1782241868: add a one-lin",
   "description": "Tier-C provider-execution receipt verification (claude) run 13199-3007-1782241868: add a one-line code comment so the delegated claude provider step has a trivial bounded task to execute, producing a signed gate_decision receipt.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "DISCARDED",
   "priority": "high",
   "createdAt": "2026-06-23T19:11:08.582Z",
   "startedAt": "2026-06-23T19:11:08.582Z",
-  "endedAt": null,
+  "endedAt": "2026-08-12T17:34:42.503Z",
   "events": [
     {
       "phase": "INIT",
@@ -18,6 +18,16 @@
       "user": "Harmonygo",
       "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
       "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-08-12T17:34:42.503Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-d6bd127d84f15dd24c67da2e4f2a4de6",
+      "agent": "main",
+      "reason": "Stale synthetic Tier-C validation task: one of ~22 procedurally-identical stories auto-created 2026-06-23 within a single 7-hour window by an autonomous planner (trigger prun-*-autonomous-force-*), used to stress-test the Tier-C cross-host quorum/receipt-verification pipeline itself, not a real feature request. Identical generic checklist ('Implement the requested Lattice change' / 'Verify evidence and DONE boundaries'), zero progress since creation. Bulk-discarded 5+ weeks later after the campaign concluded, on user confirmation."
     }
   ]
 }

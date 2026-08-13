@@ -2,6 +2,7 @@ import { execFileSync } from 'child_process';
 import { buildDoneChecklist, type DoneCheckRow } from './done-oracle.js';
 import { tryCaptureEvidenceHashSnapshot, type EvidenceHashSnapshot } from './evidence-freshness.js';
 import { getBlockingVerificationEvidenceIssues } from './verification.js';
+import { isTerminalChecklistStatus, isWithdrawnChecklistStatus } from './checklist-status.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
 import { collectReviewerEvidenceState } from './review-run.js';
@@ -268,7 +269,8 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
     return rows;
   }
 
-  const pending = checklist.items.filter((item) => item.status !== 'done');
+  // B-1909 CHK-002: withdrawn items are terminal, not outstanding.
+  const pending = checklist.items.filter((item) => !isTerminalChecklistStatus(item.status));
   if (pending.length > 0) {
     rows.push(row({
       id: 'review.checklist_status',
@@ -290,7 +292,15 @@ function buildReviewTargetRows(store: StoryStore, storyId: string, projectRoot: 
       owner: 'host',
       category: 'advisory',
       code: 'checklist_items_done',
-      reason: `${checklist.items.length}/${checklist.items.length} checklist item(s) done`,
+      reason: (() => {
+        const total = checklist.items.length;
+        const withdrawn = checklist.items.filter((item) => isWithdrawnChecklistStatus(item.status)).length;
+        // B-1909 CHK-002: withdrawn items are terminal but NOT delivered; report
+        // them distinctly so the pass reason never overstates delivered coverage.
+        return withdrawn > 0
+          ? `${total - withdrawn}/${total} checklist item(s) done, ${withdrawn} withdrawn`
+          : `${total}/${total} checklist item(s) done`;
+      })(),
       blocking: false,
     }));
   }

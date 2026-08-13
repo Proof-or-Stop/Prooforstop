@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9ff1",
+  "mode": "feature",
+  "allowed": [
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/red-evidence/envelope.ts — envelope schema types + validators",
+    "packages/main/src/core/red-evidence/specificity.ts — the three minimum-specificity rules + entropy formula",
+    "packages/main/src/core/types.ts — envelope + assertion types",
+    "packages/main/src/handlers/red-evidence.ts — the red_evidence_envelope_check handler",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/red-evidence-envelope-smoke.ts — the smoke",
+    "packages/main/tests/red/ — committed RED test artifacts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excluded": [
+    "modifying any gate verdict, gate wiring, or the enforcement flip",
+    "receipt persistence and chunk-framing structures — reserved for a later leaf",
+    "spawning child processes or capturing their output — that machinery belongs to leaf W2e",
+    "the GREEN confirmation append entrypoint"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-directed W2d from the DONE red-evidence spec (sections 1.1, 1.3, 1.11.4, assertionDigest); scope = envelope schema validation + matcher admissibility + a read-only pre-flight command. excludedScope worded distinctly from the background prose to avoid substring collision.",
+  "createdAt": "2026-08-13T16:23:10.165Z",
+  "updatedAt": "2026-08-13T16:23:10.165Z",
+  "_hash": "036b8f69f6d61032bfa42d0da37ab58f470801bfc5396a52b91c97ee25a40947"
+}

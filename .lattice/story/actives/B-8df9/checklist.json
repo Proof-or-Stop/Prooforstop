@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Prove or refute by execution that a hand-edited init-check.json passes the gate unchanged",
+      "context": "Repro-first, and note the corrected premise: signInitCheck never takes agentResults as input, so the test is NOT the discarded draft's two-step 'tamper then re-sign' sequence. Test the one-step claim: in an isolated fixture (never a real story), edit agentResults directly, make NO init_check_set call, then check whether _hash still validates and whether the INIT->INIT_CHECK guard accepts it. Record the observed outcome even if it refutes the premise; a refutation re-scopes items 2-6 rather than being a failure. Probe the fallback-block-drop separately, checking it is lost after the FIRST ordinary call rather than when the attestationMode label flips.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind agentResults and issues into the signature domain",
+      "context": "signInitCheck at core/init-check-gate.ts:133-143 and recomputeInitCheckHash at :133-172. Both fields must be covered; fixing agentResults alone leaves an equivalent hole because the same edit can erase a recorded critical issue. Handle all six on-disk shapes (canonical pair, koala pair, two distinct @fallback pairs, three-entry historical-actor files, and files with no agentResults where initCheckAgentResults synthesizes from top-level fields). Decide explicitly what an absent field hashes to. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify _hash before trusting previous.agentResults on read",
+      "context": "store.readInitCheck (core/store.ts:566-572) is a bare readJson; the carry-forward at handlers/init-check.ts:138-142 trusts it. This does not cause the gate bypass but does admit data no caller wrote into a subsequently re-signed file. Decide what happens on mismatch: refusing to carry forward is not the same as refusing to read, and that difference decides whether the audit-only majority of the corpus becomes unreadable. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Preserve the fallback audit block across the merge",
+      "context": "handlers/init-check.ts:144-152 constructs the output without the fallback block written by init_check_repair (reason/actor/session/headHash). It is lost after the first ordinary call, before the initCheckAttestationMode label flips, so the durable evidence of a human attestation disappears earlier than the label advertising it. Preserve it and cover the transition with a test. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Choose and justify the migration position for the existing corpus",
+      "context": "Re-derive the counts first; do not trust the background's figures. Structure of the argument: only files whose owning story is in INIT are operationally gated (canEnterInitCheckGuard early-returns otherwise, core/machine.ts:440) - at the measured commit that was 1 of 637 - so the real choice is one operational break versus roughly 636 audit-replay breaks. Critically, about 195 of 637 files carry a registry-invalid actor, overwhelmingly the pre-rename koala-review-story-init (zero occurrences in AGENT_DISPATCH_REGISTRY), so re-signing the corpus by routing through the handler is not implementable and any design assuming it is must be rejected. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Re-examine the owner-lease exemption whose stated justification this falsifies",
+      "context": "core/command-policy.ts:396 marks init_check_set ownershipClass reviewerWrite, exempt from the owner lease, justified as 'bound by its INIT signature gate'. If items 1-3 confirm that gate did not bind the verdict, the exemption rested on a false premise: either restate a justification that is now true, or record why the exemption holds independently of the signature. CONDITIONAL ON CHK-001: if CHK-001's execution refutes the premise, re-scope this item before doing any of it rather than executing it as written.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

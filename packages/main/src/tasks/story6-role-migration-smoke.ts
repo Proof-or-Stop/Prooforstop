@@ -87,7 +87,11 @@ for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
   assert.equal(modularClaude, body, `${roleId} modular Claude render remains explicitly audit-selectable`);
   assert.equal(modularCodex, body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.lattice-codex/agents/'), `${roleId} modular Codex render remains explicitly audit-selectable`);
   assert.notEqual(defaultClaude, modularClaude, `${roleId} rejected baseline cannot yield the modular host render`);
-  const roleLimit = roleId === 'lattice-implementer' ? 10_000 : 12_000;
+  // B-4043: the implementer prompt now carries the acceptance-rollout boundary
+  // guidance (moved from the host shim into the canonical template), like its
+  // sibling complex roles, so every complex role shares the same 12_000-byte
+  // role-body budget.
+  const roleLimit = 12_000;
   assert.ok(Buffer.byteLength(body, 'utf8') <= roleLimit, `${roleId} modular role body meets ${roleLimit} byte target`);
   assert.ok(Buffer.byteLength(body, 'utf8') < Buffer.byteLength(legacy.body, 'utf8'));
   assert.equal(readFileSync(join(process.cwd(), '.claude/agents', entry.file), 'utf8'), renderPromptEntryForHost(entry, 'claude'));

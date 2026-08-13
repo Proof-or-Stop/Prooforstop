@@ -1,0 +1,35 @@
+{
+  "storyId": "B-2296",
+  "checkedAt": "2026-07-27T11:06:42.273Z",
+  "headHash": "ba67f11483ebb29b0f03a4d5e84bc7c72a928cb8",
+  "materialHash": "3674fa960f06743cf59ffe7f3312b5adad46ba841b660b135cdf3a342c16ea33",
+  "storyFilesHash": "c108d5f786f7967149d20c8df856b85bd9f1ad8661bebaccdb21011e8f1b01d5",
+  "reviewRound": "2026-07-27T10:45:11.471Z",
+  "agentId": "",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/frozen-claim-drift-smoke.js run directly (exit 0). Covers normalizeClaim whitespace collapse determinism, whitespace-only edits -> identical claimDigest, one non-whitespace char -> different claimDigest, empty/whitespace-only string normalizes to empty without throwing. FrozenClaimSnapshot fields (normalizedClaimDigest/storyFilesHash/headHash) verified via detectDrift/buildDriftReport cases in the same run."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/frozen-claim-drift-smoke.js (driftKind=material/claim/both/none cases, legacy-unbound classification) AND node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js run directly (exit 0), which drives the REAL checklist.ts captureUserSeesSnapshot hook end-to-end: status->done pins a snapshot, a second done write does not overwrite it (immutable-once, byte-identical attestedAt), and an empty-userSees item gets no snapshot. Also independently confirmed in the diff: packages/main/src/handlers/checklist.ts calls captureUserSeesSnapshot only when oldStatus !== 'done'."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Reproduced live: node bin/lattice.js frozen_claim_drift_check --storyId=B-2296 -> exit 0, stdout 'FROZEN_CLAIM_DRIFT advisory for B-2296 (3 drifted, 1 legacy-unbound, non-blocking)' with CHK-001 legacy-unbound and CHK-002/003/004 driftKind=material, each actionRequired=re_attestation -- byte-matches the story's own evidence/live-smoke-transcript.json. Also verified in source (handlers/frozen-claim-drift-check.ts) that the handler only reads store.readChecklist and computes hashes -- no writes, no gate/canPassReview/delivery edits. Also verified via frozen-claim-snapshot-hook-smoke.js clean-report case that a snapshot-bound, undrifted story reports clean."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/frozen-claim-drift-smoke.js run directly, output shows all required cases including both false-positive guards ('[false-positive guard] unrelated file change -> storyFilesHash unchanged -> driftKind=none' and '[false-positive guard] whitespace-only userSees edit -> digest unchanged -> driftKind=none') and an explicit non-blocking assertion; final line 'frozen-claim-drift-smoke: PASS'. Confirmed registered in lattice.config.json validate.commands (git diff) and package.json test:frozen-claim-drift-smoke / test:frozen-claim-snapshot-hook-smoke scripts (git diff). Smoke is deterministic/offline (no network, no live claude -p) per source inspection."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-ran both smokes and the live frozen_claim_drift_check CLI command directly (not just trusting recorded evidence); all pass and reproduce byte-identical output to the story's own transcripts. Diff confirmed to touch zero doc files (CLAUDE.md/docs/**), matching the stated docs-excluded execution boundary -- no doc promises to verify. Source inspection of checklist.ts and frozen-claim-drift-check.ts confirms the immutable-once snapshot hook and the strictly read-only, non-blocking advisory handler match plan.md DoneWhen exactly. No TODO/FIXME/HACK found in the touched source files. One pre-existing hygiene gap noted for the record (not a delivery blocker): checklist relatedDocs cites docs/evidence-integrity-program-spec.md, which does not exist anywhere in this repo including main -- a dangling reference from PLAN, not something this diff introduced or was required to create."
+  },
+  "_hash": "0f6da3e0f6f200e4bae248eb2db6a6e3257a8dd1f127c77cfc5d939ee775a5ab"
+}

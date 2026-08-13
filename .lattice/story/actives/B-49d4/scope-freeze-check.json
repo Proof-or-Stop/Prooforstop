@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-49d4",
+  "checkedAt": "2026-07-27T13:41:58.757Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "579ced66ca13e2589c57b5268cd8c97471a1b0318ae9a5b75e95d6819c62bcec",
+  "executionBoundaryHash": "418d04b19dcbb0d6bb06d4285f9130fb9b51d5758c901fa58b601260a406a69b",
+  "freshnessHash": "684bf62556e7b09db938fe0094b715d3d18b6b4cf9aff0433e6c25e84abb1a6c",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changing what any existing harness asserts, or fixing a harness that fails; measurement showed all currently pass and this story does not alter their content",
+    "customerKeyRef",
+    "Layer4",
+    "packages/main/src runtime source - this story is test-infrastructure and configuration only",
+    "Re-pinning or editing packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs, which carries a protected invariance digest",
+    "repair UX",
+    "The INIT gate defect where one reviewer re-signing clears init_check_tampered for all required reviewers - sequenced as a separate story after this one",
+    "Whether the process-fact registry should model gate-evidence validation semantics - a separate modelling question"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing what any existing harness asserts, or fixing a harness that fails; measurement showed all currently pass and this story does not alter their content",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing what any existing harness asserts, or fixing a harness that fails; measurement showed all currently pass and this story does not alter their content",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src runtime source - this story is test-infrastructure and configuration only",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src runtime source - this story is test-infrastructure and configuration only",
+      "excluded": true
+    },
+    {
+      "keyword": "Re-pinning or editing packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs, which carries a protected invariance digest",
+      "source": "scopeBoundary.excluded",
+      "text": "Re-pinning or editing packages/main/tests/red/red-w2c-v1-verdict-invariance.mjs, which carries a protected invariance digest",
+      "excluded": true
+    },
+    {
+      "keyword": "The INIT gate defect where one reviewer re-signing clears init_check_tampered for all required reviewers - sequenced as a separate story after this one",
+      "source": "scopeBoundary.excluded",
+      "text": "The INIT gate defect where one reviewer re-signing clears init_check_tampered for all required reviewers - sequenced as a separate story after this one",
+      "excluded": true
+    },
+    {
+      "keyword": "Whether the process-fact registry should model gate-evidence validation semantics - a separate modelling question",
+      "source": "scopeBoundary.excluded",
+      "text": "Whether the process-fact registry should model gate-evidence validation semantics - a separate modelling question",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "4e5e1c1308fa1dd55562aa0b92cbf1c7f0a2de134d87576936c7f9bcafd9e955"
+}

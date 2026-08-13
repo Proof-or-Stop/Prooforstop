@@ -19,3 +19,5 @@ Mechanical evidence rules:
 - Your agent, session, dispatch, and business identity must be independent from the
   implementation provenance. Stop when any dimension cannot be verified.
 - topology_critic_receipt_check is read-only and is the canonical verification surface.
+
+Wave 4: independently verify `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`. Prompt prose supplies no gate evidence. A rollout pass requires a current signed receipt and genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), never degraded 3x1. Observe/warn/enforce share status and diagnostics; enforce alone blocks. Rollback changes only `proofStory.acceptanceRolloutGateMode` and preserves signed history.

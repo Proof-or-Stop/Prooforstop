@@ -2,6 +2,118 @@
 
 ## Unreleased
 
+## Proofbound 0.3.251 - 2026-07-31
+
+Dependency-security maintenance round: clears every high-severity advisory
+surfaced by `npm audit` across the root and workspaces by bumping the direct
+dependencies that carried the vulnerable transitives.
+
+**Security**
+
+- **Root `@modelcontextprotocol/sdk` ^1.29.0 → ^1.30.0.** Pulls patched
+  transitives: `hono` 4.12.9 → 4.12.33 (a large batch of cookie / path-traversal
+  / JSX-injection / cache-leak advisories), `@hono/node-server` → 2.0.12
+  (serve-static path traversal / middleware bypass), `fast-uri` → 3.1.5 (path
+  traversal + host-confusion), and patched `body-parser` / `qs` / `ip-address` /
+  `express-rate-limit`.
+- **Root `c8` ^11.0.0 → ^12.0.0.** Clears the `brace-expansion` DoS advisories
+  (GHSA-3jxr-9vmj-r5cp, GHSA-mh99-v99m-4gvg).
+- **`packages/main` `ws` ^8.20.0 → ^8.21.1.** Clears the ws uninitialized-memory
+  disclosure and fragment-DoS advisories (GHSA-58qx-3vcg-4xpx,
+  GHSA-96hv-2xvq-fx4p).
+
+**Tooling**
+
+- Added `scripts/audit-gate.mjs`, a cross-workspace audit gate that fails on any
+  high/critical advisory outside a documented allowlist. Run RED before this
+  round (4 high-severity packages), GREEN after.
+
+**Known exception**
+
+- `pkg` (GHSA-22r3-9w55-cj54, moderate local privilege escalation) has no
+  upstream fix and is a build-only devtool used by `scripts/package-desktop.mjs`;
+  it is allowlisted and tracked for migration to the maintained `@yao-pkg/pkg`
+  fork.
+
+## Proofbound 0.3.250 - 2026-07-31
+
+Rolls up CLI versions 0.3.234 through 0.3.250 — eighteen stories landed since
+v0.3.233. The theme is **evidence integrity**: verification evidence becomes
+mechanically executed and receipted instead of caller-asserted, a
+content-addressed red-evidence record chain lands behind recovery commands,
+review convergence gets a mandatory circuit breaker, and the ProofStory
+acceptance-topology pipeline completes with Wave 4.
+
+**Highlights**
+
+- **Mechanical evidence receipts (B-ec67, B-1507, B-3b88, B-2296).**
+  Verification intents now pin a (command, selector) pair and the tool executes
+  them itself instead of trusting a caller-authored pass (B-ec67); a new
+  `verification_run` command lands, the stale-evidence refresh re-executes the
+  pinned command, and a fail-open PreToolUse early-warning hook is added
+  (B-1507); self-contradictory evidence rows are rejected and `refresh_stale`
+  can no longer launder unverified pass assertions (B-3b88); checklist
+  `userSees` claims are bound to a normalized claim-digest + materialHash
+  snapshot, surfacing a non-blocking FROZEN_CLAIM_DRIFT advisory when either
+  drifts (B-2296, Phase 1 of 2).
+- **Red-evidence record chain (B-c054, B-e10d, B-506e, B-2aa7, B-49d4).**
+  RFC 8785 canonicalization and fail-closed red-evidence policy resolution
+  land, surfaced in doctor (B-c054); a registered target-binding store with the
+  owner-gated `red_evidence_binding_set` command (B-e10d); the v2 record-chain
+  plane behind `red_evidence_quarantine` / `red_evidence_recover` (B-506e);
+  legacy v1 red-evidence artifacts are validated before enforce-gate
+  evaluation (B-2aa7); and red-harness validate registration is derived
+  instead of asserting a fixed allowlist (B-49d4).
+- **Review convergence and lifecycle (B-7813, B-bf52, B-f88e, B-1909, B-8b69,
+  B-70a6).** The advisory review-convergence stall detector becomes a
+  mandatory blocking adjudication, so a story can no longer mint unlimited
+  ordinary review rounds without a recorded escalation, re-plan, finding
+  resolution, or unreachable-item declaration (B-7813); the convergence
+  breaker no longer collapses substantively different gate failures into one
+  repeat counter (B-bf52); a storyFilesHash downgrade no longer collides a
+  superseded quorum into permanent invalidity (B-f88e); undeliverable
+  checklist items and acceptance bindings are recorded as withdrawn instead of
+  delivered (B-1909); and a gated PLAN→INIT reopen lets a scope-flagged frozen
+  title on a worktree story be fixed (B-8b69), with the reopen reason
+  persisted into the phase_transition audit event (B-70a6).
+- **Acceptance topology Wave 4 (B-4043).** Prompt integration and measured
+  rollout complete the ProofStory acceptance-topology pipeline begun in
+  0.3.233.
+- **Cleanups (B-a539, B-3783).** The duplicated reviewer-scan-budget smoke
+  entry is removed from validate.commands (B-a539), and command-catalog-smoke
+  respects retired dispatch agents via bidirectional consistency (B-3783).
+
+## Proofbound 0.3.233 - 2026-07-24
+
+Rolls up CLI versions 0.3.224 through 0.3.233 — eleven stories landed since
+v0.3.223. The theme is **acceptance topology**: a staged ProofStory
+acceptance-topology pipeline lands through Wave 3 (schema and diagnostics,
+independently derived coverage basis, PLAN structural gate, independent critic,
+executable pre-review gate), the complex roles finish the move onto modular
+Prompt Envelopes, and four gate-convergence bugs are fixed.
+
+**Highlights**
+
+- **ProofStory acceptance topology, Waves 1–3 (B-4444, B-1995, B-a32a, B-98b0,
+  B-9123, B-4ec1).** The acceptance-topology and pre-review gate plan is
+  ratified (B-4444), then shipped in staged waves: Wave 1 establishes the
+  topology schema with read-only diagnostics (B-1995); Wave 1A derives the
+  coverage basis independently of the checklist author (B-a32a); Wave 2 adds
+  the PLAN structural gate (B-98b0); Wave 2A adds an independent topology
+  critic reviewer (B-9123); Wave 3 makes the pre-review gate executable
+  (B-4ec1).
+- **Complex roles on modular Prompt Envelopes (B-407c).** Story 6 of the
+  role-prompt modularization series migrates the complex roles onto modular
+  full and incremental Prompt Envelopes, extending the 0.3.223 reviewer-role
+  migration.
+- **Gate convergence fixes (B-f824, B-cc54, B-956f, B-5e4a).** Reviewer
+  independent validates no longer poison `done_prepare` convergence (B-f824);
+  a gate that blocks repeatedly with an identical reason now halts the
+  ineffective-remedy loop instead of retrying forever (B-cc54); advanced-gate
+  material-code classification is language-neutral (B-956f); and
+  acceptance-topology artifact filenames are registered in the lifecycle scope
+  registry so they are no longer misclassified as out-of-scope writes (B-5e4a).
+
 ## Proofbound 0.3.223 - 2026-07-20
 
 Rolls up CLI versions 0.3.215 through 0.3.223 — ten stories landed since v0.3.214.

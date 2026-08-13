@@ -1,0 +1,36 @@
+{
+  "task": "Detect when a story's frozen checklist userSees claim has drifted from the delivered code and surface it as an advisory, instead of silently trusting a stale promise (Phase 1 of 2: detect + report, non-blocking).",
+  "outcome": "Running `node bin/lattice.js frozen_claim_drift_check --storyId=B-XXXX` on a story whose userSees drifted prints:\n\nFROZEN_CLAIM_DRIFT advisory for B-XXXX (2 drifted, 1 legacy-unbound, non-blocking)\n  CHK-002:userSees  driftKind=material  actionRequired=re_attestation\n    prevMaterialHash a1b2c3d... -> currMaterialHash 9f8e7d...\n  CHK-003:userSees  driftKind=claim     actionRequired=re_attestation\n    prevDigest 4d5e6f... -> currDigest 7a8b9c...\n  CHK-001:userSees  classification=legacy-unbound (no snapshot; not counted as drift)\nadvisory only -- no gate blocked; re-attestation lands in Phase 2\n\nOn a clean story the same command prints:\n  FROZEN_CLAIM_DRIFT advisory for B-XXXX: 0 drifted, 0 legacy-unbound -- clean\nand exits 0. `node bin/lattice.js validate` runs the frozen-claim-drift smoke and reports it green among the validate commands.",
+  "facts": [
+    "M1 (Milestone 1 = tool-executed evidence receipts, spec section 1) shipped as B-ec67 at CLI 0.3.240: enforceAndStampEvidence (packages/main/src/handlers/checklist.ts:497) runs a pinned command and stamps VerificationExecutionReceipt (packages/main/src/core/types.ts:690), bound to headHash/materialHash/storyFilesHash.",
+    "B-1507 re-execution (writeStaleRefresh, checklist.ts:818) demotes a stale mechanical receipt to a non-mechanical attestation unless the pinned command is re-run and passes -- it never launders a stale pass onto new material.",
+    "B-5a9a added storyFilesHash (a story-diff-scoped hash) so unrelated main merges stop staling a story's bindings; B-d243/B-edf1 surface a signed storyFilesHash whole-tree-drift re-attestation advisory on the delivery-check / DONE gate. This is the exact freshness+advisory machinery this story extends.",
+    "A checklist item's userSees is descriptive prose today with NO evidence binding; nothing re-checks it after code changes (the F-027/F-060 gap).",
+    "F-027/F-060 = userSees frozen-field drift; F-059 = plan.md claim drift. Spec section 5 flags both as the same super-class as class 1 and as an orphaned follow-on, unblocked once M1 exists.",
+    "In both source incidents the claim text stayed static while the underlying code/evidence moved, so a claim-text digest alone catches neither.",
+    "B-7813 (merged) handles ONLY the declare-unreachable case: on stall it withdraws the checklist item plus a separate acceptanceBindings proof-story artifact; it does NOT rewrite plan.md DoneWhen/Verify prose. General plan.md drift is therefore still unowned and is deferred to Phase 2 (INIT-001 precision).",
+    "review_incremental_context already computes a rename-aware material diff (git diff --name-status -M) that this story mirrors for the material-drift signal."
+  ],
+  "constraints": [
+    "Normalization must be purely mechanical and deterministic (trim + collapse internal whitespace + strip trailing); NO semantic or LLM diffing -- that is the primary false-positive engine and is non-reproducible.",
+    "Phase 1 must be NON-blocking: no existing gate (review guard, delivery-check, DONE) may begin failing on drift, because no re-attestation recovery path exists until Phase 2 and a block would wedge stories.",
+    "Pre-existing userSees with no snapshot must be classified legacy-unbound and reported, never errored (grandfather; do not break active or DONE stories).",
+    "Handler runtime-revalidation convention (CLAUDE.md): every Zod min/max/enum constraint is re-checked at runtime at each consumer (handler entry + every gate/fn/serializer that reads the field), not only at the schema boundary.",
+    "All story mutations via the lattice CLI; no direct docs/story or .lattice file edits. Snapshot capture must be immutable-once (mirror the B-ec67 pin-once model), never re-snapshotted on read.",
+    "Reuse existing freshness primitives (currentMaterialHash / currentStoryFilesHash / checkEvidenceFreshnessForGit in checklist.ts); do not build a parallel drift model."
+  ],
+  "unknowns": [
+    "Exact attestation hook where the userSees snapshot is captured (DEV spike, does not change the checklist split): candidate is checklist_update when status transitions to done; must be verified against the checklist_update handler so the snapshot is taken at delivery, exactly once, and is never re-taken on later reads.",
+    "Advisory surface: a standalone read-only command (frozen_claim_drift_check), a story_get projection, or both -- leaning standalone command with an optional story_get field; low-risk DEV choice."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/types.ts (add FrozenClaimSnapshot + FrozenClaimDriftAdvisory types)",
+    "packages/main/src/handlers/checklist.ts (snapshot capture hook at status=done; reuse freshness primitives)",
+    "packages/main/src/core/frozen-claim-drift.ts (new pure fn: normalizeClaim, claimDigest, detectDrift -- no I/O)",
+    "packages/main/src/handlers/frozen-claim-drift-check.ts (new read-only handler)",
+    "packages/main/src/cli/command-catalog.ts (register frozen_claim_drift_check)",
+    "packages/main/src/tasks/frozen-claim-drift-smoke.ts (RED-first smoke)",
+    "lattice.config.json (validate.commands) and package.json (test script)"
+  ],
+  "timestamp": "2026-07-26T11:57:37.909Z"
+}

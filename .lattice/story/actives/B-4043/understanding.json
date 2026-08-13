@@ -1,0 +1,40 @@
+{
+  "task": "Implement Story 6 Wave 4 measured flat-project rollout for ProofStory acceptance topology and pre-review gates.",
+  "outcome": "The operator runs acceptance_rollout_report and sees a signed current `PASS` with cohort size, seeded-defect detection, false-block rate, waiver delta and full-3x2 classification; an opt-in enforce transition is admitted only when that exact report receipt is current, while rollback returns to warn/observe without deleting evidence.",
+  "facts": [
+    "Waves 1, 1A, 2, 2A and 3 are DONE; Wave 3A is intentionally not implemented under flat project rollout.",
+    "acceptance_topology_check and pre_review_check already share the flat proofStory.acceptanceTopologyGateMode and canonical verifier paths.",
+    "The current project default is observe; warn/enforce changes blocking only, not diagnostic status.",
+    "Full 3x2 means three rounds across Claude CLI and Codex CLI; degraded 3x1 is never authority.",
+    "Product INIT review requires a real reproducible baseline/candidate cohort and a signed hash-bound report consumed mechanically by enforcement.",
+    "The canonical execution plan currently says Wave 4 NOT IMPLEMENTED and must be updated only after evidence passes."
+  ],
+  "constraints": [
+    "No selective per-Story or per-policy enforcement without Wave 3A.",
+    "No parallel writable acceptance matrix or caller-authored rollout verdict.",
+    "Structured process facts require prompt guidance plus CLI/handler/gate enforcement, registry and contract verification.",
+    "Supported adapter omission detection target is 100 percent; unknown adapter sufficiency is partial/unsupported, never optimistic complete.",
+    "Promotion cannot be achieved through more waivers, weaker checks, stale receipts or degraded quorum.",
+    "Long validation and quorum commands run single-instance; no remote push; no OMX; no direct Story metadata edits."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/acceptance-rollout.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    ".lattice-codex/agents/lattice-implementer.md",
+    ".claude/agents/lattice-implementer.md",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+  ],
+  "timestamp": "2026-07-23T16:35:25.608Z"
+}

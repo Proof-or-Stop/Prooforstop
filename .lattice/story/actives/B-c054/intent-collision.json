@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-c054",
+  "id": "IC-20260725000702",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The operator's W2a intent resolves to exactly ONE reading: implement the RED-evidence subsystem FOUNDATION only — (1) an RFC 8785 CANON canonicalizer (code-unit key order, preserved JSON null, minimal number encoding, sha256:<64-hex>), (2) a fail-closed resolver of the exhaustive 14-key §1.2 policySnapshot with pinned defaults, unknown-key rejection, §1.12 clamp-REJECT floors, and config-load validation of pinnedPath/forbidden-env-keys/argv-placeholders/invariance-globs, and (3) a non-gating doctor line reporting the resolved policyDigest or the fail-closed diagnostic. It explicitly does NOT cover runtime executable resolution (W2e), envelope/matcher validation (later W2), the runner (W2e), chain/idempotency/quarantine/recovery (later W2), enforcement or the enforce flip (W3), or committing a redEvidence block.",
+  "acceptedInterpretationHash": "sha256:aa9fc3e2c7ba5d46ca9f74a9db8a688ce2ad7cff14b7547cd3096d389a88fdd4",
+  "notes": "Independent collision check against the eight sibling W2 stories (W2b..W2i) in .lattice/tmp/w2-decomposition.json: W2a is the unique foundation leaf — no sibling implements CANON or the policy resolver, and each sibling depends ON W2a rather than duplicating it. The runtime-execution boundary (config-load here vs runtime in W2e) is the only adjacency and is explicitly fenced in the background Trigger Event and scope excludedScope. No competing interpretation of the intent survives: the deliverable set is closed and non-overlapping.",
+  "createdAt": "2026-07-25T00:07:02.745Z",
+  "updatedAt": "2026-07-25T00:07:02.745Z"
+}

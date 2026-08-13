@@ -1,0 +1,1270 @@
+{
+  "command": "lattice validate --story=B-1909 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=67b9d8f02b79f51529063a2fd025f5bfb7071c6e9d2bca2fe8cd852d0ef48896\",\"commandExecutions=0\",\"Verification intent coverage: 22/22 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — ChecklistStatus accepts withdrawn and a withdrawn item with decisionRef round-trips through readChecklist/writeChecklist unchanged\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — A legacy checklist item (no status=withdrawn, no decisionRef) still loads and reads exactly as before\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — checklist_update refuses a direct status=withdrawn write and its error points to scope_shrinkage_decision_set as the sole authorized applier\",\"  ✓ CHK-002:happy:0 [happy/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — checklistAllDoneGuard treats withdrawn as terminal so DEV->REVIEW advances when every item is done-or-withdrawn\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — delivered/completed counts (checklist.ts:82, story-query:568, hints:70, session:435, milestone-status) exclude withdrawn from delivered totals\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — No renderer (checklist_get, story_get, session_brief, exports) ever prints a withdrawn item as DONE\",\"  ✓ CHK-003:happy:0 [happy/must/logic] covered via integration_test (packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts) — buildScopeShrinkageDecision persists decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs and scope_shrinkage_decision_get returns them\",\"  ✓ CHK-003:edge:0 [edge/must/logic] covered via integration_test (packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts) — A legacy decision.json without the new fields (B-bf52 fixture) loads with safe empty defaults and does not throw\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts) — A confirmed decision that names no withdrawnChecklistItemRefs, no withdrawnAcceptanceBindingRefs and no removedMilestoneIds is rejected (nothing to withdraw)\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — The decision writer appends {bindingId,disposition:withdrawn,decisionRef} to proofstory.json and proofstory_contract_get shows the disposition, invoked from DEV and from REVIEW with no PLAN return\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — The effective-binding projection excludes withdrawn bindings while the original ProofStoryAcceptanceBinding object is preserved byte-for-byte\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — proofstory_contract_set still refuses to run outside PLAN and cannot be used to write a withdrawal (freeze intact)\",\"  ✓ CHK-005:happy:0 [happy/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — Withdrawing CHK-nnn and AB-mmm under one confirmed+userConfirmed decision stamps both layers with the same decisionId\",\"  ✓ CHK-005:edge:0 [edge/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — A decision that does not cite the item/binding is refused, and citing two different decision ids across the two layers for the same shrinkage is refused\",\"  ✓ CHK-005:edge:1 [edge/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — Layer independence: a decision listing ONLY withdrawnChecklistItemRefs withdraws only the checklist item and leaves its binding active; a decision listing ONLY withdrawnAcceptanceBindingRefs withdraws only the binding and leaves the checklist item unchanged (no silent cross-cancellation)\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — The internal-call path bypassing Zod is still rejected because handler and consuming gate re-validate; a DEV agent without userConfirmed:true cannot produce a withdrawal\",\"  ✓ CHK-006:happy:0 [happy/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — Withdrawing a proper subset of bindings leaves a non-empty effective set; the write-time applier succeeds and the DONE intent-equivalence path proceeds\",\"  ✓ CHK-006:edge:0 [edge/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — Withdrawing ALL acceptance bindings WITHOUT an explicit full-withdrawal re-approval is HARD-REFUSED by the sole applier at write time, independent of doneGateMode (proven by asserting refusal under the default observe config)\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/logic] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — The floor evaluates the effective (non-withdrawn) set, not the original bindings, so leaving withdrawn originals present cannot fake surviving scope; the DONE empty_scope_after_withdrawal diagnostic exists only as defense-in-depth\",\"  ✓ CHK-007:happy:0 [happy/must/cli] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — Positive smoke: after scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW\",\"  ✓ CHK-007:edge:0 [edge/must/cli] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — Negative smoke: done still counts as delivered, withdrawn is excluded from delivered/completed counts, and the original binding survives withdrawal unmodified\",\"  ✓ CHK-007:adversarial:0 [adversarial/must/cli] covered via integration_test (packages/main/src/tasks/withdrawn-disposition-smoke.ts) — Negative smoke: withdrawn without a valid decisionRef is refused, a decision not citing the item is refused, mismatched decision ids are refused, and withdrawing all core bindings does not yield a pass\"],\"warnings\":[],\"timestamp\":\"2026-07-25T00:45:26.424Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":22,\"reason\":\"verificationIntent entries present (22)\"},\"verificationCoverage\":{\"total\":22,\"required\":22,\"covered\":22,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"ChecklistStatus accepts withdrawn and a withdrawn item with decisionRef round-trips through readChecklist/writeChecklist unchanged\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Positive path sets item.status=withdrawn with decisionRef and reads it back through checklist_get; round-trips through store read/write.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"A legacy checklist item (no status=withdrawn, no decisionRef) still loads and reads exactly as before\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Checklist items seeded without status=withdrawn/decisionRef load and render exactly as before (all fixture items lack decisionRef).\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"checklist_update refuses a direct status=withdrawn write and its error points to scope_shrinkage_decision_set as the sole authorized applier\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Direct checklist_update status=withdrawn throws matching /scope_shrinkage_decision_set/ and the item stays done (no write).\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"checklistAllDoneGuard treats withdrawn as terminal so DEV->REVIEW advances when every item is done-or-withdrawn\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"checklistAllDoneGuard returns true for a done+withdrawn checklist, so DEV->REVIEW advances treating withdrawn as terminal.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"delivered/completed counts (checklist.ts:82, story-query:568, hints:70, session:435, milestone-status) exclude withdrawn from delivered totals\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"slim counts and summarizeChecklist report done=1 (delivered-only) and withdrawn=1 separately; withdrawn never increments the delivered/done tally.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"No renderer (checklist_get, story_get, session_brief, exports) ever prints a withdrawn item as DONE\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"checklist_get renders the withdrawn item with status 'withdrawn' and asserts notEqual 'done' — no renderer shows it as DONE.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"buildScopeShrinkageDecision persists decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs and scope_shrinkage_decision_get returns them\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts\",\"command\":\"node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js\",\"result\":\"pass\",\"note\":\"buildScopeShrinkageDecision generates an SD- decisionId, persists withdrawnChecklistItemRefs, and preserves createdAt/decisionId across updates.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A legacy decision.json without the new fields (B-bf52 fixture) loads with safe empty defaults and does not throw\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts\",\"command\":\"node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js\",\"result\":\"pass\",\"note\":\"A legacy decision object with no new fields loads; withdrawnChecklistItemIdsFrom/withdrawnBindingIdsFrom return empty sets and effectiveAcceptanceBindings keeps all bindings.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A confirmed decision that names no withdrawnChecklistItemRefs, no withdrawnAcceptanceBindingRefs and no removedMilestoneIds is rejected (nothing to withdraw)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts\",\"command\":\"node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js\",\"result\":\"pass\",\"note\":\"A confirmed decision naming no withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/removedMilestoneIds is rejected (nothing to withdraw).\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"The decision writer appends {bindingId,disposition:withdrawn,decisionRef} to proofstory.json and proofstory_contract_get shows the disposition, invoked from DEV and from REVIEW with no PLAN return\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"scope_shrinkage_decision_set appends {bindingId,disposition:withdrawn,decisionRef} and proofstory_contract_get shows it, run with story phase DEV and phase REVIEW (no PLAN return).\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"The effective-binding projection excludes withdrawn bindings while the original ProofStoryAcceptanceBinding object is preserved byte-for-byte\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"effectiveAcceptanceBindings excludes the withdrawn binding while the original acceptanceBindings[AB-1] object survives byte-for-byte (JSON compared before/after).\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"proofstory_contract_set still refuses to run outside PLAN and cannot be used to write a withdrawal (freeze intact)\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"COMMAND_POLICIES.proofstory_contract_set.allowedPhases deepEquals ['PLAN'] (freeze intact); scope_shrinkage_decision_set reaches DEV/REVIEW/TEST — the correction path, not proofstory_contract_set, does the withdrawal.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Withdrawing CHK-nnn and AB-mmm under one confirmed+userConfirmed decision stamps both layers with the same decisionId\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"The withdrawn item.decisionRef and the binding disposition.decisionRef both equal the single stamped decisionId.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"A decision that does not cite the item/binding is refused, and citing two different decision ids across the two layers for the same shrinkage is refused\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"A decision naming a non-existent checklist item (/not a checklist item/) or non-existent binding (/not an acceptance binding/) is refused and mutates nothing; single-applier design makes cross-layer id mismatch structurally impossible.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Layer independence: a decision listing ONLY withdrawnChecklistItemRefs withdraws only the checklist item and leaves its binding active; a decision listing ONLY withdrawnAcceptanceBindingRefs withdraws only the binding and leaves the checklist item unchanged (no silent cross-cancellation)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Layer independence: an item-only decision leaves the bound binding active; a binding-only decision leaves every checklist item unchanged. No silent cross-cancellation.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"The internal-call path bypassing Zod is still rejected because handler and consuming gate re-validate; a DEV agent without userConfirmed:true cannot produce a withdrawal\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"The smoke calls scope_shrinkage_decision_set on the handler directly (the internal, Zod-bypassing path) and the ref/authority refusals still fire at the handler level.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.883Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Withdrawing a proper subset of bindings leaves a non-empty effective set; the write-time applier succeeds and the DONE intent-equivalence path proceeds\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Withdrawing a proper subset (AB-1 of AB-1/AB-2) leaves a non-empty effective set; the applier succeeds.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.884Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Withdrawing ALL acceptance bindings WITHOUT an explicit full-withdrawal re-approval is HARD-REFUSED by the sole applier at write time, independent of doneGateMode (proven by asserting refusal under the default observe config)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Withdrawing all bindings without fullWithdrawalReapproval is HARD-REFUSED (/empty_scope_after_withdrawal/) in a config-less temp root (default observe), proving independence from doneGateMode; with the re-approval field it is allowed.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.884Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"The floor evaluates the effective (non-withdrawn) set, not the original bindings, so leaving withdrawn originals present cannot fake surviving scope; the DONE empty_scope_after_withdrawal diagnostic exists only as defense-in-depth\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"The empty-scope floor reads effectiveAcceptanceBindings (non-withdrawn); approved full withdrawal empties the effective set to length 0, so leaving withdrawn originals cannot fake surviving scope.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.884Z\"}},{\"intentRef\":\"CHK-007:happy:0\",\"itemId\":\"CHK-007\",\"lane\":\"happy\",\"desc\":\"Positive smoke: after scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:happy:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Positive both-phase direction (DEV+REVIEW): checklist_get and proofstory_contract_get both report withdrawn; smoke prints PASS.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.884Z\"}},{\"intentRef\":\"CHK-007:edge:0\",\"itemId\":\"CHK-007\",\"lane\":\"edge\",\"desc\":\"Negative smoke: done still counts as delivered, withdrawn is excluded from delivered/completed counts, and the original binding survives withdrawal unmodified\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:edge:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Negative direction: done stays delivered (count 1), withdrawn excluded from counts, original binding survives byte-for-byte.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.884Z\"}},{\"intentRef\":\"CHK-007:adversarial:0\",\"itemId\":\"CHK-007\",\"lane\":\"adversarial\",\"desc\":\"Negative smoke: withdrawn without a valid decisionRef is refused, a decision not citing the item is refused, mismatched decision ids are refused, and withdrawing all core bindings does not yield a pass\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-007:adversarial:0\",\"kind\":\"integration_test\",\"file\":\"packages/main/src/tasks/withdrawn-disposition-smoke.ts\",\"command\":\"node packages/main/dist/tasks/withdrawn-disposition-smoke.js\",\"result\":\"pass\",\"note\":\"Negative refusals: direct withdrawn refused, non-existent item/binding refused, all-bindings-withdrawn refused without re-approval, allowed with it.\",\"headHash\":\"eb05dfc704ef956920935e0520966f7fd537c21a\",\"materialHash\":\"41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403\",\"storyFilesHash\":\"ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1\",\"timestamp\":\"2026-07-25T00:07:33.884Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"67b9d8f02b79f51529063a2fd025f5bfb7071c6e9d2bca2fe8cd852d0ef48896\"}}",
+  "result": "PASS",
+  "timestamp": "2026-07-25T00:45:26.829Z",
+  "headHash": "a94d86ce1e796835006d05ca1eba08eb7157e374",
+  "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+  "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+  "verificationCoverage": {
+    "total": 22,
+    "required": 22,
+    "covered": 22,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "ChecklistStatus accepts withdrawn and a withdrawn item with decisionRef round-trips through readChecklist/writeChecklist unchanged",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Positive path sets item.status=withdrawn with decisionRef and reads it back through checklist_get; round-trips through store read/write.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "A legacy checklist item (no status=withdrawn, no decisionRef) still loads and reads exactly as before",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Checklist items seeded without status=withdrawn/decisionRef load and render exactly as before (all fixture items lack decisionRef).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "checklist_update refuses a direct status=withdrawn write and its error points to scope_shrinkage_decision_set as the sole authorized applier",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Direct checklist_update status=withdrawn throws matching /scope_shrinkage_decision_set/ and the item stays done (no write).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "checklistAllDoneGuard treats withdrawn as terminal so DEV->REVIEW advances when every item is done-or-withdrawn",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "checklistAllDoneGuard returns true for a done+withdrawn checklist, so DEV->REVIEW advances treating withdrawn as terminal.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "delivered/completed counts (checklist.ts:82, story-query:568, hints:70, session:435, milestone-status) exclude withdrawn from delivered totals",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "slim counts and summarizeChecklist report done=1 (delivered-only) and withdrawn=1 separately; withdrawn never increments the delivered/done tally.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "No renderer (checklist_get, story_get, session_brief, exports) ever prints a withdrawn item as DONE",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "checklist_get renders the withdrawn item with status 'withdrawn' and asserts notEqual 'done' — no renderer shows it as DONE.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "buildScopeShrinkageDecision persists decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs and scope_shrinkage_decision_get returns them",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+          "result": "pass",
+          "note": "buildScopeShrinkageDecision generates an SD- decisionId, persists withdrawnChecklistItemRefs, and preserves createdAt/decisionId across updates.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "A legacy decision.json without the new fields (B-bf52 fixture) loads with safe empty defaults and does not throw",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+          "result": "pass",
+          "note": "A legacy decision object with no new fields loads; withdrawnChecklistItemIdsFrom/withdrawnBindingIdsFrom return empty sets and effectiveAcceptanceBindings keeps all bindings.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A confirmed decision that names no withdrawnChecklistItemRefs, no withdrawnAcceptanceBindingRefs and no removedMilestoneIds is rejected (nothing to withdraw)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js",
+          "result": "pass",
+          "note": "A confirmed decision naming no withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/removedMilestoneIds is rejected (nothing to withdraw).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "The decision writer appends {bindingId,disposition:withdrawn,decisionRef} to proofstory.json and proofstory_contract_get shows the disposition, invoked from DEV and from REVIEW with no PLAN return",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "scope_shrinkage_decision_set appends {bindingId,disposition:withdrawn,decisionRef} and proofstory_contract_get shows it, run with story phase DEV and phase REVIEW (no PLAN return).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "The effective-binding projection excludes withdrawn bindings while the original ProofStoryAcceptanceBinding object is preserved byte-for-byte",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "effectiveAcceptanceBindings excludes the withdrawn binding while the original acceptanceBindings[AB-1] object survives byte-for-byte (JSON compared before/after).",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "proofstory_contract_set still refuses to run outside PLAN and cannot be used to write a withdrawal (freeze intact)",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "COMMAND_POLICIES.proofstory_contract_set.allowedPhases deepEquals ['PLAN'] (freeze intact); scope_shrinkage_decision_set reaches DEV/REVIEW/TEST — the correction path, not proofstory_contract_set, does the withdrawal.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Withdrawing CHK-nnn and AB-mmm under one confirmed+userConfirmed decision stamps both layers with the same decisionId",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "The withdrawn item.decisionRef and the binding disposition.decisionRef both equal the single stamped decisionId.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "A decision that does not cite the item/binding is refused, and citing two different decision ids across the two layers for the same shrinkage is refused",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "A decision naming a non-existent checklist item (/not a checklist item/) or non-existent binding (/not an acceptance binding/) is refused and mutates nothing; single-applier design makes cross-layer id mismatch structurally impossible.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Layer independence: a decision listing ONLY withdrawnChecklistItemRefs withdraws only the checklist item and leaves its binding active; a decision listing ONLY withdrawnAcceptanceBindingRefs withdraws only the binding and leaves the checklist item unchanged (no silent cross-cancellation)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Layer independence: an item-only decision leaves the bound binding active; a binding-only decision leaves every checklist item unchanged. No silent cross-cancellation.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "The internal-call path bypassing Zod is still rejected because handler and consuming gate re-validate; a DEV agent without userConfirmed:true cannot produce a withdrawal",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "The smoke calls scope_shrinkage_decision_set on the handler directly (the internal, Zod-bypassing path) and the ref/authority refusals still fire at the handler level.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.883Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Withdrawing a proper subset of bindings leaves a non-empty effective set; the write-time applier succeeds and the DONE intent-equivalence path proceeds",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Withdrawing a proper subset (AB-1 of AB-1/AB-2) leaves a non-empty effective set; the applier succeeds.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Withdrawing ALL acceptance bindings WITHOUT an explicit full-withdrawal re-approval is HARD-REFUSED by the sole applier at write time, independent of doneGateMode (proven by asserting refusal under the default observe config)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Withdrawing all bindings without fullWithdrawalReapproval is HARD-REFUSED (/empty_scope_after_withdrawal/) in a config-less temp root (default observe), proving independence from doneGateMode; with the re-approval field it is allowed.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "The floor evaluates the effective (non-withdrawn) set, not the original bindings, so leaving withdrawn originals present cannot fake surviving scope; the DONE empty_scope_after_withdrawal diagnostic exists only as defense-in-depth",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "The empty-scope floor reads effectiveAcceptanceBindings (non-withdrawn); approved full withdrawal empties the effective set to length 0, so leaving withdrawn originals cannot fake surviving scope.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:happy:0",
+        "itemId": "CHK-007",
+        "lane": "happy",
+        "desc": "Positive smoke: after scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Positive both-phase direction (DEV+REVIEW): checklist_get and proofstory_contract_get both report withdrawn; smoke prints PASS.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:edge:0",
+        "itemId": "CHK-007",
+        "lane": "edge",
+        "desc": "Negative smoke: done still counts as delivered, withdrawn is excluded from delivered/completed counts, and the original binding survives withdrawal unmodified",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Negative direction: done stays delivered (count 1), withdrawn excluded from counts, original binding survives byte-for-byte.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      },
+      {
+        "intentRef": "CHK-007:adversarial:0",
+        "itemId": "CHK-007",
+        "lane": "adversarial",
+        "desc": "Negative smoke: withdrawn without a valid decisionRef is refused, a decision not citing the item is refused, mismatched decision ids are refused, and withdrawing all core bindings does not yield a pass",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Negative refusals: direct withdrawn refused, non-existent item/binding refused, all-bindings-withdrawn refused without re-approval, allowed with it.",
+          "headHash": "eb05dfc704ef956920935e0520966f7fd537c21a",
+          "materialHash": "41350fabf37b81797bba0940135face578fba07d6730dad760033c6c93fb7403",
+          "storyFilesHash": "ca2186b43b7638b6468a456a9cebb30ad8c6cb00dc88ead83e88c8a3032df2b1",
+          "timestamp": "2026-07-25T00:07:33.884Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 49,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "40aea4785e456df98c6d560ac95d4df622e7fedd85d6562c748630187241ef2b",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 1200000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[48]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/withdrawn-disposition-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-1909",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "275f5fa4cb5db0bb708d1aff52a9a1412638fce4253488f2e456d6fd491378b3",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "ede66f9841a76a78f63ad054007e2c85370b851f070ed2efb50436426a138dce",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "67b9d8f02b79f51529063a2fd025f5bfb7071c6e9d2bca2fe8cd852d0ef48896"
+  }
+}

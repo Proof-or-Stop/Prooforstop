@@ -1,0 +1,230 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Land the red reproduction as a registered test that fails on the current defect",
+      "context": "A working reproduction already exists and has been run: it imports eventsWithStoryFilesHashDowngrade from core/review-escalation.js and evaluateHostVerdictRounds from core/host-independence.js, builds two quorum submissions (3 rounds x 2 hosts) at different materialDigests sharing one storyFilesHash, and asserts the correct behaviour of 3/3 valid rounds with no manufactured duplicate-identity reasons. It also asserts non-vacuity (the current-material submission alone must already yield 3/3) and that all verdicts are distinct on disk. Land it under packages/main/tests/red/ following the existing red-b2aa7-*.mjs convention and register it in lattice.config.json validate.commands.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "The registered red test fails before the fix with 'DOWNGRADE COLLISION: ... counted as 0/3 valid rounds' and passes after it",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-30T01:07:11.032Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The registered red test exits 0 once the fix lands, printing the OK line",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+              "selector": "red-quorum-downgrade-collision: OK"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Before the fix the same test exits 1 with the 0/3 collision message, proving it is genuinely red",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+              "selector": "red-quorum-downgrade-collision: OK"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The test refuses to pass vacuously: if the current-material quorum alone did not already yield 3/3 it reports FIXTURE IS VACUOUS, and if the fixture verdicts were not distinct on disk it reports FIXTURE ERROR",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+              "selector": "red-quorum-downgrade-collision: OK"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+          "result": "pass",
+          "note": "Tool-executed: the CLI runs the registered red test itself and derives the result from the real exit code plus selector match. It now exits 0 with the OK line.",
+          "headHash": "9aa31a7b8f58c392d25cfc5bdd5c11f3a6a13dd9",
+          "materialHash": "e05a7b73e1cc1997406f685ed3c29dc5c3ff2785b841bde3304953fec488de6a",
+          "storyFilesHash": "0e6d079c75ad8cd0616d2d8395659c1131e1e3e249ebdbf6796d1ee328255543",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
+            "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:28:51.229Z"
+          },
+          "timestamp": "2026-07-30T01:28:53.088Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+          "result": "pass",
+          "note": "Tool-executed. Red-before-green was measured on the pre-fix tree at head 4dcfbfa: the same command exited 1 with 'DOWNGRADE COLLISION: ... counted as 0/3 valid rounds' and six duplicate host/session/key identity reasons; it exits 0 at this head.",
+          "headHash": "9aa31a7b8f58c392d25cfc5bdd5c11f3a6a13dd9",
+          "materialHash": "e05a7b73e1cc1997406f685ed3c29dc5c3ff2785b841bde3304953fec488de6a",
+          "storyFilesHash": "0e6d079c75ad8cd0616d2d8395659c1131e1e3e249ebdbf6796d1ee328255543",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
+            "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:28:51.585Z"
+          },
+          "timestamp": "2026-07-30T01:28:53.088Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+          "result": "pass",
+          "note": "Tool-executed. The test's own non-vacuity and on-disk-distinctness assertions are inside the command the CLI runs: it fails with FIXTURE IS VACUOUS if the current-material quorum alone does not already yield 3/3, and with FIXTURE ERROR if the twelve fixture verdicts are not distinct on disk.",
+          "headHash": "9aa31a7b8f58c392d25cfc5bdd5c11f3a6a13dd9",
+          "materialHash": "e05a7b73e1cc1997406f685ed3c29dc5c3ff2785b841bde3304953fec488de6a",
+          "storyFilesHash": "0e6d079c75ad8cd0616d2d8395659c1131e1e3e249ebdbf6796d1ee328255543",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
+            "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:28:51.981Z"
+          },
+          "timestamp": "2026-07-30T01:28:53.088Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "892aed0da66f6d3148efbe4abc580c6995cb6975d478928c04eb218f4bfea4ce",
+        "storyFilesHash": "96507bef0869b791ef402673db7a79970e5fbe9fb95c5710516e27d375836226",
+        "headHash": "9cbd49e612396bb40fc25b31465fc5d925e9ad6e",
+        "attestedAt": "2026-07-30T01:07:11.212Z",
+        "materialHash": "4ce2977fb6525daff041634809a168139529e895f0526cb4fe26fc685fa9a27b"
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Skip the downgrade rewrite when it would collide with a live verdict of the same identity",
+      "context": "In eventsWithStoryFilesHashDowngrade (core/review-escalation.ts), a verdict from an older materialDigest is rewritten to the current one whenever storyFilesHash matches. Add a precondition: do not rewrite when a verdict with the same runId and the same independent host identity (hostId/sessionId/keyId, matching how groupByIndependentHost in core/host-independence.ts compares them) already exists natively at the current materialDigest. Keep emitting the re-attestation advisory for genuinely downgraded verdicts so the existing behaviour for unrelated drift is unchanged.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "review_escalation_status reports the floor satisfied with 3/3 rounds x 2 hosts when a complete quorum exists at the current material, even though a superseded quorum shares its storyFilesHash",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-07-30T01:07:12.071Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A complete 3x2 quorum at the current material counts as 3/3 valid rounds despite a superseded quorum sharing its storyFilesHash",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+              "selector": "red-quorum-downgrade-collision: OK"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A lone superseded verdict with no live identity-equal counterpart is still downgraded and still emits the re-attestation advisory, so unrelated whole-tree drift is unchanged",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-downgrade-non-regression.mjs",
+              "selector": "red-f88e-downgrade-non-regression: OK"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two genuine same-identity verdicts recorded natively at the current material still invalidate the round, proving the double-vote check was not weakened",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-f88e-downgrade-non-regression.mjs",
+              "selector": "red-f88e-downgrade-non-regression: OK"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+          "result": "pass",
+          "note": "Tool-executed: the same registered test asserts a complete 3x2 quorum at the current material counts 3/3 valid rounds despite a superseded quorum sharing its storyFilesHash. It passes only because eventsWithStoryFilesHashDowngrade now skips the colliding rewrite.",
+          "headHash": "9aa31a7b8f58c392d25cfc5bdd5c11f3a6a13dd9",
+          "materialHash": "e05a7b73e1cc1997406f685ed3c29dc5c3ff2785b841bde3304953fec488de6a",
+          "storyFilesHash": "0e6d079c75ad8cd0616d2d8395659c1131e1e3e249ebdbf6796d1ee328255543",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e13ca859a0e00e5728207384b6266c2a24cba975714db0647c17947733339871",
+            "outputTail": "red-quorum-downgrade-collision: OK (a superseded quorum sharing storyFilesHash no longer collides with the live quorum; a complete 3x2 at the current material counts as 3 valid rounds and no duplicate identity is manufactured)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:28:52.332Z"
+          },
+          "timestamp": "2026-07-30T01:28:53.088Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-f88e-downgrade-non-regression.mjs",
+          "result": "pass",
+          "note": "Tool-executed: the CLI runs the non-regression guard itself. It asserts a lone superseded verdict with no live identity-equal counterpart is STILL downgraded onto the current material, keeps its originalMaterialDigest provenance, and STILL emits exactly one mandatory re-attestation advisory, so the unrelated whole-tree drift allowance is unchanged.",
+          "headHash": "9aa31a7b8f58c392d25cfc5bdd5c11f3a6a13dd9",
+          "materialHash": "e05a7b73e1cc1997406f685ed3c29dc5c3ff2785b841bde3304953fec488de6a",
+          "storyFilesHash": "0e6d079c75ad8cd0616d2d8395659c1131e1e3e249ebdbf6796d1ee328255543",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f9b0aff5eb55d9d29d7e01005e1f0135a19034da8be8032d9356253ad3a5f43c",
+            "outputTail": "red-f88e-downgrade-non-regression: OK (unrelated drift is still downgraded with its mandatory advisory and preserved provenance, genuine same-identity double votes at the current material still invalidate the round, and two EMPTY_STORY_FILES_HASH values never authorise a downgrade)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:28:52.729Z"
+          },
+          "timestamp": "2026-07-30T01:28:53.088Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-f88e-downgrade-non-regression.mjs",
+          "result": "pass",
+          "note": "Tool-executed: the same guard asserts two same-identity verdicts recorded natively at the current material STILL invalidate the round with 'duplicate host/session/key identity', proving the double-vote check was not weakened, and that two EMPTY_STORY_FILES_HASH values never authorise a downgrade. Bite-verified: temporarily removing the collision guard from dist flips the paired collision test to exit 1, and restoring it returns exit 0.",
+          "headHash": "9aa31a7b8f58c392d25cfc5bdd5c11f3a6a13dd9",
+          "materialHash": "e05a7b73e1cc1997406f685ed3c29dc5c3ff2785b841bde3304953fec488de6a",
+          "storyFilesHash": "0e6d079c75ad8cd0616d2d8395659c1131e1e3e249ebdbf6796d1ee328255543",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f9b0aff5eb55d9d29d7e01005e1f0135a19034da8be8032d9356253ad3a5f43c",
+            "outputTail": "red-f88e-downgrade-non-regression: OK (unrelated drift is still downgraded with its mandatory advisory and preserved provenance, genuine same-identity double votes at the current material still invalidate the round, and two EMPTY_STORY_FILES_HASH values never authorise a downgrade)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-30T01:28:53.076Z"
+          },
+          "timestamp": "2026-07-30T01:28:53.088Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e39a8e125169f52b707c22dbcb48862d7f6ecf82564e0ae2ac8ed47843625ddb",
+        "storyFilesHash": "96507bef0869b791ef402673db7a79970e5fbe9fb95c5710516e27d375836226",
+        "headHash": "aaf067c8dbdd14fc4bd3c8270daf28dacbbe3a3d",
+        "attestedAt": "2026-07-30T01:07:12.326Z",
+        "materialHash": "4ce2977fb6525daff041634809a168139529e895f0526cb4fe26fc685fa9a27b"
+      }
+    }
+  ]
+}

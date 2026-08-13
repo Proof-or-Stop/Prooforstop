@@ -1,0 +1,294 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Commit a repro-first RED artifact proving the guard is blind and measuring what validate never runs",
+      "context": "Must FAIL on current main before any fix. Three separate demonstrations, each needing its own assertion shape. BLINDNESS: place a genuine member of the guard's population that is registered nowhere and deliberately exits non-zero, run the guard, assert it exits 0 - and assert its success line reports the expectation's size rather than the population's, since that is why it can never reveal the gap. CONTROL: de-register one currently-listed command against a copy of lattice.config.json and assert the guard DOES exit non-zero, so the blindness result cannot be a broken experiment; the real config must not be edited. POPULATION: measure and assert how many packages/main/tests/red/*.mjs are neither registered in validate.commands nor reachable transitively from a registered command, accounting for the three that red-b2aa7-chk007-receipt.mjs spawns. Do not hard-code 15 or 18 - derive both numbers, because the whole point is that a fixed number goes stale.",
+      "status": "done",
+      "startTime": "2026-07-27T16:37:52.917Z",
+      "endTime": "2026-07-27T16:42:21.296Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed RED artifact runs on the pre-fix tree and FAILS, demonstrating blindness, control and population size.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+              "selector": "RED_ARTIFACT_FAILS_ON_PRE_FIX_TREE"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "It includes a differently-prefixed newcomer, so a derivation narrowed by a name pattern fails this artifact rather than passing it.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+              "selector": "DIFFERENTLY_PREFIXED_NEWCOMER_DRIVES_REAL_GUARDS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The control direction is asserted against a COPY of lattice.config.json and the real config is provably unmodified, so the blindness result cannot be a broken experiment.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk001-receipt.mjs",
+              "selector": "CONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005. NOT re-earnable, and deliberately NOT repointed at a command that passes for a different reason. Measured on HEAD dfa21181: node packages/main/tests/red/red-b49d4-chk001-receipt.mjs exits 0 with 0 bytes on stdout and 0 bytes on stderr; lattice verification_run --intentRef=CHK-001:happy:0 was attempted and REFUSED with [receipt_selector_absent] for pinned selector RED_ARTIFACT_FAILS_ON_PRE_FIX_TREE. The silence is permanent BY CONSTRUCTION: red-b49d4-chk001-receipt.mjs lines 68-72 gate every marker on ranToCompletion, which requires the spawned derivation artifact to exit NON-ZERO, and CHK-002/CHK-003 fixed that artifact so it now exits 0. Beyond the command, the INTENT itself is a pre-fix observation (the artifact runs on the pre-fix tree and FAILS) and cannot be re-observed on a fixed tree by any command at all. The original receipt was genuine when taken at headHash 782924094b2a958d1b54b92d0823973e463f2568 (artifact exit 1, 4 RED / 14 GREEN of 18 rows), and it is NOT being re-stamped as still valid on current material. Recorded as a permanent waiver so the record states the truth: this must-priority row has no live mechanical coverage.",
+          "headHash": "dfa211811b40f4b279f0de8af72e8205a43bb704",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:40:44.085Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005. NOT re-earnable, and deliberately NOT repointed. Measured on HEAD dfa21181: the pinned command node packages/main/tests/red/red-b49d4-chk001-receipt.mjs exits 0 with zero output, and lattice verification_run --intentRef=CHK-001:edge:0 was REFUSED with [receipt_selector_absent] for pinned selector DIFFERENTLY_PREFIXED_NEWCOMER_DRIVES_REAL_GUARDS. Same permanent construction: every marker in that receipt is gated on the derivation artifact still exiting non-zero. This marker additionally required the pre-fix fact that NO shipped guard caught the newcomer (its condition includes /guards that caught it: NONE/); on the fixed tree red-b49d4-harness-registration.mjs DOES catch it, so the marker condition is not merely unobserved but now false by design. The live successor proposition IS proven on HEAD by a DIFFERENT command (red-b49d4-registration-derivation.mjs row DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION, observed: guards that caught it: red-b49d4-harness-registration.mjs) - that is stated for the reader only and is expressly NOT claimed as this row receipt, because it proves a different proposition than the pinned pre-fix one. Original receipt genuine at headHash 640b83e31b188ff4476630ec6d2ec4dd6a16b9a5.",
+          "headHash": "53af581aa4847114bb4abaa5d9a518ac8d86a59c",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:40:56.860Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005. NOT re-earnable, and deliberately NOT repointed. Measured on HEAD dfa21181: the pinned command node packages/main/tests/red/red-b49d4-chk001-receipt.mjs exits 0 with zero output, and lattice verification_run --intentRef=CHK-001:adversarial:0 was REFUSED with [receipt_selector_absent] for pinned selector CONTROL_BITES_ON_A_COPY_REAL_CONFIG_UNMODIFIED. Same permanent construction: the marker is gated on ranToCompletion, which requires the spawned derivation artifact to exit non-zero, and that artifact now exits 0 on the fixed tree. The control direction itself is still live and is re-measured on every run of the registered artifact (rows CONTROL_DEREGISTRATION_BITES, SANDBOX_IS_FAITHFUL, SANDBOX_REDIRECTS_THE_CONFIG_READ, CONTROL_USED_A_COPY_NOT_THE_REAL_CONFIG, REAL_CONFIG_BYTE_UNMODIFIED - all GREEN on HEAD), but that is a different command from the one pinned here and is expressly NOT claimed as this row receipt. Original receipt genuine at headHash d3bdab57357cf8af59c390246942c82feaebd1ae.",
+          "headHash": "b3a87aabfecceea1d87a8c3242847afaa23ef42a",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:41:07.698Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the registration guard derive its population from disk instead of asserting a fixed list",
+      "context": "Mirror the shape red-b2aa7-chk007-receipt.mjs already uses: enumerate the population from disk, partition into registered / explicitly-excluded-with-a-stated-reason / undecided, and FAIL when anything is undecided. The registered side must never be enumerated in the test file - it is whatever lattice.config.json actually contains, so it cannot go stale. Exclusions must carry a reason checked at runtime and must fail when they name a file that no longer exists. Include the guard file itself in its own population with no self-exception; a carve-out is precisely the exemption being removed. TWO POPULATIONS NEED COVER, and conflating them is the trap: the w2c guard's own population is the dist tasks packages/main/dist/tasks/red-evidence-*.js, while the 18 unregistered files are packages/main/tests/red/*.mjs, which chk007 covers only for red-b2aa7-*. Fixing the dist-task guard alone would leave the next tests/red addition to slip through exactly as these did. Decide deliberately whether that is one derived guard over both populations or two guards with disjoint declared populations, and make sure no member of either falls between them. Prove the bite in BOTH directions for whatever you build - an undecided newcomer and a de-registered member - and show the output of each; a guard whose bite has not been observed is not proven.",
+      "status": "done",
+      "startTime": "2026-07-27T17:29:04.796Z",
+      "endTime": "2026-07-27T17:50:48.672Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every member of both declared populations is either registered or excluded; nothing is undecided and nothing falls between the two populations.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+              "selector": "BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The enumeration is unfiltered, so a differently-prefixed harness is inside the population rather than invisible to it.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+              "selector": "TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The bite is observed in BOTH directions - an undecided newcomer and a de-registered member - and each guard includes itself with no self-exception.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+              "selector": "BITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-w2c-validate-registration.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-b2aa7-chk007-receipt.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "result": "pass",
+          "note": "Two guards with DISJOINT declared populations. Population 1 (packages/main/dist/tasks/red-evidence-*) is decided by the REAL lattice.config.json: 3 on disk = 3 registered + 0 excluded, 0 undecided. Population 2 (packages/main/tests/red/*, TOTAL enumeration) is decided over all 35 members = 33 registered + 2 excluded, 0 undecided, measured against a config COPY because CHK-003 owns lattice.config.json and this receipt never writes to it (sha256 re-checked). Each guard reported population size is cross-checked against an independent disk enumeration, so neither reports the size of its own expectation. Nothing falls between: the two directories are distinct and neither nests in the other, and BOTH guard files are members of population 2 - guard 2 governs guard 1 and governs itself.",
+          "headHash": "bbc065e4abba916b1f9f5c43cdacb7e2797f5191",
+          "materialHash": "fd777e04376a7775b50e7f4c60fa90625c549a47814b7b70ff3cfc8e50003f69",
+          "storyFilesHash": "9bf241b4e85278c66d7538c350c9eafb8c6a77fec2f2fdb8fca68831257d7c80",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5a8daab6ae0049209e93718da5a80ead05cbc28c111b82a3a9fe823a53076327",
+            "outputTail": "BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN (two guards with DISJOINT declared populations: packages/main/dist/tasks/red-evidence-* — 3 members on disk, 3 registered + 0 excluded, 0 undecided, basis=REAL lattice.config.json — and packages/main/tests/red/* — 35 members on disk, 32 registered + 3 excluded, 0 undecided, basis=REAL lattice.config.json. Each guard's reported population size was cross-checked against an independent disk enumeration, so neither is reporting the size of its own expectation. The union covers every member: the two directories are distinct and neither nests in the other, and BOTH guard files are themselves members of the second population — guard 2 governs guard 1 and governs itself)\nTOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness carries no red- prefix — the narrowing /^red-b2aa7-.*\\.mjs$/ that the reference guard uses would miss it, and so would /^red-.*\\.mjs$/ or any other name pattern — and it is not even a .mjs, so an extension filter would miss it too. Its only qualifying property is being an entry of packages/main/tests/red, which is exactly what a TOTAL enumeration sees: planting it flipped the real shipped guard from exit 0 to exit 1 naming it, and removing it flipped the guard back to exit 0, so the failure is attributable to the newcomer alone)\nBITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION (guard 1: an unregistered, unexcluded member planted in packages/main/dist/tasks made it exit 1 naming the file, and de-registering packages/main/dist/tasks/red-evidence-chain-smoke.js from a config COPY made it exit 1 naming it. Guard 2: an undecided newcomer made it exit 1, and de-registering packages/main/tests/red/red-b2aa7-artifact-validation.mjs made it exit 1 naming it. NO SELF-EXCEPTION, measured rather than argued: removing guard 2's own registration made guard 2 fail naming ITSELF, and removing guard 1's made guard 2 fail naming guard 1 — so the two files that enforce registration are themselves registered subjects of it. Every mutation lived on a copy: the real lattice.config.json is byte-identical (sha256 e8b47e2a8c673c68… before and after) and every planted probe was removed)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T20:12:30.918Z"
+          },
+          "timestamp": "2026-07-27T20:12:32.728Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "result": "pass",
+          "note": "The tests/red enumeration is TOTAL - no name pattern, no extension filter - and the guard asserts on every run that its population size equals the full directory listing. Measured: planting chk002-receipt-probe-unprefixed.harness (no red- prefix, not even .mjs, so the reference guard regex /^red-b2aa7-.*.mjs$/, a /^red-.*.mjs$/ narrowing and any extension filter would all miss it) flipped the real shipped guard from exit 0 to exit 1 naming it, and removing it flipped the guard back to exit 0 - so the failure is attributable to the newcomer alone. Independently corroborated by the RED artifact BLOCK D, where the newly derived guard is the only spawned guard that caught the differently-prefixed newcomer.",
+          "headHash": "bbc065e4abba916b1f9f5c43cdacb7e2797f5191",
+          "materialHash": "fd777e04376a7775b50e7f4c60fa90625c549a47814b7b70ff3cfc8e50003f69",
+          "storyFilesHash": "9bf241b4e85278c66d7538c350c9eafb8c6a77fec2f2fdb8fca68831257d7c80",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5a8daab6ae0049209e93718da5a80ead05cbc28c111b82a3a9fe823a53076327",
+            "outputTail": "BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN (two guards with DISJOINT declared populations: packages/main/dist/tasks/red-evidence-* — 3 members on disk, 3 registered + 0 excluded, 0 undecided, basis=REAL lattice.config.json — and packages/main/tests/red/* — 35 members on disk, 32 registered + 3 excluded, 0 undecided, basis=REAL lattice.config.json. Each guard's reported population size was cross-checked against an independent disk enumeration, so neither is reporting the size of its own expectation. The union covers every member: the two directories are distinct and neither nests in the other, and BOTH guard files are themselves members of the second population — guard 2 governs guard 1 and governs itself)\nTOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness carries no red- prefix — the narrowing /^red-b2aa7-.*\\.mjs$/ that the reference guard uses would miss it, and so would /^red-.*\\.mjs$/ or any other name pattern — and it is not even a .mjs, so an extension filter would miss it too. Its only qualifying property is being an entry of packages/main/tests/red, which is exactly what a TOTAL enumeration sees: planting it flipped the real shipped guard from exit 0 to exit 1 naming it, and removing it flipped the guard back to exit 0, so the failure is attributable to the newcomer alone)\nBITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION (guard 1: an unregistered, unexcluded member planted in packages/main/dist/tasks made it exit 1 naming the file, and de-registering packages/main/dist/tasks/red-evidence-chain-smoke.js from a config COPY made it exit 1 naming it. Guard 2: an undecided newcomer made it exit 1, and de-registering packages/main/tests/red/red-b2aa7-artifact-validation.mjs made it exit 1 naming it. NO SELF-EXCEPTION, measured rather than argued: removing guard 2's own registration made guard 2 fail naming ITSELF, and removing guard 1's made guard 2 fail naming guard 1 — so the two files that enforce registration are themselves registered subjects of it. Every mutation lived on a copy: the real lattice.config.json is byte-identical (sha256 e8b47e2a8c673c68… before and after) and every planted probe was removed)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T20:12:31.801Z"
+          },
+          "timestamp": "2026-07-27T20:12:32.728Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+          "result": "pass",
+          "note": "Bite observed in BOTH directions for BOTH guards by spawning the real shipped guards. Guard 1: an unregistered, unexcluded member planted in packages/main/dist/tasks made it exit 1 naming the file; de-registering a currently-listed member from a config COPY made it exit 1 naming it. Guard 2: an undecided newcomer made it exit 1 naming it; de-registering a currently-listed harness made it exit 1 naming it. NO SELF-EXCEPTION measured rather than argued: removing guard 2 own registration made guard 2 fail naming ITSELF, and removing guard 1 registration made guard 2 fail naming guard 1. Every mutation lived on a config COPY inside a symlink sandbox run through --preserve-symlinks-main; the real lattice.config.json is byte-identical before and after and every planted probe was removed.",
+          "headHash": "bbc065e4abba916b1f9f5c43cdacb7e2797f5191",
+          "materialHash": "fd777e04376a7775b50e7f4c60fa90625c549a47814b7b70ff3cfc8e50003f69",
+          "storyFilesHash": "9bf241b4e85278c66d7538c350c9eafb8c6a77fec2f2fdb8fca68831257d7c80",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5a8daab6ae0049209e93718da5a80ead05cbc28c111b82a3a9fe823a53076327",
+            "outputTail": "BOTH_POPULATIONS_DECIDED_NOTHING_BETWEEN (two guards with DISJOINT declared populations: packages/main/dist/tasks/red-evidence-* — 3 members on disk, 3 registered + 0 excluded, 0 undecided, basis=REAL lattice.config.json — and packages/main/tests/red/* — 35 members on disk, 32 registered + 3 excluded, 0 undecided, basis=REAL lattice.config.json. Each guard's reported population size was cross-checked against an independent disk enumeration, so neither is reporting the size of its own expectation. The union covers every member: the two directories are distinct and neither nests in the other, and BOTH guard files are themselves members of the second population — guard 2 governs guard 1 and governs itself)\nTOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness carries no red- prefix — the narrowing /^red-b2aa7-.*\\.mjs$/ that the reference guard uses would miss it, and so would /^red-.*\\.mjs$/ or any other name pattern — and it is not even a .mjs, so an extension filter would miss it too. Its only qualifying property is being an entry of packages/main/tests/red, which is exactly what a TOTAL enumeration sees: planting it flipped the real shipped guard from exit 0 to exit 1 naming it, and removing it flipped the guard back to exit 0, so the failure is attributable to the newcomer alone)\nBITE_OBSERVED_BOTH_DIRECTIONS_NO_SELF_EXCEPTION (guard 1: an unregistered, unexcluded member planted in packages/main/dist/tasks made it exit 1 naming the file, and de-registering packages/main/dist/tasks/red-evidence-chain-smoke.js from a config COPY made it exit 1 naming it. Guard 2: an undecided newcomer made it exit 1, and de-registering packages/main/tests/red/red-b2aa7-artifact-validation.mjs made it exit 1 naming it. NO SELF-EXCEPTION, measured rather than argued: removing guard 2's own registration made guard 2 fail naming ITSELF, and removing guard 1's made guard 2 fail naming guard 1 — so the two files that enforce registration are themselves registered subjects of it. Every mutation lived on a copy: the real lattice.config.json is byte-identical (sha256 e8b47e2a8c673c68… before and after) and every planted probe was removed)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-27T20:12:32.704Z"
+          },
+          "timestamp": "2026-07-27T20:12:32.728Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register every harness that should run, with a stated reason for each deliberate exclusion",
+      "context": "Measured on 2026-07-27: all 18 unregistered harnesses in packages/main/tests/red/ currently pass and take well under a minute in total, so the runtime budget objection does not apply - but re-measure rather than trusting that number. Register each one in lattice.config.json validate.commands following the surrounding entry convention including timeoutMs, and RUN each before registering it; do not register anything you have not personally seen pass. TWO MEMBERS MUST BE EXCLUDED, NOT REGISTERED, and the reasoning must be recorded rather than rediscovered: red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs are pre-fix-only attestations whose every marker is gated on BLOCK A of red-b2aa7-artifact-validation.mjs still being RED. On a fixed tree that is false, so they emit nothing and exit 0. Registering them would add commands that pass forever while asserting nothing - a vacuous check masquerading as coverage, which is the exact defect class this story exists to remove, and it would be self-inflicted at the last step. Record them as explicit exclusions carrying that reason. Apply the same test to every other member: an exclusion needs a reason, and silent absence is not a decision.",
+      "status": "done",
+      "startTime": "2026-07-27T18:03:54.178Z",
+      "endTime": "2026-07-27T18:21:15.767Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every registered harness was run and seen to pass before being registered, and total runtime after registration is re-measured and recorded.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-harness-registration.mjs",
+              "selector": "33 registered in lattice.config.json validate.commands and 2 excluded with a stated reason"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "red-w2c-validate-registration.mjs, the guard itself, is registered and therefore actually runs under lattice validate.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-chk002-receipt.mjs",
+              "selector": "35 members on disk, 33 registered + 2 excluded, 0 undecided, basis=REAL lattice.config.json"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "red-b2aa7-chk001-receipt.mjs and red-b2aa7-chk010-receipt.mjs are excluded with a stated machine-checked reason, not registered, because they pass forever while asserting nothing on a fixed tree.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+              "selector": "2 unregistered, of which 2 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs) and 0 are NEVER RUN: none"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005. The PROPOSITION still holds; the frozen SELECTOR cannot be earned without a regression, so this is recorded as a waiver rather than a fresh pass. Pinned selector quotes live counts: 33 registered in lattice.config.json validate.commands and 2 excluded with a stated reason. Commit def4df7f18 correctly moved red-b49d4-chk001-receipt.mjs from registered to excluded (registering it would add a validate command that passes forever while asserting nothing), so the true counts are now 32/3. Live on HEAD dfa21181, node packages/main/tests/red/red-b49d4-harness-registration.mjs exits 0 printing: all 35 entries of packages/main/tests/red found ON DISK are accounted for: 32 registered in lattice.config.json validate.commands and 3 excluded with a stated reason. lattice verification_run --intentRef=CHK-003:happy:0 was attempted and REFUSED with [receipt_selector_absent]. Earning the pinned string would require re-registering the vacuous receipt - a deliberate regression - so it is not attempted. The verification pin (command+selector) is immutable in enforceAndStampEvidence, so no fresh mechanical receipt is possible under this intentRef; a re-pinned intent whose selector is a MARKER rather than a live count is the durable fix and is a PLAN-owned change, not one this evidence write can make.",
+          "headHash": "d3274f62e18c02173e752b8ed280c9f3f9a38f37",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:41:19.015Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005. The PROPOSITION still holds; the frozen SELECTOR moved. Pinned selector: 35 members on disk, 33 registered + 2 excluded, 0 undecided, basis=REAL lattice.config.json. Live on HEAD dfa21181, node packages/main/tests/red/red-b49d4-chk002-receipt.mjs exits 0 printing: packages/main/tests/red/* - 35 members on disk, 32 registered + 3 excluded, 0 undecided, basis=REAL lattice.config.json. Only the 33/2 -> 32/3 split changed (def4df7f18 moved red-b49d4-chk001-receipt.mjs to the exclusion side); the intent proper - red-w2c-validate-registration.mjs is registered and therefore actually runs under lattice validate - is directly verifiable on HEAD at lattice.config.json line 118: { command: node, args: [packages/main/tests/red/red-w2c-validate-registration.mjs], timeoutMs: 180000 }. lattice verification_run --intentRef=CHK-003:edge:0 was attempted and REFUSED with [receipt_selector_absent]. The pin is immutable, so no fresh mechanical receipt is possible under this intentRef; this row is a count-quoting selector that goes stale on any unrelated registration change, and re-pinning it to a marker is the durable fix.",
+          "headHash": "f9dfeedd929e6db438a9c3656438907c1c99db9f",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:41:30.446Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "waiver",
+          "verdict": "waived",
+          "waiverType": "permanent",
+          "note": "F-005 + F-006. This selector is DOUBLY unearnable and must never be earned again. Pinned selector: 2 unregistered, of which 2 are spawned by a registered command (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs) and 0 are NEVER RUN: none. (a) the counts moved - there are 3 unregistered members now; (b) more importantly the phrase it quotes is the FALSE CLAIM F-006 identified: the old row computed reachability by TEXTUAL INCLUSION, so a filename merely appearing in a registered file counted as an execution edge, and red-b49d4-chk001-receipt.mjs was reported as spawned by a registered command when nothing spawns it (red-b49d4-harness-registration.mjs contains no child_process usage and names it only as an exclusion-map key; red-b2aa7-chk007-receipt.mjs spawns only its own map keys, filtered by /^red-b2aa7-.*.mjs$/). Restoring that selector would mean restoring a silent false GREEN. The row is replaced by EVERY_RED_HARNESS_IS_REGISTERED_OR_DECIDED, live on HEAD dfa21181: 35 *.mjs on disk (unfiltered): 32 registered in validate.commands, 3 unregistered - of which 3 are DECIDED by the audited exclusion record of red-b49d4-harness-registration.mjs (red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs) and 0 are UNACCOUNTED: none. EXECUTION IS A DIFFERENT PROPERTY AND IS NOT CLAIMED HERE. The intent proper - the two b2aa7 receipts are excluded with a stated machine-checked reason rather than registered - is visible in that live line. lattice verification_run --intentRef=CHK-003:adversarial:0 was attempted and REFUSED with [receipt_selector_absent].",
+          "headHash": "5d9b6b2b2f46d20d08be6900eef4499efa5968c5",
+          "materialHash": "d12a9dcd9317a986560ee46452a8107d48a0852f4a0a9347959ea01173b36954",
+          "storyFilesHash": "b5091eaf88f08b98924df45d7ce3581870206cd01d40ecd2e8b348ed53923e8e",
+          "timestamp": "2026-07-27T19:41:43.426Z"
+        }
+      ]
+    }
+  ]
+}

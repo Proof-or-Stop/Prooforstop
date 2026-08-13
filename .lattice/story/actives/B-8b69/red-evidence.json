@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8b69",
+  "records": [
+    {
+      "id": "RED-20260725110357",
+      "trigger": "PLAN-phase worktree story cannot bounce back to fix a scope-flagged frozen title: missing PLAN->INIT machine edge plus dev_start worktree-reuse path bug",
+      "acceptanceTargetRef": "sha256:bff21005217cb5dd0f82c73f587c5b592d341df9bcd168b4902c4218a4f421e7",
+      "baselineHeadHash": "7894c53a8ab111ab5eda20c4f437c8795981c714",
+      "baselineMaterialHash": "be69ab40454231f1bbf57ad9460d45aee6db9a6609dc73d846c4a13432664f5f",
+      "observedFailure": "story_advance --phase=INIT_CHECK from inside a PLAN worktree exits non-zero with: Branch story/<id> already exists but does not contain .worktrees/<id>/.lattice/story/actives/<id>/index.json; story stays at PLAN. Machine probe: PLAN--INIT_CHECK-->allowed=false.",
+      "failingCommand": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:bff21005217cb5dd0f82c73f587c5b592d341df9bcd168b4902c4218a4f421e7",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/plan-init-reopen-roundtrip-smoke.js",
+        "greenHeadHash": "pending-green-head-after-B-8b69-fix",
+        "greenMaterialHash": "pending-green-material-after-B-8b69-fix"
+      },
+      "createdAt": "2026-07-25T11:03:57.387Z"
+    }
+  ],
+  "createdAt": "2026-07-25T11:03:57.387Z",
+  "updatedAt": "2026-07-25T11:03:57.387Z"
+}

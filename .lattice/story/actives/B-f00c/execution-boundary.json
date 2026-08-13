@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f00c",
+  "allowedCommands": [
+    "git",
+    "node bin/lattice.js",
+    "node packages/main/dist/cli.js",
+    "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/utils run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/validation-evidence-admissibility.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-lineage.ts",
+    "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/src/core/phase-gates.ts",
+    "packages/main/src/handlers/verdict.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Only the shared classifier + its two consumers + a new smoke + validate.commands wiring. verdict.ts and phase-gates.ts are protected (consume corrected classifier only).",
+  "createdAt": "2026-07-26T03:09:42.817Z",
+  "updatedAt": "2026-07-26T03:09:42.817Z",
+  "_hash": "f4b1db83df59d003a45088899aa65bfcf4588cfdff7acc4f8621cdad6a79b045"
+}

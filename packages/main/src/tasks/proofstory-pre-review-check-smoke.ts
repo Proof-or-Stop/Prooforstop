@@ -13,34 +13,71 @@ import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
 import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { assemblePreReviewCaseRecords, buildPreReviewProofFromExecutedCases, canonicalPreReviewAssertionSourceRef, preReviewCaseAggregateDigest } from '../core/pre-review-live-proof.js';
+import {
+  assemblePreReviewCaseRecords,
+  buildPreReviewProofFromExecutedCases,
+  canonicalPreReviewAssertionSourceRef,
+  decodePreReviewCaseRecords,
+  encodePreReviewCaseRecords,
+  preReviewCaseAggregateDigest,
+} from '../core/pre-review-live-proof.js';
+import {
+  currentAcceptanceRolloutBinding,
+  deriveAcceptanceRolloutReport,
+  issueAcceptanceRolloutArtifact,
+  verifyAcceptanceRolloutArtifact,
+} from '../core/acceptance-rollout.js';
+import type { AcceptanceRolloutCohortInputV1 } from '../core/types.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, PreReviewCaseRecordV1, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const repositoryRoot = resolve(packageRoot, '..', '..', '..');
 const latticeBin = join(repositoryRoot, 'bin/lattice.js');
-const storyId = 'B-pre-review-smoke';
+const cohortCaseMode = process.argv.includes('--rollout-cohort-case');
+const cohortArm = process.env.LATTICE_ROLLOUT_COHORT_ARM === 'candidate' ? 'candidate' : 'baseline';
+const cohortScenario = process.env.LATTICE_ROLLOUT_COHORT_SCENARIO ?? 'control';
+const storyId = process.env.LATTICE_ROLLOUT_COHORT_STORY_ID ?? 'B-pre-review-smoke';
 const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
+const cohortArgPath = process.argv.find(arg => arg.startsWith('--cohort='))?.slice('--cohort='.length);
+const activeStoryArgId = process.argv.find(arg => arg.startsWith('--story='))?.slice('--story='.length);
 const consumerControlSource = "import { produceFact } from './producer.js'; export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n";
 const scenarioLedger = new Map<string, PreReviewCaseRecordV1>();
 let scenarioEventSequence = 0;
 const actualScenarioEvents: Array<[string, number]> = [];
 const scenarioSourceRefs = new Map<string, string>();
+type ScenarioCaseKind = PreReviewCaseRecordV1[1];
+const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
+  ...Array.from({ length: 5 }, (_, index) => [`A-POS-${index + 1}`, 'positive'] as const),
+  ...Array.from({ length: 17 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation'] as const),
+  ['A-TRANSCRIPT-1', 'transcript'] as const,
+]);
+const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
+const activeScenarioStoryId = scenarioMode ? (activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID) : undefined;
 
 if (scenarioMode) {
-  const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
-  if (!activeStoryId) throw new Error('--proof-scenarios requires LATTICE_ACTIVE_STORY_ID');
+  const activeStoryId = activeScenarioStoryId;
+  if (!activeStoryId) throw new Error('--proof-scenarios requires --story=<id> or LATTICE_ACTIVE_STORY_ID');
   const activeContract = new StoryStore(repositoryRoot).readProofStoryContract(activeStoryId);
   if (!activeContract) throw new Error(`proof-scenarios contract missing for ${activeStoryId}`);
   for (const binding of activeContract.acceptanceBindings) {
     const topology = binding.verificationTopology;
     if (!topology) continue;
-    for (const assertion of [...topology.positiveAssertionRefs, ...topology.mutationCaseRefs, ...topology.transcriptAssertionRefs]) {
+    const assertions: Array<{ assertion: typeof topology.positiveAssertionRefs[number]; kind: ScenarioCaseKind }> = [
+      ...topology.positiveAssertionRefs.map(assertion => ({ assertion, kind: 'positive' as const })),
+      ...topology.mutationCaseRefs.map(assertion => ({ assertion, kind: 'mutation' as const })),
+      ...topology.transcriptAssertionRefs.map(assertion => ({ assertion, kind: 'transcript' as const })),
+    ];
+    for (const { assertion, kind } of assertions) {
       if (scenarioSourceRefs.has(assertion.id)) throw new Error(`duplicate active topology assertion ID: ${assertion.id}`);
-      scenarioSourceRefs.set(assertion.id, canonicalPreReviewAssertionSourceRef(assertion.sourceRef));
+      const registeredKind = registeredScenarioKinds.get(assertion.id);
+      if (!registeredKind) throw new Error(`unknown active topology assertion ID: ${assertion.id}`);
+      if (registeredKind !== kind) throw new Error(`active topology assertion kind mismatch for ${assertion.id}: expected ${registeredKind}, got ${kind}`);
+      const sourceRef = canonicalPreReviewAssertionSourceRef(assertion.sourceRef);
+      scenarioSourceRefs.set(assertion.id, sourceRef);
+      activeScenarioAssertions.set(assertion.id, { kind, sourceRef });
     }
   }
 }
@@ -63,20 +100,95 @@ function recordExecutedCase(unboundRecord: ExecutedCaseWithoutSourceRef): void {
   scenarioLedger.set(record[0], record);
 }
 
-function assertScenarioLedgerComplete(records: readonly PreReviewCaseRecordV1[]): void {
-  const expected = [
-    ...Array.from({ length: 4 }, (_, index) => [`A-POS-${index + 1}`, 'positive']),
-    ...Array.from({ length: 17 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation']),
-    ['A-TRANSCRIPT-1', 'transcript'],
-  ];
-  const actual = records.map(record => [record[0], record[1]]).sort((a, b) => a[0].localeCompare(b[0]));
-  assert.deepEqual(actual, expected.sort((a, b) => a[0].localeCompare(b[0])), 'executed scenario ledger must contain every exact required ID/kind once');
+const rolloutPromptNames = [
+  'lattice-implementer',
+  'test-case-reviewer',
+  'lattice-review-topology-critic',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-test-coverage',
+  'lattice-review-docs',
+  'lattice-review-delivery',
+];
+const rolloutPromptTokens = [
+  'acceptance_topology_check',
+  'pre_review_check_read',
+  'acceptance_rollout_report_read',
+  'acceptance_rollout_check',
+  'full 3 rounds',
+  'codex-cli',
+  'claude-cli',
+  '3x1',
+  'rollback',
+];
+
+// B-4043 F-014: the role guidance is sourced from the canonical package
+// templates (the REAL delivery path — review_run_start / agent_prompt resolve
+// each role body from templates/agents), NOT from the regenerable host shims.
+// The token contract is checked against the template source of truth; the host
+// shims are still checked for codex/claude mirror parity (each host render is a
+// deterministic render of the same template, so their guidance suffix agrees).
+function rolloutPromptGuidancePass(overrides = new Map<string, string>()): boolean {
+  const lastParagraph = (text: string) => text.trim().split(/\n\s*\n/).at(-1)?.trim() || '';
+  return rolloutPromptNames.every(name => {
+    const templatePath = `packages/main/templates/agents/${name}.md`;
+    const template = overrides.get(templatePath) ?? readFileSync(join(repositoryRoot, templatePath), 'utf8');
+    const tokensPresent = rolloutPromptTokens.every(token => template.toLowerCase().includes(token));
+    const codexPath = `.lattice-codex/agents/${name}.md`;
+    const claudePath = `.claude/agents/${name}.md`;
+    const codex = overrides.get(codexPath) ?? readFileSync(join(repositoryRoot, codexPath), 'utf8');
+    const claude = overrides.get(claudePath) ?? readFileSync(join(repositoryRoot, claudePath), 'utf8');
+    return tokensPresent && lastParagraph(codex) === lastParagraph(claude);
+  });
+}
+
+function selectActiveScenarioRecords(
+  expected: ReadonlyMap<string, { kind: ScenarioCaseKind; sourceRef: string }>,
+  records: readonly PreReviewCaseRecordV1[],
+): PreReviewCaseRecordV1[] {
+  for (const [id, assertion] of expected) {
+    const registeredKind = registeredScenarioKinds.get(id);
+    if (!registeredKind) throw new Error(`unknown active topology assertion ID: ${id}`);
+    if (registeredKind !== assertion.kind) throw new Error(`active topology assertion kind mismatch for ${id}`);
+  }
+  const byId = new Map<string, PreReviewCaseRecordV1>();
+  for (const record of records) {
+    if (byId.has(record[0])) throw new Error(`executed scenario ledger contains duplicate assertion ID: ${record[0]}`);
+    byId.set(record[0], record);
+  }
+  return [...expected].map(([id, assertion]) => {
+    const record = byId.get(id);
+    if (!record) throw new Error(`executed scenario ledger missing expected assertion ID: ${id}`);
+    if (record[1] !== assertion.kind) throw new Error(`executed scenario ledger kind mismatch for ${id}`);
+    if (record[9] !== assertion.sourceRef) throw new Error(`executed scenario ledger sourceRef mismatch for ${id}`);
+    return record;
+  });
+}
+
+function loadFrozenAcceptanceRolloutCohortForScenarios(): AcceptanceRolloutCohortInputV1 {
+  const frozenPath = cohortArgPath || process.env.LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE;
+  if (!frozenPath) {
+    throw new Error(
+      '--proof-scenarios requires --cohort=<path> or LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE; ' +
+      'scenario execution refuses to spawn the expensive registered cohort runner',
+    );
+  }
+  const cohort = JSON.parse(readFileSync(resolve(frozenPath), 'utf8')) as AcceptanceRolloutCohortInputV1;
+  if (cohort.schemaVersion !== 'proofstory.acceptance_rollout_cohort_input.v1'
+    || cohort.generatedBy !== 'runProofStoryAcceptanceRolloutCohort'
+    || cohort.runnerPath !== 'scripts/run-proofstory-acceptance-rollout-cohort.mjs') {
+    throw new Error('--cohort / LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE is not a registered cohort envelope');
+  }
+  return cohort;
 }
 
 if (liveProofMode) {
-  const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
-  if (!activeStoryId) throw new Error('--live-proof requires LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
-  const scenarioOutput = execFileSync(process.execPath, [fileURLToPath(import.meta.url), '--proof-scenarios'], {
+  const activeStoryId = activeStoryArgId || process.env.LATTICE_ACTIVE_STORY_ID;
+  if (!activeStoryId) throw new Error('--live-proof requires --story=<id> or LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
+  const scenarioArgs = [fileURLToPath(import.meta.url), '--proof-scenarios'];
+  if (cohortArgPath) scenarioArgs.push(`--cohort=${cohortArgPath}`);
+  if (activeStoryArgId) scenarioArgs.push(`--story=${activeStoryArgId}`);
+  const scenarioOutput = execFileSync(process.execPath, scenarioArgs, {
     cwd: repositoryRoot,
     env: { ...process.env, LATTICE_PRE_REVIEW_SCENARIO_NESTED: '1' },
     encoding: 'utf8',
@@ -103,7 +215,21 @@ function git(root: string, args: string[]): string {
 function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'lattice-implementer', sessionId = 'sess-pre-review-smoke'): string {
   try {
     return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
-      cwd: root, env: { ...process.env, LATTICE_SESSION_ID: sessionId, LATTICE_AGENT: agent }, encoding: 'utf8',
+      cwd: root,
+      env: {
+        ...process.env,
+        LATTICE_SESSION_ID: sessionId,
+        LATTICE_AGENT: agent,
+        // Full-envelope reviewer dispatch requires a known session host provider.
+        // Without this the smoke inherits whatever the caller happened to have:
+        // it passes from an interactive shell that already exports one, and fails
+        // under `lattice validate`, whose child environment has none, with
+        // 'unsupported session host provider "absent"'. Pin it so the fixture does
+        // not depend on the caller's environment.
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER:
+          process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'claude-code',
+      },
+      encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch (error) {
@@ -216,6 +342,8 @@ function writeRegistration(root: string): void {
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCritic=true;\n');
+  write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout=true;\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohort=true;\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
 }
 
@@ -289,16 +417,77 @@ const seventh = swappedSources.find(record => record[0] === 'A-MUT-7')!;
 const fifteenth = swappedSources.find(record => record[0] === 'A-MUT-15')!;
 [seventh[9], fifteenth[9]] = [fifteenth[9], seventh[9]];
 assert.throws(() => assemblePreReviewCaseRecords(expandedContract, swappedSources), /sourceRef mismatch for A-MUT-7/, 'swapping assertion semantics cannot preserve attribution');
+const semanticContract = structuredClone(expandedContract);
+const semanticRecords = structuredClone(expandedRecords);
+const semanticPositiveOne = semanticContract.acceptanceBindings[0].verificationTopology!.positiveAssertionRefs.find(row => row.id === 'A-POS-1')!;
+const semanticPositiveTwo = semanticContract.acceptanceBindings[0].verificationTopology!.positiveAssertionRefs.find(row => row.id === 'A-POS-2')!;
+semanticPositiveOne.sourceRef = { refKind: 'existing', canonicalSourceRef: 'intent:CHK-001:happy:role-guidance' };
+semanticPositiveTwo.sourceRef = { refKind: 'existing', canonicalSourceRef: 'intent:CHK-002:happy:real-cohort-receipt' };
+const semanticRecordOne = semanticRecords.find(row => row[0] === 'A-POS-1')!;
+const semanticRecordTwo = semanticRecords.find(row => row[0] === 'A-POS-2')!;
+Object.assign(semanticRecordOne, ['A-POS-1', 'positive', 'role-guidance:codex-claude-mirrors', 'prompt-contract', semanticRecordOne[4], semanticRecordOne[5], semanticRecordOne[6], semanticRecordOne[7], semanticRecordOne[8], 'intent:CHK-001:happy:role-guidance']);
+Object.assign(semanticRecordTwo, ['A-POS-2', 'positive', 'rollout:verified-cohort-receipt', 'rollout-receipt-verification', semanticRecordTwo[4], semanticRecordTwo[5], semanticRecordTwo[6], semanticRecordTwo[7], semanticRecordTwo[8], 'intent:CHK-002:happy:real-cohort-receipt']);
+assert.doesNotThrow(() => assemblePreReviewCaseRecords(semanticContract, semanticRecords), 'registered semantic control is accepted');
+assert.doesNotThrow(
+  () => decodePreReviewCaseRecords(encodePreReviewCaseRecords(semanticRecords)),
+  'registered semantic control survives the canonical encoded proof boundary',
+);
+const unrelatedSemanticSwap = structuredClone(semanticRecords);
+const unrelatedTarget = unrelatedSemanticSwap.find(row => row[0] === 'A-POS-1')!;
+unrelatedTarget[2] = semanticRecordTwo[2];
+unrelatedTarget[3] = semanticRecordTwo[3];
+assert.throws(
+  () => assemblePreReviewCaseRecords(semanticContract, unrelatedSemanticSwap),
+  /semantic contract mismatch for A-POS-1/,
+  'retaining assertion ID/sourceRef while swapping to an unrelated executable semantic case fails closed',
+);
+assert.throws(
+  () => decodePreReviewCaseRecords(encodePreReviewCaseRecords(unrelatedSemanticSwap)),
+  /decoded record semantic contract mismatch for A-POS-1/,
+  'encoded proof decoding rejects the same semantic swap before the pre-review verifier consumes it',
+);
 assert.throws(() => assemblePreReviewCaseRecords(expandedContract, [...expandedRecords, structuredClone(expandedRecords[0])]), /duplicate assertion IDs/, 'duplicate executed records fail closed');
 const extraRecord = structuredClone(expandedRecords[0]); extraRecord[0] = 'A-EXTRA';
 assert.throws(() => assemblePreReviewCaseRecords(expandedContract, [...expandedRecords, extraRecord]), /extra assertion IDs: A-EXTRA/, 'extra executed records fail closed');
 assert.throws(() => assemblePreReviewCaseRecords(expandedContract, expandedRecords.filter(record => record[0] !== 'A-MUT-7')), /missing assertion ID: A-MUT-7/, 'missing executed records fail closed');
 
+const fifthPositive = structuredClone(expandedRecords.find(record => record[0] === 'A-POS-4')!);
+fifthPositive[0] = 'A-POS-5';
+fifthPositive[2] = 'rollout:focused-enforce-rollback';
+fifthPositive[4] = 'execute focused Wave 4 rollout smoke with enforce and rollback controls';
+fifthPositive[9] = 'intent:A-POS-5';
+const registeredCatalogFixture = [...expandedRecords, fifthPositive];
+const expectedScenarioAssertions = (records: readonly PreReviewCaseRecordV1[]) =>
+  new Map(records.map(record => [record[0], { kind: record[1], sourceRef: record[9] }]));
+const legacyScenarioAssertions = expectedScenarioAssertions(expandedRecords);
+assert.equal(selectActiveScenarioRecords(legacyScenarioAssertions, registeredCatalogFixture).length, 22, 'legacy active topology omitting A-POS-5 receives the exact legacy 22 records');
+const fivePositiveScenarioAssertions = expectedScenarioAssertions(registeredCatalogFixture);
+assert.equal(selectActiveScenarioRecords(fivePositiveScenarioAssertions, registeredCatalogFixture).filter(record => record[1] === 'positive').length, 5, 'five-intent active topology receives the real fifth positive record');
+assert.throws(
+  () => selectActiveScenarioRecords(fivePositiveScenarioAssertions, registeredCatalogFixture.filter(record => record[0] !== 'A-POS-5')),
+  /missing expected assertion ID: A-POS-5/,
+  'missing expected registered record fails closed',
+);
+const unknownScenarioAssertions = new Map(fivePositiveScenarioAssertions);
+unknownScenarioAssertions.set('A-EXTRA', { kind: 'positive', sourceRef: 'intent:A-EXTRA' });
+assert.throws(
+  () => selectActiveScenarioRecords(unknownScenarioAssertions, registeredCatalogFixture),
+  /unknown active topology assertion ID: A-EXTRA/,
+  'extra or unknown active topology assertion ID fails closed',
+);
+const wrongKindScenarioAssertions = new Map(fivePositiveScenarioAssertions);
+wrongKindScenarioAssertions.set('A-POS-5', { kind: 'mutation', sourceRef: 'intent:A-POS-5' });
+assert.throws(
+  () => selectActiveScenarioRecords(wrongKindScenarioAssertions, registeredCatalogFixture),
+  /active topology assertion kind mismatch for A-POS-5/,
+  'known assertion ID cannot be rebound to a different kind',
+);
+
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
 try {
   smoke: {
-  write(root, '.gitignore', '.lattice/runtime/\n');
+  write(root, '.gitignore', '.lattice/runtime/\n.lattice/activity.jsonl\n.lattice/locks/\n');
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
   write(root, 'tsconfig.json', '{}\n');
   writeRegistration(root);
@@ -306,6 +495,10 @@ try {
   write(root, 'packages/main/src/consumer.ts', consumerControlSource);
   write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}`)});\n`);
   writeActiveLiveProofRunner(root);
+  execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
+    cwd: root,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
   git(root, ['init', '-b', 'main']); git(root, ['config', 'user.name', 'Pre Review Smoke']); git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['add', '.']); git(root, ['commit', '-m', 'seed']); git(root, ['switch', '-c', `story/${storyId}`]);
   process.chdir(root); resetConfigCache();
@@ -320,7 +513,10 @@ try {
     assert.deepEqual(missing.codes, ['PR_ARTIFACT_MISSING']);
     assert.match(missing.remediation.join('\n'), /Run lattice pre_review_check/);
   }
-  cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'caller self-report must not become pre-review authority', attestation: { kind: 'ci', actor: 'self-reported', checkedClaims: ['production-path', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible'] }, actorTrust: { producerActorId: 'claimed-producer', verifierActorId: 'claimed-verifier', trustStatus: 'trusted' } }] });
+  // B-ec67 F-006: an executable (type:cli) intent's evidence write needs a selector or an
+  // audited nonMechanicalReason. This case deliberately records a self-reported attestation
+  // (which pre_review_check must still reject as authority), so it uses the audited escape.
+  cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'caller self-report must not become pre-review authority', nonMechanicalReason: 'self-reported caller attestation recorded without local execution; pre-review authority is proven separately', attestation: { kind: 'ci', actor: 'self-reported', checkedClaims: ['production-path', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible'] }, actorTrust: { producerActorId: 'claimed-producer', verifierActorId: 'claimed-verifier', trustStatus: 'trusted' } }] });
   if (!liveProofMode && !scenarioMode) {
     const selfReported = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(selfReported.ok, false); assert.ok(selfReported.codes.includes('PR_AUTHORITY_INADMISSIBLE'));
@@ -363,21 +559,122 @@ try {
   assert.equal(parsed.plannedActual, 'complete');
   assert.equal(parsed.mutations, 'biting');
   assert.equal(parsed.transcript, 'related');
-  recordExecutedCase(['A-POS-2', 'positive', 'planned-actual:current-worktree', 'current-worktree-reconciliation', 'pre_review_check reports complete plannedActual', 'complete', parsed.plannedActual, true, [['producer-evaluated', producerEvent], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
-  recordExecutedCase(['A-POS-3', 'positive', 'capture-loader:canonical', 'live-capture-loader', 'causal capture loads exact executable proof', 'LOADED', canonicalLoaded ? 'LOADED' : 'MISSING', true, [['producer-evaluated', producerEvent], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+  if (cohortCaseMode) {
+    const cleanContract = structuredClone(store.readProofStoryContract(storyId)!);
+    const cleanPreReviewArtifact = structuredClone(store.readPreReviewCheck(storyId)!);
+    const cleanProducerSource = readFileSync(join(root, 'packages/main/src/producer.ts'), 'utf8');
+    if (cohortArm === 'candidate' && cohortScenario === 'omission') {
+      const omittedContract = structuredClone(cleanContract);
+      omittedContract.acceptanceBindings[0].verificationTopology!.consumerRefs = [];
+      store.writeProofStoryContract(storyId, omittedContract);
+    } else if (cohortArm === 'candidate' && cohortScenario === 'forgery') {
+      const forged = structuredClone(cleanPreReviewArtifact);
+      forged.signature = 'forged';
+      store.writePreReviewCheck(storyId, forged);
+    } else if (cohortArm === 'candidate' && cohortScenario === 'freshness') {
+      // Drift a declared, story-owned production file after the valid signed
+      // evidence was issued. Adding an unrelated file only moves HEAD/material
+      // state and exercises artifact mismatch, not verification-evidence
+      // freshness against the storyFilesHash boundary.
+      write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true,revision:2});\n');
+      git(root, ['add', 'packages/main/src/producer.ts']);
+      git(root, ['commit', '-m', 'inject registered rollout freshness drift']);
+      // The sole DEV-phase producer signs the fail-closed stale result; the
+      // read-only verifier must then reproduce PR_EVIDENCE_STALE without
+      // treating this canonical artifact as caller-authored tampering.
+      cli(root, 'pre_review_check', { storyId, json: true });
+    }
+    git(root, ['add', '.']);
+    git(root, ['commit', '--allow-empty', '-m', `seal registered ${cohortArm}/${cohortScenario} mutation state`]);
+    const mutationCommitSha = git(root, ['rev-parse', 'HEAD']);
+    const topologyReport = JSON.parse(cli(root, 'acceptance_topology_check', { storyId, json: true }));
+    const preReviewReport = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+
+    store.writeProofStoryContract(storyId, cleanContract);
+    store.writePreReviewCheck(storyId, cleanPreReviewArtifact);
+    write(root, 'packages/main/src/producer.ts', cleanProducerSource);
+    git(root, ['add', '.']);
+    git(root, ['commit', '--allow-empty', '-m', `restore registered ${cohortArm}/${cohortScenario} clean control`]);
+    const restorationCommitSha = git(root, ['rev-parse', 'HEAD']);
+    const restoredTopologyReport = JSON.parse(cli(root, 'acceptance_topology_check', { storyId, json: true }));
+    const restoredPreReviewReport = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+    assert.equal(restoredTopologyReport.status, 'pass', `restored topology control failed: ${JSON.stringify(restoredTopologyReport)}`);
+    assert.equal(restoredPreReviewReport.ok, true, `restored pre-review control failed: ${JSON.stringify(restoredPreReviewReport)}`);
+
+    const reviewStory = store.readStory(storyId);
+    const reviewRound = '2026-07-23T13:00:00.000Z';
+    reviewStory.phase = 'REVIEW';
+    reviewStory.currentReviewRound = reviewRound;
+    reviewStory.events = [...(reviewStory.events ?? []), { phase: 'REVIEW', action: 'advance', timestamp: reviewRound }];
+    store.writeStory(storyId, reviewStory);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'prepare actual cohort review fixture']);
+    const reviewLanes = [
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+      'lattice-review-docs',
+    ];
+    for (const lane of reviewLanes) {
+      cli(root, 'dispatch', { storyId, agentType: lane }, false, lane, `sess-${storyId}-${lane}-dispatch`);
+      const run = cli(root, 'review_run_start', { storyId, agent: lane }, false, lane, `sess-${storyId}-${lane}-review`);
+      const reviewRunId = run.match(/Review run (\S+) started/)?.[1];
+      assert.ok(reviewRunId, `cohort review run missing for ${lane}: ${run}`);
+      cli(root, 'review_pass_set', {
+        storyId,
+        agent: lane,
+        reviewRunId,
+        note: `Registered rollout cohort ${cohortArm}/${cohortScenario} found no unrelated review issue.`,
+        readManifest: {
+          filesReadFully: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'],
+          filesTriagedByName: [],
+          scanEscalationReason: null,
+        },
+      }, false, lane, `sess-${storyId}-${lane}-review`);
+    }
+    const quorumResult = JSON.parse(cli(root, 'quorum_submit', {
+      storyId,
+      hostA: 'claude-cli',
+      providerA: 'claude',
+      hostB: 'codex-cli',
+      providerB: 'codex',
+      rounds: 3,
+      note: `Registered rollout cohort ${cohortArm}/${cohortScenario} actual production quorum.`,
+      json: true,
+    }));
+    const processEvents = store.readProcessEvents(storyId);
+    const hostVerdicts = processEvents.filter(event => event.type === 'host_verdict');
+    const reviewRuns = store.readReviewRuns(storyId).runs;
+    const reviewPasses = store.readReviewPasses(storyId).passes;
+    console.log(`PROOFSTORY_ROLLOUT_CASE=${JSON.stringify({
+      storyId,
+      arm: cohortArm,
+      scenario: cohortScenario,
+      mutationCommitSha,
+      restorationCommitSha,
+      topologyReport,
+      preReviewReport,
+      restoredTopologyReport,
+      restoredPreReviewReport,
+      quorumResult,
+      hostVerdicts,
+      reviewRuns,
+      reviewPasses,
+      evidenceGitCwd: root,
+    })}`);
+    break smoke;
+  }
   if (!liveProofMode) {
     const deterministicReadA = cli(root, 'pre_review_check_read', { storyId, json: true });
     const deterministicReadB = cli(root, 'pre_review_check_read', { storyId, json: true });
     assert.equal(deterministicReadA, deterministicReadB, 'read-only projection is byte-stable');
-    recordExecutedCase(['A-MUT-1', 'mutation', 'codes:read-only-projection', 'deterministic-codes', 'repeat canonical read-only verifier projection', 'STABLE', deterministicReadA === deterministicReadB ? 'STABLE' : 'DRIFT', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    if (!scenarioMode) recordExecutedCase(['A-MUT-1', 'mutation', 'codes:read-only-projection', 'deterministic-codes', 'repeat canonical read-only verifier projection', 'STABLE', deterministicReadA === deterministicReadB ? 'STABLE' : 'DRIFT', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
     assert.match(cli(root, 'pre_review_check', { storyId, json: true, verdict: 'pass' }, true), /Forbidden|invalid|unsupported/i, 'caller verdict/authority fields are rejected at the real CLI schema');
   }
   const ctx = { root, scanRoot: join(root, 'packages/main'), store } as unknown as HandlerContext;
   const lifecyclePass = runPreReviewCheckGate(ctx, storyId);
   assert.match(lifecyclePass, /status=pass/);
   const consumerEvent = scenarioEvent('consumer-verified');
-  recordExecutedCase(['A-POS-1', 'positive', 'roundtrip:producer-read-lifecycle', 'producer-consumer-roundtrip', 'producer artifact/read/lifecycle consumer parity', 'PASS', /status=pass/.test(lifecyclePass) ? 'PASS' : 'FAIL', true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
-  recordExecutedCase(['A-MUT-2', 'mutation', 'parity:producer-read-lifecycle', 'producer-consumer-parity', 'shared verifier returns pass through lifecycle consumer', 'PASS', /status=pass/.test(lifecyclePass) ? 'PASS' : 'FAIL', true, [['mutation-applied', producerEvent], ['diagnostic-observed', consumerEvent], ['control-rerun', scenarioEvent('control-rerun')]]]);
   recordExecutedCase(['A-MUT-14', 'mutation', 'codes:direct-vs-lifecycle', 'stable-gate-codes', 'direct verifier and lifecycle consumer agree on pass status', 'PASS', parsed.ok && /status=pass/.test(lifecyclePass) ? 'PASS' : 'FAIL', true, [['mutation-applied', producerEvent], ['diagnostic-observed', consumerEvent], ['control-rerun', scenarioEvent('control-rerun')]]]);
   recordExecutedCase(['A-TRANSCRIPT-1', 'transcript', 'events:producer-consumer', 'event-log-relation', 'actual producer invocation precedes canonical lifecycle consumer', 'ORDERED', producerEvent < consumerEvent ? 'ORDERED' : 'UNORDERED', true, actualScenarioEvents.filter(event => event[1] === producerEvent || event[1] === consumerEvent)]);
 
@@ -498,7 +795,6 @@ try {
     write(root, 'packages/main/src/consumer.ts', source); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', `mutation ${label} is not a runtime consumer`]);
     const discoveryFailure = cli(root, 'pre_review_check', { storyId, json: true });
     assert.match(discoveryFailure, /PR_PLANNED_PATH_UNRESOLVED/, `${label} name collision cannot satisfy planned actual runtime reachability`);
-    if (label === 'unreachable callable') recordExecutedCase(['A-MUT-6', 'mutation', 'discovery:unreachable-callable', 'discovery-state', 'exported callable without runtime incoming edge', 'PR_PLANNED_PATH_UNRESOLVED', /PR_PLANNED_PATH_UNRESOLVED/.test(discoveryFailure) ? 'PR_PLANNED_PATH_UNRESOLVED' : 'MISSING', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   }
   write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore callable producer consumer chain']);
   captureProof(fixtureProof);
@@ -522,7 +818,9 @@ try {
   // basis/evidence after config material changes so the mode assertions test
   // admission semantics rather than unrelated freshness failures.
   const rebindEvidence = (): void => {
-    cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'production evidence writer refreshes current proof binding' }] });
+    // B-ec67 F-006: executable-intent evidence needs a selector or an audited reason;
+    // this rebind is not re-executed in-fixture, so it uses the audited escape.
+    cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'production evidence writer refreshes current proof binding', nonMechanicalReason: 'production evidence rebind after config material change; not re-executed in this smoke fixture' }] });
     captureProof(fixtureProof);
   };
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'enforce' } }));
@@ -564,7 +862,6 @@ try {
   const warnCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
   const warnLifecycle = runPreReviewCheckGate(warnCtx, storyId);
   assert.match(warnLifecycle, /mode=warn; status=pass/);
-  recordExecutedCase(['A-POS-4', 'positive', 'mode:observe-enforce-warn', 'rollout-mode-matrix', 'warn rollback producer and lifecycle consumer both pass', 'PASS', warn.ok && /mode=warn; status=pass/.test(warnLifecycle) ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
   recordExecutedCase(['A-MUT-13', 'mutation', 'config:warn-rollback', 'legacy-config-rollback', 'rollback enforce configuration to warn without stale blocking state', 'PASS', warn.ok && !warn.blocking && /mode=warn; status=pass/.test(warnLifecycle) ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
   const handlerSource = readFileSync(join(repositoryRoot, 'packages/main/src/handlers/proofstory.ts'), 'utf8');
@@ -580,18 +877,104 @@ try {
   console.log('  topology omission + observe/enforce/warn rollback: PASS');
   console.log('  Wave 3A/Wave 4 leakage: absent');
   if (scenarioMode) {
+    const roleProducer = scenarioEvent('producer-evaluated');
+    assert.equal(rolloutPromptGuidancePass(), true, 'canonical Codex/Claude role guidance passes');
+    recordExecutedCase(['A-POS-1', 'positive', 'role-guidance:codex-claude-mirrors', 'prompt-contract', 'execute exact role guidance token and mirror contract over all Codex/Claude role pairs', 'PASS', rolloutPromptGuidancePass() ? 'PASS' : 'FAIL', true, [['producer-evaluated', roleProducer], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    const cohort = loadFrozenAcceptanceRolloutCohortForScenarios();
+    const rolloutReport = deriveAcceptanceRolloutReport({
+      storyId: activeScenarioStoryId!,
+      cohort,
+      binding: currentAcceptanceRolloutBinding(repositoryRoot, repositoryRoot),
+      gitCwd: repositoryRoot,
+    });
+    const rolloutArtifact = issueAcceptanceRolloutArtifact({ gitCwd: repositoryRoot, report: rolloutReport });
+    const rolloutVerification = verifyAcceptanceRolloutArtifact({
+      artifact: rolloutArtifact,
+      gitCwd: repositoryRoot,
+      metadataRoot: repositoryRoot,
+      expectedStoryId: activeScenarioStoryId!,
+      expectedCohort: cohort,
+      mode: 'warn',
+    });
+    const receiptPassed = rolloutVerification.ok && rolloutVerification.receipt === 'current';
+    recordExecutedCase(['A-POS-2', 'positive', 'rollout:verified-cohort-receipt', 'rollout-receipt-verification', 'load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner', 'PASS', receiptPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+    const thresholdsPassed = rolloutReport.metrics.matchedPairCount >= 3
+      && rolloutReport.metrics.falsePassCount === 0
+      && rolloutReport.metrics.omissionDetectionRate === 1
+      && rolloutReport.metrics.falseBlockRate === 0
+      && rolloutReport.metrics.mislabeled3x1Count === 0
+      && rolloutReport.metrics.waiverDelta <= 0
+      && rolloutReport.metrics.inventoryShrankCount === 0;
+    recordExecutedCase(['A-POS-3', 'positive', 'rollout:bounded-threshold-matrix', 'threshold-contract', 'evaluate every canonical promotion threshold from the verifier-derived report metrics', 'PASS', thresholdsPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    const planText = readFileSync(join(repositoryRoot, 'docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md'), 'utf8');
+    const docsPassed = planText.includes('Status: **IMPLEMENTED — FLAT PROJECT BOUNDARY**')
+      && planText.includes('five positive paths and the seventeen')
+      && planText.includes('5 positive / 17 mutation / 1 transcript');
+    recordExecutedCase(['A-POS-4', 'positive', 'docs:canonical-wave4-status', 'docs-contract', 'execute canonical Wave 4 status and exact live-proof inventory contract check', 'PASS', docsPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+
+    const controlRows = rolloutReport.sourceRecords.filter(record =>
+      record.arm === 'candidate' && ['docs_only', 'legacy', 'ordinary'].includes(record.claimClass));
+    const controlsPass = controlRows.length === 3 && rolloutReport.metrics.falseBlockCount === 0;
+    recordExecutedCase(['A-MUT-2', 'mutation', 'rollout:false-block-controls', 'docs-legacy-single-outcome-controls', 'execute docs-only, legacy, and ordinary single-outcome candidate controls through the rollout verifier', 'PASS', controlsPass ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
+    // B-4043 F-014: token-contract mutations target the canonical template
+    // source of truth (where the guidance now lives); the authority-sentence
+    // mutation stays on the Claude host shim so it bites via the codex/claude
+    // mirror-parity contract.
+    const implTemplatePath = 'packages/main/templates/agents/lattice-implementer.md';
+    const templateControl = readFileSync(join(repositoryRoot, implTemplatePath), 'utf8');
+    const claudePath = '.claude/agents/lattice-implementer.md';
+    const claudeControl = readFileSync(join(repositoryRoot, claudePath), 'utf8');
+    assert.ok(templateControl.includes('acceptance_rollout_check'), 'prompt command-removal mutation requires the canonical command token');
+    assert.ok(templateControl.includes('full 3 rounds × 2 hosts'), 'prompt degradation mutation requires the canonical full-3x2 token');
+    assert.ok(claudeControl.includes('prompt prose is never gate evidence'), 'prompt-authority mutation requires the canonical non-authority sentence');
+    const promptMutations = [
+      new Map([[implTemplatePath, templateControl.replace('acceptance_rollout_check', 'removed_rollout_check')]]),
+      new Map([[implTemplatePath, templateControl.replace('full 3 rounds × 2 hosts', 'degraded 3x1')]]),
+      new Map([[claudePath, claudeControl.replace('prompt prose is never gate evidence', 'prompt prose is gate evidence')]]),
+    ];
+    const promptMutationsBite = promptMutations.every(overrides => !rolloutPromptGuidancePass(overrides))
+      && rolloutPromptGuidancePass();
+    recordExecutedCase(['A-MUT-6', 'mutation', 'role-guidance:authority-boundary', 'prompt-contract-mutations', 'remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail', 'PROMPT_CONTRACT_REJECTED', promptMutationsBite ? 'PROMPT_CONTRACT_REJECTED' : 'MUTANT_SURVIVED', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    const mirrorOverride = new Map([[claudePath, `${claudeControl}\nmirror drift\n`]]);
+    const mirrorMutationBites = !rolloutPromptGuidancePass(mirrorOverride) && rolloutPromptGuidancePass();
+    recordExecutedCase(['A-MUT-1', 'mutation', 'role-guidance:mirror-parity', 'codex-claude-mirror', 'mutate one Claude role suffix while retaining the Codex role; exact mirror contract must fail', 'PROMPT_MIRROR_REJECTED', mirrorMutationBites ? 'PROMPT_MIRROR_REJECTED' : 'MUTANT_SURVIVED', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+
     execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], { cwd: repositoryRoot, stdio: ['ignore', 'ignore', 'pipe'] });
     recordExecutedCase(['A-MUT-16', 'mutation', 'contract:process-fact-registry', 'process-fact-contract', 'run the canonical process-fact contract verifier', 'PASS', 'PASS', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    const rolloutSmokePath = join(repositoryRoot, 'packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js');
+    const rolloutSmokeSource = readFileSync(join(repositoryRoot, 'packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts'), 'utf8');
+    assert.match(rolloutSmokeSource, /mode=enforce; status=pass/, 'focused rollout smoke must retain the real enforce control');
+    assert.match(rolloutSmokeSource, /rollback to observe is non-blocking/, 'focused rollout smoke must retain the rollback consumer assertion');
+    assert.match(rolloutSmokeSource, /rollback preserves signed history/, 'focused rollout smoke must retain rollback history preservation');
+    const frozenCohortPath = join(root, 'rollout-cohort-input.json');
+    writeFileSync(frozenCohortPath, JSON.stringify(cohort), 'utf8');
+    const rolloutProducerEvent = scenarioEvent('producer-evaluated');
+    const rolloutSmokeOutput = execFileSync(process.execPath, [rolloutSmokePath], {
+      cwd: repositoryRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, LATTICE_ROLLOUT_COHORT_INPUT_PATH: frozenCohortPath },
+    });
+    const rolloutConsumerEvent = scenarioEvent('consumer-verified');
+    const rolloutControlPassed = /ProofStory acceptance rollout smoke: PASS \(57 assertions\)/.test(rolloutSmokeOutput);
+    assert.equal(rolloutControlPassed, true, `focused rollout enforce+rollback control did not pass: ${rolloutSmokeOutput}`);
+    recordExecutedCase(['A-POS-5', 'positive', 'rollout:focused-enforce-rollback', 'focused-rollout-control', 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls', 'PASS', rolloutControlPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', rolloutProducerEvent], ['consumer-verified', rolloutConsumerEvent]]]);
     const executedRecords = [...scenarioLedger.values()];
+    const selectedRecords = selectActiveScenarioRecords(activeScenarioAssertions, executedRecords);
+    const removedExpectedId = selectedRecords[0]?.[0];
+    assert.ok(removedExpectedId, 'active topology must require at least one registered scenario record');
     assert.throws(
-      () => assertScenarioLedgerComplete(executedRecords.filter(record => record[0] !== 'A-MUT-17')),
-      /executed scenario ledger/,
-      'removing one actually registered record makes exact-ID validation fail',
+      () => selectActiveScenarioRecords(activeScenarioAssertions, executedRecords.filter(record => record[0] !== removedExpectedId)),
+      /executed scenario ledger missing expected assertion ID/,
+      'removing one active registered record makes exact-ID validation fail',
     );
-    assertScenarioLedgerComplete(executedRecords);
-    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(executedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
+    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(selectedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
   }
   }
 } finally {
-  process.chdir(originalCwd); resetConfigCache(); rmSync(root, { recursive: true, force: true });
+  process.chdir(originalCwd); resetConfigCache();
+  if (!cohortCaseMode) rmSync(root, { recursive: true, force: true });
 }

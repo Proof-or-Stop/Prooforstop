@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2296",
+  "changes": "Phase-1 frozen-claim drift detection. New pure Fn module packages/main/src/core/frozen-claim-drift.ts (normalizeClaim + claimDigest + detectDrift); FrozenClaimSnapshot + FrozenClaimDriftAdvisory types (core/types.ts, storyFilesHash drift-authoritative, materialHash informational); an immutable-once, defensive snapshot-capture hook at the checklist_update status=done transition (handlers/checklist.ts); a read-only, NON-blocking frozen_claim_drift_check CLI (handlers/frozen-claim-drift-check.ts) registered across command-catalog / command-policy / process-fact-levels / config / registry / activity-policy; and two deterministic offline smokes (frozen-claim-drift-smoke.ts, frozen-claim-snapshot-hook-smoke.ts) registered in lattice.config.json validate.commands + package.json scripts.",
+  "usage": "Run `node bin/lattice.js frozen_claim_drift_check --storyId=<id>` (add --json for structured output). It reports, for any story, each checklist userSees whose normalized claim text OR story-owned material (storyFilesHash) drifted since it was attested at status=done, with actionRequired=re_attestation; a userSees with no snapshot is reported as legacy-unbound. Read-only, always exits 0, never blocks a gate (Phase 1).",
+  "expectedOutcome": "Running frozen_claim_drift_check on a story whose userSees drifted prints a structured FROZEN_CLAIM_DRIFT advisory (driftKind + actionRequired=re_attestation), classifies a no-snapshot userSees as legacy-unbound, changes no gate verdict, and the frozen-claim-drift smoke (including the unrelated-change and whitespace-only false-positive guards) is green under validate.",
+  "actualTranscript": "node bin/lattice.js frozen_claim_drift_check --storyId=B-2296 -> exit 0. stdout: \"FROZEN_CLAIM_DRIFT advisory for B-2296 (3 drifted, 1 legacy-unbound, non-blocking)\" with CHK-001 classification=legacy-unbound and CHK-002/003/004 driftKind=material, each actionRequired=re_attestation. Captured via live_smoke_transcript into evidence/live-smoke-transcript.json. Both smokes run green under validate.",
+  "outcomeDiff": "No difference. The command produces the structured non-blocking advisory exactly as expected, and the feature dogfoods on B-2296 itself: CHK-002/003/004 show real material drift (later commits + the main merge moved story-owned storyFilesHash after those userSees were attested) and CHK-001 (attested before the feature shipped) is legacy-unbound. Expected and actual match.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Phase 1 is detect + report only and deliberately NON-blocking: it does not turn drift into a gate failure, provide reviewer re-attestation recovery, force re-execution, or migrate legacy-unbound claims — those are Phase 2 (tracked follow-on). plan.md DoneWhen/Verify general drift is out of scope (userSees only). The immutable-once B-ec67 evidence pins meant two intents (CHK-003:happy, CHK-004:adversarial) keep selectors bound to an aggregate PASS line; the underlying behaviors were strengthened in the smoke instead of re-pinning.",
+  "pitfalls": "TEST-gate ordering is sharp: (1) refresh command-backed evidence BEFORE recording review passes, else the passes' closeout snapshot of checklist.json goes stale (closeout-race) and the TEST advance is rejected; (2) NEVER pass --forceTakeover to story_resume — the convergence-breaker gate treats any takeover-carrying command like story_advance and re-throws the freeze, so the ack can never run; (3) pin a stable LATTICE_SESSION_ID, else the derived-ppid session id changes between commands and you lose your own owner-lease; (4) merging main re-stales evidence/passes/quorum because package.json is in the story diff, so budget one extra full re-review round. This story burned several TEST-advance retries into a convergence-breaker freeze that required a human story_resume --ack at a real TTY terminal (no --forceTakeover) to clear — many hours were lost to that catch-22.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 727394
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 211321
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1425345
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 36423961
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 44859434
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 540571
+    }
+  },
+  "totalDurationMs": 84189533,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-27T11:02:47.645Z",
+  "updatedAt": "2026-07-27T11:02:47.645Z"
+}

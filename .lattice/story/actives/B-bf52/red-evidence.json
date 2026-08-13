@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-bf52",
+  "records": [
+    {
+      "id": "RED-20260723225857",
+      "trigger": "red_evidence_required: bug and explicit behavior-change work",
+      "acceptanceTargetRef": "sha256:2dd1ebf8e7f2c0c8e9960c689111952296617a6e488e886b9e3463a7217320bf",
+      "baselineHeadHash": "080faa43ddd567adb6e6193adce6afb88b74f4bc",
+      "baselineMaterialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+      "observedFailure": "Against the story baseline build, gateFailureDigest collapses five substantively different gate rejections into shared counter keys: two real DEV-gate rejection renders differing in their outstanding gaps and two differing in gap count all digest to story_advance/506877715ebd; DEV/REVIEW and DEV/TEST collapse; src/core/alpha.ts and src/core/beta.ts collapse; CHK-001 and CHK-002 collapse. The harness reports 5/8 FAIL and exits 1.",
+      "failingCommand": "node tmp/s3-red/red-s3-digest-collapse.mjs",
+      "expectedGreenCommand": "node tmp/s3-red/red-s3-digest-collapse.mjs",
+      "greenRelation": {
+        "targetRef": "sha256:2dd1ebf8e7f2c0c8e9960c689111952296617a6e488e886b9e3463a7217320bf",
+        "relation": "same_acceptance",
+        "command": "node tmp/s3-red/red-s3-digest-collapse.mjs"
+      },
+      "note": "The same harness is the red and the green command; it exits 1 at baseline (5/8 FAIL) and must exit 0 (8/8 pass) after the change. Its three K cases assert that incidentally-different retries still collapse, so passing it cannot be achieved by making every reason unique.",
+      "createdAt": "2026-07-23T22:58:57.273Z"
+    }
+  ],
+  "createdAt": "2026-07-23T22:58:57.273Z",
+  "updatedAt": "2026-07-23T22:58:57.273Z"
+}

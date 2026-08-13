@@ -18,6 +18,10 @@
 import { resolveReviewRoundCount, isFindingBlocking } from './advisory.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
+// B-7813 CHK-002 fills the CHK-001 seam: read the signed stall-adjudication.json
+// and re-validate it. Function-scoped usage only (never at module-init), so the
+// mutual review-convergence ↔ stall-adjudication import edge is ESM-safe.
+import { isValidCurrentRoundStallResolution } from './stall-adjudication.js';
 import type { StoryStore } from './store.js';
 import type { Finding } from './types.js';
 
@@ -330,4 +334,361 @@ function buildStallMessage(roundCount: number, recentCounts: number[]): string {
     '  - Debugging Contract escalation: 3+ fix attempts that keep surfacing new problems usually point to an architecture/design issue. Consider escalating the design instead of patching another round.',
     '  - Prefer dismissing advisory-level findings (finding_dismiss + reason) over re-rounding: every source-changing fix-commit stales the round and forces a fresh REVIEW round.',
   ].join('\n');
+}
+
+/* -------------------------------------------------------------------------- */
+/* B-7813 CHK-001: stall adjudication (advisory trend signal -> BLOCK).        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The structured resolution actions that (once CHK-002 lands the
+ * stall_resolution_set command + signed, current-round-bound record) clear the
+ * stall block for EXACTLY the next ordinary review round. Named here so the
+ * blocking prompt and the CHK-002 action enum share ONE source and can never
+ * drift. Order is stable for grep/test.
+ *
+ * The first FIVE are the ordinary per-round resolutions (CHK-002). The SIXTH,
+ * `override_budget` (CHK-003), is the PRIVILEGED hard-ceiling override — it is
+ * validated + signed through the SAME machinery ("like the others") so it too
+ * requires its own reason and is current-round-bound, but it additionally clears
+ * the CHK-003 hard-ceiling block that an ordinary per-round resolution CANNOT
+ * (see PRIVILEGED_OVERRIDE_ACTION + evaluateStallAdjudication). Because it is a
+ * strictly-stronger act, it ALSO satisfies the ordinary per-round clear.
+ */
+export const STALL_RESOLUTION_ACTIONS = [
+  'authorize_continuation',
+  'replan',
+  'escalate_root_cause',
+  'resolve_findings',
+  'declare_unreachable',
+  'override_budget',
+] as const;
+
+export type StallResolutionAction = (typeof STALL_RESOLUTION_ACTIONS)[number];
+
+/**
+ * CHK-003: the one PRIVILEGED action that clears the hard-ceiling block. An
+ * ordinary per-round resolution (the other five actions) does NOT clear the
+ * ceiling — only a record whose action === this value does. Consumed on read by
+ * hasCurrentRoundPrivilegedOverride (which re-validates the signed record AND
+ * requires this exact action), so the ceiling can never be bypassed by an
+ * ordinary resolution.
+ */
+export const PRIVILEGED_OVERRIDE_ACTION: StallResolutionAction = 'override_budget';
+
+/** The ordinary per-round resolution actions (everything EXCEPT the privileged override). */
+export const ORDINARY_STALL_RESOLUTION_ACTIONS = STALL_RESOLUTION_ACTIONS.filter(
+  a => a !== PRIVILEGED_OVERRIDE_ACTION,
+) as readonly StallResolutionAction[];
+
+/** Stable machine-readable tag surfaced in the guard-failure message. */
+export const STALL_ADJUDICATION_CODE = 'review_convergence_stall';
+
+/** Stable machine-readable tag for the CHK-003 hard-ceiling refusal. */
+export const STALL_CEILING_CODE = 'review_convergence_stall_ceiling';
+
+/* -------------------------------------------------------------------------- */
+/* B-7813 CHK-003: hard ceiling on total ordinary review rounds.               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * DEFAULT hard ceiling on total ordinary review rounds. Once the completed
+ * review-round count EXCEEDS this ceiling, minting another ordinary round is
+ * refused EVEN IF a per-round resolution is recorded — only a privileged
+ * override (override_budget) proceeds. A small multiple of STALL_MIN_ROUNDS (4):
+ * a stall can first be DETECTED at round 4 and cleared with per-round
+ * resolutions up through the ceiling, giving generous runway before the hard
+ * wall that forces a conscious, signed budget override. This is a DIFFERENT
+ * accounting domain from convergence-breaker's maxAdvance (advances, not review
+ * rounds); the two counters never share a value.
+ */
+export const STALL_HARD_CEILING_ROUNDS = 3 * STALL_MIN_ROUNDS; // 12
+
+/** Env override for the hard ceiling (mirrors convergence-breaker's env pattern). */
+export const STALL_HARD_CEILING_ENV = 'LATTICE_STALL_HARD_CEILING_ROUNDS';
+
+/** Sanity ceiling: a value above this is a typo, not a threshold. */
+export const STALL_HARD_CEILING_ENV_MAX = 100_000;
+
+/**
+ * Resolve the hard-ceiling threshold from an env record (pure; callers pass
+ * process.env at the I/O boundary, exactly like resolveConvergenceThresholds).
+ * A missing / empty / non-numeric / non-finite / non-positive / above-sanity
+ * value falls back to the default — a typo'd env must never zero or break the
+ * ceiling brake.
+ */
+export function resolveStallHardCeiling(env: Record<string, string | undefined>): number {
+  const raw = env[STALL_HARD_CEILING_ENV];
+  if (raw === undefined) return STALL_HARD_CEILING_ROUNDS;
+  const trimmed = raw.trim();
+  if (trimmed.length === 0) return STALL_HARD_CEILING_ROUNDS;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value)) return STALL_HARD_CEILING_ROUNDS;
+  if (value <= 0) return STALL_HARD_CEILING_ROUNDS;
+  if (value > STALL_HARD_CEILING_ENV_MAX) return STALL_HARD_CEILING_ROUNDS;
+  return value;
+}
+
+export interface StallAdjudicationInputs {
+  /**
+   * The EXISTING trend signal, i.e. the output of assessReviewConvergence over
+   * the mint-site round history. This is the ONLY convergence surface — the
+   * adjudication reuses it verbatim and adds no raw round ceiling (the ceiling
+   * is CHK-003).
+   */
+  assessment: ReviewConvergenceAssessment;
+  /**
+   * Whether a signed, current-round-bound structured resolution record exists
+   * for the CURRENTLY stalled round. CHK-002 populates this from a validated
+   * stall-adjudication.json (reason min length + current-round binding +
+   * signature). Until then it is always false, so a genuine stall is blocked
+   * and cannot be cleared by prose — only by the future signed record.
+   */
+  hasCurrentRoundResolution: boolean;
+  /**
+   * CHK-003: total ordinary review rounds observed at the mint site (the same
+   * completed-round count assessReviewConvergence is fed). Compared against
+   * `ceiling` for the hard-ceiling brake. Keyed on REVIEW ROUNDS — a DIFFERENT
+   * accounting domain from convergence-breaker's advance count.
+   */
+  roundCount: number;
+  /**
+   * CHK-003: the resolved hard ceiling on total ordinary review rounds
+   * (resolveStallHardCeiling(env); default STALL_HARD_CEILING_ROUNDS). Injected
+   * so this function stays PURE — no process.env read here.
+   */
+  ceiling: number;
+  /**
+   * CHK-003: whether a signed, current-round-bound PRIVILEGED override
+   * (override_budget) record exists for the current round. Only this clears the
+   * hard-ceiling block; an ordinary per-round resolution does not. Populated by
+   * hasCurrentRoundPrivilegedOverride (re-validates the signed record AND
+   * requires action === PRIVILEGED_OVERRIDE_ACTION).
+   */
+  hasPrivilegedOverride: boolean;
+}
+
+export interface StallAdjudication {
+  /** True => minting another ordinary review round is REFUSED. */
+  blocked: boolean;
+  /** Structured English prompt naming the allowed §3 actions; only when blocked. */
+  prompt?: string;
+  /** Stable machine-readable code for the gate-failure tag; only when blocked. */
+  code?: string;
+}
+
+/**
+ * PURE decision function. No I/O, no store, no clock — a deterministic function
+ * of observable state only (the trend assessment + the two resolution booleans +
+ * the round count and injected ceiling).
+ *
+ * Decision table (evaluated top-to-bottom):
+ *   (1) assessment.stalled === false          -> ALLOW (converging or too-few rounds).
+ *       Preserves CHK-001's invariant VERBATIM: a genuinely converging story
+ *       (trailing-clean last==0, or strictly decreasing) is NEVER blocked, even
+ *       at/beyond STALL_MIN_ROUNDS and even beyond the hard ceiling.
+ *   (2) stalled && roundCount > ceiling        -> HARD-CEILING branch:
+ *         - hasPrivilegedOverride              -> ALLOW (a signed override_budget proceeds).
+ *         - else                               -> BLOCK [STALL_CEILING_CODE]. This
+ *           branch is checked BEFORE the per-round-resolution clear below, so
+ *           beyond the ceiling the mint is refused EVEN IF an ordinary per-round
+ *           resolution is recorded — only a privileged override proceeds. This is
+ *           what stops the adjudication from being ignored indefinitely by
+ *           recording one ordinary resolution every round.
+ *   (3) stalled && hasCurrentRoundResolution    -> ALLOW (below the ceiling, a
+ *       current-round resolution clears exactly the next round — CHK-002).
+ *   (4) stalled && !hasCurrentRoundResolution   -> BLOCK [STALL_ADJUDICATION_CODE]
+ *       (ordinary stall block; carry the structured prompt).
+ *
+ * It deliberately does NOT re-derive the stall — it consumes assessReviewConvergence's
+ * verdict. Note override_budget also satisfies hasCurrentRoundResolution (it is a
+ * strictly-stronger act), so it clears both the ceiling AND, below the ceiling,
+ * the ordinary stall.
+ */
+export function evaluateStallAdjudication(inputs: StallAdjudicationInputs): StallAdjudication {
+  // (1) Converging / too-few rounds -> allow (CHK-001 invariant, unchanged).
+  if (!inputs.assessment.stalled) {
+    return { blocked: false };
+  }
+  // (2) Hard ceiling on total ordinary rounds. Checked BEFORE the per-round
+  //     resolution clear so an ordinary resolution cannot bypass the ceiling.
+  if (inputs.roundCount > inputs.ceiling) {
+    if (inputs.hasPrivilegedOverride) {
+      return { blocked: false };
+    }
+    return {
+      blocked: true,
+      code: STALL_CEILING_CODE,
+      prompt: buildStallCeilingPrompt(inputs.roundCount, inputs.ceiling, inputs.assessment),
+    };
+  }
+  // (3) Below the ceiling: a current-round resolution clears exactly the next round.
+  if (inputs.hasCurrentRoundResolution) {
+    return { blocked: false };
+  }
+  // (4) Stalled, below ceiling, no resolution -> ordinary stall block.
+  return {
+    blocked: true,
+    code: STALL_ADJUDICATION_CODE,
+    prompt: buildStallAdjudicationPrompt(inputs.assessment),
+  };
+}
+
+/**
+ * Builds the structured, English-only block prompt. Leads with a stable marker
+ * ([review_convergence_stall]) for grep/test, echoes the advisory trend detail
+ * (assessment.message, when present), and NAMES the five allowed resolution
+ * actions the operator must record (via CHK-002's stall_resolution_set) to mint
+ * another round or close the loop.
+ */
+function buildStallAdjudicationPrompt(assessment: ReviewConvergenceAssessment): string {
+  const lines = [
+    `Cannot mint another ordinary REVIEW round: convergence has stalled and no current-round resolution is recorded. [${STALL_ADJUDICATION_CODE}]`,
+  ];
+  if (assessment.message) {
+    lines.push(assessment.message);
+  }
+  lines.push(
+    '→ This mint is refused until you record ONE structured resolution bound to the current stalled round (CHK-002 stall_resolution_set). Allowed actions:',
+    '  - authorize_continuation: consciously allow one more ordinary round (with a reason).',
+    '  - replan: return to PLAN and re-decompose the checklist/decision.',
+    '  - escalate_root_cause: escalate the design/architecture instead of patching another round (Debugging Contract: 3+ non-converging fix attempts).',
+    '  - resolve_findings: dismiss the advisory-level findings that keep re-rounding (finding_dismiss + reason) rather than re-rounding.',
+    '  - declare_unreachable: mark the offending checklist item withdrawn/unreachable (B-1909 withdrawn-disposition) and close the loop.',
+  );
+  return lines.join('\n');
+}
+
+/**
+ * CHK-003: the structured, English-only HARD-CEILING refusal prompt. Distinct
+ * from the ordinary stall prompt — leads with STALL_CEILING_CODE for grep/test,
+ * states the total-rounds cap has been exceeded, and makes explicit that an
+ * ordinary per-round resolution will NOT clear it: only a signed
+ * `override_budget` (with its own reason) proceeds. This is the wall that forces
+ * a conscious budget decision once a story has cycled past the hard ceiling.
+ */
+function buildStallCeilingPrompt(
+  roundCount: number,
+  ceiling: number,
+  assessment: ReviewConvergenceAssessment,
+): string {
+  const lines = [
+    `Cannot mint another ordinary REVIEW round: total ordinary review rounds (${roundCount}) have exceeded the hard ceiling (${ceiling}). [${STALL_CEILING_CODE}]`,
+  ];
+  if (assessment.message) {
+    lines.push(assessment.message);
+  }
+  lines.push(
+    '→ Beyond the hard ceiling an ordinary per-round resolution (authorize_continuation / replan / escalate_root_cause / resolve_findings / declare_unreachable) will NOT clear this block — the review budget is exhausted.',
+    `  - The ONLY way to mint another ordinary round is to record the PRIVILEGED override with its own reason: stall_resolution_set action=${PRIVILEGED_OVERRIDE_ACTION}.`,
+    '  - The override is itself current-round-bound and signed, so it authorizes EXACTLY the next ordinary round — it is not a permanent budget increase, and each further round past the ceiling needs its own conscious override.',
+    '  - Strongly prefer closing the loop instead: escalate the design (Debugging Contract) or declare the offending checklist item unreachable rather than paying down more rounds.',
+    `  - The hard ceiling defaults to ${STALL_HARD_CEILING_ROUNDS} rounds and can be tuned via the ${STALL_HARD_CEILING_ENV} env var.`,
+  );
+  return lines.join('\n');
+}
+
+/**
+ * CHK-002 (fills the CHK-001 seam). Presence of a signed, current-round-bound
+ * structured resolution record (stall-adjudication.json) for the CURRENTLY
+ * stalled round.
+ *
+ * Reads the persisted record and RE-VALIDATES it against the current stalled
+ * round via the pure isValidCurrentRoundStallResolution predicate (reason min
+ * length + current-round binding + signature). Returns true ONLY when a valid,
+ * current-review-round, signed resolution exists — a previous-round / empty /
+ * unsigned / tampered record returns false and does NOT clear the block. This is
+ * one of the two consumption points (this gate + the stall_resolution_set
+ * handler) that must both re-validate the record; neither trusts the other.
+ *
+ * Pure-ish store consumer (same discipline as collectReviewConvergenceInputs):
+ * reads only, no writes, no transition side effects. Fail-closed on any read
+ * error — an infra/read failure means "no valid resolution", so the block holds
+ * (it never silently clears the stall).
+ */
+export function hasCurrentRoundStallResolution(store: StoryStore, storyId: string): boolean {
+  try {
+    const record = store.readStallAdjudication(storyId);
+    if (!record) return false;
+    let currentReviewRound = '';
+    try {
+      currentReviewRound = store.readStory(storyId).currentReviewRound || '';
+    } catch {
+      return false;
+    }
+    return isValidCurrentRoundStallResolution(record, currentReviewRound);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * CHK-003 (gate consumer of the privileged override). Presence of a signed,
+ * current-round-bound record whose action is the PRIVILEGED override
+ * (override_budget) for the CURRENTLY stalled round.
+ *
+ * RE-VALIDATION (Handler encoding convention, "re-validate at handler + gate"):
+ * this re-runs the FULL isValidCurrentRoundStallResolution check (reason min
+ * length + current-round binding + signature) — exactly as the ordinary
+ * resolution gate does — AND additionally requires action ===
+ * PRIVILEGED_OVERRIDE_ACTION. So the hard-ceiling block can be cleared ONLY by a
+ * genuine, signed, current-round override; a stale / previous-round / unsigned /
+ * tampered record, or any of the five ordinary actions, returns false and the
+ * ceiling holds. Fail-closed on any read error (the block holds).
+ */
+export function hasCurrentRoundPrivilegedOverride(store: StoryStore, storyId: string): boolean {
+  try {
+    const record = store.readStallAdjudication(storyId);
+    if (!record) return false;
+    if (record.action !== PRIVILEGED_OVERRIDE_ACTION) return false;
+    let currentReviewRound = '';
+    try {
+      currentReviewRound = store.readStory(storyId).currentReviewRound || '';
+    } catch {
+      return false;
+    }
+    return isValidCurrentRoundStallResolution(record, currentReviewRound);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * CHK-001: store-consuming mint-site gate. Reads the observable round history
+ * from the store, runs the EXISTING trend detector over the COMPLETED rounds
+ * visible at the mint site, and returns the pure adjudication.
+ *
+ * Round-count semantics at the MINT site (vs assessReviewConvergenceAtEntry):
+ *   The mint gate runs while the story is still at DEV, BEFORE the new round's
+ *   REVIEW/advance event is written — so every round resolveReviewRoundCount
+ *   counts here is a COMPLETED round whose reviewers have run. Therefore, unlike
+ *   the render-time advisory (which drops the just-entered, not-yet-reviewed
+ *   current round), this gate feeds the FULL dense per-round array to
+ *   assessReviewConvergence with NO trailing drop. The advisory entry point
+ *   (assessReviewConvergenceAtEntry) is intentionally left untouched.
+ *
+ * Pure-ish: only reads via the store, no writes, no transition side effects;
+ * evaluateStallAdjudication stays PURE.
+ *
+ * CHK-003: the hard ceiling is resolved from `env` (default process.env) at this
+ * I/O boundary and passed INTO the pure evaluator — mirroring how
+ * resolveConvergenceThresholds(env) feeds assessBreaker in convergence-breaker.ts.
+ * The privileged-override presence is read via hasCurrentRoundPrivilegedOverride.
+ * This gate reads ONLY the review-round history + stall-adjudication.json; it
+ * never touches breaker-state.json — the two brakes stay independent.
+ */
+export function evaluateReviewMintStallAdjudication(
+  store: StoryStore,
+  storyId: string,
+  env: Record<string, string | undefined> = process.env,
+): StallAdjudication {
+  const { roundCount, perRoundBlockingCounts } = collectReviewConvergenceInputs(store, storyId);
+  const assessment = assessReviewConvergence(roundCount, perRoundBlockingCounts);
+  return evaluateStallAdjudication({
+    assessment,
+    hasCurrentRoundResolution: hasCurrentRoundStallResolution(store, storyId),
+    roundCount,
+    ceiling: resolveStallHardCeiling(env),
+    hasPrivilegedOverride: hasCurrentRoundPrivilegedOverride(store, storyId),
+  });
 }

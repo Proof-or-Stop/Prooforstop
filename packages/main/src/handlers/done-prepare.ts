@@ -5,7 +5,7 @@ import { syncBuiltinESMExports } from 'module';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
-import { createChecklistHandlers } from './checklist.js';
+import { refreshStaleEvidenceMetadataOnly } from './checklist.js';
 import { buildDoneClosureRunbook, type DoneClosureRunbook } from './done-closure.js';
 import { createDoneRequiredValidationHandlers } from './done-required-validation.js';
 import { createVerifierHandlers } from './verifier.js';
@@ -1150,8 +1150,10 @@ function parseValidateOutput(text: string, next = 'lattice validate --story=<sto
 }
 
 function classifyStaleEvidence(ctx: HandlerContext, storyId: string, gitCwd: string): StaleEvidencePlan {
-  const checklistHandlers = createChecklistHandlers(ctx);
-  const dryRunTranscript = asText(checklistHandlers.verification_evidence_refresh_stale({ storyId, dryRun: true }));
+  // B-1507 CHK-002: metadata-only DRY preview (no command execution) — done_prepare
+  // refuses / reruns command-backed rows on its own path, so it must never take the
+  // re-executing refresh handler.
+  const dryRunTranscript = asText(refreshStaleEvidenceMetadataOnly(ctx, storyId, true));
   const cl = ctx.store.readChecklist(storyId);
   const headHash = currentGitHead(gitCwd);
   if (!headHash) {
@@ -1940,7 +1942,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   } else if (args.dryRun) {
     setStep(steps, 'staleEvidenceRefresh', 'skipped', `planned mutation skipped: dryRun would refresh ${stalePlan.safeRefresh.length} metadata-only stale evidence item(s)`);
   } else {
-    const refreshed = asText(createChecklistHandlers(ctx).verification_evidence_refresh_stale({ storyId }));
+    const refreshed = asText(refreshStaleEvidenceMetadataOnly(ctx, storyId));
     setStep(steps, 'staleEvidenceRefresh', 'pass', refreshed.split('\n').find((line) => line.trim()) || stalePlan.dryRunTranscript);
   }
 

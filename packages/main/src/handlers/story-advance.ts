@@ -26,6 +26,9 @@ export function createStoryAdvanceHandlers(ctx: HandlerContext) {
       storyId: string;
       phase: StoryPhase;
       checklist?: Array<{ id: string; title: string }>;
+      // B-8b69: required, audited reason for the gated PLAN->INIT reopen; ignored for
+      // every other transition. Threaded straight into runStoryTransition.
+      reason?: string;
     }): Promise<string> {
       const result = await runStoryTransition(ctx, args);
       return renderTransitionResult(result);

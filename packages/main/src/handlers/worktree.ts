@@ -25,7 +25,11 @@ import { refContainsStoryMetadata } from '../core/safe-init-commit.js';
 // is minted, the phase_transition process-event is appended, and every gate /
 // hook fires — instead of driving a raw XState actor and writing story.phase
 // directly (which bypassed all of that and mislabeled the event 'TEST').
-import { runStoryTransition } from './transition-orchestrator.js';
+import {
+  reconcileReopenAuditBeforeOutOfBandPhaseChange,
+  renderOutOfBandReopenAuditNotice,
+  runStoryTransition,
+} from './transition-orchestrator.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
 
@@ -480,10 +484,24 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     );
   }
 
-  /** Resolve the worktree.path stored in story (may be relative or absolute) to an absolute path */
+  /**
+   * Resolve the worktree.path stored in story (may be relative or absolute) to an
+   * absolute path.
+   *
+   * B-8b69: a stored relative worktree.path (e.g. `.worktrees/B-xxx`) is ALWAYS
+   * relative to the MAIN repo root (that is where the `.worktrees` dir lives), so it
+   * must be joined against the main repo root — resolved via `resolveMainRepoRoot()`
+   * (`git rev-parse --git-common-dir`) which returns the main checkout even when the
+   * command runs from INSIDE a linked worktree. The previous `getRepoRoot()`
+   * (`--show-toplevel`) returned the worktree itself when invoked from within one,
+   * so `join(worktree, ".worktrees/B-xxx")` double-nested to a non-existent path —
+   * defeating dev_start's existing-worktree reuse check and forcing a spurious
+   * re-bootstrap. From the main root the two resolutions are identical, so this is
+   * byte-identical for every from-main caller.
+   */
   function resolveWorktreePath(storedPath: string): string {
     if (isAbsolute(storedPath)) return storedPath;
-    return join(getRepoRoot(), storedPath);
+    return join(resolveMainRepoRoot(), storedPath);
   }
 
   function branchExists(branch: string, cwd: string = root): boolean {
@@ -559,6 +577,15 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
     }
   }
 
+  // `git worktree prune --expire now` only drops registry entries whose recorded gitdir
+  // path (`<worktree>/.git`) no longer resolves — the directory merely being present is
+  // NOT the criterion. It therefore CANNOT remove a live sibling worktree: git leaves
+  // every still-resolving registration alone. Note `--expire now` is repo-wide, NOT
+  // story-scoped: one call clears the currently-missing registrations of every story,
+  // not just this one — safe here (a missing registration is already dead), but callers
+  // must not rely on it to touch only their own entry. Caveat on "every missing entry":
+  // a worktree explicitly `git worktree lock`ed is never pruned even when its directory
+  // is gone, so this is not an absolute guarantee that the registry ends up clean.
   function pruneWorktreeRegistry(cwd: string = root): void {
     git('worktree prune --expire now', cwd);
   }
@@ -885,7 +912,22 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const storyAbs = join(root, store.storyDirRel().replace(/\/$/, ''), args.storyId);
       const canonicalStoryAbs = existsSync(storyAbs) ? realpathSync(storyAbs) : storyAbs;
       const canonicalRepoRoot = existsSync(repoRoot) ? realpathSync(repoRoot) : repoRoot;
-      const storyRel = relative(canonicalRepoRoot, canonicalStoryAbs).replace(/\\/g, '/');
+      let storyRel = relative(canonicalRepoRoot, canonicalStoryAbs).replace(/\\/g, '/');
+      // B-8b69 defense-in-depth: when this bootstrap runs from INSIDE a linked
+      // worktree, `root` (the metadata root) is `<main>/<worktreeDir>/<id>` while
+      // `repoRoot` is the main checkout, so the relative path gains a
+      // `<worktreeDir>/<id>/` prefix that does NOT exist on the story branch (whose
+      // metadata lives at storyDirRel from the tree root) — making the branch-content
+      // guard below false-fail on a nested path. Strip that exact prefix so the guard
+      // checks the canonical `storyDirRel/<id>`. The primary fix (resolveWorktreePath
+      // resolving against the main repo root) makes dev_start's reuse check
+      // early-return before reaching here, so this is belt-and-suspenders. Only the
+      // precise `<worktreeDir>/<id>/` shape is stripped, so wrapper-root/gitRoot
+      // layouts (where the metadata root is a non-worktree subdir) are unaffected.
+      const worktreeNestPrefix = `${worktreeDir.replace(/\/+$/, '')}/${args.storyId}/`;
+      if (storyRel.startsWith(worktreeNestPrefix)) {
+        storyRel = storyRel.slice(worktreeNestPrefix.length);
+      }
       // Fail closed with a clear message when story metadata is not inside the
       // resolved git root (mirrors the cli-engine reconcile guard); otherwise the
       // scoped `git add` would fail with an opaque "outside repository" error.
@@ -945,6 +987,22 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
             `Please confirm the current repo has at least one commit and ${storyRel} can be git added.`,
           );
         }
+      }
+
+      // B-8b69 (F-008): a worktree whose directory was deleted while its git
+      // registration lingered makes `git worktree add` fail with
+      // "'<path>' is a missing but already registered worktree". When re-bootstrapping
+      // such a story (the reuse early-return above already fell through because the dir
+      // is gone), surgically drop THIS story's stale admin registration + prune the
+      // now-missing entry so the add recreates the worktree cleanly, instead of leaking
+      // the raw git error. Targeted to this story (removeStaleWorktreeAdminDirs); a
+      // no-op on the normal first bootstrap where no residue exists and the path is
+      // absent. The prune only expires already-missing worktrees, so live siblings are
+      // untouched. This makes dev_start's deleted-worktree recovery (CHK-002 adversarial)
+      // actually work rather than relying on the caller to prune first.
+      if (findWorktreeResidue(args.storyId, branch, worktreePath, repoRoot) && !isUsableGitWorktree(worktreePath)) {
+        removeStaleWorktreeAdminDirs(args.storyId, branch, worktreePath, repoRoot);
+        pruneWorktreeRegistry(repoRoot);
       }
 
       // Create worktree
@@ -1125,7 +1183,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
 
     /** Discard story: callable at any phase, forcibly cleans up worktree and branch */
     story_discard(args: { storyId: string; reason?: string; force?: boolean; purge?: boolean }): string {
-      const story = store.readStory(args.storyId);
+      let story = store.readStory(args.storyId);
 
       if (story.phase === 'DONE') {
         throw new Error(`Story ${args.storyId} is already DONE, cannot discard (revert completed stories via git revert)`);
@@ -1144,6 +1202,57 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       const detectedWorktreePath = story.worktree?.path
         ? resolveWorktreePath(story.worktree.path)
         : findWorktreeResidue(args.storyId, branch, undefined, gitRoot) || findWorktreePathByBranch(branch, gitRoot);
+
+      // B-70a6 F-005: story_discard mutates story.phase OUT OF BAND (see the
+      // writeStory below) — it never routes through runStoryTransitionInner, so
+      // the reopen-audit reconciliation that runs there never runs here. Worse,
+      // the steps just below FORCE-DELETE the worktree and branch, i.e. the only
+      // copy that holds a crashed reopen's pendingReopenAudit record (the reopen
+      // is cwd-gated into the worktree, while cli/runtime-root.ts redirects THIS
+      // command's root to the MAIN root), and DISCARDED is terminal, so no later
+      // transition can ever heal it. Rescue the audit event FIRST, into the
+      // surviving store's append-only log, while the doomed copy still exists.
+      //
+      // Ordering is the whole point: this must precede the worktree removal AND
+      // the phase write. It never throws — discarding is legitimate and must not
+      // be blocked by an audit record; problems are surfaced as ⚠ lines instead.
+      //
+      // CONCURRENCY RESIDUAL (B-70a6 F-013): this is a ONE-TIME SCAN taken
+      // WITHOUT the per-story transition lock, so it rescues only a record that
+      // is ALREADY on disk right now. A PLAN->INIT reopen that commits its record
+      // into the worktree AFTER this line still loses it to the removal below,
+      // and dies against the removed copy — neither record nor event survives.
+      //
+      // Deliberately NOT locked here. CORRECTED BY B-70a6 F-014 — the earlier
+      // note gave two wrong reasons and is retracted: it argued about the 15s
+      // fail-fast transition-cas persist claim, which was never the candidate
+      // primitive, and it implied this handler's withReentrantMainWriteLock calls
+      // forbid an acquire. They do not — those calls all come AFTER the rescue and
+      // after the destruction, so an acquire here would be transitionLock ->
+      // mainWriteLock, the established order, not an inversion. The real reasons:
+      // (1) the only candidate mutex, acquireStoryTransitionLock, is documented as
+      // advisory and is disabled outright by
+      // LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, so it could narrow this
+      // window but never close it; (2) story_discard is the RECOVERY COMMAND, and
+      // that lock exposes no fail-fast option — an acquire polls the 180s deadline
+      // and then throws, and a leaked lock whose pid was recycled by an unrelated
+      // live process is classified `active` and never stale-reclaimed at any age,
+      // so this command would hang behind a lock file exactly when a story is
+      // already wedged. A non-blocking try-acquire (the one shape without that
+      // hazard) was considered and declined: it covers only a reopen that has not
+      // yet taken the lock. Full reasoning + the follow-up scope live on
+      // reconcileReopenAuditBeforeOutOfBandPhaseChange.
+      const reopenAuditRescue = reconcileReopenAuditBeforeOutOfBandPhaseChange({
+        storyId: args.storyId,
+        store,
+        recordRoots: [detectedWorktreePath],
+      });
+      results.push(...renderOutOfBandReopenAuditNotice(args.storyId, reopenAuditRescue, { metadataWillBePurged: args.purge === true }));
+      if (reopenAuditRescue.status !== 'none') {
+        // The rescue may have cleared the record on the surviving index; re-read so
+        // the DISCARDED write below cannot resurrect it from a pre-rescue snapshot.
+        story = store.readStory(args.storyId);
+      }
 
       // Clean up worktree (if it exists). Any cleanup failure fails closed: do not write
       // DISCARDED, do not delete metadata, do not output a fake "cleaned up" success.

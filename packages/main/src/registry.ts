@@ -15,6 +15,7 @@ import { loadConfig } from './core/config.js';
 import type { HandlerContext } from './handlers/context.js';
 import { createStoryHandlers } from './handlers/story.js';
 import { createChecklistHandlers } from './handlers/checklist.js';
+import { createFrozenClaimDriftCheckHandlers } from './handlers/frozen-claim-drift-check.js';
 import { createBugHandlers } from './handlers/bug.js';
 import { createFixtureHandlers } from './handlers/fixture.js';
 import { createTestAutoHandlers } from './handlers/test-auto.js';
@@ -37,6 +38,7 @@ import { createEvaluateHandlers } from './handlers/evaluate.js';
 import { createWorkflowHandlers } from './handlers/workflow.js';
 import { createScopeCheckHandlers } from './handlers/scope-check.js';
 import { createInitCheckHandlers } from './handlers/init-check.js';
+import { createStallAdjudicationHandlers } from './handlers/stall-adjudication.js';
 import { createScopeQuestionResolveHandlers } from './handlers/scope-question-resolve.js';
 import { createStoryDispatchHandlers } from './handlers/story-dispatch.js';
 import { createBackgroundHandlers } from './handlers/background.js';
@@ -112,6 +114,7 @@ import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
 import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
 import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
+import { createEvidencePinGuardHandlers } from './handlers/evidence-pin-guard.js';
 import { createReleaseHandlers } from './handlers/release.js';
 import { createAutopilotHandlers } from './handlers/autopilot.js';
 import { createPlannerHandlers } from './handlers/planner.js';
@@ -124,6 +127,7 @@ import { createUsageSweepHandlers } from './handlers/usage-sweep.js';
 import { createCandidateSpecRoutingHandlers } from './handlers/candidate-spec-routing.js';
 import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
+import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
 import { nextStoryId } from './handlers/context.js';
 
 export type HandlerFn = (...args: any[]) => any;
@@ -175,6 +179,8 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   registry.registerBatch(createStoryHandlers(ctx));
   registry.registerBatch(createChecklistHandlers(ctx));
+  // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory surface.
+  registry.registerBatch(createFrozenClaimDriftCheckHandlers(ctx));
   registry.registerBatch(createBugHandlers(ctx));
   registry.registerBatch(createFixtureHandlers(ctx));
   registry.registerBatch(createTestAutoHandlers(ctx));
@@ -200,6 +206,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createScopeCheckHandlers(ctx));
   // B-e71f CHK-003: init_check_set — INIT→INIT_CHECK 硬门槛产物 init-check.json 写入
   registry.registerBatch(createInitCheckHandlers(ctx));
+  registry.registerBatch(createStallAdjudicationHandlers(ctx));
   registry.registerBatch(createScopeQuestionResolveHandlers(ctx));
   registry.registerBatch(createStoryDispatchHandlers(ctx));
   registry.registerBatch(createBackgroundHandlers(ctx));
@@ -404,8 +411,18 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createLatticeParallelWaveHandlers(ctx));
   registry.registerBatchMissing(createLatticeBaselineHandlers(ctx));
 
+  // W2b (B-e10d): red_evidence_binding_set — the trusted RED-evidence
+  // subsystem's first mutating command. Owner-lease + mutation-authority gated;
+  // registers the per-story target binding (§1.1.3) before a RED run.
+  // W2c (B-506e) adds red_evidence_quarantine / red_evidence_recover (the two
+  // owner-gated chain-control appends) to the SAME batch — auto-registered here.
+  registry.registerBatch(createRedEvidenceHandlers(ctx));
+
   // prewrite scope enforcement — pre-tool hook guard for write-like operations
   registry.registerBatch(createPrewriteGuardHandlers(ctx));
+
+  // B-1507 CHK-003: fail-open evidence-pin seatbelt for shell-tool PreToolUse hooks
+  registry.registerBatch(createEvidencePinGuardHandlers(ctx));
 
   // Remote publish approval is local-only: it writes a one-shot pre-push token,
   // never performs the push itself.

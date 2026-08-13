@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-49d4",
+  "sourceText": "After story B-2aa7 closed, the operator asked for a repro-first verification round across four spun-off follow-up items - prove the problem exists before deciding whether to solve it. This item came back DEFECT CONFIRMED and larger than filed; a sibling came back DEFECT NOT REAL and was withdrawn. The operator then asked for a risk-times-cost ordering and approved proceeding in that order, this item first.",
+  "normalizedOutcome": "Adding a harness under packages/main/tests/red/ without deciding whether it runs under lattice validate makes a guard FAIL and name the file. Every current member is either registered or excluded with a machine-checked reason. The guard enforcing this itself runs under lattice validate.",
+  "acceptanceClaim": "On the fixed tree, an undecided newcomer in either guarded population - including one whose name matches no existing prefix - causes a non-zero exit naming the file, while every existing member is registered or carries a stated exclusion reason, and the guard itself is registered in validate.commands.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:3cd510f41afbfbfcd06825621b368697b74a885ab88943c4c98309859be926c6",
+  "createdAt": "2026-07-27T16:02:24.958Z",
+  "updatedAt": "2026-07-27T16:02:24.958Z"
+}

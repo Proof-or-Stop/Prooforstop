@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-70a6",
+  "checkedAt": "2026-07-25T23:18:50.671Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "a5001f1a70c147128dc25cba391743bc87f37d020edeac6656b19dffcd3a8145",
+  "executionBoundaryHash": "703eb3daaa1e22c6055ac57aa1a960ff238e854203ea28ba155a137d5e7772e6",
+  "freshnessHash": "6570a7837958b76c6ed0b79aa496959e84d8432c0ad9064cb21ddd22176066e2",
+  "effectiveExcludedKeywords": [
+    "actor / eventId provenance plumbing into the phase_transition event (the user listed these in their section 4 but answered 'no preference' when asked directly; left out per the minimal-scope recommendation for a LOW finding, and recorded here so extending scope is a deliberate, visible act rather than silent creep)",
+    "Any change to gate decisions, transition legality, or the REOPEN reason validation threshold itself",
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "Making the event append and the phase write crash-transactional (pre-existing and universal to all transitions, not introduced by this change; the user's section 6 explicitly directed that unrelated hardening not be folded in)",
+    "repair UX",
+    "Updating docs/requirements/decisions/plan-init-reopen.md prose beyond what the code comments already state"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "actor / eventId provenance plumbing into the phase_transition event (the user listed these in their section 4 but answered 'no preference' when asked directly; left out per the minimal-scope recommendation for a LOW finding, and recorded here so extending scope is a deliberate, visible act rather than silent creep)",
+      "source": "scopeBoundary.excluded",
+      "text": "actor / eventId provenance plumbing into the phase_transition event (the user listed these in their section 4 but answered 'no preference' when asked directly; left out per the minimal-scope recommendation for a LOW finding, and recorded here so extending scope is a deliberate, visible act rather than silent creep)",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to gate decisions, transition legality, or the REOPEN reason validation threshold itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to gate decisions, transition legality, or the REOPEN reason validation threshold itself",
+      "excluded": true
+    },
+    {
+      "keyword": "Making the event append and the phase write crash-transactional (pre-existing and universal to all transitions, not introduced by this change; the user's section 6 explicitly directed that unrelated hardening not be folded in)",
+      "source": "scopeBoundary.excluded",
+      "text": "Making the event append and the phase write crash-transactional (pre-existing and universal to all transitions, not introduced by this change; the user's section 6 explicitly directed that unrelated hardening not be folded in)",
+      "excluded": true
+    },
+    {
+      "keyword": "Updating docs/requirements/decisions/plan-init-reopen.md prose beyond what the code comments already state",
+      "source": "scopeBoundary.excluded",
+      "text": "Updating docs/requirements/decisions/plan-init-reopen.md prose beyond what the code comments already state",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "39db97e24e77c9bf17256a559f3f56781ca5f0c090f01c39d0e3cdaa16d1c166"
+}

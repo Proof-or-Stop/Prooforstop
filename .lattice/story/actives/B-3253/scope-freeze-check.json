@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-3253",
+  "checkedAt": "2026-07-28T22:21:05.757Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "0b063bc3b6f332cada38a293634da1afb4c24e8ca54ee6037ef2858a38bff17a",
+  "executionBoundaryHash": "3f0f8553c2d6f17eea62025d4ef997594ec8bf3d009b4c8b40455f7b55649d4b",
+  "freshnessHash": "d6354d98206288e7739770c7d18ae92e807e07d55b260793c2f1e32866b3f1cd",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "No edits to docs/story or tests/fixtures",
+    "No full rollout cohort rerun unless a lifecycle gate explicitly requires it",
+    "No redesign of Acceptance Topology or milestone-ledger semantics",
+    "No unrelated B-4043 plan/schema/error-code expansion",
+    "No weakening of coverage-basis completeness, pre-review, topology-critic, process-fact, or provenance gates",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No edits to docs/story or tests/fixtures",
+      "source": "scopeBoundary.excluded",
+      "text": "No edits to docs/story or tests/fixtures",
+      "excluded": true
+    },
+    {
+      "keyword": "No full rollout cohort rerun unless a lifecycle gate explicitly requires it",
+      "source": "scopeBoundary.excluded",
+      "text": "No full rollout cohort rerun unless a lifecycle gate explicitly requires it",
+      "excluded": true
+    },
+    {
+      "keyword": "No redesign of Acceptance Topology or milestone-ledger semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "No redesign of Acceptance Topology or milestone-ledger semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "No unrelated B-4043 plan/schema/error-code expansion",
+      "source": "scopeBoundary.excluded",
+      "text": "No unrelated B-4043 plan/schema/error-code expansion",
+      "excluded": true
+    },
+    {
+      "keyword": "No weakening of coverage-basis completeness, pre-review, topology-critic, process-fact, or provenance gates",
+      "source": "scopeBoundary.excluded",
+      "text": "No weakening of coverage-basis completeness, pre-review, topology-critic, process-fact, or provenance gates",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "1454220713fff6d239e7554fe091ef9a605ea36a40119a08447ac4200c275cea"
+}

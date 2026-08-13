@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-9ff1",
+  "checkedAt": "2026-08-13T16:23:37.821Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "036b8f69f6d61032bfa42d0da37ab58f470801bfc5396a52b91c97ee25a40947",
+  "executionBoundaryHash": "0eaf13efc90c059e050fa39aee637a96dc2ea1508533e30e9a76453995b19fd4",
+  "freshnessHash": "0c497f1b0844a2f907950158222fee047c298f2b93ec78cdd6a5ac0d3254d04e",
+  "effectiveExcludedKeywords": [
+    "modifying any gate verdict, gate wiring, or the enforcement flip",
+    "receipt persistence and chunk-framing structures — reserved for a later leaf",
+    "spawning child processes or capturing their output — that machinery belongs to leaf W2e",
+    "the GREEN confirmation append entrypoint"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "modifying any gate verdict, gate wiring, or the enforcement flip",
+      "source": "scopeBoundary.excluded",
+      "text": "modifying any gate verdict, gate wiring, or the enforcement flip",
+      "excluded": true
+    },
+    {
+      "keyword": "receipt persistence and chunk-framing structures — reserved for a later leaf",
+      "source": "scopeBoundary.excluded",
+      "text": "receipt persistence and chunk-framing structures — reserved for a later leaf",
+      "excluded": true
+    },
+    {
+      "keyword": "spawning child processes or capturing their output — that machinery belongs to leaf W2e",
+      "source": "scopeBoundary.excluded",
+      "text": "spawning child processes or capturing their output — that machinery belongs to leaf W2e",
+      "excluded": true
+    },
+    {
+      "keyword": "the GREEN confirmation append entrypoint",
+      "source": "scopeBoundary.excluded",
+      "text": "the GREEN confirmation append entrypoint",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "660058c3b06ef8feeccf9a0008bb2388496634fe5c5bc8e279b7bbf4851113d4"
+}

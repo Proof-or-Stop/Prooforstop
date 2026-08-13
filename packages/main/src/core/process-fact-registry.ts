@@ -96,6 +96,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   verification_evidence_add: 'execution-status',
   verification_evidence_batch_add: 'execution-status',
   verification_evidence_refresh_stale: 'execution-status',
+  verification_run: 'execution-status',
   review_run_start: 'review-run',
   review_pass_set: 'review-pass',
   finding_add: 'finding',
@@ -111,6 +112,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   story_create_from_repro: 'gate-evidence',
   acceptance_basis_generate: 'signed-artifact',
   pre_review_check: 'signed-artifact',
+  acceptance_rollout_report: 'signed-artifact',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -122,6 +124,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   review_run_start: ['review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   review_pass_set: ['review-pass', 'prompt-envelope', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -154,12 +157,26 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
   pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  acceptance_rollout_report: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_report_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  // W2b (B-e10d): the target-binding writer records structured metadata under a
+  // schema and enforces the §3.3 expectedRedTargets membership policy, but is a
+  // run PREREQUISITE — deliberately NOT 'gate-evidence' (nothing consumes the
+  // binding as a gate in this leaf; chain freeze / green-confirm match are W2c).
+  red_evidence_binding_set: ['schema-contract', 'verification-policy'],
+  // W2c (B-506e): the two chain-control commands write schema-bound records and
+  // enforce the §3.3 expectedRedTargets membership policy, but are NOT
+  // 'gate-evidence' — the v1 gate predicate ignores their v2 records and no gate
+  // consumes the chain in this leaf (gate rewiring is W3).
+  red_evidence_quarantine: ['schema-contract', 'verification-policy'],
+  red_evidence_recover: ['schema-contract', 'verification-policy'],
   spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   spike_result: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -193,6 +210,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'validation-result', 'verification-policy', 'gate-evidence'],
   'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
+  'runtime:acceptance_rollout_dev_review_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:canonical_scope_path_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'freshness-policy', 'gate-evidence'],
   'runtime:ast_semantic_anchor_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
@@ -272,6 +290,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
     consumerGate: 'validate verification freshness gate',
+  },
+  verification_run: {
+    name: 'checklist.json',
+    path: 'checklist.json',
+    signed: false,
+    producerCommand: 'verification_run',
+    consumerGate: 'validate verification coverage and freshness gates',
   },
   recover_evidence: {
     name: 'checklist.json',
@@ -365,6 +390,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signature: 'Ed25519(canonical current basis/topology/scope/storyFilesHash/closureFilesHash/evidence/cutoff/critic binding)',
     producerCommand: 'pre_review_check',
     consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
+  },
+  acceptance_rollout_report: {
+    name: 'acceptance-rollout-report.json',
+    path: 'acceptance-rollout-report.json',
+    signed: true,
+    signature: 'Ed25519(canonical verifier-derived report binding frozen membership/source inventory/window/thresholds/verdict/workspace/full-3x2)',
+    producerCommand: 'acceptance_rollout_report',
+    consumerGate: 'acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate',
   },
   topology_exclusion_approval_set: {
     name: 'topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true,
@@ -1083,6 +1116,18 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and the gzip-carried canonical machine records emitted only after the bounded production scenario ledger executes. The loader requires every exact current-topology assertion ID, kind, and canonical sourceRef with no missing/extra/duplicate rows; records are assembled by ID rather than positional kind queues, so permutations or swaps cannot reattribute executed outcomes. It also requires distinct mutation target/kind pairs, observed polarity plus clean controls, ordered producer/consumer events, and a mechanically recomputed aggregate root. Both live loading and signed-artifact readback compare proof provenance against the current tracked runner and built target; the fixed runner performs a fresh build before emission. Stale runner/target bytes, stale gitignored dist, arbitrary formatted digests, hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
   },
   {
+    name: 'artifact:acceptance-rollout-report.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/proofstory.acceptance_rollout_report',
+    producerSourceRefs: ['scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'packages/main/src/core/acceptance-rollout.ts', 'packages/main/src/handlers/proofstory.ts'],
+    consumerGate: 'acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate',
+    consumerSourceRefs: ['packages/main/src/core/acceptance-rollout.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_rollout_report,
+    rationale: 'Versioned verifier-owned report freezes every eligible source record in the declared window and deterministically derives membership, metrics, diagnostics, and verdict. The signed receipt binds source inventory, >=3 matched pairs in each arm, every registered seed, zero false pass, 100% omission detection, zero false block, zero mislabeled 3x1, non-positive waiver delta, non-shrinking inventory, supported adapters, genuine full-3x2, runner digest, and current workspace hashes. Rollback changes only flat project mode and preserves this artifact.',
+  },
+  {
     name: 'artifact:topology-exclusion-approvals.json',
     kind: 'signed-artifact',
     semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
@@ -1369,7 +1414,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     level: 'L4',
     producer: 'handlers/transition-orchestrator',
     consumerGate: 'done_prepare convergence acceptance',
-    rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived.',
+    rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived. The gated PLAN->INIT reopen records three further durable audit semantics on the same append-only, appended-only-on-success event: transitionType: "reopen" marks the backward reopen so it is distinguishable from a forward transition, reason carries the operator reason already validated at the REOPEN remap (non-blank, at least REOPEN_REASON_MIN characters) so a validated reason is never dropped, and reopenAuditId carries the recovery idempotency key. All three are strictly additive and are set ONLY on a REOPEN; every ordinary transition must omit them and keep its exact prior event shape. RECOVERY SEMANTICS (B-70a6 F-004): the phase write and this event append are two separate fs operations, so a crash between them once left a committed reopen with NO audit record — unrecoverable, because REOPEN only fires FROM PLAN and the story had already left the only phase that could retry it. The reopen therefore writes a pendingReopenAudit recovery record (auditId, verbatim reason, fromPhase, at, materialHash, storyFilesHash, reviewRound) onto the story index in the SAME atomic writeStory rename that persists phase=INIT, so the reason is durable the instant the reopen commits; reconcilePendingReopenAudit then emits any missing event at the next ORCHESTRATED transition and clears the record, narrowed further by the OUT-OF-BAND PHASE MUTATIONS and CONCURRENCY RESIDUAL paragraphs below and never on an arbitrary read-only command. Recovery is idempotent by exact reopenAuditId identity, never by reason text: a missing event is appended exactly once, an already-audited record is cleared without appending, and the clear happens only after the event is durable. The record can only exist because the phase write it rode committed, so an aborted or refused reopen leaves neither record nor event and nothing can later fabricate a transition that did not happen. The record and reopenAuditId are audit-only recovery bookkeeping, not gate evidence: no gate consumes them, and the convergence counters above stay derived from the typed from/to phases. OUT-OF-BAND PHASE MUTATIONS (B-70a6 F-005): runStoryTransitionInner is NOT the only writer of story.phase, so the F-004 reconciliation at its entry does not by itself make the invariant framework-wide. Two production sites mutate story.phase directly through store.writeStory: story_discard (handlers/worktree.ts) and the story_reconcile zombie repair (handlers/story-query.ts). Both write a TERMINAL phase (DISCARDED / DONE) that has no outgoing machine edge, and story_discard additionally force-deletes the worktree and branch, so an unaudited reopen there was lost PERMANENTLY rather than deferred to the next transition. Both sites must therefore call reconcileReopenAuditBeforeOutOfBandPhaseChange BEFORE their destructive steps and before their phase write. That rescue reads the record from the DOOMED copy when necessary, because cli/runtime-root.ts redirects story_discard to the MAIN root while the reopen is cwd-gated into the worktree, so the handler store cannot see the record; it then appends the event to the SURVIVING store through the same reconcilePendingReopenAudit, keeping ONE append site and the same exact-auditId idempotency. The rescue never blocks the operation: discarding or reconciling a story stays legitimate, and every failure is surfaced as a warning instead of thrown, including a doomed copy that exists but cannot be read (corrupt index.json, permission error); the single deliberate silence is a doomed copy that holds no story metadata at all, which is a no-op rather than a failure. Declared residuals: the record on the DOOMED copy is deliberately not cleared, because writing into a worktree that is about to be status-checked could turn it dirty and refuse a non-force discard, so a destructive step that fails can later yield a DUPLICATE event sharing one auditId, never a lost one; and story_discard --purge removes the story metadata directory holding the log this event is appended to, so a rescued event does not survive a purge, an explicit erase of every process event this story holds rather than a silent audit loss. Stated to the precision that is actually verified: the git rollback purge performs may restore an OLDER committed copy of that directory, so metadata files can remain on disk after a purge, but that copy predates the rescue and never carries the rescued event. CONCURRENCY RESIDUAL (B-70a6 F-013): the out-of-band rescue is a one-time scan that does not hold the per-story transition lock, so it serializes against nothing. A PLAN->INIT reopen that commits its recovery record AFTER that scan has already run can still have that record destroyed by the same story_discard, and the reopen then dies against the removed worktree, so neither the record nor the event survives. The guarantee is therefore SEQUENTIAL and is claimed only at that strength: a reopen whose record is already on disk when the terminal operation starts is recovered, by the next orchestrated transition or by these two sites, while a reopen racing the terminal operation is not covered; a separate lock-independent case is story_discard --force on a story whose worktree is already gone, where the record only ever lived in that worktree and no mutex could have saved it. It is named rather than locked, and B-70a6 F-014 corrected the reason recorded for that. The earlier text argued that the transition-cas persist claim, a fail-fast 15s claim built for a millisecond fully synchronous section, could not be stretched across the git work story_discard performs. That argument was misdirected: the persist claim was never the candidate primitive. The only candidate is acquireStoryTransitionLock, whose 120s stale threshold is documented as generously exceeding any legitimate long transition, and story_discard is itself fully synchronous, so the millisecond-section objection never applied to it. The accurate reasons are three. First, acquireStoryTransitionLock is documented as a best-effort advisory contention reducer that is not the correctness guarantee and is disabled outright by LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, so taking it could narrow this window but never close it and the claim would still be SEQUENTIAL, which makes this a defence-in-depth question and not a correctness one. Second, story_discard is the recovery command an operator reaches for when a story is already wedged, and that lock exposes no fail-fast option: an acquire polls its 180s deadline and then throws, and a leaked lock whose recorded pid has been recycled by an unrelated live process is classified active and never stale-reclaimed at any age, so the recovery command would hang behind a lock file; the one shape without that hazard, a non-blocking try-acquire that proceeds unlocked on failure, was considered and declined because it covers only a reopen that has not yet taken the lock while leaving a mutex that reads as a serialization it does not provide. Third, and specific to story_reconcile rather than to story_discard, that repair already runs inside the main write lock, so acquiring the transition lock there would invert the established transitionLock to mainWriteLock order and let a repair block the main write lock while a DONE holding the transition lock fail-fasts on it; story_discard is not in that position, because its main write lock calls all come after the rescue and after the destruction. Hardening that race is a follow-up story and is not claimed here.',
   },
   {
     name: 'runtime:closeout_reviewer_reattestation_boundary',

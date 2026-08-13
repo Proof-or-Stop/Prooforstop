@@ -1,0 +1,85 @@
+{
+  "storyId": "B-3783",
+  "name": "catalog-smoke-retired-consistency",
+  "title": "Fix command-catalog-smoke to respect retired dispatch agents via bidirectional consistency",
+  "description": "command-catalog-smoke.ts fails on clean main because it iterates the full AGENT_DISPATCH_REGISTRY (including the deliberately-retired lattice-review-channel) and asserts every canonicalName must be schema-valid and satisfy the runtime dispatch contract. The command catalog is already correct (dispatch.agentType derives from AGENT_DISPATCH_ACCEPTED_TYPES, which filters out the retired lane). The smoke guard itself has the defect. Fix the guard to assert bidirectional consistency and wire it into validate.commands.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "command-catalog",
+    "agent-dispatch-registry",
+    "smoke",
+    "retired-agent",
+    "validate-commands"
+  ],
+  "createdAt": "2026-07-25T21:31:37.817Z",
+  "startedAt": "2026-07-25T21:31:37.817Z",
+  "endedAt": "2026-07-26T00:00:37.300Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-25T21:31:38.579Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-25T21:35:15.831Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-9e7100dc780b55d1f4c2a1dbc70e4a57",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-25T21:35:47.640Z",
+      "branch": "story/B-3783",
+      "user": "Harmonygo",
+      "sessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-25T21:51:17.076Z",
+      "branch": "story/B-3783",
+      "user": "Harmonygo",
+      "sessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-25T22:07:02.769Z",
+      "branch": "story/B-3783",
+      "user": "Harmonygo",
+      "sessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-25T22:21:04.111Z",
+      "branch": "story/B-3783",
+      "user": "Harmonygo",
+      "sessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-26T00:00:37.300Z",
+      "branch": "story/B-3783",
+      "user": "Harmonygo",
+      "sessionId": "sess-bfe61cbf9f87549f89c2629f0c237518",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-25T22:07:02.769Z"
+}

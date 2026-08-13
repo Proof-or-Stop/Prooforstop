@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-bf52",
+  "id": "IC-20260723225856",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The request is a precision fix to one pure function, gateFailureDigest, and nothing else. It is NOT a request to weaken or disable the convergence breaker, NOT a request to change its threshold, counters, assessBreaker, reset semantics or the story_resume recovery flow, and NOT a request to restructure rejection messages into structured failure codes. The narrower reading is chosen because the reproduced defect is entirely inside the digest normalization step, and because a broader reading that made the breaker fire less often without a proven must-still-collapse direction would remove the protection the breaker exists to provide.",
+  "acceptedInterpretationHash": "sha256:1240b5438d1f03204fcc9cca06bdccaa8232ace784ddb8ddd2e545599bb51810",
+  "notes": "High-assurance work requires an independent collision result. The competing interpretation considered and rejected was that a story about false freezes might be asking for the freeze mechanism itself to be relaxed. The scope boundary recorded at INIT excludes exactly that, and the pre-mortem plus CHK-004 must-still-collapse lane make the protective direction a deliverable rather than an assumption.",
+  "createdAt": "2026-07-23T22:58:56.765Z",
+  "updatedAt": "2026-07-23T22:58:56.765Z"
+}

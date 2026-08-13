@@ -1,0 +1,56 @@
+{
+  "storyId": "B-49d4",
+  "changes": "packages/main/tests/red/red-w2c-validate-registration.mjs no longer asserts against a hardcoded 3-entry REQUIRED_VALIDATE_COMMANDS array; it derives its population from disk. packages/main/tests/red/red-b49d4-harness-registration.mjs is a new second guard over packages/main/tests/red/*, enumerating totally (isMember returns true for every entry) with a runtime assertion that the enumerated population equals the directory listing, so no member can drop out unnoticed. packages/main/tests/red/red-b49d4-registration-derivation.mjs is the repro-first RED artifact: on the pre-fix tree a genuine population member, registered nowhere and deliberately exiting non-zero, still left the guard at exit 0; it now reports 26 GREEN. lattice.config.json registers 20 harnesses and records a stated, machine-checked reason for each of the 3 that do not run, and a reason naming a file that no longer exists fails the guard.",
+  "usage": "lattice validate runs both guards automatically. To check registration coverage directly from the worktree: node packages/main/tests/red/red-b49d4-harness-registration.mjs (exit 0; prints counts derived from disk and config, never literals) and node packages/main/tests/red/red-w2c-validate-registration.mjs.",
+  "expectedOutcome": "Adding a new packages/main/tests/red/*.mjs file without registering it in lattice.config.json makes validate fail and name the offending file, where before it passed silently.",
+  "actualTranscript": "validate PASS across all 90 configured commands. red-b49d4-harness-registration.mjs: 32 registered + 3 reasoned, exit 0. red-b49d4-registration-derivation.mjs: 26 GREEN / 0 RED. The delivery reviewer independently re-ran both guards live, spot-ran 5 newly-registered harnesses (all exit 0), and confirmed the protected artifact red-w2c-v1-verdict-invariance.mjs is untouched and still reproduces digest 2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f263d706a11ec.",
+  "outcomeDiff": "No difference. Observed behaviour matches the expected outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Two review findings (F-002, F-008) concern unifying three separate registration-decision implementations that predate this story. Correcting them requires editing packages/main/tests/red/red-b2aa7-chk007-receipt.mjs, a pinned verification receipt whose exact outputDigest and outputTail are recorded in the completed story B-2aa7's CHK-007 evidence; the delivery reviewer read that checklist on main and confirmed the constraint is real rather than asserted. Both findings carry recorded dismissal reasons and belong to their own task, which is a different artifact from the derivation this story promised. All three checklist items here were delivered in full. Six of the nine verificationEvidence rows (CHK-001 and CHK-003) are waivers; the delivery reviewer checked them against the command+selector pin mechanism and judged them honest.",
+  "pitfalls": "This story's own instrument reproduced the defect it exists to remove, twice, and both times I had already convinced myself otherwise. (1) F-006: a reachability heuristic I judged 'safe, fails loud' actually failed SILENT - my risk-direction assessment was backwards, so verify which way a heuristic fails, do not reason about whether it is load-bearing. (2) F-003/F-009: I wrote literal counts into CHK-003's evidence selectors, the exact stale-number anti-pattern this story removes; a correct later fix changed those counts and the evidence could not be re-earned. CHK-002's marker-name selectors survived identical drift and refreshed cleanly. Write selectors that name markers, never counts. (3) Process: moving REVIEW->DEV while reviewer lanes were still running invalidated their envelopes and lost three findings, two of them high - wait for ALL lanes before any phase move. (4) finding_dismiss does not auto-commit (finding_resolve does), and validate rewrites process-metrics.json, so a round ending in dismissals always leaves the tree dirty; story_advance TEST checks this only AFTER running the full suite, so an uncommitted dismissal costs a ~20-minute rerun.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 652834
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 46428
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 9419031
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 10999269
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 5442985
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 621702
+    }
+  },
+  "totalDurationMs": 27182977,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-27T21:04:27.410Z",
+  "updatedAt": "2026-07-27T21:04:27.410Z"
+}

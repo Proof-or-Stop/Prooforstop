@@ -1,0 +1,79 @@
+{
+  "storyId": "B-bf52",
+  "checkedAt": "2026-07-24T20:07:43.840Z",
+  "headHash": "42842d8d820aec1a811dc5c1aa8466c90ddd47b3",
+  "materialHash": "4aefeebc39ce61dc30d7a4b36ab1547af4f4b03d61c7fa5378cd397113e159d9",
+  "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+  "reviewRound": "2026-07-24T17:43:07.804Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#2-what-this-story-ships",
+      "promise": "The POSIX path rule in normalizeGateReason matches an absolute path only at a token start, so DEV/REVIEW vs DEV/TEST and src/core/alpha.ts vs src/core/beta.ts no longer collapse, while /Users/... and /private/var/... still collapse (delivers C2/C4).",
+      "verifiedBy": "diff/grep + direct execution",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/convergence-breaker.ts shows normalizeGateReason's path rule changed from /\\/[^\\s\"']+/g to /(?:^|(?<=[\\s\"'(\\[:=,]))\\/[^\\s\"')\\]]*/g. node packages/main/dist/tasks/convergence-breaker-smoke.js (rebuilt from source, exit 0) prints must-differ phase-pair and in-repo-file-path keys=2, and must-still-collapse machine-absolute-path / machine-path-into-repo-relative-segments / delimiter-attached-absolute-path keys=1."
+    },
+    {
+      "docPath": "plan.md#2-what-this-story-ships",
+      "promise": "gateFailureDigest's prefix is signals-conditional: when extractGateBlockSignals returns nothing the prefix widens (to 16,384 chars) instead of the fixed 200-char cut, so a signal-less reason diverging late keeps a distinct key; the signals branch keeps main's 200-char cut byte-identical.",
+      "verifiedBy": "diff/grep + direct execution",
+      "evidence": "git diff shows `const prefix = signals.length > 0 ? normalized.slice(0, 200) : normalized.slice(0, 16_384);` replacing the unconditional `.slice(0, 200)`. convergence-breaker-smoke.js prints must-differ signal-less-long-rejection keys=2 and must-still-collapse blocking-finding-cited-path-past-window keys=1 (residual disclosed, not hidden)."
+    },
+    {
+      "docPath": "plan.md#3-what-this-story-does-not-ship-and-why",
+      "promise": "CHK-003 (narrow the numeric normalizer to standalone numbers / identifier-embedded ordinals stay distinct) is NOT delivered and cannot be delivered from message text alone, because evidence.output is interpolated verbatim into a story_advance DONE rejection at machine.ts:1190, making a third-party test label textually identical to a real artifact ordinal.",
+      "verifiedBy": "diff/grep + direct execution + story artifact read",
+      "evidence": "The digit rule in convergence-breaker.ts is unchanged from main's bare /\\d+/g. checklist.json CHK-003 verificationEvidence explicitly states NOT DELIVERED in all 4 entries. convergence-breaker-smoke.js prints must-still-collapse checklist-ordinal (CHK-001 vs CHK-002), unfixed-bug-ordinal, and embedded-test-output-third-party-label (bug-2 vs bug-5) all keys=1 counter=2 breaker=trips, i.e. the suite machine-asserts the withdrawal."
+    },
+    {
+      "docPath": "scope-shrinkage-decision.json",
+      "promise": "CHK-003 is removed from the acceptance basis with userConfirmed:true and approvedBy:jek, and the story is accepted for the reduced scope on that basis.",
+      "verifiedBy": "direct file read",
+      "evidence": "scope-shrinkage-decision.json: decision=confirmed, userConfirmed=true, removedMilestoneIds=[CHK-003], approvedBy=jek, reason matches plan.md's C3-impossibility proof verbatim in substance. summary.json acceptanceVerdict=accepted, outcomeKind=success, outcomeDiff states the reduction is fully accounted for by the confirmed shrinkage."
+    },
+    {
+      "docPath": "plan.md#3, checklist.json CHK-001",
+      "promise": "CHK-001's user-visible outcome (the C1 false-freeze class no longer minting one key per story) is true on the shipped tree because sibling story B-cc54 landed the fix on main and this branch adopts it unchanged; this branch only adds the signals-conditional prefix on top.",
+      "verifiedBy": "git log + diff/grep",
+      "evidence": "git log main shows B-cc54 merged to main (commit bdca6ae59c, 'merge: B-cc54 Stop the ineffective-remedy loop...'). extractGateBlockSignals and the signals-fold basis construction are imported/used unchanged from main in this branch's gateFailureDigest; only normalizeGateReason's path rule and the prefix-cut conditional are new to this branch."
+    },
+    {
+      "docPath": "plan.md#6-verification, summary.json usage",
+      "promise": "Four real-machine checks exist and pass: convergence-breaker-smoke.js (rebuilt matrix), gate-repeat-block-smoke.js (B-cc54's suite, byte-unmodified), red-s3-digest-collapse.mjs (RED harness), red-s3-differential-probe.mjs (differential probe, SKIPs cleanly with no comparison build).",
+      "verifiedBy": "direct execution (not via lattice validate)",
+      "evidence": "Ran `npm run build` in packages/main (tsc, clean exit) then directly: node packages/main/dist/tasks/convergence-breaker-smoke.js -> PASS exit 0 (5 must-differ + 16 must-still-collapse cases). node packages/main/dist/tasks/gate-repeat-block-smoke.js -> PASS exit 0 (5 checks). node packages/main/tests/red/red-s3-digest-collapse.mjs -> 10/10 PASS exit 0. node packages/main/tests/red/red-s3-differential-probe.mjs (no args) -> BAR 3 4/4 delivered classes distinguished, differential lane SKIPs cleanly as documented, overall PASS exit 0."
+    },
+    {
+      "docPath": "summary.json#limitations, proofstory.json AB-003, findings.json F-062",
+      "promise": "One frozen artifact (the AB-003 acceptance binding) stays stale because proofstory_contract_set is PLAN-only (command-policy.ts:420) and cannot be corrected post-PLAN; this is disclosed and recorded as resolutionType partially_mitigated on finding F-062, not silently left standing, and a workflow task was filed to add a withdrawn state.",
+      "verifiedBy": "direct file read",
+      "evidence": "proofstory.json AB-003.note still reads 'Digit rule narrowed to standalone numbers: identifier-embedded ordinals stay distinct...' which is false against the shipped code (digit rule is main's unchanged bare rule). findings.json B-bf52:F-062 status=resolved, resolutionType=partially_mitigated, describing exactly this staleness and its PLAN-only-contract-set root cause. checklist.json CHK-003.status is still 'done' (no withdrawn enum value exists), matching the disclosed tooling gap."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/convergence-breaker-smoke.js (built fresh via npm run build, tsc clean) exit 0: must-differ signal-less-long-rejection keys=2 counter=1 breaker=proceed and must-still-collapse blocking-finding-cited-path-past-window keys=1 counter=2 breaker=trips, proving the signals-conditional prefix change and its disclosed residual. red-s3-digest-collapse.mjs C1c case PASS. Checklist evidence honestly marks this PARTIALLY DELIVERED (C1 core fixed by B-cc54 on main, this branch adds only the prefix conditional) rather than claiming full credit."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/convergence-breaker-smoke.js exit 0: must-differ phase-pair (DEV/REVIEW vs DEV/TEST) and in-repo-file-path (alpha.ts vs beta.ts) keys=2; must-still-collapse machine-absolute-path, machine-path-into-repo-relative-segments, delimiter-attached-absolute-path all keys=1. red-s3-digest-collapse.mjs C2/C4 cases PASS. red-s3-differential-probe.mjs BAR 3 confirms both delivered path classes are distinguished with 0 violations."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Not tested as a delivered feature because it was withdrawn (operator-confirmed, scope-shrinkage-decision.json). Its non-delivery is itself machine-checked: convergence-breaker-smoke.js must-still-collapse checklist-ordinal, unfixed-bug-ordinal, and embedded-test-output-third-party-label all pass, asserting the opposite of what CHK-003 originally asked, which is the proof of undeliverability from message text alone (machine.ts:1190 interpolation).",
+      "waiverReason": "Milestone withdrawn via operator-confirmed scope-shrinkage-decision.json (userConfirmed:true, approvedBy:jek) after being proven undeliverable from message text alone; testing it as a positive feature would contradict the shipped, intentional collapse behavior."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/convergence-breaker-smoke.js exit 0 prints named must-differ/must-still-collapse cases with guard tags and printed counter/breaker values for every case, driving the real bumpGateFailureCount/maxGateFailureCount/assessBreaker path. node packages/main/dist/tasks/gate-repeat-block-smoke.js exit 0 confirms B-cc54's suite is byte-unmodified and still green. node packages/main/tests/red/red-s3-differential-probe.mjs run standalone: BAR3 4/4, differential lane SKIPs cleanly with no comparison build as documented, exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The shipped diff (convergence-breaker.ts token-start path rule + signals-conditional prefix, rebuilt smoke matrix, two new tests/red/ probes) exactly matches what plan.md and summary.json describe, with nothing undisclosed. CHK-002/CHK-004 are fully delivered and machine-verified; CHK-001 is honestly disclosed as only partially this story's contribution (core fix landed via B-cc54 on main); CHK-003 was withdrawn with an operator-confirmed, machine-checked proof of undeliverability rather than silently dropped. All four real-machine checks (convergence-breaker-smoke.js, gate-repeat-block-smoke.js, red-s3-digest-collapse.mjs, red-s3-differential-probe.mjs) were run directly against a fresh build and pass. The one disclosed gap -- the frozen AB-003 acceptance-binding note staying stale post-PLAN -- is truthfully recorded as partially_mitigated (F-062) with its exact tooling-limit root cause, not glossed over."
+  },
+  "_hash": "f0c2b9f413b7110c5cdd5b9e24a1efed25429b2e6418501e81f8df6acbfad3a1"
+}

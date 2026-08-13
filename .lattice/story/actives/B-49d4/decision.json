@@ -1,0 +1,85 @@
+{
+  "principles": [
+    "A check must be bound to the property it guarantees, not to a snapshot of the population it once saw.",
+    "A guard that cannot fail, or that never runs, is not protection - it is a confident success line.",
+    "An exclusion is a decision and must carry a reason; silent absence is indistinguishable from an oversight.",
+    "Prove a guard bites before trusting it; an unobserved bite is a claim, not evidence.",
+    "Do not narrow a derivation with a pattern that can itself go stale."
+  ],
+  "drivers": [
+    "The blindness has already manifested 18 times; 15 harnesses are executed by no automated path and the symptom is silence, not failure.",
+    "The instrument meant to report this is itself unregistered, so it never runs under lattice validate.",
+    "A working reference implementation exists in the same directory, so the corrected shape is mechanical rather than novel.",
+    "Measured cost of running everything is well under a minute, so the historical runtime objection is void."
+  ],
+  "options": [
+    {
+      "name": "A - append the missing entries to the existing hardcoded lists",
+      "pros": [
+        "Smallest possible diff",
+        "No new guard to design",
+        "Immediately closes today's population"
+      ],
+      "cons": [
+        "Leaves the instrument blind to the next addition, which IS the defect",
+        "Repeats the exact mistake being fixed",
+        "Provides no signal when someone adds a harness and forgets"
+      ]
+    },
+    {
+      "name": "B - derive both populations from disk, require registered-or-excluded-with-reason, and register the guard itself",
+      "pros": [
+        "Binds the check to the property rather than a snapshot",
+        "Reference implementation already exists and its bite was proven in both directions",
+        "Covers the tests/red population that currently has no guard at all",
+        "A future addition fails loudly instead of slipping through"
+      ],
+      "cons": [
+        "Must resist narrowing the enumeration with a name pattern, which would silently recreate the defect",
+        "Requires deciding one guard versus two with disjoint declared populations",
+        "Adds commands to lattice validate, so the runtime budget must be re-measured rather than assumed"
+      ]
+    },
+    {
+      "name": "C - delete the unreached harnesses instead of registering them",
+      "pros": [
+        "Removes the ambiguity entirely",
+        "Smaller validate surface"
+      ],
+      "cons": [
+        "Destroys proof artifacts from earlier stories that were written as evidence and still pass",
+        "Confuses 'nobody runs it' with 'it has no value'",
+        "Would discard the protected invariance harness's siblings without any analysis of what they cover"
+      ]
+    }
+  ],
+  "chosen": "B - derive both populations from disk, require registered-or-excluded-with-reason, and register the guard itself",
+  "rationale": "Option A treats the symptom and leaves the instrument blind, which is precisely the defect. Option C mistakes 'unrun' for 'worthless' and would destroy evidence from earlier stories that still passes. B is the only option that changes what the check is bound to, and its main risk is well understood and cheap to guard against: the enumeration must not be narrowed by a name pattern.",
+  "preMortem": [
+    {
+      "scenario": "The new guard mirrors chk007's narrow prefix regex and a future differently-prefixed harness lands outside its population.",
+      "trigger": "Copying the reference implementation literally, including /^red-b2aa7-.*\\.mjs$/, because it is the working example.",
+      "consequence": "The story ships, the defect is reproduced one prefix over, and the next omission is silent again - with a passing guard as false assurance.",
+      "mitigation": "The constraint is recorded in understanding and repeated in plan.md as a hard requirement: enumerate the directory unfiltered. The RED artifact must include a differently-prefixed newcomer, so a narrowed derivation fails the story's own test."
+    },
+    {
+      "scenario": "The two silent pre-fix receipts get registered rather than excluded.",
+      "trigger": "A fresh implementer sees 18 unregistered files and registers all 18 uniformly.",
+      "consequence": "Two commands that pass forever while asserting nothing enter the regression suite - the exact vacuous coverage this story exists to remove, self-inflicted at the last step.",
+      "mitigation": "The reasoning is carried inside CHK-003's own context rather than left to be rediscovered, and the acceptance requires each exclusion to carry a machine-checked reason."
+    },
+    {
+      "scenario": "The guard is built and proven, but is itself left unregistered.",
+      "trigger": "Focusing on the population and forgetting the instrument, exactly as the current state arose.",
+      "consequence": "A correct guard that never runs - the present failure, rebuilt.",
+      "mitigation": "The guard must include itself in its own population with no self-exception, so an unregistered guard fails its own check."
+    },
+    {
+      "scenario": "Registering everything pushes lattice validate past a timeout on a loaded host.",
+      "trigger": "Trusting the measured 31-40s band instead of re-measuring after registration.",
+      "consequence": "A green story that makes validate flaky for everyone else.",
+      "mitigation": "Re-measure after registering and record the number; if any harness is slow, decide its timeoutMs deliberately rather than inheriting a default."
+    }
+  ],
+  "timestamp": "2026-07-27T13:44:15.429Z"
+}

@@ -1,0 +1,26 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add Red coverage for evaluator-specific Prompt Envelope binding",
+      "context": "Exercise the real evaluate handler with CLI-only and browser+CLI configs; assert each dispatched evaluator receives its own role-bound envelope.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add Red checkout-reproducibility check for Story 6 report selfcheck",
+      "context": "Run the selfcheck from tracked repository inputs and fail with a focused assertion when its 72 receipt/adjudication inputs exist only in ignored runtime state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
