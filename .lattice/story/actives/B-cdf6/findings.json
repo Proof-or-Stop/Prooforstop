@@ -633,6 +633,21 @@
       "resolvedAt": "2026-08-13T09:24:26.241Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-030",
+      "desc": "packages/main/src/tasks/lattice-cli-migration-smoke.ts:120,121,126,127 -- F-029's resolution claims its completeness sweep (grep for assert.match(*Help, /lattice ..../) closed the regression class and that lattice-cli-migration-smoke.ts is `the ONLY remaining hit` and is `the pre-existing case` (host-status alias only). That claim is false: the same file also contains 4 assertions the sweep itself flags (assert.match(storyCreateHelp, /lattice story_create with checklist/) at :120; /lattice story_advance phase=INIT_CHECK/ at :121; assert.match(storyAdvanceHelp, /lattice story_review/) at :126; /lattice story_advance ...{\"storyId\":\"B-a3f7\",\"phase\":\"DEV\"}.../  at :127) which are a DIFFERENT, story-caused defect, not the pre-existing host-status alias one. Verified: these 4 pass on clean main (help literally says lattice story_create with checklist / lattice story_review / lattice story_advance {...}), and FAIL on this branch (help now says proof-or-stop story_create with checklist / proof-or-stop story_review / proof-or-stop story_advance {...}) -- same root cause class as the already-fixed decision-doc-promotion-smoke.ts bug: a stale pre-rename literal regex against now-renamed help output. Note line 128 in the SAME help-output block already correctly asserts /Try proof-or-stop story_advance/, so the file is in a half-migrated, internally inconsistent state. These 4 assertions are currently unreached/masked because an earlier assertion in the same file (the genuinely pre-existing host-status/host-dispatch alias-rendering gap, confirmed failing identically on main) throws first, so `node dist/tasks/lattice-cli-migration-smoke.js` never reaches them. Masking is not fixing: once the pre-existing alias gap is eventually addressed (in whatever story owns it), these 4 will immediately fail, and the resolution text will have already told a future reader the sweep was complete. Fix means updating all 4 regexes to proof-or-stop (matching the pattern already used for the fixed file and for line 128), independent of and without waiting on the pre-existing alias-rendering issue.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-13T10:28:59.432Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-031",
+      "_hash": "814a1296054268aa736866ef05fd5b01b0dc5233c6a75a38fe17a2bd45f697d2",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
