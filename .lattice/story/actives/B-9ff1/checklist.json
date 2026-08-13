@@ -11,46 +11,264 @@
         "happy": [
           {
             "desc": "Envelope with two matchers having unique ids and kinds literal-line + class passes schema validation with no rejections; WHY: validates the schema declaration accepts legal envelopes",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-001: unique ids across kinds literal-line + class"
+            }
           },
           {
             "desc": "Envelope with 1..maxMatchers matchers all with unique ids accepted; WHY: array count within policy bounds",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-015: exactly policy.maxMatchers=8 matchers (inclusive upper count bound)"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Envelope with duplicate matcher id rejected R1-3; WHY: uniqueness constraint is enforceable",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-001: duplicate matcher id"
+            }
           },
           {
             "desc": "Envelope with kind anchored-regex rejected R1-3; WHY: pattern language removed in rev 6, closed enum",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-001: unknown matcher kind \"anchored-regex\""
+            }
           },
           {
             "desc": "Envelope with 0 matchers rejected R1-3; WHY: at least one matcher required",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-015: ZERO matchers"
+            }
           },
           {
             "desc": "Envelope with maxMatchers+1 matchers rejected R1-3; WHY: policy upper bound enforced",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-015: maxMatchers+1 = 9 matchers"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Envelope with kind Literal-Line (case variation) rejected R1-3; WHY: enum is case-sensitive, no normalization",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-001: unknown matcher kind \"Literal-Line\""
+            }
           },
           {
             "desc": "Envelope with kind regex rejected R1-3; WHY: no pattern language exists even under alias names",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-001: unknown matcher kind \"regex\""
+            }
           },
           {
             "desc": "Class matcher with value naming no registry entry rejected R1-3; WHY: class value must be exact case-sensitive registry name",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-016: class value \"no-such-class\" names no registry entry"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "red-w2d-rejection-matrix accept() row \"CHK-001: unique ids across kinds literal-line + class\" validates a two-matcher envelope (id L1 kind literal-line, id C1 kind class value stderr-nonempty) and asserts result.ok === true with a /^sha256:[0-9a-f]{64}$/ assertionDigest, i.e. zero rejections for a legal envelope spanning both kinds with distinct ids.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:56.411Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The accept row labelled \"exactly policy.maxMatchers=8 matchers\" builds ids L1..L8 (L1 present-in-red admissible, L2..L8 present-in-green distinct lines) — a full 1..maxMatchers array with all-unique ids — and asserts result.ok === true, so the uniqueness rule does not fire anywhere inside the legal count band.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:56.603Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"CHK-001: duplicate matcher id\" gives two matchers both id L1 (the second present-in-green so rule 3 stays satisfied) and asserts deepEqual on the unique tag set === [\"R1-3\"], proving the uniqueness constraint fires and is tagged as a bounds failure.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:56.784Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The kind loop rejects kind \"anchored-regex\" with the exact tag set [\"R1-3\"]; the smoke additionally records this row as \"unknown kind anchored-regex (no pattern language exists)\", so the rev-6 removal of the pattern language is enforced by the closed kind enum.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:56.966Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"CHK-015: ZERO matchers\" passes matchers: [] and asserts the unique tag set is exactly [\"R1-3\"], so an envelope carrying no matcher at all is inadmissible (at least one matcher required).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:57.151Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"CHK-015: maxMatchers+1 = 9 matchers\" builds L1..L9 against the resolved policy.maxMatchers = 8 (asserted at the top of the file) and requires tags === [\"R1-3\"], proving the policy upper bound is enforced.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:57.338Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The kind loop includes the case-variant \"Literal-Line\" (and \"literal_line\") and rejects it with tags [\"R1-3\"], so the kind enum performs no case-folding or separator normalisation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:57.524Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The kind loop rejects the alias \"regex\" with tags [\"R1-3\"] — the pattern language is absent under every spelling, not merely under the removed \"anchored-regex\" name.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:57.716Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row for class value \"no-such-class\" asserts tags [\"R1-3\"]: a class matcher whose value names no matcherClassRegistry entry cannot escape the registry, and the sibling rows \"Stderr-Nonempty\"/\"STDERR-NONEMPTY\" show the comparison is exact and case-sensitive.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:57.901Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.887Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -63,46 +281,264 @@
         "happy": [
           {
             "desc": "Literal-line value Error: ENOENT: no such file (trimmed, 28 bytes, valid stream combined, polarity present-in-red) accepted; WHY: normal schema path",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "baseline: one admissible present-in-red literal-line matcher"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Value with leading space rejected R1-3; WHY: stored-trimmed means whitespace rejects at schema time",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: value with a leading space"
+            }
           },
           {
             "desc": "Value with trailing newline character rejected R1-3; WHY: trailing whitespace violates trim requirement",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: value with a trailing newline"
+            }
           },
           {
             "desc": "Value at exactly maxMatcherLen=512 bytes accepted; WHY: boundary-inclusive upper limit",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: value at exactly maxMatcherLen=512 bytes"
+            }
           },
           {
             "desc": "Value at maxMatcherLen+1=513 bytes rejected R1-3; WHY: byte length ceiling enforced",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: value at maxMatcherLen+1 = 513 bytes"
+            }
           },
           {
             "desc": "Value containing 4-byte UTF-8 char (emoji) where Buffer.byteLength > string.length triggers byte-length measurement not code-unit length; WHY: differential between byte and code-unit measurement",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: 129 four-byte emoji = 516 bytes (a code-unit implementation would ADMIT this)"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Stream value Combined (capital C) rejected R1-3; WHY: closed enum is case-sensitive",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: stream \"Combined\""
+            }
           },
           {
             "desc": "Polarity value absent-in-red rejected R1-3; WHY: not a member of the closed polarity enum {present-in-red, absent-in-green, present-in-green}",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: polarity \"absent-in-red\""
+            }
           },
           {
             "desc": "Empty string value rejected R1-3; WHY: byte length >= 1 required",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-002: empty value"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The baseline accept() validates literal(\"L1\", \"Error: Cannot find module '/repo/dist/x.js'\") with stream \"combined\" and polarity \"present-in-red\" and asserts ok === true. NOTE: the fixture value is that 43-byte module-resolution line, not the 28-byte ENOENT string named in the intent text; the trimmed / in-bounds / legal-enum path being asserted is the same.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:58.082Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"value with a leading space\" sets L2 to ` ${ADMISSIBLE}` and asserts the unique tag set is exactly [\"R1-3\"], so a leading space is rejected at schema time rather than silently trimmed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:58.270Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"value with a trailing newline\" sets L2 to `${ADMISSIBLE}\\n` and requires tags [\"R1-3\"]; the neighbouring \"trailing tab\" row extends the same stored-trimmed rule to \\t.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:58.471Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "accept() row \"value at exactly maxMatcherLen=512 bytes\" uses \"abcdefgh\".repeat(64) (512 bytes) and asserts ok === true, proving the upper byte bound is inclusive.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:58.664Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"value at maxMatcherLen+1 = 513 bytes\" appends one \"x\" to the 512-byte value and requires tags [\"R1-3\"], so 513 bytes is over the ceiling.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:58.872Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:4",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The emoji block asserts Buffer.byteLength(129 x U+1F4A5) === 516 while overLimit.length (258 UTF-16 code units) is asserted to be BELOW policy.maxMatcherLen, then rejects it [\"R1-3\"] and accepts the 128-emoji / 512-byte twin — a code-unit implementation would admit the 516-byte value, so the two rows separate byte from code-unit measurement.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:59.068Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The stream loop rejects \"Combined\" (also \"STDOUT\", \"both\", \"\" and undefined) with tags [\"R1-3\"], so the stream enum is closed and case-sensitive.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:59.263Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The polarity loop rejects \"absent-in-red\" — a plausible non-member — with tags [\"R1-3\"], alongside \"Present-In-Red\", \"present\", \"\" and undefined, confirming the three-member polarity enum is closed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:59.466Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"empty value\" gives L2 the empty string and requires tags [\"R1-3\"], enforcing the >= 1 byte lower bound at the bounds layer (not as a specificity failure).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:59.670Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -115,38 +551,208 @@
         "happy": [
           {
             "desc": "Envelope with one present-in-red literal-line matcher accepted; WHY: minimum one present-in-red satisfied",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "baseline: one admissible present-in-red literal-line matcher"
+            }
           },
           {
             "desc": "Present-in-red matcher with greenExempt:true accepted; WHY: greenExempt legal on present-in-red",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-003: greenExempt:true on a present-in-red matcher"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Envelope with matchers only having polarity absent-in-green and present-in-green rejected; WHY: no present-in-red means RED assertion is vacuous",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+              "selector": "rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)"
+            }
           },
           {
             "desc": "Absent-in-green matcher carrying greenExempt:true rejected; WHY: greenExempt only legal on present-in-red",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-003: greenExempt:true on an absent-in-green matcher"
+            }
           },
           {
             "desc": "Present-in-green matcher carrying greenExempt:true rejected; WHY: greenExempt only legal on present-in-green violates the restriction",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-003: greenExempt:true on a present-in-green matcher"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Envelope with one present-in-red class matcher (stderr-nonempty) and one absent-in-green literal-line rejected R1-2 via rule 3; WHY: the present-in-red requirement alone is insufficient -- rule 3 also applies and class-only is rejected",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+              "selector": "rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)"
+            }
           },
           {
             "desc": "greenExempt:false explicitly set on present-in-red matcher accepted and omitted from assertion per s0.4 omission rules; WHY: greenExempt false/absent is semantically identical, omission rule prevents digest divergence",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+              "selector": "greenExempt:false omitted (no digest fork)"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "The single-matcher baseline envelope carries exactly one polarity \"present-in-red\" literal-line matcher and accept() asserts ok === true plus a computed sha256 assertionDigest — the minimum \"at least one present-in-red\" condition satisfied.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:49:59.862Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "accept() row \"greenExempt:true on a present-in-red matcher\" spreads greenExempt: true onto the present-in-red L1 and asserts ok === true, so the flag is legal on that polarity.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:00.052Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+          "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+          "result": "pass",
+          "note": "red-w2d-specificity-conjunction calls assertRule3Rejection([literal L1 absent-in-green, literal L2 present-in-green], \"no present-in-red matcher at all\"): both matchers carry admissible values, yet the envelope rejects and a rejection tagged R1-2 is required — a RED assertion with no present-in-red matcher is vacuous.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
+            "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:00.238Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"greenExempt:true on an absent-in-green matcher\" keeps an admissible present-in-red L1 (so only the flag is at fault) and requires tags [\"R1-3\"], restricting greenExempt to present-in-red.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:00.452Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reject() row \"greenExempt:true on a present-in-green matcher\" asserts tags [\"R1-3\"]; together with the absent-in-green row it shows the restriction covers both non-present-in-red polarities, and the \"greenExempt is not a boolean\" row covers the type.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:00.657Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+          "command": "node packages/main/tests/red/red-w2d-specificity-conjunction.mjs",
+          "result": "pass",
+          "note": "assertRule3Rejection([klass C1 \"stderr-nonempty\" present-in-red, literal L1 absent-in-green, literal L2 present-in-green], \"literal-line matchers exist but none is present-in-red\") requires a R1-2 rejection: having a present-in-red matcher is not sufficient when it is the class matcher, so rule 3 fires. NOTE: the committed fixture carries one more matcher (the present-in-green literal) than the two named in the intent text.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "806242dd043ad77589213545118e9ef600186eaa029b53b811baf860c22d5498",
+            "outputTail": "red-w2d-specificity-conjunction: PASS\n  rule 1: all 8 blocklist entries reject R1-2; membership not substring; no silent trim (untrimmed is R1-3)\n  rule 2 differential rows: 14 (length-only 12, entropy-only 2, floor 10)\n  DIFFER  \"aaaaaaaa\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaaaaa\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"xxxxxxxx\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"========\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"--------\"                                     len=  8>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abababababab\"                                 len= 12>= 8?Y bits=  12.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aabbaabb\"                                     len=  8>= 8?Y bits=   8.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcabcabc\"                                 len= 12>= 8?Y bits=  19.02>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"ababababab\"                                   len= 10>= 8?Y bits=  10.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"aaaaaaaaab\"                                   len= 10>= 8?Y bits=   4.69>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"zzzzzzzzzzzz\"                                 len= 12>= 8?Y bits=   0.00>=24?N  AND=REJECT OR=ADMIT\n  DIFFER  \"abcabcab\"                                     len=  8>= 8?Y bits=  12.49>=24?N  AND=REJECT OR=ADMIT\n  agree   \"aabbccddeeff\"                                 len= 12>= 8?Y bits=  31.02>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Error: Cannot find module '/repo/dist/x.js'\"  len= 43>= 8?Y bits= 185.06>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"abcdefgh\"                                     len=  8>= 8?Y bits=  24.00>=24?Y  AND=ADMIT  OR=ADMIT\n  agree   \"Err\"                                          len=  3>= 8?N bits=   2.75>=24?N  AND=REJECT OR=REJECT\n  agree   \"ab\"                                           len=  2>= 8?N bits=   2.00>=24?N  AND=REJECT OR=REJECT\n  DIFFER  \"Cannot find\"                                  len= 11>=16?N bits=  33.30>=24?Y  AND=REJECT OR=ADMIT\n  DIFFER  \"no such file\"                                 len= 12>=16?N bits=  41.02>=24?Y  AND=REJECT OR=ADMIT\n  rule 3: class-only / multi-class / no-present-in-red / inadmissible-literal+class all reject R1-2 (never R1-3)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:00.864Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "command": "node packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "result": "pass",
+          "note": "red-w2d-assertion-digest-scope section 5 asserts computeAssertionDigest(explicit greenExempt:false) === computeAssertionDigest(field absent) and that canon(canonicalAssertionSubobject(...)) does NOT contain \"greenExempt\" for the false case while it DOES for greenExempt:true — the section-0.4 omission rule, so an explicit false cannot fork the digest. (Its admissibility is separately asserted by the rejection-matrix accept row \"greenExempt:false explicitly set on a present-in-red matcher\", which this command does not run.)",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "daa85340fd3b76bfe6fad92e49b9cb286a31548b7872503b51c28f6a4e9b1221",
+            "outputTail": "red-w2d-assertion-digest-scope: PASS\n  assertionDigest sha256:1a194fecf0fecf89e19b291a809a4d09ad6cb039c236ac91aceb3f5157977027\n  positive: CANON(assertion minus assertionDigest) === stored\n  negative: CANON(full stored object) !== stored; CANON(subobject minus policyDigest) !== stored\n  greenExempt:false omitted (no digest fork); greenExempt:true covered; key order + JSON roundtrip stable\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:01.065Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -159,11 +765,19 @@
         "happy": [
           {
             "desc": "expectedExitClass nonzero with script-exit adapter accepted; WHY: compatible combination",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-004: expectedExitClass nonzero with a script-exit adapter"
+            }
           },
           {
             "desc": "expectedExitClass timeout-is-failure with reporter-event adapter accepted; WHY: spec-legal combination",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+              "selector": "CHK-004: timeout-is-failure with a reporter-event adapter"
+            }
           },
           {
             "desc": "expectedExitClass exit:7 with any adapter accepted; WHY: exact exit code in valid range 1..255",
@@ -198,7 +812,49 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "accept() row \"expectedExitClass nonzero with a script-exit adapter\" runs the base envelope (adapterId npm-script@1) with expectedExitClass \"nonzero\" and asserts ok === true — the compatible exit-class/adapter pairing.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:01.301Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "command": "node packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+          "result": "pass",
+          "note": "reporterBase() rebinds the proof to adapterId node-test@1 with testCaseRef node-test:packages/main/tests/red/x.mjs#red case and its own targetBindingDigest, is validated against REPORTER_COMMITTED, and accept() asserts ok === true — timeout-is-failure is legal on a reporter-event adapter.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d22b8be99da1162551786949752f2ba757f4e23b9f83beea0433d0955f9dd5f",
+            "outputTail": "ned\"\n  REJECT R1-3        CHK-002: stream \"STDOUT\"\n  REJECT R1-3        CHK-002: stream \"both\"\n  REJECT R1-3        CHK-002: stream \"\"\n  REJECT R1-3        CHK-002: stream undefined\n  REJECT R1-3        CHK-002: polarity \"absent-in-red\"\n  REJECT R1-3        CHK-002: polarity \"Present-In-Red\"\n  REJECT R1-3        CHK-002: polarity \"present\"\n  REJECT R1-3        CHK-002: polarity \"\"\n  REJECT R1-3        CHK-002: polarity undefined\n  REJECT R1-3        CHK-003: greenExempt:true on an absent-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt:true on a present-in-green matcher\n  REJECT R1-3        CHK-003: greenExempt is not a boolean\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:0\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:256\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:-1\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:07\"\n  REJECT R1-3        CHK-004: expectedExitClass \"exit:1.5\"\n  REJECT R1-3        CHK-004: expectedExitClass \"\"\n  REJECT R1-3        CHK-004: expectedExitClass \"NONZERO\"\n  REJECT R1-3        CHK-004: expectedExitClass \"Nonzero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"zero\"\n  REJECT R1-3        CHK-004: expectedExitClass \"timeout\"\n  REJECT R1-3        CHK-004: expectedExitClass undefined\n  REJECT R1-3        CHK-004: timeout-is-failure with a script-exit adapter\n  REJECT R1-3        CHK-005: targetArtifactRef \"/absolute/path\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo//bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/./bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/../bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo\\\\bar\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"\"\n  REJECT R1-3        CHK-005: targetArtifactRef \".\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"..\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"foo/bar/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"/\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"./foo\"\n  REJECT R1-3        CHK-005: targetArtifactRef \"../foo\"\n  REJECT R1-3        CHK-005: supplementaryArtifact expectation outside the closed enum\n  REJECT R1-3        CHK-005: supplementaryArtifact without targetArtifactRef\n  REJECT R1-2        CHK-011: below-threshold literal is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: blocklisted literal .* is R1-2, NOT R1-3\n  REJECT R1-2        CHK-011: class-only present-in-red set is R1-2, NOT R1-3\n  REJECT R1-1        CHK-011: targetExercisedProof absent entirely is R1-1, NOT R1-6\n  REJECT R1-1        CHK-011: targetExercisedProof is not an object\n  REJECT R1-1        CHK-011: targetExercisedProof.method undefined\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"artifact-presence\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"path-touch\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"Harness-Token\"\n  REJECT R1-1        CHK-011: targetExercisedProof.method \"\"\n  REJECT R1-1        CHK-011: targetExercisedProof.adapterId absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.testCaseRef absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-1        CHK-011: targetExercisedProof.targetBindingDigest absent (an incomplete proof is R1-1, not a binding mismatch)\n  REJECT R1-6        CHK-011: NO committed binding registered for the target\n  REJECT R1-6        CHK-011: adapterId mismatching the committed binding\n  REJECT R1-6        CHK-011: correct adapterId but WRONG testCaseRef is R1-6 (mismatch), NOT R1-1 (missing)\n  REJECT R1-6        CHK-011: targetBindingDigest computed WITH createdAt included\n  REJECT R1-6        CHK-011: targetBindingDigest that recomputes to nothing\n  REJECT R1-5        adapterId absent from policy.runnerAdapterRegistry is R1-5\n  REJECT R1-2+R1-3   CHK-011: R1-2 and R1-3 co-occur and neither suppresses the other\n  REJECT R1-1+R1-2   CHK-011: R1-1 and R1-2 co-occur\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T17:50:01.602Z"
+          },
+          "headHash": "47ac2470a9d06c7220029b83d28d1a43ee150437",
+          "materialHash": "30ee783ec4853254663211376256d6ddebb3fa5d3db2becc77c6cf4201cf1e76",
+          "storyFilesHash": "0dcfa065711f2e389e7662541023a4d32f168985e1ab827082d3ef9335a0acc6",
+          "timestamp": "2026-08-13T17:50:01.888Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
