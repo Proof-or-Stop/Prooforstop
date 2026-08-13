@@ -598,7 +598,7 @@
       "desc": "packages/main/src/core/review-run.ts:1591 dead code: agentsWithCurrentValidEvidence is computed (new Set(valid.map(...))) but the F-019 fix removed its only real consumer (the `&& agentsWithCurrentValidEvidence.has(issue.agent)` conjunct at the old line ~1600) without removing the now-unused variable itself. It is referenced only from its own defining statement and from comments explaining why it USED to matter; noUnusedLocals is off so tsc/lint stay green. Low severity readability/maintainability nit, not a functional or gate-correctness issue (verified the gate logic itself is sound and unaffected).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T04:56:02.621Z",
@@ -609,7 +609,11 @@
         "packages/main/src/core/review-run.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "FIXED. Both reviewers were right, and they found it independently in the same round from different lanes (concept F-027 and quality F-028, same file, same line) - which is corroboration, not duplication, so I am recording the same fix on both rather than closing one as a dupe.\n\nTHE DEFECT, verified before fixing: `grep -n agentsWithCurrentValidEvidence packages/main/src/core/review-run.ts` returned exactly 3 hits - line 1591 (the defining statement) and lines 1603/1609 (comments explaining why the conjunct USED to matter). Zero readers. The F-019 fix removed `&& agentsWithCurrentValidEvidence.has(issue.agent)` from the terminal-finding forgiveness branch but left the Set that fed it still being computed on every call. This is precisely the concept-lane pattern: logic deleted at the use-site, the artifact that fed it left behind. tsc and validate --lint could not catch it because noUnusedLocals is off.\n\nTHE FIX: deleted the line-1591 computation. I also reworded the surrounding comment, which described the deadlock in terms of a lane being 'absent from agentsWithCurrentValidEvidence' - that would have left prose pointing at an identifier that no longer exists, i.e. traded dead code for a stale comment. It now states the same mechanism without naming the deleted variable. I deliberately KEPT the historical rationale itself: it records why the conjunct was a deadlock rather than a safeguard, which is the single most load-bearing piece of context in that function, and neither reviewer asked for its removal - only for the dead computation.\n\nVERIFICATION on current HEAD: (1) `npm --prefix packages/main run build` clean; (2) `npx tsc --noEmit -p packages/main` clean; (3) the F-019 regression test - which is the test that proves this branch still fails closed - passes: `node packages/main/dist/tasks/flow-stability-smoke.js` -> 'flow stability smoke passed'. That test explicitly asserts a resolved finding on a lane with zero valid evidence is forgiven, a pass with an identical stale binding still BLOCKS, an open finding with an identical stale binding still BLOCKS, and injected non-canonical statuses (RESOLVED / 'resolved ' / closed / fixed / suspected / disproven / '' / undefined) are all still rejected; (4) both red receipts (red-b2aa7-chk006, red-b2aa7-f005) exit 0; (5) all three lattice-residue checks PASS.\n\nSCOPE NOTE, reported rather than silently widened: editing this file surfaced editor diagnostics at line 851 (unused `storyId` / `lane` params in startRunHint/latestRunHint). `git blame` attributes that line to commit 4edf2925a9 by another author - it is pre-existing, outside this story's diff, and tsc stays clean. I left it alone rather than reach into a teammate's code mid-rename; flagging it here so it is visible instead of invisible.",
+      "resolvedAt": "2026-08-13T04:58:59.351Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
