@@ -71,6 +71,7 @@ export interface RunScheduledOptions { onSpawn?: () => void }
 const DEFAULT_TIMEOUT_MS = 120_000;
 const MAX_OUTPUT_BYTES = 64 * 1024;
 const MAX_JOBS = 64;
+export const OWNERSHIP_MARKER_FILENAME = 'owner';
 const RESOURCE_CLASSES: ResourceClass[] = ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'];
 const activeChildren = new Set<ReturnType<typeof spawn>>();
 let interruptSignal: NodeJS.Signals | undefined;
@@ -179,7 +180,7 @@ function observeOwnedTarget(path: string): OwnedTargetPreflight {
   let ownerMarker: string | null = null;
   try {
     if (type === 'file') ownerMarker = readFileSync(path, 'utf8');
-    else if (type === 'directory' && existsSync(join(path, 'owner'))) ownerMarker = readFileSync(join(path, 'owner'), 'utf8');
+    else if (type === 'directory' && existsSync(join(path, OWNERSHIP_MARKER_FILENAME))) ownerMarker = readFileSync(join(path, OWNERSHIP_MARKER_FILENAME), 'utf8');
   } catch { ownerMarker = null; }
   return { path, existedBefore: true, type, ownerMarker };
 }
@@ -209,9 +210,9 @@ export function cleanupOwnedTargets(manifest: OwnedTargetPreflight[], ownershipT
       }
       if (!stat.isDirectory()) throw new Error('unsupported owned target type');
       const entries = readdirSync(path);
-      if (entries.length !== 1 || entries[0] !== 'owner') throw new Error(entries.length ? `nonempty foreign ownership: ${entries.join(',')}` : 'missing ownership marker');
-      if (readFileSync(join(path, 'owner'), 'utf8') !== `${ownershipToken}\n`) throw new Error('foreign directory ownership');
-      unlinkSync(join(path, 'owner'));
+      if (entries.length !== 1 || entries[0] !== OWNERSHIP_MARKER_FILENAME) throw new Error(entries.length ? `nonempty foreign ownership: ${entries.join(',')}` : 'missing ownership marker');
+      if (readFileSync(join(path, OWNERSHIP_MARKER_FILENAME), 'utf8') !== `${ownershipToken}\n`) throw new Error('foreign directory ownership');
+      unlinkSync(join(path, OWNERSHIP_MARKER_FILENAME));
       rmdirSync(path); return { path, outcome: 'removed' as const };
     } catch (error) { return { path, outcome: 'residue' as const, detail: (error as Error).message }; }
   });

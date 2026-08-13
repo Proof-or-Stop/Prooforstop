@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createServer } from 'node:net';
+import { OWNERSHIP_MARKER_FILENAME } from './full-suite-runner.js';
 
 const root = resolve(process.cwd());
 const gitCwd = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
@@ -16,7 +17,7 @@ function acquireOwnedDirectory(path: string, token: string): void {
   acquired.push(path);
   const temporary = join(path, `.owner-${process.pid}.tmp`);
   writeFileSync(temporary, `${token}\n`, { flag: 'wx' });
-  renameSync(temporary, join(path, 'owner'));
+  renameSync(temporary, join(path, OWNERSHIP_MARKER_FILENAME));
 }
 async function probeFixedPort(): Promise<'bound' | 'unsupported'> {
   const server = createServer();
@@ -36,6 +37,10 @@ try {
   mkdirSync(join(root, '.lattice', 'locks'), { recursive: true });
   const ownershipToken = process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN ?? String(process.pid);
   for (const path of [runtimeLock, mainWriteLock, fixedPath]) acquireOwnedDirectory(path, ownershipToken);
+  const markerMutation = process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
+  if (markerMutation === 'missing-runtime') unlinkSync(join(runtimeLock, OWNERSHIP_MARKER_FILENAME));
+  else if (markerMutation === 'tampered-main') writeFileSync(join(mainWriteLock, OWNERSHIP_MARKER_FILENAME), 'foreign-token\n');
+  if (process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS === '1') process.kill(process.pid, 'SIGSTOP');
   const fixedPortCapability = await probeFixedPort();
   const assertions = ['git-common-dir-read', 'fixed-path-owned', 'runtime-lock-owned', 'main-write-lock-owned'];
   if (fixedPortCapability === 'bound') assertions.push('fixed-port-os-bind:43127');

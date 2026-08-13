@@ -343,6 +343,42 @@ async function main(): Promise<void> {
     assert(ownedInterrupted.status === 'INTERRUPTED' && ownedPaths.every(path => !existsSync(path)) && existsSync(sibling), 'SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings');
     assert(ownedInterrupted.cleanupManifest?.length === 3 && ownedInterrupted.cleanupOutcomes?.every(outcome => outcome.outcome === 'removed'), 'cleanup manifest is recorded before spawn and reconciled after interruption');
 
+    const realSentinelRoot = join(root, 'real-sentinel'); mkdirSync(realSentinelRoot);
+    execFileSync('git', ['init', '-b', 'main'], { cwd: realSentinelRoot, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'suite@example.test'], { cwd: realSentinelRoot });
+    execFileSync('git', ['config', 'user.name', 'Suite'], { cwd: realSentinelRoot });
+    const realSentinelScript = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-resource-sentinel.js');
+    writeFileSync(join(realSentinelRoot, 'package.json'), JSON.stringify({ scripts: { 'test:real-sentinel': `node ${JSON.stringify(realSentinelScript)}` } }));
+    execFileSync('git', ['add', '.'], { cwd: realSentinelRoot }); execFileSync('git', ['commit', '-m', 'fixture'], { cwd: realSentinelRoot, stdio: 'ignore' });
+    const realSentinelPaths = [
+      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-runtime-sentinel.lock'),
+      join(realSentinelRoot, '.lattice', 'locks', 'full-suite-main-write-sentinel.lock'),
+      join(realSentinelRoot, '.lattice', 'runtime', 'full-suite-fixed-sentinel'),
+    ];
+    const realSentinelEntry = canonicalizeEntries([{ ...entry('test:real-sentinel'), resources: [
+      { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive', ownership: 'runner-cleanable' },
+    ] }], realSentinelRoot)[0]!;
+    const runRealSentinelInterrupted = async (mutation?: 'missing-runtime' | 'tampered-main'): Promise<FullSuiteResult> => {
+      process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS = '1';
+      if (mutation) process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION = mutation;
+      const promise = runEntry({ ...realSentinelEntry, timeoutMs: 10_000 }, realSentinelRoot, 'npm');
+      for (let index = 0; index < 200 && !realSentinelPaths.every(path => existsSync(path)); index++) await new Promise(done => setTimeout(done, 10));
+      assert(realSentinelPaths.every(path => existsSync(path)), 'real production sentinel creates all three runner-cleanable directories before pause');
+      interruptForTest('SIGTERM'); const result = await promise; resetInterruptForTest();
+      delete process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS; delete process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
+      return result;
+    };
+    const realInterrupted = await runRealSentinelInterrupted();
+    assert(realInterrupted.status === 'INTERRUPTED' && realInterrupted.cleanupOutcomes?.every(outcome => outcome.outcome === 'removed') && realSentinelPaths.every(path => !existsSync(path)), 'real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed');
+    const realMissingMarker = await runRealSentinelInterrupted('missing-runtime');
+    assert(realMissingMarker.status === 'FAIL' && realMissingMarker.cleanupOutcomes?.some(outcome => outcome.detail === 'missing ownership marker') && existsSync(realSentinelPaths[0]!), 'real production sentinel missing-marker mutation is retained and fails closed');
+    rmSync(realSentinelPaths[0]!, { recursive: true, force: true });
+    const realTamperedMarker = await runRealSentinelInterrupted('tampered-main');
+    assert(realTamperedMarker.status === 'FAIL' && realTamperedMarker.cleanupOutcomes?.some(outcome => outcome.detail === 'foreign directory ownership') && existsSync(realSentinelPaths[1]!), 'real production sentinel tampered-marker mutation is retained and fails closed');
+    rmSync(realSentinelPaths[1]!, { recursive: true, force: true });
+
     const outsideEntry = { ...entry('test:outside-owned'), resources: [{ class: 'fixed-path', key: '../outside', access: 'exclusive', ownership: 'runner-cleanable', canonicalKey: `fixed-path:${join(dirname(root), 'outside')}` } as ResourceClaim] };
     let outsideDenied = false; try { cleanupManifestForEntry(outsideEntry, root); } catch { outsideDenied = true; }
     assert(outsideDenied, 'runner-cleanable target outside approved runtime roots is denied');
