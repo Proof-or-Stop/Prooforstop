@@ -110,7 +110,43 @@
       "context": "Section 1.1: an envelope with no present-in-red matcher is rejected; greenExempt carried by any other polarity is rejected. greenExempt is an assertion-subobject field and is therefore covered by assertionDigest.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Envelope with one present-in-red literal-line matcher accepted; WHY: minimum one present-in-red satisfied",
+            "type": "cli"
+          },
+          {
+            "desc": "Present-in-red matcher with greenExempt:true accepted; WHY: greenExempt legal on present-in-red",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Envelope with matchers only having polarity absent-in-green and present-in-green rejected; WHY: no present-in-red means RED assertion is vacuous",
+            "type": "cli"
+          },
+          {
+            "desc": "Absent-in-green matcher carrying greenExempt:true rejected; WHY: greenExempt only legal on present-in-red",
+            "type": "cli"
+          },
+          {
+            "desc": "Present-in-green matcher carrying greenExempt:true rejected; WHY: greenExempt only legal on present-in-green violates the restriction",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Envelope with one present-in-red class matcher (stderr-nonempty) and one absent-in-green literal-line rejected R1-2 via rule 3; WHY: the present-in-red requirement alone is insufficient -- rule 3 also applies and class-only is rejected",
+            "type": "cli"
+          },
+          {
+            "desc": "greenExempt:false explicitly set on present-in-red matcher accepted and omitted from assertion per s0.4 omission rules; WHY: greenExempt false/absent is semantically identical, omission rule prevents digest divergence",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
