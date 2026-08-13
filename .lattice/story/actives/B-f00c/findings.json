@@ -91,7 +91,7 @@
       "desc": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts:148-158 (block 5, the F-004 fix): re-running the fresh build 19x on this machine, 3 runs (~16%, clustered) crashed with an UNCAUGHT `Error: spawnSync git ENOBUFS` (errno -55, signal SIGTERM) thrown from netDiffChangedPaths at line 156 or from the classifyMergeLineage internal call at line 158 -- despite the 1GiB maxBuffer override being correctly applied (confirmed via dist inspection and 15/15 clean isolated repros of the same-size diff-tree call). Root cause appears to be transient macOS pipe/mbuf pressure from block 5 issuing 3 successive large (~1.9MB) buffered execFileSync calls back-to-back within one Node process (line 153 manual measurement call, line 156 direct netDiffChangedPaths call, line 158 internal call inside classifyMergeLineage) -- none wrapped in retry or try/catch in the TEST itself (production classifyMergeLineage does catch diff failures into a clean {kind:diff-failed} result, so this is a test-only crash risk, not a production correctness bug). Since this smoke is now wired into lattice.config.json validate.commands normal tier, this is a real source of intermittent false-negative CI/validate failures (raw uncaught exception, not a clean assertion message) unrelated to any actual regression. Recommend consolidating the 3 redundant large-diff invocations in block 5 to 1 and/or adding a short retry-on-ENOBUFS around the large git call.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-13T17:05:47.853Z",
@@ -99,7 +99,11 @@
       "reviewRunId": "B-f00c:RR-020",
       "_hash": "402f2981de9264a55b3d03e9376db59dfafd855fb8cc77f63eb5abba62f85500",
       "signatureTag": "edge|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: block 5 cut from 4 to 2 heavy git spawns per run (removed redundant size-measurement spawn and the classifyMergeLineage-internal re-spawn by injecting the already-fetched changed-paths array via its existing changedPathsFn parameter), plus a narrow ENOBUFS-only retry helper (commit e0df48c00d). Verified clean across 100+ sequential and concurrent runs by 3 independent reviewers under real heavy system load (load avg ~28).",
+      "resolvedAt": "2026-08-13T17:43:12.643Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
