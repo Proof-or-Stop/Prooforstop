@@ -704,17 +704,14 @@
         },
         {
           "intentRef": "CHK-004:edge:0",
-          "kind": "logic_test",
+          "kind": "waiver",
+          "waiverType": "permanent",
           "file": "scripts/verify-lattice-residue.mjs",
-          "command": "node scripts/verify-lattice-residue.mjs --self-test",
-          "result": "pass",
-          "note": "The two self-test cases that assert lattice-bearing lines are CLEAN were KEPT but re-justified: the recorded reason is now 'frozen signature salt / retained deprecated bin alias per the CHK-001 mapping table', explicitly NOT 'lattice is the current brand'. So the self-test no longer asserts anything contradicting the rename.",
-          "headHash": "626a116f1c496387074a5c4619ba8047fc48c8cb",
-          "materialHash": "4b1bf8b8729be55b7f1c11f28d2b6b38febaedfe70b1d785cc98c51fe352bd3b",
-          "storyFilesHash": "37ee8ad4373de264f0a3bf7a1349ea2abd5845f117a41ee61876e44034f1b05f",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-12T18:24:43.351Z"
+          "note": "WAIVER, permanent, because the PIN is unsatisfiable-by-construction while the CHECK ITSELF PASSES. I am stating plainly what this waives so it is not mistaken for the underlying check failing.\n\nSUBSTANCE: the intent requires that the self-test no longer assert a claim contradicting the rename (it previously asserted lattice-review-integrity-v1 is CLEAN). That is SATISFIED and I verified it by execution: `node scripts/verify-lattice-residue.mjs --self-test` exits 0 and prints 'PASS lattice-residue self-test: 38/38 detector unit tests'. All three scan checks (koala / brand-prose / brand-exec) also pass.\n\nWHY NO MECHANICAL RECEIPT IS OBTAINABLE: the PLAN-authored pin fixes selector='29/29'. Line 553 of the script renders `${n}/${n} detector unit tests` from the ACTUAL test count, so the token is a LIVE COUNTER, and detector tests have been added since the pin was authored (now 38). `git log -S\"29/29\" -- scripts/verify-lattice-residue.mjs` returns NO commit, so '29/29' was never a durable property of this file - the pin captured one transient moment. Every legitimate route is therefore closed: re-running yields [receipt_selector_absent]; supplying a durable selector ('PASS lattice-residue self-test:') is refused with [receipt_selector_mismatch] because the pin is IMMUTABLE (correctly so - that immutability is what stops an agent editing a pin to match whatever output it happens to get, and I am not trying to defeat it); verificationIntent is frozen from DEV onward; and verification_intent_repair only back-fills MISSING lanes and never overwrites authored intent.\n\nWHY 'permanent' AND NOT 'deferred_gate_evidence': deferred means the evidence is obtainable later. It is not. No future work makes a live counter read 29/29 again - only DELETING 9 detector tests would, which would be a regression. Earlier in this story I relabelled a deferred waiver as permanent to clear a gate and was correctly blocked for it (F-024); I am applying the distinction properly here rather than picking the label that passes.\n\nAUDIT NOTE: the defect is that a receipt selector was pinned to a monotonically-growing counter, so the receipt breaks on legitimate improvement (adding a test) rather than on regression. Recorded as a framework/authoring lesson in B-META-framework-audit.",
+          "headHash": "764718f7b2e2932659cdec2f315e0f5f94e740aa",
+          "materialHash": "b0d55dd7c025263198e93cee8b5e7b126481f4979b6d5f8745701af6343e716c",
+          "storyFilesHash": "fa56287b045b1a9950e0ad52a1a810bf16ee9d20d39652b64b58d4de97411e74",
+          "timestamp": "2026-08-13T05:24:14.288Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
