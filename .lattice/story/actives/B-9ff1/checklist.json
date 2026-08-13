@@ -206,7 +206,55 @@
       "context": "Section 1.1: targetArtifactRef is slash-normalized and validated SYNTACTICALLY (realpath cannot classify a path that does not yet exist, which is the RED case). Absolute paths and empty/dot/dot-dot/backslash segments reject.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "targetArtifactRef packages/main/dist/tasks/foo.js accepted; WHY: valid repo-relative slash-separated path with no traversal",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "targetArtifactRef /absolute/path rejected R1-3; WHY: absolute paths rejected at schema time",
+            "type": "cli"
+          },
+          {
+            "desc": "targetArtifactRef foo//bar rejected R1-3; WHY: empty segment between consecutive slashes",
+            "type": "cli"
+          },
+          {
+            "desc": "targetArtifactRef foo/./bar rejected R1-3; WHY: dot segment is traversal",
+            "type": "cli"
+          },
+          {
+            "desc": "targetArtifactRef foo/../bar rejected R1-3; WHY: dot-dot segment is parent traversal",
+            "type": "cli"
+          },
+          {
+            "desc": "targetArtifactRef with backslash character rejected R1-3; WHY: backslash rejected for slash-normalization",
+            "type": "cli"
+          },
+          {
+            "desc": "targetArtifactRef empty string rejected R1-3; WHY: empty path is invalid",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "targetArtifactRef . (bare dot as entire path) rejected R1-3; WHY: single dot segment must also reject not just dot within longer path",
+            "type": "cli"
+          },
+          {
+            "desc": "targetArtifactRef .. (bare dot-dot as entire path) rejected R1-3; WHY: parent traversal at root level",
+            "type": "cli"
+          },
+          {
+            "desc": "targetArtifactRef foo/bar/ (trailing slash creating empty final segment) rejected R1-3; WHY: trailing slash leaves an empty segment",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
