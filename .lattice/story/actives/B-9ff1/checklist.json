@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Declare the assertion envelope schema with unique matcher ids and a kind enum limited to literal-line and class with no pattern language",
       "context": "packages/main/src/core/red-evidence/envelope.ts declares the section 1.1 envelope: matcher ids unique within the envelope; kind restricted to the closed set {literal-line, class}; NO pattern/regex dialect exists anywhere in the type or the validator (section 1.11 rule 1 pins literal-line as a whole-line trimmed string comparison, nothing compiled).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-13T17:31:32.921Z",
-      "endTime": null,
+      "endTime": "2026-08-13T17:31:33.748Z",
       "verificationIntent": {
         "happy": [
           {
