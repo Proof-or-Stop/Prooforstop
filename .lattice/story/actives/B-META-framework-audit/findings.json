@@ -414,6 +414,26 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "_hash": "10b238f44fc4f695f5146d44c5676c9d34ae0934a21e75c4f056c93ff93f90fa"
+    },
+    {
+      "id": "B-META-framework-audit:F-023",
+      "desc": "SCOPE CORRECTION to B-META-framework-audit:F-022, filed by its own author after the gate proved part of that claim too broad. F-022 asserted that the convergence breaker counts 'the framework's OWN metadata churn' as failure. The metadata-churn half is real and stands (measured 0 material files across 6 metadata-only commits; currentStoryFilesHash explicitly EXCLUDES story metadata via isMaterialExcludedPath at evidence-freshness.ts:464, so metadata commits genuinely cannot move storyFilesHash). But I then generalized that into treating EVERY review_evidence_invalid rejection on this story as framework churn, and the next rejection disproved it. MEASUREMENT: after committing a real material fix (03b39c852c, deleting dead code in packages/main/src/core/review-run.ts), storyFilesHash moved 99a2928aca0111 -> 239eac2c56d43c. Runs RR-025/RR-026 (concept/quality, bound after the fix) match current; RR-021/RR-023 (test-coverage/docs, bound before it) still hold the old hash. Those two lanes passed on code that no longer exists, so the gate was CORRECT to reject them - this is the 'related drift / storyFilesHash is the strong signal' case that CLAUDE.md's DONE-convergence discipline already documents, not a framework defect. LESSON, which is the reusable part: a host that has correctly diagnosed one framework bug will reach for it as the explanation for the next superficially-similar rejection. The error message distinguished the two cases precisely ('storyFilesHash does not match current story-owned file state' vs the earlier envelope-digest wording) and I did not read the distinction until I recomputed the hashes myself. Diagnosis must be re-derived per rejection, not inherited from the previous one.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T05:09:05.646Z",
+      "reviewRound": "",
+      "gapFingerprint": "b1bb8a0065b43a1da2c0ab69da33cbefe5d2c32465f2331d447597ae2ab0b197",
+      "files": [
+        "packages/main/src/core/evidence-freshness.ts:458",
+        "packages/main/src/core/evidence-freshness.ts:464",
+        "CLAUDE.md#Host-DONE-convergence",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "e7161807110b9dcfeb77b739a0c929fa04992b119f86ed8aed44e0259303c743"
     }
   ]
 }
