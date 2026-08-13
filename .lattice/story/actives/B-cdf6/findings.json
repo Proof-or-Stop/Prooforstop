@@ -671,6 +671,24 @@
       "resolvedAt": "2026-08-13T12:21:07.444Z",
       "resolutionType": "accepted_risk",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-032",
+      "desc": "CHK-006 (Complete the rename under the past-evidence-only freeze criterion) has ZERO verificationIntent entries (happy/edge/adversarial all absent, not just empty) and ZERO verificationEvidence rows, yet is marked done with a concrete testable userSees claim (fresh init writes proof-or-stop-only guides; grep over active code/docs returns only frozen salt literals + labelled compat shims; existing .lattice/ + LATTICE_* projects still work unchanged via dual-read). This is normal channel (6 items, riskSignals non-empty, priority high), so all three intent columns are required per rule 1. CHK-006 spans 14+ commits (env-var resolver routing, corrupted generated Codex wrapper fix, gate-scan-root extension, multiple repin passes) and its compat-read + extended-gate-scan claims are not covered by CHK-001-005 intents, which are scoped to the mapping table, CLI rename, doc sweep, residue gate reconciliation, and mechanical-gate reconciliation respectively -- none assert dual-read backward compatibility or the bin/.codex/packages-utils-src scan-root extension. Distinct from the already-tracked CHK-002:adversarial:1 gap (deferred_gate_evidence waiver, B-META-framework-audit:F-005) -- that one has an intent with an honest waiver; this one has no intent at all, so it structurally never entered any must-coverage denominator.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-13T12:23:23.656Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-035",
+      "_hash": "e6d5e0b5f4e4d096e904f71a125383caac66bbe1ef95531062fc122e8bcc88e9",
+      "files": [
+        "docs/story/actives/B-cdf6/checklist.json"
+      ],
+      "signatureTag": "missing|json|complete-rename-past",
+      "signatureTagSource": "auto"
     }
   ]
 }
