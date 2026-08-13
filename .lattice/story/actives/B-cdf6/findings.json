@@ -573,6 +573,21 @@
       "resolvedAt": "2026-08-13T04:22:10.370Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-027",
+      "desc": "packages/main/src/core/review-run.ts:1591 concept-cleanup: the F-019 fix (commit 8ca95d602b) removed the `agentsWithCurrentValidEvidence.has(issue.agent)` conjunct from the terminal-finding forgiveness branch, but left the `agentsWithCurrentValidEvidence` Set itself declared and computed (line 1591) with no remaining reader anywhere in the file or in flow-stability-smoke.ts (only comment mentions survive). tsc does not flag it because noUnusedLocals is off in packages/main/tsconfig.json, and validate --lint passes clean. Not a functional defect — verified the forgiveness logic itself is still correctly bounded to SUPERSEDED_PASS_ISSUE_CODES + terminal (resolved/dismissed) findings only, confirmed by the new F-019 regression test in flow-stability-smoke.ts (pass and open-finding cases still block; non-canonical statuses RESOLVED/closed/fixed/etc still rejected) which passes when run. But it is exactly the class of residue this lane exists to catch: a piece of logic was deleted from its use-site while the artifact that fed it was left behind, which will read to a future maintainer as if it still matters. Low severity: dead local variable, no behavior/security impact, one-line deletion to fix.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-13T04:55:55.678Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-024",
+      "_hash": "9a0adb72096431a4914e34fe67be0b237385e53b3f4b21419aa40e502d502575",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
