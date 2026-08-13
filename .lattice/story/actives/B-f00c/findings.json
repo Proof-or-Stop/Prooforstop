@@ -72,7 +72,7 @@
       "desc": "CHK-001:edge:2 / CHK-002:edge:2 (must, maxBuffer robustness): validation-reuse-merge-lineage-smoke.ts:121-135 large-diff test only produces ~118KB of diff-tree -z output (1500 paths x ~80 bytes, empirically measured via reproduction), far short of the >16MB the CHK-001 checklist context requires (\"a diff producing >16MB of path output does not throw ENOBUFS\") and even short of Node execFileSync default maxBuffer (1 MiB). Reproduced: the identical git diff-tree invocation succeeds with NO maxBuffer override at all (default 1 MiB buffer), so this assertion provides zero discriminating power for the GIT_LINEAGE_MAXBUFFER=1024*1024*1024 fix in validation-lineage.ts:9 -- reverting/shrinking that constant would not make this test fail. The maxBuffer robustness intent is therefore unverified at the claimed scale (padding, not a genuine adversarial/edge assertion).",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T16:44:12.873Z",
@@ -80,7 +80,11 @@
       "reviewRunId": "B-f00c:RR-018",
       "_hash": "09c7d151e641f00d5c2b7920d9c355b2d9bb7301917f0958344b19cba6acbd17",
       "signatureTag": "edge|unknown|edge-edge-maxbuffer",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: the large-diff block now proves discriminating power directly — asserts the raw git diff-tree call throws ENOBUFS without a maxBuffer override, then asserts classifyMergeLineage/netDiffChangedPaths succeed via GIT_LINEAGE_MAXBUFFER. Verified by temporarily reverting the constant to 1 MiB: the smoke then fails, proving the test would have caught this regression.",
+      "resolvedAt": "2026-08-13T16:55:53.837Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
