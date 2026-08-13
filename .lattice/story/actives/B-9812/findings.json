@@ -1086,7 +1086,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:1634-1644 leaves F-037's adversarial proof unresolved. mutationKillMap does not mutate or bypass any production guard: it deletes each key from an already-successful observation object and declares the mutation detected whenever JSON.stringify differs, which is tautologically true for any key. scripts/verify-full-suite-contract.mjs:167-172 then accepts those self-generated unequal JSON blobs as mutation-kill evidence. Removing/breaking a guard implementation need not make this check fail, and the promised seed-removal/order-contamination, shard timeout/isolation, or jobs=1-vs-parallel mutations still are not executed. Replace post-hoc receipt deletion with injected guard/schedule mutations that run the actual verifier/gate path and record the resulting failure class.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T01:08:37.444Z",
@@ -1122,14 +1122,18 @@
         "scripts/verify-full-suite-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: stress evidence deleted fields from a post-hoc successful receipt instead of exercising production guards. Fixed by supported injection seams that run each of six real guard scenarios with the corresponding guard altered, plus observed schedule mutation, deterministic replay, parallel shards, and isolated timeout. ReproTest: final /tmp/b9812-final-v3-stress20.log contains 20 iterations and six executed/detected mutation classes; real-review-gate records completed=true, threw=false, baseline=true, redundantDeletionStillTrue=true, allPassesCleared=false, detected=true; capture PASS 52.",
+      "resolvedAt": "2026-08-13T04:40:26.800Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-040",
       "desc": "scripts/verify-full-suite-contract.mjs:135-146 and 175-192 still do not satisfy F-038's assertion-and-mutation inventory bite. The only deletion trial removes one detailedAssertions entry from serial.results[0]; there is no mutationInventory deletion trial and no per-member deletion loop. Current receipt /tmp/b9812-final-v3-run1.json has empty mutationInventory for 43/47 members, while the 42 formerly-unavailable members now carry only opaque hashes of selected PASS/output lines, not enumerated internal mutation identities. Yet CHK-001:adversarial:0, CHK-005:happy:1 and CHK-006:happy:2 are marked VERIFIED. At minimum separately mutate every nonempty assertion and mutation inventory and require selector failure; for members expected to exercise mutations, collect stable explicit mutation IDs rather than treating an empty list as a complete inventory.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T01:08:39.240Z",
@@ -1165,14 +1169,18 @@
         "packages/main/src/tasks/full-suite-runner.ts"
       ],
       "signatureTag": "missing|mjs|scripts-verify-full",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: inventory deletion testing mutated stored result objects and omitted production output/marker suppression. Fixed member wrapper suppression before output capture, with separate plain assertion-line, structured assertion, and structured mutation suppression trials; verifier requires each expected observed signature to disappear. ReproTest: full-suite-runner-smoke PASS 114 assertions; serial/jobs3/jobs5/three jobs4 report 47 nonempty output-derived detailedAssertions and exact inventory equality; capture PASS 52.",
+      "resolvedAt": "2026-08-13T04:40:27.497Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-041",
       "desc": "doc-promise-undelivered: the newly added source/dist build binding is not consumed by the canonical test or evidence verifier, so the same-material build promise remains bypassable. package.json:11 runs verify-full-suite-build-binding only at the end of npm run build, while package.json:15 invokes full-suite-runner.js directly and has no pretest. packages/main/src/tasks/full-suite-runner.ts:422-432 starts inventory/identity checks without reading packages/main/dist/full-suite-build-binding.json or invoking verifyBuildBinding; scripts/verify-full-suite-contract.mjs likewise contains no build-binding check, and full-suite-runner-smoke.ts only asserts the build script text. Therefore changing packages/main/src after a successful build leaves old dist runnable by npm test and can produce a PASS receipt bound to the changed material even though dist came from the prior source. The standalone self-test proves verifyBuildBinding can detect stale source, but nothing on the claimed canonical root/collector path calls it. This violates CHK-001 edge:0/adversarial:1 and CHK-006 happy:0/happy:3: wire fail-closed verification into npm test/runner before any member spawns and make the immutable selector bite on a stale-source fixture, while retaining the standard-build manifest generation.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-13T01:09:12.069Z",
@@ -1238,14 +1246,18 @@
         "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
       ],
       "signatureTag": "doc-promise-undelivered|json|promise-undelivered-newly",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: source/dist binding existed only as a post-build helper and was not enforced at canonical execution boundaries. Fixed runner and contract verifier to validate source/dist binding before argument parsing or member spawn, with stale-source and tampered-dist end-to-end negatives proving launches=0. ReproTest: standard npm run build PASS binding 4e7e20d38f4e:09c0a0ae3072; all final receipts carry the binding, DONE-required PASS, capture PASS 52.",
+      "resolvedAt": "2026-08-13T04:40:28.198Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-042",
       "desc": "CHK-004 must-intent coverage is still not implementation-biting. packages/main/src/tasks/review-incremental-context-smoke.ts:1634-1636 constructs mutationKillMap by deleting each key from the already successful observation object, so detected=true proves only that JSON changes when a receipt field is removed; it never mutates or disables the corresponding guard mechanism. The same receipt explicitly records shards.enabled=false at line 1642, so it also does not execute the required independent concurrent-shard jobs=1/parallel equivalence or the timed-out-shard-beside-success isolation case. scripts/verify-full-suite-contract.mjs:167-172 and 247 accept those receipt-shape checks as CHK-004 selectors. The actual 20-iteration run is real and passed, but a guard regression, seed-recording removal, or shard-contamination regression can still leave these selectors green. WHY: F-037 is only partially resolved; mandatory adversarial/edge/happy coverage remains falsely certified.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T01:10:04.470Z",
@@ -1272,14 +1284,18 @@
         "scripts/verify-full-suite-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|intent-coverage-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: CHK-004 selectors trusted receipt-shape booleans and did not run altered guards, parallel shards, deterministic replay, or timeout isolation. Fixed actual 20-iteration guard execution, six production injection mutations, reordered schedule mutation, jobs1/parallel deterministic shard comparison, and a timed-out shard beside successful shards. ReproTest: final stress20 receipt records shards.enabled=true, deterministic=true, timeoutIsolated=true, replay.sameGuardClassOutcome=true, 20x6 observed guard results, and every mutation executed/detected; capture PASS 52.",
+      "resolvedAt": "2026-08-13T04:40:28.899Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-043",
       "desc": "CHK-001/CHK-005/CHK-006 per-member assertion/mutation equivalence remains only partially covered. Current receipts do have 47/47 nonempty detailedAssertions and serial/jobs3/jobs5/three jobs4 compare byte-equivalent, but 42 members have summaryMarkerPresent=false and mutationInventory=[]; packages/main/src/tasks/full-suite-runner.ts:337-348 labels hashes of selected PASS/output lines as detailedAssertions rather than inventorying the assertions/mutations executed inside those members. scripts/verify-full-suite-contract.mjs:175-191 accepts any nonempty output-sha256 as a detailed inventory, and its deletion bite at lines 141-146 deletes one field from an already generated receipt; there is no separate mutation-signature deletion trial and no underlying member assertion/mutation removal. A member can remove an internal assertion or mutation while printing the same PASS line and all current exact-diff/52-selector checks remain green. WHY: F-038 remains partially unresolved and the must-level coverage-preservation claim is stronger than the evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T01:10:20.826Z",
@@ -1307,7 +1323,11 @@
         "packages/main/src/tasks/full-suite-runner-smoke.ts"
       ],
       "signatureTag": "missing|ts|member-assertion-mutation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: output inventories were derived only from generic terminal PASS lines and deletion occurred after receipt generation. Fixed stable content-specific output line hashes for every member, preserved explicit structured assertion/mutation IDs, excluded dynamic summary serialization, and injected suppression before output/marker production. ReproTest: serial47 PASS 484184ms and jobs3/jobs5/jobs4x3 match detailedAssertions and mutationInventory member-by-member; suppression negatives bite plain output, structured assertion, and structured mutation; capture PASS 52.",
+      "resolvedAt": "2026-08-13T04:40:29.595Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
