@@ -1,0 +1,20 @@
+{
+  "storyId": "B-74af",
+  "expected": "Agent task <id> is still running or in the background; continue monitoring the same task. If status is unknown, do not start a duplicate. Restart once only when the host reports failed, cancelled, or missing/dead.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+    "exitCode": 0,
+    "stdout": "agent-dispatch-registry-smoke PASS (15 canonical roles, 2 aliases)\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-12T12:52:11.367Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "ca0effa6c94604cb2ce3b342141f2541f3d7ac3f",
+  "materialHash": "8a67695a9e0c6f61174ba343820895d080c2882989871489c5c3d5bbb935e9f3"
+}
