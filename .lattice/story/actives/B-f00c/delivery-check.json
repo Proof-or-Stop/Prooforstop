@@ -1,27 +1,64 @@
 {
   "storyId": "B-f00c",
-  "checkedAt": "2026-07-26T09:04:54.437Z",
-  "headHash": "aea929cee68ce3742c50d90732c2e5c11fddbf87",
-  "materialHash": "e4b8596b3d5963e732964a5838a9c6e214c63815c06f4efe1c47daf3e65941db",
-  "storyFilesHash": "a28fbae2c64437defbded7e4cb64412c19f68058fbea3e9d17ca61aac8e38d9b",
+  "checkedAt": "2026-08-13T16:14:52.326Z",
+  "headHash": "316de31beeba537bee0dcb0e0a1ccabe62d9896c",
+  "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+  "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
   "reviewRound": "2026-07-26T03:46:02.664Z",
   "agentId": "lattice-review-delivery",
-  "docsPromises": [],
+  "docsPromises": [
+    {
+      "docPath": "checklist.json#CHK-001",
+      "promise": "A shared merge-lineage classifier (classifyMergeLineage in a new validation-lineage.ts) using a NET endpoint diff (git diff-tree -r --no-commit-id --name-only --no-renames -z <evidenceHead> <currentHead>), maxBuffer 1024*1024*1024, empty-net-diff-means-trusted, and a split try/catch (ancestor check vs diff computation) routes BOTH classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts).",
+      "verifiedBy": "diff/grep + fresh read of packages/main/src/core/validation-lineage.ts",
+      "evidence": "validation-lineage.ts (new file, git diff main...HEAD) exports netDiffChangedPaths() using execFileSync('git',['diff-tree','-r','--no-commit-id','--name-only','--no-renames','-z',...], {maxBuffer: 1024*1024*1024}) and classifyMergeLineage() with a separate try/catch for merge-base --is-ancestor (returns not-ancestor) vs changedPathsFn (returns diff-failed). Both validation-evidence-reuse.ts::classifyTrustedValidationLineage and validation-evidence-admissibility.ts::validationHeadLineage now import classifyMergeLineage from './validation-lineage.js' and switch on its classification kind instead of running their own per-commit git logic."
+    },
+    {
+      "docPath": "checklist.json#CHK-001",
+      "promise": "The exact-head fast path is preserved (evidenceHead === currentHead returns exact-head without spawning git).",
+      "verifiedBy": "diff/grep",
+      "evidence": "classifyMergeLineage() first line: `if (args.evidenceHead === args.currentHead) return { kind: 'exact-head' };` before any execFileSync call; both consumers map this to lineage:'exact-head'."
+    },
+    {
+      "docPath": "checklist.json#CHK-001",
+      "promise": "The old per-commit `git diff-tree ... -m <commit>` union (over every intervening commit) is removed and replaced by the single net endpoint diff; the empty-diff -> rejected/empty-descendant-lineage/lineage_empty behavior is removed so an empty net diff is trusted.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD on validation-evidence-reuse.ts and validation-evidence-admissibility.ts shows removal of the rev-list + diff-tree -r -m per-commit union block and the `if (changed.length === 0) reasons.push('empty-descendant-lineage')` / `code:'lineage_empty'` branches; replaced by classification.kind === 'trusted-descendant' returning trusted for empty net diff."
+    },
+    {
+      "docPath": "checklist.json#CHK-001",
+      "promise": "The other 8 reuse factors in evaluateRoutineValidationReuse (prior-command-execution-not-pass, material-hash-mismatch, story-files-hash-mismatch, identity-digest-mismatch, coverage-mismatch, dirty-tree, head-hash-missing, evidence-missing) remain unchanged (scope containment).",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- packages/main/src/core/validation-evidence-reuse.ts touches only imports and classifyTrustedValidationLineage(); scripts/verify-process-fact-contract.mjs still asserts effectiveEnvironmentDigest, buildValidationExecutableLookup, identity-missing-malformed-or-legacy, current-verification-coverage-incomplete, head-changed-during-reuse-evaluation tokens present unchanged in validation-evidence-reuse.ts."
+    },
+    {
+      "docPath": "checklist.json#CHK-002",
+      "promise": "A RED-first smoke (validation-reuse-merge-lineage-smoke.ts) reproduces the merge false-positive on both reuse and admissibility paths, with GREEN-after-fix, a NEGATIVE (genuine content change still refuses), empty-net-diff-trusted, and large-diff maxBuffer robustness cases, and mutation-resistance (old per-commit union would wrongly flag) assertions; wired into lattice.config.json validate.commands normal tier.",
+      "verifiedBy": "diff/grep + fresh rebuild and fresh execution",
+      "evidence": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts (166 lines) asserts: (1) merge of a byte-unchanged file classifies trusted-descendant on both classifyMergeLineage and the two consumer wrappers, AND perCommitUnionChanged (the OLD algorithm) would have flagged it -- mutation-resistance; (2) NEGATIVE: genuine change to shared.ts is classified untrusted and both consumers reject; (3) exact-head fast path; (4) empty-net-diff between distinct heads is trusted-descendant; (5) large diff (>=1500 changed paths) does not throw and stays trusted; (6) unrelated history is not-ancestor (fail-closed); (7) diff-failed is distinct from not-ancestor via injected changedPathsFn. lattice.config.json diff adds \"node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js\" to validate.commands normal tier, alongside done-required-validation-smoke.js. I rebuilt (npm run build in packages/main, tsc, clean exit) and re-ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js fresh myself: exit 0, output 'validation reuse merge-lineage smoke passed'."
+    },
+    {
+      "docPath": "packages/main/src/tasks/done-required-validation-smoke.ts",
+      "promise": "Pre-existing done-required-validation-smoke.ts and scripts/verify-process-fact-contract.mjs are updated to match the corrected semantic (a modify-then-revert that is byte-identical at the endpoint is now trusted/reusable, not rejected) rather than left contradicting the new behavior.",
+      "verifiedBy": "diff/grep + fresh execution",
+      "evidence": "git diff main...HEAD on done-required-validation-smoke.ts changes the modify-then-revert assertion from `reuse.reusable === false` / `untrusted-lineage-path:README.md` to `reuse.reusable === true` / empty refusalReasons, matching the net-diff semantic. verify-process-fact-contract.mjs token list for validation-evidence-reuse.ts drops the now-removed 'merge-base'/'rev-list'/'diff-tree'/'isStoryMetadataPath' git-logic tokens and adds a new assertion block requiring packages/main/src/core/validation-lineage.ts to contain 'merge-base', '--is-ancestor', 'diff-tree', 'isStoryMetadataPath'. I ran both node packages/main/dist/tasks/done-required-validation-smoke.js and node scripts/verify-process-fact-contract.mjs fresh: both exit 0 ('done-required-validation smoke passed', 'Process fact contract verified')."
+    }
+  ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js -> validation reuse merge-lineage smoke passed (exit 0). Reverse-scanned diff vs merge-base d586a65 confirms classifyMergeLineage (net endpoint diff-tree, -z NUL split, 1GiB maxBuffer, empty-diff-trusted, split ancestry/diff catch) is the sole implementation and BOTH classifyTrustedValidationLineage (validation-evidence-reuse.ts) and validationHeadLineage (validation-evidence-admissibility.ts) delegate to it with no residual per-commit -m/rev-list logic in either consumer."
+      "transcript": "Fresh rebuild (npm run build in packages/main, clean tsc exit) then `node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js` run by me independently: exit 0, stdout 'validation reuse merge-lineage smoke passed'. Read packages/main/src/core/validation-lineage.ts and confirmed both validation-evidence-reuse.ts::classifyTrustedValidationLineage and validation-evidence-admissibility.ts::validationHeadLineage now delegate to the single classifyMergeLineage() function (verified via git diff, not just the checklist's self-report)."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js re-run by delivery reviewer -> exit 0, 7 test blocks: (1) merge of content-unchanged file trusted on shared+reuse+admissibility, with mutation-resistance proof that the old -m union would wrongly flag it; (2) genuine content change still refused on all paths; (3) exact-head fast path; (4) empty net diff between distinct heads trusted; (5) >1500-path diff no ENOBUFS; (6) not-ancestor fails closed; (7) diff-failed distinct from not-ancestor via injectable seam. Smoke is wired into lattice.config.json validate.commands (confirmed by diff). done-required-validation-smoke.ts modify-then-revert block correctly reconciled to the new trusted semantic. scripts/verify-process-fact-contract.mjs token check follows the git-command tokens into the new validation-lineage.ts module (scope-acknowledged in decision.json/scope-contract.json). Pre-recorded lattice validate PASS at material e4b8596b (test-evidence.json) confirmed present; findings F-001/F-002/F-003 all resolved with strong evidence."
+      "transcript": "Same fresh execution as CHK-001 (single smoke file covers both checklist items). Smoke source read line-by-line: covers mutation-resistance (asserts the reverted per-commit union would wrongly flag the unchanged file), NEGATIVE genuine-change refusal, empty-diff-trusted, >=1500-path large-diff/maxBuffer robustness, not-ancestor fail-closed, and diff-failed vs not-ancestor split-catch distinctness (via an injected failing changedPathsFn). Also re-ran the two downstream regression smokes this story's diff touched (done-required-validation-smoke.js, verify-process-fact-contract.mjs) fresh: both exit 0."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery matches promises: one shared classifier (validation-lineage.ts) net-endpoint-diffs instead of per-commit -m union, empty diff trusted, split catch, -z + 1GiB maxBuffer; both reuse and admissibility copies delegate to it with zero old-algorithm residue in src. New RED-first smoke covers happy/negative/edge/adversarial per checklist and is wired into validate.commands; re-ran it live (exit 0). done-required-validation-smoke.ts modify-then-revert block and the process-fact-contract token check were both correctly updated to match the new semantic, with the script edit properly scope-acknowledged (decision.json). No docs/README promises to check. Initial git diff main showed unrelated extra files (evidence-pin-guard.ts, verification-run-and-guard-smoke.ts deletions etc.) but that was confirmed to be local-main drift from 44 unrelated commits merged since this worktree branched (B-1507 etc.) -- diffing against the true merge-base shows exactly the 7 files the story promised, nothing more. No unresolved TODOs."
+    "summary": "Both checklist promises are genuinely delivered in code: a single classifyMergeLineage() classifier in the new validation-lineage.ts (net endpoint diff, -z, 1GiB maxBuffer, empty-diff-trusted, split ancestor/diff catch) now backs both the reuse and admissibility lineage checks, replacing the old per-commit -m union in each. I rebuilt from source and re-ran validation-reuse-merge-lineage-smoke.js plus the two downstream regression smokes it required updating (done-required-validation-smoke.js, verify-process-fact-contract.mjs) fresh myself; all three pass (exit 0) at the current HEAD. No TODO/FIXME/HACK in the touched story files. This diff makes zero documentation-file promises (no CLAUDE.md/docs/*.md changes), so docsPromises above are grounded in the checklist context cross-checked against source, not doc prose."
   },
-  "_hash": "27351832243611d559a0c9faebf2ae4ba95d548e96a3e59ba4ed044760ef279a"
+  "_hash": "a9f764e40d0626dc9da1428aa2b6b3e9e82dad03600f9825516ccb8ea80eaa7f"
 }
