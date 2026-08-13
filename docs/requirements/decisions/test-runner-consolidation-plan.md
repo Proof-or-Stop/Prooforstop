@@ -22,10 +22,11 @@ when it was absent before launch and now carries the exact launch token; an empt
 missing-marker, tampered, foreign, or nonempty target is retained and makes the
 result fail closed.
 
-The canonical runner smoke itself creates the fixed-path collision fixture, so
-its manifest declares the same exclusive fixed-path key as the resource
-sentinel. This keeps the real fixture writer and sentinel mutually exclusive at
-all worker counts; the smoke is not treated as a read-only member.
+The canonical runner smoke itself creates the fixed-path collision fixture and
+probes port 43127, so its manifest declares the same exclusive fixed-path and
+fixed-port keys as the resource sentinel. This keeps the real fixture writer and
+port probe mutually exclusive with the sentinel at all worker counts; the smoke
+is not treated as a read-only member.
 
 This decision document records the chosen architecture for consolidating the
 project's test runner and decomposes the implementation into follow-up Proofbound

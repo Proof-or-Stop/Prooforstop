@@ -88,6 +88,7 @@ const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
 const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:full-suite-runner-smoke', {}, [
     { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive' },
+    { class: 'fixed-port', key: '43127', access: 'exclusive' },
   ]),
   repoRead('test:full-suite-resource-sentinel', {}, [
     { class: 'fixed-port', key: '43127', access: 'exclusive' },

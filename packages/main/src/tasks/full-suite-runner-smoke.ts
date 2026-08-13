@@ -81,6 +81,9 @@ async function main(): Promise<void> {
   const runnerSmokeFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-runner-smoke')?.resources.find(resource => resource.class === 'fixed-path');
   const sentinelFixedPath = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-path');
   assert(runnerSmokeFixedPath?.access === 'exclusive' && runnerSmokeFixedPath.canonicalKey === sentinelFixedPath?.canonicalKey, 'canonical runner smoke declares the real fixed-path collision it creates');
+  const runnerSmokeFixedPort = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-runner-smoke')?.resources.find(resource => resource.class === 'fixed-port');
+  const sentinelFixedPort = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-port');
+  assert(runnerSmokeFixedPort?.access === 'exclusive' && runnerSmokeFixedPort.canonicalKey === sentinelFixedPort?.canonicalKey, 'canonical runner smoke declares the real fixed-port collision it probes');
 
   const scripts = { 'test:a': 'x', 'test:b': 'x' };
   const policy = { 'test:a': entry('test:a'), 'test:b': entry('test:b') };
