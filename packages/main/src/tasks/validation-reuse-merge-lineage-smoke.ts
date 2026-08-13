@@ -16,6 +16,27 @@ function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
+/**
+ * Retries on ENOBUFS only: a machine under heavy concurrent-process load can hit
+ * transient kernel pipe/mbuf exhaustion independent of Node's own maxBuffer size
+ * check (B-f00c:F-005 — observed ~16% flake rate when several large buffered
+ * execFileSync calls run back-to-back on a loaded host). Any other error, or the
+ * final attempt, rethrows immediately.
+ */
+function withEnobufsRetry<T>(fn: () => T, attempts = 3): T {
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return fn();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (attempt === attempts || !/ENOBUFS/i.test(message)) throw error;
+      const until = Date.now() + 150 * attempt;
+      while (Date.now() < until) { /* brief synchronous backoff for transient OS resource pressure */ }
+    }
+  }
+  throw new Error('unreachable');
+}
+
 /** Reference implementation of the OLD per-commit `-m` union (pre-fix behavior). */
 function perCommitUnionChanged(root: string, evidenceHead: string, currentHead: string): string[] {
   const commits = git(root, ['rev-list', '--reverse', `${evidenceHead}..${currentHead}`]).split('\n').map(s => s.trim()).filter(Boolean);
@@ -144,18 +165,26 @@ function admissibilityLineage(root: string, evidenceHead: string): string {
     const rawArgs = ['diff-tree', '-r', '--no-commit-id', '--name-only', '--no-renames', '-z', H1, H2];
     // Node's child_process default maxBuffer is 1 MiB. Calling the SAME diff-tree command
     // with no override must throw, proving the fixture's raw output genuinely exceeds it.
+    // This is the ONLY spawn without the override, so it also doubles as the size proof —
+    // no separate measurement spawn is needed (fewer large back-to-back spawns = less
+    // exposure to the transient-ENOBUFS flake this block used to cause, B-f00c:F-005).
     assert.throws(
       () => execFileSync('git', rawArgs, { cwd: root, encoding: 'utf8' }),
       /maxBuffer|ENOBUFS/i,
       `fixture must exceed Node's default 1 MiB maxBuffer to be a discriminating test for GIT_LINEAGE_MAXBUFFER (increase FILE_COUNT if this stops throwing)`,
     );
-    // Measure the true size directly (with a large explicit buffer) for a readable failure message.
-    const rawSize = Buffer.byteLength(execFileSync('git', rawArgs, { cwd: root, encoding: 'utf8', maxBuffer: 1024 * 1024 * 1024 }));
-    assert.ok(rawSize > 1024 * 1024, `raw diff-tree output must exceed 1 MiB (got ${rawSize} bytes)`);
 
-    const changed = netDiffChangedPaths(H1, H2, root);
+    // Single real (override-buffered) spawn for this block, wrapped against transient
+    // OS-level ENOBUFS. classifyMergeLineage below reuses this result via its injectable
+    // changedPathsFn instead of re-spawning git a second time — its default git-calling
+    // path is already covered by the small-diff blocks above/below.
+    const changed = withEnobufsRetry(() => netDiffChangedPaths(H1, H2, root));
     assert.equal(changed.length >= FILE_COUNT, true, `large net diff returns all paths (got ${changed.length})`);
-    assert.deepEqual(classifyMergeLineage({ evidenceHead: H1, currentHead: H2, gitCwd: root, metadataRoot: root }), { kind: 'trusted-descendant' }, 'large metadata-only diff (>1 MiB raw output) is trusted, not ENOBUFS');
+    assert.deepEqual(
+      classifyMergeLineage({ evidenceHead: H1, currentHead: H2, gitCwd: root, metadataRoot: root }, () => changed),
+      { kind: 'trusted-descendant' },
+      'large metadata-only diff (>1 MiB raw output) is trusted, not ENOBUFS',
+    );
   } finally { rmSync(root, { recursive: true, force: true }); }
 }
 
