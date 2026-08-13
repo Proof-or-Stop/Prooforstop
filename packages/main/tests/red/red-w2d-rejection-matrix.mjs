@@ -444,7 +444,11 @@ reject('CHK-011: below-threshold literal is R1-2, NOT R1-3', base({
 // `blocklisted`, not with `trimmed`. All three are pinned by CODE below, because
 // a tag set alone cannot tell which clause produced which tag.
 {
-  const empty = reject('CHK-002: EMPTY literal value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3', base({
+  // The label keeps its original "CHK-002: empty value" prefix DELIBERATELY: it
+  // is the pinned verification anchor for this fixture, and a pinned anchor is
+  // immutable by design. What changed is the asserted tag, which is stated in
+  // the rest of the label and enforced by code below.
+  const empty = reject('CHK-002: empty value is R1-2 (§1.3 rule 1 non-emptiness), NOT R1-3', base({
     matchers: [literal('L1', ADMISSIBLE), literal('L2', '', 'present-in-green')],
   }), ['R1-2']);
   assertTagged(empty, 'matcher-value-empty', 'R1-2', 'empty literal value');
