@@ -328,6 +328,35 @@
         "scanEscalationReason": null
       },
       "_hash": "d96efb5ff8990fcef686d9103b517ac7e9711ba321a7e03877894491f163dbe3"
+    },
+    {
+      "id": "B-f00c:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation at current material (0d7da02) after F-005 fix (e0df48c0). Only validation-reuse-merge-lineage-smoke.ts changed since prior quality pass RP-010 (head 4361ba5). Reviewed withEnobufsRetry (sync busy-wait acceptable in a synchronous test-only file, bounded 150-450ms, deliberately avoids spawning a sleep process which would defeat the fix), the changedPathsFn injection reuse in block 5 (semantically sound: same immutable git query already exercised directly via netDiffChangedPaths for maxBuffer robustness, injection only re-tests classification logic on the same large dataset, no coverage loss), no dead code (old rawSize/measurement call fully removed), tsc --noEmit clean. Rebuilt (npm run build) and reran the smoke fresh: 1 solo + 16-way concurrent + 5x sequential, all clean, no ENOBUFS. done-required-validation-smoke.js also passes. Both smokes remain wired in lattice.config.json validate.commands.",
+      "createdAt": "2026-08-13T17:31:39.567Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-023",
+      "envelopeId": "f6d2516e74178b9a9b08064b19b884f56b0dbc0ca3175265ba38d66777749c6a",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b4f8a5c729b6a018b312bb35446bb98fc901aac845f81e6f8c5a8b16eef71ac1"
     }
   ]
 }
