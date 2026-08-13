@@ -1679,7 +1679,7 @@
       "desc": "scripts/verify-full-suite-selector.mjs:37 omits review-passes.json from the trusted metadata allowlist, so the required default no-env replay currently fails at HEAD eabeb396 with capture HEAD is not an admissible metadata-only ancestor even though /tmp/b9812-final-v3-contract-capture.json is bound to 062420 and intervening commits are lifecycle/review metadata. This invalidates all 52 shared selector receipts after normal reviewer pass commits and leaves CHK-001..CHK-006 verificationEvidence non-replayable at the current REVIEW HEAD; recapture alone before reviewer metadata cannot remain valid. Add review-passes.json to the bounded story-metadata allowlist (with self-test coverage) or recapture only after all review metadata, then prove no-env replay at the final HEAD.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T10:20:53.627Z",
@@ -1690,7 +1690,11 @@
         "scripts/verify-full-suite-selector.mjs"
       ],
       "signatureTag": "missing|mjs|scripts-verify-full",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: strict capture metadata allowlists omitted normal signed review-passes.json and DONE command test-evidence.json descendants. Both contract and selector layers now admit exactly those bounded filenames while retaining ancestor, unchanged material, story prefix, source-drift, unknown metadata, and nonancestor denial. Mechanical repro: selector self-test PASS11 uses a real temp-git descendant containing both files and denies unknown metadata; default no-env verifier PASS52 after signed round-10 passes RP-007/RP-008/RP-009; coverage confirms 52 must intents, 52 mechanical pass, 0 gaps/waivers.",
+      "resolvedAt": "2026-08-13T10:58:43.367Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
