@@ -1588,7 +1588,6 @@ export function collectReviewerEvidenceState(
   const evidenceById = new Map(
     [...reviewerFindings, ...reviewerPasses].map(evidence => [evidence.id, evidence]),
   );
-  const agentsWithCurrentValidEvidence = new Set(valid.map(evidence => evidence.agent));
   const terminalReviewerFindingIds = new Set(
     reviewerFindings
       .filter((evidence) => isTerminalReviewerFindingStatus(evidence.finding?.status))
@@ -1605,11 +1604,11 @@ export function collectReviewerEvidenceState(
     // review_pass_set, verification_evidence_refresh_stale, ...) writes its own
     // `lattice: record ... metadata` commit, which advances HEAD and re-stales
     // the bindings that very command just established. Once a whole lane goes
-    // stale in one sweep, its passes never enter `valid`, so the lane is absent
-    // from agentsWithCurrentValidEvidence, so the forgiveness for its already
-    // RESOLVED findings never fires — the same staleness that needs forgiving is
-    // what withholds the precondition for forgiving it. Measured on B-cdf6: 19
-    // review runs produced 7 passes and still could not converge.
+    // stale in one sweep, its passes never enter `valid`, so the lane held no
+    // currently-valid evidence, so the forgiveness for its already RESOLVED
+    // findings never fired — the same staleness that needs forgiving is what
+    // withheld the precondition for forgiving it. Measured on B-cdf6: 19 review
+    // runs produced 7 passes and still could not converge.
     //
     // Why dropping the conjunct does not weaken the gate: this branch is reached
     // only for SUPERSEDED_PASS_ISSUE_CODES (binding freshness/supersession), and
