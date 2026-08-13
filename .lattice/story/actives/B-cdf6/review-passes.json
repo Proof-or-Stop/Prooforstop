@@ -501,6 +501,28 @@
         "scanEscalationReason": null
       },
       "_hash": "e538c51ea9b44a906dcb74d45fb7c27c1e203d2ec4575cb705aa81827461d3bb"
+    },
+    {
+      "id": "B-cdf6:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality-lane review re-bound to head 9ade8f2602 (material frozen at f78856fe61; diff since is story-metadata-only). Reviewed the 2 changed files (decision-doc-promotion-smoke.ts, lattice-cli-migration-smoke.ts): both are mechanical test-only fixes replacing pre-rename bin-name assertions with post-rename assertions plus paired doesNotMatch guards -- no dead code, no unsafe any, no empty catches, no I/O-isolation violations. Judgement call 1 (unreachable assertion): independently reproduced -- built packages/main and ran node dist/tasks/lattice-cli-migration-smoke.js directly; it throws at the genuinely pre-existing lattice host status alias assertion (line ~110, unchanged since main) before reaching the 4 fixed story_create/story_advance assertions at lines 119+. Confirmed directly against main's own built CLI (node packages/main/dist/cli.js help | grep -c host status/dispatch == 0) that this alias-rendering gap is pre-existing and unrelated to the rename -- concept lane's decision not to reorder is correct; the fix is real but currently untestable-in-CI until the separate pre-existing gap is fixed elsewhere, which the story author has honestly disclosed rather than hidden (F-030 resolution explicitly states the smoke is not green and why). Correct-but-currently-unreachable is not the same defect class as masking a real regression, and reordering would improperly couple an out-of-scope fix into this story. Judgement call 2 (F-025 audit accuracy): independently confirmed the mechanical claims -- lattice.config.json doneRequiredCommands is exactly [packages/main build, npm test]; root npm test is a hand-enumerated chain of about 46 test:* scripts that does NOT include run-all-smokes/test:all/test:legacy/test:coverage; confirmed the cited mkfifo timeout:2000 assertion exists at milestone-status.test.mjs line 3158 as described (load-fragile pattern consistent with F-025's third claim). Did not re-run the full ~41-minute suite to re-verify the exact 66/334 count (disproportionate to review budget given the mechanism claim is independently confirmed and the author already disclosed measurement care/self-correction this session); the config-enumeration and code-location claims that are load-bearing for the finding are verified accurate. One new low-severity finding (F-031) registered for two unused deprecated brand-alias exports (LATTICE_PRODUCT_NAME, LATTICE_PRIMARY_BIN) with zero import consumers, unlike LATTICE_CLI_VERSION which has documented justification to remain as the version-bump write target. Non-blocking per round-2+ severity decay policy. No promise-vs-code gaps found in the 2 changed files. PASS.",
+      "createdAt": "2026-08-13T12:19:59.792Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-034",
+      "envelopeId": "2722c2c2541c95b37e1dfebd2c1b7ccd90105a0bc19f1dbc2721ba842755114b",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/decision-doc-promotion-smoke.ts",
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e7092004c4129609427183ef01283d3efb0dba9ef5e41cd0c6bdc920efe4f301"
     }
   ]
 }
