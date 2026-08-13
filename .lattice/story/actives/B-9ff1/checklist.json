@@ -376,8 +376,8 @@
       "id": "CHK-009",
       "title": "Implement the exact section 1.11.4 entropy formula as byteLength times empirical per-byte Shannon entropy, total bits not per-symbol",
       "context": "entropyBits(value) = len(value) x H where len is BYTE length and H is the empirical per-byte Shannon entropy over the byte frequency distribution of value. TOTAL bits, not per-symbol. A per-symbol implementation yields provably different admissibility verdicts on a fixture table — that difference is the RED signal.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-08-13T17:31:50.476Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
