@@ -154,7 +154,51 @@
       "context": "expectedExitClass is a closed enum; an envelope combining timeout-is-failure with a script-exit adapter linkage is REJECTED at schema time, not deferred to a run, because it is decidable from the envelope alone.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "expectedExitClass nonzero with script-exit adapter accepted; WHY: compatible combination",
+            "type": "cli"
+          },
+          {
+            "desc": "expectedExitClass timeout-is-failure with reporter-event adapter accepted; WHY: spec-legal combination",
+            "type": "cli"
+          },
+          {
+            "desc": "expectedExitClass exit:7 with any adapter accepted; WHY: exact exit code in valid range 1..255",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "expectedExitClass timeout-is-failure with script-exit adapter rejected at schema time R1-3; WHY: decidable incompatibility caught before a run is spent",
+            "type": "cli"
+          },
+          {
+            "desc": "expectedExitClass exit:0 rejected R1-3; WHY: spec says 0 < n <= 255 because zero is the GREEN success code",
+            "type": "cli"
+          },
+          {
+            "desc": "expectedExitClass exit:256 rejected R1-3; WHY: n must be <= 255",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "expectedExitClass exit:-1 rejected R1-3; WHY: negative exit codes not in spec enum",
+            "type": "cli"
+          },
+          {
+            "desc": "expectedExitClass empty string rejected R1-3; WHY: not a member of the closed enum",
+            "type": "cli"
+          },
+          {
+            "desc": "expectedExitClass NONZERO (uppercase) rejected R1-3; WHY: closed enum is case-sensitive",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
