@@ -1701,7 +1701,7 @@
       "desc": "packages/main/src/tasks/full-suite-runner.ts:411 normal-success exit finalizes PASS without terminating or probing the detached worker process group. A /tmp fixture whose member spawns a heartbeat grandchild and exits 0 reproduced status=PASS while the heartbeat grew from 11 to 19 after runEntry returned (the known PID was manually SIGKILLed afterward). This violates CHK-002:happy:2, which requires all worker descendants terminated on normal completion, and permits leaked processes to interfere with concurrently or subsequently scheduled members. Add bounded normal-exit process-tree teardown/proof and a biting regression that observes the real grandchild stop before PASS.",
       "severity": "high",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T13:10:15.149Z",
@@ -1709,7 +1709,11 @@
       "reviewRunId": "B-9812:RR-037",
       "_hash": "5e542dc15a55e8924421a518f5e7f01abf8332be183f5fe6be39137035870e62",
       "signatureTag": "happy|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: runEntry only terminated detached process groups on TIMEOUT/INTERRUPT, so normal parent exit could leave an unrefed grandchild alive while returning PASS. Fix 3832e87d71 performs fail-closed process-tree cleanup on ordinary exit and avoids duplicate interrupt/cancellation kills. Repro: runner smoke PASS142; real normal-exit fixture heartbeat stops after return. Final serial 47/47; jobs4 47/47 x3; contract PASS52.",
+      "resolvedAt": "2026-08-13T13:54:31.265Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
