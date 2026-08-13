@@ -1,201 +1,187 @@
 {
   "storyId": "B-9ff1",
-  "checkedAt": "2026-08-13T16:46:16.062Z",
+  "checkedAt": "2026-08-13T16:55:23.985Z",
   "features": [
     {
-      "feature": "matcher.id unique within envelope; duplicate id rejected (R1-3)",
+      "feature": "Matcher array is bounded 1..policy.maxMatchers; 0 matchers or more than maxMatchers rejected as R1-3",
+      "covered_by": "CHK-015",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "Matcher id uniqueness within the envelope; duplicate id rejected as R1-3",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "matcher.kind closed enum {literal-line, class}; no pattern language / anchored-regex removed",
+      "feature": "Matcher kind restricted to closed enum {literal-line, class}, no pattern/regex language; unknown kind rejected as R1-3",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "matchers array bounded 1..policy.maxMatchers; 0 matchers or more than maxMatchers rejected (R1-3)",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "class matcher value must name the exact case-sensitive `name` key of a policy.matcherClassRegistry entry; unregistered class rejected as R1-3",
+      "covered_by": "CHK-016",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "kind=class: value MUST equal a registered policy.matcherClassRegistry entry name; unregistered class name rejected (R1-3)",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "decisions:red-evidence-subsystem-spec.md"
-    },
-    {
-      "feature": "literal-line value stored TRIMMED; leading/trailing whitespace rejects",
+      "feature": "literal-line matcher value stored TRIMMED; leading/trailing whitespace rejected as R1-3",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "literal-line value byte length in 1..policy.maxMatcherLen",
+      "feature": "literal-line matcher value length bound 1..policy.maxMatcherLen bytes; over-length rejected as R1-3",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "matcher.stream closed enum {stdout, stderr, combined}",
+      "feature": "matcher `stream` restricted to closed enum {stdout, stderr, combined}",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "matcher.polarity closed enum {present-in-red, absent-in-green, present-in-green}",
+      "feature": "matcher `polarity` restricted to closed enum {present-in-red, absent-in-green, present-in-green}",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "at least one present-in-red matcher required (vacuous RED otherwise rejected)",
+      "feature": "at least one matcher MUST have polarity present-in-red, else the RED assertion is vacuous",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "greenExempt optional boolean default false; legal ONLY on present-in-red polarity, else rejected",
+      "feature": "`greenExempt` optional boolean, default false, legal ONLY on polarity present-in-red matchers",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "expectedExitClass enum + timeout-is-failure legal only with reporter-event adapter linkage; combined with script-exit REJECTED at schema time",
+      "feature": "`expectedExitClass` enum {nonzero, exit:<n> with 0<n<=255, timeout-is-failure} declared as part of the envelope schema",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "timeout-is-failure is legal ONLY when the bound adapter's linkageKind is reporter-event; combining timeout-is-failure with a script-exit adapter is REJECTED at schema time as R1-3",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "supplementaryArtifact.targetArtifactRef path syntax validation: slash-normalized + relative; absolute/empty/dot/dot-dot/backslash segment rejects (R1-3, syntactic only, no realpath)",
+      "feature": "targetExercisedProof presence required; absent proof rejected as R1-1",
+      "covered_by": "CHK-011",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "assertion adapterId/testCaseRef MUST equal the story's committed target binding (read from the committed tree, never the live directory) and targetBindingDigest MUST recompute over that binding; mismatch/unregistered rejected as R1-6",
+      "covered_by": "CHK-011",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "supplementaryArtifact.targetArtifactRef MUST be slash-normalized and relative; absolute, empty, dot, dot-dot, or backslash segment rejected as R1-3",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "minimum-specificity rule 1: literal value trimmed, non-empty, not a member of policy.forbiddenCatchAlls blocklist",
+      "feature": "supplementaryArtifact.expectation restricted to closed enum {present, absent-in-red-present-in-green, absent}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "minimum-specificity rule 1: literal-line value must not be a member of policy.forbiddenCatchAlls (degenerate-literal blocklist)",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "minimum-specificity rule 2: admissible iff len(value)>=minMatcherLen AND entropyBits(value)>=minMatcherEntropyBits (conjunction, not disjunction)",
+      "feature": "minimum-specificity rule 2: admissibility requires len(value) >= policy.minMatcherLen AND entropyBits(value) >= policy.minMatcherEntropyBits as a CONJUNCTION, not a disjunction",
       "covered_by": "CHK-007",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "minimum-specificity rule 3: class matchers exempt from rule 2 but a class matcher can never be the sole present-in-red evidence (R1-2)",
+      "feature": "minimum-specificity rule 3: a class matcher can never be the sole present-in-red evidence; at least one present-in-red matcher must be literal-line and pass rules 1-2, else rejected as R1-2",
       "covered_by": "CHK-008",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "entropyBits(value) = byteLength(value) x H (empirical per-byte Shannon entropy over byte frequency distribution); TOTAL bits not per-symbol (section 1.11.4)",
+      "feature": "class matchers are exempt from the length/entropy floor (rule 2) but registry membership/predicateKind closure still applies",
+      "covered_by": "CHK-016",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:red-evidence-subsystem-spec.md"
+    },
+    {
+      "feature": "entropy formula: entropyBits(value) = len(value) * H, H = empirical per-byte Shannon entropy over value's byte-frequency distribution; total bits, not per-symbol",
       "covered_by": "CHK-009",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "assertionDigest = CANON over the assertion subobject INCLUDING policyDigest and EXCLUDING assertionDigest itself, asserted both directions",
+      "feature": "assertionDigest = CANON over the assertion subobject, including policyDigest, excluding assertionDigest itself",
       "covered_by": "CHK-010",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "assertion adapterId/testCaseRef MUST equal the committed registered target binding for acceptanceTargetRef; targetBindingDigest MUST recompute over the createdAt-stripped 3-field subobject (section 1.1.3); mismatch/unregistered -> R1-6",
-      "covered_by": "CHK-011",
+      "feature": "new read-only red_evidence_envelope_check operator validates a candidate envelope pre-flight before any run is spent, following the acceptance_topology_check house pattern",
+      "covered_by": "CHK-012",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:red-evidence-subsystem-spec.md"
+      "source": "description"
     },
     {
-      "feature": "targetExercisedProof absence (schema-decidable) -> rejected R1-1",
-      "covered_by": "CHK-011",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:red-evidence-subsystem-spec.md"
-    },
-    {
-      "feature": "rejection tags correctly distinguished and never collapsed: R1-1 missing target-exercised proof, R1-2 below-threshold/class-only specificity failure, R1-3 matcher-and-path bounds (not specificity), R1-6 unregistered/mismatched binding (section 1.6)",
-      "covered_by": "CHK-011",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:red-evidence-subsystem-spec.md"
-    },
-    {
-      "feature": "land read-only red_evidence_envelope_check(storyId, assertionFile) command following the existing read-only house pattern (acceptance_topology_check, topology_critic_receipt_check, proofstory_gate_check); no gate-verdict change",
+      "feature": "operator documents/records the §5.5 W2/W3 fence reasoning (read-only, no enforcement decision, no gate-verdict wiring)",
       "covered_by": "CHK-012",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:red-evidence-subsystem-spec.md"
     },
     {
-      "feature": "record explicit section 5.5 fence reasoning: a read-only operator pre-flight is not a new enforcement query surface and sits outside the W2/W3 boundary",
-      "covered_by": "CHK-012",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:red-evidence-subsystem-spec.md"
-    },
-    {
-      "feature": "register red-evidence-envelope-smoke in lattice.config.json validate.commands and wire the command through the registration recipe",
+      "feature": "red-evidence-envelope-smoke registered in lattice.config.json validate.commands via the registration recipe",
       "covered_by": "CHK-013",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "admissible-envelope success output reports computed assertionDigest, matched binding reference, and resolved policyDigest",
+      "feature": "admissible-envelope success output reports assertionDigest, the matched binding, and the resolved policyDigest",
       "covered_by": "CHK-014",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "spawning processes and capturing RED/GREEN run output (disposable-workspace runner)",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "story background/plan.md: reserved for later leaves",
-      "source": "description"
-    },
-    {
-      "feature": "receipt persistence and stream chunk framing",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "story background/plan.md: reserved for later leaves",
-      "source": "description"
-    },
-    {
-      "feature": "GREEN confirmation append entrypoint",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "story background/plan.md: reserved for later leaves",
-      "source": "description"
-    },
-    {
-      "feature": "any gate-verdict, gate-wiring, or enforcement-mode change",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "story background/plan.md: read-only and advisory by construction, no gate verdict/wiring/enforcement-mode change",
       "source": "description"
     }
   ],
@@ -335,14 +321,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 28,
-    "covered": 22,
-    "excluded": 4,
-    "gaps": 2,
+    "total": 26,
+    "covered": 26,
+    "excluded": 0,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "b67028b40034b2a6834a472c5cfa8dad2466fe5dc53a7db8acaf73ce50cdb4db",
+  "_hash": "5467668d1fab014e692440c2b9d0fc5917b5ba8eb70ddaf32a3780deba5473c9",
   "openQuestions": []
 }
