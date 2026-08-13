@@ -38,13 +38,12 @@
     "packages/main/src/core/done-required-validation.ts"
   ],
   "explicitExcludes": [
-    "packages/main/src/core/**",
     "packages/main/src/handlers/**",
     "packages/main/src/mcp/**",
     ".github/**",
     ".githooks/**"
   ],
-  "scopeChangeReason": "Final jobs5 reproduced runtime_authority_unresolved because authoritative git identity probes hard-time out at 2000ms under safe parallel CPU load. Add only runtime-environment-checks.ts for bounded monotonic retry and precise timeout classification, with slow/hung git regressions; preserve all previous scope.",
+  "scopeChangeReason": "Remove the broad core exclusion that incorrectly overrides the previously approved exact runtime-environment-checks path; all other core files remain fail-closed because only that exact file is allowed.",
   "acknowledgements": [
     {
       "actor": "lattice-implementer",
@@ -71,7 +70,7 @@
     }
   ],
   "createdAt": "2026-08-12T12:39:13.990Z",
-  "updatedAt": "2026-08-13T03:48:41.228Z",
+  "updatedAt": "2026-08-13T04:39:25.346Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
