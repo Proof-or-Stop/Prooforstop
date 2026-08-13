@@ -1543,7 +1543,7 @@
       "desc": "packages/main/src/tasks/full-suite-resource-sentinel.ts:30-31 does not implement the ownership contract claimed by the F-047 resolution and docs/requirements/decisions/test-runner-consolidation-plan.md:15-22. It creates three runner-cleanable directories (`fixedPath`, `runtimeLock`, `mainWriteLock`) but writes the per-launch `owner` token only inside `fixedPath`. If SIGTERM/SIGKILL lands after line 30 and before the member's finally completes, full-suite-runner.ts:198-216 can remove fixedPath but must retain runtimeLock and mainWriteLock as `missing ownership marker`, turning interruption cleanup into residue and leaving two collision resources behind. The smoke's synthetic ownedFixture writes markers to all three, so it cannot catch this production-member divergence; F-047 resolvedReason explicitly claims atomic tokens on all sentinel directories, contrary to current source. Write the token atomically to every runner-cleanable directory and exercise interruption of the actual sentinel implementation, not only a stronger synthetic fixture.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T08:32:52.830Z",
@@ -1582,14 +1582,18 @@
         "docs/requirements/decisions/test-runner-consolidation-plan.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: the parent inferred sentinel readiness by bounded directory polling under jobs5 contention. Every real owned directory now atomically fsyncs its exact launch-token marker, then the real sentinel atomically publishes a unique ready file before SIGSTOP. Repro: build plus runner smoke PASS139; two CPU-load repeats PASS; v7 jobs5 PASS47 duration113779ms; durable /tmp/b9812-final-v7-injected-fixtures.log proves real production sentinel interruption, all three cleanup outcomes removed, missing/tampered variants retained and fail closed.",
+      "resolvedAt": "2026-08-13T10:12:25.052Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-049",
       "desc": "scripts/verify-full-suite-selector.mjs:46 — current standard replay is stale and fails before verifying any of the 52 selectors. At HEAD ab08e588, `node scripts/verify-full-suite-contract.mjs` throws `capture HEAD is not an admissible metadata-only ancestor`: /tmp/b9812-final-v3-contract-capture.json is still bound to 2fc1228548/material c6a2bafa, while F047 production changes d86cc14/52425b5/f0bab2 modified full-suite-runner.ts, full-suite-runner-smoke.ts, resource-sentinel.ts and decision docs. The exact jobs1/jobs3/jobs5/jobs4 identity artifacts are refreshed to f0bab2 and exit 0, but the immutable 52-predicate capture was not regenerated from those current artifacts/source. Regenerate and digest-bind the capture at f0bab2 (or a metadata-only descendant), then prove the no-argument verifier passes all 52 at the final REVIEW HEAD; otherwise F047 and the performance artifacts have no current mechanically consumable coverage receipt.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-08-13T08:32:53.990Z",
@@ -1597,14 +1601,18 @@
       "reviewRunId": "B-9812:RR-023",
       "_hash": "81675ece37554a0a0754bd581df92fca4bf093ccf8aee9bb7b95b084e1061774",
       "signatureTag": "missing|unknown|scripts-verify-full",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: the default immutable capture path was not regenerated after source changes. V7 same-material artifacts bind source HEAD8129840e22/material223acfad and default v3 paths. `node scripts/verify-full-suite-contract.mjs --capture` emitted FULL_SUITE_SELECTOR_CAPTURE=PASS selectors=52 at metadata descendant062420230b; no-arg replay emitted FULL_SUITE_CONTRACT=PASS selectors=52 in 1.32s.",
+      "resolvedAt": "2026-08-13T10:12:25.742Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-050",
       "desc": "The required current post-dispatch replay is stale again. At HEAD ab08e588, `node scripts/verify-full-suite-contract.mjs` exits nonzero before all selectors with `capture HEAD is not an admissible metadata-only ancestor`. `/tmp/b9812-final-v3-contract-capture.json` is still bound to HEAD 2fc122854/material c6a2bafa, while source commits d86cc14/52425b5/f0bab2 and refreshed final receipts are bound to material a6536f4a. `git diff 2fc1228..HEAD` contains runner/source/doc changes, so the strict selector correctly rejects it. The three final run JSON files and DONE-required receipt are current at f0bab2 and pass, but every checklist intent cites this exact no-arg replay command; without a fresh capture, those artifacts are not consumable by the claimed immutable verifier. Recapture after the final source/artifact state, then prove the no-arg command still passes after fresh reviewer dispatch metadata.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-08-13T08:32:55.381Z",
@@ -1641,14 +1649,18 @@
         "scripts/verify-full-suite-contract.mjs"
       ],
       "signatureTag": "missing|mjs|required-current-post",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: reviewer metadata advanced HEAD while prior default capture remained source-stale. Capture was regenerated only after final source freeze, v7 matrix, and DONE-required PASS. No-arg verifier currently passes all 52 at metadata descendant; verification_evidence_refresh_stale re-executed the exact immutable command and refreshed 52/52 mechanical receipts, readback mechanical=true/result=pass for all 52.",
+      "resolvedAt": "2026-08-13T10:12:26.460Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9812:F-051",
       "desc": "concept/build-binding: the current full-suite contract capture is stale across source changes. /tmp/b9812-final-v3-contract-capture.json is bound to HEAD 2fc1228548, but current HEAD ab08e588 includes source commits d86cc14, 52425b5, and f0bab2 after that capture. Consequently the canonical no-argument verifier rejects the receipt with `capture HEAD is not an admissible metadata-only ancestor`. The final evidence must be freshly captured after the current same-material build and replayed successfully; metadata-only descendant admissibility cannot authorize source drift.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-08-13T08:34:03.317Z",
@@ -1656,7 +1668,11 @@
       "reviewRunId": "B-9812:RR-024",
       "_hash": "ea533485ef6bf6a235e6024e8f70a917cf456f84e014dee752a7544dfbe5194e",
       "signatureTag": "missing|unknown|concept-build-binding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Root cause: source/material drift correctly invalidated the old capture. Standard build binding PASS source a7412c7dc495/dist231deb1920da; final receipts bind source HEAD8129840e22/material223acfad. Serial, jobs3/jobs5, and three jobs4 all PASS47 with zero drift/retries/inventory differences. Default capture regenerated at metadata descendant and no-arg verifier PASS52.",
+      "resolvedAt": "2026-08-13T10:12:27.145Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
