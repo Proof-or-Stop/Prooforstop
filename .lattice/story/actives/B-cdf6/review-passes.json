@@ -349,6 +349,31 @@
         "scanEscalationReason": null
       },
       "_hash": "0e4ce4c2538e76befb9eaefc3a05ff3c4d77bc5b010fb612d763bdab8a6f3fb4"
+    },
+    {
+      "id": "B-cdf6:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Verified fix for my own F-028 (and independently-filed F-027) in commit 03b39c852c on review-run.ts. Confirmed: (1) agentsWithCurrentValidEvidence Set at old line 1591 is fully deleted, grep shows zero remaining live-code references (only the adjacent historical-rationale comment survives, correctly reworded to no longer name the deleted identifier); this function is self-contained (all locals declared within collectReviewerEvidenceState, not exported), so no cross-file consumer was ever possible. (2) The valid array (populated lines 1570-1581) that actually feeds the load-bearing hasNewerValidEvidence check at line 1628 is completely untouched by this diff -- the deletion was purely subtractive on a value with zero readers. (3) Re-ran build myself: npm --prefix packages/main run build clean, npx tsc --noEmit -p packages/main clean. (4) Re-ran the F-019 regression test myself: node packages/main/dist/tasks/flow-stability-smoke.js -> flow stability smoke passed. (5) Re-ran both red receipts myself: red-b2aa7-chk006-receipt.mjs and red-b2aa7-f005-receipt.mjs both exit 0. (6) Re-ran scripts/verify-lattice-residue.mjs: all three checks PASS. (7) git blame -L 851,851 packages/main/src/core/review-run.ts attributes the unused storyId/lane params in latestRunHint to commit 4edf2925a9, a different author, predating and untouched by this story diff -- correctly out of scope, no finding filed. Conclusion: the load-bearing safety property in machine.ts:774-810 (round-1 quorum/coverage reads only evidenceState.valid) is unaffected by this purely-subtractive dead-code removal. No blocker.",
+      "createdAt": "2026-08-13T05:03:59.086Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-026",
+      "envelopeId": "f89856bef1ea29a321095e6bc711945dfe7eda89676ca198b92dabd61e594d6a",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4e51c0b34cd0487f37b64089d21d3e5f1e752103aa17df1187708630fdacfe77"
     }
   ]
 }
