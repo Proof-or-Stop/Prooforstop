@@ -535,6 +535,86 @@
         "scanEscalationReason": null
       },
       "_hash": "be4883887fe9807a7d62aadc016eca29be47fe355055d11bc986f5c20fbbc3f8"
+    },
+    {
+      "id": "B-9812:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 current coverage review passed at HEAD bc782fef95: default no-argument verifier independently exits 0 with FULL_SUITE_CONTRACT=PASS selectors=52; selector self-test passes 11 assertions. Checklist readback has 52/52 must intents, 52 mechanical passing selector-matched receipts, zero gaps, and zero waivers, all bound to refreshed material c6dadf8b after the b094a delivery-check metadata allowlist fix.",
+      "createdAt": "2026-08-13T13:05:52.357Z",
+      "reviewRound": "2026-08-13T13:04:01.363Z",
+      "reviewRunId": "B-9812:RR-035",
+      "envelopeId": "8cd87c3cc2b09875add5d63afcbdedb33bf392adf1d3e846cca2a74f32f6b23c",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7f14282ce4e6702d790d0e2665536e8aa90f055560eb404a3377c9ec2954a78f"
+    },
+    {
+      "id": "B-9812:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "No incomplete concept deletion/replacement found. Reviewed main...HEAD changes, checked replacement of the serial root npm test chain by the resource-aware canonical runner, grepped repository residual terminology, and cross-checked newly documented runner, ownership-cleanup, fixed-port, stress-tier, acceptance cohort, and DONE-required behavior against implementation. Canonical verifier replay passed all 52 selectors; no blocker.",
+      "createdAt": "2026-08-13T13:07:16.094Z",
+      "reviewRound": "2026-08-13T13:04:01.363Z",
+      "reviewRunId": "B-9812:RR-036",
+      "envelopeId": "28e5b178911667c287e9de42139b47de485c21dcecebae099f713cedc7471ba1",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 7,
+          "tokenCount": null
+        },
+        "digest": "1b1376b4ba718d9a04a752934ec6210ddc378a7186e09b910c6eda46d9bdb57b"
+      },
+      "readDiagnostics": [],
+      "_hash": "f4cc06d254b5694e3dfa20e97d35179abfbf3e7ff7a5003afa293a97fbbe158a"
     }
   ]
 }
