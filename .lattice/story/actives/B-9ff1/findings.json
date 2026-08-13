@@ -176,6 +176,23 @@
       ],
       "signatureTag": "adversarial|ts|codex-host-orchestrator",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-011",
+      "desc": "[codex host-B #7, orchestrator-verified] supplementaryArtifact:null is treated as absent. Section 0.4 states every optional field is OMITTED entirely when absent and is NEVER written as null or empty string, so an explicit null is a malformed envelope rather than an omission. Failing input: supplementaryArtifact:null returns ok:true; it must reject.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T18:02:25.866Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "_hash": "7c6e92b27f4623b5bd90bc243839663ef5a98534f82d9909e0bf0758233c07f6",
+      "files": [
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host-orchestrator",
+      "signatureTagSource": "auto"
     }
   ]
 }
