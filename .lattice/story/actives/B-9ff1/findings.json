@@ -18,6 +18,26 @@
       ],
       "signatureTag": "edge|mjs|edge-matcher-count",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-002",
+      "desc": "CHK-012 read-only claim (packages/main/tests/red/red-w2d-command-readonly.mjs, packages/main/src/tasks/red-evidence-envelope-smoke.ts section 7): the handler doc comment on red_evidence_envelope_check (packages/main/src/handlers/red-evidence.ts ~line 349) asserts the command spawns no RED run and its only child processes are the W2b binding readers git rev-parse/git show. No committed test verifies this: the mechanism used (a per-file SHA-256 snapshot of .lattice/ taken before and after the call) can only detect writes under .lattice/; it does not intercept, mock, or otherwise observe child_process.spawn/exec/spawnSync calls, so a regression that caused the handler to shell out to run a test (e.g. code drifted toward the reserved-for-later runner leaf) would pass this regression undetected even though it violates the storys core before a run is ever spent safety property. Given this is the single most safety-critical claim of the whole command, the read-only regression should intercept/spy on child_process to positively prove no RED-run-shaped spawn occurs, not rely solely on directory-hash absence-of-evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-13T17:58:55.772Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "reviewRunId": "B-9ff1:RR-001",
+      "_hash": "731793f6cf6b815b61324c4d7e1ed2046349011b48466a4c91a2bc20ace390c9",
+      "files": [
+        "packages/main/tests/red/red-w2d-command-readonly.mjs",
+        "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+        "packages/main/src/handlers/red-evidence.ts"
+      ],
+      "signatureTag": "missing|mjs|read-claim-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
