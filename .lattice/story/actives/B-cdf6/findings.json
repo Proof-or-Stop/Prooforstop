@@ -614,6 +614,21 @@
       "resolvedAt": "2026-08-13T04:58:59.351Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cdf6:F-029",
+      "desc": "packages/main/src/tasks/lattice-cli-migration-smoke.ts:110-121 and packages/main/src/tasks/decision-doc-promotion-smoke.ts:322,323,328,333 pin the PRE-rename brand in help/example-text assertions (`lattice host status`, `lattice host dispatch`, `lattice story_create with checklist`, `lattice story_advance phase=INIT_CHECK`, `lattice decision_doc_proposal`, `lattice decision_doc_preview`, `lattice decision_doc_save`) the exact same way rollout-check-smoke.ts did before this commit fixed it. Verified by running the compiled tasks directly (node packages/main/dist/tasks/lattice-cli-migration-smoke.js and decision-doc-promotion-smoke.js after `npm --prefix packages/main run build`): both now throw a real assert.match AssertionError against genuine current output (`proof-or-stop host status`, `proof-or-stop decision_doc_proposal`, etc, zero `lattice` occurrences) -- production behaviour is correct, the assertions are stale, same root cause as the fixed rollout-check-smoke case. Both files are auto-discovered by packages/main/src/tasks/run-all-smokes.ts (glob on *-smoke.js in dist/tasks/), so they run under npm run test:all / test:legacy / test:smokes-full / test:coverage -- documented validation entry points in CLAUDE.md (test:legacy is explicitly named there) -- even though the narrower doneRequiredCommands `npm test` chain does not include them. The commits reviewed fixed only rollout-check-smoke.ts; the systematic sweep the dispatch asked for shows CHK-002/CHK-005 (rename the CLI invocation + reconcile brand-pinned gates) are not yet complete: at least two more brand-pinned test files will fail against the now-correct renamed output.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-08-13T05:30:41.233Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-029",
+      "_hash": "d4ffb9c1738ef29a2e65a8c79e05cf54dc59333678c2000a7e8eb2d40c595d40",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
