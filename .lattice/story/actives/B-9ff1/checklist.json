@@ -298,7 +298,39 @@
       "context": "Section 1.3 rule 2: admissible iff len(value) >= policy.minMatcherLen AND entropyBits(value) >= policy.minMatcherEntropyBits. An OR implementation admits matchers the spec forbids; the RED evidence is a differential table over the frozen default policy that separates AND from OR.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Value Error: Cannot find module (26 bytes, high entropy) passes rule 2; WHY: both length >= 8 AND entropyBits >= 24 satisfied under frozen default policy",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "DIFFERENTIAL: value aaaaaaaaaaaa (12 bytes, H=0, entropyBits=0) rejected R1-2 under AND (length passes, entropy fails); an OR implementation would PASS this because length >= 8; WHY: separates AND from OR",
+            "type": "cli"
+          },
+          {
+            "desc": "DIFFERENTIAL: value Zq!@#$% (7 bytes, high per-byte H about 2.8, total entropyBits about 19.6, but length 7 < 8) rejected R1-2 under AND; an OR implementation would PASS this because entropyBits is above some thresholds; WHY: separates AND from OR",
+            "type": "cli"
+          },
+          {
+            "desc": "Value at exactly minMatcherLen=8 and exactly minMatcherEntropyBits=24 accepted; WHY: boundary-inclusive check uses >= not >",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DIFFERENTIAL TABLE: fixture array of 10+ values where AND and OR formulas diverge -- every entry must produce the AND verdict not the OR verdict; WHY: the entire differential table is the un-gameable RED signal for this rule",
+            "type": "cli"
+          },
+          {
+            "desc": "Value xxxxxxxx (8 bytes, single distinct byte, H=0) rejected R1-2; WHY: length passes at 8 but entropy = 8*0 = 0 which is far below 24",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
