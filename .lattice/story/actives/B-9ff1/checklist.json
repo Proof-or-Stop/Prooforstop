@@ -418,7 +418,35 @@
       "context": "assertionDigest = W2a CANON over the assertion subobject with policyDigest INCLUDED and assertionDigest itself EXCLUDED. A validator that forgets to strip the field, or omits policyDigest, produces a different digest on the same envelope; both directions are asserted.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "assertionDigest = canonDigestOmitting(assertion, assertionDigest) with policyDigest included recomputed over a fixture envelope matches the stored assertionDigest; WHY: confirms canonical digest scope is correct",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "NEGATIVE DIRECTION: canonDigest of the FULL assertion object (including assertionDigest field itself) produces a result that DIFFERS from the stored assertionDigest; WHY: a validator that forgets to strip assertionDigest gets a different digest -- both directions must be asserted",
+            "type": "cli"
+          },
+          {
+            "desc": "NEGATIVE DIRECTION: canonDigestOmitting with policyDigest removed from the assertion subobject produces a result that DIFFERS from the stored assertionDigest; WHY: a validator that omits policyDigest from the canonical subobject produces a different digest",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two assertions with identical matchers and proof but DIFFERENT policyDigest values yield DIFFERENT assertionDigest values; WHY: policyDigest is covered by assertionDigest so changing policy changes the assertion identity",
+            "type": "cli"
+          },
+          {
+            "desc": "Assertion roundtripped through JSON.parse(JSON.stringify(...)) produces the same assertionDigest; WHY: CANON is deterministic across serialization cycles, no key-order sensitivity",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-011",
