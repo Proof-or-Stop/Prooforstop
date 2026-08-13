@@ -512,9 +512,9 @@
       "id": "CHK-012",
       "title": "Land the read-only red_evidence_envelope_check command following the acceptance_topology_check house pattern and record the section 5.5 fence reasoning",
       "context": "red_evidence_envelope_check(storyId, assertionFile) validates a candidate envelope against the resolved policy and the story's registered binding BEFORE a run is spent, following the verified read-only house pattern of acceptance_topology_check, topology_critic_receipt_check and proofstory_gate_check in packages/main/src/cli/command-catalog.ts (anchored by command name because that file drifts). It changes no gate verdict. SUCCESS OUTPUT CONTRACT: on an admissible envelope it reports the computed assertionDigest, the matched binding reference (acceptanceTargetRef, adapterId, testCaseRef) and the resolved policyDigest, so the operator can proceed; the smoke asserts that success transcript, not only the rejection cases. The story records explicitly that a read-only operator pre-flight is not a new query surface added to satisfy an enforcement need and therefore sits outside the section 5.5 fence.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-13T17:31:55.214Z",
-      "endTime": null,
+      "endTime": "2026-08-13T17:31:55.974Z",
       "verificationIntent": {
         "happy": [
           {
