@@ -588,6 +588,24 @@
       "_hash": "9a0adb72096431a4914e34fe67be0b237385e53b3f4b21419aa40e502d502575",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cdf6:F-028",
+      "desc": "packages/main/src/core/review-run.ts:1591 dead code: agentsWithCurrentValidEvidence is computed (new Set(valid.map(...))) but the F-019 fix removed its only real consumer (the `&& agentsWithCurrentValidEvidence.has(issue.agent)` conjunct at the old line ~1600) without removing the now-unused variable itself. It is referenced only from its own defining statement and from comments explaining why it USED to matter; noUnusedLocals is off so tsc/lint stay green. Low severity readability/maintainability nit, not a functional or gate-correctness issue (verified the gate logic itself is sound and unaffected).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-13T04:56:02.621Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-022",
+      "_hash": "273f795177732488b0ef20a87a970682f5f70ecddc7dd6e6202d805ad72e82e5",
+      "files": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
