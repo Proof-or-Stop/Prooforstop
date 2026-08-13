@@ -452,6 +452,26 @@
         "scripts/verify-lattice-residue.mjs"
       ],
       "_hash": "9a25bab4bf6c78cc823ca1cc1a6b9303cd7e82d89218fea1f0ab2b9ba2fb6b84"
+    },
+    {
+      "id": "B-META-framework-audit:F-025",
+      "desc": "The `run-all-smokes` suite carries 66 FAILING smokes out of 334 on clean main, yet it is NOT in lattice.config.json's doneRequiredCommands -- so `npm test` (the DONE gate) is GREEN while a third of the smoke suite is red, and nothing blocks a DONE on that basis. MEASURED on untouched main (ac4b8e44f8), output captured to a log: `Final: 255/334 passed in 2460.8s`, 66 FAIL lines. I enumerated doneRequiredCommands and confirmed none of `run-all-smokes` / `test:all` / `test:legacy` appears in the chain that `npm test` runs.\n\nWHY THIS IS A GATE DEFECT AND NOT MERELY UNTIDY: this is how a REAL regression from an in-flight story reached REVIEW undetected. B-cdf6 broke decision-doc-promotion-smoke (passes on main, fails on the branch, brand assertions pinned to the pre-rename bin). No CLI preflight gate, no DEV->REVIEW gate and no `npm test` run surfaced it. It was found only because a concept-lane reviewer chose to grep for the pattern by hand. A defect class that only an LLM reviewer's discretionary sweep can catch is not mechanically gated at all -- which is precisely the two-layer contract (prompt guidance PLUS hardcoded CLI/gate fallback) that CLAUDE.md's 'process fact' section requires.\n\nSECONDARY EFFECT -- the red baseline is self-concealing: because 66 failures are normal-looking there, a newly-broken smoke is indistinguishable from the pre-existing noise. Triaging one story's regression required running the full suite on BOTH main and the branch (~41 min each) and diffing, because there is no green baseline to compare against.\n\nTHIRD EFFECT -- the suite is load-fragile, so even a diff is unreliable: at load average 35.9 the suite reported 20 failures in a few minutes; on a quiet machine main reported 66 in 2460s. Timeout-based assertions (e.g. mkfifo blocking reads with a 2000ms ceiling in tests/milestone-status.test.mjs:3158) flip under concurrency. I reproduced this: that assertion failed once under heavy parallel load, then passed three consecutive times quiet, including on clean main.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T09:24:52.273Z",
+      "reviewRound": "",
+      "gapFingerprint": "bd9a180a0b6a1376e29967d9462455fb96a0bc2c9345838510e62484ff8e2c15",
+      "files": [
+        "lattice.config.json#doneRequiredCommands",
+        "packages/main/src/tasks/run-all-smokes.ts:125",
+        "packages/main/tests/milestone-status.test.mjs:3158",
+        "lattice.config.json",
+        "packages/main/src/tasks/run-all-smokes.ts"
+      ],
+      "_hash": "6d1b0ae68c264ef73c71884b1f5c6259e47a75331fe50999c2386297cbf71521"
     }
   ]
 }
