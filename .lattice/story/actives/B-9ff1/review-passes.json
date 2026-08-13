@@ -46,6 +46,49 @@
         "scanEscalationReason": null
       },
       "_hash": "ffa5e79a964b7abace107b0555c7a2729f56708e1da15989c430e53913b5d6c6"
+    },
+    {
+      "id": "B-9ff1:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review: envelope.ts/specificity.ts reuse canon.ts/policy.ts/target-bindings.ts with no duplicate entropy/CANON/path-validation implementations; fence intact (no gate wiring, no chain/receipt writes, no process spawning); R1-x tags and matcher/polarity/greenExempt vocabulary match spec §1.1/§1.3/§1.6/§1.11 exactly; no TODO/dead code; all 5 W2d red tests + smoke + command-catalog-smoke pass locally. 0 blocking findings.",
+      "createdAt": "2026-08-13T18:00:35.617Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "reviewRunId": "B-9ff1:RR-003",
+      "envelopeId": "03c1d6557217652134a83706d6095009874952ded500afe90113155725a8fd22",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9ff1/background.md",
+          ".lattice/story/actives/B-9ff1/decision.json",
+          ".lattice/story/actives/B-9ff1/plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/red-evidence/envelope.ts",
+          "packages/main/src/core/red-evidence/specificity.ts",
+          "packages/main/src/handlers/red-evidence.ts",
+          "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+          "packages/main/tests/red/red-w2d-assertion-digest-scope.mjs",
+          "packages/main/tests/red/red-w2d-command-readonly.mjs",
+          "packages/main/tests/red/red-w2d-rejection-matrix.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-9ff1/checklist.json",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "lattice.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts",
+          "packages/main/tests/red/red-w2d-entropy-differential.mjs",
+          "packages/main/tests/red/red-w2d-specificity-conjunction.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "75d06282e1d9f2fab0b5e07421ed1432b3c0ed7218605deb7e24cbc1d80b3688"
     }
   ]
 }
