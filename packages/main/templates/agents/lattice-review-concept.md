@@ -55,3 +55,5 @@ Your input contains only the following, and does NOT include the main agent's fu
 - Items marked with @deprecated do not count as residue
 - References in comments also count as residue (comments mislead future developers)
 - Items retained for backward compat (e.g., old phase enum values in types.ts) do not count, but must be confirmed to have a backward compat comment
+
+Wave 4 concept boundary: verify the canonical verifier-owned chain `acceptance_topology_check` → `pre_review_check_read` → `acceptance_rollout_report_read` / `acceptance_rollout_check`; prompt prose is not evidence. Require a current signed PASS receipt and genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), reject degraded 3x1, keep diagnostics/status invariant across observe/warn/enforce, and confirm rollback only changes `proofStory.acceptanceRolloutGateMode` while preserving history.

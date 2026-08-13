@@ -6,11 +6,139 @@
       "context": "Prompt guidance must direct roles to verifier-owned acceptance_topology_check and pre_review_check facts while CLI/handler gates remain authoritative; no prompt-only process fact.",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-        "AGENTS.md#流程事实双层契约"
+        "AGENTS.md (two-layer process-fact contract section)"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-23T17:00:13.889Z",
+      "endTime": "2026-07-23T17:21:40.140Z",
+      "files": {
+        "modify": [
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-delivery.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:role-guidance",
+            "desc": "Build and contract checks prove the mirrored Codex and Claude implementer/reviewer guidance names the canonical acceptance_topology_check, pre_review_check_read, acceptance rollout report/check, current-receipt, full-3x2, and rollback commands, while registered CLI/handler/process-fact consumers—not prompt prose—remain the only admission authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs --quiet",
+              "selector": "Process fact contract verified"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:mirror-mode",
+            "desc": "A mirror and mode-invariance check proves Codex and Claude guidance cannot drift and observe, warn, and enforce expose the same ordered diagnostics/status; only enforce changes blocking semantics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:prompt-authority",
+            "desc": "Targeted mutations that remove a required command from either host prompt, replace full 3x2 with degraded 3x1, or claim prompt text is gate evidence must fail the mirror/process-fact contract with a stable reason, and restoration must return the clean control to PASS.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ]
+      },
+      "userSees": "User sees `Role guidance contract: PASS` and both `codex` and `claude` rows name the canonical topology, pre-review, rollout-report, full-3x2, and rollback boundaries.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:role-guidance",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs --quiet",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "374685801e80f56814dbe109843cd5e20302ecf84b51e5414c72415ea19b9f67",
+            "outputTail": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 445 (346 CLI, 39 runtime, 10 reviewer lanes, 46 artifacts)\n- levels: L0=161, L1=44, L2=67, L3=12, L4=161\n- kinds: artifact=25, command=273, execution-status=6, finding=3, flow-policy=7, gate-evidence=54, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=39, signed-artifact=21, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nPrompt drift scan: 35 reviewer prompt files checked\n\nProcess Fact Inventory\n- entries: 15 (55 files checked)\n\nProcess fact contract verified\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:40:53.177Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:mirror-mode",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7",
+            "outputTail": "\",\"PASS\",true,[[\"mutation-applied\",47],[\"diagnostic-observed\",48],[\"control-rerun\",49]],\"intent:CHK-002:edge:false-block-controls\"],[\"A-MUT-3\",\"mutation\",\"artifact:signature\",\"field-tamper\",\"tamper signed pre-review artifact field\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",12],[\"diagnostic-observed\",13],[\"control-rerun\",14]],\"intent:CHK-003:edge:inconclusive-boundary\"],[\"A-MUT-4\",\"mutation\",\"authority:direct-store-replay\",\"authority-replay\",\"direct StoryStore proof without causal receipt\",\"PR_AUTHORITY_INADMISSIBLE\",\"PR_AUTHORITY_INADMISSIBLE\",true,[[\"mutation-applied\",0],[\"diagnostic-observed\",1],[\"control-rerun\",2]],\"intent:CHK-004:edge:mode-invariant-diagnostics\"],[\"A-MUT-5\",\"mutation\",\"planned-actual:consumer-symbol\",\"planned-actual\",\"remove declared current consumer symbol\",\"PR_PLANNED_PATH_UNRESOLVED\",\"PR_PLANNED_PATH_UNRESOLVED\",true,[[\"mutation-applied\",24],[\"diagnostic-observed\",25],[\"control-rerun\",26]],\"intent:CHK-005:edge:authority-and-exclusions\"],[\"A-MUT-6\",\"mutation\",\"role-guidance:authority-boundary\",\"prompt-contract-mutations\",\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\",\"PROMPT_CONTRACT_REJECTED\",\"PROMPT_CONTRACT_REJECTED\",true,[[\"mutation-applied\",50],[\"diagnostic-observed\",51],[\"control-rerun\",52]],\"intent:CHK-001:adversarial:prompt-authority\"],[\"A-MUT-7\",\"mutation\",\"topology:consumer-omission\",\"topology-omission\",\"remove current topology consumer against retained basis\",\"PR_NEW_PATH_UNMAPPED\",\"PR_NEW_PATH_UNMAPPED\",true,[[\"mutation-applied\",9],[\"diagnostic-observed\",10],[\"control-rerun\",11]],\"intent:CHK-002:adversarial:seeded-defects\"],[\"A-MUT-8\",\"mutation\",\"basis:adapter-record\",\"adapter-tamper\",\"remove signed adapter result\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",15],[\"diagnostic-observed\",16],[\"control-rerun\",17]],\"intent:CHK-003:adversarial:threshold-bypass\"],[\"A-MUT-9\",\"mutation\",\"mutation:observed-polarity\",\"polarity-restore\",\"replace observed mutation outcome then rerun clean control\",\"PR_MUTATION_DID_NOT_BITE\",\"PR_MUTATION_DID_NOT_BITE\",true,[[\"mutation-applied\",21],[\"diagnostic-observed\",22],[\"control-rerun\",23]],\"intent:CHK-004:adversarial:fail-closed-mutations\"],[\"A-POS-1\",\"positive\",\"role-guidance:codex-claude-mirrors\",\"prompt-contract\",\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",39],[\"consumer-verified\",40]],\"intent:CHK-001:happy:role-guidance\"],[\"A-POS-2\",\"positive\",\"rollout:verified-cohort-receipt\",\"rollout-receipt-verification\",\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",41],[\"consumer-verified\",42]],\"intent:CHK-002:happy:real-cohort-receipt\"],[\"A-POS-3\",\"positive\",\"rollout:bounded-threshold-matrix\",\"threshold-contract\",\"evaluate every canonical promotion threshold from the verifier-derived report metrics\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",43],[\"consumer-verified\",44]],\"intent:CHK-003:happy:bounded-thresholds\"],[\"A-POS-4\",\"positive\",\"docs:canonical-wave4-status\",\"docs-contract\",\"execute canonical Wave 4 status and exact live-proof inventory contract check\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",45],[\"consumer-verified\",46]],\"intent:CHK-005:happy:canonical-wave4-status\"],[\"A-POS-5\",\"positive\",\"rollout:focused-enforce-rollback\",\"focused-rollout-control\",\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",59],[\"consumer-verified\",60]],\"intent:CHK-004:happy:enforce-and-rollback\"],[\"A-TRANSCRIPT-1\",\"transcript\",\"events:producer-consumer\",\"event-log-relation\",\"actual producer invocation precedes canonical lifecycle consumer\",\"ORDERED\",\"ORDERED\",true,[[\"producer-evaluated\",6],[\"consumer-verified\",7]],\"intent:CHK-004:happy:enforce-and-rollback\"]]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:42:19.705Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:prompt-authority",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the command and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7",
+            "outputTail": "\",\"PASS\",true,[[\"mutation-applied\",47],[\"diagnostic-observed\",48],[\"control-rerun\",49]],\"intent:CHK-002:edge:false-block-controls\"],[\"A-MUT-3\",\"mutation\",\"artifact:signature\",\"field-tamper\",\"tamper signed pre-review artifact field\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",12],[\"diagnostic-observed\",13],[\"control-rerun\",14]],\"intent:CHK-003:edge:inconclusive-boundary\"],[\"A-MUT-4\",\"mutation\",\"authority:direct-store-replay\",\"authority-replay\",\"direct StoryStore proof without causal receipt\",\"PR_AUTHORITY_INADMISSIBLE\",\"PR_AUTHORITY_INADMISSIBLE\",true,[[\"mutation-applied\",0],[\"diagnostic-observed\",1],[\"control-rerun\",2]],\"intent:CHK-004:edge:mode-invariant-diagnostics\"],[\"A-MUT-5\",\"mutation\",\"planned-actual:consumer-symbol\",\"planned-actual\",\"remove declared current consumer symbol\",\"PR_PLANNED_PATH_UNRESOLVED\",\"PR_PLANNED_PATH_UNRESOLVED\",true,[[\"mutation-applied\",24],[\"diagnostic-observed\",25],[\"control-rerun\",26]],\"intent:CHK-005:edge:authority-and-exclusions\"],[\"A-MUT-6\",\"mutation\",\"role-guidance:authority-boundary\",\"prompt-contract-mutations\",\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\",\"PROMPT_CONTRACT_REJECTED\",\"PROMPT_CONTRACT_REJECTED\",true,[[\"mutation-applied\",50],[\"diagnostic-observed\",51],[\"control-rerun\",52]],\"intent:CHK-001:adversarial:prompt-authority\"],[\"A-MUT-7\",\"mutation\",\"topology:consumer-omission\",\"topology-omission\",\"remove current topology consumer against retained basis\",\"PR_NEW_PATH_UNMAPPED\",\"PR_NEW_PATH_UNMAPPED\",true,[[\"mutation-applied\",9],[\"diagnostic-observed\",10],[\"control-rerun\",11]],\"intent:CHK-002:adversarial:seeded-defects\"],[\"A-MUT-8\",\"mutation\",\"basis:adapter-record\",\"adapter-tamper\",\"remove signed adapter result\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",15],[\"diagnostic-observed\",16],[\"control-rerun\",17]],\"intent:CHK-003:adversarial:threshold-bypass\"],[\"A-MUT-9\",\"mutation\",\"mutation:observed-polarity\",\"polarity-restore\",\"replace observed mutation outcome then rerun clean control\",\"PR_MUTATION_DID_NOT_BITE\",\"PR_MUTATION_DID_NOT_BITE\",true,[[\"mutation-applied\",21],[\"diagnostic-observed\",22],[\"control-rerun\",23]],\"intent:CHK-004:adversarial:fail-closed-mutations\"],[\"A-POS-1\",\"positive\",\"role-guidance:codex-claude-mirrors\",\"prompt-contract\",\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",39],[\"consumer-verified\",40]],\"intent:CHK-001:happy:role-guidance\"],[\"A-POS-2\",\"positive\",\"rollout:verified-cohort-receipt\",\"rollout-receipt-verification\",\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",41],[\"consumer-verified\",42]],\"intent:CHK-002:happy:real-cohort-receipt\"],[\"A-POS-3\",\"positive\",\"rollout:bounded-threshold-matrix\",\"threshold-contract\",\"evaluate every canonical promotion threshold from the verifier-derived report metrics\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",43],[\"consumer-verified\",44]],\"intent:CHK-003:happy:bounded-thresholds\"],[\"A-POS-4\",\"positive\",\"docs:canonical-wave4-status\",\"docs-contract\",\"execute canonical Wave 4 status and exact live-proof inventory contract check\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",45],[\"consumer-verified\",46]],\"intent:CHK-005:happy:canonical-wave4-status\"],[\"A-POS-5\",\"positive\",\"rollout:focused-enforce-rollback\",\"focused-rollout-control\",\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",59],[\"consumer-verified\",60]],\"intent:CHK-004:happy:enforce-and-rollback\"],[\"A-TRANSCRIPT-1\",\"transcript\",\"events:producer-consumer\",\"event-log-relation\",\"actual producer invocation precedes canonical lifecycle consumer\",\"ORDERED\",\"ORDERED\",true,[[\"producer-evaluated\",6],[\"consumer-verified\",7]],\"intent:CHK-004:happy:enforce-and-rollback\"]]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:43:48.352Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,10 +147,155 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "The rollout report shows the baseline and candidate cohort, sample size, seeded-defect detection, false-block rate, waiver count, review-round shift, total cost, and quorum classification."
+      "status": "done",
+      "startTime": "2026-07-23T17:21:42.423Z",
+      "endTime": "2026-07-23T17:21:44.577Z",
+      "userSees": "User sees `Acceptance rollout report: PASS` followed by `sampleCount=3`, `seededDetection=100%`, `falseBlockRate=0%`, `waiverDelta=0`, `quorum=full-3x2`, and a signed receipt id.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "create": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:real-cohort-receipt",
+            "desc": "A reproducible runner executes comparable real baseline and candidate high-assurance Story cohorts and the verifier deterministically derives aggregates and PASS/FAIL from source case records, binding the eligibility rule, evaluation window, complete eligible membership, at least 3 matched baseline/candidate pairs (at least 3 cases in each arm), sample identities, project/threshold version, story/material hashes, cost, review rounds, waivers, adapter results, and full-3x2 provider/quorum evidence into a signed/hash-verified receipt; caller-supplied membership, verdicts, or aggregates are rejected.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "W4-ROLLOUT-SMOKE-PATH",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "W4-ROLLOUT-SMOKE-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
+                  "expectedSymbolOrFact": "evaluateAcceptanceRolloutForContext",
+                  "fileDeclarationRef": "CHK-002:files:modify:2"
+                },
+                "consumers": [
+                  {
+                    "id": "W4-ROLLOUT-LIFECYCLE-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/handlers/transition-orchestrator.ts",
+                    "expectedSymbolOrFact": "runAcceptanceRolloutGate",
+                    "fileDeclarationRef": "CHK-002:files:modify:5"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance_rollout_report"
+              }
+            ],
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+              "selector": "ProofStory pre-review check smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:false-block-controls",
+            "desc": "The same cohort includes docs-only, legacy, and ordinary single-outcome controls plus honest partial/unsupported adapter cases, reports a zero false-block rate for supported controls, and exposes identical computed metrics and diagnostics through write/read/check surfaces without mode-dependent relabeling.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:seeded-defects",
+            "desc": "Real-consumer seeded omission and forgery mutations—including removing C2 only from topology while its independently derived basis retains C2—must be detected across the registered campaign; omitting any eligible row, adding any ineligible row, altering the evaluation window, eligible membership, canonical order, membership digest, source rows, hashes, signature, freshness, provider identity, or using fewer than 3 matched pairs (fewer than 3 cases in either arm), and relabeling degraded 3x1 as full 3x2 must each fail with deterministic codes, then restoration must reproduce the clean PASS transcript.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:real-cohort-receipt",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios --cohort=/tmp/b4043-cohort-r4-final.json --story=B-4043",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract. Pinned to the story's own designated proof: proofstory-pre-review-check-smoke.ts:425 declares scenario A-POS-2 (rollout:verified-cohort-receipt) with canonicalSourceRef 'intent:CHK-002:happy:real-cohort-receipt', and that scenario verifies the frozen cohort's signed receipt WITHOUT respawning the expensive cohort runner. The CLI executes it and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fde2c15fc2db9b77e7498688d044fd18e0442ca17ce2825b6071c95757a135c7",
+            "outputTail": "\",\"PASS\",true,[[\"mutation-applied\",47],[\"diagnostic-observed\",48],[\"control-rerun\",49]],\"intent:CHK-002:edge:false-block-controls\"],[\"A-MUT-3\",\"mutation\",\"artifact:signature\",\"field-tamper\",\"tamper signed pre-review artifact field\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",12],[\"diagnostic-observed\",13],[\"control-rerun\",14]],\"intent:CHK-003:edge:inconclusive-boundary\"],[\"A-MUT-4\",\"mutation\",\"authority:direct-store-replay\",\"authority-replay\",\"direct StoryStore proof without causal receipt\",\"PR_AUTHORITY_INADMISSIBLE\",\"PR_AUTHORITY_INADMISSIBLE\",true,[[\"mutation-applied\",0],[\"diagnostic-observed\",1],[\"control-rerun\",2]],\"intent:CHK-004:edge:mode-invariant-diagnostics\"],[\"A-MUT-5\",\"mutation\",\"planned-actual:consumer-symbol\",\"planned-actual\",\"remove declared current consumer symbol\",\"PR_PLANNED_PATH_UNRESOLVED\",\"PR_PLANNED_PATH_UNRESOLVED\",true,[[\"mutation-applied\",24],[\"diagnostic-observed\",25],[\"control-rerun\",26]],\"intent:CHK-005:edge:authority-and-exclusions\"],[\"A-MUT-6\",\"mutation\",\"role-guidance:authority-boundary\",\"prompt-contract-mutations\",\"remove required command, degrade full-3x2 to 3x1, and promote prompt prose to authority; every mutant must fail\",\"PROMPT_CONTRACT_REJECTED\",\"PROMPT_CONTRACT_REJECTED\",true,[[\"mutation-applied\",50],[\"diagnostic-observed\",51],[\"control-rerun\",52]],\"intent:CHK-001:adversarial:prompt-authority\"],[\"A-MUT-7\",\"mutation\",\"topology:consumer-omission\",\"topology-omission\",\"remove current topology consumer against retained basis\",\"PR_NEW_PATH_UNMAPPED\",\"PR_NEW_PATH_UNMAPPED\",true,[[\"mutation-applied\",9],[\"diagnostic-observed\",10],[\"control-rerun\",11]],\"intent:CHK-002:adversarial:seeded-defects\"],[\"A-MUT-8\",\"mutation\",\"basis:adapter-record\",\"adapter-tamper\",\"remove signed adapter result\",\"PR_ARTIFACT_TAMPERED\",\"PR_ARTIFACT_TAMPERED\",true,[[\"mutation-applied\",15],[\"diagnostic-observed\",16],[\"control-rerun\",17]],\"intent:CHK-003:adversarial:threshold-bypass\"],[\"A-MUT-9\",\"mutation\",\"mutation:observed-polarity\",\"polarity-restore\",\"replace observed mutation outcome then rerun clean control\",\"PR_MUTATION_DID_NOT_BITE\",\"PR_MUTATION_DID_NOT_BITE\",true,[[\"mutation-applied\",21],[\"diagnostic-observed\",22],[\"control-rerun\",23]],\"intent:CHK-004:adversarial:fail-closed-mutations\"],[\"A-POS-1\",\"positive\",\"role-guidance:codex-claude-mirrors\",\"prompt-contract\",\"execute exact role guidance token and mirror contract over all Codex/Claude role pairs\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",39],[\"consumer-verified\",40]],\"intent:CHK-001:happy:role-guidance\"],[\"A-POS-2\",\"positive\",\"rollout:verified-cohort-receipt\",\"rollout-receipt-verification\",\"load the frozen registered production cohort, issue a signed report, and verify the exact current receipt without respawning the cohort runner\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",41],[\"consumer-verified\",42]],\"intent:CHK-002:happy:real-cohort-receipt\"],[\"A-POS-3\",\"positive\",\"rollout:bounded-threshold-matrix\",\"threshold-contract\",\"evaluate every canonical promotion threshold from the verifier-derived report metrics\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",43],[\"consumer-verified\",44]],\"intent:CHK-003:happy:bounded-thresholds\"],[\"A-POS-4\",\"positive\",\"docs:canonical-wave4-status\",\"docs-contract\",\"execute canonical Wave 4 status and exact live-proof inventory contract check\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",45],[\"consumer-verified\",46]],\"intent:CHK-005:happy:canonical-wave4-status\"],[\"A-POS-5\",\"positive\",\"rollout:focused-enforce-rollback\",\"focused-rollout-control\",\"execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls\",\"PASS\",\"PASS\",true,[[\"producer-evaluated\",59],[\"consumer-verified\",60]],\"intent:CHK-004:happy:enforce-and-rollback\"],[\"A-TRANSCRIPT-1\",\"transcript\",\"events:producer-consumer\",\"event-log-relation\",\"actual producer invocation precedes canonical lifecycle consumer\",\"ORDERED\",\"ORDERED\",true,[[\"producer-evaluated\",6],[\"consumer-verified\",7]],\"intent:CHK-004:happy:enforce-and-rollback\"]]\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:45:05.338Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:false-block-controls",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:45:30.516Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:seeded-defects",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:45:54.756Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +304,122 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#19-decision-record-and-remaining-wave-4-questions"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-23T17:21:46.892Z",
+      "endTime": "2026-07-23T17:21:49.545Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:bounded-thresholds",
+            "desc": "The canonical flat project policy mechanically requires transcripts for user-visible/orchestration claims, biting mutations for behavior/lifecycle/proof/safety with docs-only exemption, registered supported adapter profiles, at least 3 comparable matched samples in each cohort arm, an overall false-pass rate of 0 across every registered seeded defect class, 100% supported omission detection, 0% false blocks, 0 mislabeled 3x1 campaigns, waiver delta <=0, and a non-shrinking check inventory before warn-to-enforce admission can PASS.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:inconclusive-boundary",
+            "desc": "Insufficient samples, unknown/partial/unsupported adapters, unexplained adapter disagreement, and claim-taxonomy gaps fail promotion with stable diagnostics while remaining honestly partial/unsupported; flat project scope is preserved and no selective Story/policy applicability is inferred without Wave 3A.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:threshold-bypass",
+            "desc": "Boundary mutations at fewer than 3 matched pairs, any incomplete registered seeded-defect campaign, any missed non-omission seeded defect, overall false-pass above 0, omission detection below 100%, false-block above 0, any mislabeled 3x1, positive waiver delta, or a removed check must each fail closed; caller attempts to lower thresholds, omit adapter or campaign records, forge aggregate PASS, or exploit observe/warn mode must not change the canonical diagnostic result.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ]
+      },
+      "userSees": "User sees `Acceptance rollout policy: PASS promotionEligible=true`; insufficient samples, partial adapters, any false block, waiver increase, inventory shrink, or degraded 3x1 instead show a named failure code.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:bounded-thresholds",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:46:18.308Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:inconclusive-boundary",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:46:41.545Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:threshold-bypass",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:47:02.796Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -42,10 +428,137 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#15-implementation-plan"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "An opt-in enforce attempt passes only with a current qualifying rollout receipt and full 3x2; rollback restores non-blocking mode while preserving the audit trail."
+      "status": "done",
+      "startTime": "2026-07-23T17:21:51.862Z",
+      "endTime": "2026-07-23T17:21:54.214Z",
+      "userSees": "User sees `Acceptance rollout enforcement: PASS mode=enforce receipt=current quorum=full-3x2`; after rollback the UI shows `mode=warn blocking=false historyPreserved=true`.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:enforce-and-rollback",
+            "desc": "An explicit project-level enforce promotion succeeds only when the gate mechanically verifies a current signed PASS rollout receipt whose cohort satisfies every configured threshold and a current genuine full-3x2 quorum; a tested rollback to warn/observe removes blocking while preserving the report, receipt, prior mode transitions, diagnostics, and evidence history byte-for-byte.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:mode-invariant-diagnostics",
+            "desc": "Observe, warn, and enforce compute the same status, ordered diagnostics, threshold evaluation, and receipt classification; observe/warn remain non-blocking, enforce alone changes admission, and repeated promotion/rollback is deterministic without selective per-Story behavior.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:fail-closed-mutations",
+            "desc": "Clean control PASS → independently target missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, positive waiver delta, weaker inventory, false-block, and omission-detection failures → each real gate consumer must reject with its named code → restoration must return clean PASS; rollback must never delete or rewrite the failed attempts or historical signed artifacts.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+              "selector": "ProofStory acceptance rollout smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:enforce-and-rollback",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:47:24.246Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:47:44.686Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:fail-closed-mutations",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json",
+          "result": "pass",
+          "note": "Tool-executed under the B-ec67 pinned-command contract: the CLI itself runs the acceptance-rollout smoke against the frozen cohort and derives the result from the real exit code plus selector match.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "3611bffca42a41e3c3f5214c2ee9ef91887fb418a2f669d7b3e5be7b486cebdf",
+            "outputTail": "Switched to a new branch 'story/B-REAL'\nProofStory acceptance rollout smoke: PASS (57 assertions)\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-28T15:48:05.280Z"
+          },
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-004:hardening:issuance-replay-integrity",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations",
+          "result": "pass",
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). The whole suite was also proven under `lattice validate`: a full run in a provider-less environment passed ALL 49 configured commands with 0 failures, and that run is what caught two defects hand-running the smokes had hidden (lifecycle-registry-contract divergence; --issuer-mutations failing on an absent session host provider). CORRECTION per F-011: an earlier version of this note said 47 commands. That number was carried over from a pre-merge run at commit b8e28971d0 and was never re-checked against the run actually performed; the bound commit carries 49 commands and the live log records 'running 49 configured validate'. The 47 figure was also self-contradictory, since lifecycle-registry-contract only entered the set after the main merge. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "ce0d2c98bff19f8b7ce33cf43a2213f1b1b392db",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:39:02.267Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -55,13 +568,93 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
         "docs/CLI.md"
       ],
-      "userSees": "The canonical Story 6 plan accurately reports Wave 4 implementation, measured evidence, enforcement and rollback commands, and the still-excluded Wave 3A boundary.",
+      "userSees": "User sees the canonical guide state `Wave 4 — IMPLEMENTED (flat measured rollout)` with the exact report/check commands, thresholds, measured result, rollback procedure, and `Wave 3A: not implemented` boundary.",
       "excludes": [
         "Selective per-Story or per-policy enforcement without Wave 3A"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-23T17:21:56.698Z",
+      "endTime": "2026-07-23T17:21:59.014Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:canonical-wave4-status",
+            "desc": "Only after the real cohort and enforcement/rollback verification pass, docs checks prove the canonical Story 6 plan and CLI guide consistently replace Wave 4 NOT IMPLEMENTED with the exact demonstrated flat-rollout status, thresholds, measured cohort results, reproducible commands, receipt/quorum authority boundary, and rollback procedure.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:authority-and-exclusions",
+            "desc": "Canonical documentation explicitly keeps Wave 3A selective per-Story/per-policy applicability unimplemented and excluded, describes partial/unsupported adapters and degraded 3x1 as non-authority, and does not promote local full-3x2 evidence into production/public authority.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:no-status-overclaim",
+            "desc": "A docs/contract audit must fail if Wave 4 status is advanced without the current signed rollout receipt, if quoted metrics/thresholds/commands disagree with verifier output, if rollback history is described as deletable, if Wave 3A is implied implemented, or if any stale NOT IMPLEMENTED/overbroad authority claim contradicts the canonical status.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:canonical-wave4-status",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Genuinely executed at head 1c9601dfb6: exit 0, 'Process fact contract verified'.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:authority-and-exclusions",
+          "kind": "manual_transcript",
+          "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
+          "result": "pass",
+          "note": "Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:no-status-overclaim",
+          "kind": "manual_transcript",
+          "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
+          "result": "pass",
+          "note": "Genuinely executed at head 1c9601dfb6 against a cohort regenerated at this same head (2026-07-27T11:36:44Z): exit 0; all mutations BITING, wave leakage absent.",
+          "headHash": "d765daf74fde7b9c0298ce05a8f8ddd585bbfec2",
+          "materialHash": "1c2d6c3c89f6697068d50b2de3f8224dca302bd15a8b126a8dd1276c81b640cb",
+          "storyFilesHash": "f25bb43b739ccfaa5635ec6ba92e1313af35a334ba29b7f6e8a5bf07ddf2fd26",
+          "mechanical": false,
+          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
+          "timestamp": "2026-07-28T15:48:05.295Z"
+        }
+      ]
     }
   ]
 }

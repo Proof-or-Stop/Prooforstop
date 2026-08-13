@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "One-commit safety: widen the record type and guard the v1 predicate together so no intermediate tree can crash the live enforce gate.",
+    "Fail-closed chain integrity: every append re-derives keys and ids and rejects on any mismatch with nothing written.",
+    "Un-gameable RED: a live enforce-gate crash, a genuine two-process race, and a hashed rejection matrix — not mocks.",
+    "Deterministic and byte-reproducible: CANON digests, derived approvedBy, first12hex ids — no wall-clock, no caller-supplied identity.",
+    "Additive only: the v1 writer and every gate verdict stay unchanged; v2 is a parallel plane the v1 gate ignores."
+  ],
+  "drivers": [
+    "The gate runs enforce in dev, review and done, so a v2 record must never reach a v1-only code path.",
+    "store.ts read-modify-write is atomic only on rename and the owner lease is not a same-owner mutex, so concurrency must be serialized by an explicit mkdir claim.",
+    "The append ORDER is mandated by section 3.5 (dedupe before head resolution before any run) or a replay runs twice and a quarantine swallows a replacement."
+  ],
+  "options": [
+    {
+      "name": "Parallel v2 chain plane with a v1-skip guard",
+      "pros": [
+        "No migration of existing v1 stores",
+        "Gate verdicts provably unchanged (byte-identical)",
+        "All new chain semantics isolated in core/red-evidence/*"
+      ],
+      "cons": [
+        "Widening and guard must be one commit",
+        "Mixed-array discrimination adds a schemaVersion branch to every reader"
+      ]
+    },
+    {
+      "name": "Migrate all records to v2 and rewrite the gate predicate",
+      "pros": [
+        "Single record shape",
+        "No mixed-array branching"
+      ],
+      "cons": [
+        "Rewrites a live enforce-gate predicate (high blast radius)",
+        "Requires migrating existing v1 stores",
+        "Re-litigates the W2a and W2b digests"
+      ]
+    },
+    {
+      "name": "Separate v2 store file alongside red-evidence.json",
+      "pros": [
+        "No widening of RedEvidenceData"
+      ],
+      "cons": [
+        "Two files to keep consistent under concurrency",
+        "Breaks single-chain head-uniqueness across files",
+        "More wiring than the spec single-store model"
+      ]
+    }
+  ],
+  "chosen": "Parallel v2 chain plane with a v1-skip guard",
+  "rationale": "The spec mandates a single store with mixed v1/v2 records and an unchanged v1 gate; option 1 is the only one that keeps every gate verdict byte-identical while adding the chain plane, and it isolates all new semantics in core/red-evidence/* behind a schemaVersion discriminant.",
+  "preMortem": [
+    {
+      "scenario": "Widening lands a commit before the guard",
+      "trigger": "types.ts:2700 widened but proofstory.ts:931 not yet guarded when a v2 record exists",
+      "consequence": "the live enforce gate throws a TypeError on record.observedFailure.trim() for any story holding a v2 record",
+      "mitigation": "land the widening and the v1-skip guard in ONE commit and pin it with the CHK-003 byte-identical RED test"
+    },
+    {
+      "scenario": "Two racing quarantines both append",
+      "trigger": "two red_evidence_quarantine child processes read the same head then write",
+      "consequence": "two heads or a dropped record — the state section 3.2 declares impossible",
+      "mitigation": "serialize read-head through write under one mkdir claim; committed concurrency race test asserts one record plus a held-claim abort"
+    },
+    {
+      "scenario": "A replay re-runs or a quarantine swallows a deliberate replacement",
+      "trigger": "dedupe search ordered after head resolution or scoped too broadly",
+      "consequence": "a replay runs twice, or a deliberate replacement is silently dropped as a dedupe hit",
+      "mitigation": "order dedupe before head resolution per section 3.5 and scope it per section 3.6; committed replay and replacement tests"
+    },
+    {
+      "scenario": "approvedBy accepted from the caller",
+      "trigger": "the handler reads approvedBy from args",
+      "consequence": "an approval identity is forgeable",
+      "mitigation": "derive approvedBy as actor-at-sessionId and reject any caller-supplied value; committed test"
+    },
+    {
+      "scenario": "A corrupted stored operationKey is silently accepted",
+      "trigger": "a stored record whose operationKey or id does not recompute from its body",
+      "consequence": "chain integrity is broken with no signal",
+      "mitigation": "re-derive key and id on read and raise a tagged CONFLICT with nothing written; committed test"
+    }
+  ],
+  "timestamp": "2026-07-25T10:12:55.241Z"
+}

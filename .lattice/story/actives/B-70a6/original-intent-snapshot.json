@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-70a6",
+  "sourceText": "In the proofbound repo (self-hosting Lattice CLI), story B-8b69 added a gated PLAN->INIT reopen (story_advance --phase=INIT from PLAN) that requires a reason (>=10 chars), enforced in packages/main/src/handlers/transition-orchestrator.ts (REOPEN_REASON_MIN). A codex host-B review noted the reason is validated but never persisted, yet the code comments and docs/requirements/decisions/plan-init-reopen.md describe the reopen as 'gated and auditable'. To make the audit claim true, persist the reopen reason -- e.g. include it in the phase_transition process event (buildPhaseTransitionProcessEvent) or the story event for the REOPEN transition -- so there's a durable audit trail of why a frozen title was reopened. Also soften two slightly-overstated comments codex flagged: the REOPEN checklist-reset atomicity is concurrency-atomic (mkdir persist-claim), not crash-transactional, so 'land together or not at all' overstates it; and note that the dev_start 'git worktree prune --expire now' can clear unrelated already-missing registrations (it cannot prune live siblings). All three are LOW severity; this is cleanup, not a correctness fix. Follow-up user direction: make the audit-event persistence the single main task, keep the two comment corrections as separate low-priority commits, ensure a successful transition produces exactly one audit event containing the full reason and a failed transition leaves no event claiming success, and do not treat the CLI version bump as a user decision because it belongs to the mechanical DONE-merge release path.",
+  "normalizedOutcome": "A successful gated PLAN->INIT reopen durably records why it happened: the append-only phase_transition process event carries the operator's verbatim reason plus a transitionType=reopen marker, so the reopen is auditable after the fact rather than only gated at the moment of the call. Normal transitions are unaffected. Separately, two code comments state their real guarantees instead of overstating them.",
+  "acceptanceClaim": "After a successful PLAN->INIT reopen, reading the story's persisted process-events.jsonl yields a phase_transition event with fromPhase=PLAN, toPhase=INIT, transitionType='reopen' and the reason verbatim; a reopen refused for a missing or too-short reason leaves the phase at PLAN and appends no such event; and a normal transition's event shape is byte-identical to before the change.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:49d371b9444f18f72ee2e62ecf330a9b994b393f94f0cb74d1782dc624e292b4",
+  "createdAt": "2026-07-26T01:06:26.187Z",
+  "updatedAt": "2026-07-26T01:06:26.187Z"
+}

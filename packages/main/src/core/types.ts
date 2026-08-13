@@ -14,6 +14,12 @@ export type {
 } from './validation-types.js';
 import type { RoutineValidationIdentity, RoutineValidationCommandExecution } from './validation-types.js';
 import type { SignatureTagSource } from './experience-layer-types.js';
+// W2c (B-506e): the RED-evidence subsystem's v2 record union (chain / control
+// records). RedEvidenceData.records is a mixed v1+v2 array, schemaVersion-
+// discriminated — the on-disk layout is unchanged (still one append-only
+// records[] under the v1 FILE schemaVersion).
+import type { RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
+export type { RedEvidenceRecordV2 } from './red-evidence/record-v2.js';
 
 export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVIEW' | 'TEST' | 'DONE' | 'DISCARDED'
   // Legacy phases kept for backward compat with existing story data
@@ -79,7 +85,11 @@ export type AgentDispatchMutationCommand =
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
   // implementer registers the per-story target binding before a RED run.
-  | 'red_evidence_binding_set';
+  | 'red_evidence_binding_set'
+  // B-506e (W2c): the two owner-gated chain-control commands — retire a bad
+  // record without mutating history, and undo a mistaken quarantine (§4.1).
+  | 'red_evidence_quarantine'
+  | 'red_evidence_recover';
 
 export type AgentDispatchReviewerLane =
   | 'lattice-review-story-init'
@@ -139,6 +149,64 @@ export interface StoryEvent {
   reviewer?: string;
 }
 
+/**
+ * B-70a6 F-004: the durable crash-recovery record for the gated PLAN->INIT
+ * reopen audit.
+ *
+ * WHY IT EXISTS. The reopen's audit facts (the validated reason + the reopen
+ * marker) live in an append-only `phase_transition` process event, but the
+ * phase write and the event append are two separate fs operations. A crash
+ * between them used to leave phase=INIT with NO audit record at all — and
+ * because REOPEN only fires FROM PLAN, the story had already left the only
+ * phase that could retry it, so that audit event was UNRECOVERABLE.
+ *
+ * HOW IT CLOSES THAT WINDOW. This record is set on the story index in the SAME
+ * `store.writeStory` that persists phase=INIT. `StoryStore.writeJsonFile` is
+ * tmp-write + `renameSync`, so the record and the new phase land in ONE atomic
+ * rename: either the reopen did not happen, or it happened AND the reason is
+ * already durably on disk. `reconcilePendingReopenAudit`
+ * (handlers/transition-orchestrator.ts) then emits the missing event and clears
+ * this record — but ONLY at the points enumerated in the next paragraph, NOT on
+ * every command and under NO concurrency guarantee; `auditId` is the idempotency
+ * key that makes that recovery emit EXACTLY ONE event, never two.
+ *
+ * (B-70a6 F-016: the sentence above used to promise that recovery "on the next
+ * transition", with no qualifier at all. It is EDITED IN PLACE rather than merely
+ * supplemented by the paragraph below, so a reader who stops reading here is not
+ * left with the pre-F-005 impression that some later transition always heals it.)
+ *
+ * WHAT THAT DOES AND DOES NOT GUARANTEE. Recovery fires on the next ORCHESTRATED
+ * transition, and — since B-70a6 F-005 — at the two out-of-band phase writers
+ * (story_discard, the story_reconcile zombie repair) before they destroy the copy
+ * holding this record. It is NOT a concurrency guarantee: those two sites hold no
+ * lock, so a reopen that writes this record while one of them is already running
+ * can still lose both the record and its event — see
+ * CONCURRENCY RESIDUAL (B-70a6 F-013), documented in full on
+ * `reconcileReopenAuditBeforeOutOfBandPhaseChange`. Finding this record on disk
+ * therefore means "a reopen committed whose audit event may be missing", not
+ * "every committed reopen is guaranteed to leave one".
+ *
+ * It is audit/recovery bookkeeping, NOT gate evidence: no gate consumes it.
+ */
+export interface PendingReopenAudit {
+  /**
+   * Unique per reopen. The idempotency key: reconciliation appends the audit
+   * event only when NO `phase_transition` event carries this `reopenAuditId`,
+   * so a crash between the append and the clear cannot double-emit.
+   */
+  auditId: string;
+  /** The operator reason, verbatim, already validated (>= REOPEN_REASON_MIN, non-blank). */
+  reason: string;
+  /** The phase the reopen left (PLAN — the only phase REOPEN fires from). */
+  fromPhase: string;
+  /** ISO 8601 timestamp of the reopen persist. */
+  at: string;
+  /** Evidence-binding facts captured with the reopen, so a recovered event matches the in-line one. */
+  materialHash: string;
+  storyFilesHash: string;
+  reviewRound: string;
+}
+
 export interface StoryInfo {
   storyId: string;
   name: string;
@@ -178,6 +246,16 @@ export interface StoryInfo {
    * the high-risk gate cost derived from auto-elevation, without erroneously downgrading user-explicitly-set high/critical.
    */
   priorityElevatedFrom?: string;
+
+  /**
+   * B-70a6 F-004: present ONLY between a gated PLAN->INIT reopen's phase write
+   * and its audit-event append. Written in the SAME atomic writeStory rename as
+   * phase=INIT and cleared immediately after the event is durably appended, so
+   * finding it on disk means "a reopen committed whose audit event may be
+   * missing" — the recoverable state that replaces the old unrecoverable one.
+   * See PendingReopenAudit and reconcilePendingReopenAudit.
+   */
+  pendingReopenAudit?: PendingReopenAudit;
 
   // Parallel policy fields (B-c622)
   lane?: 'mainline' | 'supporting' | 'exploratory';
@@ -542,6 +620,212 @@ export interface PreReviewCheckArtifactV1 {
   signature: string;
 }
 
+export type AcceptanceRolloutClaimClassV1 =
+  | 'user_visible'
+  | 'orchestration'
+  | 'behavior'
+  | 'lifecycle'
+  | 'proof'
+  | 'safety'
+  | 'docs_only'
+  | 'legacy'
+  | 'ordinary';
+
+export type AcceptanceRolloutDefectClassV1 =
+  | 'omission'
+  | 'forgery'
+  | 'freshness'
+  | 'authority'
+  | 'quorum'
+  | 'threshold'
+  | 'control';
+
+export interface AcceptanceRolloutGateArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_gate_artifact.v1';
+  command: 'acceptance_topology_check' | 'pre_review_check';
+  storyId: string;
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  report: Record<string, unknown>;
+  artifactDigest: string;
+}
+
+export interface AcceptanceRolloutHostVerdictReceiptV1 {
+  type: 'host_verdict';
+  verdictId: string;
+  runId: string;
+  hostId: 'codex-cli' | 'claude-cli';
+  provider: 'codex' | 'claude';
+  sessionId: string;
+  keyId: string;
+  decision: 'pass' | 'fail' | 'blocked';
+  materialDigest: string;
+  storyFilesHash: string;
+  validationDigest: string;
+  promptDigest: string;
+  timestamp: string;
+}
+
+export interface AcceptanceRolloutObservationReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_observation_receipt.v1';
+  storyId: string;
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  gateArtifacts: AcceptanceRolloutGateArtifactV1[];
+  hostVerdicts: AcceptanceRolloutHostVerdictReceiptV1[];
+  quorumReceipt: {
+    schemaVersion: 'lattice.quorum_submit.v1';
+    storyId: string;
+    rounds: number;
+    emittedCount: number;
+    verdictIds: string[];
+    runIds: string[];
+    metadataCommitSha: string;
+    reviewerPasses: Array<{ lane: string; passId: string; reviewRunId?: string }>;
+    assuranceLevel: 'full-3x2' | 'degraded-single-host' | 'ordinary-review';
+  };
+  reviewRoundIds: string[];
+  waiverRefs: string[];
+  usageEvents: Array<{ eventId: string; costUnits: number }>;
+  transcriptRefs: string[];
+  mutationResults: Array<{
+    mutationId: string;
+    expectedCode: string;
+    observedCode: string;
+    mutationCommitSha: string;
+    restorationCommitSha: string;
+    controlRestored: boolean;
+  }>;
+  checkInventory: string[];
+  issuedAt: string;
+  issuerKeyId: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
+export interface AcceptanceRolloutSourceRecordV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_source_record.v1';
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  storyId: string;
+  completedAt: string;
+  comparableGroup: 'high_assurance';
+  eligible: boolean;
+  claimClass: AcceptanceRolloutClaimClassV1;
+  seededDefectId?: string;
+  defectClass: AcceptanceRolloutDefectClassV1;
+  defectPresent: boolean;
+  shouldBlock: boolean;
+  observationReceipt: AcceptanceRolloutObservationReceiptV1;
+  sourceDigest: string;
+}
+
+export interface AcceptanceRolloutCohortInputV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1';
+  generatedBy: 'runProofStoryAcceptanceRolloutCohort';
+  evaluationWindow: { start: string; end: string };
+  eligibilityRuleVersion: 'proofstory.acceptance_rollout_eligibility.v1';
+  thresholdVersion: 'proofstory.acceptance_rollout_thresholds.v1';
+  registeredSeedIds: string[];
+  sourceRecords: AcceptanceRolloutSourceRecordV1[];
+  sourceInventoryDigest: string;
+  runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs';
+  runnerDigest: string;
+}
+
+export type AcceptanceRolloutDiagnosticCodeV1 =
+  | 'AR_REPORT_MISSING'
+  | 'AR_REPORT_TAMPERED'
+  | 'AR_REPORT_STALE'
+  | 'AR_WINDOW_INVALID'
+  | 'AR_SOURCE_RECORD_INVALID'
+  | 'AR_SOURCE_EVIDENCE_INVALID'
+  | 'AR_MEMBERSHIP_DIGEST_MISMATCH'
+  | 'AR_ELIGIBLE_MEMBERSHIP_INCOMPLETE'
+  | 'AR_INELIGIBLE_MEMBER'
+  | 'AR_SAMPLE_COUNT_LT_3'
+  | 'AR_MATCHED_PAIR_MISSING'
+  | 'AR_ADAPTER_UNSUPPORTED'
+  | 'AR_TRANSCRIPT_REQUIRED'
+  | 'AR_MUTATION_REQUIRED'
+  | 'AR_REGISTERED_CAMPAIGN_INCOMPLETE'
+  | 'AR_FALSE_PASS_NONZERO'
+  | 'AR_OMISSION_DETECTION_BELOW_100'
+  | 'AR_FALSE_BLOCK_NONZERO'
+  | 'AR_MISLABELED_3X1_NONZERO'
+  | 'AR_WAIVER_DELTA_POSITIVE'
+  | 'AR_CHECK_INVENTORY_SHRANK'
+  | 'AR_QUORUM_NOT_FULL_3X2';
+
+export interface AcceptanceRolloutMetricsV1 {
+  matchedPairCount: number;
+  baselineSampleCount: number;
+  candidateSampleCount: number;
+  registeredSeedCount: number;
+  detectedSeedCount: number;
+  falsePassCount: number;
+  omissionSeedCount: number;
+  omissionDetectedCount: number;
+  omissionDetectionRate: number;
+  falseBlockCount: number;
+  falseBlockRate: number;
+  mislabeled3x1Count: number;
+  waiverDelta: number;
+  inventoryShrankCount: number;
+  baselineReviewRounds: number;
+  candidateReviewRounds: number;
+  baselineCostUnits: number;
+  candidateCostUnits: number;
+}
+
+export interface AcceptanceRolloutReportV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_report.v1';
+  storyId: string;
+  projectPolicy: 'flat-project';
+  eligibilityRuleVersion: 'proofstory.acceptance_rollout_eligibility.v1';
+  thresholdVersion: 'proofstory.acceptance_rollout_thresholds.v1';
+  evaluationWindow: { start: string; end: string };
+  eligibleMembership: Array<{ pairId: string; baselineStoryId: string; candidateStoryId: string }>;
+  membershipDigest: string;
+  sourceInventoryDigest: string;
+  registeredSeedIds: string[];
+  sourceRecords: AcceptanceRolloutSourceRecordV1[];
+  metrics: AcceptanceRolloutMetricsV1;
+  diagnostics: AcceptanceRolloutDiagnosticCodeV1[];
+  verdict: 'pass' | 'fail';
+  binding: {
+    headHash: string;
+    materialHash: string;
+    storyFilesHash: string;
+    runnerDigest: string;
+  };
+  reportDigest: string;
+}
+
+export interface AcceptanceRolloutReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_receipt.v1';
+  receiptRef: string;
+  issuer: 'acceptance-rollout-verifier';
+  issuerKeyId: string;
+  signerPublicKey: string;
+  storyId: string;
+  reportDigest: string;
+  membershipDigest: string;
+  sourceInventoryDigest: string;
+  verdict: 'pass' | 'fail';
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  issuedAt: string;
+  signature: string;
+}
+
+export interface AcceptanceRolloutArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_artifact.v1';
+  report: AcceptanceRolloutReportV1;
+  receipt: AcceptanceRolloutReceiptV1;
+}
+
 export interface TopologyActorProvenanceV1 {
   agentId: string;
   sessionId: string;
@@ -743,6 +1027,55 @@ export interface VerificationEvidence {
   factProvenance?: FactProvenanceMetadata;
 }
 
+/**
+ * B-2296 (evidence-integrity §5 follow-on, Phase 1): the immutable snapshot pinned
+ * onto a frozen claim (a checklist item's `userSees`) at attestation time. Drift in
+ * EITHER the normalized claim text OR the bound material voids the attestation and
+ * requires re-attestation (bidirectional binding, per decision.json).
+ *
+ * IMPORTANT — material binding authority (decision B: storyFilesHash):
+ *   `storyFilesHash` is the DRIFT-AUTHORITATIVE material field. It scopes drift to
+ *   exactly the files this story delivers (excluding unrelated main-merge / whole-tree
+ *   churn — the dominant false-positive source). `materialHash` is retained for
+ *   provenance/diagnostics ONLY and is INFORMATIONAL; it MUST NOT be the drift signal.
+ */
+export interface FrozenClaimSnapshot {
+  /** sha256 hex over normalizeClaim(userSees) — see core/frozen-claim-drift.ts. */
+  normalizedClaimDigest: string;
+  /** Drift-authoritative: hash of story-owned material files vs merge-base main. */
+  storyFilesHash: string;
+  /** git HEAD captured when the snapshot was taken. */
+  headHash: string;
+  /** ISO 8601 timestamp when the snapshot was pinned. */
+  attestedAt: string;
+  /** Informational only (whole-tree material). NOT the drift signal (decision B). */
+  materialHash?: string;
+}
+
+/**
+ * B-2296 (Phase 1): structured, NON-blocking advisory emitted when a frozen claim
+ * has drifted relative to its {@link FrozenClaimSnapshot}. Defined here ahead of its
+ * CHK-002 (detect) / CHK-003 (surface) consumers.
+ *
+ * `driftKind` reports WHAT moved: `claim` (normalized digest changed), `material`
+ * (story-owned storyFilesHash moved), `both`, or `none`. `classification`
+ * distinguishes a snapshot-bound claim (`bound`) from a pre-feature claim with no
+ * snapshot (`legacy-unbound`, never an error — grandfathered). Phase 1 only ever
+ * asks for `re_attestation`; the blocking gate is Phase 2.
+ */
+export interface FrozenClaimDriftAdvisory {
+  code: 'FROZEN_CLAIM_DRIFT';
+  itemId: string;
+  claimRef: string;
+  previousDigest: string;
+  currentDigest: string;
+  previousStoryFilesHash: string;
+  currentStoryFilesHash: string;
+  driftKind: 'claim' | 'material' | 'both' | 'none';
+  classification: 'bound' | 'legacy-unbound';
+  actionRequired: 're_attestation';
+}
+
 export interface ChecklistItem {
   id: string;
   title: string;
@@ -770,6 +1103,16 @@ export interface ChecklistItem {
    */
   verificationIntent?: VerificationIntent;
   verificationEvidence?: VerificationEvidence[];
+  /**
+   * B-2296 (evidence-integrity §5 follow-on, Phase 1): immutable frozen-claim
+   * snapshot pinned onto this item's `userSees` at attestation time (the
+   * checklist_update status→done transition). Written exactly once, when the
+   * item first transitions to done with a non-empty userSees and no prior
+   * snapshot; NEVER re-taken on a read or a later re-persist (B-ec67 pin-once
+   * model). Absent on legacy items and on items with an empty/absent userSees —
+   * detectDrift classifies a missing snapshot as `legacy-unbound` (never an error).
+   */
+  userSeesSnapshot?: FrozenClaimSnapshot;
   /** @deprecated Legacy item phase from TEST_CASE lifecycle. New flow uses DEV/REVIEW/TEST only. */
   phase?: 'DEV' | 'TEST_CASE';
   /** @deprecated Legacy testIntent kept for old story data and compatibility helpers. */
@@ -1840,6 +2183,57 @@ export interface InitCheckData {
   _hash: string;
 }
 
+// ── Stall Adjudication (B-7813 CHK-002: stall_resolution_set writes a signed
+// stall-adjudication.json consumed by the DEV→REVIEW mint gate) ──
+
+/**
+ * B-7813: the structured actions an operator may record to clear the
+ * convergence-stall block. The first five are the ordinary per-round resolutions
+ * (CHK-001/CHK-002); `override_budget` (CHK-003) is the PRIVILEGED hard-ceiling
+ * override. Kept in lock-step with the canonical STALL_RESOLUTION_ACTIONS tuple
+ * in core/review-convergence.ts — that tuple is the runtime source of truth for
+ * membership validation; this union is the compile-time mirror.
+ */
+export type StallResolutionActionName =
+  | 'authorize_continuation'
+  | 'replan'
+  | 'escalate_root_cause'
+  | 'resolve_findings'
+  | 'declare_unreachable'
+  | 'override_budget';
+
+/**
+ * B-7813 CHK-002: the signed stall-adjudication record persisted at
+ * .lattice/story/actives/<id>/stall-adjudication.json. It authorizes clearing
+ * the convergence-stall mint block for EXACTLY the review round it is bound to
+ * (reviewRound === story.currentReviewRound at record time). Consumed on read by
+ * the CHK-001 seam (hasCurrentRoundStallResolution) which re-validates reason
+ * length + current-round binding + signature — a stale/previous-round/empty/
+ * unsigned record never clears the block.
+ */
+export interface StallAdjudicationData {
+  storyId: string;
+  /** One of StallResolutionActionName (validated at runtime against STALL_RESOLUTION_ACTIONS). */
+  action: StallResolutionActionName;
+  /** Why the operator is consciously clearing the block (trim().length >= STALL_RESOLUTION_REASON_MIN). */
+  reason: string;
+  /** Snapshot of story.currentReviewRound the resolution is bound to (ISO 8601). Part of the signature domain. */
+  reviewRound: string;
+  /** Required only for action=declare_unreachable: the checklist item withdrawn as unreachable. Part of the signature domain. */
+  itemId?: string;
+  /** Audit-only: who recorded the resolution (operator/actor). Not part of the signature domain. */
+  approvedBy?: string;
+  /** ISO 8601 write timestamp. Not part of the signature domain. */
+  recordedAt: string;
+  /** Audit link stamped when declare_unreachable withdrew the item (the B-1909 scope-shrinkage decisionId). Not part of the signature domain. */
+  withdrawalDecisionRef?: string;
+  /**
+   * Signature: sha256(`${storyId}:${action}:${sha256(reason)}:${reviewRound}:${itemId ?? ''}:${STALL_ADJUDICATION_SALT}`)
+   * Computed by signStallAdjudication. approvedBy / recordedAt / withdrawalDecisionRef are audit fields, NOT in the signature domain.
+   */
+  _hash: string;
+}
+
 // ── Scope Anti-Expansion (B-85ba: INIT→INIT_CHECK boundary freeze gate) ──
 
 export type ScopeBoundaryMode = 'correctness_fix' | 'feature' | 'maintenance' | 'custom';
@@ -2754,10 +3148,73 @@ export interface RedEvidenceRecord {
   createdAt: string;
 }
 
+/**
+ * B-2aa7 (D-4) — one entry the read boundary REJECTED as not well-formed under
+ * the legacy v1 schema, retained so corruption stays visible.
+ *
+ * Quarantine is retain-and-report, never drop: a rejected entry is removed from
+ * `records` (so the typed domain only ever sees well-formed records) but is kept
+ * here VERBATIM. Silently dropping it would leave a "clean empty array", which
+ * reads exactly like an absent artifact — the defect this story removes.
+ *
+ * Produced only by `core/red-evidence-artifact-validation.ts`; never written to
+ * disk by the canonical writer.
+ */
+export interface RedEvidenceMalformedRecord {
+  /** Zero-based position of the rejected entry in the ON-DISK `records` array. */
+  index: number;
+  /** The entry's `id` when it has a usable one, else `null`. */
+  id: string | null;
+  /** Operator-facing summary naming the index, the id and every violation. */
+  reason: string;
+  /** Machine-readable violations: `missing:trigger`, `wrong-type:observedFailure`, … */
+  violations: string[];
+  /** The rejected entry, verbatim. This is what makes quarantine non-destructive. */
+  value: unknown;
+}
+
 export interface RedEvidenceData {
+  /**
+   * The FILE-level schema stays `proofstory.red_evidence.v1` — the on-disk layout
+   * is unchanged (W2c / B-506e). Individual records are discriminated by their
+   * OWN `schemaVersion`: a legacy v1 record has none, a v2 record carries
+   * `proofstory.red_evidence.v2`. No migration of existing v1 stores.
+   *
+   * B-2aa7 (D-1, E6): the FILE declares the era, so this member is now READ as an
+   * authority at the read boundary. A missing or unknown value is rejected there
+   * rather than silently degrading to v1.
+   */
   schemaVersion: 'proofstory.red_evidence.v1';
   storyId: string;
-  records: RedEvidenceRecord[];
+  /** Append-only, mixed v1 (legacy) + v2 (chain) records in one array. */
+  records: (RedEvidenceRecord | RedEvidenceRecordV2)[];
+  /**
+   * B-2aa7 (D-4): entries the read boundary quarantined. Present ONLY when the
+   * artifact actually carried a malformed record, so an artifact that is merely
+   * absent, empty or `records`-less never acquires a corruption surface.
+   *
+   * STRICTLY DERIVED, NEVER INHERITED. This is what the validator concluded on
+   * one read; it is NOT part of the on-disk schema and an artifact does not get
+   * to assert it about itself. `classifyRedEvidenceArtifact`
+   * (`core/red-evidence-artifact-validation.ts`) STRIPS any occurrence found on
+   * disk and re-attaches only its own classification — in every outcome,
+   * including the one where nothing was malformed and the answer is therefore
+   * "absent". Letting an on-disk value through made this an injection vector:
+   * the write boundary re-inserts each entry's `value` into `records`, so a
+   * crafted or stale artifact could fabricate quarantine state and plant records
+   * in the evidence the DEV / REVIEW / DONE gates read.
+   *
+   * Consumers treat it as untrusted regardless, and by PROVENANCE rather than by
+   * shape: `redEvidenceQuarantinedRecords` honours only the entry OBJECTS the
+   * validator itself derived and yields `[]` for anything else, so a non-array,
+   * a junk entry, or a structurally perfect hand-built one can neither crash a
+   * consumer nor be re-inserted. Shape alone would not be enough — an entry is
+   * five ordinary members, so any check of its bytes can be typed out by a
+   * caller, and this member reaches the write boundary intact on any payload
+   * that was built in memory instead of read. That case is REFUSED there rather
+   * than ignored, because writing it would drop the records it claims.
+   */
+  malformedRecords?: RedEvidenceMalformedRecord[];
   createdAt: string;
   updatedAt: string;
 }

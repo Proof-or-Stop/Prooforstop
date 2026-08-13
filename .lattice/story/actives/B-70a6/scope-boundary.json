@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-70a6",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a clarifying comment on pruneWorktreeRegistry documenting that git worktree prune --expire now cannot remove live siblings and is repo-wide over already-missing registrations",
+    "Correct the overstated REOPEN checklist-reset atomicity comment to state the real concurrency-atomic (not crash-transactional) guarantee",
+    "Extend plan-init-reopen-roundtrip-smoke.ts to assert the reopen event carries the persisted reason and transitionType",
+    "Persist the gated PLAN->INIT reopen reason (plus a transitionType marker) into the append-only phase_transition process event in transition-orchestrator.ts"
+  ],
+  "excluded": [
+    "actor / eventId provenance plumbing into the phase_transition event (the user listed these in their section 4 but answered 'no preference' when asked directly; left out per the minimal-scope recommendation for a LOW finding, and recorded here so extending scope is a deliberate, visible act rather than silent creep)",
+    "Any change to gate decisions, transition legality, or the REOPEN reason validation threshold itself",
+    "Making the event append and the phase write crash-transactional (pre-existing and universal to all transitions, not introduced by this change; the user's section 6 explicitly directed that unrelated hardening not be folded in)",
+    "Updating docs/requirements/decisions/plan-init-reopen.md prose beyond what the code comments already state"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User directive in this conversation, section 7 ('建议拆成三个任务'): Task A = persist the reopen reason in the transition audit log (save reason, actor, time and phase; no forged event on failure; add regression tests); Task B = correct atomicity claims for the REOPEN checklist reset; Task C = clarify/constrain dev_start worktree pruning. Section 6 explicitly directs that the atomicity-comment and worktree-prune items NOT be implemented together with the main audit fix, because it would enlarge scope and confuse acceptance criteria. Section 5 sets the acceptance standard: a successful PLAN->INIT transition must produce exactly one audit event containing the full reason, and a failed transition must leave no event claiming success.",
+  "createdAt": "2026-07-25T23:18:24.132Z",
+  "updatedAt": "2026-07-25T23:18:24.132Z",
+  "_hash": "a5001f1a70c147128dc25cba391743bc87f37d020edeac6656b19dffcd3a8145"
+}

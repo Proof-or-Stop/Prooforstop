@@ -1,0 +1,42 @@
+{
+  "storyId": "B-3b88",
+  "checkedAt": "2026-07-25T22:42:53.084Z",
+  "features": [
+    {
+      "feature": "verification_evidence_add refuses an evidence row whose command and file fields name contradictory targets",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": ""
+    },
+    {
+      "feature": "verification_evidence_refresh_stale leaves command-backed result:pass rows stale instead of re-certifying them",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": ""
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-3b88/plan.md",
+      "packages/main/src/core/types.ts",
+      "packages/main/src/core/verification.ts",
+      "packages/main/src/handlers/checklist.ts",
+      "packages/main/src/tasks/evidence-refresh-smoke.ts"
+    ],
+    "filesTriagedByName": [
+      "packages/main/src/tasks/evidence-selfcheck-smoke.ts",
+      "packages/main/src/tasks/refresh-stale-honesty-smoke.ts"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c6df9191e15af7d846313612c05db0dc456d64e7720105a6b448e1b70492dae3"
+}

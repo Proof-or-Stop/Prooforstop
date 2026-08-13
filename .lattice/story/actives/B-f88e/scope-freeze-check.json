@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f88e",
+  "checkedAt": "2026-07-30T00:45:43.800Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "90ab7a3da1f98968c9d160d60475812aee1e92a02228dab3f6447148bc77bdbf",
+  "executionBoundaryHash": "c523863ff7776b5a2900e751c92b7800fbcdbcfeddb7f41579be935066947cf5",
+  "freshnessHash": "940054a1cb21c1d9411de3b7237605953ddfa9763ffab48487d661e64172b8f7",
+  "effectiveExcludedKeywords": [
+    "Any change to quorum_submit duplicate-guard semantics",
+    "Any change to the review-assurance floor thresholds or the human-gated review_escalation_fallback_set path",
+    "Authority",
+    "Changing groupByIndependentHost to prefer the newest verdict per identity (option C, rejected)",
+    "Changing the quorum runId scheme to be round-scoped (option B, rejected in the decision)",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Retroactively repairing already-recorded verdicts of past stories"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any change to quorum_submit duplicate-guard semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to quorum_submit duplicate-guard semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to the review-assurance floor thresholds or the human-gated review_escalation_fallback_set path",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to the review-assurance floor thresholds or the human-gated review_escalation_fallback_set path",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing groupByIndependentHost to prefer the newest verdict per identity (option C, rejected)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing groupByIndependentHost to prefer the newest verdict per identity (option C, rejected)",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the quorum runId scheme to be round-scoped (option B, rejected in the decision)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the quorum runId scheme to be round-scoped (option B, rejected in the decision)",
+      "excluded": true
+    },
+    {
+      "keyword": "Retroactively repairing already-recorded verdicts of past stories",
+      "source": "scopeBoundary.excluded",
+      "text": "Retroactively repairing already-recorded verdicts of past stories",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "b0cb25a5bd9a3a061d3b9a98678b3d44d60c816e4e7c14656ff50d6fb1edaa04"
+}

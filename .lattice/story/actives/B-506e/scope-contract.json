@@ -1,0 +1,82 @@
+{
+  "storyId": "B-506e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/red-evidence/target-bindings.ts",
+    "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/red-evidence/record-v2.ts",
+    "packages/main/src/core/red-evidence/chain.ts",
+    "packages/main/src/core/red-evidence/operation-key.ts",
+    "packages/main/src/core/red-evidence/append.ts",
+    "packages/main/src/tasks/red-evidence-chain-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "W2c v2 chain plane + quarantine/recover; two new commands need the W2b 13-point wiring recipe including packages/main/src/registry.ts (MAIN_TOOLS) and core/lifecycle-registry.ts (command registry), matching the actual W2b DEV file set (merge 00d36be2ea).",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "handlers/proofstory.ts is the handler-side of the CHK-003 v1-skip guard: it invokes the redEvidenceSatisfied/missingRedEvidence diagnostics whose v2-skip guard landed in the same crux commit (9f52660fdd core/proofstory.ts + core/types.ts widen). The change is the guard caller wiring, squarely within CHK-002/CHK-003 scope; it was only missed from the allowedModify list.",
+      "timestamp": "2026-07-25T12:11:26.914Z",
+      "paths": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "667d373ad1fbf177897c8d564546bfccb6c07bc2",
+      "materialHash": "fe7fb57a6dbcaeb6bf2bd2e44c694b694d70fa334abaea4f040ab6dd39fc73ea"
+    }
+  ],
+  "createdAt": "2026-07-25T10:15:26.751Z",
+  "updatedAt": "2026-07-25T12:11:26.914Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/red-evidence/target-bindings.ts": "packages/main/src/core/red-evidence/target-bindings.ts",
+    "packages/main/src/handlers/red-evidence.ts": "packages/main/src/handlers/red-evidence.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts": "packages/main/src/tasks/command-catalog-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/red-evidence/record-v2.ts": "packages/main/src/core/red-evidence/record-v2.ts",
+    "packages/main/src/core/red-evidence/chain.ts": "packages/main/src/core/red-evidence/chain.ts",
+    "packages/main/src/core/red-evidence/operation-key.ts": "packages/main/src/core/red-evidence/operation-key.ts",
+    "packages/main/src/core/red-evidence/append.ts": "packages/main/src/core/red-evidence/append.ts",
+    "packages/main/src/tasks/red-evidence-chain-smoke.ts": "packages/main/src/tasks/red-evidence-chain-smoke.ts",
+    "packages/main/tests/red/**": "packages/main/tests/red/**",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts"
+  }
+}

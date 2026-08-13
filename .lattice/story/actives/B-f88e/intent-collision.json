@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-f88e",
+  "id": "IC-20260730010235",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fix the fabrication at its source: eventsWithStoryFilesHashDowngrade must not rewrite a superseded verdict onto the current material when an identity-equal verdict is already there natively. The competing readings considered and rejected were making quorum runIds round-scoped, and making groupByIndependentHost prefer the newest verdict per identity; both were rejected in decision.json because they change the identity scheme or weaken a genuine double-vote check.",
+  "acceptedInterpretationHash": "sha256:38cc67874c996ab3be0589b7d7ce0596f3704570bb38ddcd17068042e7dc655b",
+  "notes": "Collision arises because the incident can be read either as a downgrade defect or as a quorum-identity-scheme defect. Resolved toward the downgrade because it is the component that fabricates evidence which never existed on disk, and it has the smallest blast radius.",
+  "createdAt": "2026-07-30T01:02:35.300Z",
+  "updatedAt": "2026-07-30T01:02:35.300Z"
+}

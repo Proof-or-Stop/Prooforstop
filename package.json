@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.241",
+  "version": "0.3.251",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -12,7 +12,7 @@
     "build:lab": "npm --prefix packages/lab run build",
     "package:desktop:host": "node scripts/package-desktop.mjs host",
     "package:desktop:release": "node scripts/package-desktop.mjs release",
-    "test": "npm run test:main-write-lock-coverage && npm run test:production-test-seam-guard && npm run test:lattice-residue && npm run test:proof-or-stop-prompt-baseline && npm run test:review-convergence-smoke && npm run test:review-loop-smoke && npm run test:delivery-context-pack-smoke && npm run test:flow-stability-smoke && npm run test:review-assurance-floor-smoke && npm run test:proofstory-intent-hardening-smoke && npm run test:scope-shrinkage-withdrawal-floor-smoke && npm run test:withdrawn-disposition-smoke && npm run test:milestone-status && npm run test:global-core-realpath && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:closeout-trust && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:brief-output && npm run test:experiments && npm run test:convergence-breaker",
+    "test": "npm run test:main-write-lock-coverage && npm run test:production-test-seam-guard && npm run test:lattice-residue && npm run test:proof-or-stop-prompt-baseline && npm run test:review-convergence-smoke && npm run test:review-loop-smoke && npm run test:delivery-context-pack-smoke && npm run test:flow-stability-smoke && npm run test:review-assurance-floor-smoke && npm run test:proofstory-intent-hardening-smoke && npm run test:scope-shrinkage-withdrawal-floor-smoke && npm run test:withdrawn-disposition-smoke && npm run test:milestone-status && npm run test:global-core-realpath && npm run test:review-incremental-context-smoke && npm run test:review-assurance-floor-storyfileshash-smoke && npm run test:docs-drift-smoke && npm run test:docs-drift-wrapper-root && npm run test:gitroot-cwd-contract && npm run test:process-fact-contract && npm run test:closeout-trust && npm run test:runtime-fact-contract && npm run test:evidence-quality && npm run test:anti-stall && npm run test:storydir-inside-gitroot-smoke && npm run test:gitroot-cwd-routing && npm run test:bare-gate-gitroot-cwd && npm run test:project-gitroot-cwd && npm run test:done-oracle-wrapper-root && npm run test:done-premerge-mainsha-recheck && npm run test:done-escalation-drift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:brief-output && npm run test:experiments && npm run test:convergence-breaker && npm run test:proofstory-acceptance-rollout",
     "test:all": "node packages/main/dist/tasks/run-all-smokes.js",
     "test:legacy": "node packages/main/dist/tasks/run-all-smokes.js --select",
     "test:coverage": "NODE_OPTIONS=--max-old-space-size=8192 c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1",
@@ -32,6 +32,7 @@
     "test:proofstory-intent-hardening-smoke": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
     "test:scope-shrinkage-withdrawal-floor-smoke": "npm --prefix packages/main run test:scope-shrinkage-withdrawal-floor-smoke",
     "test:withdrawn-disposition-smoke": "npm --prefix packages/main run test:withdrawn-disposition-smoke",
+    "test:review-budget-stall-adjudication-smoke": "npm --prefix packages/main run test:review-budget-stall-adjudication-smoke",
     "test:proofstory-acceptance-topology-smoke": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
     "test:proofstory-acceptance-basis-smoke": "npm --prefix packages/main run test:proofstory-acceptance-basis-smoke",
     "test:milestone-status": "npm --prefix packages/main run test:milestone-status",
@@ -117,7 +118,10 @@
     "test:e2e": "node packages/main/dist/tasks/cli-e2e.js",
     "test:experiments": "node experiments/recovery-runner/run-selfchecks.mjs",
     "lint:tasks": "node packages/main/dist/tasks/cli-validate.js",
-    "test:convergence-breaker": "node packages/main/dist/tasks/convergence-breaker-smoke.js"
+    "test:proofstory-acceptance-rollout": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+    "test:convergence-breaker": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+    "test:frozen-claim-drift-smoke": "node packages/main/dist/tasks/frozen-claim-drift-smoke.js",
+    "test:frozen-claim-snapshot-hook-smoke": "node packages/main/dist/tasks/frozen-claim-snapshot-hook-smoke.js"
   },
   "repository": {
     "type": "git"
@@ -127,13 +131,13 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "xstate": "^5.31.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.19.19",
-    "c8": "^11.0.0",
+    "c8": "^12.0.0",
     "pkg": "^5.8.1",
     "typescript": "^5.9.3"
   }

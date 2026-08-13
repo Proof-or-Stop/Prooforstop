@@ -7,7 +7,16 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, ScopeShrinkageDecisionData } from '../core/types.js';
+import { execFileSync } from 'node:child_process';
+import { join } from 'node:path';
+import type { AcceptanceBasisArtifactV1, AcceptanceRolloutCohortInputV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryBindingDisposition, ProofStoryContractData, ProofStoryGateMode, RedEvidenceData, RedEvidenceRecord } from '../core/types.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceQuarantinedRecords,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+  restoreQuarantinedRecords,
+} from '../core/red-evidence-artifact-validation.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -48,7 +57,7 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
-import { loadConfig, resolveAcceptanceTopologyGateMode } from '../core/config.js';
+import { loadConfig, resolveAcceptanceRolloutGateMode, resolveAcceptanceTopologyGateMode } from '../core/config.js';
 import { getSessionId } from '../core/owner-session.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import {
@@ -62,6 +71,13 @@ import {
   verifyTopologyCriticReceipt,
 } from '../core/topology-critic-receipt.js';
 import { issuePreReviewCheckArtifact, loadVerifiedPreReviewExecutableProof, verifyPreReviewCheckArtifact, type PreReviewCheckInput, type PreReviewCheckReport } from '../core/pre-review-check.js';
+import {
+  currentAcceptanceRolloutBinding,
+  deriveAcceptanceRolloutReport,
+  issueAcceptanceRolloutArtifact,
+  verifyAcceptanceRolloutArtifact,
+  type AcceptanceRolloutVerification,
+} from '../core/acceptance-rollout.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -81,6 +97,49 @@ function renderStored(kind: string, data: unknown, args: JsonFlag): string {
 
 function resolveMode(args: ModeFlag): ProofStoryGateMode {
   return args.mode ?? 'observe';
+}
+
+function loadRegisteredAcceptanceRolloutCohort(workspaceRoot: string): AcceptanceRolloutCohortInputV1 {
+  const runner = join(workspaceRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs');
+  const output = execFileSync(process.execPath, [runner], {
+    cwd: workspaceRoot,
+    encoding: 'utf8',
+    env: { ...process.env, LATTICE_AGENT: 'acceptance-rollout-verifier' },
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  const parsed = JSON.parse(output) as AcceptanceRolloutCohortInputV1;
+  if (parsed.schemaVersion !== 'proofstory.acceptance_rollout_cohort_input.v1'
+    || parsed.generatedBy !== 'runProofStoryAcceptanceRolloutCohort'
+    || parsed.runnerPath !== 'scripts/run-proofstory-acceptance-rollout-cohort.mjs') {
+    throw new Error('acceptance rollout: registered cohort runner returned an invalid envelope');
+  }
+  return parsed;
+}
+
+/** Shared production verifier for CLI read/check and transition-orchestrator. */
+export function evaluateAcceptanceRolloutForContext(ctx: HandlerContext, storyId: string): AcceptanceRolloutVerification {
+  const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);
+  const artifact = ctx.store.readAcceptanceRolloutReport(storyId);
+  const cohort = artifact ? {
+    schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1' as const,
+    generatedBy: 'runProofStoryAcceptanceRolloutCohort' as const,
+    evaluationWindow: artifact.report.evaluationWindow,
+    eligibilityRuleVersion: artifact.report.eligibilityRuleVersion,
+    thresholdVersion: artifact.report.thresholdVersion,
+    registeredSeedIds: artifact.report.registeredSeedIds,
+    sourceRecords: artifact.report.sourceRecords,
+    sourceInventoryDigest: artifact.report.sourceInventoryDigest,
+    runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs' as const,
+    runnerDigest: artifact.report.binding.runnerDigest,
+  } : undefined;
+  return verifyAcceptanceRolloutArtifact({
+    artifact,
+    gitCwd: workspace.signedWorkspaceRoot,
+    metadataRoot: workspace.metadataRoot,
+    expectedStoryId: storyId,
+    ...(cohort ? { expectedCohort: cohort } : {}),
+    mode: resolveAcceptanceRolloutGateMode(loadConfig(ctx.root)),
+  });
 }
 
 function enforceOrRender(report: { blocking: boolean; mode: ProofStoryGateMode }, text: string): string {
@@ -340,6 +399,30 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     return tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root, gitCwd);
   }
 
+  /**
+   * B-2aa7 CHK-006. `store.readRedEvidence` REJECTS an unreadable artifact with
+   * a typed error (D-8 / row E7). That error already opens with the corruption
+   * marker and names the artifact path, so it is corruption-distinct on its own;
+   * this only adds the §9 repair instruction at a TERMINAL rendering site.
+   *
+   * Deliberately applied around the caller, never inside `diagnosticInput`: that
+   * builder is shared, and rewrapping there would launder
+   * `RedEvidenceArtifactError` / `RedEvidenceSchemaError` into a plain `Error`
+   * for every consumer that discriminates on the class.
+   */
+  function withRedEvidenceCorruptionContext<T>(storyId: string, fn: () => T): T {
+    try {
+      return fn();
+    } catch (e) {
+      const corruption = describeRedEvidenceReadFailure(e);
+      if (corruption === null) throw e;
+      throw new Error(
+        `ProofStory diagnostics cannot be evaluated for ${storyId}: its red-evidence artifact is corrupt, which is ` +
+          `NOT the same as an absent one — there is no verdict to report.\n${corruption}\n${redEvidenceRepairGuidance(storyId)}`,
+      );
+    }
+  }
+
   function diagnosticInput(storyId: string): ProofStoryDiagnosticInput {
     const story = store.readStory(storyId);
     const checklist = readChecklistSafe(storyId);
@@ -355,6 +438,8 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       intentCollision: store.readIntentCollision(storyId),
       scopeContract: store.readScopeContract(storyId),
       scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+      // The typed read-boundary error propagates from here UNCHANGED (B-2aa7
+      // CHK-006); operator context is added by callers, not by this builder.
       redEvidence: store.readRedEvidence(storyId),
       spikeEvidence: store.readProofStorySpikes(storyId),
       summary: store.readSummary(storyId),
@@ -364,9 +449,18 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   }
 
   function renderGateReport(storyId: string, args: JsonFlag & ModeFlag): string {
-    const report = evaluateProofStoryDiagnostics(diagnosticInput(storyId), resolveMode(args));
-    if (args.json) return enforceOrRender(report, stringify(report));
-    return enforceOrRender(report, renderProofStoryDiagnosticReport(report));
+    const input = withRedEvidenceCorruptionContext(storyId, () => diagnosticInput(storyId));
+    const report = evaluateProofStoryDiagnostics(input, resolveMode(args));
+    // B-2aa7 CHK-006. A QUARANTINED artifact does not throw: `records` arrives
+    // clean, so the report can read exactly like "no red evidence configured".
+    // Lead with the corruption so the operator is never told a corrupt file is
+    // an absent one. The VERDICT is untouched — this renders, it does not judge.
+    const corruption = renderRedEvidenceQuarantineNotice(storyId, input.redEvidence);
+    if (args.json) {
+      return enforceOrRender(report, stringify(corruption === null ? report : { ...report, redEvidenceCorruption: corruption }));
+    }
+    const rendered = renderProofStoryDiagnosticReport(report);
+    return enforceOrRender(report, corruption === null ? rendered : `${corruption}\n${rendered}`);
   }
 
   function rejectBasisWriteShape(args: Record<string, unknown>, allowed: readonly string[]): void {
@@ -588,6 +682,77 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         ...report.remediation.map(item => `Remediation: ${item}`),
       ].join('\n');
     },
+
+    acceptance_rollout_report(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const workspace = resolveStoryCommandWorkspace(store, args.storyId, ctx.root);
+      const cohort = loadRegisteredAcceptanceRolloutCohort(workspace.signedWorkspaceRoot);
+      const report = deriveAcceptanceRolloutReport({
+        storyId: args.storyId,
+        cohort,
+        binding: currentAcceptanceRolloutBinding(workspace.signedWorkspaceRoot, workspace.metadataRoot),
+        gitCwd: workspace.signedWorkspaceRoot,
+      });
+      const artifact = issueAcceptanceRolloutArtifact({
+        gitCwd: workspace.signedWorkspaceRoot,
+        report,
+      });
+      const verification = verifyAcceptanceRolloutArtifact({
+        artifact,
+        gitCwd: workspace.signedWorkspaceRoot,
+        metadataRoot: workspace.metadataRoot,
+        expectedStoryId: args.storyId,
+        expectedCohort: cohort,
+        mode: resolveAcceptanceRolloutGateMode(loadConfig(ctx.root)),
+      });
+      if (!verification.ok) {
+        throw new Error(`acceptance_rollout_report refused non-promotable cohort: ${verification.diagnostics.join(',')}`);
+      }
+      store.writeAcceptanceRolloutReport(args.storyId, artifact);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'acceptance_rollout_report');
+      if (args.json) return stringify({ artifact, verification });
+      return [
+        'Acceptance rollout report: PASS',
+        `Story: ${args.storyId}`,
+        `sampleCount=${report.metrics.registeredSeedCount}`,
+        `seededDetection=${report.metrics.detectedSeedCount === report.metrics.registeredSeedCount ? '100%' : '0%'}`,
+        `falseBlockRate=${report.metrics.falseBlockRate * 100}%`,
+        `waiverDelta=${report.metrics.waiverDelta}`,
+        'quorum=full-3x2',
+        `receipt=${artifact.receipt.receiptRef}`,
+      ].join('\n') + commitHint;
+    },
+
+    acceptance_rollout_report_read(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const verification = evaluateAcceptanceRolloutForContext(ctx, args.storyId);
+      if (args.json) return stringify(verification);
+      return [
+        `Acceptance rollout report: ${verification.ok ? 'PASS' : 'FAIL'}`,
+        `Story: ${args.storyId}`,
+        `receipt=${verification.receipt}`,
+        `quorum=${verification.quorum}`,
+        `codes=${verification.diagnostics.join(',') || 'none'}`,
+      ].join('\n');
+    },
+
+    acceptance_rollout_check(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const verification = evaluateAcceptanceRolloutForContext(ctx, args.storyId);
+      if (args.json) return stringify(verification);
+      return [
+        `Acceptance rollout policy: ${verification.ok ? 'PASS promotionEligible=true' : 'FAIL promotionEligible=false'}`,
+        `Story: ${args.storyId}`,
+        `mode=${verification.mode}; status=${verification.status}; blocking=${verification.blocking}`,
+        `receipt=${verification.receipt}; quorum=${verification.quorum}`,
+        `codes=${verification.diagnostics.join(',') || 'none'}`,
+      ].join('\n');
+    },
+
     original_intent_snapshot_set(args: {
       storyId: string;
       sourceText: string;
@@ -1087,29 +1252,112 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       store.readStory(args.storyId);
       const baselineHeadHash = args.baselineHeadHash ?? currentGitHead(ctx.root);
       const baselineMaterialHash = args.baselineMaterialHash ?? currentMaterialHash(ctx.root, 'HEAD', ctx.root);
-      const evidence = appendRedEvidence({
+      // ── B-2aa7 CHK-006, §10.4 row C2 — THE DATA-LOSS SITE.
+      //
+      // This is the repair path: §9 says an operator must be able to fix a
+      // corrupt artifact by appending a good record. But the append REBUILDS the
+      // envelope from the read result, and D-4 quarantine hands it a CLEAN
+      // `records` array — so a naive read→append→write would persist the clean
+      // subset and DELETE the malformed originals. The operator would destroy
+      // the evidence they came to repair, silently, with one command.
+      //
+      // Two branches, and each is one of the two outcomes C2 allows:
+      //
+      //   ENVELOPE FAULT -> REFUSE, with a message that names the corruption and
+      //     the repair path. There is no readable envelope to append to, so any
+      //     write here would overwrite a file whose contents we cannot even
+      //     enumerate. `red_evidence_get` still displays it (C1), so the
+      //     artifact stays diagnosable — it is refused, not abandoned.
+      //
+      //   QUARANTINE -> REPAIR BY APPENDING. `restoreQuarantinedRecords` puts
+      //     every quarantined original back at its on-disk index, so what is
+      //     written is the artifact as it was plus the new record. Nothing is
+      //     lost, and the next read quarantines the same entries again.
+      let existing: RedEvidenceData | null;
+      try {
+        existing = store.readRedEvidence(args.storyId);
+      } catch (e) {
+        const corruption = describeRedEvidenceReadFailure(e);
+        if (corruption === null) throw e;
+        throw new Error(
+          `red_evidence_create refused: this story's red-evidence artifact cannot be read as an envelope, so appending ` +
+            `would overwrite records that are still on disk. Nothing written.\n${corruption}\n` +
+            `${redEvidenceRepairGuidance(args.storyId)}`,
+        );
+      }
+      const quarantined = redEvidenceQuarantinedRecords(existing);
+      const appended = appendRedEvidence({
         ...args,
         baselineHeadHash,
         baselineMaterialHash,
-      }, store.readRedEvidence(args.storyId));
+      }, existing);
+      // Identity on a clean/absent read; throws rather than write a lossy
+      // envelope if retention cannot be proven.
+      const evidence = restoreQuarantinedRecords(existing, appended);
       store.writeRedEvidence(args.storyId, evidence);
       if (args.json) return stringify(evidence);
-      const latest = evidence.records.at(-1);
+      // red_evidence_create only ever appends a v1 record (appendRedEvidence),
+      // so the freshly-appended tail is a v1 RedEvidenceRecord.
+      const latest = evidence.records.at(-1) as RedEvidenceRecord | undefined;
       return [
         'Red evidence: recorded',
         `Records: ${evidence.records.length}`,
         `Target: ${latest?.acceptanceTargetRef ?? 'unknown'}`,
         `Baseline head: ${latest?.baselineHeadHash ?? 'unknown'}`,
         `Baseline material: ${latest?.baselineMaterialHash ?? 'unknown'}`,
+        ...(quarantined.length === 0
+          ? []
+          : [
+            `Retained quarantined records: ${quarantined.length} (still on disk, at their original positions — repaired by appending, nothing dropped)`,
+            renderRedEvidenceQuarantineNotice(args.storyId, existing) ?? '',
+          ]),
       ].join('\n');
     },
 
     red_evidence_get(args: { storyId: string; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
-      const evidence = store.readRedEvidence(args.storyId);
+      // ── B-2aa7 CHK-006, §10.4 row C1 / §9.
+      //
+      // This is the DIAGNOSTIC command, so a throwing read boundary breaks it
+      // first and locks the operator out of inspecting the very file they must
+      // repair. It must DISPLAY corruption, never abort on it — and it must not
+      // reuse the `not configured` wording, because "corrupt" reading as
+      // "absent" is the defect this story exists to remove.
+      let evidence: RedEvidenceData | null;
+      try {
+        evidence = store.readRedEvidence(args.storyId);
+      } catch (e) {
+        const corruption = describeRedEvidenceReadFailure(e);
+        if (corruption === null) throw e;
+        const result = {
+          storyId: args.storyId,
+          status: 'corrupt',
+          corruption: { kind: 'read_rejected', message: corruption },
+        };
+        return args.json
+          ? stringify(result)
+          : `Red evidence: CORRUPT\nStory: ${args.storyId}\n${corruption}\n${redEvidenceRepairGuidance(args.storyId)}`;
+      }
       if (!evidence) {
         const result = { storyId: args.storyId, status: 'not_configured', message: 'No red evidence.' };
         return args.json ? stringify(result) : `Red evidence: not configured\nStory: ${args.storyId}`;
+      }
+      const quarantined = redEvidenceQuarantinedRecords(evidence);
+      if (quarantined.length > 0) {
+        // The artifact loaded, so the well-formed records are shown as usual —
+        // but the quarantined originals are shown TOO, verbatim, which is what
+        // makes this a diagnosis rather than a partial view.
+        const corruption = renderRedEvidenceQuarantineNotice(args.storyId, evidence) ?? '';
+        const result = {
+          storyId: args.storyId,
+          status: 'corrupt',
+          corruption: { kind: 'quarantined_records', count: quarantined.length, message: corruption, records: quarantined },
+          evidence,
+        };
+        return args.json
+          ? stringify(result)
+          : `Red evidence: CORRUPT (${quarantined.length} quarantined record(s))\nStory: ${args.storyId}\n`
+            + `${corruption}\n${redEvidenceRepairGuidance(args.storyId)}\n${stringify(evidence)}`;
       }
       return renderStored('Red evidence', evidence, args);
     },

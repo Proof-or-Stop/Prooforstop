@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-7813",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:4ce811086dbefa9e3ed2d60ef2f6542ea8900212df4b80142287c40134e7d200",
+  "confirmedMilestoneLedgerHash": "sha256:2859b71d82adc72c062c92b7b94be639e8d0b79577685e5a209df8e67d7b8922",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M1"
+      ],
+      "acceptanceClaim": "a stalled story cannot mint another ordinary review round without a current-round resolution",
+      "note": "Blocking gate at the REVIEW re-entry mint; converging trend not falsely blocked."
+    },
+    {
+      "id": "AB-002",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M2"
+      ],
+      "acceptanceClaim": "structured resolution actions incl. declare-unreachable clear the block / close the loop; empty or stale ones do not",
+      "note": "Signed current-round record; declare-unreachable reuses B-1909 withdrawn-disposition + reconciles plan (F-059)."
+    },
+    {
+      "id": "AB-003",
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M3"
+      ],
+      "acceptanceClaim": "a hard ceiling/override caps rounds and the adjudication does not double-count with the convergence-breaker or story_resume --ack",
+      "note": "Review-round vs advance accounting kept independent; each brake clears only via its own path."
+    },
+    {
+      "id": "AB-004",
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M4"
+      ],
+      "acceptanceClaim": "one registered RED-first mutation-killing smoke reproduces the stall refusal, the F-058 unreachable scenario, and breaker non-interference",
+      "note": "Behavioral proof through real entry points; registered in validate."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "B-7813 acceptance bindings: all four deliverables core; none may be withdrawn for an empty-scope PASS.",
+  "createdAt": "2026-07-26T07:49:21.501Z",
+  "updatedAt": "2026-07-26T07:49:21.501Z"
+}

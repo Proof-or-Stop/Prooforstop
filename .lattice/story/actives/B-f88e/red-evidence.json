@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-f88e",
+  "records": [
+    {
+      "id": "RED-20260730010235",
+      "trigger": "A complete 3x2 quorum at the current material is scored 0/3 by the review-assurance floor when a superseded quorum shares its storyFilesHash",
+      "acceptanceTargetRef": "AB-001",
+      "baselineHeadHash": "bd3677d8f41e64364e9f852e9f348b9949de7566",
+      "baselineMaterialHash": "5f5a28f3575bfabe341f787b72e343ce3911d38b279d72c13b79729ac5790c2f",
+      "observedFailure": "Measured on the pre-fix tree: with only the current-material submission the fixture yields 3/3 valid rounds, but adding a superseded submission at an older materialDigest sharing the same storyFilesHash drops it to 0/3, emitting six 'duplicate host/session/key identity' round-invalidation reasons (B-RED-q-r1..r3 x claude-cli/codex-cli) while all twelve verdicts remain distinct on disk. Live equivalent on B-4043 2026-07-27: floor reported '0/3 rounds x 2 hosts (submitted=3, complete=false)' with verdicts at materials 443a65aa66cc and 329b38c4807a both carrying storyFilesHash f29641b7d99d.",
+      "failingCommand": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+      "expectedGreenCommand": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs",
+      "greenRelation": {
+        "targetRef": "AB-001",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-f88e-quorum-downgrade-collision.mjs"
+      },
+      "createdAt": "2026-07-30T01:02:35.954Z"
+    }
+  ],
+  "createdAt": "2026-07-30T01:02:35.954Z",
+  "updatedAt": "2026-07-30T01:02:35.954Z"
+}

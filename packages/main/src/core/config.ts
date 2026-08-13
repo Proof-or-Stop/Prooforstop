@@ -76,6 +76,8 @@ export interface ProofStoryConfig {
   devGateMode?: 'observe' | 'warn' | 'enforce';
   /** Wave 2 PLAN acceptance-topology structural gate rollout. Defaults to observe. */
   acceptanceTopologyGateMode?: 'observe' | 'warn' | 'enforce';
+  /** Wave 4 flat project acceptance rollout admission. Defaults to observe. */
+  acceptanceRolloutGateMode?: 'observe' | 'warn' | 'enforce';
   /** REVIEW completeness diagnostic mode. Defaults to observe. */
   reviewGateMode?: 'observe' | 'warn' | 'enforce';
   /** DONE intent-equivalence diagnostic mode. Defaults to observe. */
@@ -110,10 +112,17 @@ export interface RedEvidencePolicyConfig {
 }
 
 export type AcceptanceTopologyGateMode = NonNullable<ProofStoryConfig['acceptanceTopologyGateMode']>;
+export type AcceptanceRolloutGateMode = NonNullable<ProofStoryConfig['acceptanceRolloutGateMode']>;
 
 /** Flat project policy only; Story prose/risk/milestone text never selects it. */
 export function resolveAcceptanceTopologyGateMode(config: Pick<LatticeConfig, 'proofStory'>): AcceptanceTopologyGateMode {
   const mode = config.proofStory?.acceptanceTopologyGateMode;
+  return mode === 'warn' || mode === 'enforce' ? mode : 'observe';
+}
+
+/** Flat project policy only. Selective Story applicability remains excluded until Wave 3A. */
+export function resolveAcceptanceRolloutGateMode(config: Pick<LatticeConfig, 'proofStory'>): AcceptanceRolloutGateMode {
+  const mode = config.proofStory?.acceptanceRolloutGateMode;
   return mode === 'warn' || mode === 'enforce' ? mode : 'observe';
 }
 
@@ -312,6 +321,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_get', 'story_list', 'story_reconcile', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
+    'frozen_claim_drift_check', // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory; allowed in any phase, writes nothing
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
@@ -340,7 +350,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
-    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_topology_check', 'acceptance_basis', 'pre_review_check_read', 'topology_critic_receipt_check',
+    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_topology_check', 'acceptance_basis', 'pre_review_check_read', 'acceptance_rollout_report_read', 'acceptance_rollout_check', 'topology_critic_receipt_check',
     'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
     'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'parent_roadmap_status', 'parent_roadmap_evaluate', // Parent-roadmap totality diagnostics; read-only and no server-backed completion semantics
@@ -461,14 +471,18 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance',
     // B-a4e3 CHK-005: removed dead story_dispatch / finding_dispatch alias entries; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
+    'stall_resolution_set', // B-7813: owner-driven signed structured resolution that clears the convergence-stall DEV→REVIEW mint block; command-policy declares allowedPhases:['DEV','REVIEW'] so both phase buckets must list it
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
     'scope_shrinkage_decision_set',
     'parent_ledger_rollup_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
     'red_evidence_binding_set', // W2b (B-e10d): register the per-story target binding before a RED run; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
+    'red_evidence_quarantine', // W2c (B-506e): retire a bad chain head without mutating history; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
+    'red_evidence_recover', // W2c (B-506e): undo a mistaken quarantine; owner-lease + mutation-authority gated, storyScopedMutating, DEV-only
     'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
     'pre_review_check',
+    'acceptance_rollout_report',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
@@ -479,6 +493,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'understanding_get', 'decision_get',
     // B-a4e3 CHK-005: removed dead finding_dispatch alias entry; the unified `dispatch` is granted all-phase via the '*' block.
     'finding_cluster',  // B-9d95 CHK-005: auto/merge/split 聚簇
+    'stall_resolution_set', // B-7813: owner-driven signed structured resolution that clears the convergence-stall DEV→REVIEW mint block; command-policy declares allowedPhases:['DEV','REVIEW'] so both phase buckets must list it
     'validate', 'status',
     'bug_report', 'bug_update', 'bug_list',
     'review_loop_start', 'review_loop_iteration_add', 'review_loop_close',

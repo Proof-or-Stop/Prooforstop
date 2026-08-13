@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-2296",
+  "state": "confirmed",
+  "ledgerHash": "sha256:17052aeb3817eb5e02da6d79d51dc94ff65e28318d23638dee9f7f347b59b053",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Phase 1: a non-blocking FROZEN_CLAIM_DRIFT advisory detects and reports frozen userSees drift (story-owned material via storyFilesHash OR the normalized claim-digest) and classifies a no-snapshot userSees as legacy-unbound.",
+      "doneMeans": "frozen_claim_drift_check prints the structured advisory for a drifted story and a clean report for a clean story; the deterministic offline smoke (including the unrelated-change and whitespace-only false-positive guards) is green under validate; no gate verdict changes.",
+      "requiredEvidence": [
+        "integration_test",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-003:happy:0",
+        "CHK-004:happy:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-26T12:17:42.124Z",
+  "updatedAt": "2026-07-26T12:18:40.063Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260726121416",
+    "acceptedInterpretationHash": "sha256:3c58bb4eb45aba7d5e9c9557057b22e1bbdd844fc9d751d37ca9992e7bb0d3b3",
+    "acceptedAt": "2026-07-26T12:18:40.063Z"
+  }
+}

@@ -136,6 +136,8 @@ function writeAcceptanceBasisDiscoveryFixture(root: string): void {
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = "acceptance_rollout_report verifier-owned signed flat-project rollout report";\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohortRunner = true;\n');
 }
 
 function git(root: string, args: string[]): void {
@@ -1722,11 +1724,15 @@ function assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift(): voi
           adversarial: [],
         },
         verificationEvidence: [{
+          // B-3b88: command-less attestation on purpose — this block asserts the
+          // storyFilesHash downgrade semantics and that refresh re-stamps the row.
+          // A command-backed result:pass is now refused by refresh (never
+          // re-certified without re-execution), which is covered by
+          // refresh-stale-honesty-smoke.
           intentRef: 'CHK-001:happy:0',
-          kind: 'logic_test',
-          command: 'synthetic',
+          kind: 'manual_transcript',
           result: 'pass',
-          note: 'synthetic evidence',
+          note: 'synthetic attestation evidence',
           headHash: recordedHead,
           materialHash: recordedMaterial,
           storyFilesHash: recordedStoryFiles,

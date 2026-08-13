@@ -22,6 +22,7 @@ import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
+import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
 import { evaluateReviewerQuorum } from './reviewer-quorum.js';
 import type { ReviewerEvidenceEntry } from './reviewer-quorum.js';
 import {
@@ -50,6 +51,11 @@ import {
 } from './proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from './closeout-trust.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from './material-code-policy.js';
+import {
+  describeRedEvidenceReadFailure,
+  redEvidenceRepairGuidance,
+  renderRedEvidenceQuarantineNotice,
+} from './red-evidence-artifact-validation.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -164,6 +170,10 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string, projectRo
     intentCollision: store.readIntentCollision(storyId),
     scopeContract: store.readScopeContract(storyId),
     scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+    // B-2aa7 CHK-006: deliberately NOT swallowed here. A corrupt artifact must
+    // reach `proofStoryDevGateFailure`, which turns it into a named gate failure;
+    // defaulting it to `null` in this builder would make corruption arrive at the
+    // gate as an ABSENT artifact — the exact conflation this story removes.
     redEvidence: store.readRedEvidence(storyId),
     spikeEvidence: store.readProofStorySpikes(storyId),
     summary: store.readSummary(storyId),
@@ -175,9 +185,36 @@ function proofStoryDevGateFailure(store: StoryStore, projectRoot: string | undef
   if (!projectRoot) return null;
   const mode = loadConfig(projectRoot).proofStory?.devGateMode ?? 'observe';
   if (mode !== 'enforce') return null;
-  const report = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, projectRoot), 'enforce');
+  // B-2aa7 CHK-006. Two ways a corrupt artifact reaches this gate, and they need
+  // different handling:
+  //
+  //   REJECTED (throws) — the typed error would escape an xstate guard as a raw
+  //     stack trace with no gate verdict at all (§10.4 forbids exactly that).
+  //     Convert it into an ordinary DEV-gate failure string that says CORRUPT.
+  //
+  //   QUARANTINED (no throw) — `records` arrives clean, so the report says
+  //     `missing_red_evidence`, which is the wording for an ABSENT artifact.
+  //     Lead the failure with the corruption so the operator is not sent looking
+  //     for a file that is right there and broken.
+  //
+  // The quarantine notice only ever DECORATES an already-blocking failure; it
+  // never turns a passing gate into a blocking one. Rendering is not judging,
+  // and inventing a new block here would move a verdict this story must not move.
+  let input: ProofStoryDiagnosticInput;
+  try {
+    input = proofStoryDiagnosticInput(store, storyId, projectRoot);
+  } catch (e) {
+    const corruption = describeRedEvidenceReadFailure(e);
+    if (corruption === null) throw e;
+    return `Cannot enter DEV: this story's red-evidence artifact is corrupt, so the ProofStory DEV gate has no evidence `
+      + `to evaluate. [red_evidence_corrupt]\n${corruption}\n${redEvidenceRepairGuidance(storyId)}`;
+  }
+  const report = evaluateProofStoryDiagnostics(input, 'enforce');
   if (!report.blocking) return null;
-  return `Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.\n${renderProofStoryDiagnosticReport(report)}`;
+  const corruption = renderRedEvidenceQuarantineNotice(storyId, input.redEvidence);
+  return `Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.\n`
+    + (corruption === null ? '' : `${corruption}\n${redEvidenceRepairGuidance(storyId)}\n`)
+    + renderProofStoryDiagnosticReport(report);
 }
 
 function firstHardScopeIssue(check: ScopeFreezeCheckData): ScopeFreezeIssue | null {
@@ -361,6 +398,40 @@ export function checklistAllDoneGuard(context: StoryMachineContext): boolean {
   const story = context.store.readStory(context.storyId);
   const policy = resolveWorkflowPolicy(loadConfig(context.projectRoot), story);
   return getBlockingVerificationEvidenceIssues(cl, undefined, policy.profile).length === 0;
+}
+
+/**
+ * B-7813 CHK-001: the mint-site stall adjudication for the DEV→REVIEW
+ * (CODE_REVIEW) transition — the site where an ordinary review round is minted.
+ *
+ * Reads the observable round history via the pure-ish store consumer
+ * evaluateReviewMintStallAdjudication (which itself reuses the EXISTING
+ * assessReviewConvergence trend detector — no raw round ceiling here). Returns
+ * the adjudication; the caller refuses the mint when blocked.
+ *
+ * FAIL-OPEN: a guard must never throw (an exception pushes the actor into its
+ * error state). Any store/config read error degrades to { blocked: false } so a
+ * gate/infra error can never strand a legitimate review round. This mirrors the
+ * fail-open discipline of the other DEV-door guards.
+ */
+export function reviewRoundMintStallAdjudication(context: StoryMachineContext): StallAdjudication {
+  try {
+    return evaluateReviewMintStallAdjudication(context.store, context.storyId);
+  } catch {
+    return { blocked: false };
+  }
+}
+
+/**
+ * B-7813 CHK-001: combined guard for the DEV→REVIEW (CODE_REVIEW) mint. The
+ * round is minted only when the checklist/evidence gate passes AND the
+ * convergence-stall adjudication does not block. Order mirrors
+ * getGuardFailureReason's REVIEW branch so the boolean and the rendered reason
+ * cannot drift.
+ */
+export function canMintReviewRoundGuard(context: StoryMachineContext): boolean {
+  if (!checklistAllDoneGuard(context)) return false;
+  return !reviewRoundMintStallAdjudication(context).blocked;
 }
 
 export function canEnterInitCheckGuard(context: StoryMachineContext): boolean {
@@ -878,7 +949,10 @@ export function canSendStoryEventWithoutSnapshotCan(
       return (eventType === 'START' && canStartDevGuard(context))
         || (eventType === 'REOPEN' && canReopenToInitGuard(context));
     case 'DEV':
-      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && checklistAllDoneGuard(context));
+      // B-7813 CHK-001: CODE_REVIEW mints a review round — enforce the stall
+      // adjudication here too so the snapshot-can fallback agrees with the
+      // xstate canMintReviewRound guard.
+      return eventType === 'REPLAN' || (eventType === 'CODE_REVIEW' && canMintReviewRoundGuard(context));
     case 'REVIEW':
       // F-006: REVIEW→DEV rollback must consult canReenterDevGuard so this non-xstate path agrees
       // with the machine guard (the parallel block holds on the rollback door too).
@@ -907,6 +981,9 @@ export const storyMachine = setup({
   },
   guards: {
     checklistAllDone: ({ context }) => checklistAllDoneGuard(context),
+    // B-7813 CHK-001: DEV→REVIEW mint gate = checklistAllDone AND not stalled
+    // without a current-round resolution.
+    canMintReviewRound: ({ context }) => canMintReviewRoundGuard(context),
     // B-e71f CHK-006: xstate-side fallback for the INIT→INIT_CHECK hard gate.
     // getGuardFailureReason in phase-gates.ts is only invoked by resolveGuardFailure when actor.can() returns false,
     // so a guard must be attached to the INIT→INIT_CHECK transition here; otherwise can() will always be true and the gate will never fire.
@@ -962,7 +1039,10 @@ export const storyMachine = setup({
       on: {
         CODE_REVIEW: {
           target: 'REVIEW',
-          guard: 'checklistAllDone',
+          // B-7813 CHK-001: mint gate — checklistAllDone + convergence-stall
+          // adjudication (refuses another ordinary round when stalled without a
+          // current-round resolution).
+          guard: 'canMintReviewRound',
         },
         REPLAN: {
           target: 'PLAN',
@@ -1207,6 +1287,20 @@ export function getGuardFailureReason(
     const missingEvidence = getBlockingVerificationEvidenceIssues(cl, undefined, reviewPolicy.profile);
     if (missingEvidence.length > 0) {
       return `Cannot enter REVIEW: ${missingEvidence.length} required verification intent(s) lack passing evidence or waiver:\n${missingEvidence.map(i => `  - ${i}`).join('\n')}\n→ Run verification_evidence_add to record logic/integration/browser/manual evidence, or use waiver to explicitly exempt`;
+    }
+    // B-7813 CHK-001: convergence-stall adjudication at the mint site. Ordered
+    // AFTER the checklist/evidence checks to mirror canMintReviewRoundGuard, so
+    // pending items surface first and the stall reason renders only once the
+    // checklist gate is otherwise clear.
+    const stall = (() => {
+      try {
+        return evaluateReviewMintStallAdjudication(store, storyId);
+      } catch {
+        return { blocked: false } as StallAdjudication;
+      }
+    })();
+    if (stall.blocked && stall.prompt) {
+      return `Cannot enter REVIEW: ${stall.prompt}`;
     }
   }
 

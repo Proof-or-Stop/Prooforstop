@@ -1,0 +1,1973 @@
+{
+  "passes": [
+    {
+      "id": "B-4043:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/status replacement review complete: repository-wide scan found no stale Wave 4 NOT IMPLEMENTED/future-work residue; remaining Wave 2A/Wave 3 wording is explicitly historical. New rollout commands and flat-boundary promises map to catalog, handler, signed verifier artifact, process-fact registry, and transition consumer; no concept-cleanup or promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-23T18:07:01.495Z",
+      "reviewRound": "2026-07-23T18:04:58.804Z",
+      "reviewRunId": "B-4043:RR-003",
+      "envelopeId": "cb6044100823f072d4675ce7db5f5af1f58cb62d1efa10c46ef3df6534e07bc3",
+      "writerSessionId": "sess-3ba73c94b75a97947a45c87cb6ef5696",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "13da308f50bf4f9a23f0678141755cb96c985d5fad5ab4f6fd86c055e4cea268"
+    },
+    {
+      "id": "B-4043:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "No documentation blocker: extracted 197 changed declaration symbols (including diff-local const noise) and compared the 5 bounded Wave 4 CLI/canonical-plan sections covering commands, thresholds, measured six-pair cohort, full 3x2 authority boundary, rollback immutability, and Wave 3A exclusion against acceptance-rollout verifier code plus current rollout/pre-review read outputs; all statements match current PASS/current/full-3x2 and related/biting/admissible evidence.",
+      "createdAt": "2026-07-23T18:07:03.138Z",
+      "reviewRound": "2026-07-23T18:04:58.804Z",
+      "reviewRunId": "B-4043:RR-006",
+      "envelopeId": "e175e48aba2bf8d251c6fbaad680348e5ceeb01bf440d2570a31b589278ffec0",
+      "writerSessionId": "sess-03c3f67fc4022e5fd3ed717fcf10bdcb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7dec4ffe8016f19658eb4650a128f133e66c8459080a5e8d30a1fabcc91ed460"
+    },
+    {
+      "id": "B-4043:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept review PASS: inspected main...HEAD scope and fixes 8784c2d5d8/d5cc375a1e; repository-wide residue scan found no stale Wave 4 NOT IMPLEMENTED, four-positive inventory, unresolved-threshold, selective-Wave-3A, degraded-3x1-as-authority, or prompt-as-evidence concept in the changed canonical surfaces. Historical Wave 2A/3 boundary prose is explicitly scoped. Current pre_review_check_read and acceptance_rollout_report_read/check all PASS with current full-3x2 local receipt and no diagnostics. Promised command, verifier, lifecycle-consumer, rollback, and local-non-public-authority boundaries have corresponding implementation facts.",
+      "createdAt": "2026-07-23T19:31:01.458Z",
+      "reviewRound": "2026-07-23T19:28:11.179Z",
+      "reviewRunId": "B-4043:RR-007",
+      "envelopeId": "b9e57107023713d6fba6305529344bed03064ae99ea50160282ee66ea334a261",
+      "writerSessionId": "sess-5b305ba706028c701227ebe86b6c6c5f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents",
+          ".lattice-codex/agents",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Concept lane used full changed-file inventory, all removed-line inspection, targeted fix diffs, and repository-wide grep for replaced status/cardinality/authority concepts; generated signed artifacts were verified through canonical read-only commands rather than reread byte-for-byte."
+      },
+      "_hash": "a6311f4ce28bd88340455f233cf6587885be4e2a5be3f200ec38000af543a624"
+    },
+    {
+      "id": "B-4043:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: 15/15 must intents have current passing evidence, 0 gaps and 0 waivers. Re-audited F-002/F-003: A-POS-1..4 and A-MUT-2/A-MUT-6 now execute their declared semantics; assembler and encoded decoder reject the unrelated semantic swap; current signed pre-review artifact binds exactly 5 positive, 17 mutation, and 1 transcript records and reports PASS. Static process-fact contract also passes.",
+      "createdAt": "2026-07-23T19:31:35.043Z",
+      "reviewRound": "2026-07-23T19:28:11.179Z",
+      "reviewRunId": "B-4043:RR-009",
+      "envelopeId": "bd41bf985a6579753a0a6546cf042571af94679e90f9430641263f35e37d0416",
+      "writerSessionId": "sess-5128b44b026b5b0ed586f38e0e302447",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "11401a814f7e177121d72a4033910cff0f1693a0174de64c6c21f63d437e4a03"
+    },
+    {
+      "id": "B-4043:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Independently re-verified F-005 resolution: illustrative-abridged-shape wording present exactly as claimed at execution-plan.md:753-755; header line3 and Wave4 line1566 status match; committed in-diff. Only 2 (not 3) does-not-claim hits remain (lines 41,759), both legitimate boundary statements, no stale disclaimer. CHK-005 measured status/boundary/thresholds/results/rollback/Wave3A-exclusion all present and match current signed acceptance-rollout-report.json (verdict=pass, storyFilesHash current, not superseded). Section 19 items 2/3/5/8 all marked Resolved with concrete content, not left open. No doc-code drift found.",
+      "createdAt": "2026-07-24T12:55:10.682Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-012",
+      "envelopeId": "a6e61edc2e1c797a188cbefb8af73a28b62171635e6f82598ca1db12f81a8859",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24ef795f85c2227a71c7d6f37296200e76301e9c4f7ca63a2c5d3d1af050adec"
+    },
+    {
+      "id": "B-4043:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept/residue check after takeover merge (484 commits, 1 conflict in lattice.config.json). No conflict markers anywhere (anchored grep). lattice.config.json validate.commands merge kept BOTH entries intentionally (gate-repeat-block-smoke from main + proofstory-acceptance-rollout-smoke --issuer-mutations from this story, added pre-merge in b8e28971d0 F-004); the one duplicate found (reviewer-scan-budget-guard-smoke.js) pre-dates this story on both merge parents, unrelated. scope_contract_acknowledge was the correct mechanism for lattice.config.json + smoke-manifest.json (allowedModify/allowedCreate untouched, only acknowledgements grew); stated reason matches the actual additive 3+4 line diff. git history of acceptance-rollout.ts shows no commit ever weakens assertCallerReportMatches; all 4 call sites present at HEAD with no disable/bypass; re-ran verify-process-fact-contract.mjs and proofstory-acceptance-rollout-smoke.js --issuer-mutations live at 485fe96, both PASS genuinely. Rollout report/receipt materialHash matches this run's materialHash, acceptance_rollout_check reports receipt=current (not stale); Wave-4 doc table numbers reconcile with the regenerated report metrics. The bin/ symlink is created at runtime inside the smoke's temp fixture dir, not a persistent repo-tracked symlink. No blocker found.",
+      "createdAt": "2026-07-24T12:56:36.382Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-014",
+      "envelopeId": "187970fe6ef33ccc48da9f498b0bef61eea2f98b992c7dad7ac4511f224da75c",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-basis.json",
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc0f28151347fa69022803e3f7a10fe4ce5271136d99267ab063679b47204a0c"
+    },
+    {
+      "id": "B-4043:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: audited all 15 verificationIntent refs against verificationEvidence at head 4ccc1f1f65 (evidence commit 485fe96ff2). (1) Ancestry: F-004 code fix b8e28971d0 is an ancestor of the evidence-recording commit, so headHash/materialHash postdate the change. (2) Literal executability: only 4 distinct commands back all 15 entries; I actually re-ran all 4 myself -- verify-process-fact-contract.mjs (exit 0), run-proofstory-acceptance-rollout-cohort.mjs (real 7m10s run, exit 0, fresh sourceInventoryDigest/observationReceipt signatures differ per-run, proving genuine re-execution not replay), pre_review_check smoke --proof-scenarios with LATTICE_ACTIVE_STORY_ID+LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE set (exit 0, 76s, emitted exactly 23 scenario records: 17 mutation/5 positive/1 transcript), and acceptance-rollout-smoke.js with LATTICE_ROLLOUT_COHORT_INPUT_PATH (exit 0, 20s, PASS 57 assertions). No other entry has the previously-fixed missing-env-var defect. (3) Intent mapping: extracted all 23 scenario intentRefs and confirmed an exact 1:1 bijection onto the 15 CHK intent ids, no blanket coverage, no intent unmapped. (4) Vacuity sweep: confirmed the disclosed rollout-smoke vacuity (default run never calls runIssuerMutationSmoke; only --issuer-mutations exercises the caller-report-substitution defence) is the already-resolved F-004 finding, and independently re-verified lattice.config.json validate.commands still runs proofstory-acceptance-rollout-smoke.js --issuer-mutations as a real gate (line 97) at current HEAD. Swept proofstory-pre-review-check-smoke.ts and found --proof-scenarios intentionally skips most artifact-tamper-mutation variants, but none of those skipped cases are claimed as scenario records for any of the 15 intents, so there is no false coverage claim. No new blocking gap found. Noted: a transient uncommitted edit appeared in packages/main/src/core/acceptance-rollout.ts (assertCallerReportMatches neutered) from a concurrent reviewer lane's own adversarial mutation check in this shared worktree; restored to HEAD via git checkout -- before concluding (git status now clean).",
+      "createdAt": "2026-07-24T13:15:29.687Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-013",
+      "envelopeId": "2eedf26e58f811343868c9c3866fb69feb7209c060c3f3ff892391b803e8aab6",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/smoke-manifest.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cef4ef456acaf7ee69cb5475073b4ffbdf94067208bca5474907a7faf5f06f87"
+    },
+    {
+      "id": "B-4043:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Re-check after F-006/F-007 fixes and 2 report regenerations. Verified current signed acceptance-rollout-report.json (materialHash/headHash/storyFilesHash all current) has matchedPairCount=6, 3/3 seeds, omission 100%, falseBlock 0, waiverDelta 0 - unchanged from RP-005 despite regeneration, and doc Wave4 table quotes exactly these numbers. Confirmed exactly 2 does-not-claim occurrences matching amended F-005 resolution text. No stale NOT IMPLEMENTED markers. No overclaim of Wave3A/authority found. F-006/F-007 code fixes are internal only, no doc claim depends on them. No inaccuracies found in other resolution texts. No blocker.",
+      "createdAt": "2026-07-24T15:01:28.290Z",
+      "reviewRound": "2026-07-24T14:57:57.391Z",
+      "reviewRunId": "B-4043:RR-018",
+      "envelopeId": "178504938a4f09c943736352b695066f131ca03ade0287a536f7f654d92c04cf",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bd7313757c0a4d25a40fdb1fbc8d8e8d8b130f059e759f0a6a80fb95fe7f7d0a"
+    },
+    {
+      "id": "B-4043:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept/residue re-check post F-006/F-007 fixes (head 485fe96->15f0afa). hardenedGitArgs(): all 7 execFileSync(git,...) call sites in acceptance-rollout.ts (gitCommonDir, gitOutput, assertCommitExists, assertAncestor, replayProductionGateState checkout, restore-branch checkout, git show) go through the wrapper; no residue of the earlier inline [...GIT_UNTRUSTED_REPO_ARGS, ...] form (diff of 51e28272aa->b2f7d5fa5b shows a clean refactor), no double-hardening. verify-process-fact-contract.mjs literal check acceptanceRolloutText.includes(cat-file, -e) still matches; ran the contract script live -> PASS. Rebuilt packages/main (tsc) and diffed pre-build vs post-build dist/core/acceptance-rollout.js: byte-identical, so no stale/neutered dist residue. Ran the actual default proofstory-acceptance-rollout-smoke.js live: PASS (57 assertions), confirming the post-checkout-hook regression guard and the rest of the F-007 gate-registered suite genuinely pass at HEAD. Exactly one acceptance-rollout-report.json artifact (regenerated in place across 7 commits, no stale duplicate); acceptance_rollout_check reports receipt=current, quorum=full-3x2, promotionEligible=true. Scope: lattice.config.json/package.json/smoke-manifest.json diffs are narrow and match their stated acknowledgement reasons; scope-contract.json allowedModify/allowedCreate arrays are unchanged by these acks -- widening is only via the acknowledgements[] audit list, confirmed as the designed OR-mechanism in scope-contract.ts, not a silent edit to the base scope arrays. No blocker found this round.",
+      "createdAt": "2026-07-24T15:18:53.082Z",
+      "reviewRound": "2026-07-24T14:57:57.391Z",
+      "reviewRunId": "B-4043:RR-016",
+      "envelopeId": "5480c1f66bbd4d444b3999224a36493ace027cc1cde9b6da2bba9560160ef60d",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73f27fa77092e50aa364288e3aef76911e1182148fd0a21bc23f9c8e2a218a89"
+    },
+    {
+      "id": "B-4043:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Re-review of F-006/F-007 fixes, verified independently in an isolated clone (not the shared worktree), skeptically tracing actual gate reachability rather than trusting config text. F-006 (git-hook exec on evidence-repo checkout): confirmed all 7 execFileSync(git,...) call sites in packages/main/src/core/acceptance-rollout.ts route through hardenedGitArgs() (-c core.hooksPath=/dev/null, core.fsmonitor=false, diff.external=). Independently reproduced the PoC in a fresh clone: planted a real post-checkout hook in a produced evidence repo and called issueAcceptanceRolloutObservationFromProduction directly (twice, including after 4 warm-up calls) plus ran the full proofstory-acceptance-rollout-smoke.js --issuer-mutations standalone -> all three attempts PASS/exit 0 with the hook never firing, matching the claimed 7-assertion GREEN. (One earlier attempt failed, but only when I had two smoke instances running concurrently in the same clone; three subsequent clean, isolated reruns all passed, so I attribute that single failure to my own concurrent-test-instance artifact, not a product regression -- noting it only as an observation, not a finding, since it did not reproduce.) Confirmed the regression guard is gate-reachable: --issuer-mutations is registered in lattice.config.json validate.commands (pre-existing array consumed by the real lattice validate handler in handlers/verifier.ts via executeValidationPlan), which is the full/unfocused validate required at TEST per plan.md. Traced the residual .gitattributes clean/smudge-filter risk disclosed in the code comment/finding resolution and judge it an acceptable, honestly-disclosed residual (closing it fully would require replacing checkout with git cat-file blob extraction, a larger redesign out of this story's scope) rather than a new blocker. F-007 (57-assertion default-mode smoke unreachable from any gate): confirmed package.json's root test script now ends with '&& npm run test:proofstory-acceptance-rollout' (node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js, no flag), and lattice.config.json doneRequiredCommands' 'root full test suite' entry runs plain npm test, so this is genuinely in the DONE-required path. Independently ran node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js with no flags in a clean isolated clone (built from source, not reusing shared-worktree dist) exactly as the npm script invokes it: PASS (57 assertions), exit 0, matching the developer's claimed evidence. package.json and lattice.config.json scope were properly acknowledged via scope_contract_acknowledge with accurate reasons. No new findings.",
+      "createdAt": "2026-07-24T15:19:26.001Z",
+      "reviewRound": "2026-07-24T14:57:57.391Z",
+      "reviewRunId": "B-4043:RR-015",
+      "envelopeId": "90c4ab40fe7abdc3f6e5136f2ede559f72136ceeca47061a31a3567d23c4c8c8",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "docs/CLI.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "24a28e2234631b877fb84164c395c51a705b25926d6e9dba745a958f423cd638"
+    },
+    {
+      "id": "B-4043:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Fresh-round re-review scoped to the F-008 evidence rebind. git diff 41196ee9a7(RP-008 pass commit)..HEAD touches ONLY .lattice/story/actives/B-4043/{checklist.json,findings.json,index.json,process-events.jsonl,process-metrics.json}; docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md and .lattice/story/actives/B-4043/acceptance-rollout-report.json are byte-identical since RP-008 (git diff empty output; their last-touching commits 0518de72d7 and 9ae309cdd3 are both ancestors of the RP-008 commit). Re-checked the doc Wave-4 measured-results table (section 17, lines 1709-1722) line-by-line against the current signed report metrics field: matchedPairCount 6 (3 seeded + 3 false-block: docs/legacy/ordinary, matches), registeredSeedCount/detectedSeedCount 3/3 100%, falsePassCount 0, omissionDetectionRate 1/1 100%, falseBlockCount 0, mislabeled3x1Count 0, waiverDelta 0, inventoryShrankCount 0 -- all match verbatim. Confirmed adapter/quorum claim (codex-cli+claude-cli, full-3x2, three rounds) by grep-counting quorum:*:{codex-cli,claude-cli}:{key,session} entries (3 rounds x 2 adapters x 12 arm-records) in the report JSON. Also confirmed binding.storyFilesHash/materialHash in the report match the current story storyFilesHash (a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873) and the rebound evidence entrys materialHash, so the report is still current against this head. No production source or docs changed since RP-008, so no diff-derived symbol set exists; Fallback 1 full-text self-consistency scan applied to the one touched non-metadata artifact (checklist evidence) plus the doc/report pair. No inconsistency found. No blocker.",
+      "createdAt": "2026-07-24T15:23:39.136Z",
+      "reviewRound": "2026-07-24T15:21:09.803Z",
+      "reviewRunId": "B-4043:RR-022",
+      "envelopeId": "8f1cd78e2fb7704dca9d97c0fc96c35db0a9b4587e489ca2dfea50be2ca27137",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "601616b234503c2e2132b633d7ed777c32451fa0d3b1be692c4a1bd9a9e80fd2"
+    },
+    {
+      "id": "B-4043:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane re-review scoped to the F-008 evidence rebind (per dispatch). Verified via git diff (b2f7d5fa5b..HEAD, and my bound review head eea676c57c..current HEAD 9413751ff2, both excluding .lattice/*) that NO production or test source file changed since RP-010 -- only .lattice metadata (checklist.json evidence entries, findings.json, index.json phase events) moved. Confirmed the F-008 rebind itself: CHK-004:adversarial:fail-closed-mutations command field changed from the default-mode smoke invocation to the --issuer-mutations invocation; all 14 other verificationEvidence entries kept their original command, only notes/hashes/timestamps were re-stamped. Re-confirmed both security-relevant properties named in the dispatch still hold at current HEAD: (1) all 7 execFileSync git call sites in packages/main/src/core/acceptance-rollout.ts route through hardenedGitArgs(); (2) package.json's root test script still ends with the proofstory-acceptance-rollout test run (no flag, default mode), lattice.config.json doneRequiredCommands' full test suite entry runs plain npm test, so the 57-assertion default-mode smoke remains reachable from the DONE-required chain, and lattice.config.json validate.commands separately registers the --issuer-mutations invocation as its own gate. Independently ran both suites live at current head in a freshly-built isolated clone, not the shared worktree: issuer-mutations mode PASS 7 assertions confirming the F-006 hook-regression assertion the rebind was meant to make reachable; default mode PASS 57 assertions, about 12 minutes real git-checkout flow, matching the test-coverage lane's independent timing, confirming the pre-existing gate-consumer battery is untouched. While this round was open, two other lanes, lattice-review-concept F-009 and lattice-review-test-coverage F-010, both high or medium severity, correctly caught that the F-008 rebind had REPLACED rather than added the CHK-004:adversarial:fail-closed-mutations binding, leaving that intent's own literal enumeration of receipt/quorum/waiver/inventory/false-block/omission codes rejected by the real runAcceptanceRolloutGate consumer with zero evidence, since --issuer-mutations and the default-mode realConsumerMutations loop are mutually exclusive code branches. I independently verified this claim by reading smoke.ts myself before checking resolution status, and it is correct. Both findings are now resolved, 0 open findings story-wide: CHK-004:adversarial:fail-closed-mutations was restored to the default-mode command, and a new non-frozen ref CHK-004:hardening:issuance-replay-integrity was added bound to --issuer-mutations for the F-004/F-006 issuance-path hardening. This resolution again touched only checklist.json and findings.json, no production or test source. No dead code, type-safety, or I/O-isolation issues in scope since nothing in packages/main/src changed this round. No blocker from this lane.",
+      "createdAt": "2026-07-24T16:01:38.291Z",
+      "reviewRound": "2026-07-24T15:21:09.803Z",
+      "reviewRunId": "B-4043:RR-023",
+      "envelopeId": "2c0ea4d9f0ce8c98b6511666b176c9beeca3ebb30a9499adf7da2dc60decd82c",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/index.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bd367ca534708fa780562899d9b39edfd40360214ed2877a2a36056ae9b91b2d"
+    },
+    {
+      "id": "B-4043:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Fresh-round re-review confirming metadata-only delta since my last bound commit (RR-022 head eea676c57c -> current head f11ff8f4eb): git diff shows only .lattice story metadata (checklist.json evidence entries, findings.json resolution text, index.json, process-events/metrics, prompt-envelopes, review-passes, review-runs) touched; zero diff on docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md and on .lattice/story/actives/B-4043/acceptance-rollout-report.json. Re-cross-checked the doc Wave-4 measured-results table (section 17) against the current signed report.report.metrics: matchedPairCount=6 (3 baseline+3 candidate), registeredSeedCount/detectedSeedCount=3/3 (100%), falsePassCount=0, omissionDetectionRate=1 (1/1, 100%), falseBlockCount=0, mislabeled3x1Count=0, waiverDelta=0, inventoryShrankCount=0, and the docs-only/legacy/ordinary control-pair breakdown (1 each per arm) all match sourceRecords pairIds PAIR-DOCS/PAIR-LEGACY/PAIR-ORDINARY vs seeded PAIR-FORGERY/PAIR-FRESHNESS/PAIR-OMISSION -- table unchanged and still accurate. Checked the specific concern in this round: checklist.json diff shows CHK-004:adversarial:fail-closed-mutations restored to the default-mode command, and a new custom ref CHK-004:hardening:issuance-replay-integrity added bound to --issuer-mutations; grepped all of .lattice/story/actives/B-4043 and docs/ for issuance-replay-integrity -- it only appears in findings.json resolution text, review-passes.json (quality-lane note), and checklist.json itself, all of which explicitly and correctly label it as a custom ref that is NOT one of the 15 frozen verificationIntent ids and attribute it to F-004/F-006 REVIEW-introduced hardening rather than the original planned intent set. plan.md and understanding.json (Wave 4 planned scope) are unchanged since RR-022 and contain no mention of issuer-mutations/issuance-replay-integrity, so the planned-intent vs REVIEW-hardening distinction is not blurred anywhere in the written record. Verified the '15 frozen verificationIntent ids' claim itself: checklist.json CHK-001..CHK-005 each carry exactly 3 verificationIntent entries (happy/edge/adversarial) = 15 total. No doc-code drift possible this round (no production/test source changed). Pass, 0 findings.",
+      "createdAt": "2026-07-24T16:05:51.465Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-026",
+      "envelopeId": "0fbaa08e4e53c850e950c7257ecb4107957a9bc9acf141f3b8dfba5a03ce1417",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/original-intent-snapshot.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/understanding.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "90c22aff6aa5fe0d631d2dc1f4d52855f5eb1f7f042b46e02997e70534d8a5b6"
+    },
+    {
+      "id": "B-4043:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round re-review confirming prior RP-012 pass still holds. git diff b2f7d5fa5b..HEAD --name-only shows only 9 files under .lattice/story/actives/B-4043/ changed -- zero production/test source touched (0-line diff on acceptance-rollout.ts, proofstory-acceptance-rollout-smoke.ts, package.json). F-008/F-009/F-010 match the diff exactly: F-008 rebind of CHK-004:adversarial:fail-closed-mutations to --issuer-mutations was proven wrong by F-009/F-010 since --issuer-mutations never calls runAcceptanceRolloutGate; the ref was RESTORED to the default-mode command and the issuer-mutations hardening moved to a new custom non-frozen ref CHK-004:hardening:issuance-replay-integrity (checklist.json lines 380-435). Re-confirmed both security properties live at current head f11ff8f: (1) all 7 execFileSync(git,...) call sites in acceptance-rollout.ts route through hardenedGitArgs(); (2) default-mode smoke is wired into DONE-required npm test chain via test:proofstory-acceptance-rollout in root package.json test script, and I ran it live end-to-end: node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js exited 0 with real-git-flow cohort run, printed PASS (57 assertions). Diff is metadata-only; no new findings warranted.",
+      "createdAt": "2026-07-24T16:28:06.848Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-027",
+      "envelopeId": "9bdbe97c1eead7b15b06a4d299c0a963ee4f5654ada1885ecbda4b7592ef82b1",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cadd031511a6a8615a1e2e9c1395aa49460bf21d527d7a782ce1fccd320ee613"
+    },
+    {
+      "id": "B-4043:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Re-review of the F-009 restoration (my own prior finding), scoped per dispatch to the metadata-only delta since b2f7d5fa5b. Confirmed via git diff --name-only b2f7d5fa5b..HEAD: only 9 files under .lattice/story/actives/B-4043 changed (acceptance-rollout-report.json, checklist.json, findings.json, index.json, process-events.jsonl, process-metrics.json, prompt-envelopes.json, review-passes.json, review-runs.json); zero production/test source touched; git status clean. RESTORATION VERIFIED CORRECT: checklist.json CHK-004:adversarial:fail-closed-mutations verificationEvidence entry is bound to the default-mode command (LATTICE_ROLLOUT_COHORT_INPUT_PATH env var, proofstory-acceptance-rollout-smoke.js, no flag) which contains realConsumerMutations (smoke.ts lines 363-389, 11 mutations through the real runAcceptanceRolloutGate consumer, codes AR_SAMPLE_COUNT_LT_3, AR_SOURCE_EVIDENCE_INVALID, AR_REGISTERED_CAMPAIGN_INCOMPLETE, each followed by an exact-restoration assertion), tampered-signature rejection (lines 391-399, generic enforcement-blocked regex) and stale-report rejection (lines 401-416, AR_REPORT_STALE) -- i.e. the intent's own literal enumeration. Programmatically confirmed all 15 frozen verificationIntent ids across CHK-001 through CHK-005 still have at least one verificationEvidence entry, none dropped by the restoration, and confirmed the only new intentRef introduced anywhere in the whole checklist.json diff since b2f7d5fa5b is CHK-004:hardening:issuance-replay-integrity; no other verificationIntent desc, status or title text changed. CUSTOM REF IS HONEST, NOT SMUGGLED: programmatically verified CHK-004:hardening:issuance-replay-integrity is not among CHK-004's 3 frozen verificationIntent ids (happy, edge, adversarial); its own note plainly discloses this as deliberately not one of the 15 frozen verificationIntent ids; it does not remove or dilute evidence on any frozen ref; and it is separately and genuinely gate-enforced as its own lattice.config.json validate.commands entry, line 97, unchanged and pre-existing, rather than being a documentation-only claim. GATE-REACHABILITY of the restored default-mode command confirmed structurally: package.json root test script's last entry is npm run test:proofstory-acceptance-rollout, which equals node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js with no flag, and lattice.config.json doneRequiredCommands root full test suite entry is plain npm test, so the default-mode battery is DONE-required-gate-reachable, distinct from and additional to the issuer-mutations entry in validate.commands. DIST INTEGRITY: built packages/main plus packages/utils from the frozen source in an isolated clone, not the shared worktree, and diffed the resulting dist/tasks/proofstory-acceptance-rollout-smoke.js byte for byte against the shared worktree's existing dist; identical, so the shared worktree's dist is not stale or hand-edited relative to the frozen src. F-008 RESOLUTION RECORD CORRECTION CONFIRMED: findings.json F-008 resolvedReason is now explicitly marked CORRECTED RECORD, retracting the prior discharges-on-its-own-terms claim and stating the concept and test-coverage lanes were right; text matches what actually changed in checklist.json. RESIDUE: repo-wide grep for both intentRef strings, fail-closed-mutations and issuance-replay-integrity, outside node_modules, dist and .git shows hits confined to .lattice/story/actives/B-4043 story metadata only; no leakage into docs/requirements or plan.md, and plan.md and understanding remain unchanged (docs lane RR-026 independently confirmed the same). LIVE CONFIRMATION: launched both the restored default-mode command and the issuer-mutations command myself in a fresh isolated clone built from a git clone of the shared worktree with its own node_modules and packages-utils dist, tsc rebuild, to directly witness the code-path split; both were still executing at review-note time, roughly 18 to 19 minutes real git-checkout-heavy runtime, consistent with the quality lane's own independently-reported roughly 12 minute or 916 second timing for this same command, and had not printed a final result by the time I filed this pass; I did not block indefinitely on my own redundant run. This is corroborated rather than substituted for: the quality lane, review-passes.json B-4043 RR-023, already completed live execution of both suites in its own isolated clone at this exact current HEAD and reported PASS 57 assertions for default mode and PASS 7 assertions for issuer-mutations, independently confirming the same code-path exclusivity and pass status I verified by source read. No blocker from this lane: the restoration is complete and correct, the custom ref is an honest not-smuggled mechanism, no production or test source changed this round, and residue is clean.",
+      "createdAt": "2026-07-24T16:29:37.783Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-024",
+      "envelopeId": "f3d1433e7275f1faba58c2cccfa2de00f4f1d7dea49892815ac085a9d06cd0e9",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "177671477d19c11d142c2c8f6b9796339caf3ddfc3fdbc6e598cdc0622a29e9a"
+    },
+    {
+      "id": "B-4043:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-010 re-audit: CHK-004:adversarial:fail-closed-mutations evidence entry is restored to the default-mode acceptance-rollout-smoke.js command and I re-ran it live at rebuilt current head (57/57 assertions PASS), confirming it literally exercises the realConsumerMutations battery via runAcceptanceRolloutGate plus tampered-signature/stale-report rejection and rollback -- exactly the codes its own text enumerates. The custom ref CHK-004:hardening:issuance-replay-integrity is honest, not inflationary: its note discloses it is REVIEW-introduced hardening and not one of the 15 frozen intents, and the mechanically-derived acceptance_topology_check evidenceRefs (queried live) exclude this ref entirely, so it cannot inflate any gate-computed coverage metric; I independently re-ran --issuer-mutations live (7/7 PASS) and confirmed its registration in lattice.config.json validate.commands line 97. F-007s fix (test:proofstory-acceptance-rollout appended to package.jsons npm test chain, consumed by doneRequiredCommands root full test suite) independently makes the restored default-mode command gate-reachable at DONE, not just human-run. All 16 verificationEvidence entries carry materialHash/storyFilesHash matching the current clean tree at head f11ff8f4 (confirmed via git status --porcelain empty). Re-ran verify-process-fact-contract.mjs (PASS), the frozen-cohort-bound default-mode smoke (PASS 57), pre-review-check-smoke --proof-scenarios (PASS, emitted the exact 23 scenario records), and freshly regenerated run-proofstory-acceptance-rollout-cohort.mjs from scratch (12 source records, exit 0) to confirm the pipeline is not stale. The 23-scenario proof set is surjective over all 15 frozen intents but uneven -- CHK-004:adversarial:fail-closed-mutations gets 4 records (A-MUT-9/11/12/15: mutation-polarity restore, direct-store authority bypass, evidence-cutoff boundary, critic-reattestation) vs 1-2 for most others. I traced this: none of those 4 are the receipt/waiver/inventory/false-block/omission mutations the intent text names -- they are generic pre_review_check-gate properties anchored to the nearest adversarial ref as a label of convenience inside a shared cross-story smoke fixture. This is benign, not a hidden gap: that proof-scenarios catalog is claimed as checklist evidence only for CHK-001s three intents (whose own bound command is this exact invocation); CHK-002..005 bind separate commands verified directly against their own text, and the mechanical topology evidenceRefs computation reads only checklist.jsons own verificationEvidence array, never this catalog, so the unevenness cannot inflate any enforced coverage number. No blocker found.",
+      "createdAt": "2026-07-24T16:35:27.099Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-025",
+      "envelopeId": "12d296a075291789af9511db9dc42617f4be489685abb10ba4c6fac8d35ae35d",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "577740908341547d009e984cc3e0b1291bbf199ac50206c7fd1b8c6c3973cedb"
+    },
+    {
+      "id": "B-4043:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round re-review: confirmed the only change since RP-016 is CHK-001.relatedDocs CJK->English (git show 3e6f30e63f touches only checklist.json/index.json/process-events.jsonl/process-metrics.json, materialHash unchanged at 1ffed995...). Verified all 16 verificationEvidence entries programmatically: materialHash/storyFilesHash match current head (0 mismatches), 0 result=fail. Confirmed CHK-004:adversarial:fail-closed-mutations remains bound to the default-mode command (no --issuer-mutations), matching the F-009/F-010 restoration note; the separate CHK-004:hardening:issuance-replay-integrity custom ref correctly retains --issuer-mutations as its own non-frozen entry. No blocker.",
+      "createdAt": "2026-07-24T16:42:42.095Z",
+      "reviewRound": "2026-07-24T16:39:55.171Z",
+      "reviewRunId": "B-4043:RR-030",
+      "envelopeId": "452fec8171c5acc4c41131db65b4e99d8e3fe54a9e58681105e2b186c610eac2",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/process-events.jsonl"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": "prior full read at RP-016 covered source/docs; this round is scoped to the relatedDocs-only metadata diff per dispatcher instruction, verified via git show + programmatic checklist.json evidence-field diff"
+      },
+      "_hash": "ad2957e352711b8d5aa61394609a5cb92b7c25f3489917e70a6f310ed3714734"
+    },
+    {
+      "id": "B-4043:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round re-review confirming RP-014 pass still holds. git diff f11ff8f4eb(RP-014 head)..HEAD (excluding .lattice) is empty; the only .lattice/story change is checklist.json (CHK-001 relatedDocs anchor: AGENTS.md#流程事实双层契约 -> AGENTS.md (two-layer process-fact contract section)), forced by the REVIEW->TEST english-artifacts preflight gate. Diff against the earlier base b2f7d5fa5b..HEAD also excludes production/test source (confirmed empty via git diff -- . :!.lattice), so nothing material changed across either window. Re-confirmed both security properties named for this lane at current head 6584a3e2ce: (1) all 7 execFileSync(git, ...) call sites in packages/main/src/core/acceptance-rollout.ts (lines 91,204,211,219,234,349,362) route through hardenedGitArgs(); the 8th execFileSync at line 239 targets process.execPath, not git, so is out of scope for this property. (2) package.json root test script (line 15) ends with npm run test:proofstory-acceptance-rollout -> node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js (default mode, no flag = the 57-assertion smoke), and doneRequiredCommands (lattice.config.json:100-103) runs plain npm test as the DONE-required root full test suite, so the default-mode smoke remains reachable from DONE. lattice.config.json validate.commands:97 separately registers the --issuer-mutations invocation as its own gate. Source-level re-check only (no live re-execution) since no source changed since the last live verification at RP-012/RP-014, per dispatch instructions. No findings warranted; metadata-only diff.",
+      "createdAt": "2026-07-24T16:42:43.925Z",
+      "reviewRound": "2026-07-24T16:39:55.171Z",
+      "reviewRunId": "B-4043:RR-029",
+      "envelopeId": "d723e360d4a1730874425b13ceb6444d7ef397f77157824c5bd5a9252b533149",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "735189f08116e9cec68203409cb2688789364a6a773162288fd26d37f64c3673"
+    },
+    {
+      "id": "B-4043:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Fresh round: only change since RP-015 is the checklist.json CHK-001 relatedDocs anchor edit (AGENTS.md#流程事实双層契約 -> AGENTS.md (two-layer process-fact contract section)), confirmed via git diff f11ff8f4eb..6584a3e2ce (zero production/test files; only .lattice/story/actives/B-4043/* metadata). No concept deletion/replacement occurred; concept-residue check completed, no blocker. Verified: read english-artifact-gate.ts source (AUTHOR_METADATA_BASENAMES matches the 7 gate-scanned files exactly), grep-scanned all 7 for CJK (0 matches), grep-scanned git log main..HEAD for CJK (0 matches), ran npm run test:english-only-guards (7/7 pass incl. real git-log-reader test). New relatedDocs text names AGENTS.md and uniquely, accurately identifies its single 流程事实双層契約 heading (verified only one such heading exists) so traceability is preserved.",
+      "createdAt": "2026-07-24T16:43:23.428Z",
+      "reviewRound": "2026-07-24T16:39:55.171Z",
+      "reviewRunId": "B-4043:RR-028",
+      "envelopeId": "3b2cd3b3f7dc2a8eae2c6b101a65f5e94bfacf5f62e19d8916bacafa6ebabba3",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/decision.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/understanding.json",
+          "AGENTS.md",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e9d31a91a244ee8dac13b151586f8c3000834a09b222533a816cd7da5c196863"
+    },
+    {
+      "id": "B-4043:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Fresh-round re-review: only change since RP-013 is CHK-001 relatedDocs anchor 'AGENTS.md#(CJK heading)' -> 'AGENTS.md (two-layer process-fact contract section)', to clear the english-artifacts REVIEW->TEST preflight gate. Verified: (1) AGENTS.md line 55 heading (the two-layer process-fact contract heading) exists and its content (prompt+CLI/handler/gate two-layer enforcement for process facts) matches the new English description accurately, not just approximately; losing the deep-link anchor is an acceptable/necessary cost since a markdown anchor built from a CJK heading is itself CJK text inside the checklist.json relatedDocs string that the english-artifacts gate scans, and CJK-heading slugs are unreliable across renderers anyway, so a plain-English locator phrase is the correct fix -- no better single-file alternative exists without renaming the canonical AGENTS.md heading itself, which is a shared cross-story doc and out of this story's scope. (2) Directly re-scanned the english-artifacts gate's exact scope per packages/main/src/handlers/english-artifact-gate.ts (AUTHOR_METADATA_BASENAMES in .lattice/story/actives/B-4043/ plus git log main..HEAD commit subjects/bodies): zero CJK matches in background.md/index.json/checklist.json/decision.json/understanding.json/plan.md and zero CJK across all 170 branch commit messages; ran npm run test:english-only-guards (7/7 pass) as corroboration. (3) Confirmed via git log that docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md (last touched 2026-07-23, commit 0518de72d7) and .lattice/story/actives/B-4043/acceptance-rollout-report.json (last touched 2026-07-24T15:49:05Z) both predate RP-013 (2026-07-24T16:05:51Z) with zero diff since; only lattice metadata files changed (checklist.json relatedDocs line, index.json, process-events.jsonl, prompt-envelopes.json, review-runs.json/review-passes.json from this and other reviewer lanes' REVIEW-round bookkeeping). (4) Cross-checked the Wave 4 measured-results table in the execution plan section 17 (matchedPairCount 6 = 3 seeded pairs + 3 false-block control pairs, 3/3 seed detection, 0 false-pass, 1/1 omission detection, 0 false-block, 0 mislabeled-3x1, 0 waiver delta, 0 inventory shrinkage) against acceptance-rollout-report.json metrics object field-by-field: exact match. docs/CLI.md Wave 4 section describes thresholds generically (no specific numeric result table) and is consistent, not in conflict, with the report. Step 1 symbol extraction from git diff main...HEAD yielded 0 new symbols (this round changed only a relatedDocs string, not code); fallback 1 full-text scan applied to the touched doc paragraph only per the narrowed-input rule. No blocker.",
+      "createdAt": "2026-07-24T16:44:27.772Z",
+      "reviewRound": "2026-07-24T16:39:55.171Z",
+      "reviewRunId": "B-4043:RR-031",
+      "envelopeId": "66f4d840492dd8d585951507a30641d58a50255fc9999e66398e09540dd32f14",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/handlers/english-artifact-gate.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/decision.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/understanding.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ed3aa912487320e4c06a48bc39a137fbd1b92677bd0927a806045dedf8db7ed3"
+    },
+    {
+      "id": "B-4043:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted ~230 diff symbol tokens (mostly local vars/consts from acceptance-rollout.ts + its smoke/cohort-runner; exported: AcceptanceRolloutReportV1/AcceptanceRolloutMetricsV1/AcceptanceRolloutReceiptV1/deriveAcceptanceRolloutReport/runProofStoryAcceptanceRolloutCohort/evaluateAcceptanceRolloutForContext/resolveAcceptanceRolloutGateMode + ACCEPTANCE_ROLLOUT_* consts). Step2 grepped docs/CLI.md + docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, compared 6 referenced paragraphs (Wave 3/Wave 4 CLI.md section lines 505-560; execution-plan Wave-4 measured-cohort table lines 1709-1721; Wave-4 implemented-contract lines 1564-1601; decision record #19 lines 1758-1780; rollback section 1328-1361; human-audit-checklist boundary rows). No blockers found. Targeted re-checks per dispatch: (1) regenerated acceptance-rollout-report.json (mtime 18:34, binding.materialHash matches current REVIEW task-context materialHash) metrics compared field-by-field against the Wave-4 measured-cohort table: matchedPairCount=6/baselineSampleCount=6/candidateSampleCount=6 = doc's 3 seeded + 3 control pairs per arm; registeredSeedCount=3/detectedSeedCount=3 = doc 3/3 100%; falsePassCount=0; omissionSeedCount=1/omissionDetectedCount=1/omissionDetectionRate=1 = doc 1/1 100%; falseBlockCount=0/falseBlockRate=0; mislabeled3x1Count=0; waiverDelta=0; inventoryShrankCount=0; verdict=pass diagnostics=[]; 12 full-3x2 tags + rounds:3 + codex/claude providers matches doc 'codex-cli + claude-cli, three rounds, full-3x2'. No drift. (2) CHK-005: canonical execution plan Wave-4 section states IMPLEMENTED-FLAT-PROJECT-BOUNDARY with exact thresholds/measured table/rollback (config-only mode change verified against config.ts acceptanceRolloutGateMode, never deletes/rewrites reports/receipts/history)/explicit Wave-3A-unimplemented-and-excluded language (decision-record #7/#8, human-audit-checklist); no selective-applicability or authority overclaim language found. Holds. (3) New lifecycle artifact acceptance-rollout-report.json: only doc surface enumerating it is docs/CLI.md (already present, lines 483-528), describing writer/reader/check commands and thresholds without quoting specific measured numbers, so no other enumeration doc needs updating; registry (lifecycle-registry.ts) plus scripts/verify-process-fact-contract.mjs coverage-invariant (line ~4290-4303) are the only places needing the raw filename. (4) CJK re-entry: scanned all english-artifact-gate AUTHOR_METADATA_BASENAMES files under .lattice/story/actives/B-4043/ (background.md/index.json/checklist.json/decision.json/understanding.json/plan.md; summary.json absent) plus git log main..HEAD commit subjects/bodies for this branch — zero CJK codepoints found in any.",
+      "createdAt": "2026-07-24T18:06:51.605Z",
+      "reviewRound": "2026-07-24T18:00:39.840Z",
+      "reviewRunId": "B-4043:RR-035",
+      "envelopeId": "c117b47ca3881f728bcd2b44917ef3c1e55f4746a98bc3681815fe0b85e5b064",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/decision.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/understanding.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1918bc966fae44af74d36fff8417f5491c04bfc5f5fa608a4578a215a1e9efa9"
+    },
+    {
+      "id": "B-4043:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for the fresh REVIEW round (fix commit 0b09a8bc4f, only real code delta since RP-019). git diff main...HEAD --stat + full diff: 63 files, 25957 insertions(+)/92 deletions(-); scanned every removed line in *.ts/*.mjs (36 lines) and confirmed each is an in-place edit within the same file (test-fixture cli() signature reformat, one extra positive-scenario case, command-catalog/activity-policy array re-writes that only insert new command names) — zero exported symbol, interface, type, or registered command name was deleted or renamed anywhere in the story. Docs status text goes NOT IMPLEMENTED -> IMPLEMENTED for Wave 4 (a status update, not a concept deletion). No concept deletion/replacement this round, so no grep-residue finding applies. Independently verified the two fixes named in the dispatch: (1) lifecycle-registry.ts +1 line (acceptance-rollout-report.json) is the only change to that file across the whole story (git log --oneline main..HEAD -- lifecycle-registry.ts = 1 commit), placed correctly next to acceptance-basis.json/pre-review-check.json siblings, matches the actual filename read/written by store.ts:806/811, and is scope-acknowledged (scope-contract.json ack at 2026-07-24T17:55:59Z, reason matches). Ran packages/main/dist/tasks/lifecycle-registry-contract.js directly: PASS, 0 divergences. (2) proofstory-pre-review-check-smoke.ts cli() helper pins LATTICE_OWNER_SESSION_ADAPTER_PROVIDER (still overridable) -- traced the failure to owner-session-adapters.ts detectProvider()/story-dispatch.ts reviewerPromptHostForProvider(), which by design throws on unresolved provider (anti-fabrication fail-closed check for full-envelope reviewer dispatch host identity); this is legitimate test-isolation hygiene, not masking a production defect, since real interactive sessions naturally set CLAUDE_CODE_SESSION_ID/CODEX_THREAD_ID etc., and only a spawned-subprocess smoke under a clean validate env needs an explicit pin. Reproduced independently: ran node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations (which spawns proofstory-pre-review-check-smoke.js --rollout-cohort-case, the actual full-envelope review_run_start/dispatch path) with LATTICE_OWNER_SESSION_ADAPTER_PROVIDER/CLAUDE_CODE_SESSION_ID/CODEX_*/ANTIGRAVITY_*/AGY_*/TERM_SESSION_ID/LATTICE_ACTIVITY_SOURCE all unset -> PASS (7 assertions), matching the exact failure mode described. No other production behaviour changed: fix commit 0b09a8bc4f touches only lifecycle-registry.ts (+1) and proofstory-pre-review-check-smoke.ts (test fixture env plumbing); dist rebuilt and confirmed to contain both changes. Residue re-checks: hardenedGitArgs still wraps every execFileSync git call in acceptance-rollout.ts (checkout/cat-file/merge-base/show), unchanged by this round; dist/tasks/proofstory-pre-review-check-smoke.js and dist/core/lifecycle-registry.js confirmed rebuilt (not stale/neutered) and contain the new lines; single acceptance-rollout-report.json artifact with exactly one writer and one reader in store.ts, registered once in each of lifecycle-registry.ts and process-fact-registry.ts; scope widened only via the 6 recorded acknowledgements in scope-contract.json, each with an accurate minimal reason, the lifecycle-registry.ts one added for this exact fix.",
+      "createdAt": "2026-07-24T18:12:23.716Z",
+      "reviewRound": "2026-07-24T18:00:39.840Z",
+      "reviewRunId": "B-4043:RR-032",
+      "envelopeId": "840ab457e83976345b7775bdc560aa98f8ee0e24e64246aa53ef314374f0c203",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a81514cb2752a24e3f2692c4c0dde20f9da4c0135e4d50fdd076223d57d77409"
+    },
+    {
+      "id": "B-4043:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Fresh round: verified the 2 real fixes since RP-018 (commit 0b09a8bc4f). (1) lifecycle-registry.ts registers acceptance-rollout-report.json in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES next to sibling acceptance-basis.json/pre-review-check.json (provenance-only, matches store.ts readJson/writeJson call sites at store.ts:806,811); ran lifecycle-registry-contract.js in an isolated clone -> PASS 0 divergences. (2) proofstory-pre-review-check-smoke.ts cli() helper now pins LATTICE_OWNER_SESSION_ADAPTER_PROVIDER (overridable, defaults to claude-code) so full-envelope reviewer dispatch inside the nested --rollout-cohort-case smoke does not depend on the caller shell exporting a provider. Empirically reproduced the original bug in an isolated clone by reverting just this hunk and running node dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations with LATTICE_OWNER_SESSION_ADAPTER_PROVIDER/LATTICE_ACTIVITY_SOURCE/CLAUDE_CODE_SESSION_ID/CLAUDE_SESSION_ID/CODEX_*/OPENAI_SESSION_ID/ANTIGRAVITY_SESSION_ID/AGY_SESSION_ID all unset (the true validate-child-env shape per validation-command-environment.ts VALIDATION_TRANSPORT_ENV_KEY_LIST): reverted code fails dispatch with unsupported session host provider absent; restoring the fix and rebuilding gives PASS (7 assertions). Adversarial angle 1 (pinning masks a production gap): no -- dispatch fail-closed on absent/unknown provider is deliberate (story-dispatch.ts reviewerPromptHostForProvider throws by design, matching the never-fabricate-host-evidence rule) and this exact fail-closed path is independently asserted in quorum-submit-smoke.ts (assert.throws .../unsupported session host provider/) and story-owner-lease-smoke.ts; validate legitimately strips host-identity env as non-semantic transport (validation-command-environment.ts VALIDATION_TRANSPORT_ENV_KEY_LIST), so a nested smoke needs its own pinned identity, same pattern already used in quorum-submit-smoke.ts/story-owner-lease-smoke.ts. Adversarial angle 2 (claude-code default specifically): no coverage loss -- the codex-host render path is independently exercised via reviewerHostRenderIdentity(...,codex) in codex-registry-mode-smoke.ts/prompt-registry-smoke.ts and via explicit LATTICE_OWNER_SESSION_ADAPTER_PROVIDER=codex overrides elsewhere; the actual cross-host quorum proof recorded by this smoke (the rollout-cohort-case block) comes from quorum_submits explicit hostA=claude-cli/providerA=claude, hostB=codex-cli/providerB=codex CLI arguments, which are independent of the ambient session-adapter env, so the pinned default never substitutes for genuine cross-host evidence; override remains available (?? claude-code only applies when unset). Re-confirmed both standing security properties: all 8 execFileSync(git,...) call sites in acceptance-rollout.ts route through hardenedGitArgs() (grep confirmed, no execSync/shell-string bypass); the default-mode (no --issuer-mutations) 57-assertion proofstory-acceptance-rollout-smoke.js is reachable from the DONE-required gate via lattice.config.json doneRequiredCommands root full test suite = npm test -> package.json test:proofstory-acceptance-rollout -> node dist/tasks/proofstory-acceptance-rollout-smoke.js (note: lattice validate itself only wires the --issuer-mutations variant via validate.commands; the bare default-mode invocation is reached through doneRequiredCommands npm test, not through validate.commands). Confirmed no code/doc changes after 0b09a8bc4f (git log/diff 0b09a8bc4f..HEAD on src/tests/docs/scripts/.claude/.lattice-codex is empty -- only lattice metadata record commits follow).",
+      "createdAt": "2026-07-24T18:37:31.987Z",
+      "reviewRound": "2026-07-24T18:00:39.840Z",
+      "reviewRunId": "B-4043:RR-033",
+      "envelopeId": "60a036bddf413773c58fefd7e12fd6696895be3c1003050b60e33df412af11d4",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "79b967b9bfecea695548fba695c5181701576acb89d94388c4afb2d797434601"
+    },
+    {
+      "id": "B-4043:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review of F-011 remediation: verified the corrected 49-command figure live at current head (git show + config diff confirm lifecycle-registry-contract absent at 47-count commit b8e28971d0, present at 49-count HEAD via main merge b034a4b686); re-ran verify-process-fact-contract.mjs (exit0), proofstory-acceptance-rollout-smoke.js default (57 assertions PASS) and --issuer-mutations (7 assertions PASS), run-proofstory-acceptance-rollout-cohort.mjs (exit0), and pre-review-check-smoke --proof-scenarios end-to-end producing exactly 23 unique scenario records all biting=true, plus live acceptance_rollout_check (PASS promotionEligible=true receipt=current codes=none) matching the note verbatim. All 16 verificationEvidence entries share one consistent fresh headHash/materialHash/storyFilesHash and the only commits since that capture are metadata-only (confirmed via git diff, no material files touched). The commit that applied the fix (c412f97385) diffs cleanly to only note text/headHash/timestamp across all 16 entries - no other evidence content changed. CHK-004:adversarial:fail-closed-mutations still binds the default-mode smoke command, and source review confirms that command path covers tampered/stale receipt, waiver-delta, omission-detection and mislabeled-3x1 fail-closed assertions. The correction paragraph accurately and non-minimally states what was previously claimed (47), why it was wrong (stale memory of pre-merge commit, never re-checked against the actual run output), and the internal contradiction (lifecycle-registry-contract absent from any 47 state); finding_resolve resolvedReason likewise states this plainly without softening it. No stale or unverified factual claims found elsewhere in the note. F-011 remediation is correct and complete; no new blocker.",
+      "createdAt": "2026-07-24T19:14:45.609Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-037",
+      "envelopeId": "740c49fe779530cbeb57cd6eccaddbdc6ff29cc43c0dfc675699cb2890c024ac",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "97e5f8b3c0277121ddbeb300f77f2261acc3babfe1ad57cc1ac3b29e5d1173ce"
+    },
+    {
+      "id": "B-4043:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round re-review confirms git diff 0b09a8bc4f..HEAD touches only .lattice/story/actives/B-4043/* metadata (checklist.json, index.json, findings.json, review-runs.json, prompt-envelopes.json, review-passes.json, scope-contract.json, test-evidence.json, process-events/metrics, closeout-write-receipts, acceptance-rollout-report.json) — no production or test source changed. F-011 fix verified: all 16 acceptance-rollout notes now read 49 configured commands with an explicit CORRECTION paragraph naming the stale 47 figure and its provenance (pre-merge commit b8e28971d0); no other stale figures found. Standing property 1 re-confirmed: every execFileSync(\"git\", ...) call site in packages/main/src/core/acceptance-rollout.ts (lines 91, 204, 211, 219, 234, 349, 362) passes args through hardenedGitArgs(); no bare git exec/spawn bypasses it. Standing property 2 re-confirmed: root package.json test script includes test:proofstory-acceptance-rollout -> node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js (default mode, no --issuer-mutations flag), so the 57-assertion default-mode smoke remains reachable from the DONE-required npm test chain; lattice.config.json validate.commands only wires the --issuer-mutations variant, which matches the prior-round note and is expected (validate covers the mutation variant, npm test covers default mode). No source-level re-check beyond static diff/grep was needed since the diff is note-text only. No blockers found.",
+      "createdAt": "2026-07-24T19:17:44.470Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-040",
+      "envelopeId": "e8ce43522c54bcb23ac3c5b8312a038fcf6a2dfde5403b25599b1e948edcc938",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ab1269eb315e1529c40a8d0ae977c73f68a6ac1dfd4ad13e99262ce98b9ea8ce"
+    },
+    {
+      "id": "B-4043:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round re-review confirmed: diff between prior reviewed head (51484ca32f, RR-032/RP-022) and current head (45be26eefa) touches only .lattice/story/actives/B-4043/{checklist.json,findings.json,index.json,process-events.jsonl,process-metrics.json,prompt-envelopes.json,review-passes.json,review-runs.json} zero bytes changed under packages/, scripts/, docs/. checklist.json diff is exactly the 16 verificationEvidence note/headHash/timestamp fields (no command/file/result changes): each note now states 49 configured validate commands (verified against the bound headHash) plus an explicit correction paragraph noting the prior 47 figure was carried over from pre-merge commit b8e28971d0 and was self-contradictory. findings.json shows F-011 filed by lattice-review-test-coverage and resolved with a truthful first-person correction matching the story description. No second bad figure surfaced. Re-checked residue items at current head: hardenedGitArgs still wraps every git execFileSync call in acceptance-rollout.ts (8/8 sites); acceptance-rollout-report.json has exactly one entry in lifecycle-registry.ts and one artifact-descriptor entry in process-fact-registry.ts; npm run build reproduces packages/main/dist with zero git diff (not stale/neutered); scope-contract.json allowedModify list still governs the touched source paths from earlier rounds and no file outside .lattice story-metadata was touched this round, so no undeclared scope widening. No concept deletion/replacement occurred in this note-only round, so no residue grep applies. No blocker.",
+      "createdAt": "2026-07-24T19:19:27.513Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-039",
+      "envelopeId": "20b4b5bf01e2c26c45c25613554db69e5ef12903fe6666178a755eeb9dea5596",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "489f55bbc56b72372faeabe5ae1108779e454c7a9397dd8e93deaf9d260221e2"
+    },
+    {
+      "id": "B-4043:RP-027",
+      "agent": "lattice-review-docs",
+      "note": "Re-review of F-012 remediation, story-level (no new diff symbols to extract; fallback full-text scan per role fallback-1). Verified: scope-contract.json acknowledgements[5] (2026-07-24T17:55:59.937Z, lifecycle-registry.ts) still literally contains the false 'passes all 47 configured commands' text, confirming the file was NOT rewritten in place, matching the described append-only mechanism. Read handler source packages/main/src/handlers/scope-contract.ts line 426 (acknowledgements: [...contract.acknowledgements, ack]) -- there is no update/rewrite code path, so append-then-supersede is the only mechanically possible fix shape, not a rationalization. acknowledgements[6] (2026-07-24T19:19:28.491Z) carries the verified 49 figure plus an explicit 'CORRECTION per F-012' paragraph naming the stale figure, its provenance (pre-merge commit b8e28971d0), and the self-contradiction (lifecycle-registry-contract entered the set only after the main merge). Also confirmed via prewrite-guard.ts line 147, semantic-scope-gate.ts line 82, and scope-contract.ts line 252 that all acknowledgement consumers only do contract.acknowledgements.some(...) boolean path-coverage checks -- the reason-text content (including the stale 47) has zero gating/functional effect; its only role is human-readable audit trail, and it is now accompanied by an unambiguous correction. Grepping scope-contract.json for '47 configured' vs '49 configured' yields exactly one stale hit and one corrected hit at adjacent indices (5 then 6), same path, monotonic timestamp, with an explicit forward-pointer between them: defensible, not silently contradictory, though a reader must read both entries rather than trust the first grep hit alone. findings.json's 47-occurrences are confirmed to sit exclusively inside F-011/F-012 finding desc/resolvedReason text quoting the wrong claim in order to explain/refute it, correctly left untouched per this story's own finding-history-immutability precedent (F-001 through F-010 also preserve superseded claims verbatim in desc/resolvedReason). Full story-directory plus docs-tree sweep for a third uncorrected instance, or any other stale factual assertion of the same class: grepped the whole repo for '47 configured' and '47 command' (hits only in findings.json and checklist.json, both already accounted for and already corrected); grepped the whole story directory for the bare token 47 across all 11 files that matched -- process-metrics.json's value:47 is an unrelated blockedTaskCount metric, test-evidence.json's 'configured validate.commands[47]' is a zero-based array-index label inside the current real 49-entry command list (not a total-count claim), and the remaining hits are unrelated timestamps and hashes; no third instance found. Also checked docs/CLI.md, README.md, CLAUDE.md, plan.md, background.md, the execution-plan decision doc, and acceptance-rollout-report.json for any validate-command-count or similar numeric claim: none state a specific total, so none are stale. Confirmed via git diff --stat from the F-011 fix commit 2972d2a066 through current HEAD, restricted to non-.lattice paths, that the diff is empty -- no production source, docs, or the rollout-report artifact changed in this or the prior remediation round; the only touched paths across both rounds are .lattice/story/actives/B-4043 bookkeeping files (scope-contract.json, checklist.json, findings.json, index.json, process-events.jsonl, process-metrics.json). F-012 remediation is correct, complete, and consistent with this story's established finding/acknowledgement-history-immutability convention; no new blocker.",
+      "createdAt": "2026-07-24T19:23:23.392Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-041",
+      "envelopeId": "65d6199241b7d9eac03c7ee239803fb0083b477f48eb00732ed062b850f163fd",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          ".lattice/story/actives/B-4043/test-evidence.json",
+          "docs/CLI.md",
+          "packages/main/src/core/prewrite-guard.ts",
+          "packages/main/src/core/scope-contract.ts",
+          "packages/main/src/core/semantic-scope-gate.ts",
+          "packages/main/src/handlers/scope-contract.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "633051306ddcc488d0a7ddf33ad29cf7c7b51d90f46ce65c01b948e2f4b60cb1"
+    },
+    {
+      "id": "B-4043:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-binding round after F-012 docs fix (scope-contract acknowledgement corrected stale 47->49 command figure). Verified via git diff that no production code, test code, checklist.json, or verificationEvidence entries changed since prior pass RP-024; only the scope-contract.json acknowledgement was appended and findings.json gained the F-012 resolved entry. All 16 checklist evidence notes remain byte-identical and still carry the corrected figure (49). CHK-004:adversarial:fail-closed-mutations still binds the default-mode command with no override flags. No blocker: test coverage review passed.",
+      "createdAt": "2026-07-24T19:26:29.270Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-044",
+      "envelopeId": "b0eee0d0740a2397a776e6ea11549baa0832fe9062be23236ad5cda7a0fea422",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "792a81f5abf24defbe32441ecc46e243e54d6b02b5a41dff75878a3f7fa24c1b"
+    },
+    {
+      "id": "B-4043:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Re-binding round (post-F-012 correction). Verified via git diff that the only change since my prior reviewed head (45be26eefa, RP-026) is: scope-contract.json gains one appended acknowledgement (index 6, REVIEW phase) for the same lifecycle-registry.ts path already acknowledged at index 5, containing the corrected 49-configured-commands figure and an explicit CORRECTION per F-012 paragraph; index 5s original wrong text is left in place, consistent with scope_contract_acknowledge being append-only (confirmed at packages/main/src/handlers/scope-contract.ts:426). findings.json gains the resolved F-012 entry. No production source, test source, docs, rollout report, or evidence command changed; zero bytes touched under packages/, scripts/, docs/. Re-confirmed standing residue checks at current head 25a912f: hardenedGitArgs still wraps all 8/8 git execFileSync call sites in acceptance-rollout.ts; acceptance-rollout-report.json still has exactly one lifecycle-registry.ts entry and one artifact-descriptor pair in process-fact-registry.ts (no duplicates); npm run build reproduces dist with zero git diff (not stale); scope-contract.json acknowledgements cover only the already-diffed source paths (activity-policy.ts, lifecycle-registry.ts, pre-review-check.ts, pre-review-live-proof.ts, lattice.config.json, smoke-manifest.json, package.json) with no undeclared widening -- the new acknowledgement re-targets an already-covered path, not a new one. No concept deletion/replacement occurred this round (text-only correction of an acknowledgement reason string), so no residue grep applies. No blocker.",
+      "createdAt": "2026-07-24T19:26:54.124Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-042",
+      "envelopeId": "19edbb4fe9b919629aa221980d5d35fa43c179f001183fdc29feb477ba6aed7d",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "42773c251c0243f27aee24fb21c0aec9eb478a1b4c34d5545f75b058f98f9f54"
+    },
+    {
+      "id": "B-4043:RP-030",
+      "agent": "lattice-review-quality",
+      "note": "Re-binding round for RP-025 invalidation (F-012 scope-contract correction only; scopeContractHash 22c5c2a714d1->c361df48ac38). git diff 0b09a8bc4f..HEAD --name-only shows only .lattice metadata changed, no production or test source. Re-confirmed at head: (1) all execFileSync(git,...) call sites in acceptance-rollout.ts route through hardenedGitArgs(); (2) proofstory-acceptance-rollout-smoke default-mode assertion suite remains wired into the DONE-required npm test chain. scope-contract.json now carries the F-012 CORRECTION acknowledgement (47->49). No blocker.",
+      "createdAt": "2026-07-24T19:37:15.091Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-043",
+      "envelopeId": "c782e8daaa354964c80cf7f0f9b2ba2dca036030b83a15514f14c5633fa246b0",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4aa0019a393d70f792484b47852e76db57ff11944e42fe25a9d1cb5437e2ccd6"
+    },
+    {
+      "id": "B-4043:RP-031",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge concept review of git diff main...HEAD (65 files, ~28.4k insertions / 92 deletions). All 3 merge conflicts (package.json, lattice.config.json, proofstory.ts imports) are clean unions. Every new AcceptanceRollout* type/command/gate-fact is additive. Only substantive non-metadata deletion is assertScenarioLedgerComplete() replaced by selectActiveScenarioRecords()/registeredScenarioKinds in proofstory-pre-review-check-smoke.ts; grepped whole repo (excl node_modules/dist/.git) for old name -> zero residue, new symbols defined in-file. Wave 4 NOT IMPLEMENTED marker consistently replaced with IMPLEMENTED status text in the execution-plan doc, no stale leftovers. No dangling/removed concept references found; feature concept surface is coherent post-merge.",
+      "createdAt": "2026-07-25T10:52:34.304Z",
+      "reviewRound": "2026-07-25T10:49:35.392Z",
+      "reviewRunId": "B-4043:RR-046",
+      "envelopeId": "48531df550dcb331b45e4f522fbf46b2ae0b0817b80e9a3b125370379273e969",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-concept.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4d82814d31fc8fdb2b0da974bf9b1f403e50511e34f119fd667729efe7bee153"
+    },
+    {
+      "id": "B-4043:RP-032",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review after F-014 fix (8e4e36cbad). Confirmed Wave4 acceptance-rollout guidance moved from generated host shims (.claude/agents, .lattice-codex/agents) into canonical templates (packages/main/templates/agents/*.md) for the 4 bootstrap-only modular reviewers (concept/quality/test-coverage/docs), verified via review_run_start assembled prompt itself carrying the Wave4 paragraph sourced from template. Non-modular roles (implementer, test-case-reviewer, delivery, topology-critic) correctly carry the guidance directly in both templates and rendered shims. Grepped repo for stale references to old rolloutPromptPairs/lastParagraph shim-comparison logic and old frozen SHA256 hashes -- none found outside expected immutable historical audit logs. Ran verify-proof-or-stop-prompt-baseline.mjs (17/17 PASS) and verify-process-fact-contract.mjs (exit 0) against regenerated digests/manifests, both green. No concept-deletion residue this round; no blocker.",
+      "createdAt": "2026-07-25T22:11:18.762Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-049",
+      "envelopeId": "1dc3c5d0e91f0af3029cfde2bb1052de36559ebba7d76a2745fed505be9581fb",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "da5af28772d0c1c2296c7fb803013e13b07b8c082b98a588f083ea9c9d1a375e"
+    },
+    {
+      "id": "B-4043:RP-033",
+      "agent": "lattice-review-docs",
+      "note": "Independently re-verified F-014 fix (commit 8e4e36cbad) is real and complete. Diffed the commit directly: Wave4 guidance removed from .claude/agents + .lattice-codex/agents shims for the 4 modular reviewers (concept/docs/quality/test-coverage) and added into packages/main/templates/agents/*.md for 8 roles. Confirmed via agent-prompt.ts/prompt-registry.ts that agent_prompt for the 4 modular reviewers still returns bootstrap-only body (by design) and current shims contain zero guidance text. Confirmed the guidance reaches lattice-review-docs via review_run_start: this RR-052 assembled Role Prompt tail contains the Wave4 docs boundary paragraph sourced from the template. Ran scripts/verify-process-fact-contract.mjs live -> PASS (repointed to template source + asserts absence in bootstrap shims). Ran prompt-registry-smoke.js and story6-role-migration-smoke.js live -> both PASS, proving shim==renderPromptEntryForHost(entry,host) byte-identity (init --upgrade cannot desync) and implementer budget raise 10000->12000 is sufficient (actual 10904 bytes, zero real violation). Diffed pre-review-check-smoke.ts mutation targets, confirmed repointed to template source. Checked docs/CLI.md and the execution-plan Wave4 section for drift on the guidance-location claim: none found. F-013 unused import removal confirmed via grep (zero hits). No new blocking finding this round.",
+      "createdAt": "2026-07-25T22:12:32.665Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-052",
+      "envelopeId": "2ea2a0f96867b974b13c9f05781bf7a7f56af468d2f5d024c8e842be90dd60cd",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5876ac520230a198e333869578cac5475dac296fd945165f432637b7094d261a"
+    },
+    {
+      "id": "B-4043:RP-034",
+      "agent": "lattice-review-concept",
+      "note": "Round since RP-032 only has (1) merge f9855acc21 of main resolving lattice.config.json and proofstory.ts as unions -- verified 57 validate.commands with zero duplicates and correct dropped-unused ScopeShrinkageDecisionData import (still defined types.ts:3013, tsc clean) per F-013, and (2) commit 0e43feee84 simplifying a vacuous ternary in story6-role-migration-smoke.ts per F-018. No concept deletion/replacement occurred; both are mechanical merge-resolution and dead-branch simplification. finding_list shows 0 open findings of 18 total. Build clean.",
+      "createdAt": "2026-07-27T02:14:48.907Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-053",
+      "envelopeId": "409442d1b8661419b9ecbd4029a91da20c3538ddbf6ba23076a5a2b38cd4cd89",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5ee8a4cfbdeb45cb021aabdef3855b386aa9423a7d6fc0ec83a2eb495bc5efac"
+    },
+    {
+      "id": "B-4043:RP-035",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after 785-commit main merge: confirmed F-018 fix landed and both conflict resolutions (config JSON union, proofstory.ts import union) are correct and unused-import-free; tsc clean.",
+      "createdAt": "2026-07-27T02:14:51.215Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-054",
+      "envelopeId": "4d2818f92c53bbe40dc24b009f459422c75e2f8bef2fa929e27b6e6739630349",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3e943c919323a7a1571e0128751c55c7df723f6c04e2552eb8cc99d2df03fa12"
+    },
+    {
+      "id": "B-4043:RP-036",
+      "agent": "lattice-review-docs",
+      "note": "Re-verified F-014 fix post-merge (785 commits, main->story/B-4043 merge f9855acc21, conflicts only in lattice.config.json validate.commands and proofstory.ts imports, resolved as clean unions) plus commit 0e43feee84 (F-018 ternary cleanup, no doc impact). Confirmed Wave4 guidance still sourced from packages/main/templates/agents/*.md, materialized shims byte-identical to templates (host-name substitution only diff), thin-shim reviewer roles still bootstrap-only, verify-process-fact-contract.mjs PASS and still references templates/agents. Used review_incremental_context: only docs/requirements/decisions/plan-init-reopen.md entered changedFiles since RP-033, and it is an unmodified passthrough from the main merge (git diff main HEAD empty), not authored by B-4043. docs/CLI.md and execution-plan.md Wave4 sections predate RP-033 and match current command-catalog.ts (acceptance_rollout_report/_report_read/_check registered) and acceptance-rollout.ts (29 AR_* codes). 0 findings.",
+      "createdAt": "2026-07-27T02:18:08.659Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-056",
+      "envelopeId": "d9655bc20f432ec8babfc2e519bcce3be15c29dcaca4e4a6a3a34ba98057a262",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-channel.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/plan-init-reopen.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d286d616ff590bb2e9a09071130aeca8a03b7c7cdf3faf8b5457572cdabcb2d"
+    },
+    {
+      "id": "B-4043:RP-037",
+      "agent": "lattice-review-quality",
+      "note": "Verified the 3 commit sets since RP-035: (1) --quiet in verify-process-fact-contract.mjs is minimal and additive-only (isolated behind quiet flag, default path unchanged code, output confirmed byte-size-unchanged 52901 chars, and --quiet output measured 1848 chars, well inside the 12000-char selector window, success marker present); (2) --story= in proofstory-pre-review-check-smoke.ts and --cohort= in both proofstory-acceptance-rollout-smoke.ts / proofstory-pre-review-check-smoke.ts and --out= in run-proofstory-acceptance-rollout-cohort.mjs all follow argv-wins/env-fallback pattern, ran each directly (node dist/tasks/proofstory-pre-review-check-smoke.js --story=B-4043-quality-check -> PASS; node dist/tasks/proofstory-acceptance-rollout-smoke.js --cohort=/tmp/b4043-cohort-r4-final.json -> PASS 57 assertions); --live-proof forwarding of --cohort/--story to child confirmed in diff. (3) Both main-merge commits (1c9601dfb6, 7ec19d7e45) cleanly union lattice.config.json validate.commands and package.json scripts with zero duplicate entries (programmatically verified: 72 validate.commands, 0 dup keys by content-hash; grep for dup script keys found none); proofstory.ts import merge correctly dropped unused ScopeShrinkageDecisionData (0 references in file) while preserving all of main's new red-evidence imports/usages (each used >=2x) -- matches resolved finding B-4043:F-013 (status=resolved). `npm --prefix packages/main run build` is clean (tsc, no errors). `npm run test:process-fact-contract` passes (\"Process fact contract verified\"). findings.json: 0 open findings (F-013 resolved). No dead code, no lost merge-side changes, no config duplicates found.",
+      "createdAt": "2026-07-27T11:59:59.671Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-060",
+      "envelopeId": "100023521089cb2469f836a52b03af8bed9705e2fb8f2b79d0df6e773d44d584",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "63e09d481d8ee856adcf3001b91ab2dd06cfbf88edee5177f67131deaf3dcb75"
+    },
+    {
+      "id": "B-4043:RP-038",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage re-review after F-017/F-019 remediation: independently re-executed 2 of 3 distinct pinned commands live (verify-process-fact-contract.mjs, proofstory-acceptance-rollout-smoke.js) and got byte-identical exit-0/selector-matching output to the stored receipts, confirming 12/15 intents (CHK-001..CHK-004) are genuinely mechanical and fresh. All 15 declared verificationIntent entries have result=pass evidence, none missing/failed. CHK-005 (type=docs, no pin by design) evidence rows carry mechanical:false + honest nonMechanicalReason from verification_evidence_refresh_stale, which per core/verification.ts coverageStatusForCoveredEvidence only demotes EXECUTABLE (logic/cli/browser) intent types to non_mechanical - docs-type intents remain covered regardless, so this does not create a coverage gap. Re-ran proofstory-pre-review-check-smoke --proof-scenarios and confirmed the underlying scenario records tied to CHK-005 (A-MUT-5/10/17, A-POS-4) independently pass/bite at current head. Confirmed via --help that verification_evidence_add derives result from the receipt for pinned intents and refuses a contradicting caller pass, so F-017/F-019 laundering (hash-restamp without re-execution silently kept as pass) cannot recur for pinned intents; refresh_stale now re-executes-or-demotes-with-audit-reason rather than silently re-stamping trust. F-015 orphan CHK-004:hardening row remains accepted-risk, not re-raised. No blocking coverage gap found.",
+      "createdAt": "2026-07-27T12:00:26.853Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-059",
+      "envelopeId": "d5baea757541e70f47d1c82ddc2c877f481f13e98d9605ace8705376d3d19664",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c71e204c00b7015cfad907461aab7eccd6f629b116ef0acbffb01ff3dff350ac"
+    },
+    {
+      "id": "B-4043:RP-039",
+      "agent": "lattice-review-docs",
+      "note": "F-014 fix re-verified after 2 more main merges: 5 modular reviewer shims (both hosts) remain thin/body-free, Wave4 text lives only in packages/main/templates/agents/*.md, verify-process-fact-contract.mjs --quiet PASS with --quiet confirmed non-semantic (only wraps console.log). No doc-code drift found in docs/CLI.md, execution-plan.md, or baseline hash file. New --story/--out/--quiet argv options are internal smoke-script flags not referenced by any doc, so no CLI.md update was owed.",
+      "createdAt": "2026-07-27T12:01:47.098Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-062",
+      "envelopeId": "3cf61cc599e57414b42ff6d71e4277fdb0e42ac61a0160aaad4bfcf29379e7d5",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a504cbbbab3e8b86d1b5ae10189d048e202eb33523fdd1563a64fd6f6fea8b4"
+    },
+    {
+      "id": "B-4043:RP-040",
+      "agent": "lattice-review-concept",
+      "note": "Incremental re-review since RP-034: 2 new main merges (lattice.config.json/package.json/proofstory.ts conflicts resolved as unions) + new --cohort=/--story=/--out=/--quiet argv options. Verified merged proofstory.ts imports (AcceptanceRolloutCohortInputV1 + RedEvidenceData/red-evidence-artifact-validation) both used; config/package merges purely additive; tsc build clean; zero duplicate command-catalog names; all new argv flags fall back to prior env-var/default behavior preserving old invocations; verify-process-fact-contract.mjs PASS with/without --quiet, identical content minus verbose listing lines. No concept deletion/replacement, zero residue. 0 findings open.",
+      "createdAt": "2026-07-27T12:40:52.601Z",
+      "reviewRound": "2026-07-25T22:05:45.751Z",
+      "reviewRunId": "B-4043:RR-061",
+      "envelopeId": "aeb5c8d4d65a8564b25a8084c89ed500b15b5be43b561f1ea8071da94cb1349c",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd93833311ed9e5eb16d1bc37d53a4144eac04b84420b1540dda7d435fa3d992"
+    },
+    {
+      "id": "B-4043:RP-041",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified concept-completeness at head d4fa3ce (round opened solely for stale_closeout_review remedy). Only delta vs prior clean passes RP-034/RP-040 is merge commit 8ca0078db9 bringing unrelated B-49d4 metadata + docs/evidence-integrity-program-spec.md, neither touching B-4043 files. No stale Wave4 NOT IMPLEMENTED residue; new commands registered in command-catalog.ts; Wave4 boundary language consistently mirrored across claude/codex/templates agent prompts. No concept deletion/replacement this round; residue check completed, no blocker.",
+      "createdAt": "2026-07-27T14:23:31.705Z",
+      "reviewRound": "2026-07-27T14:21:49.118Z",
+      "reviewRunId": "B-4043:RR-064",
+      "envelopeId": "8a5f8fcf0d2cd3928ce62bade4ccd099b86cd8cd9d56f6b8e89835325eba7117",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5bed3bcecd8fc576ae6d59ce566ec2835021ed1c010350bdb6e8254429885a1a"
+    },
+    {
+      "id": "B-4043:RP-042",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at head d4fa3cee (round opened solely to refresh stale closeout receipts). Diffed against last passing quality round (RR-060, head 1794d90b): only B-4043 metadata bookkeeping plus unrelated sibling-story/docs files changed; no B-4043 source/config touched.",
+      "createdAt": "2026-07-27T14:23:52.377Z",
+      "reviewRound": "2026-07-27T14:21:49.118Z",
+      "reviewRunId": "B-4043:RR-063",
+      "envelopeId": "2d6d4c11853f41384c39fb054c28923a8eca662fa44f3b346e0adf86317fd7e1",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-basis.json",
+          ".lattice/story/actives/B-4043/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-4043/delivery-check.json",
+          ".lattice/story/actives/B-4043/done-required-evidence.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/summary.json",
+          ".lattice/story/actives/B-4043/test-evidence.json",
+          ".lattice/story/actives/B-49d4/background.md",
+          ".lattice/story/actives/B-49d4/checklist.json",
+          "docs/evidence-integrity-program-spec.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3742700669e34288a606f2bec8a678ebdea49d386968c3a81a72a00f137ffae1"
+    },
+    {
+      "id": "B-4043:RP-043",
+      "agent": "lattice-review-docs",
+      "note": "Mechanical re-round for stale_closeout_review remedy after main merge brought only unrelated B-49d4 metadata + new docs/evidence-integrity-program-spec.md. Re-confirmed F-014 fix holds and docs/CLI.md + execution-plan Wave4 section remain consistent with acceptance-rollout.ts/config.ts; 0 open findings; no new symbols or doc drift since RP-039.",
+      "createdAt": "2026-07-27T14:26:43.386Z",
+      "reviewRound": "2026-07-27T14:21:49.118Z",
+      "reviewRunId": "B-4043:RR-065",
+      "envelopeId": "968b019378515378e68edd04d437230d9a9c3a438f9c35d89a50f179131ca75d",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/managed-assets.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8871c00ba540cef2c24023a666660fc5007123596884ed4cf98a7cd5482cca0"
+    },
+    {
+      "id": "B-4043:RP-044",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at current head after unrelated main merge: all 15 verificationIntents (CHK-001..CHK-005 x3) remain declared and bound to matching intentRef evidence; 12 executable intents (CHK-001..CHK-004) hold mechanical:true receipts with real exitCode/outputDigest/executedAt from CLI-executed pinned {command,selector}; 3 docs intents (CHK-005) are non-executable by design with honest mechanical:false + nonMechanicalReason attestations. git diff 7ec19d7e45..HEAD confirms zero content drift to checklist.json beyond metadata stamp fields (headHash/materialHash/storyFilesHash/timestamp/receipt/mechanical/nonMechanicalReason/executedAt/outputDigest/outputTail/selectorMatched/exitCode/note); repo-wide diff outside .lattice/story/actives/B-4043 touches only B-49d4 story metadata and docs/evidence-integrity-program-spec.md, neither in B-4043 scope. writeStaleRefresh code path (checklist.ts) confirmed to unconditionally demote any command-backed mechanical:true row lacking a fresh reexec stamp rather than re-stamping it, so the F-017/F-019 laundering condition (hash re-stamp without genuine re-run) cannot recur. F-015 orphan CHK-004:hardening row remains accepted-risk, not re-raised. finding_list shows 19/19 findings resolved, zero open/suspected/disproven. No blocker.",
+      "createdAt": "2026-07-27T14:32:02.017Z",
+      "reviewRound": "2026-07-27T14:21:49.118Z",
+      "reviewRunId": "B-4043:RR-066",
+      "envelopeId": "0da6f0aec2c3835d611770234d7d248da65fb7e146cf3574cf4b044d76e3afd4",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-refresh.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "daff0853e46a3ba0f4f7e870d6b21074bf9f9ca2f2400b46d33fa9fb6c3f55fe"
+    },
+    {
+      "id": "B-4043:RP-045",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation round (RR-067) after done_prepare materialHash shift mid-closeout; no source change since RP-041 (branch behind-main 0, tree clean besides .lattice process artifacts). Re-verified concept-completeness of git diff main...HEAD (74 files): all changes are additive (new acceptance-rollout concept, new semantic-map fn in pre-review-live-proof.ts) or pure hash rotation (prompt-registry.ts). One removed symbol (assertScenarioLedgerComplete in proofstory-pre-review-check-smoke.ts, replaced inline by selectActiveScenarioRecords) grep-confirmed zero repo-wide residue. No concept deletion/replacement requiring residue scan this round; no blocker.",
+      "createdAt": "2026-07-27T15:13:27.882Z",
+      "reviewRound": "2026-07-27T15:11:10.692Z",
+      "reviewRunId": "B-4043:RR-067",
+      "envelopeId": "1b552616990a7122c3c4554a8dd46271f4e7e633d96f76bde1fd15d672229fda",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c8a27e0b48d148b39c8ed4867d0d5d9c25c12eea4466c9c7c3f57657ef142cab"
+    },
+    {
+      "id": "B-4043:RP-046",
+      "agent": "lattice-review-docs",
+      "note": "Re-attestation round (quorum rebuild after done_prepare --mergeMain materialHash shift; no source/doc change since RP-043, behind-main=0). Verified F-014 fix still holds: .claude/agents/*.md shims are body-free (9-line bootstrap pointing to lattice agent_prompt / review_run_start), packages/main/templates/agents/*.md is the sole role-guidance source, scripts/verify-process-fact-contract.mjs validates against packages/main/templates/agents. finding_list shows 19/19 findings resolved, 0 open. Cross-checked docs/CLI.md Wave 4 section against packages/main/src/cli/command-catalog.ts: all four verifier-owned commands (acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check) registered exactly as documented. Execution-plan Wave 4 section status IMPLEMENTED matches code. No blockers.",
+      "createdAt": "2026-07-27T15:14:20.962Z",
+      "reviewRound": "2026-07-27T15:11:10.692Z",
+      "reviewRunId": "B-4043:RR-069",
+      "envelopeId": "433e0ee63a8a6455b3d2937996aede108175a0a3e03b534b4a0e259ab1406b70",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-docs.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "717d699aa026c8398ac2c6f64a6cb2ee7a889516ab4040d48aff50fe51b3d32e"
+    },
+    {
+      "id": "B-4043:RP-047",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation: materialHash identical to RP-042/RR-063 (headHash-only drift from done_prepare --mergeMain). tsc --noEmit clean; argv/config/imports re-verified. No blockers.",
+      "createdAt": "2026-07-27T15:14:51.909Z",
+      "reviewRound": "2026-07-27T15:11:10.692Z",
+      "reviewRunId": "B-4043:RR-068",
+      "envelopeId": "3d74e6529b964f1e6577dd78cdcd08a0eb2b42bed783655154ab1a0dde262a9c",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          ".lattice/story/actives/B-4043/acceptance-basis.json",
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-4043/decision.json",
+          ".lattice/story/actives/B-4043/delivery-check.json",
+          ".lattice/story/actives/B-4043/done-required-evidence.json",
+          ".lattice/story/actives/B-4043/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/intent-collision.json",
+          ".lattice/story/actives/B-4043/milestone-ledger.json",
+          ".lattice/story/actives/B-4043/original-intent-snapshot.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/pre-review-check.json",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/proofstory.json",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/review.json",
+          ".lattice/story/actives/B-4043/scope-check.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          ".lattice/story/actives/B-4043/summary.json",
+          ".lattice/story/actives/B-4043/test-evidence.json",
+          ".lattice/story/actives/B-4043/understanding.json",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c4d2e49c2e83be0c6dfa0b255de327ef0b2bfaea0555c776c4f745cd0a9406e"
+    },
+    {
+      "id": "B-4043:RP-048",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation round (quorum rebuild after done_prepare --mergeMain materialHash shift; no source change since RP-044). Re-verified at current head: all 15 declared verificationIntents have valid pass evidence; 12 executable intents carry genuine tool-executed receipts bound to one consistent headHash/storyFilesHash pair from the RP-044 window; F-015 orphan row accepted-risk, not re-raised; 19/19 findings resolved, 0 open; refresh_stale reports no stale evidence. No blocker.",
+      "createdAt": "2026-07-27T15:17:52.338Z",
+      "reviewRound": "2026-07-27T15:11:10.692Z",
+      "reviewRunId": "B-4043:RR-070",
+      "envelopeId": "2ac3d3c8e071979b1210787c9595b4ea4e9d619bb6f36fb2cc67feca17fff96e",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "448f921cba4f845d79a5b8942e145aa194f57417f64334854d4a24d3946a5d7b"
+    },
+    {
+      "id": "B-4043:RP-049",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation after 68 clean main commits merged (behind-main 0, zero conflicts, B-4043 own source unchanged since RP-045). Re-verified concept-completeness of git diff main...HEAD (74 files, 38122 insertions/204 deletions): diff content unchanged from RP-045/RP-067 baseline. Only removed symbol is assertScenarioLedgerComplete in proofstory-pre-review-check-smoke.ts, replaced inline by selectActiveScenarioRecords -- grep-reconfirmed zero repo-wide residue (only hit is this reviewers own prior review-passes.json note). No new concept deletion/replacement introduced by the main merge. No blocker.",
+      "createdAt": "2026-07-28T15:36:28.821Z",
+      "reviewRound": "2026-07-28T15:34:42.889Z",
+      "reviewRunId": "B-4043:RR-072",
+      "envelopeId": "bf5daa02fdb7a16f6b74fc59edae924ac0da47b451296b2870f22f8eb15d8d92",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-delivery.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/test-case-reviewer.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfc1e8609a6810e21294ac418272ebf7301aa4ea3ac0434a3c1f3f2cb9257c83"
+    },
+    {
+      "id": "B-4043:RP-050",
+      "agent": "lattice-review-docs",
+      "note": "Re-confirmation round after 68-commit main merge (unrelated whole-tree drift, no conflicts touching story-owned docs/prompt-registry files). Live-reconfirmed F-014 fix at head f63e431: template-sourced Wave4 guidance, body-free reviewer shims, template-backed contract check all still hold; docs/CLI.md + Wave4 execution-plan section still consistent with code. No new inconsistency found.",
+      "createdAt": "2026-07-28T15:39:10.260Z",
+      "reviewRound": "2026-07-28T15:34:42.889Z",
+      "reviewRunId": "B-4043:RR-073",
+      "envelopeId": "336845a6a08c4ba048aab340b831d67d6b3a17fc64bb442c14c2bdd51e82c0d9",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/lattice.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae70a777b86185f63dbf2413ab64f1fbf26c6797e3a3105134303702b0b218f9"
+    },
+    {
+      "id": "B-4043:RP-051",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at head f63e431 after 68-commit clean main merge (0 commits behind, 0 conflicts). tsc --noEmit -p packages/main clean. Confirmed proofstory.ts and every other B-4043-touched core/handlers file has zero unused-import/unused-local findings under a noUnusedLocals=true scratch tsc pass; the small set of unused-locals found elsewhere in command-catalog.ts/process-fact-registry.ts pre-dates this story (identical on main). lattice.config.json and package.json parse cleanly with no genuine duplicate keys (mode/type collisions are distinct sibling objects, not real dupes); validate.commands has 0 duplicate entries across 91 commands. No new as-any or empty-catch in the diff.",
+      "createdAt": "2026-07-28T15:39:24.244Z",
+      "reviewRound": "2026-07-28T15:34:42.889Z",
+      "reviewRunId": "B-4043:RR-071",
+      "envelopeId": "3ecfe2f62993fedd8543ba083c725b11d34ec6573ddc130c19d19824ea8eb332",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5aed3724c52351fa772bbec9a8d469574c84d2c3d876ce0ab800a5888c5a5365"
+    },
+    {
+      "id": "B-4043:RP-052",
+      "agent": "lattice-review-test-coverage",
+      "note": "Independently verified F-020 remediation is genuine re-execution, not laundered re-stamping. All 12 executable verificationEvidence rows (CHK-001..CHK-004) carry receipt.executedAt 2026-07-28T15:40:53Z-15:48:05Z, post-dating the F-020-triggering merge commit, with materialHash/storyFilesHash equal to current story context. I independently re-ran all 3 distinct pinned commands right now; sha256 of my own stdout+stderr byte-for-byte matches the stored receipt.outputDigest for all 3 (374685..., fde2c15..., 3611bff...) -- proving the receipts are real reproducible executions, not fabricated text. finding_list shows 0 open findings; F-020 resolved/verified. F-015 orphan row correctly remains the sole stale-hash row, still resolved/low/non-blocking, not re-raised per instruction. No blocker.",
+      "createdAt": "2026-07-28T15:54:25.903Z",
+      "reviewRound": "2026-07-28T15:34:42.889Z",
+      "reviewRunId": "B-4043:RR-075",
+      "envelopeId": "4bdfaf3a50a16c6fe92de4002282e27a52bc3341fd57311b50fd5d219d43e89d",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "385ec17b9a0e92853289bfb1bba89081d379e219afd5e1ceeab175042e8decf4"
+    },
+    {
+      "id": "B-4043:RP-053",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement introduced since prior pass RP-049; incremental basis (review_run_start) reports ELIGIBLE_NO_MATERIAL_CHANGE/ELIGIBLE_TRUSTED_PRIOR_BINDINGS with empty changedFiles. Independently verified full 20/20 findings resolved, wave4 chain intact, rollback scoped to acceptanceRolloutGateMode only. No blocker.",
+      "createdAt": "2026-07-28T16:27:58.598Z",
+      "reviewRound": "2026-07-28T16:26:25.720Z",
+      "reviewRunId": "B-4043:RR-076",
+      "envelopeId": "244fa588205baf794fe5d4953cffdd7601605ce1794c319c6692a5bb1a7ff000",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "filesTriagedByName": [
+          "git diff main...HEAD --stat (74 files)",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d505733120090dd1b63da24cb7b3e78ed71f0763b8dbdf131d6b06e5223003b3"
+    },
+    {
+      "id": "B-4043:RP-054",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at head 52b504b after closeout-metadata-only changes since RP-051 (review_incremental_context: isFirstPass=false, scopeChanged=false, changedFiles=none). tsc clean; configs valid no dup keys; proofstory.ts imports all used; no empty catch/as any. No blocking findings.",
+      "createdAt": "2026-07-28T16:28:24.281Z",
+      "reviewRound": "2026-07-28T16:26:25.720Z",
+      "reviewRunId": "B-4043:RR-077",
+      "envelopeId": "58f056775f0b7ed41c0bb28f964e894f6e5811ebe422ae7c173d19cab5dfd4a9",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "036e7772ab44083223d28f334193b83f73a44331d52885254c38e8eb59fc3900"
+    },
+    {
+      "id": "B-4043:RP-055",
+      "agent": "lattice-review-docs",
+      "note": "Independent fresh re-check of F-014 at current head (RR-078, distinct from RP-050 which was invalidated by a checklist.json rewrite ordering issue, not a content issue). Verified all 8 templates carry Wave4 keywords; verified reviewer shims for docs/concept/quality/test-coverage are body-free; implementer/delivery shims match templates plus injected runtime-guide block (Wave4 sentence byte-identical); test-case-reviewer/topology-critic shims byte-identical to templates. verify-process-fact-contract.mjs sources rolloutPromptPairs/Tokens from packages/main/templates/agents (grep-confirmed), ran it live: PASS exit 0. Ran pre-review-check-smoke --proof-scenarios live: PASS exit 0, A-MUT-1/A-MUT-6 mirror/authority mutations bite, Wave3A/4 leakage absent. docs/CLI.md Wave2-4 command sections match registered handlers in proofstory.ts. Execution-plan doc header/Wave4 sections (thresholds, 3x2 wording, config-only rollback, Wave3A exclusion) match implemented code and CLAUDE.md boundary text verbatim. No doc-code drift found.",
+      "createdAt": "2026-07-28T16:33:03.304Z",
+      "reviewRound": "2026-07-28T16:26:25.720Z",
+      "reviewRunId": "B-4043:RR-078",
+      "envelopeId": "037aa861f29276803179f3bac089a95c5a6ba9a0cfcfc18afadd3c9debe71d26",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".claude/agents/test-case-reviewer.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/test-case-reviewer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "352683c9f5eb56ae9700c71a107d47573688790df1ecbe9340200b8bfb73cb36"
+    },
+    {
+      "id": "B-4043:RP-056",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attested at head 52b504b (unchanged since RP-052; incremental basis shows ELIGIBLE_NO_MATERIAL_CHANGE, zero changedFiles). Re-verified checklist.json: all 15 declared intents (CHK-001..CHK-005 x happy/edge/adversarial) covered by verificationEvidence with result=pass. The 12 executable (cli/logic-typed) intents in CHK-001..CHK-004 hold genuine mechanical receipts (mechanical:true, exitCode 0, matching outputDigest/selectorMatched, same 3 pinned commands byte-verified in RP-052: verify-process-fact-contract.mjs, proofstory-pre-review-check-smoke.js --proof-scenarios, proofstory-acceptance-rollout-smoke.js), all bound to identical headHash/materialHash/storyFilesHash (f25bb43b...) with no discrepancy from the RP-052 snapshot. CHK-005s 3 docs-typed intents have honestly-disclosed manual_transcript evidence marked mechanical:false with an explicit nonMechanicalReason (auto-demoted by a prior verification_evidence_refresh_stale run reacting to whole-tree materialHash churn from this storys own .lattice/story/actives/B-4043/* metadata writes, per runtime-artifact-registry.ts materialHash:include for that subtree); storyFilesHash is unchanged and no actual docs/ or decisions/ content drifted (git diff d765daf7..HEAD touches only .lattice/story/actives/B-4043/* bookkeeping files) -- this is honest disclosure of an auto-downgrade, not laundering. Confirmed all prior findings including F-015 (orphan CHK-004:hardening row), F-017, F-019, F-020 are status=resolved; F-015 remains accepted-risk per instruction and is not re-raised. No new blocking findings. verification_evidence_refresh_stale --dryRun (attempted independently) is owner-gated in this session so I could not re-run it myself, but its dry-run reason chain is consistent with the classifyEvidenceFreshness KNOWN_UNRELATED_MATERIAL_DRIFT path I traced in evidence-freshness.ts. No blocker.",
+      "createdAt": "2026-07-28T16:33:39.183Z",
+      "reviewRound": "2026-07-28T16:26:25.720Z",
+      "reviewRunId": "B-4043:RR-079",
+      "envelopeId": "46035f4a6952c08f61fb1d4cb2478fb018a12431ebd5d732120eff226b81aa8e",
+      "writerSessionId": "sess-c27c388ca8089c520bc198ab5f1e1153",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/index.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ca82fbadffbbe04ebf927fdc7adff7679f058be25a1b33fecf1dfda02c78208"
+    }
+  ]
+}

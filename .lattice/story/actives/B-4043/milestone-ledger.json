@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-4043",
+  "state": "confirmed",
+  "ledgerHash": "sha256:54c9ee014757e559436eb38673936ec038bd2e3743b192be67f3175e91e47169",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-W4-PROMPTS",
+      "claim": "All in-scope Codex and Claude roles guide agents to canonical verifier-owned rollout facts without prompt authority.",
+      "doneMeans": "Mirrored role contract passes and prompt/process-fact mutations bite.",
+      "requiredEvidence": [
+        "prompt_mirror_contract",
+        "process_fact_contract",
+        "mutation_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:role-guidance",
+        "CHK-001:edge:mirror-mode",
+        "CHK-001:adversarial:prompt-authority"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-W4-COHORT",
+      "claim": "A frozen verifier-derived real baseline/candidate cohort produces a signed reproducible rollout report.",
+      "doneMeans": "At least three paired samples per arm execute; aggregates reproduce from bound records and caller selection/verdict/aggregate tampering is rejected.",
+      "requiredEvidence": [
+        "real_cohort_transcript",
+        "signed_receipt",
+        "tamper_mutations"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:real-cohort-receipt",
+        "CHK-002:edge:false-block-controls",
+        "CHK-002:adversarial:seeded-defects"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-W4-THRESHOLDS",
+      "claim": "Warn-to-enforce eligibility uses explicit conservative thresholds and honest adapter classifications.",
+      "doneMeans": "Zero false passes across all registered seeded defects, 100 percent supported omission detection, zero false blocks, zero mislabeled 3x1, waiver delta <=0, non-shrinking inventory and supported adapters all pass; every boundary mutation fails closed.",
+      "requiredEvidence": [
+        "policy_table_test",
+        "boundary_mutations",
+        "stable_codes"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:bounded-thresholds",
+        "CHK-003:edge:inconclusive-boundary",
+        "CHK-003:adversarial:threshold-bypass"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-W4-ENFORCEMENT",
+      "claim": "Flat project enforcement consumes the current rollout receipt and full 3x2; rollback preserves history.",
+      "doneMeans": "Production transition passes only with current qualifying evidence, all stale/tamper/degraded mutations reject, and observe/warn rollback removes blocking without rewriting artifacts.",
+      "requiredEvidence": [
+        "production_consumer_test",
+        "full_3x2",
+        "rollback_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:enforce-and-rollback",
+        "CHK-004:edge:mode-invariant-diagnostics",
+        "CHK-004:adversarial:fail-closed-mutations"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-W4-DOCS",
+      "claim": "Canonical Story 6 and CLI docs state the exact measured Wave 4 boundary and exclusions.",
+      "doneMeans": "Docs match current verifier output/commands/thresholds/rollback, mark flat Wave 4 implemented only after evidence, keep Wave 3A not implemented, and avoid authority overclaim.",
+      "requiredEvidence": [
+        "docs_contract",
+        "real_output_comparison",
+        "status_audit"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:canonical-wave4-status",
+        "CHK-005:edge:authority-and-exclusions",
+        "CHK-005:adversarial:no-status-overclaim"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-23T16:45:51.766Z",
+  "updatedAt": "2026-07-23T16:45:52.815Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "B4043-W4-INTENT-CONFIRM",
+    "acceptedInterpretationHash": "sha256:ef4b2b9e0a68f2a434c7158321f73e19af0d9b4941015f599a78968da33b861f",
+    "acceptedAt": "2026-07-23T16:45:52.815Z"
+  }
+}

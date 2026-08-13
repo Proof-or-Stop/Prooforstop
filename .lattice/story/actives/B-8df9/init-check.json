@@ -1,0 +1,58 @@
+{
+  "storyId": "B-8df9",
+  "checkedAt": "2026-07-27T22:18:02.932Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md ## Conversational Texture: \"That same reviewer also found the first draft had frozen volatile counts into its own prose — the exact stale-number pattern the immediately preceding story existed to remove.\" This cross-story reference names no story ID, unlike the earlier B-49d4 reference which does get a one-sentence gloss. A cold reader cannot identify or verify which story this is: the only other story named in the document (B-49d4, per Trigger Event) is described as having removed \"a check bound to a fixed allowlist rather than to the property it guaranteed\" — a different topic from a \"stale-number pattern in prose\" — so either the reference is to some third, wholly unnamed story, or it is an inconsistent gloss on B-49d4. Either way this is unresolvable and unverifiable by a standalone reader."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md ## Solution Tradeoffs, paragraph 2: the token \"koala-*\" (as in \"koala-* pair 173\" and \"koala-*@fallback pair 16\") is used before it is defined. Its meaning (\"koala-review-story-init — the pre-rename name\") is only given two sentences later in paragraph 3 (line 31). Minor forward-reference ordering issue; readable in context but technically undefined at first appearance per the letter-code/abbreviation-on-first-use rule."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-27T22:14:54.634Z",
+      "issues": [
+        {
+          "id": "PR-1",
+          "severity": "medium",
+          "desc": "Observable outcome is thin but appropriate for a security fix. The story should define the concrete user-visible rejection transcript (the exact error text a user sees when story_advance INIT_CHECK encounters tampered agentResults) so DONE verification has something to check against. Currently CHK-001 proves the repro but no checklist item specifies what the rejection looks like from outside the test. This is a PLAN/DEV concern, not blocking at INIT."
+        },
+        {
+          "id": "PR-2",
+          "severity": "low",
+          "desc": "The 636-file audit-replay cost is near-zero in practice: no framework user replays init-check audit chains of completed stories, and the gate early-returns for non-INIT phases (machine.ts:440). The story correctly distinguishes operational vs audit breaks, but CHK-005 may spend disproportionate design effort on a cost with no practical user impact. Consider stating plainly that the audit-replay break is acceptable because nobody replays those files, rather than treating it as a serious design decision requiring extensive justification."
+        },
+        {
+          "id": "PR-3",
+          "severity": "low",
+          "desc": "Honesty check: PASS. The background explicitly disclaims the remaining hole (single-caller dual-agentId), the title uses tampered rather than forged, and the scope sentence narrowly targets data no legal caller ever wrote. No reader of this background would be left more confident than the evidence warrants. This is recorded as a positive finding, not an issue."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-27T22:18:02.932Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md ## Conversational Texture: \"That same reviewer also found the first draft had frozen volatile counts into its own prose — the exact stale-number pattern the immediately preceding story existed to remove.\" This cross-story reference names no story ID, unlike the earlier B-49d4 reference which does get a one-sentence gloss. A cold reader cannot identify or verify which story this is: the only other story named in the document (B-49d4, per Trigger Event) is described as having removed \"a check bound to a fixed allowlist rather than to the property it guaranteed\" — a different topic from a \"stale-number pattern in prose\" — so either the reference is to some third, wholly unnamed story, or it is an inconsistent gloss on B-49d4. Either way this is unresolvable and unverifiable by a standalone reader."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md ## Solution Tradeoffs, paragraph 2: the token \"koala-*\" (as in \"koala-* pair 173\" and \"koala-*@fallback pair 16\") is used before it is defined. Its meaning (\"koala-review-story-init — the pre-rename name\") is only given two sentences later in paragraph 3 (line 31). Minor forward-reference ordering issue; readable in context but technically undefined at first appearance per the letter-code/abbreviation-on-first-use rule."
+        }
+      ]
+    }
+  ],
+  "_hash": "83079ea52cd87fb4f254d50d9a6414b3b5ffb65311931efcd67cb145462a903a"
+}

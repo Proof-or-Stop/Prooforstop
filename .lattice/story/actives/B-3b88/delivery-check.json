@@ -1,0 +1,58 @@
+{
+  "storyId": "B-3b88",
+  "checkedAt": "2026-07-27T01:55:45.861Z",
+  "headHash": "431162cc457ffdc19e6fdb5ad9be380c85e263ec",
+  "materialHash": "e108e417d97de168b9a1c571563e6a492bcabd03bf9b3300228512d386ec796e",
+  "storyFilesHash": "75ad67ceee2cd5d700e414c3e8518312debf25ad06d7ef8286643872f16177ad",
+  "reviewRound": "2026-07-27T01:20:13.611Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#stale-evidence-cannot-be-overridden-by-tests-passed",
+      "promise": "verification_evidence_refresh_stale re-executes a pinned verifier when the intent declares one (a genuine pass keeps its mechanical receipt); otherwise a stale command-backed result:pass row is demoted in place to a non-mechanical attestation with an audit reason, never silently re-certified",
+      "verifiedBy": "diff/grep + command re-run",
+      "evidence": "commit f2ed3cd225 reworded this line from the pre-merge REFUSED/never-re-executes claim. packages/main/src/handlers/checklist.ts verification_evidence_refresh_stale handler (line ~1787) re-executes any pinned intent via enforceAndStampEvidence/runSingleAllowlistedCommand and re-stamps mechanical:true+receipt on a real pass (reexecByKey path in writeStaleRefresh, line ~840); writeStaleRefresh falls through to unconditional demotion (ev.mechanical===true || unexecutedCommandBackedPass, line 882) with an audit nonMechanicalReason otherwise. node packages/main/dist/tasks/refresh-stale-honesty-smoke.js -> PASS (independently re-run this session)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md#command-reference-table + testing-infra.md#command-reference-table verification_evidence_refresh_stale rows",
+      "promise": "both command-reference table rows restate the re-execute/else-demote semantics instead of blanket refusal",
+      "verifiedBy": "diff/grep",
+      "evidence": "commit f2ed3cd225 changes both table rows identically (story-lifecycle.md line ~265, testing-infra.md line ~166) to describe re-execution of a pinned verifier plus in-place demotion; matches the delivered handler behavior verified above."
+    },
+    {
+      "docPath": "packages/main/src/cli/command-catalog.ts#verification_evidence_refresh_stale description",
+      "promise": "CLI help text describes RE-EXECUTED pinned verifier + in-place demotion, not blanket refusal",
+      "verifiedBy": "diff/grep",
+      "evidence": "commit f2ed3cd225 updates the Zod schema description string in command-catalog.ts to state a pinned verifier is RE-EXECUTED (real pass keeps its mechanical receipt) and otherwise a command-backed result:pass is demoted in place with an audit reason."
+    },
+    {
+      "docPath": "packages/main/src/core/evidence-stale-hint.ts JSDoc example + renderer output",
+      "promise": "both the JSDoc example block and the byte-identical live renderer string describe re-execute/else-demote semantics",
+      "verifiedBy": "diff/grep",
+      "evidence": "commit f2ed3cd225 changes both the JSDoc comment (line ~87) and the live renderEvidenceStaleHint renderer string (line ~107) to identical reworded text; both lines confirmed still byte-identical to each other after the edit (same line-count note in the commit message, confirmed by reading the file)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-3b88/plan.md#CHK-001",
+      "promise": "verification_evidence_add / verification_evidence_batch_add refuse an evidence row whose command and file fields name contradictory targets (F-049/F-050 class)",
+      "verifiedBy": "diff/grep + command re-run",
+      "evidence": "unchanged since prior signed round: packages/main/src/core/verification.ts exports detectEvidenceRowContradiction; wired into both verification_evidence_add (checklist.ts:1497) and verification_evidence_batch_add (checklist.ts:1590). node packages/main/dist/tasks/evidence-selfcheck-smoke.js -> PASS (independently re-run this session)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "evidence-selfcheck-smoke.ts: 12 happy/edge/adversarial cases against detectEvidenceRowContradiction across both verification_evidence_add and verification_evidence_batch_add. Independently re-run this session after a clean tsc build: node packages/main/dist/tasks/evidence-selfcheck-smoke.js -> evidence-selfcheck-smoke: PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "refresh-stale-honesty-smoke.ts: 11 happy/edge/adversarial cases proving a stale command-backed result:pass row is never laundered by verification_evidence_refresh_stale -- either re-executed to a fresh genuine pass or demoted in place with an audit reason. Independently re-run this session after a clean tsc build: node packages/main/dist/tasks/refresh-stale-honesty-smoke.js -> refresh-stale-honesty-smoke: PASS. Also independently re-ran node packages/main/dist/tasks/verification-freshness-smoke.js: it progresses past all CHK-001/CHK-002-relevant blocks and stops only at the pre-existing pre_review_check acceptance-basis gate (packages/main/src/handlers/proofstory.ts, unchanged by this story diff -- git diff main...HEAD for that file is empty -- and the same error string / guard exists verbatim on main at commit 9f52660fdd, predating this story)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Since my prior signature (materialHash 20e4a04f01be) the only substantive change is commit f2ed3cd225, which reworded five surfaces (command-catalog.ts, story-lifecycle.md x3, testing-infra.md, evidence-stale-hint.ts JSDoc+renderer) to describe the actually-delivered re-execute-pinned-verifier-else-demote-in-place semantics, replacing the stale pre-merge REFUSED/never-re-executes wording. I independently read the implementation (writeStaleRefresh + the async verification_evidence_refresh_stale handler in checklist.ts) and confirmed all five reworded surfaces now match it exactly. Both story smokes were rebuilt and re-run fresh and pass; CHK-001/CHK-002 checklist coverage is unchanged and intact. The docs lane independently re-verified the same five surfaces (RP-013) and F-005 is recorded resolved with strong evidence. No new gap found."
+  },
+  "_hash": "fd01578139967c9cfe7693e11eb126458b6e160a2bb1a3ea9fc686537674a29b"
+}

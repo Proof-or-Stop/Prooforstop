@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3253",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git merge *",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+    "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+    "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+    "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+    "node packages/main/dist/tasks/tool-executed-evidence-receipt-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Claude reviewer host",
+    "Codex reviewer host",
+    "git",
+    "Lattice CLI",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+  ],
+  "excludedCommands": [
+    "concurrent duplicate smoke invocations",
+    "full rollout cohort unless explicitly required by a lifecycle gate",
+    "git checkout -- *",
+    "git clean -fd",
+    "git push *",
+    "git reset --hard",
+    "omx *"
+  ],
+  "excludedTools": [
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Run long commands as a single instance and poll them. Preserve unrelated root worktree files. Reviewer roles may inspect repository-wide read-only context but implementation writes remain in allowed paths.",
+  "createdAt": "2026-07-28T22:21:04.914Z",
+  "updatedAt": "2026-07-28T22:21:04.914Z",
+  "_hash": "3f0f8553c2d6f17eea62025d4ef997594ec8bf3d009b4c8b40455f7b55649d4b"
+}

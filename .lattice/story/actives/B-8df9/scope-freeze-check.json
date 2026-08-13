@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8df9",
+  "checkedAt": "2026-07-27T22:20:18.624Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "6aa2c76cacf87f957ecdf5c11f10b2b5cdc7ec5a443c2470a45d011740e7735c",
+  "executionBoundaryHash": "3fe7dd3d176200f6f3c73765789eafcc43482355b7c5483b5e62b514ba02dc97",
+  "freshnessHash": "51794bf20deeb3c2d25c5539eb68f6ea0390cf1a829159a54ac4c35ba5dd5ac3",
+  "effectiveExcludedKeywords": [
+    "Adding agentId validation, caller-identity checks, session binding, or dispatch-evidence cross-checks to init_check_set",
+    "Any change under packages/main/src/core/red-evidence/",
+    "Authority",
+    "Changes to the draft-check or delivery-check signature domains, which have the same shape but are separate artifacts",
+    "Changing the REQUIRED_INIT_CHECK_AGENTS set or the number of required reviewers",
+    "Changing whether one caller can invoke init_check_set twice with different registered agentIds to satisfy both required reviewers. This is BY DESIGN per EXP-001 and is positively asserted by four smoke tests; closing it would remove load-bearing behaviour and is explicitly not this story's job",
+    "customerKeyRef",
+    "Layer4",
+    "Re-signing the existing corpus by routing it through the handler. Roughly 195 of 637 files carry an actor absent from AGENT_DISPATCH_REGISTRY and would throw agent_dispatch_actor_unknown, so this is not implementable and any design assuming it must be rejected",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding agentId validation, caller-identity checks, session binding, or dispatch-evidence cross-checks to init_check_set",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding agentId validation, caller-identity checks, session binding, or dispatch-evidence cross-checks to init_check_set",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change under packages/main/src/core/red-evidence/",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change under packages/main/src/core/red-evidence/",
+      "excluded": true
+    },
+    {
+      "keyword": "Changes to the draft-check or delivery-check signature domains, which have the same shape but are separate artifacts",
+      "source": "scopeBoundary.excluded",
+      "text": "Changes to the draft-check or delivery-check signature domains, which have the same shape but are separate artifacts",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the REQUIRED_INIT_CHECK_AGENTS set or the number of required reviewers",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the REQUIRED_INIT_CHECK_AGENTS set or the number of required reviewers",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing whether one caller can invoke init_check_set twice with different registered agentIds to satisfy both required reviewers. This is BY DESIGN per EXP-001 and is positively asserted by four smoke tests; closing it would remove load-bearing behaviour and is explicitly not this story's job",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing whether one caller can invoke init_check_set twice with different registered agentIds to satisfy both required reviewers. This is BY DESIGN per EXP-001 and is positively asserted by four smoke tests; closing it would remove load-bearing behaviour and is explicitly not this story's job",
+      "excluded": true
+    },
+    {
+      "keyword": "Re-signing the existing corpus by routing it through the handler. Roughly 195 of 637 files carry an actor absent from AGENT_DISPATCH_REGISTRY and would throw agent_dispatch_actor_unknown, so this is not implementable and any design assuming it must be rejected",
+      "source": "scopeBoundary.excluded",
+      "text": "Re-signing the existing corpus by routing it through the handler. Roughly 195 of 637 files carry an actor absent from AGENT_DISPATCH_REGISTRY and would throw agent_dispatch_actor_unknown, so this is not implementable and any design assuming it must be rejected",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "58f03afbf849ab441c484ab38fe3fbd40beeaa9accd4fff593b7edc3f47ecec7"
+}

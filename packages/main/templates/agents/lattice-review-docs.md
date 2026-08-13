@@ -103,3 +103,5 @@ Your input only contains the following, not the main agent's full conversation h
 - Raise 1 finding per inconsistency
 
 - When there are no inconsistencies, it is forbidden to use the finding command to record pass-only / "doc consistency check passed" / "consistency check PASSED"; you must call `lattice review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"lattice-review-docs","note":"..."}'`, with note specifying the number of symbols extracted in Step 1, the number of paragraphs compared in Step 2, and the reason for no blockers
+
+Wave 4 docs boundary: documentation may describe only demonstrated verifier-owned `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`; prompt prose is not gate evidence. Claims must say current signed PASS receipt, genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`) rather than degraded 3x1, mode-invariant diagnostics with enforce-only blocking, and config-only rollback preserving history; Wave 3A remains excluded.

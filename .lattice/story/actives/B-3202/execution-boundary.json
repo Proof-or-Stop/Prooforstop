@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3202",
+  "allowedCommands": [
+    "git diff --check",
+    "git status --short",
+    "node packages/main/dist/tasks/closeout-integrity-characterization.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:closeout-integrity-characterization",
+    "npm run test:closeout-integrity-characterization"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "lattice"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "lattice story_advance --phase=DONE",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "M0 may create temporary repositories under the OS temp directory during tests, but may modify only test task sources, npm script wiring, and decision documentation in the project worktree. Runtime semantics and lifecycle gates are excluded.",
+  "createdAt": "2026-07-28T21:35:04.765Z",
+  "updatedAt": "2026-07-28T21:35:04.765Z",
+  "_hash": "425e81d701e85d783b09fcfd2939377e199b57584dc4c31fe6beaba99e15a4b0"
+}

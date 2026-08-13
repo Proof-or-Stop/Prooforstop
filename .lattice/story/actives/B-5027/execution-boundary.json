@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5027",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node experiments/role-prompt-ab-replay/*",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "experiments/role-prompt-ab-replay",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*",
+    "git restore*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/role-prompt-ab-replay/runtime",
+    "packages/main/src/handlers/evaluate.ts"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Red-test-only reproduction. Production sources and ignored runtime evidence are read-only/excluded from writes.",
+  "createdAt": "2026-07-28T21:22:17.554Z",
+  "updatedAt": "2026-07-28T21:22:17.554Z",
+  "_hash": "653f0592df69e1560891000d1c56794bd2f4785232e1684f777de00607678ec6"
+}

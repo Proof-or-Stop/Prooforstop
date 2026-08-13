@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f88e",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a collision precondition to eventsWithStoryFilesHashDowngrade in packages/main/src/core/review-escalation.ts so a downgrade never manufactures a duplicate host identity",
+    "Land the existing red reproduction under packages/main/tests/red/ and register it in lattice.config.json validate.commands"
+  ],
+  "excluded": [
+    "Any change to quorum_submit duplicate-guard semantics",
+    "Any change to the review-assurance floor thresholds or the human-gated review_escalation_fallback_set path",
+    "Changing groupByIndependentHost to prefer the newest verdict per identity (option C, rejected)",
+    "Changing the quorum runId scheme to be round-scoped (option B, rejected in the decision)",
+    "Retroactively repairing already-recorded verdicts of past stories"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved on 2026-07-28 after reviewing the red reproduction output: land the red test as a registered guard and fix the downgrade collision.",
+  "createdAt": "2026-07-30T00:45:42.525Z",
+  "updatedAt": "2026-07-30T00:45:42.525Z",
+  "_hash": "90ab7a3da1f98968c9d160d60475812aee1e92a02228dab3f6447148bc77bdbf"
+}

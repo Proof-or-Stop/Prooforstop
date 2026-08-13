@@ -4,33 +4,456 @@
       "id": "CHK-001",
       "title": "Harden the stall detector from advisory to a blocking adjudication at the review-round mint site",
       "context": "core/review-convergence.ts already computes the stall/trend signal (STALL_MIN_ROUNDS=4, STALL_WINDOW=3 non-improving). handlers/transition-effects.ts:284-289 currently consumes it advisory-only inside a try/catch that never blocks — it only appends output text. Make the stall trigger REFUSE to mint another ordinary review round (block the REVIEW re-entry / new-round transition) until a structured resolution is recorded. Extend the existing detector; do not build a new one. The refusal must carry a structured prompt naming the allowed §3 actions.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T07:58:15.958Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/advisory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "a stalled REVIEW (>=STALL_MIN_ROUNDS with a non-improving trailing window) with no current-round resolution refuses to mint another ordinary review round, with a structured prompt naming the allowed actions",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a converging trend (trailing-clean last==0 or strictly-decreasing blocker counts) at or beyond STALL_MIN_ROUNDS is NOT blocked — no false cap on a healthy story",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the block cannot be bypassed by merely re-entering REVIEW / re-running reviewers without a recorded current-round resolution",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke A: a stall [3,3,3,3]/[0,2,2,2] with no resolution → the real mint gate refuses with [review_convergence_stall] naming the 5 actions.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:24:41.130Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke B: converging clean-tail [3,2,1,0] / strictly-decreasing [4,3,2,1] / below-threshold [3,3,3] are NOT blocked (no false cap).",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:24:47.616Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke C: the block is not bypassable by re-entry without a recorded current-round resolution; re-validated at guard + gate.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:24:53.870Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add the structured resolution actions that clear the stall block (incl. declare-checklist-item-unreachable)",
       "context": "On stall, require exactly ONE recorded action to clear the block: (a) human authorizes continuation with a reason + a bounded additional round budget; (b) the story is re-planned / split; (c) a root-cause / architecture escalation is recorded; (d) the blocking findings are explicitly resolved / disproven / deferred, or scope is shrunk; or (e) a checklist item is declared UNREACHABLE (the F-058 case a raw cap never surfaces — declaring it closes the loop instead of spinning). Provide the CLI command(s) + persisted, signed record consumed by the gate; the unreachable declaration must reconcile plan.md/claims (F-059) rather than leave them drifting.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T08:17:36.144Z",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/stall-adjudication.ts",
+          "packages/main/src/core/stall-adjudication.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "recording any one of the five structured actions (bound to the current stalled round) clears the block so the next ordinary round mints",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "declaring a checklist item unreachable marks it withdrawn (B-1909 withdrawn-disposition semantics), reconciles plan/claims, and closes the loop instead of minting another round",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "an empty / previous-round / unsigned resolution does NOT clear the current-round block (no theater)",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke C: recording any of the actions via the real stall_resolution_set handler flips the current round blocked→allowed.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:00.165Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke D: declare_unreachable marks the checklist item withdrawn (B-1909) and closes the loop; respects the empty-scope binding floor.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:06.683Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke C: empty-reason / previous-round / unsigned / tampered resolutions are refused at BOTH handler and gate (no theater).",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:13.217Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Add a hard ceiling / privileged override and prevent double-counting with the existing convergence-breaker and story_resume --ack",
       "context": "core/convergence-breaker.ts (maxAdvance=20, AUTO_RECOVERY_BUDGET=1, cleared by story_resume --ack) counts ADVANCES and is the only current brake; it never bit on review-round runaway. The new review-round adjudication must have a hard upper bound or a privileged override so it cannot be ignored indefinitely, and must NOT double-count review rounds against the convergence-breaker's advance count or conflict with the story_resume --ack recovery path. Verify both brakes coexist and each still fires on its own trigger.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T08:29:45.172Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-convergence.ts",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "a hard ceiling caps total ordinary review rounds even when resolutions are recorded, unless a privileged override with its own reason is recorded",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the review-round stall adjudication and the advance-counting convergence-breaker coexist — each fires only on its own trigger (review rounds vs advances), no double-count",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "story_resume --ack clears the advance-counting breaker but does NOT clear the stall block, and recording a stall resolution does NOT touch the breaker advance baseline",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke E: past STALL_HARD_CEILING_ROUNDS even a per-round resolution is refused with [review_convergence_stall_ceiling]; only override_budget proceeds.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:19.523Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke F: the stall adjudication (review rounds) and the convergence-breaker (advances) each fire only on their own trigger — no double-count.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:25.917Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Smoke F: story_resume --ack clears the breaker but NOT the stall block; recording a stall resolution leaves the breaker advanceBaseline untouched.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:32.216Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "RED-first smoke: reproduce the stall refusal and the F-058 unreachable-item scenario; register in validate",
       "context": "RED-first. (1) Drive a story to >= threshold non-improving completed review rounds and assert the Nth ordinary round is MINTED before the fix and REFUSED after, with the structured prompt. (2) Reproduce the F-058 scenario (a checklist item unreachable from the requirement) and assert that declaring it unreachable CLOSES the loop instead of spinning another round. (3) Assert the existing convergence-breaker + story_resume --ack still work and are not double-counted. Register the smoke in lattice.config.json validate.commands + package.json.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-26T08:47:30.869Z",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the registered smoke prints review-budget-stall-adjudication-smoke: PASS and is wired in lattice.config.json validate.commands + both package.json",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "RED-first: each assertion mutation-kills — reverting the block, the resolution-clear, the unreachable-close, or the breaker coexistence makes the smoke fail",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the smoke drives the REAL gate/handler entry points (not reimplemented logic), reproducing the stall refusal, the F-058 unreachable-item loop closure, and convergence-breaker non-interference",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+              "selector": "review-budget-stall-adjudication-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "The registered smoke prints review-budget-stall-adjudication-smoke: PASS exit 0 and is wired in lattice.config.json + both package.json.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:38.488Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "Mutation-kill demonstrated: reverting the block (A), disabling withdrawUnreachable (D), and disabling the ceiling branch (E) each make the smoke FAIL — RED-first.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:44.833Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js",
+          "result": "pass",
+          "note": "The smoke drives REAL entry points (evaluateReviewMintStallAdjudication, machine guard, stall_resolution_set, enforceConvergenceBreakerGate, real story_resume), not reimplemented logic.",
+          "headHash": "41bf84069f8afe8b6dc0b1d2bb9084099ebd4146",
+          "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+          "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "df79f93b1c6aaf50629bd51aea0c4ecf21ef7e04c5683d45de4baf2633150e90",
+            "outputTail": "review-budget-stall-adjudication-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-07-26T09:25:51.100Z"
+          },
+          "timestamp": "2026-07-26T09:25:51.122Z"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,46 @@
+{
+  "storyId": "B-f88e",
+  "checkedAt": "2026-07-30T01:53:56.866Z",
+  "headHash": "5adca59299a18425003829b7c21e9912484ef52b",
+  "materialHash": "e05a7b73e1cc1997406f685ed3c29dc5c3ff2785b841bde3304953fec488de6a",
+  "storyFilesHash": "0e6d079c75ad8cd0616d2d8395659c1131e1e3e249ebdbf6796d1ee328255543",
+  "reviewRound": "2026-07-30T01:29:05.428Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "N/A - no project documentation (CLAUDE.md / framework docs) touched",
+      "promise": "This story makes no doc-facing or CLI-surface promise: the diff (git diff main...HEAD --name-only) touches zero CLAUDE.md/framework docs files and the only .md file changed is the story-internal docs/story/actives/B-f88e/plan.md, which is process metadata, not a user-facing promise surface.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD --name-only lists 27 files: story metadata (.lattice/story/actives/B-f88e/*), lattice.config.json (test registration), packages/main/src/core/review-escalation.ts, packages/main/src/core/host-independence.ts, and two new red test files. No CLAUDE.md, packages/*/CLAUDE.md, or docs/ feature docs appear."
+    },
+    {
+      "docPath": "packages/main/src/core/evidence-freshness.ts#EMPTY_STORY_FILES_HASH (pre-existing precedent referenced by fix comments)",
+      "promise": "The fix comments in review-escalation.ts assert EMPTY_STORY_FILES_HASH no-signal handling follows the same precedent already used in delivery-check-hash.ts",
+      "verifiedBy": "diff/grep",
+      "evidence": "grep confirms EMPTY_STORY_FILES_HASH is defined in evidence-freshness.ts:19 and already consumed identically (never treated as a match) in delivery-check-hash.ts:184/188 and evidence-freshness.ts:564-573, pre-existing and unmodified by this story - the precedent claim is accurate, not a new promise."
+    },
+    {
+      "docPath": "lattice.config.json (red test registration)",
+      "promise": "Both new red tests (red-f88e-quorum-downgrade-collision.mjs and red-f88e-downgrade-non-regression.mjs) are registered in lattice.config.json test commands so lattice validate --full executes them",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD -- lattice.config.json shows both files added as timeoutMs:180000 command entries alongside existing red test registrations."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "red-f88e-quorum-downgrade-collision.mjs is a real Node script (no test framework mocking) that builds a fixture reproducing the live B-4043 incident (two quorum submissions at different materials sharing storyFilesHash), runs it through the real compiled eventsWithStoryFilesHashDowngrade + evaluateHostVerdictRounds, and asserts 3/3 valid rounds with zero manufactured duplicate-identity invalidations. Verified red-before-green independently in this review: checked out main pre-fix review-escalation.ts/host-independence.ts, rebuilt, and reran the test - it failed with exit=1 and printed DOWNGRADE COLLISION: counted as 0/3 valid rounds plus 6 manufactured duplicate host/session/key identity reasons, exactly matching the incident description. Restored the fix and reran: exit=0, 3/3 valid rounds, no manufactured duplicates."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "red-f88e-downgrade-non-regression.mjs pins 4 sub-cases against the same compiled fix: (1) a lone superseded verdict with no live identity-equal counterpart is still downgraded onto current material with its mandatory re-attestation advisory and preserved originalMaterialDigest provenance; (2) two genuinely native same-identity verdicts recorded at the CURRENT material still trigger duplicate host/session/key identity invalidation (the fix must not over-broadly suppress real double-vote detection); (3) two EMPTY_STORY_FILES_HASH values (sha256 of empty string) are treated as no-signal, never authorising a downgrade; (4) a case-variant hostId (Claude-CLI vs claude-cli) is still caught via normalizeIdentity (trim+lowercase, the same function host-independence.ts groupByIndependentHost uses), preventing a trim-only-copy bug. Ran independently in this review against the built dist: exit=0, all 4 assertions pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The fix is narrowly scoped to review-escalation.ts plus an exported normalizeIdentity helper in host-independence.ts, has zero project-documentation surface (confirmed by diff scan), and is backed by two real, independently reproduced red-before-green tests registered in lattice.config.json covering the reported incident, the two named pre-mortem regression risks, an EMPTY_STORY_FILES_HASH no-signal edge case, and a case-folding identity edge case. No TODO/FIXME/HACK found in the changed source. Both checklist items are done with full verificationIntent/Evidence coverage."
+  },
+  "_hash": "b000b366668cc7fa846b32189a719a761c3e995e647cf4e596e47fae74891716"
+}

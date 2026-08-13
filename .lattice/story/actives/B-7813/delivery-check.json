@@ -1,0 +1,66 @@
+{
+  "storyId": "B-7813",
+  "checkedAt": "2026-07-26T10:04:45.141Z",
+  "headHash": "6b2ade0598be7f1a740e74ae08fe4fb154bc0145",
+  "materialHash": "26e1fcde9ff24dfb6750ae81bf098d30e1ba261e0c2a8e082946d3bffca15479",
+  "storyFilesHash": "02d3b261e89c6b2f41fc96f1da4a13d2407845294414d2f51fe34f8c7a9b9d15",
+  "reviewRound": "2026-07-26T09:26:17.405Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-7813/plan.md#CHK-001",
+      "promise": "Harden the advisory review-convergence stall detector into a BLOCKING adjudication at the REVIEW round-mint site (DEV->REVIEW CODE_REVIEW guard); reuse the existing assessReviewConvergence trend logic verbatim (no new raw round ceiling here); a converging story is never falsely blocked.",
+      "verifiedBy": "diff/grep + Read",
+      "evidence": "core/review-convergence.ts adds evaluateStallAdjudication + evaluateReviewMintStallAdjudication (pure, reuses assessReviewConvergence). core/machine.ts wires canMintReviewRoundGuard into the CODE_REVIEW guard, the canSendStoryEventWithoutSnapshotCan DEV-branch fallback, and getGuardFailureReason REVIEW branch (renders [review_convergence_stall] prompt). Confirmed executed by smoke partA (blocks a synthesized [3,3,3,3] stall via evaluateReviewMintStallAdjudication, reviewRoundMintStallAdjudication, canMintReviewRoundGuard, and the rendered getGuardFailureReason text) and partB (clean-tail, strictly-decreasing, and below-threshold trends are never blocked). Smoke run directly: node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js -> PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7813/plan.md#CHK-002",
+      "promise": "Add stall_resolution_set CLI command (action enum authorize_continuation | replan | escalate_root_cause | resolve_findings | declare_unreachable, plus override_budget for CHK-003) that records one signed, current-round-bound resolution which clears the block; declare_unreachable additionally withdraws the named checklist item via the existing B-1909 withdrawn-disposition path; handler and gate both re-validate reason length, current-round binding, and signature (stale/empty/tampered records never clear).",
+      "verifiedBy": "diff/grep + Read",
+      "evidence": "core/stall-adjudication.ts: signStallAdjudication/recomputeStallAdjudicationHash/validateStallResolutionInput/isValidCurrentRoundStallResolution. handlers/stall-adjudication.ts: stall_resolution_set handler; declare_unreachable calls withdrawUnreachableChecklistItem() -> scope_shrinkage_decision_set (B-1909 reuse), respecting the empty-scope floor. cli/command-catalog.ts registers stall_resolution_set with the 6-action enum. Confirmed by smoke partC (previous-round record does not clear; tampered signature does not clear; empty/short reason refused at both handler and gate; a valid current-round resolution flips blocked->allowed and canMintReviewRoundGuard->true) and partD (declare_unreachable marks the item withdrawn, closes the loop, carries a B-1909 decisionRef, and respects the empty-scope floor by not withdrawing the last acceptance binding)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7813/plan.md#CHK-003",
+      "promise": "Add a hard ceiling (STALL_HARD_CEILING_ROUNDS) on total ordinary review rounds plus a privileged override_budget action that is the ONLY thing that clears it (checked before the per-round-resolution clear, so an ordinary resolution cannot bypass the ceiling); keep this brake independent from the advance-counting convergence-breaker and story_resume --ack (no double counting, no regression to breaker recovery).",
+      "verifiedBy": "diff/grep + Read",
+      "evidence": "core/review-convergence.ts: STALL_HARD_CEILING_ROUNDS=12, resolveStallHardCeiling(env), PRIVILEGED_OVERRIDE_ACTION='override_budget', evaluateStallAdjudication's decision table checks roundCount>ceiling BEFORE the ordinary-resolution clear. Confirmed by smoke partE (13 rounds over ceiling; an ordinary authorize_continuation resolution does NOT clear STALL_CEILING_CODE; only the signed override_budget clears it) and partF (story_resume --ack under an interactive session clears the convergence-breaker freeze but does NOT clear the stall block -- proving the two brakes are independent, separate counters/files/clear-paths)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-7813/plan.md#CHK-004",
+      "promise": "RED-first smoke packages/main/src/tasks/review-budget-stall-adjudication-smoke.ts reproducing the stall refusal, the resolution-clear, the F-058 unreachable-item scenario, the hard ceiling, and convergence-breaker independence; registered in lattice.config.json validate.commands and both package.json scripts; running the compiled task prints review-budget-stall-adjudication-smoke: PASS and exits 0.",
+      "verifiedBy": "ran node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js directly (read-only, not full lattice validate)",
+      "evidence": "Actual run output: review-budget-stall-adjudication-smoke: PASS, exit code 0. lattice.config.json validate.commands includes { command: node, args: [packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js] }. Smoke has parts A-G covering happy/edge/adversarial/CLI-boundary paths; part G spawns the real CLI (execFileSync node bin/lattice.js) against fixture git repos in both DEV and REVIEW phase to prove stall_resolution_set is not phase-blocked (with a positive control proving the phase gate is live)."
+    },
+    {
+      "docPath": "commit a72c3e5308 (F-001/F-002/F-003 reviewer-found fix, referenced by plan.md CHK-002 operability requirement)",
+      "promise": "stall_resolution_set must be operable via the real CLI in the phases its command-policy allowedPhases declares (DEV, REVIEW), not just reachable as an internal function call, and the lifecycle-registry-contract must gain a converse reachability check so a future command with the same DEFAULT_PHASE_TOOLS-omission bug fails the contract instead of shipping silently broken.",
+      "verifiedBy": "diff/grep + Read + ran the contract task",
+      "evidence": "core/config.ts DEFAULT_PHASE_TOOLS now lists stall_resolution_set under both DEV and REVIEW phase buckets. tasks/lifecycle-registry-contract.ts adds check (3), the CONVERSE reachability check (command-policy allowedPhases entry must also be DEFAULT_PHASE_TOOLS-reachable), which is what caught the original F-001/F-002/F-003 regression. Ran node packages/main/dist/tasks/lifecycle-registry-contract.js directly -> lifecycle-registry consistency: PASS ... 0 divergences. Smoke partG additionally spawns the real CLI to positively assert stall_resolution_set is NOT phase-blocked in DEV/REVIEW (with a positive control proving the phase gate itself is live via a TEST-only command)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "smoke partA+partB: a synthesized >=STALL_MIN_ROUNDS non-improving trend (perRoundCounts [3,3,3,3]) is BLOCKED at evaluateReviewMintStallAdjudication, reviewRoundMintStallAdjudication, canMintReviewRoundGuard, and the rendered getGuardFailureReason('REVIEW') text (all four consumption points, not just the pure fn); clean-tail / strictly-decreasing / below-STALL_MIN_ROUNDS trends are never blocked (no false cap). Executed via node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js -> PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "smoke partC+partD: previous-round-bound record, signature-tampered record, and empty/short-reason records all fail to clear the block (adversarial); the real stall_resolution_set handler refuses a too-short reason at write time; a valid current-round signed resolution clears the block and canMintReviewRoundGuard flips to true (happy); declare_unreachable withdraws the checklist item via the B-1909 path, closes the loop, and respects the empty-scope floor by refusing to withdraw the sole surviving acceptance binding (edge/F-058 scenario)."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "smoke partE: 13 rounds (over the 12-round hard ceiling) still stalling is blocked with STALL_CEILING_CODE; an ordinary authorize_continuation resolution does NOT clear it (adversarial: bypass attempt refused); only the signed override_budget action clears it (happy). smoke partF: story_resume --ack (under a simulated interactive session) clears the advance-counting convergence-breaker but does NOT clear the stall block, proving the two brakes are independent with separate counters/clear-paths (edge/regression coverage)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The smoke itself IS the deliverable for this item. Ran directly: node packages/main/dist/tasks/review-budget-stall-adjudication-smoke.js -> review-budget-stall-adjudication-smoke: PASS, exit 0. Also confirmed registered in lattice.config.json validate.commands. partG additionally spawns the real CLI subprocess (execFileSync) in fixture DEV/REVIEW-phase story repos to prove stall_resolution_set is reachable at the actual command boundary, with a positive control (delivery_check_set correctly phase-blocked) ruling out a false-green from a broken active-story detector."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docs/plan promises (plan.md CHK-001..CHK-004 plus the reviewer-found CLI-reachability fix in a72c3e5308) are verified in the diff and independently confirmed by directly running the compiled smoke (review-budget-stall-adjudication-smoke.js -> PASS) and the lifecycle-registry-contract task (PASS, 0 divergences); no TODO/FIXME/HACK found in the shipped non-test code. One gap worth flagging: the top-level CLAUDE.md REVIEW-phase section was NOT updated to mention the new stall_resolution_set command or that the review-convergence stall detector is now a hard blocking gate (it still only documents older mechanisms) -- this is a documentation-currency gap, not an unmet promise, since CLAUDE.md was not touched by this diff and made no claim to check."
+  },
+  "_hash": "73a7c26a16e4694addad41726d6a21bc63a100deb942e398bdea2f2506d5395a"
+}
