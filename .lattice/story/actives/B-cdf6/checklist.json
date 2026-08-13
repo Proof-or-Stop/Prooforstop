@@ -336,13 +336,20 @@
           "file": "packages/main/src/tasks/rollout-check-smoke.ts",
           "command": "node packages/main/dist/tasks/rollout-check-smoke.js",
           "result": "pass",
-          "note": "probe2",
-          "headHash": "626a116f1c496387074a5c4619ba8047fc48c8cb",
-          "materialHash": "4b1bf8b8729be55b7f1c11f28d2b6b38febaedfe70b1d785cc98c51fe352bd3b",
-          "storyFilesHash": "37ee8ad4373de264f0a3bf7a1349ea2abd5845f117a41ee61876e44034f1b05f",
-          "mechanical": false,
-          "nonMechanicalReason": "receipt invalidated by verification_evidence_refresh_stale: the material changed since execution and the pinned command was not re-run here; re-run verification_evidence_add to re-earn a mechanical receipt",
-          "timestamp": "2026-08-12T18:24:43.351Z"
+          "note": "Re-earned as a real tool-executed receipt on current material. Prior receipt had been downgraded to non_mechanical by verification_evidence_refresh_stale. Re-running the pinned command instead of trusting that label revealed it genuinely exited 1: two assertions pinned the PRE-rename brand (/lattice story_create/, /lattice session_brief/) and so failed because the rename succeeded. Measured help output: 5x 'proof-or-stop story_create', 2x 'proof-or-stop session_brief', zero 'lattice'. Fixed in 602bf8b8dd; command now exits 0 with 'rollout-check-smoke: PASS'. This intent asserts invokedAs is actually CONSUMED rather than merely computed, and the smoke covers exactly that: it asserts help renders 'Entrypoint: proof-or-stop' and never 'Usage: lattice '.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5411cd97d362a699611c39cd91d6f7454967bd0caf8bfb0a9a57fbbb7cd78729",
+            "outputTail": "rollout-check-smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T05:23:00.586Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "602bf8b8dd34322221a8e3baa150783c0444a4b8",
+          "materialHash": "b0d55dd7c025263198e93cee8b5e7b126481f4979b6d5f8745701af6343e716c",
+          "storyFilesHash": "fa56287b045b1a9950e0ad52a1a810bf16ee9d20d39652b64b58d4de97411e74",
+          "timestamp": "2026-08-13T05:23:00.776Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
