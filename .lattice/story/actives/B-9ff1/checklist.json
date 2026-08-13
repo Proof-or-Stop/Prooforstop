@@ -454,7 +454,59 @@
       "context": "Section 1.1.3: the assertion's adapterId and testCaseRef MUST equal the committed binding for its acceptanceTargetRef (read via the W2b committed-tree reader), and targetBindingDigest MUST recompute over the createdAt-stripped three-field subobject. Rejections carry the section 1.6 tags, mapped correctly: R1-1 = missing target-exercised proof; R1-2 = below-threshold or class-only matcher set (the minimum-specificity failure); R1-3 = matcher and path BOUNDS (a schema-bounds tag that explicitly covers path validation, NOT a specificity tag); R1-6 = unregistered or mismatched target binding. An implementer must not collapse R1-2 and R1-3 into one 'specificity' bucket.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Assertion with adapterId and testCaseRef matching committed binding and correct targetBindingDigest (recomputed over createdAt-stripped 3-field subobject) produces no rejection; WHY: full binding validation success path",
+            "type": "cli"
+          },
+          {
+            "desc": "targetBindingDigest recomputed via canonDigest({acceptanceTargetRef, adapterId, testCaseRef}) matches stored digest; WHY: confirms createdAt stripping is ALLOWLIST-based (only three identity fields survive)",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing targetExercisedProof entirely produces rejection tagged R1-1 not R1-6; WHY: R1-1 is for missing target-exercised proof, distinct from binding mismatch",
+            "type": "cli"
+          },
+          {
+            "desc": "Below-threshold literal (fails rule 2) produces rejection tagged R1-2 not R1-3; WHY: R1-2 is specificity failure, R1-3 is bounds -- they must not be collapsed",
+            "type": "cli"
+          },
+          {
+            "desc": "Class-only present-in-red set produces rejection tagged R1-2 not R1-3; WHY: rule 3 failure is a minimum-specificity failure, correctly tagged R1-2",
+            "type": "cli"
+          },
+          {
+            "desc": "Invalid targetArtifactRef path (absolute) produces rejection tagged R1-3 not R1-2; WHY: path validation is a schema-bounds failure explicitly under R1-3",
+            "type": "cli"
+          },
+          {
+            "desc": "Duplicate matcher id produces rejection tagged R1-3; WHY: schema-bounds violation",
+            "type": "cli"
+          },
+          {
+            "desc": "adapterId mismatching committed binding produces rejection tagged R1-6; WHY: unregistered or mismatched target binding",
+            "type": "cli"
+          },
+          {
+            "desc": "targetBindingDigest that would include createdAt in the canonical subobject fails recomputation producing R1-6; WHY: digest scope must strip createdAt and any storage metadata",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Correct adapterId but wrong testCaseRef produces rejection tagged R1-6 not R1-1; WHY: the binding EXISTS but the test case ref does not match -- this is a mismatch not a missing proof",
+            "type": "cli"
+          },
+          {
+            "desc": "Envelope triggering both R1-2 (below-threshold specificity) and R1-3 (invalid path) simultaneously reports both tags and neither suppresses the other; WHY: multiple rejection tags can co-occur on the same envelope",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-012",
