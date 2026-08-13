@@ -275,6 +275,52 @@
         "scanEscalationReason": null
       },
       "_hash": "40aa3269a4cd1ab2399d6fab7fba71a71a4113675601258e03115e52b56ddb2a"
+    },
+    {
+      "id": "B-cdf6:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Fresh full re-review bound to HEAD b9f9734, 22 changed files. Symbol extraction on the code files in scope (command-catalog.ts, codex-adapter-checks.ts, validation-executor.ts, checklist.ts, codex-adapter.ts, review-run.ts, runtime-environment-checks.ts, types.ts, plus smokes/tests) yielded timeout/heartbeat override identifiers. Traced each to the two new CLAUDE.md sections (pinned command timeout override, verify_codex heartbeat timeout override) plus the residue-gate table row and the 17-role/13-lattice-prefix claim; compared line-by-line against source. Verified: (1) DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS=270000, EVIDENCE_COMMAND_TIMEOUT_CAP_MS=7200000, boundary-inclusive cap check, all three error codes present with exact 30-char reason floor; receipt .strip() mechanism confirmed intact. (2) DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS=30000, cap=600000 boundary-inclusive, heartbeat_command_timeout is a distinct code path from heartbeat command failed, all four heartbeat error codes present. Both CLI schema fields exist with matching cap/min constants imported from the same source (no duplicate literals); verification_run confirmed to have no override field, matching the docs claim. (3) Registry role count: 17 templates, 13 with lattice- prefix, matches CLAUDE.md corrected claim and EXPECTED_ROLE_COUNT=17. (4) Ran verify-lattice-residue.mjs --self-test (38/38) and plain scan (koala/brand-prose/brand-exec all PASS) with scan-root sets matching CLAUDE.md's gate table row verbatim. (5) Re-checked prior docs-lie findings F-009 (docs/CLI.md now says canonical, no only-active claim survives) and F-012 (alias section now points at brand-rename-mapping.md, which contains a real substantive rationale table; zero hits for the old CHANGELOG.md alias inventory string repo-wide). (6) Ran npm run test:process-fact-contract and npm run test:runtime-fact-contract, both PASS. No doc-code drift found in scope; no finding registered.",
+      "createdAt": "2026-08-13T04:56:48.199Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-023",
+      "envelopeId": "a7092a2cb4cf6389ff488600ba4e88be13e015f93e7f7907c17f5d6dc27e7017",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [
+          "bin/proof-or-stop-codex.js",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/codex-adapter.ts",
+          "packages/main/src/tasks/codex-heartbeat-timeout-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "packages/main/templates/agents",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs",
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-done-suite-green.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "80d6e7f8ebfeee00a1beba4e03dbd682640b2cf520bc2616a60579019292607e"
     }
   ]
 }
