@@ -376,6 +376,44 @@
         "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
       ],
       "_hash": "b1e9a778d9f9f643b4292ed596c9a35b90e85233b3fe762a28dbab73db6d5fc2"
+    },
+    {
+      "id": "B-META-framework-audit:F-021",
+      "desc": "Convergence-breaker freeze and owner-lease gate form a CLOSED LOOP with no legal path through, making the breaker's own printed recovery instructions impossible to follow. Observed live on B-cdf6. enforceConvergenceBreakerGate (core/convergence-breaker.ts:838) gates TWO entries: command === 'story_advance', AND any command carrying --takeover/--forceTakeover. story_resume has NO exemption. So when a frozen story's owner lease is held by a different session: (a) plain `story_resume --ack` is refused by enforceStoryOwnerLeaseGate because story_resume is classified ownershipClass:storyScopedMutating; (b) `story_resume --ack --forceTakeover` is refused by the BREAKER because it is now a takeover-carrying command on a frozen story. The story_resume handler never executes in either case - the --ack and --reason are never read. Proof: the error text returned for attempt (b) was renderBreakerFreeze's story_advance message, not any story_resume-specific refusal. This directly contradicts two stated design intents: config.ts:431 says the ack 'must be available in every phase', and command-policy.ts:155 says story_resume is the human-only escape hatch that 'a looping agent cannot self-service'. Gating the escape hatch defeats its purpose. The takeover gate's rationale ('a frozen runaway cannot keep seizing leases to extend the storm') is sound for other commands but must carve out story_resume. Workaround found by inspection, not documented anywhere: a --forceTakeover attempt still TRANSFERS the lease at the lease layer before the breaker throws, so a SECOND plain `story_resume --ack` then succeeds. Relying on a partial side-effect of a failed command is not a supportable recovery path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T04:52:40.453Z",
+      "reviewRound": "",
+      "gapFingerprint": "ac7a780323d29b4852e67e860bee3d0723f8c66bbfa4efbda23639e5ea398771",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:838",
+        "packages/main/src/core/command-policy.ts:155",
+        "packages/main/src/core/config.ts:431",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "54946364d5284cd39ba1ee346d111550a0df0e782bd61c366ba6b814df137cbb"
+    },
+    {
+      "id": "B-META-framework-audit:F-022",
+      "desc": "The convergence breaker counts the framework's OWN metadata churn as agent failure, freezing a story that had no unmet gate. Observed on B-cdf6: breaker froze on 'gate-repeat 2>=2'. The actual loop is self-inflicted: every finding_resolve auto-commits story metadata under .lattice/story/actives/<id>/ -> HEAD advances -> every reviewer review-pass binding becomes head-stale -> canPassReviewGuard fails closed -> bumpGateFailureCount increments -> at 2 the breaker freezes and demands human intervention. MEASURED: `git diff --name-only <pass-binding-sha> HEAD | grep -v '^.lattice/story/actives/B-cdf6/'` returned ZERO files. Only story metadata moved. CLAUDE.md's own DONE-convergence discipline states that headHash-only drift 'is usually metadata/provenance movement, NOT a strong re-run signal' - but the gate-failure counter that feeds the breaker does not apply that distinction, so advisory-grade drift escalates into a hard freeze. This is adjacent to but DISTINCT from B-META-framework-audit:F-019: F-019 records the evidence churn itself (19 review runs -> 7 passes on one story); this records that the churn also drives the runaway detector, which then requires a human to clear a condition no human caused.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-08-13T04:52:41.326Z",
+      "reviewRound": "",
+      "gapFingerprint": "01a2e6c1f4d90d951509ec9eab11b475a42aa8e50113e0a6c4197ebe82bb7d7c",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts:731",
+        "packages/main/src/core/convergence-breaker.ts:838",
+        "CLAUDE.md#Host-DONE-convergence",
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "_hash": "10b238f44fc4f695f5146d44c5676c9d34ae0934a21e75c4f056c93ff93f90fa"
     }
   ]
 }
