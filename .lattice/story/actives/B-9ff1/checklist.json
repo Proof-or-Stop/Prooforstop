@@ -514,7 +514,35 @@
       "context": "red_evidence_envelope_check(storyId, assertionFile) validates a candidate envelope against the resolved policy and the story's registered binding BEFORE a run is spent, following the verified read-only house pattern of acceptance_topology_check, topology_critic_receipt_check and proofstory_gate_check in packages/main/src/cli/command-catalog.ts (anchored by command name because that file drifts). It changes no gate verdict. SUCCESS OUTPUT CONTRACT: on an admissible envelope it reports the computed assertionDigest, the matched binding reference (acceptanceTargetRef, adapterId, testCaseRef) and the resolved policyDigest, so the operator can proceed; the smoke asserts that success transcript, not only the rejection cases. The story records explicitly that a read-only operator pre-flight is not a new query surface added to satisfy an enforcement need and therefore sits outside the section 5.5 fence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red_evidence_envelope_check(storyId, assertionFile) with admissible envelope returns success reporting computed assertionDigest, matched binding reference, and resolved policyDigest; WHY: command exists and produces the success output contract",
+            "type": "cli"
+          },
+          {
+            "desc": "Command registered in command-catalog.ts following the acceptance_topology_check house pattern, verified by grep for the command name in the catalog; WHY: house-pattern compliance for read-only commands",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "red_evidence_envelope_check with nonexistent storyId fails with diagnostic and no gate verdict is changed; WHY: read-only command never mutates state even on bad input",
+            "type": "cli"
+          },
+          {
+            "desc": "red_evidence_envelope_check with syntactically invalid envelope JSON fails with parse error and no gate verdict is changed; WHY: read-only even on malformed input",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Running red_evidence_envelope_check does NOT appear in any gate verdict file or evidence store -- verified by before-and-after diff of .lattice/ directory; WHY: the command is advisory-only, must not write to gate state; section 5.5 fence reasoning recorded",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-013",
