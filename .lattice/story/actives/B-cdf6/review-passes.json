@@ -321,6 +321,34 @@
         "scanEscalationReason": null
       },
       "_hash": "80d6e7f8ebfeee00a1beba4e03dbd682640b2cf520bc2616a60579019292607e"
+    },
+    {
+      "id": "B-cdf6:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Verified fix for B-cdf6:F-027 (dead agentsWithCurrentValidEvidence computation at review-run.ts:1591) on commit 03b39c852c, current HEAD 4fe883b292. Confirmed the dead Set computation is deleted; the identifier's only live-code hit repo-wide is a retained backward-reference in the historical comment at review-run.ts:1602, describing the removed conjunct without claiming the Set still exists; the surrounding prose was reworded to drop the identifier as reported. Independently reproduced build clean, tsc clean, flow-stability-smoke pass, both red receipts exit 0, all three lattice-residue checks PASS. Scope note re unused params in startRunHint/latestRunHint confirmed pre-existing via git blame to 4edf2925a9, correctly out of concept-lane scope (style nit, not concept residue), disclosed not hidden. No blocker.",
+      "createdAt": "2026-08-13T05:02:56.565Z",
+      "reviewRound": "2026-08-12T07:54:43.806Z",
+      "reviewRunId": "B-cdf6:RR-025",
+      "envelopeId": "667e1158ea8f3179967d95f04eb848822be48b4e88f6a09247b7efc243918268",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e4ce4c2538e76befb9eaefc3a05ff3c4d77bc5b010fb612d763bdab8a6f3fb4"
     }
   ]
 }
