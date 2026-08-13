@@ -205,6 +205,37 @@
         "scanEscalationReason": null
       },
       "_hash": "1d2a24e744248b24c57ec91f79558729af2dcd6b33c8c567d16f789490a642de"
+    },
+    {
+      "id": "B-f00c:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Re-attestation at current material (head adc4bb4) after stale_closeout_review reset from main-merge. Concept check: per-commit git diff-tree -m union merge-lineage logic previously duplicated across two consumer files is fully deleted; both now import classifyMergeLineage/netDiffChangedPaths exclusively from new shared module validation-lineage.ts. Repo-wide grep for diff-tree.*-m and rev-list --reverse in *.ts finds zero production residue; the sole match is validation-reuse-merge-lineage-smoke.ts perCommitUnionChanged(), explicitly labeled a reference implementation of the OLD algorithm used deliberately for the mutation-resistance RED assertion, not residue. isStoryMetadataPath import removed from both consumer files. process-fact-contract relocated its token checks to validation-lineage.ts and dropped obsolete rev-list check. lattice.config.json wires new smoke into validate.commands. Independently verified: clean rebuild, validation-reuse-merge-lineage-smoke.js PASS (7 cases), done-required-validation-smoke.js PASS, validation-evidence-reuse-smoke.js PASS, verify-process-fact-contract.mjs PASS. Checklist CHK-001/CHK-002 both done. Prior findings F-001/F-002/F-003 all resolved/verified, resolutions match current diff. No blocker.",
+      "createdAt": "2026-08-13T16:41:15.555Z",
+      "reviewRound": "2026-08-13T16:36:56.172Z",
+      "reviewRunId": "B-f00c:RR-014",
+      "envelopeId": "052c775e0ab142d3c723af05ec8576f23ef377719f84c32fcd7953cbbd21ba84",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4debcc8c85717a0799518bd5f2451bbb8d27e8b2d353b518ae6c5d43c04263db"
     }
   ]
 }
