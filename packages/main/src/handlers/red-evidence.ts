@@ -350,9 +350,21 @@ export function createRedEvidenceHandlers(ctx: HandlerContext): Record<string, (
      * and never calls autoCommitStoryMetadata. `command-policy` classifies it
      * `readOnly`/`destructiveRisk: none` and `cli/activity-policy` lists it in
      * READ_ONLY_COMMANDS, which suppresses the CLI's own hook / activity-log /
-     * process-event write surfaces. The only child processes are the W2b
-     * committed-tree reader's `git rev-parse` / `git show` — evidence READS,
-     * never an envelope execution.
+     * process-event write surfaces.
+     *
+     * IT DOES SPAWN, and the set is enumerated here because a claim nobody can
+     * check is worth nothing (the committed regression
+     * packages/main/tests/red/red-w2d-command-readonly.mjs records
+     * `child_process` and asserts exactly this set, so the list below is
+     * observed rather than asserted from memory). Two families, both read-only
+     * git: (1) repository/worktree RESOLUTION — `git rev-parse --show-toplevel`,
+     * `git rev-parse --git-common-dir`, `git worktree list --porcelain` — needed
+     * before a committed path can be named at all; and (2) the W2b
+     * committed-tree READ itself — `git rev-parse --verify --quiet <ref>^{commit}`
+     * then `git show <ref>:<path>`. Reading the binding from the committed tree
+     * rather than the live story directory is §1.1.3's anti-swap property, so
+     * that read is deliberate and must not be removed. What never happens is an
+     * envelope EXECUTION: no runner, no harness, no package manager, no shell.
      *
      * An INADMISSIBLE envelope THROWS the rendered report (so the CLI exits
      * non-zero and a script cannot mistake a rejection for a pass), which is the

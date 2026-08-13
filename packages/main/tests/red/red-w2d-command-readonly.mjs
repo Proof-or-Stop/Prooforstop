@@ -16,22 +16,80 @@
  * so the operator can proceed to spend a run. On an INADMISSIBLE envelope that
  * success output is ABSENT and the tagged §1.6 rejection is reported instead.
  *
- * CHK-012 read-only: running the command leaves the whole `.lattice/` tree
- * byte-identical (per-file SHA-256 snapshot, compared before and after), and the
- * command is a member of the CLI read-only class, so no gate verdict, evidence
- * artifact, chain record, or process event can be written by it.
+ * CHK-012 read-only, stated as exactly what each mechanism can show (review
+ * B-9ff1 F-002/F-012/F-013 — three reviewers independently observed that the
+ * directory snapshot was being credited with more than it proves):
+ *
+ *   1. A per-file SHA-256 snapshot of the whole `.lattice/` tree, compared
+ *      before and after every invocation. WHAT IT PROVES: no file under
+ *      `.lattice/` was created, modified or removed — which covers the story
+ *      record, the chain, evidence artifacts and process-event logs, because
+ *      those all live there. WHAT IT CANNOT PROVE: anything about writes
+ *      OUTSIDE `.lattice/`, and — the point of the finding — anything about
+ *      CHILD PROCESSES. A directory hash cannot see a spawn.
+ *   2. A CHILD-PROCESS RECORDER installed before the dist graph is imported, so
+ *      the handler's `child_process` calls are observed rather than assumed.
+ *      WHAT IT PROVES: the exact spawn set of the call, positively. The command
+ *      is EXPECTED to spawn: reading the target binding from the COMMITTED tree
+ *      (`git rev-parse` + `git show`) instead of the live story directory is
+ *      §1.1.3's anti-swap property, so the assertion is that the spawn set is
+ *      exactly those read-only git reads — never a RED run, a package manager,
+ *      or a test harness. "Spawns nothing" would be the wrong claim and would
+ *      make this test demand the removal of a deliberate safety property.
+ *   3. Static registration facts (`ownershipClass: readOnly`,
+ *      `READ_ONLY_COMMANDS` membership, process-fact level L0, no
+ *      `gateEvidence`). WHAT THEY PROVE: the CLI's own hook / activity-log /
+ *      process-event write surfaces are suppressed for this command by
+ *      classification. They are declarations about wiring, NOT behavioural
+ *      evidence, and are labelled as such below.
+ *
+ * CHK-013 validate-pipeline invocation: the smoke's `validate.commands` entry is
+ * resolved with the SAME `configuredValidationCommands` the validate pipeline
+ * uses and executed with the SAME `runValidationCommand` executor, so the entry
+ * is proven to actually run green through that path — not merely to appear in a
+ * config array.
  *
  * Assurance scope (§0.6 practical tier): registered-surface drift detection, not
  * a defence against a hostile local agent (Tier-C).
  */
 import { strict as assert } from 'node:assert';
-import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, realpathSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 
+// ── THE CHILD-PROCESS RECORDER (must be installed BEFORE any dist import) ────
+// Node snapshots a builtin's named exports into the ESM namespace the FIRST time
+// any ES module imports it, so a patch applied after that snapshot is invisible
+// to later importers. This file therefore does NOT statically import
+// `node:child_process`: it reaches the CJS exports object through `createRequire`
+// and wraps the spawn family here, before the `await import(DIST/...)` calls
+// below link the module graph. (Verified by the negative control at the bottom:
+// the recorder must have observed the git reads; a recorder that silently failed
+// to install would record nothing and could then "prove" anything.)
+const require = createRequire(import.meta.url);
+const childProcess = require('node:child_process');
+/** Every child process created after this point, in order. */
+const spawnLog = [];
+for (const fn of ['spawn', 'spawnSync', 'exec', 'execSync', 'execFile', 'execFileSync', 'fork']) {
+  const real = childProcess[fn];
+  if (typeof real !== 'function') continue;
+  childProcess[fn] = function recorded(...args) {
+    spawnLog.push({ api: fn, file: String(args[0]), args: Array.isArray(args[1]) ? args[1].map(String) : [] });
+    return real.apply(this, args);
+  };
+}
+/** The test's own fixture commands go through the recorder too; windows exclude them. */
+const spawnSync = (...args) => childProcess.spawnSync(...args);
+const spawnWindow = () => {
+  const from = spawnLog.length;
+  return () => spawnLog.slice(from);
+};
+
 const DIST = new URL('../../dist', import.meta.url).pathname;
+/** The repository root, so the validate-pipeline section reads the REAL config. */
+const REPO_ROOT = new URL('../../../../', import.meta.url).pathname.replace(/\/$/, '');
 
 const { StoryStore } = await import(`${DIST}/core/store.js`);
 const { createMainRegistry } = await import(`${DIST}/registry.js`);
@@ -43,11 +101,17 @@ const { MAIN_TOOLS, resolveEffectiveOwnershipClass, enforceStoryOwnerLeaseGate }
 const { getCommandPolicy } = await import(`${DIST}/core/command-policy.js`);
 const { PROCESS_FACT_LEVELS } = await import(`${DIST}/core/process-fact-levels.js`);
 const { isReadOnlyCommand, READ_ONLY_COMMANDS } = await import(`${DIST}/cli/activity-policy.js`);
+const { configuredValidationCommands } = await import(`${DIST}/handlers/verifier.js`);
+const { runValidationCommand } = await import(`${DIST}/core/validation-executor.js`);
 
 const COMMAND = 'red_evidence_envelope_check';
 const FROZEN_POLICY_DIGEST = 'sha256:470db38278a59387f2105c8bcdcca59ee52c8706cb3c69f7e150d3cd1154d767';
 
 // ── 1. Registration (CHK-013) ────────────────────────────────────────────────
+// These are DECLARATIONS about wiring, not behavioural evidence: they prove the
+// command is CLASSIFIED read-only (which is what suppresses the CLI's hook /
+// activity-log / process-event writes), not that any particular call wrote
+// nothing. The behavioural evidence is sections 2 and 6 below.
 assert.ok(MAIN_TOOLS.some((tool) => tool.name === COMMAND), `${COMMAND} must be in MAIN_TOOLS (CLI dispatchable)`);
 const policyEntry = getCommandPolicy(COMMAND);
 assert.ok(policyEntry, `${COMMAND} must have a CommandPolicy entry`);
@@ -119,8 +183,15 @@ try {
   writeFileSync(join(root, 'envelope-broken.json'), '{ this is not json\n');
 
   const registry = createMainRegistry({ store, root, scanRoot: join(root, 'packages', 'main') });
-  const check = registry.get(COMMAND);
-  assert.ok(check, `${COMMAND} must have a registered handler (dispatchability)`);
+  const registeredCheck = registry.get(COMMAND);
+  assert.ok(registeredCheck, `${COMMAND} must have a registered handler (dispatchability)`);
+  // Count invocations so the summary line reports the number actually made
+  // rather than a literal that can drift away from the body.
+  let invocations = 0;
+  const check = (args) => {
+    invocations += 1;
+    return registeredCheck(args);
+  };
 
   // ── 2. Read-only snapshot of the whole .lattice tree (CHK-012) ─────────────
   function snapshotLattice() {
@@ -139,6 +210,9 @@ try {
   }
   const before = snapshotLattice();
   assert.ok(before.length > 0, 'the fixture .lattice tree is non-empty, so the comparison is meaningful');
+  // Open the child-process window: everything spawned from here until section 6
+  // is attributable to the command under test, not to this file's git fixture.
+  const spawnsDuringCheck = spawnWindow();
 
   // ── 3. SUCCESS OUTPUT CONTRACT (CHK-014) ──────────────────────────────────
   const expectedDigest = computeAssertionDigest({ ...admissible, policyDigest: FROZEN_POLICY_DIGEST });
@@ -197,9 +271,85 @@ try {
   assert.throws(() => check({ storyId }), /assertionFile/,
     'a missing assertionFile argument fails closed');
 
-  // ── 6. The .lattice tree is byte-identical after ALL of the above ──────────
+  // ── 6a. WHAT THE DIRECTORY SNAPSHOT PROVES ────────────────────────────────
+  // Exactly this: no file under `.lattice/` was created, modified or removed by
+  // any of the invocations above. The story record, the red-evidence chain,
+  // evidence artifacts and process-event logs all live under `.lattice/`, so
+  // this covers those writes — and nothing else. It says NOTHING about child
+  // processes; section 6b is what carries that claim.
   assert.equal(snapshotLattice(), before,
-    'red_evidence_envelope_check wrote NOTHING under .lattice/ — no gate verdict, evidence artifact, chain record, or process event');
+    'red_evidence_envelope_check created, modified or removed NO file under .lattice/ — so it wrote no story record, chain record, evidence artifact or process event, and moved no stored gate verdict');
+
+  // ── 6b. THE SPAWN SET, ASSERTED POSITIVELY ────────────────────────────────
+  // The command IS expected to spawn: §1.1.3 requires the target binding to be
+  // read from the COMMITTED tree (`git show <ref>:<path>`, guarded by a
+  // `git rev-parse` ref check) rather than the live story directory, which is
+  // what makes a post-review edit invisible. So the claim under test is not
+  // "spawns nothing" — it is "spawns EXACTLY those read-only git reads", i.e.
+  // never a RED run, a test harness, or a package manager.
+  const spawns = spawnsDuringCheck();
+  assert.ok(spawns.length > 0,
+    'NEGATIVE CONTROL: the recorder observed no child process at all across every invocation. Either the '
+    + 'committed-tree binding read is gone (a §1.1.3 anti-swap regression) or the recorder failed to install '
+    + 'before the dist graph linked — in which case every assertion below would pass vacuously');
+  // `exec`/`execSync` take a command STRING while `spawn*`/`execFile*` take an
+  // argv array; normalize both to argv so one allowlist governs all of them.
+  const argvOf = (call) => (call.args.length > 0 ? [call.file, ...call.args] : call.file.trim().split(/\s+/));
+  const shapes = [...new Set(spawns.map((call) => {
+    const argv = argvOf(call);
+    return `${call.api} ${argv[0]} ${argv[1] ?? ''}`.trim();
+  }))].sort();
+  // THE EXACT OBSERVED SPAWN SET. Two families, both read-only:
+  //   - repository/worktree RESOLUTION (which git dir and toplevel this story's
+  //     root maps to), which the handler needs before it can name a committed
+  //     path at all; and
+  //   - the W2b committed-tree READ itself (ref verify + blob read).
+  // Anything else — a runner, a harness, a package manager, a git command that
+  // MUTATES — is a regression, and this list is what makes it one.
+  assert.deepEqual(
+    shapes,
+    [
+      'execFileSync git rev-parse',
+      'execFileSync git worktree',
+      'execSync git rev-parse',
+      'spawnSync git rev-parse',
+      'spawnSync git show',
+    ],
+    `unexpected child-process shape; observed: ${JSON.stringify(spawns.map(argvOf))}`,
+  );
+  /** Read-only git subcommands, with the exact read-only sub-form required. */
+  const READ_ONLY_GIT = {
+    'rev-parse': (argv) => argv.slice(2).every((a) => /^(?:--verify|--quiet|--show-toplevel|--git-common-dir)$/.test(a) || /\^\{commit\}$/.test(a)),
+    show: (argv) => argv.length === 3 && argv[2].includes(':'),
+    worktree: (argv) => argv[2] === 'list',
+  };
+  for (const call of spawns) {
+    const argv = argvOf(call);
+    assert.equal(argv[0], 'git', `every child process must be git; observed ${argv.join(' ')}`);
+    const allowed = READ_ONLY_GIT[argv[1]];
+    assert.ok(allowed, `git subcommand ${JSON.stringify(argv[1])} is outside the read-only allowlist: ${argv.join(' ')}`);
+    assert.ok(allowed(argv), `git ${argv[1]} is not in its read-only form: ${argv.join(' ')}`);
+    // The fabrication surface this pre-flight exists to keep closed until a run
+    // is deliberately spent.
+    assert.ok(!/^(?:npm|npx|yarn|pnpm|node|sh|bash|zsh|env|make|python3?)$/.test(argv[0]),
+      `the pre-flight must never spawn a runner/harness/shell; observed ${argv.join(' ')}`);
+  }
+  // The W2b pair specifically: a ref VERIFY and a blob read of the COMMITTED
+  // bindings file, pairing up one-for-one. This is the anti-swap property, so it
+  // is asserted to be PRESENT, not merely permitted.
+  const refVerify = spawns.map(argvOf).filter((argv) => argv[1] === 'rev-parse' && argv.includes('--verify'));
+  const blobRead = spawns.map(argvOf).filter((argv) => argv[1] === 'show');
+  assert.ok(blobRead.length > 0, 'the committed-tree blob read must actually happen');
+  assert.equal(refVerify.length, blobRead.length,
+    'each committed-tree read is a ref VERIFY followed by a blob read; the two must pair up');
+  for (const argv of refVerify) {
+    assert.deepEqual(argv.slice(1, 4), ['rev-parse', '--verify', '--quiet'], 'the ref check is the read-only verify form');
+    assert.match(argv[4] ?? '', /\^\{commit\}$/, 'the ref check resolves a commit');
+  }
+  for (const argv of blobRead) {
+    assert.match(argv[2], /^[^:]+:\.lattice\/story\/actives\/.+\/red-target-bindings\.json$/,
+      'the blob read targets the committed target-bindings file at a ref, and nothing else');
+  }
 
   // ── 7. The owner lease never gates it (readOnly) ──────────────────────────
   assert.equal(resolveEffectiveOwnershipClass(COMMAND, { storyId }, storyId), 'readOnly');
@@ -208,10 +358,36 @@ try {
     'a read-only pre-flight is never owner-lease gated, even on a foreign-owned story',
   );
 
+  // ── 8. THE VALIDATE-PIPELINE INVOCATION PATH (CHK-013) ────────────────────
+  // Registration-in-config plus a hand-rolled `node <path>` run only APPROXIMATE
+  // "lattice validate runs it": neither exercises the pipeline's own resolution
+  // of the entry (argv, cwd, timeout) nor its executor. Both are exercised here,
+  // through the exact functions `lattice validate` calls, so a registration that
+  // is present but unrunnable — a typo'd arg, a bad cwd, a nonsense timeout —
+  // fails this committed test instead of surfacing on somebody's next validate.
+  const SMOKE_ENTRY = 'packages/main/dist/tasks/red-evidence-envelope-smoke.js';
+  const resolved = configuredValidationCommands(REPO_ROOT)
+    .filter((entry) => [entry.command, ...(entry.args ?? [])].includes(SMOKE_ENTRY));
+  assert.equal(resolved.length, 1,
+    `exactly one lattice.config.json validate.commands entry must resolve to ${SMOKE_ENTRY}; got ${resolved.length}`);
+  const [smokeCommand] = resolved;
+  assert.equal(smokeCommand.command, 'node', 'the pipeline resolves the entry to a direct node invocation');
+  assert.notEqual(smokeCommand.shell, true, 'the entry is argv-shaped, never shell-interpreted');
+  assert.ok(typeof smokeCommand.timeoutMs === 'number' && smokeCommand.timeoutMs > 0,
+    'the entry declares a positive per-command timeout the pipeline can enforce');
+  const pipelineResult = await runValidationCommand(smokeCommand, REPO_ROOT);
+  assert.equal(pipelineResult.code, 0,
+    `${SMOKE_ENTRY} must exit 0 when run through the validate pipeline's own executor; got code=${pipelineResult.code}\n${pipelineResult.output}`);
+  assert.notEqual(pipelineResult.timedOut, true, 'the entry completes inside its configured timeout');
+  assert.match(pipelineResult.output, /red-evidence-envelope-smoke: OK/,
+    'the pipeline captured the smoke\'s own success transcript, so the entry really ran');
+
   console.log('red-w2d-command-readonly: PASS');
   console.log(`  registration: MAIN_TOOLS + command-policy(readOnly/none) + process-fact L0 + READ_ONLY_COMMANDS + registered handler`);
   console.log(`  success output: assertionDigest ${expectedDigest} / binding ${BINDING.acceptanceTargetRef} ${BINDING.adapterId} ${BINDING.testCaseRef} / policyDigest ${FROZEN_POLICY_DIGEST}`);
-  console.log('  inadmissible: tagged R1-2 rejection, success output absent; .lattice tree byte-identical after 7 invocations');
+  console.log(`  inadmissible: tagged R1-2 rejection, success output absent; no .lattice file created/modified/removed across ${invocations} invocations`);
+  console.log(`  spawn set observed across those invocations: ${shapes.join(' + ')} (${spawns.length} calls) — read-only git, no runner/harness/shell`);
+  console.log(`  validate pipeline: ${SMOKE_ENTRY} resolved via configuredValidationCommands and run via runValidationCommand -> exit 0 in ${pipelineResult.durationMs}ms`);
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
