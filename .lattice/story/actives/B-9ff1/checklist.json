@@ -336,9 +336,9 @@
       "id": "CHK-008",
       "title": "Implement minimum-specificity rule 3 so a class matcher can never be the sole present-in-red evidence",
       "context": "Section 1.3 rule 3: class matchers are supplementary for RED. An envelope whose only present-in-red matcher is a class matcher is rejected — otherwise a lone stderr-nonempty matcher would accept any failing run whatsoever. Class matchers remain exempt from rule 2.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-08-13T17:31:44.502Z",
-      "endTime": null,
+      "endTime": "2026-08-13T17:31:45.275Z",
       "verificationIntent": {
         "happy": [
           {
