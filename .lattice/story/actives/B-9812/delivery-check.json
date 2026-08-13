@@ -1,0 +1,86 @@
+{
+  "storyId": "B-9812",
+  "checkedAt": "2026-08-13T12:26:13.933Z",
+  "headHash": "832b9ce0bbc4b3088b599bc3ec8d9c4367f041fa",
+  "materialHash": "0905204a7ac15c0413bdc566fbaeecf11d6afd8fd297e9963496875cece92d75",
+  "storyFilesHash": "c8be89cdf39cbc0939f46492b93f97269399d354618f6d52054638ac8dae2f5a",
+  "reviewRound": "2026-08-13T10:49:45.680Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#canonical-root-suite-execution-b-9812",
+      "promise": "The terminal emits a machine-readable complete canonical member baseline with per-member status, duration, assertion and mutation inventory and rejects missing or duplicate membership.",
+      "status": "verified",
+      "verifiedBy": "source inspection plus current PASS52 replay",
+      "evidence": "full-suite-runner validates the independent serial reference bidirectionally and emits member telemetry; all CHK-001 selectors passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/test-runner-consolidation-plan.md#canonical-root-suite-execution-b-9812",
+      "promise": "The safe scheduler reports resource claims and lock waits, overlaps compatible members, serializes protected resources, and rejects unsafe or unclassified work.",
+      "status": "verified",
+      "verifiedBy": "runner source and production smoke",
+      "evidence": "claimsConflict and canonical resource keys schedule work; 139 assertions observed overlap, five protected serializations, fail-closed classifications, process-tree cleanup and marker safety."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-4-measured-flat-cohort",
+      "promise": "Acceptance rollout uses one digest-bound 12-case cohort with a bounded three-process producer and reuses the byte-identical frozen cohort.",
+      "status": "verified",
+      "verifiedBy": "source and cohort receipts",
+      "evidence": "jobs1 and jobs3 each have 12 records and equal semantic digest sha256:5c853459465c1277775b96ad2b32c9dd24d3424f4901ac92de362d3e2b7a6ed6; acceptance verifies copied runner identity."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#canonical-race-burn-in-execution-b-9812",
+      "promise": "Canonical incremental-context testing retains three deterministic masks and guard mutations while twenty-iteration burn-in remains opt-in.",
+      "status": "verified",
+      "verifiedBy": "source and stress20 receipt",
+      "evidence": "canonical selects one versus 20 stress iterations; receipt records 20 restored iterations, six mutation kills, schedule 31,10,21 and reordered or missing-seed detection."
+    },
+    {
+      "docPath": "package.json#scripts.test",
+      "promise": "npm test executes all 47 canonical members through the safe scheduler, reports critical path and treats first FAIL or TIMEOUT as terminal without retries.",
+      "status": "verified",
+      "verifiedBy": "package script, runner source and current receipts",
+      "evidence": "post-merge serial and three parallel receipts each report 47 launches, 47 PASS, retries=0 and a critical path; injected failure and timeout assertions prove terminal cancellation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-full-test-gate-execution-plan.md#runner-and-artifact-state",
+      "promise": "A clean path-with-spaces benchmark proves three complete parallel runs below 300000 ms, jobs=1 equivalence, no identity drift or leaked descendants, and safety mutation detection.",
+      "status": "verified",
+      "verifiedBy": "post-merge receipts and current PASS52 replay",
+      "evidence": "jobs4 runs took 163959, 161333 and 162833 ms with 47/47, launches=47, retries=0 and no drift; jobs1 passed 47/47; fixed-port, stress and process-tree checks passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current contract replay emitted all 52 VERIFIED selectors and PASS; serial and parallel receipts contain 47 members with detailed assertion and mutation inventories."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Full-suite-runner-smoke passed 139 assertions; scheduler observed compatible overlap, five protected serializations, fail-closed invalid claims, mutation bites and cleanup lifecycle."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Cohort jobs1/jobs3 each contain 12 records and the same digest; current replay executed the frozen-cohort consumer through both temporary path aliases."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Stress receipt has 20 restored iterations, six guard classes, six detected mutations, deterministic schedule, reordering detection, missing-seed rejection and isolated timeouts."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Post-merge receipts show 47/47, launches=47, retries=0, stable order and critical path; ordinary failure, timeout, stale build, output and inventory mutations are terminally detected."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Path-with-spaces jobs4 runs passed in 163959.4, 161333.1 and 162832.7 ms with no retries or drift; jobs1 passed equivalence; fixed-port EADDRINUSE and cleanup rebind passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All six promises are implemented and independently verified against current post-merge material. PASS52, three sub-five-minute runs, serial equivalence, failure, resource, cleanup, cohort, stress and mutation evidence all pass."
+  },
+  "_hash": "746377c52c2d09bb54ebecd74ebd8e35a27158da613f9499723fb5f4479d83b9"
+}
