@@ -1434,7 +1434,9 @@ export const INCREMENTAL_GUARD_CLASS_MAP = Object.freeze({
   'real-review-gate': 'canPassReviewGuard accepts the complete evidence matrix',
 });
 
-type GuardObservation = Record<keyof typeof INCREMENTAL_GUARD_CLASS_MAP, boolean>;
+type GuardObservation = Record<keyof typeof INCREMENTAL_GUARD_CLASS_MAP, boolean> & {
+  mutationTrace?: { redundantDeletionStillTrue: boolean; allPassesCleared: boolean };
+};
 type GuardMutation = keyof typeof INCREMENTAL_GUARD_CLASS_MAP;
 
 function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: GuardMutation): GuardObservation {
@@ -1598,11 +1600,15 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
       [...roles].sort(),
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
+    let realGateMutationTrace: GuardObservation['mutationTrace'];
     if (mutation === 'real-review-gate') {
       const data = store.readReviewPasses(storyId);
+      data.passes = [data.passes[0]!, ...data.passes]; store.writeReviewPasses(storyId, data);
       data.passes = data.passes.slice(1); store.writeReviewPasses(storyId, data);
-      assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, 'real gate mutation fixture proves deleting one of multiple admissible passes is insufficient');
+      const redundantDeletionStillTrue = canPassReviewGuard({ storyId, store, projectRoot: root });
+      assert.equal(redundantDeletionStillTrue, true, 'real gate mutation fixture proves deleting one redundant admissible pass is insufficient');
       data.passes = []; store.writeReviewPasses(storyId, data);
+      realGateMutationTrace = { redundantDeletionStillTrue, allPassesCleared: canPassReviewGuard({ storyId, store, projectRoot: root }) };
     }
     const realReviewGate = canPassReviewGuard({ storyId, store, projectRoot: root });
     if (!mutation) assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
@@ -1614,6 +1620,7 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
       'signed-result-admissibility': signedResultAdmissibility,
       'lane-no-overwrite': laneNoOverwrite,
       'real-review-gate': realReviewGate,
+      ...(realGateMutationTrace ? { mutationTrace: realGateMutationTrace } : {}),
     };
   } finally {
     resetConfigCache();
@@ -1668,8 +1675,15 @@ function run(): void {
     catch (error) { mutated = { threw: error instanceof Error ? error.message : String(error) }; }
     const baselineDigest = JSON.stringify(canonicalObservation);
     const mutatedDigest = JSON.stringify(mutated);
-    const targetFailed = 'threw' in mutated || mutated[guardClass as keyof GuardObservation] === false;
-    return [guardClass, { executed: true, baselineDigest, mutatedDigest, detected: targetFailed && baselineDigest !== mutatedDigest, outcome: mutated }];
+    const threw = 'threw' in mutated;
+    const observation = threw ? undefined : mutated as GuardObservation;
+    const targetFailed = observation?.[guardClass as keyof typeof INCREMENTAL_GUARD_CLASS_MAP] === false;
+    const realGateTrace = guardClass === 'real-review-gate' ? observation?.mutationTrace : undefined;
+    return [guardClass, {
+      executed: true, completed: !threw, threw, baseline: canonicalObservation[guardClass as keyof typeof INCREMENTAL_GUARD_CLASS_MAP],
+      ...(realGateTrace ?? {}), baselineDigest, mutatedDigest,
+      detected: targetFailed && baselineDigest !== mutatedDigest, outcome: mutated,
+    }];
   }));
   const baselineSchedule = [0b11111, 0b01010, 0b10101];
   const baselineScheduleReceipt = baselineSchedule.map((mask, index) => ({ mask, observation: matrixObservations[index]! }));
