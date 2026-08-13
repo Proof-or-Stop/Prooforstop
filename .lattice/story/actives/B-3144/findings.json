@@ -520,6 +520,20 @@
       "_hash": "1b60f0c06029e311d5774c27a4a58816c358f3f0da5d4462fac3c4aa8740f059",
       "signatureTag": "adversarial|unknown|host-codex-reported",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-3144:F-029",
+      "desc": "HOST-B codex reported: exact-material parity still has a normalization hole. packages/main/src/handlers/quorum-submit.ts:502 compares the RAW event value while the consumer normalizes it at core/host-independence.ts:147. A committed verdict carrying materialDigest with surrounding whitespace counts at the floor, but misses BOTH producer branches: raw equality is false, and the normalized drift test sees current material so it is false too. Re-submission can therefore still poison that run. Fix: compare the normalized material in the same-material branch as well.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T20:52:02.571Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "_hash": "829822d7625fea2c17e485ae164ca30abe62d443a1226e067b3e526eaadc0b4b",
+      "signatureTag": "adversarial|unknown|host-codex-reported",
+      "signatureTagSource": "auto"
     }
   ]
 }
