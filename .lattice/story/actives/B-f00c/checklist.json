@@ -203,7 +203,11 @@
           {
             "desc": "RED assertion: on a repo where main-merge re-lists the story source file via per-commit -m union, classifyTrustedValidationLineage returns rejected with untrusted-lineage-path AND validationHeadLineage returns rejected with lineage_untrusted, despite identical materialHash/storyFilesHash/identity.digest -> smoke FAILS on unfixed code; WHY: proves the bug is reproducible before fix",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "GREEN assertion: after applying the net endpoint diff fix, the same merge scenario causes BOTH classifyTrustedValidationLineage to return trusted-story-metadata-descendant AND validationHeadLineage to return trusted-story-metadata-descendant; evaluateRoutineValidationReuse reusable=true and admissibility ok=true; WHY: proves the fix resolves the false positive",
@@ -254,16 +258,23 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "RED demonstration: smoke test 1 asserts perCommitUnionChanged (old semantic) includes foo.ts on the merge scenario, reproducing the pre-fix false positive. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "validation-reuse-merge-lineage-smoke passes after merging main (behind=0).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T15:55:25.869Z"
+          },
+          "headHash": "ec6ee83816fdc04bbb75186d49ed5ad958e20f3b",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T15:55:26.024Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
