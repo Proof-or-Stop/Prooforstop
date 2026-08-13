@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-9ff1:F-001",
+      "desc": "CHK-015:edge:1 (matcher count bound is policy-resolved, not hardcoded): no fixture in red-w2d-rejection-matrix.mjs or the smoke validates the matcher-count bound under a policy with a DIFFERENT policy.maxMatchers value. Every other floor claim of this kind in the same story (rule-2 length/entropy floors in red-w2d-specificity-conjunction.mjs via a raised-minMatcherLen policy, the class registry in CHK-016 via a CUSTOM matcherClassRegistry, policyDigest content-sensitivity in CHK-010 via an otherPolicy) IS proven with a two-policy differential; only the CHK-015 count bound is proven solely against the frozen default (maxMatchers=8), so a hard-coded 8 in place of policy.maxMatchers would pass every committed test. The binder self-flagged this exact gap in its own evidence note.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-13T17:58:45.968Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "reviewRunId": "B-9ff1:RR-001",
+      "_hash": "65843824003b60f92c8de2a34199f494243a4fdc07e8cab451b9357746f6857a",
+      "files": [
+        "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "edge|mjs|edge-matcher-count",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
