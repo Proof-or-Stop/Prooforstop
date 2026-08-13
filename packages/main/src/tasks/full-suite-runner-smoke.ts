@@ -339,6 +339,7 @@ async function main(): Promise<void> {
 
   const staleRoot = mkdtempSync(join(tmpdir(), 'full-suite-stale-binding-'));
   try {
+    const npmCli = process.env.npm_execpath ?? execFileSync('which', ['npm'], { encoding: 'utf8' }).trim();
     createFixtureBuildBinding(staleRoot);
     const runnerPath = resolve(dirname(fileURLToPath(import.meta.url)), 'full-suite-runner.js');
     writeFileSync(join(staleRoot, 'package.json'), JSON.stringify({ scripts: { test: `node ${JSON.stringify(runnerPath)}` } }));
@@ -346,7 +347,7 @@ async function main(): Promise<void> {
     const launchMarker = join(staleRoot, 'npm-launched');
     const fakeBin = join(staleRoot, 'bin'); mkdirSync(fakeBin);
     writeFileSync(join(fakeBin, 'npm'), `#!/bin/sh\necho launched > ${JSON.stringify(launchMarker)}\nexit 99\n`); chmodSync(join(fakeBin, 'npm'), 0o755);
-    const stale = spawnSync(process.execPath, [process.env.npm_execpath!, 'test', '--', '--unknown'], {
+    const stale = spawnSync(process.execPath, [npmCli, 'test', '--', '--unknown'], {
       cwd: staleRoot, encoding: 'utf8', env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH ?? ''}` },
     });
     const staleOutput = `${stale.stdout}${stale.stderr}`;
@@ -355,7 +356,7 @@ async function main(): Promise<void> {
     writeFileSync(join(staleRoot, 'packages/main/src/input.ts'), 'export const fixture = true;\n');
     execFileSync(process.execPath, ['--input-type=module', '-e', `import{writeBuildBinding}from${JSON.stringify(`file://${join(process.cwd(), 'scripts/full-suite-build-binding.mjs')}`)};writeBuildBinding(process.cwd())`], { cwd: staleRoot });
     writeFileSync(join(staleRoot, 'packages/main/dist/input.js'), 'export const fixture = false;\n');
-    const tampered = spawnSync(process.execPath, [process.env.npm_execpath!, 'test', '--', '--unknown'], {
+    const tampered = spawnSync(process.execPath, [npmCli, 'test', '--', '--unknown'], {
       cwd: staleRoot, encoding: 'utf8', env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH ?? ''}` },
     });
     const tamperedOutput = `${tampered.stdout}${tampered.stderr}`;
