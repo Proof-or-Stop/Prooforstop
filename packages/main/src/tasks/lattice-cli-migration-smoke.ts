@@ -117,14 +117,26 @@ for (const alias of [
 }
 
 const storyCreateHelp = runCli(['story_create', '--help']);
-assert.match(storyCreateHelp, /lattice story_create with checklist/);
-assert.match(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
+// B-cdf6 (F-030): these pinned the PRE-rename bin name and so failed BECAUSE the
+// rename succeeded — the same class already fixed in decision-doc-promotion-smoke
+// and asserted correctly by `Try proof-or-stop story_advance` further down this
+// very block. They were MASKED until now: the genuinely pre-existing `host
+// status` alias assertion above throws first, so these never executed. Measured
+// help output: `proof-or-stop story_create with checklist` and `proof-or-stop
+// story_advance phase=INIT_CHECK`, zero `lattice`. Paired doesNotMatch guards
+// keep the example text from regressing to the deprecated bin.
+assert.match(storyCreateHelp, /proof-or-stop story_create with checklist/);
+assert.doesNotMatch(storyCreateHelp, /lattice story_create with checklist/);
+assert.match(storyCreateHelp, /proof-or-stop story_advance phase=INIT_CHECK/);
+assert.doesNotMatch(storyCreateHelp, /lattice story_advance phase=INIT_CHECK/);
 assert.doesNotMatch(storyCreateHelp, /(?:^|\n)\s+\d+\.\s+(?:story_create|story_advance)\b/, 'story_create help step list uses lattice-prefixed commands');
 assert.doesNotMatch(storyCreateHelp, /use checklist_add\b/, 'story_create help uses proof-or-stop checklist_add');
 
 const storyAdvanceHelp = runCli(['story_advance', '--help']);
-assert.match(storyAdvanceHelp, /lattice story_review/);
-assert.match(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
+assert.match(storyAdvanceHelp, /proof-or-stop story_review/);
+assert.doesNotMatch(storyAdvanceHelp, /lattice story_review/);
+assert.match(storyAdvanceHelp, /proof-or-stop story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
+assert.doesNotMatch(storyAdvanceHelp, /lattice story_advance '\{"storyId":"B-a3f7","phase":"DEV"\}'/);
 assert.match(storyAdvanceHelp, /Try proof-or-stop story_advance/);
 assert.doesNotMatch(storyAdvanceHelp, /(?:^|\n)\s+\d+\.\s+(?:story_review|story_advance|understanding_set|decision_set)\b/, 'story_advance help step list uses lattice-prefixed commands');
 
