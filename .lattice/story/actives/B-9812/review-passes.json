@@ -295,6 +295,126 @@
       },
       "readDiagnostics": [],
       "_hash": "9f96309d4d8c2408ad9f9b2fb315b57960ff21671d9a0b9f4079de77faf2b29f"
+    },
+    {
+      "id": "B-9812:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Final F052 concept review: the verifier remains deny-by-default and adds only the two observed lifecycle metadata basenames review-passes.json and test-evidence.json. Both receipt and selector paths enforce ancestor-only metadata descendants, unchanged material, exact story prefix, and reject unknown metadata/source drift. Independent replay returned PASS for all 52 selectors; selector self-test returned PASS (11 assertions). No concept deletion/replacement residue or blocker found.",
+      "createdAt": "2026-08-13T10:52:22.336Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-029",
+      "envelopeId": "8210816854e569ba827e045f02dd4236c2d6a940b2bdb7adadc7bed6805d32c3",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d418d3c9c1e239d193c1c4cbf380e53c4f61129be6c54e3e0ed9678dc0a713e8"
+    },
+    {
+      "id": "B-9812:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "No quality blocker: reviewed the integrated changed-file surface and final ownership cleanup fix; standard build passes, default no-env 52-selector replay passes, capture ancestry changes are limited to the strict lifecycle metadata allowlist, and self-tests reject unknown metadata, source/non-ancestor drift, missing/failed selectors, changed verifier bytes, and stale/tampered build output.",
+      "createdAt": "2026-08-13T10:54:50.284Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-028",
+      "envelopeId": "c1030a1f30cff066a3a2f57c8bbe777c670d13841bcfec55d52781e56f990bab",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/checklist.json",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "aeb2c77b19d12d2918490f79557a6784f150c7b6eb556ec53b96c45459801bd6"
+      },
+      "readDiagnostics": [],
+      "_hash": "db242f52a97ebdca8e7b1ce462c1a91c1c16b51f78579347b6769b73ccde3754"
+    },
+    {
+      "id": "B-9812:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test-coverage review passed: 52/52 must intents have mechanical PASS receipts with zero gaps/waivers; default no-env verifier emits PASS selectors=52 at current HEAD. F-052 is fixed structurally: review-passes.json and test-evidence.json are bounded allowlisted lifecycle descendants, selector self-test commits both in a real temporary git repo and passes while unknown metadata remains denied. Current serial/jobs3/jobs5/jobs4x3 artifacts are 47/47 PASS, launches=47, retries=0, identityDrift=false; all three jobs4 runs are under 300000ms.",
+      "createdAt": "2026-08-13T10:58:11.195Z",
+      "reviewRound": "2026-08-13T10:49:45.680Z",
+      "reviewRunId": "B-9812:RR-030",
+      "envelopeId": "29304143226439ae45e7e148ddd2530b2389218f50e79a26550e673f88fb8457",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/verify-full-suite-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e1d96102ab1c66802081dbb67237405cce06e8fd1fa2f3e724e106ff1f1b19f"
     }
   ]
 }
