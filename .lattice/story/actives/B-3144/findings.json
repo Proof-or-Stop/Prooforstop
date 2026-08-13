@@ -450,6 +450,20 @@
       "resolvedAt": "2026-07-26T08:31:27.290Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3144:F-024",
+      "desc": "HOST-B codex (independent second host, run 2026-08-13) reported: quorum_prune can erase a genuine FAILING verdict and turn an invalid round into a passing one. packages/main/src/handlers/quorum-prune.ts:275 groups every host_verdict by runId+host/session/key WITHOUT checking decision, required binding fields, material freshness, or storyFilesHash, and line 321 retains the later row. core/host-independence.ts:151 treats a current-material non-PASS as an invalidating fact for that round. If a FAIL row precedes a PASS row with the same identities, default pruning deletes the FAIL and a previously INVALID round becomes valid - the recovery command can launder a failed review. Fix: restrict recovery to the canonical B-bf52 PASS/drift collision shape and fail closed on non-PASS or malformed members.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-08-13T20:51:55.748Z",
+      "reviewRound": "2026-07-26T08:30:56.241Z",
+      "_hash": "b95c112d4e9b0316bf9fbe64fed19a79a6791e1accf7e0a06a00ad63d6d96c8f",
+      "signatureTag": "adversarial|unknown|host-codex-independent",
+      "signatureTagSource": "auto"
     }
   ]
 }
