@@ -23,16 +23,19 @@
 // THE TAG DISCIPLINE (the single most important invariant in this module)
 // ----------------------------------------------------------------------
 //   R1-1  the target-exercised proof is MISSING or structurally incomplete
-//   R1-2  MINIMUM SPECIFICITY (§1.3): a degenerate/blocklisted literal, a
-//         literal below the length-AND-entropy floor, or a `present-in-red` set
-//         with no admissible `literal-line` matcher (rule 3)
+//   R1-2  MINIMUM SPECIFICITY (§1.3): a degenerate literal (EMPTY or
+//         blocklisted, §1.3 rule 1), a literal below the length-AND-entropy
+//         floor (rule 2), or a `present-in-red` set with no admissible
+//         `literal-line` matcher (rule 3)
 //   R1-3  matcher and path BOUNDS: matcher COUNT, value byte length, untrimmed
 //         value, duplicate id, unknown kind, unregistered class name, closed-enum
 //         violations, the decidable timeout/script-exit linkage incompatibility,
 //         and supplementary-artifact PATH syntax
-//   R1-5  `adapterId` absent from `policy.runnerAdapterRegistry` — only the
-//         envelope-decidable half of R1-5; argv derivation from the adapter
-//         template is a run-receipt check and stays with the runner (W2e)
+//   R1-5  `adapterId` absent from `policy.runnerAdapterRegistry`, or a
+//         `testCaseRef` the adapter's registered `testCaseRefPattern` does not
+//         match (§1.2 argv resolution: "no match → reject (R1-5)") — the
+//         envelope-decidable half of R1-5; instantiating `argvTemplate` and
+//         comparing it to the observed receipt argv stays with the runner (W2e)
 //   R1-6  the target binding is UNREGISTERED or MISMATCHED (adapterId,
 //         testCaseRef, or a `targetBindingDigest` that does not recompute over
 //         the createdAt-stripped three-field subobject)
@@ -44,11 +47,61 @@
 // that cleared it — so a whitespace or over-length value is reported once, as
 // R1-3, instead of also masquerading as a degenerate literal.
 //
+// WHERE THE §1.3 RULE-1 TRIPLE SPLITS (review B-9ff1 F-005/F-006). Rule 1 has
+// three clauses — trimmed, non-empty, not-blocklisted — and they do NOT all
+// carry the same tag, because §1.6 assigns tags by ENUMERATION and its two
+// enumerations are not symmetric: R1-3's list names "value ... carrying leading
+// or trailing whitespace" but says nothing about an EMPTY value, while R1-2's
+// list names "a degenerate/blocklisted literal". So `trimmed` -> R1-3 (named
+// there), and BOTH `non-empty` and `not-blocklisted` -> R1-2 (a zero-byte
+// literal is the most degenerate literal there is). An earlier revision tagged
+// the empty value R1-3 by attaching it to the `1 <= len <= maxMatcherLen`
+// sentence of §1.1.1; that sentence bounds the length, but the TAG for the
+// lower end follows §1.3 rule 1 / §1.6 R1-2, which is where non-emptiness is
+// actually legislated.
+//
+// COUNT AND SPECIFICITY ARE INDEPENDENT (review B-9ff1 F-009). A matcher COUNT
+// outside `1..policy.maxMatchers` is one R1-3 finding; it must NOT suppress the
+// §1.3 block, or a 9-matcher envelope whose only `present-in-red` evidence is a
+// class matcher would report the count bound and silently drop the rule-3
+// violation. §1.3 is gated ONLY on there being at least one bounds-clean matcher
+// to reason about (the layering above), never on the count being legal.
+//
+// WHAT THE `value` BOUNDS DO AND DO NOT COVER (review B-9ff1, adjudicated).
+// `maxMatcherLen`, the trimmed requirement and the §1.3 floors are `literal-line`
+// rules ONLY. §1.1.1 scopes them explicitly ("`value` — for `literal-line`: ...
+// Length in bytes MUST satisfy ..."). For `kind: "class"` the PRECEDING bullet
+// governs: `value` IS the registry class name and the only test is exact,
+// case-sensitive membership in `policy.matcherClassRegistry`, because §1.3 says
+// a class matcher's breadth "is bounded by the policy registry itself". Applying
+// `maxMatcherLen` to a class name would make a legal registry self-contradictory
+// (a registered 600-byte name would be unusable), so it is deliberately not done.
+//
 // Inconsistencies §1.6 assigns NO tag to (a non-object assertion, a declared
 // `policyDigest` that is not the resolved one, a declared `assertionDigest` that
 // does not recompute, a missing `acceptanceTargetRef`) are reported as NAMED
 // structural `diagnostics` instead. Inventing a §1.6 tag for them would be the
 // same mis-tagging error in a different direction.
+//
+// ARE `policyDigest` / `assertionDigest` REQUIRED HERE? (review B-9ff1,
+// adjudicated — do not re-litigate.) §1.1 numbers them among the four envelope
+// fields, and for a STORED v2 record they ARE required: §1.10 embeds both and
+// §3.4 makes them idempotency-key components, so a record missing either is
+// malformed. THIS function does not validate a stored record. It validates a
+// CANDIDATE envelope whose entire purpose is to COMPUTE and report
+// `assertionDigest` before a run is spent, and `assertionDigest` covers
+// `policyDigest`, which in turn covers a policy the operator resolves from
+// config rather than authors. Demanding that the operator pre-supply the two
+// values this pre-flight exists to derive would be circular, and would force
+// hand-computed digests into candidate files — the exact fabrication surface
+// §1.1.4 exists to remove. THE RULE, therefore:
+//   - a candidate MAY omit either field (they are then computed / resolved), and
+//   - if either IS supplied it MUST equal the computed value, else the envelope
+//     is inadmissible with a NAMED diagnostic (`policy-digest-mismatch` /
+//     `assertion-digest-mismatch`) rather than a fabricated §1.6 tag.
+// Both directions are pinned by committed fixtures: supplied-and-MATCHING is
+// admissible, supplied-and-MISMATCHED is not. The requiredness of the fields on
+// a stored record is enforced where records are written, not here.
 //
 // Assurance scope (§0.6 practical tier): this detects fabricated, drifted, or
 // under-specified envelopes through the registered surfaces BEFORE a run is
@@ -179,6 +232,13 @@ export function computeAssertionDigest(assertion: unknown): string {
 }
 
 /**
+ * A DRIVE-QUALIFIED path prefix (`C:/x`, `c:\x`, and the drive-RELATIVE `C:x`).
+ * None of these is repo-relative: they are resolved against a drive root or a
+ * per-drive working directory, not against the repository root.
+ */
+const DRIVE_QUALIFIED_PREFIX = /^[A-Za-z]:/;
+
+/**
  * §1.1.3 SYNTACTIC repo-relative path validation for
  * `supplementaryArtifact.targetArtifactRef`.
  *
@@ -186,12 +246,21 @@ export function computeAssertionDigest(assertion: unknown): string {
  * yet, and "does not exist yet" is exactly the RED case. Component-by-component
  * observation (lstat + symlink-escape classification) happens at RUN time and
  * belongs to the runner leaf.
+ *
+ * NOT-ABSOLUTE IS A GENERAL TEST, NOT A LEADING-SLASH TEST (review B-9ff1
+ * F-010). §1.1.3 requires the ref to be slash-normalized AND RELATIVE, so every
+ * non-relative FORM rejects, not just the POSIX one: a leading `/` (also
+ * covering the `//server/share` UNC form, whose empty segment rejects as well),
+ * a backslash anywhere, and a drive qualifier such as `C:/outside`, `C:\outside`
+ * or the drive-relative `C:outside`. Checking only `startsWith('/')` admitted
+ * `C:/outside` — slash-normalized, unmistakably absolute, and accepted.
  */
 export function classifyArtifactPath(ref: unknown): { ok: boolean; reason: string } {
   if (typeof ref !== 'string') return { ok: false, reason: 'not-a-string' };
   if (ref.length === 0) return { ok: false, reason: 'empty' };
   if (ref.includes('\\')) return { ok: false, reason: 'backslash' };
   if (ref.startsWith('/')) return { ok: false, reason: 'absolute' };
+  if (DRIVE_QUALIFIED_PREFIX.test(ref)) return { ok: false, reason: 'drive-qualified' };
   const segments = ref.split('/');
   for (const segment of segments) {
     if (segment.length === 0) return { ok: false, reason: 'empty-segment' };
@@ -323,16 +392,27 @@ export function validateAssertionEnvelope(args: ValidateAssertionEnvelopeArgs): 
         fail('matcher-polarity-unknown', `matcher ${ref}: polarity ${JSON.stringify(polarity)} is outside the closed, case-sensitive enum ${JSON.stringify(MATCHER_POLARITIES)}`);
       }
 
-      // §1.1.1 greenExempt: OPTIONAL boolean, legal ONLY on present-in-red.
-      // An explicit `false` is accepted on any polarity because §0.4 OMITS it —
-      // it is the same value as an absent field and is stripped from the
-      // canonical subobject, so it can never change the assertion identity.
-      // `true` on any other polarity is rejected.
+      // §1.1.1 greenExempt: OPTIONAL boolean, "legal ONLY on
+      // `polarity: "present-in-red"` matchers (any other polarity CARRYING IT is
+      // rejected)". THE TEST IS PRESENCE, NOT TRUTH (review B-9ff1 F-007): the
+      // spec rejects a matcher that CARRIES the field on the wrong polarity, so
+      // `greenExempt: false` on an `absent-in-green` matcher is as illegal as
+      // `true`. An earlier revision accepted an explicit `false` anywhere,
+      // reasoning from §0.4 that a false is OMITTED from the canonical subobject
+      // and so cannot change the assertion identity. That reasoning is sound
+      // about IDENTITY and irrelevant to LEGALITY: §0.4 governs how a canonical
+      // digest is taken, not which fields an envelope may carry, and this clause
+      // is a schema rule. Digest behaviour is unchanged — `false` is still
+      // stripped by canonicalAssertionSubobject — but an envelope declaring it
+      // off-polarity is now rejected instead of silently normalized away.
       if (greenExempt !== undefined) {
         if (typeof greenExempt !== 'boolean') {
           fail('matcher-green-exempt-not-boolean', `matcher ${ref}: greenExempt must be a boolean when present (§1.1.1), got ${JSON.stringify(greenExempt)}`);
-        } else if (greenExempt === true && polarity !== 'present-in-red') {
-          fail('matcher-green-exempt-illegal-polarity', `matcher ${ref}: greenExempt is legal ONLY on polarity "present-in-red" (§1.1.1), not on ${JSON.stringify(polarity)}`);
+        } else if (polarity !== 'present-in-red') {
+          fail(
+            'matcher-green-exempt-illegal-polarity',
+            `matcher ${ref}: greenExempt is legal ONLY on polarity "present-in-red" (§1.1.1) — any other polarity CARRYING the field is rejected, whatever its value; got polarity ${JSON.stringify(polarity)} with greenExempt ${JSON.stringify(greenExempt)}`,
+          );
         }
       }
 
@@ -340,13 +420,14 @@ export function validateAssertionEnvelope(args: ValidateAssertionEnvelopeArgs): 
         fail('matcher-value-not-a-string', `matcher ${ref}: value must be a string (§1.1.1), got ${JSON.stringify(value)}`);
       } else if (kind === 'literal-line') {
         // §1.1.1 literal-line value bounds. BYTE length, never code units.
+        // The EMPTY value is deliberately NOT decided here: §1.6 R1-3 enumerates
+        // only "longer than maxMatcherLen" and "leading/trailing whitespace",
+        // while non-emptiness is §1.3 rule 1 and therefore R1-2 (see the header).
         if (value !== value.trim()) {
           fail('matcher-value-untrimmed', `matcher ${ref}: value carries leading/trailing whitespace; literal values are stored TRIMMED (§1.6 R1-3)`);
         }
         const bytes = valueByteLength(value);
-        if (bytes < 1) {
-          fail('matcher-value-empty', `matcher ${ref}: value is empty; 1 <= len(value) <= policy.maxMatcherLen=${policy.maxMatcherLen} BYTES (§1.6 R1-3)`);
-        } else if (bytes > policy.maxMatcherLen) {
+        if (bytes > policy.maxMatcherLen) {
           fail('matcher-value-too-long', `matcher ${ref}: value is ${bytes} BYTES (not code units), above policy.maxMatcherLen=${policy.maxMatcherLen} (§1.6 R1-3)`);
         }
       } else if (kind === 'class') {
@@ -382,7 +463,13 @@ export function validateAssertionEnvelope(args: ValidateAssertionEnvelopeArgs): 
         });
       }
     });
-    matcherSetEvaluable = rawMatchers.length > 0 && rawMatchers.length <= policy.maxMatchers && bounded.length > 0;
+    // §1.3 is evaluated over the matchers that CLEARED the bounds layer, and is
+    // gated on that alone. It is deliberately NOT gated on the COUNT being legal
+    // (review B-9ff1 F-009): a count violation is its own R1-3 finding and must
+    // not suppress a co-occurring specificity finding, or an over-count envelope
+    // whose only present-in-red evidence is a class matcher would report the
+    // count and silently drop the rule-3 violation the operator also has to fix.
+    matcherSetEvaluable = bounded.length > 0;
   }
 
   // ── §1.3 MINIMUM SPECIFICITY (R1-2), over bounds-clean matchers only ──────
@@ -390,6 +477,16 @@ export function validateAssertionEnvelope(args: ValidateAssertionEnvelopeArgs): 
     for (const matcher of bounded) {
       if (matcher.kind !== 'literal-line' || !matcher.specificity) continue;
       const { specificity } = matcher;
+      // §1.3 rule 1, non-emptiness clause. R1-2, not R1-3 — see the header note
+      // on where the rule-1 triple splits.
+      if (!specificity.nonEmpty) {
+        reject(
+          'R1-2',
+          'matcher-value-empty',
+          `matcher ${matcher.ref}: value is EMPTY; §1.3 rule 1 requires a literal-line value to be non-empty, and a zero-byte literal asserts nothing (§1.6 R1-2)`,
+          matcher.ref,
+        );
+      }
       if (!specificity.notBlocklisted) {
         reject(
           'R1-2',
@@ -485,7 +582,19 @@ export function validateAssertionEnvelope(args: ValidateAssertionEnvelopeArgs): 
     // §1.1.3 supplementaryArtifact (optional, never standalone) — PATH SYNTAX is
     // R1-3, explicitly a BOUNDS tag and never a specificity one.
     const supplementary = proofObject.supplementaryArtifact;
-    if (supplementary !== undefined && supplementary !== null) {
+    if (supplementary === null) {
+      // §0.4: "every OTHER optional field is OMITTED entirely when absent —
+      // never written as `null` or `""`". An explicit null is therefore a
+      // MALFORMED envelope, not an omission, and treating it as absent (as an
+      // earlier revision did) let a malformed envelope through as admissible
+      // (review B-9ff1 F-011). The tag is R1-3, the same bounds tag every other
+      // structural defect of this subobject carries.
+      reject(
+        'R1-3',
+        'supplementary-artifact-null',
+        'targetExercisedProof.supplementaryArtifact is explicitly null; §0.4 requires an absent optional field to be OMITTED entirely and never written as null or "" — an explicit null is a malformed envelope, not an omission (§1.6 R1-3)',
+      );
+    } else if (supplementary !== undefined) {
       if (!isPlainObject(supplementary)) {
         reject('R1-3', 'supplementary-artifact-not-an-object', `supplementaryArtifact must be an object with targetArtifactRef + expectation (§1.1.3), got ${JSON.stringify(supplementary)}`);
       } else {
@@ -518,12 +627,41 @@ export function validateAssertionEnvelope(args: ValidateAssertionEnvelopeArgs): 
         'adapter-unregistered',
         `targetExercisedProof.adapterId ${JSON.stringify(proofAdapterId)} is absent from policy.runnerAdapterRegistry (§1.6 R1-5); registered adapters: ${policy.runnerAdapterRegistry.map((entry) => entry.adapterId).join(', ') || '<none>'}`,
       );
-    } else if (expectedExitClass === 'timeout-is-failure' && adapter.linkageKind === 'script-exit') {
-      reject(
-        'R1-3',
-        'timeout-with-script-exit-linkage',
-        `expectedExitClass "timeout-is-failure" is legal ONLY with a reporter-event adapter: a timed-out script never runs to completion, so script-exit linkage is unobtainable. Adapter ${JSON.stringify(proofAdapterId)} declares linkageKind "script-exit" — REJECTED at schema time, before a run is spent (§1.1.2, R1-3)`,
-      );
+    } else {
+      if (expectedExitClass === 'timeout-is-failure' && adapter.linkageKind === 'script-exit') {
+        reject(
+          'R1-3',
+          'timeout-with-script-exit-linkage',
+          `expectedExitClass "timeout-is-failure" is legal ONLY with a reporter-event adapter: a timed-out script never runs to completion, so script-exit linkage is unobtainable. Adapter ${JSON.stringify(proofAdapterId)} declares linkageKind "script-exit" — REJECTED at schema time, before a run is spent (§1.1.2, R1-3)`,
+        );
+      }
+      // §1.2 argv resolution, step 1: "match `testCaseRef` against
+      // `testCaseRefPattern`; no match → reject (R1-5)". This half IS
+      // envelope-decidable — the pattern is registry material in the resolved
+      // policy and the ref is in the envelope — so it is decided here, beside the
+      // registry-membership check, instead of costing a run. Only the SECOND half
+      // of R1-5 (instantiating argvTemplate and comparing it with the observed
+      // receipt argv) needs a run and stays with the runner (W2e). Without this,
+      // a free-form testCaseRef that no template can ever resolve was admitted.
+      if (proofTestCaseRef !== null) {
+        // The policy resolver already fails closed on a pattern that does not
+        // compile or is unanchored (§1.2), so a live compile error here can only
+        // mean the caller passed an unresolved snapshot: treat it as NO MATCH
+        // (fail closed) rather than letting an exception escape the validator.
+        let matchesPattern = false;
+        try {
+          matchesPattern = new RegExp(adapter.testCaseRefPattern, 'u').test(proofTestCaseRef);
+        } catch {
+          matchesPattern = false;
+        }
+        if (!matchesPattern) {
+          reject(
+            'R1-5',
+            'test-case-ref-pattern-mismatch',
+            `targetExercisedProof.testCaseRef ${JSON.stringify(proofTestCaseRef)} does not match the registered testCaseRefPattern ${JSON.stringify(adapter.testCaseRefPattern)} of adapter ${JSON.stringify(proofAdapterId)}, so no argv can be derived from its template (§1.2 argv resolution, §1.6 R1-5)`,
+          );
+        }
+      }
     }
   }
 

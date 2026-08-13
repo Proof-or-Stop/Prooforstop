@@ -18,7 +18,13 @@
 //   5. §1.1 schema bounds and §1.1.3 binding validation reject with the EXACT
 //      §1.6 tag — R1-2 (specificity) and R1-3 (bounds) are never collapsed.
 //   6. §1.6 tag coverage: R1-1, R1-2, R1-3, R1-5 and R1-6 each have at least one
-//      fixture, so no rejection class is silently untested.
+//      fixture, so no rejection class is silently untested; and the routings a
+//      reviewer corrected are pinned BY CODE, not merely by tag set — the §1.3
+//      rule-1 triple splits (empty/blocklisted -> R1-2, trimmed -> R1-3), a
+//      matcher COUNT violation does not suppress the §1.3 block, the count bound
+//      is proven policy-resolved by a two-policy differential, and
+//      policyDigest/assertionDigest are optional-but-checked on a CANDIDATE
+//      (all four cells of omitted/supplied x matching/mismatched).
 //   7. The SUCCESS transcript (CHK-014): an admissible envelope reports the
 //      computed assertionDigest, the matched binding reference, and the resolved
 //      policyDigest — the operator's primary use case, not only rejections.
@@ -295,16 +301,27 @@ try {
     { label: 'class value naming no registry entry', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), classMatcher('C1', 'no-such-class', 'present-in-green')] }), tags: ['R1-3'] },
     { label: 'class value differing only in case', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), classMatcher('C1', 'Stderr-Nonempty', 'present-in-green')] }), tags: ['R1-3'] },
     { label: 'untrimmed value', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), literal('L2', ` ${ADMISSIBLE}`, 'present-in-green')] }), tags: ['R1-3'] },
-    { label: 'empty value', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), literal('L2', '', 'present-in-green')] }), tags: ['R1-3'] },
     { label: 'value at maxMatcherLen+1 bytes', assertion: baseAssertion({ matchers: [literal('L1', `${'abcdefgh'.repeat(64)}x`)] }), tags: ['R1-3'] },
     { label: 'stream outside the closed enum', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), { id: 'X1', kind: 'literal-line', value: ADMISSIBLE, stream: 'Combined', polarity: 'present-in-green' }] }), tags: ['R1-3'] },
     { label: 'polarity outside the closed enum', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), { id: 'X1', kind: 'literal-line', value: ADMISSIBLE, stream: 'combined', polarity: 'absent-in-red' }] }), tags: ['R1-3'] },
-    { label: 'greenExempt on a non-present-in-red polarity', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), { ...literal('L2', ADMISSIBLE, 'absent-in-green'), greenExempt: true }] }), tags: ['R1-3'] },
+    { label: 'greenExempt:true on a non-present-in-red polarity', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), { ...literal('L2', ADMISSIBLE, 'absent-in-green'), greenExempt: true }] }), tags: ['R1-3'] },
+    // §1.1.1 rejects "any other polarity CARRYING IT" — PRESENCE, not truth.
+    { label: 'greenExempt:FALSE carried on a non-present-in-red polarity', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), { ...literal('L2', ADMISSIBLE, 'absent-in-green'), greenExempt: false }] }), tags: ['R1-3'] },
+    // The closed enums run BEFORE the kind branch, so they govern a class matcher too.
+    { label: 'class matcher with a stream outside the closed enum', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), classMatcher('C1', 'stderr-nonempty', 'present-in-green', 'Stderr')] }), tags: ['R1-3'] },
+    { label: 'class matcher with a polarity outside the closed enum', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), classMatcher('C1', 'stderr-nonempty', 'absent-in-red')] }), tags: ['R1-3'] },
+    { label: 'class matcher carrying greenExempt on present-in-green', assertion: baseAssertion({ matchers: [literal('L1', ADMISSIBLE), { ...classMatcher('C1', 'stderr-nonempty', 'present-in-green'), greenExempt: true }] }), tags: ['R1-3'] },
     { label: 'expectedExitClass exit:0', assertion: baseAssertion({ expectedExitClass: 'exit:0' }), tags: ['R1-3'] },
     { label: 'expectedExitClass exit:256', assertion: baseAssertion({ expectedExitClass: 'exit:256' }), tags: ['R1-3'] },
     { label: 'timeout-is-failure with a script-exit adapter (decidable at schema time)', assertion: baseAssertion({ expectedExitClass: 'timeout-is-failure' }), tags: ['R1-3'] },
     { label: 'absolute targetArtifactRef', assertion: baseAssertion({ targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: { targetArtifactRef: '/absolute/path', expectation: 'present' } } }), tags: ['R1-3'] },
     { label: 'targetArtifactRef with a .. segment', assertion: baseAssertion({ targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: { targetArtifactRef: 'foo/../bar', expectation: 'present' } } }), tags: ['R1-3'] },
+    // §1.1.3 requires slash-normalized AND RELATIVE: a drive-qualified path is
+    // slash-normalized and absolute, so a leading-slash-only test admits it.
+    { label: 'drive-qualified targetArtifactRef C:/outside', assertion: baseAssertion({ targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: { targetArtifactRef: 'C:/outside', expectation: 'present' } } }), tags: ['R1-3'] },
+    { label: 'drive-relative targetArtifactRef C:outside', assertion: baseAssertion({ targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: { targetArtifactRef: 'C:outside', expectation: 'present' } } }), tags: ['R1-3'] },
+    // §0.4: an absent optional field is OMITTED, never written as null.
+    { label: 'supplementaryArtifact explicitly null', assertion: baseAssertion({ targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: null } }), tags: ['R1-3'] },
     // R1-2 specificity.
     { label: 'below-threshold literal is R1-2 not R1-3', assertion: baseAssertion({ matchers: [literal('L1', 'failed')] }), tags: ['R1-2'] },
     // R1-1 missing proof.
@@ -314,10 +331,17 @@ try {
     { label: 'no committed binding registered', assertion: baseAssertion(), tags: ['R1-6'], opts: { binding: null } },
     { label: 'correct adapterId but wrong testCaseRef is R1-6, not R1-1', assertion: (() => { const a = baseAssertion(); (a.targetExercisedProof as Record<string, unknown>).testCaseRef = 'npm-script:test:OTHER'; (a.targetExercisedProof as Record<string, unknown>).targetBindingDigest = targetBindingDigest({ ...BINDING, testCaseRef: 'npm-script:test:OTHER' }); return a; })(), tags: ['R1-6'] },
     { label: 'targetBindingDigest computed WITH createdAt (the digest-scope trap)', assertion: (() => { const a = baseAssertion(); (a.targetExercisedProof as Record<string, unknown>).targetBindingDigest = canonDigest(COMMITTED); return a; })(), tags: ['R1-6'] },
-    // R1-5 registry membership (the envelope-decidable half).
+    // R1-5, BOTH envelope-decidable halves: registry membership, and §1.2 argv
+    // resolution's "match testCaseRef against testCaseRefPattern; no match ->
+    // reject (R1-5)". Each fixture's committed binding names the same triple, so
+    // R1-6 does not fire and the tag stays unambiguous.
     { label: 'adapterId absent from runnerAdapterRegistry', assertion: (() => { const a = baseAssertion(); (a.targetExercisedProof as Record<string, unknown>).adapterId = 'ghost@9'; (a.targetExercisedProof as Record<string, unknown>).targetBindingDigest = targetBindingDigest({ ...BINDING, adapterId: 'ghost@9' }); return a; })(), tags: ['R1-5'], opts: { binding: { acceptanceTargetRef: 'M1', adapterId: 'ghost@9', testCaseRef: BINDING.testCaseRef, createdAt: '2026-08-01T00:00:00.000Z' } } },
+    { label: 'testCaseRef matching no registered testCaseRefPattern', assertion: (() => { const a = baseAssertion(); (a.targetExercisedProof as Record<string, unknown>).testCaseRef = 'free-form:not-derived'; (a.targetExercisedProof as Record<string, unknown>).targetBindingDigest = targetBindingDigest({ ...BINDING, testCaseRef: 'free-form:not-derived' }); return a; })(), tags: ['R1-5'], opts: { binding: { acceptanceTargetRef: 'M1', adapterId: BINDING.adapterId, testCaseRef: 'free-form:not-derived', createdAt: '2026-08-01T00:00:00.000Z' } } },
     // Co-occurrence: neither tag suppresses the other.
     { label: 'R1-2 and R1-3 co-occur', assertion: baseAssertion({ matchers: [literal('L1', 'failed')], targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: { targetArtifactRef: '/absolute/path', expectation: 'present' } } }), tags: ['R1-2', 'R1-3'] },
+    // A matcher COUNT violation must not suppress the §1.3 block: nine matchers
+    // whose only present-in-red evidence is a class matcher violates rule 3 too.
+    { label: 'over-count AND a §1.3 rule-3 violation are both reported', assertion: baseAssertion({ matchers: [classMatcher('C1', 'stderr-nonempty'), ...Array.from({ length: 8 }, (_, i) => literal(`L${i + 1}`, `Error: distinct failure line ${i + 1} observed`, 'present-in-green'))] }), tags: ['R1-2', 'R1-3'] },
   ];
   const coveredTags = new Set<string>();
   for (const row of matrix) {
@@ -330,6 +354,107 @@ try {
   }
   for (const tag of ['R1-1', 'R1-2', 'R1-3', 'R1-5', 'R1-6']) {
     assert.ok(coveredTags.has(tag), `the matrix must exercise ${tag} — an untested tag is an unverified rejection class`);
+  }
+
+  // === 6b. Tag routing pinned BY CODE, not only by tag set ===================
+  // Once two triggers co-occur in one fixture, a tag SET says only that
+  // something produced the tag. Each corrected routing below is therefore
+  // asserted on the named trigger.
+  const taggedCode = (result: ValidateAssertionEnvelopeResult, code: string): string => {
+    const hit = result.rejections.find((rejection: EnvelopeRejection) => rejection.code === code);
+    assert.ok(hit, `expected a rejection with code ${JSON.stringify(code)}; got ${result.rejections.map((r: EnvelopeRejection) => `${r.tag}/${r.code}`).join(', ') || '<none>'}`);
+    return hit!.tag;
+  };
+  // §1.3 rule 1 is a TRIPLE and §1.6's enumerations split it: R1-3 names
+  // "leading/trailing whitespace" but never an EMPTY value, while R1-2 names "a
+  // degenerate/blocklisted literal". So trimmed -> R1-3, and empty AND
+  // blocklisted -> R1-2.
+  assert.equal(
+    taggedCode(validate(baseAssertion({ matchers: [literal('L1', ADMISSIBLE), literal('L2', '', 'present-in-green')] })), 'matcher-value-empty'),
+    'R1-2',
+    'an EMPTY literal is a §1.3 rule-1 degenerate literal (R1-2), not a §1.6 R1-3 bounds failure',
+  );
+  assert.equal(
+    taggedCode(validate(baseAssertion({ matchers: [literal('L1', ADMISSIBLE), literal('L2', ` ${ADMISSIBLE}`, 'present-in-green')] })), 'matcher-value-untrimmed'),
+    'R1-3',
+    'the sibling clause `trimmed` stays R1-3 — it IS enumerated there',
+  );
+  assert.equal(
+    taggedCode(validate(baseAssertion({ matchers: [literal('L1', ADMISSIBLE), literal('L2', '.*', 'present-in-green')] })), 'matcher-value-blocklisted'),
+    'R1-2',
+    'the sibling clause `blocklisted` stays R1-2',
+  );
+  // §1.1.3 non-relative FORMS and §0.4 null-vs-omitted, asserted by CODE: a
+  // tag-only row cannot tell "rejected because null is malformed" from
+  // "rejected for some other structural reason", and cannot see an implementation
+  // that treats null as an omission at all (that one returns ok:true).
+  assert.equal(
+    taggedCode(validate(baseAssertion({ targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: { targetArtifactRef: 'C:/outside', expectation: 'present' } } })), 'supplementary-artifact-path-invalid'),
+    'R1-3',
+    'a drive-qualified targetArtifactRef is a non-relative path (§1.1.3), not merely a non-POSIX-absolute one',
+  );
+  assert.equal(
+    taggedCode(validate(baseAssertion({ targetExercisedProof: { ...(baseAssertion().targetExercisedProof as object), supplementaryArtifact: null } })), 'supplementary-artifact-null'),
+    'R1-3',
+    'an explicit null is a MALFORMED envelope (§0.4), not an omission',
+  );
+  assert.equal(
+    taggedCode(validate((() => { const a = baseAssertion(); (a.targetExercisedProof as Record<string, unknown>).testCaseRef = 'free-form:not-derived'; (a.targetExercisedProof as Record<string, unknown>).targetBindingDigest = targetBindingDigest({ ...BINDING, testCaseRef: 'free-form:not-derived' }); return a; })(), { binding: { ...BINDING, testCaseRef: 'free-form:not-derived', createdAt: '2026-08-01T00:00:00.000Z' } }), 'test-case-ref-pattern-mismatch'),
+    'R1-5',
+    'a testCaseRef the adapter pattern cannot match is R1-5 (§1.2 argv resolution)',
+  );
+  assert.equal(
+    taggedCode(validate(baseAssertion({ matchers: [literal('L1', ADMISSIBLE), { ...literal('L2', ADMISSIBLE, 'absent-in-green'), greenExempt: false }] })), 'matcher-green-exempt-illegal-polarity'),
+    'R1-3',
+    'greenExempt is rejected off-polarity on PRESENCE, whatever its value (§1.1.1)',
+  );
+  {
+    // Count and specificity are independently reported.
+    const both = validate(baseAssertion({ matchers: [classMatcher('C1', 'stderr-nonempty'), ...Array.from({ length: 8 }, (_, i) => literal(`L${i + 1}`, `Error: distinct failure line ${i + 1} observed`, 'present-in-green'))] }));
+    assert.equal(taggedCode(both, 'matcher-count-above-maximum'), 'R1-3');
+    assert.equal(taggedCode(both, 'present-in-red-not-admissible-literal'), 'R1-2',
+      'a count violation must not suppress the §1.3 block');
+    // ...and an empty matcher set reports the count ALONE, fabricating nothing.
+    const zero = validate(baseAssertion({ matchers: [] }));
+    assert.equal(zero.rejections.length, 1, 'zero matchers produces exactly ONE rejection: the count bound');
+    assert.equal(taggedCode(zero, 'matcher-count-below-minimum'), 'R1-3');
+  }
+  {
+    // The count bound is READ FROM POLICY, proven by a two-policy differential:
+    // the identical envelope is admissible at maxMatchers=8 and rejected at 3, so
+    // a hard-coded 8 fails the second row.
+    const tight = resolveRedEvidencePolicy({ pinnedPath: ['/usr/bin'], maxMatchers: 3 });
+    assert.equal(tight.ok, true, 'a policy LOWERING maxMatchers resolves');
+    const four = baseAssertion({
+      matchers: [literal('L1', ADMISSIBLE), ...Array.from({ length: 3 }, (_, i) => literal(`L${i + 2}`, `Error: distinct failure line ${i + 2} observed`, 'present-in-green'))],
+    });
+    assert.equal(validate(four).ok, true, '4 matchers are admissible under the frozen default (maxMatchers=8)');
+    const tightResult = validate(four, { snapshot: tight.snapshot!, digest: tight.policyDigest! });
+    assert.equal(tightResult.ok, false, 'the SAME 4 matchers reject under maxMatchers=3');
+    assert.equal(taggedCode(tightResult, 'matcher-count-above-maximum'), 'R1-3');
+    assert.ok(
+      tightResult.rejections.some((rejection: EnvelopeRejection) => rejection.code === 'matcher-count-above-maximum' && rejection.message.includes('policy.maxMatchers=3')),
+      'the count rejection reports the RESOLVED bound (3), not a hard-coded 8',
+    );
+  }
+  {
+    // §1.1 policyDigest / assertionDigest on a CANDIDATE: MAY be omitted (this
+    // check computes them), MUST match when supplied. All four cells pinned.
+    const omitted = validate(baseAssertion());
+    assert.equal(omitted.ok, true, 'a candidate omitting both digest fields is admissible');
+    const supplied = baseAssertion({ policyDigest });
+    (supplied as Record<string, unknown>).assertionDigest = computeAssertionDigest(supplied);
+    const suppliedResult = validate(supplied);
+    assert.equal(suppliedResult.ok, true, 'a candidate SUPPLYING both, matching, is admissible');
+    assert.equal(suppliedResult.assertionDigest, omitted.assertionDigest,
+      'supplying the fields does not move the computed digest');
+    const mismatched = validate({ ...supplied, assertionDigest: `sha256:${'9'.repeat(64)}` });
+    assert.equal(mismatched.ok, false);
+    assert.deepEqual(tagsOf(mismatched), [], 'a supplied-but-wrong assertionDigest is a NAMED diagnostic, never a fabricated §1.6 tag');
+    assert.ok(mismatched.diagnostics.some((diagnostic) => diagnostic.code === 'assertion-digest-mismatch'));
+    const wrongPolicy = validate(baseAssertion({ policyDigest: `sha256:${'8'.repeat(64)}` }));
+    assert.equal(wrongPolicy.ok, false);
+    assert.ok(wrongPolicy.diagnostics.some((diagnostic) => diagnostic.code === 'policy-digest-mismatch'));
   }
 
   // === 7. The command: registration, SUCCESS transcript, read-only ==========
@@ -458,6 +583,9 @@ try {
     'rule 2 AND-not-OR (both single-floor directions), rule 1 blocklist (8/8) + rule 3 all tagged R1-2, ' +
     'assertionDigest scope proven in BOTH directions, ' +
     `${matrix.length} tagged rejection fixtures covering R1-1/R1-2/R1-3/R1-5/R1-6 with R1-2 and R1-3 never collapsed, ` +
+    'tag routing pinned BY CODE for the §1.3 rule-1 triple (empty + blocklisted R1-2 vs trimmed R1-3), ' +
+    'matcher COUNT and §1.3 specificity independently reported, the count bound proven policy-resolved by a ' +
+    'two-policy differential (8 vs 3), candidate policyDigest/assertionDigest optional-but-checked in all four cells, ' +
     'the ADMISSIBLE success transcript (assertionDigest + matched binding + policyDigest), ' +
     'a byte-identical .lattice tree with no gate verdict change, and all three registry contracts pass.',
   );
