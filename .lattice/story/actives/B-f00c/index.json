@@ -4,7 +4,7 @@
   "title": "Fix merge-lineage false positive forcing redundant DONE validation re-runs (reuse + admissibility copies via one shared classifier)",
   "description": "A main-merge makes git diff-tree -m re-list the story's own content-unchanged files as untrusted-lineage-path, so DONE validation reuse is refused (and autopilot_review_submit --deriveBindings hard-throws) despite identical materialHash/storyFilesHash/identity.digest, forcing a redundant ~17 min full-suite re-run. Replace the per-commit -m union with a hardened net endpoint diff in one shared classifier used by both copies.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "validation-reuse",
@@ -130,6 +130,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-08-13T17:18:14.443Z",
+      "branch": "story/B-f00c",
+      "user": "Harmonygo",
+      "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-13T18:03:19.190Z",
       "branch": "story/B-f00c",
       "user": "Harmonygo",
       "sessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
