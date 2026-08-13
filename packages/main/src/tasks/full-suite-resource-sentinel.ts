@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
+import { closeSync, fsyncSync, mkdirSync, openSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createServer } from 'node:net';
 import { OWNERSHIP_MARKER_FILENAME } from './full-suite-runner.js';
@@ -16,8 +16,15 @@ function acquireOwnedDirectory(path: string, token: string): void {
   mkdirSync(path, { recursive: false });
   acquired.push(path);
   const temporary = join(path, `.owner-${process.pid}.tmp`);
-  writeFileSync(temporary, `${token}\n`, { flag: 'wx' });
+  const descriptor = openSync(temporary, 'wx');
+  try { writeFileSync(descriptor, `${token}\n`); fsyncSync(descriptor); } finally { closeSync(descriptor); }
   renameSync(temporary, join(path, OWNERSHIP_MARKER_FILENAME));
+}
+function publishReady(path: string, token: string): void {
+  const temporary = `${path}.${process.pid}.tmp`;
+  const descriptor = openSync(temporary, 'wx');
+  try { writeFileSync(descriptor, `${token}\n`); fsyncSync(descriptor); } finally { closeSync(descriptor); }
+  renameSync(temporary, path);
 }
 async function probeFixedPort(): Promise<'bound' | 'unsupported'> {
   const server = createServer();
@@ -40,6 +47,8 @@ try {
   const markerMutation = process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
   if (markerMutation === 'missing-runtime') unlinkSync(join(runtimeLock, OWNERSHIP_MARKER_FILENAME));
   else if (markerMutation === 'tampered-main') writeFileSync(join(mainWriteLock, OWNERSHIP_MARKER_FILENAME), 'foreign-token\n');
+  const readyFile = process.env.LATTICE_FULL_SUITE_SENTINEL_READY_FILE;
+  if (readyFile) publishReady(resolve(readyFile), ownershipToken);
   if (process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS === '1') process.kill(process.pid, 'SIGSTOP');
   const fixedPortCapability = await probeFixedPort();
   const assertions = ['git-common-dir-read', 'fixed-path-owned', 'runtime-lock-owned', 'main-write-lock-owned'];

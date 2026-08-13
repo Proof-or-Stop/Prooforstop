@@ -361,14 +361,25 @@ async function main(): Promise<void> {
       { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive', ownership: 'runner-cleanable' },
     ] }], realSentinelRoot)[0]!;
     const runRealSentinelInterrupted = async (mutation?: 'missing-runtime' | 'tampered-main'): Promise<FullSuiteResult> => {
+      const readyFile = join(root, `real-sentinel-ready-${mutation ?? 'baseline'}`);
       process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS = '1';
+      process.env.LATTICE_FULL_SUITE_SENTINEL_READY_FILE = readyFile;
       if (mutation) process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION = mutation;
-      const promise = runEntry({ ...realSentinelEntry, timeoutMs: 10_000 }, realSentinelRoot, 'npm');
-      for (let index = 0; index < 200 && !realSentinelPaths.every(path => existsSync(path)); index++) await new Promise(done => setTimeout(done, 10));
-      assert(realSentinelPaths.every(path => existsSync(path)), 'real production sentinel creates all three runner-cleanable directories before pause');
-      interruptForTest('SIGTERM'); const result = await promise; resetInterruptForTest();
-      delete process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS; delete process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
-      return result;
+      try {
+        const promise = runEntry({ ...realSentinelEntry, timeoutMs: 15_000 }, realSentinelRoot, 'npm');
+        for (let index = 0; index < 1_000 && !existsSync(readyFile); index++) await new Promise(done => setTimeout(done, 10));
+        if (!existsSync(readyFile)) { interruptForTest('SIGTERM'); await promise; }
+        assertWithDetail(existsSync(readyFile), 'real production sentinel publishes ownership-ready handshake before pause', `missing=${realSentinelPaths.filter(path => !existsSync(path)).join(',')}`);
+        assertWithDetail(realSentinelPaths.every(path => existsSync(path)), 'real production sentinel creates all three runner-cleanable directories before pause', `missing=${realSentinelPaths.filter(path => !existsSync(path)).join(',')}`);
+        interruptForTest('SIGTERM'); const result = await promise; resetInterruptForTest();
+        return result;
+      } finally {
+        resetInterruptForTest();
+        delete process.env.LATTICE_FULL_SUITE_SENTINEL_PAUSE_AFTER_MARKERS;
+        delete process.env.LATTICE_FULL_SUITE_SENTINEL_READY_FILE;
+        delete process.env.LATTICE_FULL_SUITE_SENTINEL_MARKER_MUTATION;
+        rmSync(readyFile, { force: true });
+      }
     };
     const realInterrupted = await runRealSentinelInterrupted();
     assert(realInterrupted.status === 'INTERRUPTED' && realInterrupted.cleanupOutcomes?.every(outcome => outcome.outcome === 'removed') && realSentinelPaths.every(path => !existsSync(path)), 'real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed');
