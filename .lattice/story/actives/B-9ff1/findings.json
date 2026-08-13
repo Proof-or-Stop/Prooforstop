@@ -58,6 +58,26 @@
       ],
       "signatureTag": "missing|mjs|happy-literal-intent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9ff1:F-004",
+      "desc": "CHK-002 closed-enum rejections (stream, polarity, greenExempt legality) and CHK-001 identity/kind rejections are exercised only against kind:literal-line matchers across red-w2d-rejection-matrix.mjs and the smoke; no fixture asserts an invalid stream, invalid polarity, or illegal greenExempt on a kind:class matcher. In envelope.ts these checks (validateAssertionEnvelope lines ~317-337) run unconditionally before the kind-specific branch, so the current implementation is not actually kind-differentiated, but the committed matrix does not prove that: a future change that moved these checks inside the literal-line-only branch (mirroring how value-byte-length checks are correctly literal-line-only) would silently stop rejecting a malformed class matcher stream/polarity/greenExempt, and no committed test would catch it.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-13T17:59:09.844Z",
+      "reviewRound": "2026-08-13T17:52:45.547Z",
+      "reviewRunId": "B-9ff1:RR-001",
+      "_hash": "0cd88e2f85fb993eb212392c9f1dd6d6ca215ecc1ec57e952bcfbf3acf2728d8",
+      "files": [
+        "packages/main/tests/red/red-w2d-rejection-matrix.mjs",
+        "packages/main/src/tasks/red-evidence-envelope-smoke.ts",
+        "packages/main/src/core/red-evidence/envelope.ts"
+      ],
+      "signatureTag": "edge|mjs|closed-enum-rejections",
+      "signatureTagSource": "auto"
     }
   ]
 }
