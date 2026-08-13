@@ -21,46 +21,78 @@
           {
             "desc": "Run git diff-tree -r --no-commit-id --name-only --no-renames -z <evidenceHead> <currentHead> on a merge where only story-metadata paths changed -> net diff contains only metadata paths -> lineage classified as trusted; WHY: validates the core fix (net endpoint diff instead of per-commit -m union)",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "exact-head fast path preserved: evidenceHead === currentHead -> returns exact-head without spawning any git subprocess; WHY: regression guard on existing fast path",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "netDiffChangedPaths failure (e.g. invalid git ref) surfaces a DISTINCT reason string (not evidence-head-is-not-current-ancestor / lineage_not_ancestor) separate from the merge-base --is-ancestor catch -> caller can distinguish diff failure from ancestry failure; WHY: split-catch requirement",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "empty net diff between two distinct commits (evidenceHead != currentHead but tree-identical after merge) -> returns trusted (not rejected with empty-descendant-lineage/lineage_empty); WHY: verifies the length===0 rejection was removed",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "maxBuffer set to 1024*1024*1024 in the execFileSync call -> a diff producing >16MB of path output does not throw ENOBUFS; WHY: robustness for large repos",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "A mutation that restores the per-commit git diff-tree -m union (reverting to old algorithm) MUST cause the RED smoke assertion to fail, proving the fix is not bypassable by keeping old code; WHY: un-gameability requirement from story adversarial coverage",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "Both reuse and admissibility callers import from the SAME module path (validation-lineage.ts); grep for diff-tree.*-m in both consumer files returns zero matches -> the old per-commit approach cannot silently coexist; WHY: prevents divergence between copies",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "The other 8 reuse factors in evaluateRoutineValidationReuse remain unchanged: prior-command-execution-not-pass, material-hash-mismatch, story-files-hash-mismatch, identity-digest-mismatch, coverage-mismatch, dirty-tree, head-hash-missing, evidence-missing -> no collateral regression; WHY: scope containment",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           }
         ]
       },
@@ -87,107 +119,163 @@
         },
         {
           "intentRef": "CHK-001:happy:1",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-lineage.ts",
-          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
-          "result": "pass",
-          "note": "netDiffChangedPaths runs git diff-tree -r --no-commit-id --name-only --no-renames -z <E> <C>; smoke tests 4/5 assert its output (empty for identical trees, all paths for a large diff). Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
-        },
-        {
-          "intentRef": "CHK-001:happy:2",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-lineage.ts",
-          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
-          "result": "pass",
-          "note": "Smoke test 3 asserts classifyMergeLineage returns {kind:'exact-head'} when evidenceHead===currentHead. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
-        },
-        {
-          "intentRef": "CHK-001:edge:0",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-lineage.ts",
-          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
-          "result": "pass",
-          "note": "Smoke test 7 injects a throwing changedPathsFn on an ancestor scenario (merge-base OK) and asserts {kind:'diff-failed'} distinct from not-ancestor. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
-        },
-        {
-          "intentRef": "CHK-001:edge:1",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-lineage.ts",
-          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
-          "result": "pass",
-          "note": "Smoke test 4: two distinct heads with byte-identical trees -> netDiffChangedPaths empty -> classifyMergeLineage {kind:'trusted-descendant'} (not rejected). Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
-        },
-        {
-          "intentRef": "CHK-001:edge:2",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-lineage.ts",
-          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
-          "result": "pass",
-          "note": "Smoke test 5: >1500 changed paths in the net diff do not throw ENOBUFS (maxBuffer 1024*1024*1024) and classify trusted. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
-        },
-        {
-          "intentRef": "CHK-001:adversarial:0",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Smoke test 1 asserts the inline per-commit -m union DID list foo.ts while classifyMergeLineage trusts it: reverting to the union flips the result, so the fix is non-vacuous. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "Run git diff-tree -r --no-commit-id --name-only --no-renames -z <evidenceHead> <currentHead> on a merge where only story-metadata paths changed -> net",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:18.782Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "exact-head fast path preserved: evidenceHead === currentHead -> returns exact-head without spawning any git subprocess; WHY: regression guard on exist",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:21.660Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "netDiffChangedPaths failure (e.g. invalid git ref) surfaces a DISTINCT reason string (not evidence-head-is-not-current-ancestor / lineage_not_ancestor",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:24.634Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "empty net diff between two distinct commits (evidenceHead != currentHead but tree-identical after merge) -> returns trusted (not rejected with empty-d",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:28.201Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "maxBuffer set to 1024*1024*1024 in the execFileSync call -> a diff producing >16MB of path output does not throw ENOBUFS; WHY: robustness for large re",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:31.565Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+          "result": "pass",
+          "note": "A mutation that restores the per-commit git diff-tree -m union (reverting to old algorithm) MUST cause the RED smoke assertion to fail, proving the fi",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:34.462Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-evidence-admissibility.ts",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Smoke test 1 drives BOTH classifyTrustedValidationLineage (reuse) and evaluateValidationEvidenceAdmissibility (admissibility) to the same trusted result on one merge scenario; both files import classifyMergeLineage from the single './validation-lineage.js' module, so they cannot diverge. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "Both reuse and admissibility callers import from the SAME module path (validation-lineage.ts); grep for diff-tree.*-m in both consumer files returns z",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:37.447Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-evidence-reuse.ts",
-          "command": "npm test",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Full npm test exits 0 (incl test:process-fact-contract) on current material; git diff confirms the 8 reuse factors sit outside the changed hunk, byte-unchanged.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "The other 8 reuse factors in evaluateRoutineValidationReuse remain unchanged: prior-command-execution-not-pass, material-hash-mismatch, story-files-ha",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:40.278Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         }
       ]
     },
@@ -212,46 +300,78 @@
           {
             "desc": "GREEN assertion: after applying the net endpoint diff fix, the same merge scenario causes BOTH classifyTrustedValidationLineage to return trusted-story-metadata-descendant AND validationHeadLineage to return trusted-story-metadata-descendant; evaluateRoutineValidationReuse reusable=true and admissibility ok=true; WHY: proves the fix resolves the false positive",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "Smoke is wired into lattice.config.json validate.commands normal tier and runs as part of npm test -> CI executes it; WHY: ensures ongoing regression protection",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "NEGATIVE test: a genuine content change to a non-metadata file at the endpoint STILL causes both classifyTrustedValidationLineage and validationHeadLineage to return rejected with the untrusted path listed -> protection preserved; WHY: the fix must not over-trust",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "empty-net-diff between two distinct heads (tree-identical merge) -> both paths return trusted (not rejected); WHY: edge case where merge commits exist but net content is unchanged",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "large-diff maxBuffer: a repo with >1000 changed paths in the net diff does not throw ENOBUFS or truncate the path list; WHY: robustness under realistic large-repo conditions",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Mutation resistance: if the per-commit -m union is kept (reverting the fix in the shared classifier), the RED assertion MUST fire; the smoke structurally asserts the old algorithm fails -> a gameable fix that keeps -m is caught; WHY: un-gameability",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "Removing the NEGATIVE assertion (genuine content change still refuses) must be detectable as coverage loss: the smoke explicitly asserts untrusted paths are rejected, and removing that assertion causes the coverage report to flag missing required verification; WHY: prevents weakening the test",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "Both paths exercised in the SAME smoke: the smoke calls BOTH classifyTrustedValidationLineage AND validationHeadLineage (the admissibility copy) with the same git state and asserts matching results -> the two copies cannot silently diverge; WHY: shared-classifier convergence guarantee",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           }
         ]
       },
@@ -278,107 +398,163 @@
         },
         {
           "intentRef": "CHK-002:happy:1",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "GREEN: smoke test 1 asserts classifyMergeLineage and both copies return trusted for the same merge scenario after the net-diff fix. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "GREEN assertion: after applying the net endpoint diff fix, the same merge scenario causes BOTH classifyTrustedValidationLineage to return trusted-stor",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:42.884Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "lattice.config.json",
-          "command": "node -e \"const c=require('./lattice.config.json');const m=c.validate.commands.filter(e=>String(e).includes('validation-reuse-merge-lineage-smoke.js'));process.exit(m.length===1?0:1)\"",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+          "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Command-backed (exit 0): lattice.config.json validate.commands has exactly one bare-string (normal-tier) entry for validation-reuse-merge-lineage-smoke.js.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "Smoke is wired into lattice.config.json validate.commands normal tier and runs as part of npm test -> CI executes it; WHY: ensures ongoing regression",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:45.491Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "NEGATIVE: smoke test 2 asserts a genuine non-metadata content change (shared.ts) is untrusted on classifyMergeLineage, the reuse copy, and the admissibility copy. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "NEGATIVE test: a genuine content change to a non-metadata file at the endpoint STILL causes both classifyTrustedValidationLineage and validationHeadLi",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:48.128Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Smoke test 4: empty-net-diff between two distinct heads (byte-identical trees) classifies trusted-descendant. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "empty-net-diff between two distinct heads (tree-identical merge) -> both paths return trusted (not rejected); WHY: edge case where merge commits exist",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:50.736Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Smoke test 5: >1500-path net diff exercises maxBuffer without ENOBUFS. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "large-diff maxBuffer: a repo with >1000 changed paths in the net diff does not throw ENOBUFS or truncate the path list; WHY: robustness under realisti",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:53.401Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Mutation resistance: smoke test 1's perCommitUnionChanged assertion fails if the classifier is reverted to the per-commit -m union, so the guard is un-gameable. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.227Z"
+          "note": "Mutation resistance: if the per-commit -m union is kept (reverting the fix in the shared classifier), the RED assertion MUST fire; the smoke structura",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:55.947Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Smoke test 2 (NEGATIVE) asserts a genuine content change stays untrusted on both paths; it is load-bearing — removing it would let a real change be silently reused with no other assertion catching it. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.227Z"
+          "note": "Removing the NEGATIVE assertion (genuine content change still refuses) must be detectable as coverage loss: the smoke explicitly asserts untrusted pat",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:08:58.497Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
-          "kind": "manual_transcript",
-          "verdict": "success",
+          "kind": "logic_test",
           "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Smoke test 1 calls BOTH classifyTrustedValidationLineage (reuse path) AND evaluateValidationEvidenceAdmissibility (admissibility path) in the same git state, proving both copies are fixed. Exit 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.227Z"
+          "note": "Both paths exercised in the SAME smoke: the smoke calls BOTH classifyTrustedValidationLineage AND validationHeadLineage (the admissibility copy) with",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T16:09:01.134Z"
+          },
+          "headHash": "d0dfeb976a045a1e128f6d1d55ef71feed9ac141",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T16:09:01.346Z"
         }
       ]
     }
