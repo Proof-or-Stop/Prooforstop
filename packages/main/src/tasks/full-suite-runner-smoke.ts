@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 import { classifyRuntimeEntrypointAuthority } from '../core/runtime-environment-checks.js';
 import {
-  FULL_SUITE_ENTRIES, canonicalizeEntries, entriesFromSerialReference, interruptForTest,
+  FULL_SUITE_ENTRIES, canonicalizeEntries, cleanupManifestForEntry, cleanupOwnedTargets, entriesFromSerialReference, interruptForTest,
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
@@ -311,6 +311,46 @@ async function main(): Promise<void> {
     assert(interrupted.status === 'INTERRUPTED' && interrupted.reason?.includes('SIGTERM'), 'external interruption reports INTERRUPTED');
     observations.lifecycle.externalInterrupt = interrupted.status === 'INTERRUPTED' && Boolean(interrupted.reason?.includes('SIGTERM'));
     resetInterruptForTest();
+
+    const ownedRoot = join(root, '.lattice', 'runtime'); const lockRoot = join(root, '.lattice', 'locks');
+    mkdirSync(ownedRoot, { recursive: true }); mkdirSync(lockRoot, { recursive: true });
+    const ownedPaths = [join(ownedRoot, 'owned-fixed'), join(ownedRoot, 'owned-runtime'), join(lockRoot, 'owned-main')];
+    const sibling = join(ownedRoot, 'sibling'); writeFileSync(sibling, 'keep\n');
+    const ready = join(root, 'owned-ready');
+    writeFileSync(join(root, 'run'), `const fs=require('fs');const paths=${JSON.stringify(ownedPaths)};for(const p of paths){fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n')}fs.writeFileSync(${JSON.stringify(ready)},'ready');setInterval(()=>{},1000);\n`);
+    const ownedEntry = canonicalizeEntries([{ ...entry('test:owned-cleanup'), resources: [
+      { class: 'fixed-path', key: '.lattice/runtime/owned-fixed', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'runtime-lock', key: '.lattice/runtime/owned-runtime', access: 'exclusive', ownership: 'runner-cleanable' },
+      { class: 'main-write-lock', key: '.lattice/locks/owned-main', access: 'exclusive', ownership: 'runner-cleanable' },
+    ] }], root)[0]!;
+    const passResiduePath = join(ownedRoot, 'pass-residue');
+    writeFileSync(join(root, 'run'), `const fs=require('fs');const p=${JSON.stringify(passResiduePath)};fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n');\n`);
+    const passResidueEntry = canonicalizeEntries([{ ...entry('test:pass-residue'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/pass-residue', access: 'exclusive', ownership: 'runner-cleanable' }] }], root)[0]!;
+    const passResidue = await runEntry(passResidueEntry, root, process.execPath);
+    assert(passResidue.status === 'FAIL' && passResidue.cleanupOutcomes?.[0]?.outcome === 'residue' && existsSync(passResiduePath), 'PASS member residue fails closed and is retained for diagnosis');
+    rmSync(passResiduePath, { recursive: true, force: true });
+    writeFileSync(join(root, 'run'), `const fs=require('fs');const paths=${JSON.stringify(ownedPaths)};for(const p of paths){fs.mkdirSync(p);fs.writeFileSync(p+'/owner',process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN+'\\n')}fs.writeFileSync(${JSON.stringify(ready)},'ready');setInterval(()=>{},1000);\n`);
+    const ownedPromise = runEntry({ ...ownedEntry, timeoutMs: 10_000 }, root, process.execPath);
+    for (let index = 0; index < 100 && !existsSync(ready); index++) await new Promise(done => setTimeout(done, 10));
+    interruptForTest('SIGTERM'); const ownedInterrupted = await ownedPromise; resetInterruptForTest();
+    assert(ownedInterrupted.status === 'INTERRUPTED' && ownedPaths.every(path => !existsSync(path)) && existsSync(sibling), 'SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings');
+    assert(ownedInterrupted.cleanupManifest?.length === 3 && ownedInterrupted.cleanupOutcomes?.every(outcome => outcome.outcome === 'removed'), 'cleanup manifest is recorded before spawn and reconciled after interruption');
+
+    const outsideEntry = { ...entry('test:outside-owned'), resources: [{ class: 'fixed-path', key: '../outside', access: 'exclusive', ownership: 'runner-cleanable', canonicalKey: `fixed-path:${join(dirname(root), 'outside')}` } as ResourceClaim] };
+    let outsideDenied = false; try { cleanupManifestForEntry(outsideEntry, root); } catch { outsideDenied = true; }
+    assert(outsideDenied, 'runner-cleanable target outside approved runtime roots is denied');
+    const symlinkTarget = join(ownedRoot, 'owned-link'); symlinkSync(sibling, symlinkTarget);
+    const symlinkEntry = { ...entry('test:symlink-owned'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/owned-link', access: 'exclusive', ownership: 'runner-cleanable', canonicalKey: `fixed-path:${symlinkTarget}` } as ResourceClaim] };
+    let symlinkDenied = false; try { cleanupManifestForEntry(symlinkEntry, root); } catch { symlinkDenied = true; }
+    assert(symlinkDenied, 'runner-cleanable symlink target is denied'); rmSync(symlinkTarget);
+    const symlinkAncestorTarget = join(root, 'owned-real-ancestor'); mkdirSync(symlinkAncestorTarget);
+    const symlinkAncestor = join(ownedRoot, 'owned-alias-ancestor'); symlinkSync(symlinkAncestorTarget, symlinkAncestor, 'dir');
+    let symlinkAncestorDenied = false;
+    try { canonicalizeEntries([{ ...entry('test:symlink-ancestor'), resources: [{ class: 'fixed-path', key: '.lattice/runtime/owned-alias-ancestor/child', access: 'exclusive', ownership: 'runner-cleanable' }] }], root); } catch { symlinkAncestorDenied = true; }
+    assert(symlinkAncestorDenied, 'runner-cleanable target with symlinked ancestor is denied'); rmSync(symlinkAncestor);
+    const foreign = join(ownedRoot, 'foreign'); mkdirSync(foreign); writeFileSync(join(foreign, 'foreign-data'), 'do not delete\n');
+    const foreignOutcome = cleanupOwnedTargets([foreign], 'owned-token')[0]!;
+    assert(foreignOutcome.outcome === 'residue' && existsSync(join(foreign, 'foreign-data')), 'nonempty foreign ownership is reported and never recursively deleted');
   } finally { rmSync(root, { recursive: true, force: true }); }
 
   const interruptRoot = mkdtempSync(join(tmpdir(), 'full-suite-sigint-'));

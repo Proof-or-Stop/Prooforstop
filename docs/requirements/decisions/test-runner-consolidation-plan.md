@@ -12,6 +12,14 @@ or TIMEOUT is terminal: the canonical path never retries to green. The prior
 `run-all-smokes` discovery runner remains available for its broader noncanonical
 smoke/coverage use cases.
 
+Exclusive path claims may additionally declare runner-cleanable ownership. The
+runner records those canonical targets before spawn, limits them to the exact
+project `.lattice/runtime` and `.lattice/locks` subtrees, rejects symlinked or
+out-of-bound targets, and uses a per-launch ownership token. PASS requires every
+declared owned target already absent. FAIL, TIMEOUT, and INTERRUPT remove only
+empty targets or a single matching owner marker; foreign/nonempty residue is
+retained and makes the result fail closed.
+
 This decision document records the chosen architecture for consolidating the
 project's test runner and decomposes the implementation into follow-up Proofbound
 stories. The deliberation history is captured under Proofbound story **B-35aa**.

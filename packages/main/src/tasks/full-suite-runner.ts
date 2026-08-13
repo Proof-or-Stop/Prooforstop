@@ -2,7 +2,7 @@
 
 import { spawn, execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { existsSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve, win32 } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +11,7 @@ import { currentMaterialHash } from '../core/evidence-freshness.js';
 
 export type ResourceClass = 'git-common-dir' | 'fixed-path' | 'fixed-port' | 'runtime-lock' | 'main-write-lock';
 export type ResourceAccess = 'shared' | 'exclusive';
-export interface ResourceClaim { class: ResourceClass; key: string; access: ResourceAccess; canonicalKey?: string }
+export interface ResourceClaim { class: ResourceClass; key: string; access: ResourceAccess; canonicalKey?: string; ownership?: 'runner-cleanable' }
 export interface FullSuiteEntry { name: string; resources: ResourceClaim[]; timeoutMs?: number; priority?: number; tempOwnership?: 'runner-owned-unique' }
 export interface FullSuiteResult {
   name: string;
@@ -31,6 +31,8 @@ export interface FullSuiteResult {
   inventorySource?: 'explicit-marker+output-signature' | 'output-signature' | 'runner-terminal';
   canonicalMemberAssertionId?: string;
   detailedAssertions?: string[] | null;
+  cleanupManifest?: string[];
+  cleanupOutcomes?: Array<{ path: string; outcome: 'absent' | 'removed' | 'residue'; detail?: string }>;
 }
 
 export function observedOutputSignatures(output: string): string[] {
@@ -81,9 +83,9 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   repoRead('test:full-suite-runner-smoke'),
   repoRead('test:full-suite-resource-sentinel', {}, [
     { class: 'fixed-port', key: '43127', access: 'exclusive' },
-    { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive' },
-    { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive' },
-    { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive' },
+    { class: 'fixed-path', key: '.lattice/runtime/full-suite-fixed-sentinel', access: 'exclusive', ownership: 'runner-cleanable' },
+    { class: 'runtime-lock', key: '.lattice/runtime/full-suite-runtime-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
+    { class: 'main-write-lock', key: '.lattice/locks/full-suite-main-write-sentinel.lock', access: 'exclusive', ownership: 'runner-cleanable' },
   ]),
   repoRead('test:main-write-lock-coverage'),
   repoRead('test:production-test-seam-guard', {}, [{ class: 'fixed-path', key: 'package.json', access: 'shared' }]),
@@ -156,7 +158,40 @@ function validateResourceClaims(claims: ResourceClaim[], owner: string): void {
     if (!RESOURCE_CLASSES.includes(claim.class)) throw new Error(`unknown resource class for ${owner}: ${claim.class}`);
     if (!['shared', 'exclusive'].includes(claim.access)) throw new Error(`unknown resource access for ${owner}: ${claim.access}`);
     if (!claim.key.trim()) throw new Error(`empty resource key for ${owner}`);
+    if (claim.ownership && claim.ownership !== 'runner-cleanable') throw new Error(`unknown resource ownership for ${owner}: ${claim.ownership}`);
+    if (claim.ownership && (claim.access !== 'exclusive' || !['fixed-path', 'runtime-lock', 'main-write-lock'].includes(claim.class))) throw new Error(`runner-cleanable resource must be an exclusive owned path for ${owner}`);
   }
+}
+
+export function cleanupManifestForEntry(entry: FullSuiteEntry, cwd: string): string[] {
+  const root = realpathSync(cwd);
+  const approvedRoots = [join(root, '.lattice', 'runtime'), join(root, '.lattice', 'locks')].map(path => canonicalFilesystemPath(cwd, path));
+  return entry.resources.filter(claim => claim.ownership === 'runner-cleanable').map(claim => {
+    if (!claim.canonicalKey) throw new Error(`runner-cleanable resource is not canonicalized for ${entry.name}`);
+    const target = claim.canonicalKey.slice(claim.canonicalKey.indexOf(':') + 1);
+    if (approvedRoots.some(approved => target === approved) || !approvedRoots.some(approved => pathIsContained(approved, target))) throw new Error(`runner-cleanable target is outside an approved owned root: ${claim.key}`);
+    if (existsSync(target) && lstatSync(target).isSymbolicLink()) throw new Error(`runner-cleanable target may not be a symlink: ${claim.key}`);
+    return target;
+  });
+}
+
+export function cleanupOwnedTargets(paths: string[], ownershipToken: string): Array<{ path: string; outcome: 'absent' | 'removed' | 'residue'; detail?: string }> {
+  return paths.map(path => {
+    if (!existsSync(path)) return { path, outcome: 'absent' as const };
+    try {
+      const stat = lstatSync(path);
+      if (stat.isSymbolicLink()) throw new Error('symlink target refused');
+      if (stat.isFile()) {
+        if (readFileSync(path, 'utf8') !== `${ownershipToken}\n`) throw new Error('foreign file ownership');
+        unlinkSync(path); return { path, outcome: 'removed' as const };
+      }
+      if (!stat.isDirectory()) throw new Error('unsupported owned target type');
+      const entries = readdirSync(path);
+      if (entries.length === 1 && entries[0] === 'owner' && readFileSync(join(path, 'owner'), 'utf8') === `${ownershipToken}\n`) unlinkSync(join(path, 'owner'));
+      else if (entries.length) throw new Error(`nonempty foreign ownership: ${entries.join(',')}`);
+      rmdirSync(path); return { path, outcome: 'removed' as const };
+    } catch (error) { return { path, outcome: 'residue' as const, detail: (error as Error).message }; }
+  });
 }
 
 export function pathIsContained(ownershipRoot: string, candidate: string, pathApi: Pick<typeof import('node:path'), 'relative' | 'isAbsolute'> = { relative, isAbsolute }): boolean {
@@ -184,10 +219,22 @@ function canonicalFilesystemPath(cwd: string, key: string, allowOutsideOwnership
   return canonical;
 }
 
+function assertOwnedPathHasNoSymlink(cwd: string, key: string): void {
+  const root = realpathSync(cwd);
+  const absolute = resolve(root, relative(resolve(cwd), resolve(cwd, key)));
+  if (!pathIsContained(root, absolute)) throw new Error(`runner-cleanable target escapes project root: ${key}`);
+  let cursor = root;
+  for (const segment of relative(root, absolute).split(/[\\/]/).filter(Boolean)) {
+    cursor = join(cursor, segment);
+    if (existsSync(cursor) && lstatSync(cursor).isSymbolicLink()) throw new Error(`runner-cleanable target traverses a symlink: ${key}`);
+  }
+}
+
 export function canonicalizeEntries(entries: FullSuiteEntry[], cwd: string): FullSuiteEntry[] {
   return entries.map((entry) => {
     validateResourceClaims(entry.resources, entry.name);
     const resources = entry.resources.map((claim) => {
+      if (claim.ownership === 'runner-cleanable') assertOwnedPathHasNoSymlink(cwd, claim.key);
       let value: string;
       if (claim.class === 'fixed-port') {
         const port = parsePositiveInteger(claim.key, `${entry.name} fixed port`, 65_535);
@@ -294,6 +341,8 @@ export function resetInterruptForTest(): void { interruptSignal = undefined; int
 export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 'npm', onSpawn?: () => void): Promise<FullSuiteResult> {
   const started = performance.now();
   const tempRoot = mkdtempSync(join(tmpdir(), 'lattice-full-suite-member-'));
+  const cleanupManifest = cleanupManifestForEntry(entry, cwd);
+  const ownershipToken = `full-suite-${process.pid}-${Date.now()}-${createHash('sha256').update(tempRoot).digest('hex').slice(0, 12)}`;
   return await new Promise((finish) => {
     const usePosixTime = process.platform !== 'win32' && existsSync('/usr/bin/time') && npmCommand === 'npm';
     const command = usePosixTime ? '/usr/bin/time' : npmCommand;
@@ -301,7 +350,7 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     const commandArgs = usePosixTime ? ['-p', '-o', timingPath, npmCommand, 'run', entry.name] : ['run', entry.name];
     const child = spawn(command, commandArgs, {
       cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
-      env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
+      env: { ...process.env, LATTICE_FULL_SUITE_TEMP_ROOT: tempRoot, LATTICE_FULL_SUITE_OWNERSHIP_TOKEN: ownershipToken, TMPDIR: tempRoot, TMP: tempRoot, TEMP: tempRoot },
     });
     onSpawn?.(); activeChildren.add(child);
     let output = '';
@@ -316,9 +365,13 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
         failureOutcome: { status: result.status, reason: result.reason ?? null },
         ...result,
       };
+      const cleanupOutcomes = result.status === 'PASS'
+        ? cleanupManifest.map(path => existsSync(path) ? { path, outcome: 'residue' as const, detail: 'member reported PASS with owned resource residue' } : { path, outcome: 'absent' as const })
+        : cleanupOwnedTargets(cleanupManifest, ownershipToken);
+      if (cleanupOutcomes.some(outcome => outcome.outcome === 'residue')) result = { ...result, status: 'FAIL', reason: `owned resource cleanup failed: ${cleanupOutcomes.filter(outcome => outcome.outcome === 'residue').map(outcome => `${outcome.path}: ${outcome.detail}`).join('; ')}` };
       try { rmSync(tempRoot, { recursive: true }); }
       catch (error) { result = { ...result, status: 'FAIL', reason: `owned temp cleanup failed: ${(error as Error).message}` }; }
-      finish({ ...result, tempRoot });
+      finish({ ...result, tempRoot, cleanupManifest, cleanupOutcomes });
     };
     const elapsed = () => performance.now() - started;
     const timer = setTimeout(() => {

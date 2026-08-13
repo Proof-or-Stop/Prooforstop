@@ -195,6 +195,10 @@ Emergency or degraded path:
 2. The self-host policy builds `packages/main` and then invokes root `npm test`.
 3. Root `npm test` derives all 47 current canonical members from the independent serial reference, schedules compatible resource claims concurrently, preserves canonical report order, and stops on the first FAIL/TIMEOUT without retry masking.
 4. The runner emits bounded member logs plus wall/CPU/resource/identity telemetry and an atomic out-of-tree JSON result.
+   Runner-cleanable owned-path claims are recorded before spawn and reconciled
+   after every terminal outcome; cancellation removes only token-matched or
+   empty declared targets inside approved runtime/lock roots, while symlinked,
+   shared, out-of-bound, or foreign nonempty targets are never deleted.
 5. DONE-required evidence binds command identity, output digest/tail, `headHash`, `materialHash`, and `storyFilesHash`; the DONE oracle consumes it separately from routine validation.
 6. Release approval and pre-push remain separate assurance surfaces unless their own policy explicitly consumes this receipt.
 

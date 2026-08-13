@@ -28,7 +28,7 @@ try {
   mkdirSync(join(root, '.lattice', 'runtime'), { recursive: true });
   mkdirSync(join(root, '.lattice', 'locks'), { recursive: true });
   for (const path of [runtimeLock, mainWriteLock, fixedPath]) { mkdirSync(path, { recursive: false }); acquired.push(path); }
-  writeFileSync(join(fixedPath, 'owner'), `${process.pid}\n`);
+  writeFileSync(join(fixedPath, 'owner'), `${process.env.LATTICE_FULL_SUITE_OWNERSHIP_TOKEN ?? process.pid}\n`);
   const fixedPortCapability = await probeFixedPort();
   const assertions = ['git-common-dir-read', 'fixed-path-owned', 'runtime-lock-owned', 'main-write-lock-owned'];
   if (fixedPortCapability === 'bound') assertions.push('fixed-port-os-bind:43127');
