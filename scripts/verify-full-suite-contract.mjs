@@ -27,7 +27,7 @@ const head = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: '
 const RECEIPT_METADATA_ALLOWLIST = new Set([
   'owner-lease.json', 'closeout-write-receipts.jsonl', 'done-required-evidence.json',
   'checklist.json', 'findings.json', 'process-events.jsonl', 'index.json', 'process-metrics.json',
-  'prompt-envelopes.json', 'review-runs.json', 'stall-adjudication.json', 'scope-contract.json',
+  'prompt-envelopes.json', 'review-runs.json', 'review-passes.json', 'stall-adjudication.json', 'scope-contract.json',
 ]);
 export function receiptHeadIsAdmissible({ ancestor, materialEqual, changedPaths }) {
   const prefix = '.lattice/story/actives/B-9812/';
@@ -53,7 +53,7 @@ const smokeAssertions = Number(smokeOutput.match(/PASS \((\d+) assertions\)/)?.[
 assert.ok(smokeAssertions >= 44);
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/checklist.json'] }), true, 'metadata-only descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/index.json', '.lattice/story/actives/B-9812/process-metrics.json'] }), true, 'normal REVIEW lifecycle metadata descendant is admissible');
-assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/prompt-envelopes.json', '.lattice/story/actives/B-9812/review-runs.json'] }), true, 'actual reviewer dispatch metadata descendant is admissible');
+assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/prompt-envelopes.json', '.lattice/story/actives/B-9812/review-runs.json', '.lattice/story/actives/B-9812/review-passes.json'] }), true, 'actual reviewer dispatch and pass metadata descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['.lattice/story/actives/B-9812/stall-adjudication.json', '.lattice/story/actives/B-9812/scope-contract.json'] }), true, 'actual convergence and scope metadata descendant is admissible');
 assert.equal(receiptHeadIsAdmissible({ ancestor: false, materialEqual: true, changedPaths: [] }), false, 'non-ancestor receipt is rejected');
 assert.equal(receiptHeadIsAdmissible({ ancestor: true, materialEqual: true, changedPaths: ['packages/main/src/tasks/full-suite-runner.ts'] }), false, 'source diff is rejected even with matching material claim');
