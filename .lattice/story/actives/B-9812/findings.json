@@ -1695,6 +1695,21 @@
       "resolvedAt": "2026-08-13T10:58:43.367Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9812:F-053",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:411 normal-success exit finalizes PASS without terminating or probing the detached worker process group. A /tmp fixture whose member spawns a heartbeat grandchild and exits 0 reproduced status=PASS while the heartbeat grew from 11 to 19 after runEntry returned (the known PID was manually SIGKILLed afterward). This violates CHK-002:happy:2, which requires all worker descendants terminated on normal completion, and permits leaked processes to interfere with concurrently or subsequently scheduled members. Add bounded normal-exit process-tree teardown/proof and a biting regression that observes the real grandchild stop before PASS.",
+      "severity": "high",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-13T13:10:15.149Z",
+      "reviewRound": "2026-08-13T13:04:01.363Z",
+      "reviewRunId": "B-9812:RR-037",
+      "_hash": "5e542dc15a55e8924421a518f5e7f01abf8332be183f5fe6be39137035870e62",
+      "signatureTag": "happy|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }

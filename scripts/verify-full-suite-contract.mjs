@@ -214,7 +214,7 @@ const focusedBehavior = {
   crossPlatformCleanup: smokeOutput.includes('POSIX group ESRCH falls back') && smokeOutput.includes('Windows cleanup uses supported taskkill') && smokeOutput.includes('Windows separators and drive boundaries'),
   lockWait: smokeOutput.includes('worker-capacity queue time is not reported as resource lock wait') && smokeOutput.includes('deterministic compatibility queue wait'),
   protectedClasses: ['git-common-dir', 'fixed-path', 'fixed-port', 'runtime-lock', 'main-write-lock'].every(resourceClass => smokeOutput.includes(`canonical manifest exercises protected class ${resourceClass}`)) && smokeOutput.includes('preowned fixed path makes canonical resource sentinel fail terminally') && smokeOutput.includes('fixed-port claim removal mutation bites'),
-  injectedFailures: ['timeout kills complete descendant process group', 'failure is terminal and never retried', 'tracked project output overwrite is rejected'].every(text => smokeOutput.includes(text)),
+  injectedFailures: ['normal parent completion kills complete descendant process group', 'timeout kills complete descendant process group', 'failure is terminal and never retried', 'tracked project output overwrite is rejected'].every(text => smokeOutput.includes(text)),
   cpuSpoof: smokeOutput.includes('member stderr cannot spoof dedicated CPU timing file'),
   buildBindingEntry: smokeOutput.includes('stale source makes direct npm test fail before argument parsing with launches0')
     && smokeOutput.includes('tampered dist makes direct npm test fail before argument parsing with launches0'),

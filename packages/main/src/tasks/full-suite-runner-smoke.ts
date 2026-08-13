@@ -41,7 +41,7 @@ async function main(): Promise<void> {
   const observations = {
     aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
     mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
-    lifecycle: { normalCleanup: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
+    lifecycle: { normalCleanup: false, normalCompletionGrandchild: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
   };
   const collisionPath = join(process.cwd(), '.lattice', 'runtime', 'full-suite-fixed-sentinel');
   mkdirSync(collisionPath, { recursive: true });
@@ -300,6 +300,16 @@ async function main(): Promise<void> {
       catch (error) { diagnostic = (error as Error).message; }
       assert(diagnostic.startsWith(`${tempOwnershipLabel}:`) && diagnostic.includes(`vs ${expected}`), 'invalid temp ownership roots fail with dynamic diagnostic detail');
     }
+    const completionHeartbeat = join(root, 'completion-heartbeat');
+    writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');const child=spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');fs.writeFileSync(${JSON.stringify(completionHeartbeat)},'x');setInterval(()=>fs.appendFileSync(${JSON.stringify(completionHeartbeat)},'x'),20)`) }],{stdio:'ignore'});child.unref();for(let i=0;i<100&&!fs.existsSync(${JSON.stringify(completionHeartbeat)});i++)Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);if(!fs.existsSync(${JSON.stringify(completionHeartbeat)}))process.exit(2);\n`);
+    const completedWithGrandchild = await runEntry(entry('test:normal-completion-grandchild'), root, process.execPath);
+    assertWithDetail(completedWithGrandchild.status === 'PASS', 'normal parent completion remains PASS after descendant cleanup', `${completedWithGrandchild.status}: ${completedWithGrandchild.reason ?? 'no reason'}`);
+    for (let index = 0; index < 100 && !existsSync(completionHeartbeat); index++) await new Promise((done) => setTimeout(done, 10));
+    assert(existsSync(completionHeartbeat), 'normal completion fixture proves the grandchild started');
+    const completionBefore = readFileSync(completionHeartbeat, 'utf8').length;
+    await new Promise((done) => setTimeout(done, 100));
+    assert(readFileSync(completionHeartbeat, 'utf8').length === completionBefore, 'normal parent completion kills complete descendant process group');
+    observations.lifecycle.normalCompletionGrandchild = readFileSync(completionHeartbeat, 'utf8').length === completionBefore;
     const heartbeat = join(root, 'heartbeat');
     writeFileSync(join(root, 'run'), `const{spawn}=require('child_process'),fs=require('fs');fs.writeFileSync(${JSON.stringify(heartbeat)},'x');spawn(process.execPath,['-e',${JSON.stringify(`const fs=require('fs');setInterval(()=>fs.appendFileSync(${JSON.stringify(heartbeat)},'x'),20)`) }],{stdio:'ignore'});setInterval(()=>{},1000);\n`);
     let launches = 0;
@@ -382,7 +392,7 @@ async function main(): Promise<void> {
       }
     };
     const realInterrupted = await runRealSentinelInterrupted();
-    assert(realInterrupted.status === 'INTERRUPTED' && realInterrupted.cleanupOutcomes?.every(outcome => outcome.outcome === 'removed') && realSentinelPaths.every(path => !existsSync(path)), 'real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed');
+    assertWithDetail(realInterrupted.status === 'INTERRUPTED' && realInterrupted.cleanupOutcomes?.every(outcome => outcome.outcome === 'removed') && realSentinelPaths.every(path => !existsSync(path)), 'real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed', JSON.stringify({ status: realInterrupted.status, reason: realInterrupted.reason, cleanup: realInterrupted.cleanupOutcomes }));
     const realMissingMarker = await runRealSentinelInterrupted('missing-runtime');
     assert(realMissingMarker.status === 'FAIL' && realMissingMarker.cleanupOutcomes?.some(outcome => outcome.detail === 'missing ownership marker') && existsSync(realSentinelPaths[0]!), 'real production sentinel missing-marker mutation is retained and fails closed');
     rmSync(realSentinelPaths[0]!, { recursive: true, force: true });

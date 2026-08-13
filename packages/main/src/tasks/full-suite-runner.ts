@@ -409,13 +409,20 @@ export async function runEntry(entry: FullSuiteEntry, cwd: string, npmCommand = 
     }, entry.timeoutMs ?? DEFAULT_TIMEOUT_MS);
     child.on('error', (error) => done({ name: entry.name, status: 'FAIL', durationMs: elapsed(), output, reason: error.message }));
     child.on('exit', (code, signal) => {
+      let completionCleanupError: Error | undefined;
+      if (!interruptSignal && !schedulerCancellationReason) {
+        try { killProcessTree(child.pid); }
+        catch (error) { completionCleanupError = error as Error; }
+      }
       const timing = usePosixTime && existsSync(timingPath) ? readFileSync(timingPath, 'utf8') : '';
       const cpuMatch = timing.match(/^real\s+[0-9.]+\s*\nuser\s+([0-9.]+)\s*\nsys\s+([0-9.]+)\s*$/);
       const markerLine = output.split(/\r?\n/).find(line => line.startsWith('LATTICE_FULL_SUITE_SUMMARY='));
       let marker: { assertions?: string[]; mutations?: string[] } | undefined;
       try { marker = markerLine ? JSON.parse(markerLine.slice('LATTICE_FULL_SUITE_SUMMARY='.length)) : undefined; } catch { marker = undefined; }
-      const status = interruptError ? 'FAIL' : interruptSignal || schedulerCancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
-      const reason = interruptError ? `interrupt cleanup failed: ${interruptError.message}` : interruptSignal ? `runner received ${interruptSignal}` : schedulerCancellationReason ?? (code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`);
+      const status = interruptError || completionCleanupError ? 'FAIL' : interruptSignal || schedulerCancellationReason ? 'INTERRUPTED' : code === 0 ? 'PASS' : 'FAIL';
+      const reason = interruptError ? `interrupt cleanup failed: ${interruptError.message}`
+        : completionCleanupError ? `completion cleanup failed: ${completionCleanupError.message}`
+        : interruptSignal ? `runner received ${interruptSignal}` : schedulerCancellationReason ?? (code === 0 ? undefined : signal ? `signal ${signal}` : `exit code ${code}`);
       const outputSignatures = observedOutputSignatures(output);
       const markerAssertions = marker?.assertions ?? [];
       done({
