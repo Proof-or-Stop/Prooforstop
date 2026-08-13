@@ -456,6 +456,26 @@
         "scanEscalationReason": null
       },
       "_hash": "8e5266a3896dd67c7ddaf8b048f39310a4e56a0a899899101748d949db8ff3e1"
+    },
+    {
+      "id": "B-cdf6:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Verified fix for F-030 (commit 2cc15f0db7) on lattice-cli-migration-smoke.ts. Independently reran every claim on current HEAD f78856fe61: (1) live-ran story_create/story_advance --help, all 4 fixed match/doesNotMatch pairs correct against actual output; (2) confirmed via git show main:... these 4 assertions were the literal /lattice .../ form on clean main, proving they were this story's own regression; (3) built smoke still exits 1 at the pre-existing host-status/host-dispatch alias-rendering assertion, unrelated to the rename (confirmed independently: help | grep -icE 'host (status|dispatch)' is 0 on clean main too) -- fixed assertions remain masked-but-verified, matches what was reported, no misrepresentation; (4) reran completeness sweep grep -rEc for the pinned-lattice-in-help pattern over packages/main/src/tasks/*.ts myself: zero hits repo-wide; (5) tsc --noEmit -p packages/main clean; (6) verify-lattice-residue.mjs plain scan + --self-test both PASS (38/38); (7) decision-doc-promotion-smoke, rollout-check-smoke, flow-stability-smoke all exit 0; (8) git tree clean at f78856fe61 except this story's own framework state files. No new commits landed since the F-030 fix, so this is a scoped verification pass. On the reviewer's own offer to reorder the file so fixed assertions execute before the pre-existing failure: not required -- the host-status gap is a distinct already-triaged defect (F-029) outside this story's remit; reordering purely for reachability is an unnecessary refactor. F-030 verdict: FIXED, verified. No blocker.",
+      "createdAt": "2026-08-13T12:07:15.559Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-032",
+      "envelopeId": "2545df99159a16414140375340c0986fb8359a6fa723eed71c70c3e32c490cb8",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/lattice-cli-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1658dacf6d45306044ea3e8025a9e4634fa1d321212778ecaf5d1301dd56df5e"
     }
   ]
 }
