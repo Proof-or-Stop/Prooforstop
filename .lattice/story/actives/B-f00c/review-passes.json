@@ -357,6 +357,36 @@
         "scanEscalationReason": null
       },
       "_hash": "b4f8a5c729b6a018b312bb35446bb98fc901aac845f81e6f8c5a8b16eef71ac1"
+    },
+    {
+      "id": "B-f00c:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review at current material (HEAD 0d7da02a76, includes F-005 fix e0df48c00d). All 18 verificationIntent slots (CHK-001 x9, CHK-002 x9) remain distinctly covered by validation-reuse-merge-lineage-smoke.ts. Verified block 5 (large-diff maxBuffer case) still genuinely exercises GIT_LINEAGE_MAXBUFFER via a real unmocked override git spawn (netDiffChangedPaths, the exact same function used as classifyMergeLineage default changedPathsFn) -- the F-005 call-reduction only dedups a second identical redundant spawn by injecting the already-fetched changed-paths array into classifyMergeLineage, it does not mock away the maxBuffer-dependent git call itself. Rebuilt fresh (npm run build in packages/main, clean tsc) and re-ran the compiled smoke 35x sequential + 32x concurrent (67 total): 100% pass, zero ENOBUFS/maxBuffer errors, matching the fix commit own claim of 40 sequential + 30 concurrent clean runs. Confirmed smoke still wired into lattice.config.json validate.commands normal tier, and both consumer files (validation-evidence-reuse.ts, validation-evidence-admissibility.ts) still import classifyMergeLineage from the single shared validation-lineage.ts with zero diff-tree -m matches via grep. No coverage weakening found; no blocker.",
+      "createdAt": "2026-08-13T17:42:51.745Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-025",
+      "envelopeId": "b406225a3cae1048597283128d6ede8fae41b8a91147340570e470cf7086f7d3",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/test-evidence.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dd44691d2c6238d64ce751fcf32cad72a4e3d795a0e7cf4c7f3aeb42507ffc88"
     }
   ]
 }
