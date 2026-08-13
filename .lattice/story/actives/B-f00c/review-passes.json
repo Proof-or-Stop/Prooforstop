@@ -418,6 +418,33 @@
         "scanEscalationReason": null
       },
       "_hash": "dda01fee9dd8c470ef3934977b8ed60130dbd278b983a11c62b2c3bdbc4fe8f4"
+    },
+    {
+      "id": "B-f00c:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-attestation at current head 07ed7ff (incremental, metadata-only change since RP-013/0d7da02: finding_resolve for F-005, no code touched). Verified: checklist CHK-001/CHK-002 both done, all 5 findings (F-001-F-005) resolved, all verificationIntent items (happy/edge/adversarial) map to must-priority cli evidence via validation-reuse-merge-lineage-smoke.js. Confirmed no src/test diff since last pass (git diff --stat 0d7da02..07ed7ff touches only .lattice/story metadata), rebuilt packages/main from source (tsc clean), and re-ran node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js -> validation reuse merge-lineage smoke passed. No blocker.",
+      "createdAt": "2026-08-13T17:45:19.428Z",
+      "reviewRound": "2026-08-13T17:18:14.443Z",
+      "reviewRunId": "B-f00c:RR-027",
+      "envelopeId": "9d01d73ecf86c78770bc4de4edf73bf6063d2b5a6d47ce171dceeca927f5e14f",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/findings.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "adf8c56bd7f6c895b148a908f6e8a501eee0c70c2cec4cd56674b04331aa167a"
     }
   ]
 }
