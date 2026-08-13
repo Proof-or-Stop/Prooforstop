@@ -428,6 +428,34 @@
         "scanEscalationReason": null
       },
       "_hash": "b74b1cd18bad166d4b21d6d61fa7a01a00ba190023ad15b466767dea72978b2f"
+    },
+    {
+      "id": "B-cdf6:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review PASSED (fresh round, bound to HEAD 339138dbaa, storyFilesHash fa56287b). Audited all 36 must-intents across CHK-001..CHK-006: 35 covered by passing evidence or a correctly-typed permanent waiver, 1 (CHK-002:adversarial:1) is a deferred_gate_evidence waiver correctly excluded from mechanical coverage and pointing at independently-corroborated framework defect B-META-framework-audit:F-005 (visible gap, not laundered). Independently re-executed rather than trusted: (1) node packages/main/dist/tasks/rollout-check-smoke.js exit=0 PASS, matching the claimed re-earned receipt for CHK-002:adversarial:2 verbatim, and confirmed rollout-check-smoke.ts:112-123 asserts paired match(canonical)/doesNotMatch(deprecated) exactly as described; commit 602bf8b8dd exists with matching message. (2) node scripts/verify-lattice-residue.mjs --self-test exit=0 printing PASS lattice-residue self-test: 38/38 detector unit tests, matching the CHK-004:edge:0 waiver note verbatim; confirmed script line 553 renders a live ${n}/${n} counter (not a literal) and git log -S\"29/29\" -- scripts/verify-lattice-residue.mjs returns zero commits, proving 29/29 was never a durable/committed property so the pin is unsatisfiable-by-construction absent a test-deletion regression. Confirmed proofstory.ts rowCoversIntent (line 845-851) treats waiverType=permanent as coverage and waiverType=deferred_gate_evidence as non-coverage by design -- this waiver uses the correct instrument and does not fit the F-024 pattern (that case was a genuinely-obtainable-later obligation mislabeled to dodge visibility; this pin cannot become satisfiable again without a regression). Also independently reproduced: npx tsc --noEmit -p packages/main clean; node packages/main/dist/tasks/flow-stability-smoke.js PASS; both red-b2aa7 receipts (chk006, f005) exit 0; npm run test:lattice-residue all three checks (koala/brand-prose/brand-exec) PASS; finding_list confirms 28 findings, 0 open. No blocker found.",
+      "createdAt": "2026-08-13T05:38:27.850Z",
+      "reviewRound": "2026-08-13T05:25:24.496Z",
+      "reviewRunId": "B-cdf6:RR-027",
+      "envelopeId": "c8534412527417b4b12b7cd5b65be1b6e8b499fee1f56b49a83b42f5958aaa23",
+      "writerSessionId": "sess-c6bba4b3dfe060d4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cdf6/background.md",
+          ".lattice/story/actives/B-cdf6/checklist.json",
+          ".lattice/story/actives/B-cdf6/findings.json",
+          ".lattice/story/actives/B-cdf6/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "packages/main/tests/red/red-b2aa7-chk006-receipt.mjs",
+          "packages/main/tests/red/red-b2aa7-f005-receipt.mjs",
+          "scripts/verify-lattice-residue.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8e5266a3896dd67c7ddaf8b048f39310a4e56a0a899899101748d949db8ff3e1"
     }
   ]
 }
