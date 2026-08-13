@@ -1599,7 +1599,10 @@ function runConcurrentReviewerWriteCase(mask: number, iteration = 1, mutation?: 
       `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
     if (mutation === 'real-review-gate') {
-      const data = store.readReviewPasses(storyId); data.passes = data.passes.slice(1); store.writeReviewPasses(storyId, data);
+      const data = store.readReviewPasses(storyId);
+      data.passes = data.passes.slice(1); store.writeReviewPasses(storyId, data);
+      assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, 'real gate mutation fixture proves deleting one of multiple admissible passes is insufficient');
+      data.passes = []; store.writeReviewPasses(storyId, data);
     }
     const realReviewGate = canPassReviewGuard({ storyId, store, projectRoot: root });
     if (!mutation) assert.equal(realReviewGate, true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
