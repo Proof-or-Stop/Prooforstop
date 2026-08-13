@@ -236,6 +236,34 @@
         "scanEscalationReason": null
       },
       "_hash": "4debcc8c85717a0799518bd5f2451bbb8d27e8b2d353b518ae6c5d43c04263db"
+    },
+    {
+      "id": "B-f00c:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-004 fix verified genuine (rebuilt + ran validation-reuse-merge-lineage-smoke.js fresh, passes; independently reverted GIT_LINEAGE_MAXBUFFER to 1MiB and confirmed the same smoke crashes with uncaught ENOBUFS, restored + rebuilt clean tree). All 18 verificationIntent slots (CHK-001 x9, CHK-002 x9) have exactly one pass-result logic_test evidence each with distinct behavior-specific notes. Smoke wired into lattice.config.json validate.commands normal tier. All 4 story findings resolved/verified. No blocker.",
+      "createdAt": "2026-08-13T17:01:29.311Z",
+      "reviewRound": "2026-08-13T16:55:49.597Z",
+      "reviewRunId": "B-f00c:RR-021",
+      "envelopeId": "f2d2883ffbac79fcc9c579b661c7f2800339083c63e73cd05407c82193165803",
+      "writerSessionId": "sess-348b0b3a81297912e0437edeaee6b9d7",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f00c/background.md",
+          ".lattice/story/actives/B-f00c/checklist.json",
+          ".lattice/story/actives/B-f00c/plan.md",
+          "packages/main/src/core/validation-lineage.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9e335abe4a2b9e9eb50967032598e5d72a37abd97ded601f56d91d469b6381f4"
     }
   ]
 }
