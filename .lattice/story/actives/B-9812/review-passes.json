@@ -98,6 +98,94 @@
       },
       "readDiagnostics": [],
       "_hash": "9ff1ed35a703bb5caf4bc1357681d7adfcd74858885fd9a978a24eb489a86460"
+    },
+    {
+      "id": "B-9812:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept review at HEAD 739cd627/source f97d417 passes. F-030 is closed: current decision docs describe the 47-member generated parallel authority and the only 22-step reference is explicitly historical. F-041 is closed: the canonical runner and both verifier entrypoints enforce the generated build binding before argument parsing or spawning, with stale-source and tampered-dist launches0 smoke coverage. F-044 is closed: exact lifecycle metadata allowlists include stall-adjudication.json and scope-contract.json, while a real temporary Git fixture accepts those descendants and rejects unknown metadata. Fresh replays passed the selector self-test (11), contract (52 selectors), build binding, and runner smoke (121 assertions); the package authority contains 47 unique present members. Runner-cleanable ownership and cleanup semantics match the updated docs, and no declared sentinel, lock, cpu.time, or other reviewed resource residue remained.",
+      "createdAt": "2026-08-13T07:02:38.608Z",
+      "reviewRound": "2026-08-13T06:55:29.515Z",
+      "reviewRunId": "B-9812:RR-020",
+      "envelopeId": "a199685cc75e5dd6b2fd5321130edf8a4efb73e378f3bf87982e56727b4597fe",
+      "writerSessionId": "sess-28d26c945e9479548804e56c45aa7e84",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/session-ownership-and-write-leases.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c2d8fee1241572534429f45f889cb1487f370eca3c56230450dd863a4bf0d52c"
+      },
+      "readDiagnostics": [],
+      "_hash": "91c67adcccad089ea9ea02fdfb15367f7567d5ea6c3824f93d06792b8cf51fdb"
+    },
+    {
+      "id": "B-9812:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current HEAD 739cd627/source f97d coverage independently re-audited. Current no-arg contract replay mechanically verifies all 52 selectors (52/52 must, no waivers/gaps). F044 is closed by exact-path lifecycle/contract allowlists plus unknown-artifact negatives; F045 is closed by actual 20x6 replay/mutation receipts including an order-dependent transition from baselinePassed=true to reorderedPassed=false and six production mutation trials; F046 is closed by the current observation-derived capture and fresh 52-predicate replay. SIGTERM smoke starts a real child, precomputes cleanup ownership before spawn, removes all three token-owned fixed-path/runtime-lock/main-write-lock resources, preserves siblings, records removed outcomes, and covers outside/symlink/symlink-ancestor/foreign-nonempty/PASS-residue negatives. Identity sidecars record exact runner commands for --jobs 1,3,5 and three --jobs 4 runs; detailedAssertions/mutations comparisons are exact and deletion negatives bite. Serial=491311.861ms (oracle); jobs3=169934.764ms; jobs5=227911.469ms; jobs4 runs=231715.313/138182.123/139261.183ms, all canonical parallel runs under 300000ms.",
+      "createdAt": "2026-08-13T07:03:10.232Z",
+      "reviewRound": "2026-08-13T06:55:29.515Z",
+      "reviewRunId": "B-9812:RR-021",
+      "envelopeId": "bb2af070d0c482b88b96a4b2a20d39e054c8e68e8618ef936699cdf435b6d104",
+      "writerSessionId": "sess-90bedaff8ce291739b7bed300c05d5c5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "B-9812 checklist verificationIntent and verificationEvidence inventory",
+          "B-9812 review findings F044-F046 and resolution evidence",
+          "fresh final capture plus serial/jobs3/jobs5/jobs4 identity and output artifacts",
+          "SIGTERM cleanup and adversarial negative smoke output"
+        ],
+        "scanEscalationReason": "No decisions-directory escalation was required for this scoped coverage re-review."
+      },
+      "_hash": "2fc27efd745e9bd0bd53e0481de04297cbe32a9a30ac36df8f75be384d67b5a3"
     }
   ]
 }

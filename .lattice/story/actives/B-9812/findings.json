@@ -1488,6 +1488,51 @@
       "resolvedAt": "2026-08-13T06:55:48.051Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9812:F-047",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:166-184,368-371 can delete a pre-existing foreign empty directory on FAIL/TIMEOUT/INTERRUPT. cleanupManifestForEntry records the declared path but never proves it was absent before spawn or places a token in every owned target; cleanupOwnedTargets treats any empty directory as owned and removes it without checking ownershipToken. Reproduction against current dist: pre-create `.lattice/runtime/preexisting-empty`, run a runner-cleanable entry whose child exits 7, and the result reports cleanup outcome `removed` with `targetExistsAfter:false`. This contradicts docs/requirements/decisions/test-runner-consolidation-plan.md:18-21 and CHK-002 happy/adversarial cleanup boundaries: an external task's empty lock/root can be erased merely because the member failed to acquire it. Require an authoritative pre-spawn absence/creation receipt or a matching per-launch owner marker for every removable directory; retain any target whose ownership cannot be proven, and add an empty-foreign-target regression alongside the existing nonempty case.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-13T07:03:36.678Z",
+      "reviewRound": "2026-08-13T06:55:29.515Z",
+      "reviewRunId": "B-9812:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9812/background.md",
+          ".lattice/story/actives/B-9812/plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/full-suite-resource-sentinel.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-full-suite-contract.mjs",
+          "scripts/verify-full-suite-selector.mjs"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/tasks/full-suite-fixed-port-os-collision.ts",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/full-suite-build-binding.mjs",
+          "scripts/verify-full-suite-build-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8df8de36a2f7cd0fcde33439f4ab567551494f2b77fb8f199fba1363328882c5",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
