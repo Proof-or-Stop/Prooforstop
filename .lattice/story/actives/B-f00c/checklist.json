@@ -12,7 +12,11 @@
           {
             "desc": "Import classifyMergeLineage from validation-lineage.ts in BOTH validation-evidence-reuse.ts (classifyTrustedValidationLineage) AND validation-evidence-admissibility.ts (validationHeadLineage) -> both call the same shared function; WHY: ensures one classifier routes both copies, no divergence possible",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
+              "selector": "validation reuse merge-lineage smoke passed"
+            }
           },
           {
             "desc": "Run git diff-tree -r --no-commit-id --name-only --no-renames -z <evidenceHead> <currentHead> on a merge where only story-metadata paths changed -> net diff contains only metadata paths -> lineage classified as trusted; WHY: validates the core fix (net endpoint diff instead of per-commit -m union)",
@@ -63,16 +67,23 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "manual_transcript",
-          "verdict": "success",
-          "file": "packages/main/src/core/validation-lineage.ts",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
           "command": "node packages/main/dist/tasks/validation-reuse-merge-lineage-smoke.js",
           "result": "pass",
-          "note": "Smoke test 1 calls classifyMergeLineage, classifyTrustedValidationLineage (reuse copy) and evaluateValidationEvidenceAdmissibility (admissibility copy) on the same merge scenario; both classifier files import classifyMergeLineage from validation-lineage.js. Smoke exits 0.",
-          "headHash": "03429314209ba7cdeea7ee8623e056d5a925f1a0",
-          "materialHash": "d3ec440a6e096784e30af1b64cecbd01fb9d0278142a587d9914c31a6ea5d8a2",
-          "storyFilesHash": "0a3e998df9c1e0d652951142499fa085140c89d5df2007e6875b464e38afa089",
-          "timestamp": "2026-07-26T11:13:47.226Z"
+          "note": "validation-reuse-merge-lineage-smoke passes after merging main (behind=0).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "401381a1a382ab6b72550006d120dbf7c4a06ceea440275dcaa5999455b46a18",
+            "outputTail": "validation reuse merge-lineage smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-13T15:55:21.800Z"
+          },
+          "headHash": "9c63f0af0bf2e90d24039233c1b14ced072f3e87",
+          "materialHash": "c1c43992c22b84458877583f2fe6b5f0a723b4a5f2b0ab1ac984eda800f56def",
+          "storyFilesHash": "8130dbc8824b84a2863d3282b28c2c3ace18b361bf0a0b643e4d30e2082e5bb2",
+          "timestamp": "2026-08-13T15:55:22.046Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
